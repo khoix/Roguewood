@@ -1,6 +1,6 @@
 # E02 rules worker handoff
 
-Status: REVIEW — coordinator must integrate and complete shared contract/CI validation.
+Status: DONE — coordinator integrated, independently reviewed, and validated in CI40245188289. See E02.md for final acceptance evidence.
 Owner: e02_rules. Branch: codex/roguewood-e02-rules.
 Base: f3cf20513906e0bec534fde84df25538969b3ac7.
 Exclusive paths: src/rules, tests/rules_test.gd, this handoff.

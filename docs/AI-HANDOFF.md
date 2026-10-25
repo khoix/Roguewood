@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-10-25. State: E01 DONE; E02 REVIEW.
+Updated: 2026-10-25. State: E01/E02 DONE; E03 READY.
 
 ## Read first
 
@@ -16,8 +16,8 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - Integration branch: `codex/roguewood-build`; coordinator: Codex.
 - E01 DONE: implementation, independent review, clean-checkout export, and remote CI passed. No gameplay implemented.
 - Source baseline: main 30d76547ec2f49fa3b1be609f146cdd7b913695d; claim commit f63ea6ca6f08357f6b2c32587811ad49ff5f17d9.
-- E02 implemented and reviewed: see handoffs/E02.md and CONTRACTS.md. Await remote CI and final acceptance checkpoint.
-- Next pending execution after acceptance: E03 — application shell and E2E harness; proposed effort High. Reuse contracts and qa runner.
+- E02 DONE: implementation cdb48595fe28d08e9c1bf20333b63061dcc49412; independent review and CI40245188289 PASS. See handoffs/E02.md and CONTRACTS.md.
+- Next execution: E03 — application shell and E2E harness; proposed effort High. Reuse contracts and qa runner.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
@@ -33,8 +33,8 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | Family | State | Owner | Worker branch | Evidence / blocker |
 |---|---|---|---|---|
 | E01 — Architecture and project bootstrap | DONE | Codex | codex/roguewood-build | f50f916; CI 40230415594 PASS; E01 handoff |
-| E02 — Headless rules and content contracts | REVIEW | Codex | codex/roguewood-build | Local tests + independent review PASS; CI pending |
-| E03 — Application shell and E2E harness | NOT_STARTED | unassigned | — | See dependency graph |
+| E02 — Headless rules and content contracts | DONE | Codex | codex/roguewood-build | cdb4859; CI40245188289 PASS; E02 handoff |
+| E03 — Application shell and E2E harness | READY | unassigned | — | E01/E02 accepted; proposed effort High |
 | E04 — Straight throw and pin collision lab | NOT_STARTED | unassigned | — | See dependency graph |
 | E05 — Spin, curve, and mobile gesture feel | NOT_STARTED | unassigned | — | See dependency graph |
 | E06 — Frame scoring and readable resolution | NOT_STARTED | unassigned | — | See dependency graph |
@@ -64,9 +64,9 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 
 ## Active claims and ownership
 
-E02: coordinator Codex; base `123e5f1c3455cb2bc54178a21ac5a3b2344c7113`; integration branch `codex/roguewood-build`. Scope: versioned IDs/content schema, launch/result contracts, ordered scoring fixtures and headless validation. Coordinator exclusively owns src/contracts, content, tests/contracts_test.gd, tests/run_tests.gd, tools/qa.py, CI, docs and AGENTS. Rules worker e02_rules owns src/rules, tests/rules_test.gd and docs/handoffs/E02-rules.md on separate branch/worktree codex/roguewood-e02-rules. Independent reviewer e02_review is read-only. No physics/UI work. Budget 75% × 20 = 15 minutes; start 23:13:20Z; save cutoff 23:24:20Z; hard stop 23:28:20Z.
+No active claims or worker edits. E02 coordinator Codex and rules worker e02_rules completed their scopes; e02_review independently accepted the implementation. Rules branch `codex/roguewood-e02-rules` is published at `95d46c59ca4d5381d3309d309d1bf32d4e11a266` and integrated in the persistent build branch. E02 claim base `f3cf20513906e0bec534fde84df25538969b3ac7`; accepted code `cdb48595fe28d08e9c1bf20333b63061dcc49412`. Claims released after CI success.
 
-Continuation: user35% budget; start23:29:35Z, save cutoff23:32:35Z, hard stop23:36:35Z. Worker implementation/review complete; coordinator finalizing.
+Budgets: original75% ×20=15min; continuation user35% ×20=7min, start23:29:35Z/save cutoff23:32:35Z/hard stop23:36:35Z. Finalization stayed within continuation budget. E03 requires a new claim, not an implicit continuation.
 
 Standing reporting preference: at the end of each milestone, state the proposed effort level for the next pending milestone. E03 proposed effort: High.
 
@@ -81,10 +81,10 @@ Content registry: content/catalogue.json is empty by design; E02 defines validat
 - PASS: official editor/export-template SHA512 verification.
 - PASS: `python3 tools/qa.py doctor`, `smoke`, and `export` under Godot 4.5.2.stable.official.6ce3de25a / Python 3.12.14 / Linux x86-64. Source and exported scene emit ROGUEWOOD_BOOT_OK.
 - PASS: Python compile and git diff --check; independent read-only review.
-- Implementation/tested code SHA: `f50f91627ae7fa5e088ebcadbca1c8a9f8a5eee6`. CI PASS: https://github.com/khoix/Roguewood/actions/runs/40230415594 (Ubuntu 24.04; doctor, source smoke, Linux export/startup).
+- E01 implementation/tested code SHA: `f50f91627ae7fa5e088ebcadbca1c8a9f8a5eee6`. CI PASS: https://github.com/khoix/Roguewood/actions/runs/40230415594 (Ubuntu 24.04; doctor, source smoke, Linux export/startup).
 - Clean detached checkout of identical implementation tree: export/startup PASS. `qa.py e2e` correctly returns failure rather than claiming a nonexistent suite.
 - Saved through GitHub connector after local Git HTTPS push lacked credentials; local branch synchronized to verified remote with identical tree.
-- E02 PASS: unit, content, contract integration, smoke, Python compile, diff checks; reviewer independently reran unit/integration. Remote CI pending.
+- E02 PASS: unit, content, contract integration, smoke, Python compile, diff checks; reviewer independently reran unit/integration and accepted final numeric-identity fix. Code cdb48595fe28d08e9c1bf20333b63061dcc49412; CI PASS https://github.com/khoix/Roguewood/actions/runs/40245188289 (includes Linux debug export/startup).
 - Gameplay E2E: NOT RUN; E03 implements it. Contract tests and startup smoke are not gameplay E2E.
 - Native iOS/Android/Windows, physical device feel, visual review and balance: NOT VALIDATED; assigned later.
 
