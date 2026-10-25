@@ -17,7 +17,8 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - E01 DONE: implementation, independent review, clean-checkout export, and remote CI passed. No gameplay implemented.
 - Source baseline: main 30d76547ec2f49fa3b1be609f146cdd7b913695d; claim commit f63ea6ca6f08357f6b2c32587811ad49ff5f17d9.
 - E02 DONE: implementation cdb48595fe28d08e9c1bf20333b63061dcc49412; independent review and CI40245188289 PASS. See handoffs/E02.md and CONTRACTS.md.
-- Next execution: E03 — application shell and E2E harness; proposed effort High. Reuse contracts and qa runner.
+- E03 IN_PROGRESS: menu/test-session/reset and native button-input smoke implemented; see handoffs/E03.md. Full J01, screenshots, failure/timeout artifacts and CI harness integration remain.
+- Next execution: continue E03; proposed effort High. Reuse current shell/contracts/qa runner.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
@@ -64,7 +65,7 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 
 ## Active claims and ownership
 
-E03 active claim: Codex owns src/bootstrap, tests/shell_smoke.gd, tools/qa.py, docs/AI-HANDOFF.md and docs/handoffs/E03.md on codex/roguewood-build; base a639d41540abd23c4e1d002f1af653c507b81930. Scope boot/menu/test-session/reset only this increment; no physics or scoring changes. Review by coordinator; independent acceptance remains required before DONE. Budget20%=4min, user overrides save reserve to2min; start23:39:37Z, cutoff23:41:37Z, hard stop23:43:37Z. No worker dispatched. E02 coordinator Codex and rules worker e02_rules completed their scopes; e02_review independently accepted the implementation. Rules branch `codex/roguewood-e02-rules` is published at `95d46c59ca4d5381d3309d309d1bf32d4e11a266` and integrated in the persistent build branch. E02 claim base `f3cf20513906e0bec534fde84df25538969b3ac7`; accepted code `cdb48595fe28d08e9c1bf20333b63061dcc49412`. Claims released after CI success.
+E03 checkpointed claim (released on save; no worker edits): Codex owned src/bootstrap, tests/shell_smoke.gd, tools/qa.py, docs/AI-HANDOFF.md and docs/handoffs/E03.md on codex/roguewood-build; base a639d41540abd23c4e1d002f1af653c507b81930. Scope boot/menu/test-session/reset only this increment; no physics or scoring changes. Independent reviewer e02_review accepted this partial increment and reran shell smoke; full milestone acceptance remains required before DONE. Budget20%=4min, user overrides save reserve to2min; start23:39:37Z, cutoff23:41:37Z, hard stop23:43:37Z. No worker dispatched. E02 coordinator Codex and rules worker e02_rules completed their scopes; e02_review independently accepted the implementation. Rules branch `codex/roguewood-e02-rules` is published at `95d46c59ca4d5381d3309d309d1bf32d4e11a266` and integrated in the persistent build branch. E02 claim base `f3cf20513906e0bec534fde84df25538969b3ac7`; accepted code `cdb48595fe28d08e9c1bf20333b63061dcc49412`. Claims released after CI success.
 
 Budgets: original75% ×20=15min; continuation user35% ×20=7min, start23:29:35Z/save cutoff23:32:35Z/hard stop23:36:35Z. Finalization stayed within continuation budget. E03 requires a new claim, not an implicit continuation.
 
@@ -85,7 +86,7 @@ Content registry: content/catalogue.json is empty by design; E02 defines validat
 - Clean detached checkout of identical implementation tree: export/startup PASS. `qa.py e2e` correctly returns failure rather than claiming a nonexistent suite.
 - Saved through GitHub connector after local Git HTTPS push lacked credentials; local branch synchronized to verified remote with identical tree.
 - E02 PASS: unit, content, contract integration, smoke, Python compile, diff checks; reviewer independently reran unit/integration and accepted final numeric-identity fix. Code cdb48595fe28d08e9c1bf20333b63061dcc49412; CI PASS https://github.com/khoix/Roguewood/actions/runs/40245188289 (includes Linux debug export/startup).
-- Gameplay E2E: NOT RUN; E03 implements it. Contract tests and startup smoke are not gameplay E2E.
+- E03 partial native shell-input smoke and startup smoke PASS. Full J01/gameplay E2E: NOT RUN; E03 continues it. Contract tests and startup smoke are not gameplay E2E.
 - Native iOS/Android/Windows, physical device feel, visual review and balance: NOT VALIDATED; assigned later.
 
 ## Blockers and limitations
@@ -97,4 +98,3 @@ No local bootstrap blocker. Native Apple toolchain/signing and mobile hardware n
 Workers copy AGENT-TASK-TEMPLATE.md to docs/handoffs/<task-id>.md on their own branch. Push code and handoff together; send coordinator branch/SHA and validation summary. Coordinator reviews and integrates, records the integrated code SHA and relevant test evidence, clears stale claims, updates the next action, and pushes checkpoint. Preserve unfinished tasks honestly; no running diary.
 
 Do not insert the checkpoint's own future commit SHA. Record already-known implementation commits; the Git history identifies the checkpoint commit. On resume inspect remote changes before accepting an old ownership claim. Stop after the assigned execution is durably saved.
-

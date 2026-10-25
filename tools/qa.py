@@ -20,9 +20,12 @@ def engine():
     return executable
 
 
-def run(args, marker=None):
+def run(args, marker=None, log_path=None):
     result = subprocess.run(args, cwd=ROOT, capture_output=True, text=True, timeout=120)
     output = result.stdout + result.stderr
+    if log_path:
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        log_path.write_text(output)
     print(output, end="")
     if result.returncode or "SCRIPT ERROR:" in output or "ERROR:" in output:
         raise RuntimeError(f"Command failed: {args}")
@@ -32,7 +35,7 @@ def run(args, marker=None):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["doctor", "import", "smoke", "export", "unit", "integration", "content", "e2e"])
+    parser.add_argument("command", choices=["doctor", "import", "smoke", "export", "unit", "integration", "content", "shell", "e2e"])
     args = parser.parse_args()
     if args.command == "e2e":
         raise RuntimeError(f"{args.command} is not implemented yet; see E02/E03")
@@ -43,6 +46,8 @@ def main():
     run([exe, "--headless", "--path", str(ROOT), "--editor", "--import"])
     if args.command in ("unit", "content", "integration"):
         run([exe, "--headless", "--path", str(ROOT), "--script", "res://tests/run_tests.gd", "--", args.command], "ROGUEWOOD_" + args.command.upper() + "_OK")
+    elif args.command == "shell":
+        run([exe, "--headless", "--path", str(ROOT), "--script", "res://tests/shell_smoke.gd"], "ROGUEWOOD_SHELL_OK", ROOT / "artifacts/e03/shell.log")
     elif args.command == "smoke":
         run([exe, "--headless", "--path", str(ROOT), "--", "--bootstrap-smoke"], "ROGUEWOOD_BOOT_OK")
     elif args.command == "export":
