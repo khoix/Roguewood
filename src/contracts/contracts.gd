@@ -25,9 +25,9 @@ static func validate(kind: String, record: Variant) -> Array[String]:
 	elif kind == "roll_result":
 		var seen := {}
 		for position in record.fallen_positions:
-			if seen.has(position):
+			if seen.has(int(position)):
 				errors.append("Duplicate fallen position: " + str(position))
-			seen[position] = true
+			seen[int(position)] = true
 	elif kind == "launch":
 		var length_squared: float = record.direction_x * record.direction_x + record.direction_forward * record.direction_forward
 		if absf(length_squared - 1.0) > 0.0001:

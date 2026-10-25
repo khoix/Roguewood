@@ -36,7 +36,7 @@ static func run() -> Array[String]:
 	incomplete.items[0].completeness.integrated = true
 	_expect(not Contracts.validate("catalogue", incomplete).is_empty(), "false completeness", failures)
 	var result = Contracts.read_json("res://content/fixtures/roll_result.json")
-	result.fallen_positions = [1, 1]
+	result.fallen_positions = [1, 1.0]
 	_expect(not Contracts.validate("roll_result", result).is_empty(), "duplicate pin outcome", failures)
 	var launch = Contracts.read_json("res://content/fixtures/launch.json")
 	launch.direction_x = 1
