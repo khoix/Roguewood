@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-10-25. State: E01/E02 DONE; E03 READY.
+Updated: 2026-10-25. State: E01/E02 DONE; E03 IN_PROGRESS.
 
 ## Read first
 
@@ -34,7 +34,7 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 |---|---|---|---|---|
 | E01 — Architecture and project bootstrap | DONE | Codex | codex/roguewood-build | f50f916; CI 40230415594 PASS; E01 handoff |
 | E02 — Headless rules and content contracts | DONE | Codex | codex/roguewood-build | cdb4859; CI40245188289 PASS; E02 handoff |
-| E03 — Application shell and E2E harness | READY | unassigned | — | E01/E02 accepted; proposed effort High |
+| E03 — Application shell and E2E harness | IN_PROGRESS | Codex | codex/roguewood-build | Shell increment; E2E completion pending |
 | E04 — Straight throw and pin collision lab | NOT_STARTED | unassigned | — | See dependency graph |
 | E05 — Spin, curve, and mobile gesture feel | NOT_STARTED | unassigned | — | See dependency graph |
 | E06 — Frame scoring and readable resolution | NOT_STARTED | unassigned | — | See dependency graph |
@@ -64,7 +64,7 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 
 ## Active claims and ownership
 
-No active claims or worker edits. E02 coordinator Codex and rules worker e02_rules completed their scopes; e02_review independently accepted the implementation. Rules branch `codex/roguewood-e02-rules` is published at `95d46c59ca4d5381d3309d309d1bf32d4e11a266` and integrated in the persistent build branch. E02 claim base `f3cf20513906e0bec534fde84df25538969b3ac7`; accepted code `cdb48595fe28d08e9c1bf20333b63061dcc49412`. Claims released after CI success.
+E03 active claim: Codex owns src/bootstrap, tests/shell_smoke.gd, tools/qa.py, docs/AI-HANDOFF.md and docs/handoffs/E03.md on codex/roguewood-build; base a639d41540abd23c4e1d002f1af653c507b81930. Scope boot/menu/test-session/reset only this increment; no physics or scoring changes. Review by coordinator; independent acceptance remains required before DONE. Budget20%=4min, user overrides save reserve to2min; start23:39:37Z, cutoff23:41:37Z, hard stop23:43:37Z. No worker dispatched. E02 coordinator Codex and rules worker e02_rules completed their scopes; e02_review independently accepted the implementation. Rules branch `codex/roguewood-e02-rules` is published at `95d46c59ca4d5381d3309d309d1bf32d4e11a266` and integrated in the persistent build branch. E02 claim base `f3cf20513906e0bec534fde84df25538969b3ac7`; accepted code `cdb48595fe28d08e9c1bf20333b63061dcc49412`. Claims released after CI success.
 
 Budgets: original75% ×20=15min; continuation user35% ×20=7min, start23:29:35Z/save cutoff23:32:35Z/hard stop23:36:35Z. Finalization stayed within continuation budget. E03 requires a new claim, not an implicit continuation.
 
@@ -97,3 +97,4 @@ No local bootstrap blocker. Native Apple toolchain/signing and mobile hardware n
 Workers copy AGENT-TASK-TEMPLATE.md to docs/handoffs/<task-id>.md on their own branch. Push code and handoff together; send coordinator branch/SHA and validation summary. Coordinator reviews and integrates, records the integrated code SHA and relevant test evidence, clears stale claims, updates the next action, and pushes checkpoint. Preserve unfinished tasks honestly; no running diary.
 
 Do not insert the checkpoint's own future commit SHA. Record already-known implementation commits; the Git history identifies the checkpoint commit. On resume inspect remote changes before accepting an old ownership claim. Stop after the assigned execution is durably saved.
+
