@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-10-25. State: E01 DONE; E02 READY.
+Updated: 2026-10-25. State: E01 DONE; E02 IN_PROGRESS.
 
 ## Read first
 
@@ -32,7 +32,7 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | Family | State | Owner | Worker branch | Evidence / blocker |
 |---|---|---|---|---|
 | E01 — Architecture and project bootstrap | DONE | Codex | codex/roguewood-build | f50f916; CI 40230415594 PASS; E01 handoff |
-| E02 — Headless rules and content contracts | READY | unassigned | — | E01 accepted |
+| E02 — Headless rules and content contracts | IN_PROGRESS | Codex | codex/roguewood-build | E01 accepted; claim below |
 | E03 — Application shell and E2E harness | NOT_STARTED | unassigned | — | See dependency graph |
 | E04 — Straight throw and pin collision lab | NOT_STARTED | unassigned | — | See dependency graph |
 | E05 — Spin, curve, and mobile gesture feel | NOT_STARTED | unassigned | — | See dependency graph |
@@ -63,7 +63,9 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 
 ## Active claims and ownership
 
-E01: Codex owns project.godot, export_presets.cfg, src/bootstrap, tools, CI, bootstrap ADR/development docs, README, AGENTS, and checkpoint. Read-only reviewer: e01_review, no blocking defects; documentation fix applied. No competing workers. Claim released after CI success; no active workers. Budget: 54% × 20 = 10.8 minutes; start 20:17:20Z, save cutoff 20:24:08Z, hard stop 20:28:08Z.
+E02: coordinator Codex; base `123e5f1c3455cb2bc54178a21ac5a3b2344c7113`; integration branch `codex/roguewood-build`. Scope: versioned IDs/content schema, launch/result contracts, ordered scoring fixtures and headless validation. Coordinator exclusively owns src/contracts, content, tests/contracts_test.gd, tests/run_tests.gd, tools/qa.py, CI, docs and AGENTS. Rules worker e02_rules owns src/rules, tests/rules_test.gd and docs/handoffs/E02-rules.md on separate branch/worktree codex/roguewood-e02-rules. Independent reviewer e02_review is read-only. No physics/UI work. Budget 75% × 20 = 15 minutes; start 23:13:20Z; save cutoff 23:24:20Z; hard stop 23:28:20Z.
+
+Standing reporting preference: at the end of each milestone, state the proposed effort level for the next pending milestone. E03 proposed effort: High.
 
 ## Batch queue and content completeness
 
