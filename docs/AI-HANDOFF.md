@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-10-25. State: E01 REVIEW.
+Updated: 2026-10-25. State: E01 DONE; E02 READY.
 
 ## Read first
 
@@ -14,9 +14,9 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 ## Current state
 
 - Integration branch: `codex/roguewood-build`; coordinator: Codex.
-- E01 implementation finished; REVIEW pending remote CI. No gameplay implemented.
+- E01 DONE: implementation, independent review, clean-checkout export, and remote CI passed. No gameplay implemented.
 - Source baseline: main 30d76547ec2f49fa3b1be609f146cdd7b913695d; claim commit f63ea6ca6f08357f6b2c32587811ad49ff5f17d9.
-- Next action: verify bootstrap CI on implementation commit; then mark E01 DONE and E02 READY. Do not start E02 in this session.
+- Next execution: E02 — Headless rules and content contracts. Fetch codex/roguewood-build; read ADR 001, claim E02 and define versioned item/event schemas and plain-data scoring fixtures. Do not recreate bootstrap.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
@@ -31,8 +31,8 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 
 | Family | State | Owner | Worker branch | Evidence / blocker |
 |---|---|---|---|---|
-| E01 — Architecture and project bootstrap | REVIEW | Codex | codex/roguewood-build | Local import/startup/export PASS; remote CI pending |
-| E02 — Headless rules and content contracts | NOT_STARTED | unassigned | — | See dependency graph |
+| E01 — Architecture and project bootstrap | DONE | Codex | codex/roguewood-build | f50f916; CI 40230415594 PASS; E01 handoff |
+| E02 — Headless rules and content contracts | READY | unassigned | — | E01 accepted |
 | E03 — Application shell and E2E harness | NOT_STARTED | unassigned | — | See dependency graph |
 | E04 — Straight throw and pin collision lab | NOT_STARTED | unassigned | — | See dependency graph |
 | E05 — Spin, curve, and mobile gesture feel | NOT_STARTED | unassigned | — | See dependency graph |
@@ -63,7 +63,7 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 
 ## Active claims and ownership
 
-E01: Codex owns project.godot, export_presets.cfg, src/bootstrap, tools, CI, bootstrap ADR/development docs, README, AGENTS, and checkpoint. Read-only reviewer: e01_review, no blocking defects; documentation fix applied. No competing workers. Release claim when remote CI completes. Budget: 54% × 20 = 10.8 minutes; start 20:17:20Z, save cutoff 20:24:08Z, hard stop 20:28:08Z.
+E01: Codex owns project.godot, export_presets.cfg, src/bootstrap, tools, CI, bootstrap ADR/development docs, README, AGENTS, and checkpoint. Read-only reviewer: e01_review, no blocking defects; documentation fix applied. No competing workers. Claim released after CI success; no active workers. Budget: 54% × 20 = 10.8 minutes; start 20:17:20Z, save cutoff 20:24:08Z, hard stop 20:28:08Z.
 
 ## Batch queue and content completeness
 
@@ -76,7 +76,9 @@ Content manifest: not created; E02 defines schema, E17 populates it. All product
 - PASS: official editor/export-template SHA512 verification.
 - PASS: `python3 tools/qa.py doctor`, `smoke`, and `export` under Godot 4.5.2.stable.official.6ce3de25a / Python 3.12.14 / Linux x86-64. Source and exported scene emit ROGUEWOOD_BOOT_OK.
 - PASS: Python compile and git diff --check; independent read-only review.
-- Remote CI: pending; see next checkpoint update for exact implementation SHA and run outcome.
+- Implementation/tested code SHA: `f50f91627ae7fa5e088ebcadbca1c8a9f8a5eee6`. CI PASS: https://github.com/khoix/Roguewood/actions/runs/40230415594 (Ubuntu 24.04; doctor, source smoke, Linux export/startup).
+- Clean detached checkout of identical implementation tree: export/startup PASS. `qa.py e2e` correctly returns failure rather than claiming a nonexistent suite.
+- Saved through GitHub connector after local Git HTTPS push lacked credentials; local branch synchronized to verified remote with identical tree.
 - Gameplay suites / E2E: NOT RUN; E02/E03 implement these. Startup smoke is not gameplay E2E.
 - Native iOS/Android/Windows, physical device feel, visual review and balance: NOT VALIDATED; assigned later.
 
