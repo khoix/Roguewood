@@ -1,4 +1,4 @@
-"""E01 verification. Future commands must fail rather than imply passing suites."""
+"""Roguewood headless verification; unimplemented suites fail explicitly."""
 import argparse
 import os
 from pathlib import Path
@@ -34,14 +34,16 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=["doctor", "import", "smoke", "export", "unit", "integration", "content", "e2e"])
     args = parser.parse_args()
-    if args.command in ("unit", "integration", "content", "e2e"):
+    if args.command == "e2e":
         raise RuntimeError(f"{args.command} is not implemented yet; see E02/E03")
     exe = engine()
     if args.command == "doctor":
         print(f"Godot {VERSION}; Python {sys.version.split()[0]}; project={ROOT}")
         return
     run([exe, "--headless", "--path", str(ROOT), "--editor", "--import"])
-    if args.command == "smoke":
+    if args.command in ("unit", "content", "integration"):
+        run([exe, "--headless", "--path", str(ROOT), "--script", "res://tests/run_tests.gd", "--", args.command], "ROGUEWOOD_" + args.command.upper() + "_OK")
+    elif args.command == "smoke":
         run([exe, "--headless", "--path", str(ROOT), "--", "--bootstrap-smoke"], "ROGUEWOOD_BOOT_OK")
     elif args.command == "export":
         target = ROOT / "build/linux/roguewood.x86_64"

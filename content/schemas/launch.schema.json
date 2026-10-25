@@ -1,0 +1,73 @@
+{
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "enum": [
+        1
+      ]
+    },
+    "launch_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ball_id": {
+      "type": "string",
+      "pattern": "^ball\\.[a-z][a-z0-9_]*$"
+    },
+    "roll_index": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 2
+    },
+    "start_x": {
+      "type": "number",
+      "minimum": -1,
+      "maximum": 1
+    },
+    "direction_x": {
+      "type": "number",
+      "minimum": -1,
+      "maximum": 1
+    },
+    "direction_forward": {
+      "type": "number",
+      "minimum": 1e-06,
+      "maximum": 1
+    },
+    "power": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "spin": {
+      "type": "number",
+      "minimum": -1,
+      "maximum": 1
+    },
+    "target_x": {
+      "type": "number",
+      "minimum": -1,
+      "maximum": 1
+    },
+    "ring_radius": {
+      "type": "number",
+      "minimum": 0.001,
+      "maximum": 1
+    }
+  },
+  "required": [
+    "schema_version",
+    "launch_id",
+    "ball_id",
+    "roll_index",
+    "start_x",
+    "direction_x",
+    "direction_forward",
+    "power",
+    "spin",
+    "target_x",
+    "ring_radius"
+  ],
+  "additionalProperties": false
+}

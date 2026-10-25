@@ -1,0 +1,52 @@
+{
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "enum": [
+        1
+      ]
+    },
+    "launch_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ball_id": {
+      "type": "string",
+      "pattern": "^ball\\.[a-z][a-z0-9_]*$"
+    },
+    "roll_index": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 2
+    },
+    "fallen_positions": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 10
+      },
+      "minItems": 0,
+      "maxItems": 10
+    },
+    "accuracy": {
+      "type": "string",
+      "enum": [
+        "miss",
+        "clean",
+        "sweet",
+        "perfect"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "launch_id",
+    "ball_id",
+    "roll_index",
+    "fallen_positions",
+    "accuracy"
+  ],
+  "additionalProperties": false
+}

@@ -29,5 +29,8 @@ jobs:
       - name: Verify editor import, startup, and exported build
         run: |
           python3 tools/qa.py doctor
+          python3 tools/qa.py unit
+          python3 tools/qa.py content
+          python3 tools/qa.py integration
           python3 tools/qa.py smoke
           python3 tools/qa.py export

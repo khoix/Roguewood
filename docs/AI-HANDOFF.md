@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-10-25. State: E01 DONE; E02 IN_PROGRESS.
+Updated: 2026-10-25. State: E01 DONE; E02 REVIEW.
 
 ## Read first
 
@@ -16,7 +16,8 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - Integration branch: `codex/roguewood-build`; coordinator: Codex.
 - E01 DONE: implementation, independent review, clean-checkout export, and remote CI passed. No gameplay implemented.
 - Source baseline: main 30d76547ec2f49fa3b1be609f146cdd7b913695d; claim commit f63ea6ca6f08357f6b2c32587811ad49ff5f17d9.
-- Next execution: E02 — Headless rules and content contracts. Fetch codex/roguewood-build; read ADR 001, claim E02 and define versioned item/event schemas and plain-data scoring fixtures. Do not recreate bootstrap.
+- E02 implemented and reviewed: see handoffs/E02.md and CONTRACTS.md. Await remote CI and final acceptance checkpoint.
+- Next pending execution after acceptance: E03 — application shell and E2E harness; proposed effort High. Reuse contracts and qa runner.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
@@ -32,7 +33,7 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | Family | State | Owner | Worker branch | Evidence / blocker |
 |---|---|---|---|---|
 | E01 — Architecture and project bootstrap | DONE | Codex | codex/roguewood-build | f50f916; CI 40230415594 PASS; E01 handoff |
-| E02 — Headless rules and content contracts | IN_PROGRESS | Codex | codex/roguewood-build | E01 accepted; claim below |
+| E02 — Headless rules and content contracts | REVIEW | Codex | codex/roguewood-build | Local tests + independent review PASS; CI pending |
 | E03 — Application shell and E2E harness | NOT_STARTED | unassigned | — | See dependency graph |
 | E04 — Straight throw and pin collision lab | NOT_STARTED | unassigned | — | See dependency graph |
 | E05 — Spin, curve, and mobile gesture feel | NOT_STARTED | unassigned | — | See dependency graph |
@@ -65,13 +66,15 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 
 E02: coordinator Codex; base `123e5f1c3455cb2bc54178a21ac5a3b2344c7113`; integration branch `codex/roguewood-build`. Scope: versioned IDs/content schema, launch/result contracts, ordered scoring fixtures and headless validation. Coordinator exclusively owns src/contracts, content, tests/contracts_test.gd, tests/run_tests.gd, tools/qa.py, CI, docs and AGENTS. Rules worker e02_rules owns src/rules, tests/rules_test.gd and docs/handoffs/E02-rules.md on separate branch/worktree codex/roguewood-e02-rules. Independent reviewer e02_review is read-only. No physics/UI work. Budget 75% × 20 = 15 minutes; start 23:13:20Z; save cutoff 23:24:20Z; hard stop 23:28:20Z.
 
+Continuation: user35% budget; start23:29:35Z, save cutoff23:32:35Z, hard stop23:36:35Z. Worker implementation/review complete; coordinator finalizing.
+
 Standing reporting preference: at the end of each milestone, state the proposed effort level for the next pending milestone. E03 proposed effort: High.
 
 ## Batch queue and content completeness
 
 No batches allocated yet. Coordinator allocates E17-Dxx / E18-Cxx / E19-Axx / E20-Vxx / E21-Rxx / E22-Lxx / E26-Pxx with explicit scopes. Expected content totals: 24 balls, 32 pins, 16 ball modifications, 16 pin modifications, 100 Charms, 24 consumables, 16 shop upgrades, 12 lane conditions, 20 boss rules, 10 kits; six League specs separate.
 
-Content manifest: not created; E02 defines schema, E17 populates it. All production counts currently unverified/not implemented. Track authored, mechanics, tests, artwork, VFX/audio, unlocks, and integration independently. Do not count examples in the design as finished content.
+Content registry: content/catalogue.json is empty by design; E02 defines validated schema/completeness fields, E17 populates production items. Fixtures are excluded from release counts. All production counts currently unverified/not implemented. Track authored, mechanics, tests, artwork, VFX/audio, unlocks, and integration independently. Do not count examples in the design as finished content.
 
 ## Validation
 
@@ -81,12 +84,13 @@ Content manifest: not created; E02 defines schema, E17 populates it. All product
 - Implementation/tested code SHA: `f50f91627ae7fa5e088ebcadbca1c8a9f8a5eee6`. CI PASS: https://github.com/khoix/Roguewood/actions/runs/40230415594 (Ubuntu 24.04; doctor, source smoke, Linux export/startup).
 - Clean detached checkout of identical implementation tree: export/startup PASS. `qa.py e2e` correctly returns failure rather than claiming a nonexistent suite.
 - Saved through GitHub connector after local Git HTTPS push lacked credentials; local branch synchronized to verified remote with identical tree.
-- Gameplay suites / E2E: NOT RUN; E02/E03 implement these. Startup smoke is not gameplay E2E.
+- E02 PASS: unit, content, contract integration, smoke, Python compile, diff checks; reviewer independently reran unit/integration. Remote CI pending.
+- Gameplay E2E: NOT RUN; E03 implements it. Contract tests and startup smoke are not gameplay E2E.
 - Native iOS/Android/Windows, physical device feel, visual review and balance: NOT VALIDATED; assigned later.
 
 ## Blockers and limitations
 
-No local bootstrap blocker. Native Apple toolchain/signing and mobile hardware not available in this Linux execution. All gameplay, production visuals and content remain unfinished. Current title fixture is developer scaffolding only.
+No local bootstrap blocker. Native Apple toolchain/signing and mobile hardware not available in this Linux execution. Gameplay interaction, production visuals and content remain unfinished; pure frame rules/contracts now exist. Current title fixture is developer scaffolding only.
 
 ## Session handoff protocol
 
