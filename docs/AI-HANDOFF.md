@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-10-25. State: PLANNING COMPLETE; GAME IMPLEMENTATION NOT STARTED.
+Updated: 2026-10-25. State: E01 IN_PROGRESS.
 
 ## Read first
 
@@ -14,8 +14,8 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 ## Current state
 
 - Planning documents created; repository previously contained README.md and game design only.
-- Integration branch: NOT CREATED. E01 records exact `<agent_name>/roguewood-build` after executor is selected.
-- Coordinator: unassigned. No active workers, task claims, worktrees, or implementation commits.
+- Integration branch: `codex/roguewood-build`.
+- Coordinator/owner: Codex. E01 claimed; review by independent agent after changes. Exclusive paths: project.godot, src/bootstrap/, tools/, .github/workflows/, .gitignore, docs/decisions/, docs/DEVELOPMENT.md, docs/handoffs/E01.md, README.md, AGENTS.md, and this checkpoint. Base SHA: 30d76547ec2f49fa3b1be609f146cdd7b913695d. No item catalogue scope. Start: 2026-10-25T20:17:20Z. Save cutoff: 20:24:08Z; hard stop: 20:28:08Z.
 - Last integrated implementation SHA: none. Last verified test SHA: none.
 - Next executable task: **E01 — Architecture and project bootstrap**, High effort.
 - Exact next action: fetch main; read AGENTS.md and E01; inspect working tree; claim E01; establish integration branch and pin engine/export/test contracts.
@@ -33,7 +33,7 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 
 | Family | State | Owner | Worker branch | Evidence / blocker |
 |---|---|---|---|---|
-| E01 — Architecture and project bootstrap | READY | unassigned | — | No predecessor |
+| E01 — Architecture and project bootstrap | IN_PROGRESS | Codex | codex/roguewood-build | Bootstrap and ADRs; no predecessors |
 | E02 — Headless rules and content contracts | NOT_STARTED | unassigned | — | See dependency graph |
 | E03 — Application shell and E2E harness | NOT_STARTED | unassigned | — | See dependency graph |
 | E04 — Straight throw and pin collision lab | NOT_STARTED | unassigned | — | See dependency graph |
