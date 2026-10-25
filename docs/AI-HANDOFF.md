@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-10-25. State: E01 IN_PROGRESS.
+Updated: 2026-10-25. State: E01 REVIEW.
 
 ## Read first
 
@@ -13,19 +13,17 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 
 ## Current state
 
-- Planning documents created; repository previously contained README.md and game design only.
-- Integration branch: `codex/roguewood-build`.
-- Coordinator/owner: Codex. E01 claimed; review by independent agent after changes. Exclusive paths: project.godot, src/bootstrap/, tools/, .github/workflows/, .gitignore, docs/decisions/, docs/DEVELOPMENT.md, docs/handoffs/E01.md, README.md, AGENTS.md, and this checkpoint. Base SHA: 30d76547ec2f49fa3b1be609f146cdd7b913695d. No item catalogue scope. Start: 2026-10-25T20:17:20Z. Save cutoff: 20:24:08Z; hard stop: 20:28:08Z.
-- Last integrated implementation SHA: none. Last verified test SHA: none.
-- Next executable task: **E01 — Architecture and project bootstrap**, High effort.
-- Exact next action: fetch main; read AGENTS.md and E01; inspect working tree; claim E01; establish integration branch and pin engine/export/test contracts.
-- Do not start all workers before E01/E02 contracts exist.
+- Integration branch: `codex/roguewood-build`; coordinator: Codex.
+- E01 implementation finished; REVIEW pending remote CI. No gameplay implemented.
+- Source baseline: main 30d76547ec2f49fa3b1be609f146cdd7b913695d; claim commit f63ea6ca6f08357f6b2c32587811ad49ff5f17d9.
+- Next action: verify bootstrap CI on implementation commit; then mark E01 DONE and E02 READY. Do not start E02 in this session.
+- See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
 
 Title Roguewood; no subtitle. Premium dynamic pixel artwork is mandatory. Behind-ball perspective; hold/spin/flick with curved roll. Named rivals set visible score/rule challenges, never simulated opponent turns. Career persists unlocks and records; Leagues contain eight Divisions. The full catalogue and six themes are release scope, not prototype scope.
 
-Godot 4 is provisional. Still unresolved: exact engine version and renderer, supported platform/device matrix, physics fidelity/replay strategy, final draw/cycle versus direct-equipment experiment, exact item definitions/values/unlocks, and concrete visual target review. Resolve through assigned executions; do not repeatedly redesign settled decisions.
+Godot 4.5.2 stable / GDScript / Compatibility renderer pinned for bootstrap in decisions/001-foundation.md. Primary iOS 16+/iPhone 13 Pro class; secondary Android 10+ and Windows 11; Linux x86-64 development/CI. Device testing remains outstanding. Physics repeatability, final deck-loop experiment, item definitions/values/unlocks and visual target remain later decisions. Resolve through assigned executions; do not repeatedly redesign settled decisions.
 
 ## Execution ledger
 
@@ -33,7 +31,7 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 
 | Family | State | Owner | Worker branch | Evidence / blocker |
 |---|---|---|---|---|
-| E01 — Architecture and project bootstrap | IN_PROGRESS | Codex | codex/roguewood-build | Bootstrap and ADRs; no predecessors |
+| E01 — Architecture and project bootstrap | REVIEW | Codex | codex/roguewood-build | Local import/startup/export PASS; remote CI pending |
 | E02 — Headless rules and content contracts | NOT_STARTED | unassigned | — | See dependency graph |
 | E03 — Application shell and E2E harness | NOT_STARTED | unassigned | — | See dependency graph |
 | E04 — Straight throw and pin collision lab | NOT_STARTED | unassigned | — | See dependency graph |
@@ -65,7 +63,7 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 
 ## Active claims and ownership
 
-None. Before dispatch add: task/child ID; owner; reviewer; exact branch/worktree; base SHA; explicit item IDs; exclusive files/directories; shared-file requests; dependency child IDs; start timestamp; next checkpoint; state. Commit/push the claim first. Concurrent workers must not edit this central file.
+E01: Codex owns project.godot, export_presets.cfg, src/bootstrap, tools, CI, bootstrap ADR/development docs, README, AGENTS, and checkpoint. Read-only reviewer: e01_review, no blocking defects; documentation fix applied. No competing workers. Release claim when remote CI completes. Budget: 54% × 20 = 10.8 minutes; start 20:17:20Z, save cutoff 20:24:08Z, hard stop 20:28:08Z.
 
 ## Batch queue and content completeness
 
@@ -75,18 +73,16 @@ Content manifest: not created; E02 defines schema, E17 populates it. All product
 
 ## Validation
 
-- Planning: source convention read in full; repository design and structure inspected; dependency IDs, DAG, prompt coverage, source scope, and internal links checked during planning publication.
-- Unit/integration: NOT RUN; no implementation or harness exists.
-- E2E: NOT RUN; E03 establishes J01–J14 harness. Intended qa.py commands in plan are proposed, not executable today.
-- Mobile/native export: NOT RUN; target matrix and available hardware/toolchains unresolved.
-- Visual-quality review: NOT PRESENTED; E11/E12 produce the concrete scene and motion sequence.
-- Balance: NOT VALIDATED; E24 uses simulation plus human tests.
-
-Replace this section with exact commands, outcomes, commit SHAs, environments, and artifact links as evidence becomes available. Never change NOT RUN to PASS on inference.
+- PASS: official editor/export-template SHA512 verification.
+- PASS: `python3 tools/qa.py doctor`, `smoke`, and `export` under Godot 4.5.2.stable.official.6ce3de25a / Python 3.12.14 / Linux x86-64. Source and exported scene emit ROGUEWOOD_BOOT_OK.
+- PASS: Python compile and git diff --check; independent read-only review.
+- Remote CI: pending; see next checkpoint update for exact implementation SHA and run outcome.
+- Gameplay suites / E2E: NOT RUN; E02/E03 implement these. Startup smoke is not gameplay E2E.
+- Native iOS/Android/Windows, physical device feel, visual review and balance: NOT VALIDATED; assigned later.
 
 ## Blockers and limitations
 
-No planning blocker. Full named catalogue, artwork, effects/audio, mechanics, automated tests, exports, and all game systems remain to be produced. Hardware/signing may block specific platform gates later; record concrete availability when checked. Do not infer access to user devices from a profile.
+No local bootstrap blocker. Native Apple toolchain/signing and mobile hardware not available in this Linux execution. All gameplay, production visuals and content remain unfinished. Current title fixture is developer scaffolding only.
 
 ## Session handoff protocol
 

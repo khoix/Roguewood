@@ -1,0 +1,33 @@
+name: Bootstrap
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  linux-bootstrap:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Install pinned Godot and export templates
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION=$(cat .godot-version)
+          BASE="https://github.com/godotengine/godot-builds/releases/download/${VERSION}-stable"
+          mkdir -p "$RUNNER_TEMP/godot"
+          cd "$RUNNER_TEMP/godot"
+          curl --fail --location --retry 3 -O "$BASE/Godot_v${VERSION}-stable_linux.x86_64.zip"
+          curl --fail --location --retry 3 -O "$BASE/Godot_v${VERSION}-stable_export_templates.tpz"
+          sha512sum --check "$GITHUB_WORKSPACE/tools/godot-downloads.sha512"
+          unzip -q "Godot_v${VERSION}-stable_linux.x86_64.zip"
+          unzip -q "Godot_v${VERSION}-stable_export_templates.tpz"
+          mkdir -p "$HOME/.local/share/godot/export_templates/${VERSION}.stable"
+          cp templates/linux_debug.x86_64 "$HOME/.local/share/godot/export_templates/${VERSION}.stable/"
+          echo "GODOT_BIN=$RUNNER_TEMP/godot/Godot_v${VERSION}-stable_linux.x86_64" >> "$GITHUB_ENV"
+      - name: Verify editor import, startup, and exported build
+        run: |
+          python3 tools/qa.py doctor
+          python3 tools/qa.py smoke
+          python3 tools/qa.py export

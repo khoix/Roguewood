@@ -6,4 +6,4 @@
 - [Agent working rules](AGENTS.md)
 - [Per-task handoff template](docs/AGENT-TASK-TEMPLATE.md)
 
-Status: planning complete; game implementation has not started. Begin with E01 in the execution plan. The checkpoint is the durable source of execution state across agents and sessions.
+Status: E01 bootstrap implemented on `codex/roguewood-build`; see checkpoint for acceptance and CI status. See [Development](docs/DEVELOPMENT.md) for pinned-engine setup and smoke commands. The checkpoint is the durable source of execution state across agents and sessions.
