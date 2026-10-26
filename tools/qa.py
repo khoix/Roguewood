@@ -57,8 +57,13 @@ def main():
     if args.command in ("unit", "content", "integration"):
         run([exe, "--headless", "--path", str(ROOT), "--script", "res://tests/run_tests.gd", "--", args.command], "ROGUEWOOD_" + args.command.upper() + "_OK")
     elif args.command == "e2e":
-        flags = [] if args.rendered else ["--headless"]
-        artifact_dir = ROOT / "artifacts/e03" / ("rendered" if args.rendered else "headless")
+        flags = ["--audio-driver", "Dummy"]
+        if not args.rendered:
+            flags.append("--headless")
+        mode = "rendered" if args.rendered else "headless"
+        if args.inject_failure:
+            mode += "-failure"
+        artifact_dir = ROOT / "artifacts/e03" / mode
         artifact_dir.mkdir(parents=True, exist_ok=True)
         for old in artifact_dir.glob("*.png"):
             old.unlink()
