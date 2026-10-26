@@ -49,6 +49,20 @@ Godot JSON parsing represents numbers as floats; integer fields accept only fini
 
 The current numeric range is finite nonnegative effect amounts up to one million, positive multipliers, and banked scores within the exact JSON integer range (2^53−1). Oversized scoring chains return an error instead of silently overflowing. A later large-number representation must be explicit. No random number generator is consumed here; probabilistic breakage and all physical operations remain future mechanics.
 
+## E06 frame assembly and readable resolution
+
+`FrameBuilder.build(loadout, catalogue, reports)` turns a completed frame's LaneWorld reports into a `FrameRules` frame. A frame is complete after a first-roll strike or a second roll. The builder:
+- Revalidates each report's launch, result and knockdown-log contracts.
+- Hydrates every pin, ball and Charm effect from the catalogue by stable ID; neither UI nor loadout can carry effects.
+- Applies `FrameRules.validate`, which, among other checks, refuses a pin credited in both rolls.
+
+The throw lab's loadout is ten `pin.wood` and `ball.house` from `content/fixtures/lab_catalogue.json`. That is a lab fixture outside the production registry, with every completeness flag false. E17/E18 replace it with authored items and Charms.
+
+`ScoreLog.steps(result, frame, names)` translates the authoritative event list into ordered calculation steps:
+- The category base comes first, then fallen pins in rack order (with retriggers), standing pins, balls, the single best accuracy award, Charms, the single bank, and deferred effects last.
+- Each step carries a text line, a symbol (`+` add, `×` multiply, `=` base or bank, `→` deferred), the pin to highlight, and the running Pin Value and Mult the resolver recorded.
+- The score panel only reveals these steps (1×/2×/4×, or Skip), so presentation can never change a banked score. Unit tests and J03 compare every displayed number with an independent resolution.
+
 ## Commands and evidence
 
 `python3 tools/qa.py unit` exercises invalid data, JSON round-trips, pure scoring, lane geometry, knockdown bookkeeping and gesture recognition. `physics` runs launch fixtures through real Jolt worlds (see DEVELOPMENT.md). `content` lints the actual production registry. `integration` hydrates a frame from catalogue and launch/result fixtures and verifies its score and serialized events. These are headless contract tests, **not gameplay E2E**. E03 supplies real input-driven E2E. All commands use the pinned Godot engine and fail on engine script errors or a missing completion marker.

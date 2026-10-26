@@ -3,7 +3,7 @@ extends PanelContainer
 ## touch targets and the accessible controls. Values live in the shell's settings
 ## dictionary so they survive Restart Session; saving them is E25 work.
 signal changed
-const DEFAULTS := {"handedness": "right", "sensitivity": 1.0, "reduced_motion": false, "large_targets": false, "assist": false}
+const DEFAULTS := {"handedness": "right", "sensitivity": 1.0, "reduced_motion": false, "large_targets": false, "assist": false, "score_speed": 1}
 
 var settings: Dictionary = {}
 var handedness: OptionButton

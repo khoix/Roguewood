@@ -168,7 +168,7 @@ func _two_roll_frame() -> Array:
 		_check_report(first, Lane.fresh_rack())
 		_check(not first.knockdown_log.gutter and not first.roll_result.fallen_positions.is_empty(), "straight throw reaches the rack")
 		if first.knockdown_log.standing.is_empty():
-			await _wait_for(func(): return lab.state == "frame_done", "strike ends frame")
+			await _wait_for(func(): return lab.state == "frame_done", "strike ends frame", ROLL_FRAMES)
 			_check(lab.roll_index == 1, "strike has no second roll")
 			await _accept()
 			continue
@@ -199,7 +199,7 @@ func _two_roll_frame() -> Array:
 			roll.erase("launch_id")
 		var frame := {"schema_version": 1, "pins": wood, "rolls": rolls, "charms": []}
 		_check(Rules.validate(frame).is_empty(), "two-roll frame accepted by E02 frame rules")
-		await _wait_for(func(): return lab.state == "frame_done", "frame completes")
+		await _wait_for(func(): return lab.state == "frame_done", "frame completes", ROLL_FRAMES)
 		await _capture("frame")
 		return [first, second]
 	_check(false, "three consecutive strikes; second roll not exercised")

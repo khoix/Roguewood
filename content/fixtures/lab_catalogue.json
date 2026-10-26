@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "items": [
+    {
+      "id": "pin.wood",
+      "name": "Wood",
+      "category": "pin",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 3,
+      "resale_price": 1,
+      "effects": [
+        {
+          "op": "add_value",
+          "amount": 10,
+          "trigger": "fallen",
+          "scope": "frame"
+        }
+      ],
+      "limits": {
+        "max_owned": 12,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "",
+      "synergy_tags": [
+        "baseline"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": false,
+        "mechanics": false,
+        "automated_validation": false,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": false,
+        "integrated": false
+      }
+    },
+    {
+      "id": "ball.house",
+      "name": "House",
+      "category": "ball",
+      "rarity": "common",
+      "pool_weight": 0,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 0,
+      "resale_price": 0,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "No scoring bonus.",
+      "synergy_tags": [
+        "baseline"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": false,
+        "mechanics": false,
+        "automated_validation": false,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": false,
+        "integrated": false
+      }
+    }
+  ]
+}

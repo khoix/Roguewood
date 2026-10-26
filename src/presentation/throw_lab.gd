@@ -1,10 +1,12 @@
 extends Control
-## Throw lab (E04 straight, E05 spin/curve): elevated behind-ball camera, hold /
-## circle / flick gestures, a movable contracting target ring, accessible controls
-## and a two-roll frame where survivors are respotted. Every roll runs in a fresh
+## Throw lab (E04 straight, E05 spin/curve, E06 scoring): elevated behind-ball
+## camera, hold / circle / flick gestures, a movable contracting target ring,
+## accessible controls and a two-roll frame where survivors are respotted, then
+## scored by FrameRules and explained step by step. Every roll runs in a fresh
 ## World3D so it depends only on its rack state and committed launch.
-## Developmental presentation; frame scoring and its display belong to E06.
+## Developmental presentation.
 signal roll_reported(report: Dictionary)
+signal frame_scored(scored: Dictionary)
 const Lane = preload("res://src/simulation/lane_spec.gd")
 const LaneWorld = preload("res://src/simulation/lane_world.gd")
 const Dressing = preload("res://src/presentation/lane_dressing.gd")
@@ -14,6 +16,11 @@ const AssistPanel = preload("res://src/presentation/assist_panel.gd")
 const Flick = preload("res://src/input/flick_gesture.gd")
 const Mapper = preload("res://src/input/launch_mapper.gd")
 const Ring = preload("res://src/input/target_ring.gd")
+const Contracts = preload("res://src/contracts/contracts.gd")
+const Rules = preload("res://src/rules/frame_rules.gd")
+const FrameBuilder = preload("res://src/rules/frame_builder.gd")
+const ScoreLog = preload("res://src/rules/score_log.gd")
+const ScorePanel = preload("res://src/presentation/score_panel.gd")
 const RESULT_HOLD_SEC := 1.2
 const AIM_BACK := 2.0
 const AIM_HEIGHT := 1.05
@@ -41,6 +48,11 @@ var status: Label
 var next_rack: Button
 var settings_panel: SettingsPanel
 var assist_panel: AssistPanel
+var score_panel: ScorePanel
+var total_score := 0
+var scored_frames: Array = []
+var _catalogue: Dictionary = {}
+var _names: Dictionary = {}
 var _viewport: SubViewport
 var _camera: Camera3D
 var _marker: MeshInstance3D
@@ -110,6 +122,19 @@ func _ready() -> void:
 	next_rack.pressed.connect(_next_rack)
 	next_rack.hide()
 	add_child(next_rack)
+	_catalogue = Contracts.read_json(FrameBuilder.LAB_CATALOGUE)
+	for entry in _catalogue.items:
+		_names[entry.id] = entry.name
+	score_panel = ScorePanel.new()
+	score_panel.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+	score_panel.offset_top = -540.0
+	score_panel.offset_left = 16.0
+	score_panel.offset_right = -16.0
+	score_panel.offset_bottom = -16.0
+	score_panel.finished.connect(_on_scored)
+	score_panel.speed_changed.connect(func(speed): settings.score_speed = speed)
+	score_panel.hide()
+	add_child(score_panel)
 	assist_panel = AssistPanel.new()
 	assist_panel.throw_requested.connect(_assist_throw)
 	assist_panel.preview_changed.connect(_assist_preview)
@@ -193,6 +218,7 @@ func _process(delta: float) -> void:
 	var ringing: bool = state == "holding" or (state == "aim" and settings.assist)
 	ring_radius = Ring.radius(_clock_usec - _ring_start_usec, settings.reduced_motion) if ringing else Ring.RING_MAX
 	_update_ring()
+	assist_panel.visible = settings.assist and state == "aim"
 	if state == "holding" and not settings.reduced_motion and lane.state == "ready":
 		lane.aim_ball.rotate(Vector3.FORWARD, _flick.charge() * 12.0 * delta)
 	if state == "result":
@@ -340,10 +366,33 @@ func _advance() -> void:
 		rack = report.rack_after
 		_new_roll()
 	else:
-		state = "frame_done"
-		next_rack.show()
-		next_rack.grab_focus()
-		_update_status()
+		_score_frame()
+
+## Scores the completed frame from its roll reports and plays the explanation.
+func _score_frame() -> void:
+	var built := FrameBuilder.build(FrameBuilder.lab_loadout(), _catalogue, frame_reports)
+	var result := Rules.resolve(built.frame) if built.ok else {"ok": false, "errors": built.errors}
+	if not result.ok:
+		push_error("Frame could not be scored: " + str(result.errors))
+		_frame_done()
+		return
+	var steps := ScoreLog.steps(result, built.frame, _names)
+	scored_frames.append({"frame_number": frame_number, "frame": built.frame, "result": result, "steps": steps})
+	state = "scoring"
+	_update_status()
+	score_panel.play(steps, frame_reports, "Frame %d — %s" % [frame_number, String(result.category).capitalize()], int(settings.score_speed))
+
+func _on_scored() -> void:
+	var scored: Dictionary = scored_frames[-1]
+	total_score += int(scored.result.score)
+	_frame_done()
+	frame_scored.emit(scored.duplicate(true))
+
+func _frame_done() -> void:
+	state = "frame_done"
+	next_rack.show()
+	next_rack.grab_focus()
+	_update_status()
 
 func _next_rack() -> void:
 	if state != "frame_done":
@@ -353,6 +402,7 @@ func _next_rack() -> void:
 	frame_reports = []
 	rack = Lane.fresh_rack()
 	next_rack.hide()
+	score_panel.hide()
 	_new_roll()
 
 func _normalized(position: Vector2) -> Vector2:
@@ -438,13 +488,14 @@ func _update_status() -> void:
 			status.text = lead + "\nRolling… " + ("curved %s" % ("right" if spin > 0.0 else "left") if Lane.is_curved(spin) else "straight")
 		"result":
 			status.text = lead + "\n" + _describe(frame_reports[-1])
+		"scoring":
+			status.text = lead + "\nScoring…"
 		"frame_done":
 			var parts: Array = frame_reports.map(func(r): return str(r.roll_result.fallen_positions.size()))
 			status.text = "Frame %d complete · %s" % [frame_number, " / ".join(parts)]
-			if frame_reports[0].roll_result.fallen_positions.size() == 10:
-				status.text += " · Strike!"
-			elif frame_reports[-1].knockdown_log.standing.is_empty():
-				status.text += " · Spare!"
+			if not scored_frames.is_empty() and scored_frames[-1].frame_number == frame_number:
+				var result: Dictionary = scored_frames[-1].result
+				status.text += " · %s %s · Total %s" % [String(result.category).capitalize(), ScoreLog._n(result.score), ScoreLog._n(total_score)]
 
 func _describe(report: Dictionary) -> String:
 	var knockdowns: Dictionary = report.knockdown_log

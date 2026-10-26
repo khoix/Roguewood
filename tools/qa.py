@@ -14,6 +14,8 @@ JOURNEYS = {
     "J02": ("res://tests/throw_journey.gd", "ROGUEWOOD_J02_OK", "artifacts/e04",
             ("aim", "cancelled", "rolling", "roll1", "roll2_aim", "frame", "gutter", "target", "curve_right_hold",
              "curve_right", "curve_left", "assist", "landscape"), 600, ["--fixed-fps", "60"]),
+    "J03": ("res://tests/scoring_journey.gd", "ROGUEWOOD_J03_OK", "artifacts/e06",
+            ("scoring", "strike", "spare", "open"), 600, ["--fixed-fps", "60"]),
 }
 
 

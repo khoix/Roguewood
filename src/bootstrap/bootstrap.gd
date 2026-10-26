@@ -80,10 +80,16 @@ func _start_session() -> void:
 	lab = ThrowLab.new()
 	lab.name = "ThrowLab"
 	lab.settings = throw_settings
+	lab.frame_scored.connect(_on_frame_scored)
 	add_child(lab)
 	move_child(lab, 0)
 	session_bar.show()
 	reset.grab_focus()
+
+## The session fixture tracks the lab's banked total and current frame.
+func _on_frame_scored(scored: Dictionary) -> void:
+	session.score = int(session.score) + int(scored.result.score)
+	session.frame = int(scored.frame_number) + 1
 
 func _show_menu() -> void:
 	screen = "menu"

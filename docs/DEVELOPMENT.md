@@ -59,3 +59,21 @@ J02 also covers:
 J02 pins a phone-portrait window (450×800, so a 720×1280 canvas) in both modes. The project now uses stretch aspect `expand`, so the canvas follows the window; without this profile, the 64×64 headless window would turn the same injected gesture into different motion. Rendered J02 adds the target, curve_right_hold, curve_right, curve_left, assist and landscape captures, and saves `trials.jsonl` beside the screenshots. It takes about 70 s rendered on llvmpipe.
 
 `physics` now includes curved fixtures. They check pocket hooks for both hands, that hook grows with spin, an exact mirror for opposite spin, faster throws hooking less, and spin 0 staying straight. In play, every committed roll appends to `user://throw_trials.jsonl` for the device trials in `docs/playtests/E05-device-trials.md`. Screenshots and logs are never committed; CI uploads them as the `journeys` artifact.
+
+## E06 scoring and J03
+
+When a frame completes, the lab scores it with `FrameRules` and plays the calculation in the score panel. The panel shows Value × Mult counters, a flat ten-slot rack coloured by the roll that took each pin, and the ordered calculation log. Speed cycles through 1×, 2× and 4× and is kept in the session settings; Skip reveals everything. Frame totals accumulate into the lab total and the shell's session fixture.
+
+`python3 tools/qa.py e2e --journey J03` plays strike, spare and open frames through real input:
+- Options toggles reduced motion and the assist controls through focused controls.
+- Keyboard steps move the assist sliders, then Throw.
+- The strike is position +0.10 at 70% power. The spare is −0.40 at 60%, leaving 1-3-6, then a centre throw. The open frame is the same first roll followed by a gutter.
+
+Each frame must:
+- Bank the score an independent `FrameBuilder` + `FrameRules` resolution gives (560, 240, 70).
+- Match the base formula.
+- List the category first and the bank last, credit each fallen pin once in rack order, and award accuracy once.
+- Colour every pin by the roll that took it.
+- Update the running total.
+
+The journey also exercises speed cycling, the carried speed preference and Skip. `--rendered` saves scoring, strike, spare and open PNGs to `artifacts/e06/rendered`. The outcomes come from the deterministic physics, so a physics change that alters them fails J03 with a category message.
