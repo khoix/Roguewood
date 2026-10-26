@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "note": "E04 straight-throw collision fixtures. Expectations are robust outcome classes, not exact pin sets; exact repeatability is checked by re-simulation.",
+  "throws": [
+    {"id": "pocket", "rack": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "start_x": 0.11, "angle_deg": 0.0, "power": 0.7, "expect": {"min_fallen": 9, "includes": [1, 3, 5]}},
+    {"id": "pocket_fast", "rack": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "start_x": 0.11, "angle_deg": 0.0, "power": 1.0, "expect": {"min_fallen": 9, "includes": [1, 3, 5]}},
+    {"id": "pocket_slow", "rack": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "start_x": 0.11, "angle_deg": 0.0, "power": 0.0, "expect": {"min_fallen": 8, "includes": [1, 3]}},
+    {"id": "brooklyn", "rack": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "start_x": -0.11, "angle_deg": 0.0, "power": 0.7, "expect": {"min_fallen": 8, "includes": [1, 2]}},
+    {"id": "head_on", "rack": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "start_x": 0.0, "angle_deg": 0.0, "power": 0.5, "expect": {"min_fallen": 6, "includes": [1, 5]}},
+    {"id": "light_right", "rack": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "start_x": 0.4, "angle_deg": 0.0, "power": 0.6, "expect": {"min_fallen": 3, "includes": [3, 6], "excludes": [1, 2]}},
+    {"id": "light_left", "rack": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "start_x": -0.4, "angle_deg": 0.0, "power": 0.6, "expect": {"min_fallen": 3, "includes": [2, 4], "excludes": [1, 3]}},
+    {"id": "angled_across", "rack": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "start_x": 0.6, "angle_deg": -0.8, "power": 0.6, "expect": {"min_fallen": 1}},
+    {"id": "seven_pin", "rack": [7], "start_x": -0.6, "angle_deg": -0.45, "power": 0.5, "expect": {"min_fallen": 1, "includes": [7]}},
+    {"id": "ten_pin", "rack": [10], "start_x": 0.6, "angle_deg": 0.45, "power": 0.5, "expect": {"min_fallen": 1, "includes": [10]}},
+    {"id": "split_one_side", "rack": [7, 10], "start_x": -0.6, "angle_deg": -0.45, "power": 0.5, "expect": {"includes": [7], "excludes": [10]}},
+    {"id": "clean_miss", "rack": [7], "start_x": 0.5, "angle_deg": 0.0, "power": 0.5, "expect": {"max_fallen": 0, "gutter": false}},
+    {"id": "gutter_right", "rack": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "start_x": 0.6, "angle_deg": 2.0, "power": 0.7, "expect": {"max_fallen": 0, "gutter": true}},
+    {"id": "gutter_left_slow", "rack": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "start_x": -0.6, "angle_deg": -2.0, "power": 0.2, "expect": {"max_fallen": 0, "gutter": true}},
+    {"id": "gutter_from_edge", "rack": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "start_x": 0.795, "angle_deg": 0.5, "power": 1.0, "expect": {"max_fallen": 0, "gutter": true}}
+  ]
+}

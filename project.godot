@@ -12,6 +12,15 @@ window/size/window_width_override=450
 window/size/window_height_override=800
 window/stretch/mode="canvas_items"
 
+[input_devices]
+pointing/emulate_touch_from_mouse=true
+
+[physics]
+3d/physics_engine="Jolt Physics"
+common/physics_ticks_per_second=120
+common/max_physics_steps_per_frame=8
+jolt_physics_3d/limits/max_angular_velocity=120.0
+
 [rendering]
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"

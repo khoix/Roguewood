@@ -18,6 +18,23 @@ Completeness separately tracks authored, mechanics, automated validation, artwor
 
 `roll_result` records identify the exact originating launch/ball/roll and list unique newly fallen rack positions 1–10 plus accuracy. Positions retain their original rack identity after motion. `validate_result_for_launch` rejects mismatches. The frame resolver additionally rejects pins credited in two rolls. Simulation owns causal attribution and accuracy measurement; the contracts do not infer either from a visual effect. Results cross the boundary as copied JSON-compatible data, never live scene nodes.
 
+## E04 simulation records
+
+E04 maps logical launches to physical units (see [ADR 002](decisions/002-throw-lab-physics.md)). The simulated `start_x` range is ±0.795; anything wider would put the ball over the gutter, so the lane rejects it rather than clamping. Until E05, `spin` must be 0 and only `ball.house` is simulated: these are rejected explicitly, never ignored. `power` maps linearly to 4.5–9.0 m/s. Accuracy measures where the ball center crosses the ring plane, using the launch's frozen `target_x`/`ring_radius`. The grade bands are provisional E05 values.
+
+`knockdown_log` (schema `knockdown_log.schema.json`, version 1) is the simulation's causal record for one roll, crossing the boundary as JSON data:
+
+- `knockdowns`: credited pins in fall order, each with `sequence` 1..n, physics `tick`, `cause` (`ball` depth 1, `pin` with `source_position` and depth = source + 1, or `environment` depth 0), and `reason` (`tilt`, `off_deck`, `lean`).
+- `standing`: survivors. Credited and standing pins partition the racked pins.
+- `gutter` plus `voided_positions`: a ball that left the lane before touching any pin credits nothing; the pins it disturbed are respotted and listed as voided.
+- `target_crossed`/`target_offset` (normalized, relative to lane center), `settle` (`settled` or `timeout`), and the roll's `ticks`.
+
+Semantic validation rejects double credit, gaps or reordering in the sequence, cause/source/depth mismatches, unknown source pins, credit on a gutter ball, voids without a gutter, and an offset on an uncrossed target. `Contracts.validate_log_for_result` requires the log to credit exactly the result's `fallen_positions` for the same launch, ball and roll. Future mechanics (Echo, Spark, Ghost, Crown, Gold) should read attribution and order from this log, not from visuals.
+
+Rack state (`rack_after`) is simulation-internal version 1: `{schema_version, standing: [{position, x, f}]}` in lane meters, where survivors are re-spotted upright. It is not yet a validated persistence schema. E10 freezes it with a migration, and persisting it with full-precision JSON reproduces roll two exactly.
+
+Enum checks compare numbers by value, so an engine-built record holding int `1` matches a schema's JSON-decoded `1.0`. Booleans never match numbers.
+
 ## Resolution boundary
 
 `FrameRules.resolve(frame)` accepts `schema_version`, ten `pins`, one strike roll or two completed non-strike `rolls`, and zero to five ordered `charms`. Each pin has position, item_id, effects and optional retriggers; each roll has roll_index, ball_id, fallen_positions, accuracy and effects; each Charm has item_id and effects. `validate` is executable frame-shape validation. Only completed frames resolve. Callers must validate and hydrate item effects from the registry; UI cannot inject arbitrary effects.
@@ -34,4 +51,4 @@ The current numeric range is finite nonnegative effect amounts up to one million
 
 ## Commands and evidence
 
-`python3 tools/qa.py unit` exercises invalid data, JSON round-trips and pure scoring. `content` lints the actual production registry. `integration` hydrates a frame from catalogue and launch/result fixtures and verifies its score and serialized events. These are headless contract tests, **not gameplay E2E**. E03 supplies real input-driven E2E. All commands use the pinned Godot engine and fail on engine script errors or a missing completion marker.
+`python3 tools/qa.py unit` exercises invalid data, JSON round-trips, pure scoring, lane geometry, knockdown bookkeeping and gesture recognition. `physics` runs launch fixtures through real Jolt worlds (see DEVELOPMENT.md). `content` lints the actual production registry. `integration` hydrates a frame from catalogue and launch/result fixtures and verifies its score and serialized events. These are headless contract tests, **not gameplay E2E**. E03 supplies real input-driven E2E. All commands use the pinned Godot engine and fail on engine script errors or a missing completion marker.
