@@ -98,3 +98,7 @@ No local bootstrap blocker. Native Apple toolchain/signing and mobile hardware n
 Workers copy AGENT-TASK-TEMPLATE.md to docs/handoffs/<task-id>.md on their own branch. Push code and handoff together; send coordinator branch/SHA and validation summary. Coordinator reviews and integrates, records the integrated code SHA and relevant test evidence, clears stale claims, updates the next action, and pushes checkpoint. Preserve unfinished tasks honestly; no running diary.
 
 Do not insert the checkpoint's own future commit SHA. Record already-known implementation commits; the Git history identifies the checkpoint commit. On resume inspect remote changes before accepting an old ownership claim. Stop after the assigned execution is durably saved.
+
+## E03 continuation claim
+
+Codex owns src/bootstrap, tests/shell_smoke.gd, tools/qa.py, .github/workflows/bootstrap.yml and E03 documentation. Base6091a74db102fcf4b89982d6ff65106b8b656bcc, branch codex/roguewood-build; reviewer e02_review read-only. Scope J01 fixture entry/reset, bounded native input automation, logs/screenshots/CI; no physics. Budget40%=8min; start01:21:24Z, implementation cutoff01:25:24Z, hard stop01:29:24Z.
