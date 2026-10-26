@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-10-26. State: E01–E04 DONE (integrated on main); E05 IN_PROGRESS (claimed).
+Updated: 2026-10-26. State: E01–E04 DONE (integrated on main); E05 REVIEW (implemented, CI green, real-phone gate open).
 
 ## Read first
 
@@ -20,7 +20,8 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - E02 DONE: implementation cdb48595fe28d08e9c1bf20333b63061dcc49412; independent review and CI40245188289 PASS. See handoffs/E02.md and CONTRACTS.md.
 - E03 DONE: implementation78b1740159ee7c458fa9c36629ed6360009b0142, independent review and CI40256553911 PASS, rendered artifacts inspected. See handoffs/E03.md.
 - E04 DONE: implementation `44bbd7e7bad2d41ddb9e062b29e1733dae1a9bfe`, CI 40262418442 PASS. Accepted by the repository owner through the PR #2 merge, which had no review comments; no separate agent reviewer was run. See handoffs/E04.md and decisions/002-throw-lab-physics.md.
-- Active: E05 (spin, curve, and mobile gesture feel), proposed effort Extra High, claimed below at the user's direction.
+- E05 REVIEW: implementation `0ad08c299f0f478eeed846bf9513853cff63006d` on `claude/roguewood-build`; local suites and CI 40324357857 PASS; the physics digest `75d1a3c0…` and J02 curve outcomes are identical locally and in CI. Real-phone trials are NOT RUN (no device or mobile build); the protocol is in playtests/E05-device-trials.md. See handoffs/E05.md and decisions/003-spin-curve-input.md.
+- Next action: the owner reviews and merges E05. E06 (High) and E11 (High) are READY; start either only through a new claim.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
@@ -39,7 +40,7 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E02 — Headless rules and content contracts | DONE | Codex | codex/roguewood-build | cdb4859; CI40245188289 PASS; E02 handoff |
 | E03 — Application shell and E2E harness | DONE | Codex | codex/roguewood-build | 78b1740; CI40256553911 PASS; E03 handoff |
 | E04 — Straight throw and pin collision lab | DONE | Claude | claude/roguewood-build → main (PR #2) | 44bbd7e; CI 40262418442 PASS; owner merge |
-| E05 — Spin, curve, and mobile gesture feel | IN_PROGRESS | Claude | claude/roguewood-build | Claimed 2026-10-26T12:20Z from main d9fda66 |
+| E05 — Spin, curve, and mobile gesture feel | REVIEW | Claude | claude/roguewood-build | 0ad08c2; CI 40324357857 PASS; real-phone trials open gate |
 | E06 — Frame scoring and readable resolution | READY | unassigned | — | E02/E04 accepted; proposed effort High |
 | E07 — Deck draw and cycle experiment | NOT_STARTED | unassigned | — | See dependency graph |
 | E08 — Shop and match economy | NOT_STARTED | unassigned | — | See dependency graph |
@@ -85,6 +86,7 @@ E05 claim (2026-10-26T12:20Z):
 - Exclusive paths: src/input/, src/simulation/, src/presentation/, tests/{input,simulation,physics}_test.gd, tests/throw_journey.gd, content/fixtures/throws/, docs/decisions/003-*.md, docs/playtests/, docs/handoffs/E05.md.
 - Shared files changed under this claim (coordinator-owned this session): project.godot (stretch aspect), src/bootstrap/*, tools/qa.py, the CI workflow, docs/CONTRACTS.md, docs/DEVELOPMENT.md, AGENTS.md, README.md and this checkpoint.
 - Out of scope: catalogue balls (the Hook ball and others), scoring and curved-shot effects (E06/E18), final VFX and art (E11/E12), settings persistence and onboarding (E25), device exports (E26). Real-phone trials need hardware this Linux session lacks; they remain an open gate with a written protocol.
+- Status: implementation pushed (`0ad08c2`) with handoffs/E05.md, and CI passed. The claim stays open until the owner reviews and merges.
 
 Standing user preferences:
 - At the end of each milestone, state the proposed effort level for the next pending milestone.
@@ -107,11 +109,12 @@ Content registry: content/catalogue.json is empty by design; E02 defines validat
 - E02 PASS: unit, content, contract integration, smoke, Python compile, diff checks; reviewer independently reran unit/integration and accepted final numeric-identity fix. Code cdb48595fe28d08e9c1bf20333b63061dcc49412; CI PASS https://github.com/khoix/Roguewood/actions/runs/40245188289 (includes Linux debug export/startup).
 - E03 PASS: native headless and rendered J01, deterministic reset, intentional-failure screenshots/logs and timeout/error probes. CI40256553911 on78b1740; artifact12622383032 inspected. Full bowling/device journeys remain later work.
 - E04 PASS (local, Godot 4.5.2.stable.official.6ce3de25a, Linux x86-64): unit (contracts, rules, lane geometry, knockdown tracker, gesture), content, integration, physics, smoke, Linux export plus exported boot, J01 headless and rendered, diagnostics, J02 headless and rendered, J02 injected failure exiting 1, py_compile and diff check. CI PASS https://github.com/khoix/Roguewood/actions/runs/40262418442 on `44bbd7e`; artifact `journeys` 12625271435. The physics outcome digest `d80a9fa440a2cc13b186509b7fc35b589cd49b7e42c0f0314908c62a6fc33cce` is identical locally, in separate processes and in CI. J02 covers real-touch straight throws, cancellation consuming nothing, no duplicate knockdowns, respotted survivors, a gutter void, and live play equal to a replay of the committed records.
-- Native iOS/Android/Windows, physical device feel, visual review and balance: NOT VALIDATED; assigned later. E04 throw thresholds and physics tuning are provisional (ADR 002).
+- E05 PASS (local and CI): unit (spin phases, ring, assist equivalence, oil zones), content, integration, physics (23 fixtures, 92 simulations; hook grows with spin, mirrors exactly, shrinks with speed; E04 straight outcomes unchanged), smoke, Linux export, J01 headless and rendered, diagnostics, J02 headless and rendered (curves both ways from real circle gestures at ±0.618 spin and ±0.282 m hook, target move, short flick, mouse, keyboard assist, landscape, trial log), and J02 injected failure exiting 1. CI https://github.com/khoix/Roguewood/actions/runs/40324357857 on `0ad08c2`; artifact `journeys` 12650896331.
+- Native iOS/Android/Windows, physical device feel (E05 trials NOT RUN), visual review and balance: NOT VALIDATED. E04/E05 throw thresholds and physics tuning are provisional (ADR 002/003).
 
 ## Blockers and limitations
 
-No local blocker. The native Apple toolchain, signing and mobile hardware are not available in this Linux execution. E04 provides a straight-throw lab with developmental geometry. Spin and hook, real-device feel, scoring presentation, production visuals and content remain unfinished, and pure frame rules and contracts exist. E04 independent review needs a reviewer: none was spawned, because this session ran a single agent. Current UI is functional developmental scaffolding only. E03 has one House League/House Kit fixture, not the full release selection system.
+No local blocker. The native Apple toolchain, signing, the Android SDK and mobile hardware are not available in this Linux execution, so E05's real-phone trials stay open until a device build exists. E04 provides a straight-throw lab with developmental geometry. Spin and hook, real-device feel, scoring presentation, production visuals and content remain unfinished, and pure frame rules and contracts exist. E04 independent review needs a reviewer: none was spawned, because this session ran a single agent. Current UI is functional developmental scaffolding only. E03 has one House League/House Kit fixture, not the full release selection system.
 
 ## Session handoff protocol
 
