@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-10-26. State: E01–E04 DONE (integrated on main); E05 REVIEW (implemented, CI green, real-phone gate open); E06 IN_PROGRESS (claimed).
+Updated: 2026-10-26. State: E01–E04 DONE (integrated on main); E05 REVIEW (implemented, CI green, real-phone gate open); E06 REVIEW (implemented, CI green).
 
 ## Read first
 
@@ -21,7 +21,8 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - E03 DONE: implementation78b1740159ee7c458fa9c36629ed6360009b0142, independent review and CI40256553911 PASS, rendered artifacts inspected. See handoffs/E03.md.
 - E04 DONE: implementation `44bbd7e7bad2d41ddb9e062b29e1733dae1a9bfe`, CI 40262418442 PASS. Accepted by the repository owner through the PR #2 merge, which had no review comments; no separate agent reviewer was run. See handoffs/E04.md and decisions/002-throw-lab-physics.md.
 - E05 REVIEW: implementation `0ad08c299f0f478eeed846bf9513853cff63006d` on `claude/roguewood-build`; local suites and CI 40324357857 PASS; the physics digest `75d1a3c0…` and J02 curve outcomes are identical locally and in CI. Real-phone trials are NOT RUN (no device or mobile build); the protocol is in playtests/E05-device-trials.md. See handoffs/E05.md and decisions/003-spin-curve-input.md.
-- Next action: the owner reviews and merges E05. E06 is claimed below at the user's direction. E11 (High) is READY.
+- E06 REVIEW: implementation `b325c5641e10a3cbb160d4199d4384fcfa647ef2` on `claude/roguewood-build` (stacked on E05); local suites and CI 40375789785 PASS. J03 strike 560, spare 240 and open 70 are identical locally and in CI. See handoffs/E06.md.
+- Next action: the owner reviews and merges E05 and E06. After E06 is accepted, E07 (deck draw and cycle experiment, High) becomes READY. E11 (High) is READY now.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
@@ -41,7 +42,7 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E03 — Application shell and E2E harness | DONE | Codex | codex/roguewood-build | 78b1740; CI40256553911 PASS; E03 handoff |
 | E04 — Straight throw and pin collision lab | DONE | Claude | claude/roguewood-build → main (PR #2) | 44bbd7e; CI 40262418442 PASS; owner merge |
 | E05 — Spin, curve, and mobile gesture feel | REVIEW | Claude | claude/roguewood-build | 0ad08c2; CI 40324357857 PASS; real-phone trials open gate |
-| E06 — Frame scoring and readable resolution | IN_PROGRESS | Claude | claude/roguewood-build | Claimed 2026-10-26 from 4b7ce12 (stacked on unmerged E05) |
+| E06 — Frame scoring and readable resolution | REVIEW | Claude | claude/roguewood-build | b325c56; CI 40375789785 PASS; stacked on E05 |
 | E07 — Deck draw and cycle experiment | NOT_STARTED | unassigned | — | See dependency graph |
 | E08 — Shop and match economy | NOT_STARTED | unassigned | — | See dependency graph |
 | E09 — Single Division loop and rival | NOT_STARTED | unassigned | — | See dependency graph |
@@ -79,6 +80,7 @@ E06 claim (2026-10-26):
 - Exclusive paths: src/rules/ (new files), src/presentation/, tests/{rules,scoring}_test.gd, tests/scoring_journey.gd, content/fixtures/lab_catalogue.json, docs/handoffs/E06.md.
 - Shared files (coordinator-owned this session): src/bootstrap/*, tests/run_tests.gd, tools/qa.py, the CI workflow, docs/CONTRACTS.md, docs/DEVELOPMENT.md, AGENTS.md, README.md and this checkpoint.
 - Out of scope: production catalogue items or Charms (E17/E18), match targets and payout (E08/E09), final VFX and audio (E12/E20), balance claims.
+- Status: implementation pushed (`b325c56`) with handoffs/E06.md, and CI passed. The claim stays open until the owner reviews and merges.
 
 
 E05 claim (2026-10-26T12:20Z):
@@ -123,6 +125,7 @@ Content registry: content/catalogue.json is empty by design; E02 defines validat
 - E03 PASS: native headless and rendered J01, deterministic reset, intentional-failure screenshots/logs and timeout/error probes. CI40256553911 on78b1740; artifact12622383032 inspected. Full bowling/device journeys remain later work.
 - E04 PASS (local, Godot 4.5.2.stable.official.6ce3de25a, Linux x86-64): unit (contracts, rules, lane geometry, knockdown tracker, gesture), content, integration, physics, smoke, Linux export plus exported boot, J01 headless and rendered, diagnostics, J02 headless and rendered, J02 injected failure exiting 1, py_compile and diff check. CI PASS https://github.com/khoix/Roguewood/actions/runs/40262418442 on `44bbd7e`; artifact `journeys` 12625271435. The physics outcome digest `d80a9fa440a2cc13b186509b7fc35b589cd49b7e42c0f0314908c62a6fc33cce` is identical locally, in separate processes and in CI. J02 covers real-touch straight throws, cancellation consuming nothing, no duplicate knockdowns, respotted survivors, a gutter void, and live play equal to a replay of the committed records.
 - E05 PASS (local and CI): unit (spin phases, ring, assist equivalence, oil zones), content, integration, physics (23 fixtures, 92 simulations; hook grows with spin, mirrors exactly, shrinks with speed; E04 straight outcomes unchanged), smoke, Linux export, J01 headless and rendered, diagnostics, J02 headless and rendered (curves both ways from real circle gestures at ±0.618 spin and ±0.282 m hook, target move, short flick, mouse, keyboard assist, landscape, trial log), and J02 injected failure exiting 1. CI https://github.com/khoix/Roguewood/actions/runs/40324357857 on `0ad08c2`; artifact `journeys` 12650896331.
+- E06 PASS (local and CI): unit (frame assembly, calculation log, 560/240/90, 3360/2800 logs, retrigger 8/9 bound, exact large score and overflow refusal), every earlier suite, and J03 headless and rendered (strike, spare and open through real input, checked against an independent resolution; log order; roll attribution; speed and skip; totals). CI https://github.com/khoix/Roguewood/actions/runs/40375789785 on `b325c56`; artifact `journeys` 12674518848.
 - Native iOS/Android/Windows, physical device feel (E05 trials NOT RUN), visual review and balance: NOT VALIDATED. E04/E05 throw thresholds and physics tuning are provisional (ADR 002/003).
 
 ## Blockers and limitations
