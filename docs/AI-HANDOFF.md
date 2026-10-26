@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-10-25. State: E01–E03 DONE; E04 READY.
+Updated: 2026-10-26. State: E01–E03 DONE; E04 IN_PROGRESS (claimed).
 
 ## Read first
 
@@ -13,7 +13,8 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 
 ## Current state
 
-- Integration branch: `codex/roguewood-build`; coordinator: Codex.
+- Integration branch through E03: `codex/roguewood-build` (coordinator Codex), accepted head `981c7c5269ce46bd7684486e9b4de29d067d5253`.
+- E04 branch: `claude/roguewood-build`, created from `981c7c5` at the user's direction (2026-10-26); Claude coordinates and executes E04 there. `codex/roguewood-build` is not modified by this session.
 - E01 DONE: implementation, independent review, clean-checkout export, and remote CI passed. No gameplay implemented.
 - Source baseline: main 30d76547ec2f49fa3b1be609f146cdd7b913695d; claim commit f63ea6ca6f08357f6b2c32587811ad49ff5f17d9.
 - E02 DONE: implementation cdb48595fe28d08e9c1bf20333b63061dcc49412; independent review and CI40245188289 PASS. See handoffs/E02.md and CONTRACTS.md.
@@ -36,7 +37,7 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E01 — Architecture and project bootstrap | DONE | Codex | codex/roguewood-build | f50f916; CI 40230415594 PASS; E01 handoff |
 | E02 — Headless rules and content contracts | DONE | Codex | codex/roguewood-build | cdb4859; CI40245188289 PASS; E02 handoff |
 | E03 — Application shell and E2E harness | DONE | Codex | codex/roguewood-build | 78b1740; CI40256553911 PASS; E03 handoff |
-| E04 — Straight throw and pin collision lab | READY | unassigned | — | E02/E03 accepted; proposed effort High |
+| E04 — Straight throw and pin collision lab | IN_PROGRESS | Claude | claude/roguewood-build | Claimed 2026-10-26T02:20Z from 981c7c5 |
 | E05 — Spin, curve, and mobile gesture feel | NOT_STARTED | unassigned | — | See dependency graph |
 | E06 — Frame scoring and readable resolution | NOT_STARTED | unassigned | — | See dependency graph |
 | E07 — Deck draw and cycle experiment | NOT_STARTED | unassigned | — | See dependency graph |
@@ -65,11 +66,18 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 
 ## Active claims and ownership
 
-No active claims or worker edits. E03 coordinator Codex and reviewer e02_review completed implementation/review. Accepted code78b1740159ee7c458fa9c36629ed6360009b0142; final claimfe3a2f71a11386d613c7511b37340d85f55f1141 released after CI success. E02 rules branch codex/roguewood-e02-rules remains integrated at95d46c59ca4d5381d3309d309d1bf32d4e11a266.
+E04 claim (2026-10-26T02:20Z):
+- Owner/coordinator: Claude (single-agent session). Reviewer: not yet assigned; independent review is required before DONE.
+- Branch: `claude/roguewood-build`; base SHA `981c7c5269ce46bd7684486e9b4de29d067d5253`. Dependencies E02, E03 (DONE).
+- Scope: elevated behind-ball camera, regulation lane, ten Wood pins, straight hold/drag/flick launch, collision attribution, fall/settle/timeout rules, gutters, cancellation, repeated-launch fixtures, J02 straight-throw journey.
+- Exclusive paths: src/input/, src/simulation/, src/presentation/, new tests for gesture/simulation/physics/J02, content/schemas/knockdown_log.schema.json, content/fixtures/throws/, docs/handoffs/E04.md.
+- Shared files changed under this claim (coordinator-owned this session): project.godot (physics engine/tick/touch emulation), src/bootstrap/*, src/contracts/contracts.gd, tests/run_tests.gd, tools/qa.py, .github/workflows/bootstrap.yml, docs/CONTRACTS.md, docs/DEVELOPMENT.md, docs/decisions/, this checkpoint.
+- Out of scope: spin/hook/curve, target-ring UI, sensitivity settings, effects catalogue, random bounce modifiers, scoring presentation (E05/E06).
+- Next checkpoint: implementation pushed with handoffs/E04.md and CI evidence.
 
-Latest budget40%=8min: start01:53:36Z, save cutoff01:57:36Z, hard stop02:01:36Z. E04 requires a new claim; do not start it implicitly.
+Prior: E03 coordinator Codex and reviewer e02_review completed implementation/review. Accepted code78b1740159ee7c458fa9c36629ed6360009b0142; final claimfe3a2f71a11386d613c7511b37340d85f55f1141 released after CI success. E02 rules branch codex/roguewood-e02-rules remains integrated at95d46c59ca4d5381d3309d309d1bf32d4e11a266.
 
-Standing reporting preference: at the end of each milestone, state the proposed effort level for the next pending milestone. E04 proposed effort: High.
+Standing reporting preference: at the end of each milestone, state the proposed effort level for the next pending milestone.
 
 ## Batch queue and content completeness
 
