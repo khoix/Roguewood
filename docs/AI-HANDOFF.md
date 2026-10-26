@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-10-26. State: E01–E04 DONE (integrated on main); E05 REVIEW (implemented, CI green, real-phone gate open).
+Updated: 2026-10-26. State: E01–E04 DONE (integrated on main); E05 REVIEW (implemented, CI green, real-phone gate open); E06 IN_PROGRESS (claimed).
 
 ## Read first
 
@@ -21,7 +21,7 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - E03 DONE: implementation78b1740159ee7c458fa9c36629ed6360009b0142, independent review and CI40256553911 PASS, rendered artifacts inspected. See handoffs/E03.md.
 - E04 DONE: implementation `44bbd7e7bad2d41ddb9e062b29e1733dae1a9bfe`, CI 40262418442 PASS. Accepted by the repository owner through the PR #2 merge, which had no review comments; no separate agent reviewer was run. See handoffs/E04.md and decisions/002-throw-lab-physics.md.
 - E05 REVIEW: implementation `0ad08c299f0f478eeed846bf9513853cff63006d` on `claude/roguewood-build`; local suites and CI 40324357857 PASS; the physics digest `75d1a3c0…` and J02 curve outcomes are identical locally and in CI. Real-phone trials are NOT RUN (no device or mobile build); the protocol is in playtests/E05-device-trials.md. See handoffs/E05.md and decisions/003-spin-curve-input.md.
-- Next action: the owner reviews and merges E05. E06 (High) and E11 (High) are READY; start either only through a new claim.
+- Next action: the owner reviews and merges E05. E06 is claimed below at the user's direction. E11 (High) is READY.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
@@ -41,7 +41,7 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E03 — Application shell and E2E harness | DONE | Codex | codex/roguewood-build | 78b1740; CI40256553911 PASS; E03 handoff |
 | E04 — Straight throw and pin collision lab | DONE | Claude | claude/roguewood-build → main (PR #2) | 44bbd7e; CI 40262418442 PASS; owner merge |
 | E05 — Spin, curve, and mobile gesture feel | REVIEW | Claude | claude/roguewood-build | 0ad08c2; CI 40324357857 PASS; real-phone trials open gate |
-| E06 — Frame scoring and readable resolution | READY | unassigned | — | E02/E04 accepted; proposed effort High |
+| E06 — Frame scoring and readable resolution | IN_PROGRESS | Claude | claude/roguewood-build | Claimed 2026-10-26 from 4b7ce12 (stacked on unmerged E05) |
 | E07 — Deck draw and cycle experiment | NOT_STARTED | unassigned | — | See dependency graph |
 | E08 — Shop and match economy | NOT_STARTED | unassigned | — | See dependency graph |
 | E09 — Single Division loop and rival | NOT_STARTED | unassigned | — | See dependency graph |
@@ -67,6 +67,19 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E29 — Delivery and final handoff | NOT_STARTED | unassigned | — | See dependency graph |
 
 ## Active claims and ownership
+
+E06 claim (2026-10-26):
+- Owner/coordinator: Claude (single-agent session). Reviewer: the repository owner by PR, unless an agent reviewer is requested.
+- Branch: `claude/roguewood-build`; base SHA `4b7ce12a4d5947ff67dae027164a37294b780acc`. Dependencies: E02 and E04 (DONE). This is stacked on unmerged E05 because the same branch carries it; E06 does not depend on E05's behaviour.
+- Scope:
+  - Assemble completed frames (strike on roll 1, otherwise two rolls) from live roll reports, hydrating item effects from a lab catalogue fixture (Wood pin, House ball).
+  - Resolve frames with the E02 `FrameRules`; one accuracy award per frame.
+  - Readable resolution: Value × Mult counters, sequential highlights on a flat ten-slot rack diagram with per-roll attribution, distinct add and multiply symbols, a persistent ordered calculation log, 1×/2×/4× speed and skip. Presentation never changes the score.
+  - Frame and session totals; J03 strike/spare/open journey; retrigger-bound and overflow tests.
+- Exclusive paths: src/rules/ (new files), src/presentation/, tests/{rules,scoring}_test.gd, tests/scoring_journey.gd, content/fixtures/lab_catalogue.json, docs/handoffs/E06.md.
+- Shared files (coordinator-owned this session): src/bootstrap/*, tests/run_tests.gd, tools/qa.py, the CI workflow, docs/CONTRACTS.md, docs/DEVELOPMENT.md, AGENTS.md, README.md and this checkpoint.
+- Out of scope: production catalogue items or Charms (E17/E18), match targets and payout (E08/E09), final VFX and audio (E12/E20), balance claims.
+
 
 E05 claim (2026-10-26T12:20Z):
 - Owner/coordinator: Claude (single-agent session). Reviewer: the repository owner by PR, unless an agent reviewer is requested.
