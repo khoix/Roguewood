@@ -7,6 +7,8 @@ var details: Label
 var enter: Button
 var reset: Button
 var back: Button
+var league: OptionButton
+var kit: OptionButton
 
 func _ready() -> void:
 	var panel := VBoxContainer.new()
@@ -24,6 +26,14 @@ func _ready() -> void:
 	details.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	details.text = "The lanes are waiting."
 	panel.add_child(details)
+	league = OptionButton.new()
+	league.name = "LeagueChoice"
+	league.add_item("House League")
+	panel.add_child(league)
+	kit = OptionButton.new()
+	kit.name = "KitChoice"
+	kit.add_item("House Kit")
+	panel.add_child(kit)
 	enter = _button(panel, "Enter League", "EnterLeague")
 	reset = _button(panel, "Restart Session", "ResetSession")
 	back = _button(panel, "Clubhouse", "BackToMenu")
@@ -45,9 +55,11 @@ func _button(parent: Node, label: String, node_name: String) -> Button:
 
 func _start_session() -> void:
 	# Fixed shell fixture, not procedural League progression or a Career save.
-	session = {"schema_version": 1, "seed": 1, "league_id": "league.house", "division": 1, "match": 1, "frame": 1, "score": 0}
+	session = {"schema_version": 1, "seed": 1, "league_id": "league.house", "kit_id": "kit.house", "division": 1, "match": 1, "frame": 1, "score": 0}
 	screen = "session"
 	details.text = "House League · Division 1\nBowling is coming soon."
+	league.hide()
+	kit.hide()
 	enter.hide()
 	reset.show()
 	back.show()
@@ -57,6 +69,8 @@ func _show_menu() -> void:
 	screen = "menu"
 	session = {}
 	details.text = "The lanes are waiting."
+	league.show()
+	kit.show()
 	enter.show()
 	reset.hide()
 	back.hide()

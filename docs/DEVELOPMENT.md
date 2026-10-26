@@ -22,10 +22,16 @@ python3 tools/qa.py export
 
 Open project.godot with the pinned editor; F6/F5 runs the title fixture. It is developer scaffolding, not release artwork or a playable game. Use `"$GODOT_BIN" --path .` with your shell's environment-variable syntax for CLI launch.
 
-E02 supplies unit, content, and contract integration suites; see [Contracts](CONTRACTS.md). The e2e command deliberately fails until E03 supplies it. E03 must implement actual UI/input-driven E2E, deterministic fixtures and failure artifacts. Logs report engine script errors even if the engine returns zero.
+E02 supplies unit, content, and contract integration suites; see [Contracts](CONTRACTS.md). The E03 e2e command supports the bootstrap J01 journey described below. E03 must implement actual UI/input-driven E2E, deterministic fixtures and failure artifacts. Logs report engine script errors even if the engine returns zero.
 
 ## Mobile feasibility
 
 See decisions/001-foundation.md for target matrix, renderer and module boundaries. iOS export needs macOS and Xcode; Android needs Android SDK/JDK; signing and device evidence remain outstanding. No credentials or export_credentials.cfg belong in Git. Linux smoke is the bootstrap acceptance check, not a substitute for device testing.
 
 CI verifies both downloads against tools/godot-downloads.sha512, copied from the official 4.5.2 release SHA512-SUMS.txt and verified locally. Update version and checksums together when intentionally upgrading.
+
+## E03 native journey
+
+`python3 tools/qa.py e2e --journey J01` drives native UI actions through menu, fixed House League/House Kit entry, deterministic reset and return. Only that initial fixture is selectable; catalogue and Career eligibility come later. `shell` remains a quick alias for the underlying script. Use `xvfb-run -a python3 tools/qa.py e2e --journey J01 --rendered` on Linux to exercise real rendering and save menu/session/reset/returned PNGs. A real desktop display also works without Xvfb. These captures document developmental UI, not final art approval.
+
+Artifacts live in ignored `artifacts/e03/headless` and `artifacts/e03/rendered`. Per-run screenshot cleanup prevents old captures from falsely satisfying validation. Logs include state checkpoints. `--inject-failure` must return nonzero and retain the failure log (plus failure.png when rendered). State waits are bounded at two seconds; outer process timeout is thirty seconds and preserves partial output. A hung renderer may prevent a final failure screenshot, so earlier checkpoints and timeout logs are retained. CI runs both modes and uploads diagnostics even on failure. J01 is the E03 bootstrap journey, not later device/whole-game acceptance. Other journeys are rejected until implemented.
