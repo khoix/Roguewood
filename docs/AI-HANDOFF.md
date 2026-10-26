@@ -17,7 +17,7 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - E01 DONE: implementation, independent review, clean-checkout export, and remote CI passed. No gameplay implemented.
 - Source baseline: main 30d76547ec2f49fa3b1be609f146cdd7b913695d; claim commit f63ea6ca6f08357f6b2c32587811ad49ff5f17d9.
 - E02 DONE: implementation cdb48595fe28d08e9c1bf20333b63061dcc49412; independent review and CI40245188289 PASS. See handoffs/E02.md and CONTRACTS.md.
-- E03 IN_PROGRESS: menu/test-session/reset and native button-input smoke implemented; see handoffs/E03.md. J01 harness, rendered capture support, failure/timeout logs and CI integration now implemented; rendered CI verification remains. See E03 continuation evidence.
+- E03 IN_PROGRESS: menu/test-session/reset and native button-input smoke implemented; see handoffs/E03.md. J01 harness, rendered capture support, failure/timeout logs and CI integration now implemented; rendered CI reached all checkpoints/screenshots but failed audio initialization; next fix is explicit Dummy audio for automated J01. See E03 continuation evidence.
 - Next execution: continue E03; proposed effort High. Reuse current shell/contracts/qa runner.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
@@ -101,4 +101,6 @@ Do not insert the checkpoint's own future commit SHA. Record already-known imple
 
 ## E03 continuation claim
 
-Codex owns src/bootstrap, tests/shell_smoke.gd, tools/qa.py, .github/workflows/bootstrap.yml and E03 documentation. Base6091a74db102fcf4b89982d6ff65106b8b656bcc, branch codex/roguewood-build; reviewer e02_review independently accepted code/headless J01 and timeout logs. Scope J01 fixture entry/reset, bounded native input automation, logs/screenshots/CI; no physics. Budget40%=8min; start01:21:24Z, implementation cutoff01:25:24Z, hard stop01:29:24Z.
+Codex owns src/bootstrap, tests/shell_smoke.gd, tools/qa.py, .github/workflows/bootstrap.yml and E03 documentation. Base6091a74db102fcf4b89982d6ff65106b8b656bcc, branch codex/roguewood-build; reviewer e02_review independently accepted code/headless J01 and timeout logs. Claim released at checkpoint; no worker edits. Scope J01 fixture entry/reset, bounded native input automation, logs/screenshots/CI; no physics. Budget40%=8min; start01:21:24Z, implementation cutoff01:25:24Z, hard stop01:29:24Z.
+
+E03 latest evidence: implementation185cff41e4d2b647d50e794581419daee9d7ba19; CI40254112572 unit/content/integration/export/headless PASS, rendered J01 writes screenshots but strict runner fails ALSA ERR_CANT_OPEN. Artifact12621363909 inspected (menu/session readable). Exact continuation in handoffs/E03.md: test-only --audio-driver Dummy, rendered success/failure checks, green CI and final acceptance. E03 remains IN_PROGRESS; next proposed effort High.
