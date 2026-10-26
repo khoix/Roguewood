@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "launch_id": "fixture-throw-1",
+  "ball_id": "ball.house",
+  "roll_index": 1,
+  "fallen_positions": [
+    1,
+    2,
+    3
+  ],
+  "accuracy": "sweet"
+}

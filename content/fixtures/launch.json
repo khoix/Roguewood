@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "launch_id": "fixture-throw-1",
+  "ball_id": "ball.house",
+  "roll_index": 1,
+  "start_x": 0,
+  "direction_x": 0,
+  "direction_forward": 1,
+  "power": 0.6,
+  "spin": -0.5,
+  "target_x": 0.1,
+  "ring_radius": 0.2
+}

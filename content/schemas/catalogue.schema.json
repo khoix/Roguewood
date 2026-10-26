@@ -1,0 +1,299 @@
+{
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "enum": [
+        1
+      ]
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "ball",
+              "pin",
+              "ball_mod",
+              "pin_mod",
+              "charm",
+              "consumable",
+              "shop_upgrade",
+              "lane_condition",
+              "boss_rule",
+              "kit"
+            ]
+          },
+          "rarity": {
+            "type": "string",
+            "enum": [
+              "common",
+              "uncommon",
+              "rare",
+              "epic",
+              "legendary"
+            ]
+          },
+          "pool_weight": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1000000
+          },
+          "unlock": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "initial",
+                  "boss",
+                  "championship",
+                  "mastery"
+                ]
+              },
+              "prerequisites": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$"
+                },
+                "minItems": 0,
+                "maxItems": 1000
+              }
+            },
+            "required": [
+              "kind",
+              "prerequisites"
+            ],
+            "additionalProperties": false
+          },
+          "earliest_division": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 8
+          },
+          "purchase_price": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000
+          },
+          "resale_price": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000
+          },
+          "effects": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "add_value",
+                    "add_mult",
+                    "multiply_mult",
+                    "payout",
+                    "grow_value"
+                  ]
+                },
+                "amount": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1000000
+                },
+                "trigger": {
+                  "type": "string",
+                  "enum": [
+                    "fallen",
+                    "standing",
+                    "ball",
+                    "charm",
+                    "after_bank"
+                  ]
+                },
+                "scope": {
+                  "type": "string",
+                  "enum": [
+                    "roll",
+                    "frame",
+                    "match",
+                    "run"
+                  ]
+                }
+              },
+              "required": [
+                "op",
+                "amount",
+                "trigger",
+                "scope"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 0,
+            "maxItems": 64
+          },
+          "limits": {
+            "type": "object",
+            "properties": {
+              "max_owned": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100
+              },
+              "charges": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 1000
+              },
+              "exhaustion": {
+                "type": "string",
+                "enum": [
+                  "none",
+                  "cycle",
+                  "consume"
+                ]
+              }
+            },
+            "required": [
+              "max_owned",
+              "charges",
+              "exhaustion"
+            ],
+            "additionalProperties": false
+          },
+          "downside": {
+            "type": "string"
+          },
+          "synergy_tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 0,
+            "maxItems": 1000
+          },
+          "incompatibilities": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$"
+            },
+            "minItems": 0,
+            "maxItems": 1000
+          },
+          "assets": {
+            "type": "object",
+            "properties": {
+              "icon": {
+                "type": "string"
+              },
+              "card": {
+                "type": "string"
+              },
+              "in_play": {
+                "type": "string"
+              },
+              "rarity_treatment": {
+                "type": "string"
+              },
+              "activation": {
+                "type": "string"
+              },
+              "sound": {
+                "type": "string"
+              },
+              "reduced_motion": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "icon",
+              "card",
+              "in_play",
+              "rarity_treatment",
+              "activation",
+              "sound",
+              "reduced_motion"
+            ],
+            "additionalProperties": false
+          },
+          "completeness": {
+            "type": "object",
+            "properties": {
+              "authored": {
+                "type": "boolean"
+              },
+              "mechanics": {
+                "type": "boolean"
+              },
+              "automated_validation": {
+                "type": "boolean"
+              },
+              "artwork": {
+                "type": "boolean"
+              },
+              "effects_audio": {
+                "type": "boolean"
+              },
+              "unlock_assigned": {
+                "type": "boolean"
+              },
+              "integrated": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "authored",
+              "mechanics",
+              "automated_validation",
+              "artwork",
+              "effects_audio",
+              "unlock_assigned",
+              "integrated"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "category",
+          "rarity",
+          "pool_weight",
+          "unlock",
+          "earliest_division",
+          "purchase_price",
+          "resale_price",
+          "effects",
+          "limits",
+          "downside",
+          "synergy_tags",
+          "incompatibilities",
+          "assets",
+          "completeness"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 1000
+    }
+  },
+  "required": [
+    "schema_version",
+    "items"
+  ],
+  "additionalProperties": false
+}
