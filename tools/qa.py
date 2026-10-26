@@ -8,6 +8,12 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 VERSION = (ROOT / ".godot-version").read_text().strip()
+# journey -> script, success marker, artifact directory, rendered captures, timeout, extra engine flags
+JOURNEYS = {
+    "J01": ("res://tests/shell_smoke.gd", "ROGUEWOOD_SHELL_OK", "artifacts/e03", ("menu", "session", "reset", "returned"), 30, []),
+    "J02": ("res://tests/throw_journey.gd", "ROGUEWOOD_J02_OK", "artifacts/e04",
+            ("aim", "cancelled", "rolling", "roll1", "roll2_aim", "frame", "gutter"), 300, ["--fixed-fps", "60"]),
+}
 
 
 def engine():
@@ -44,8 +50,8 @@ def run(args, marker=None, log_path=None, timeout=120):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["doctor", "import", "smoke", "export", "unit", "integration", "content", "shell", "e2e"])
-    parser.add_argument("--journey", choices=["J01"], default="J01")
+    parser.add_argument("command", choices=["doctor", "import", "smoke", "export", "unit", "integration", "content", "physics", "shell", "e2e"])
+    parser.add_argument("--journey", choices=sorted(JOURNEYS), default="J01")
     parser.add_argument("--rendered", action="store_true", help="Use a real display; on Linux run via xvfb-run")
     parser.add_argument("--inject-failure", action="store_true", help="Exercise J01 failure artifacts")
     args = parser.parse_args()
@@ -56,24 +62,32 @@ def main():
     run([exe, "--headless", "--path", str(ROOT), "--editor", "--import"])
     if args.command in ("unit", "content", "integration"):
         run([exe, "--headless", "--path", str(ROOT), "--script", "res://tests/run_tests.gd", "--", args.command], "ROGUEWOOD_" + args.command.upper() + "_OK")
+    elif args.command == "physics":
+        artifact_dir = ROOT / "artifacts/e04"
+        artifact_dir.mkdir(parents=True, exist_ok=True)
+        report = artifact_dir / "physics-report.json"
+        report.unlink(missing_ok=True)
+        run([exe, "--headless", "--fixed-fps", "60", "--path", str(ROOT), "--script", "res://tests/run_tests.gd", "--", "physics",
+             "--report=" + str(report)], "ROGUEWOOD_PHYSICS_OK", artifact_dir / "physics.log", timeout=600)
     elif args.command == "e2e":
-        flags = ["--audio-driver", "Dummy"]
+        script, marker, artifacts, captures, timeout, engine_flags = JOURNEYS[args.journey]
+        flags = ["--audio-driver", "Dummy", *engine_flags]
         if not args.rendered:
             flags.append("--headless")
         mode = "rendered" if args.rendered else "headless"
         if args.inject_failure:
             mode += "-failure"
-        artifact_dir = ROOT / "artifacts/e03" / mode
+        artifact_dir = ROOT / artifacts / mode
         artifact_dir.mkdir(parents=True, exist_ok=True)
         for old in artifact_dir.glob("*.png"):
             old.unlink()
         extra = ["--artifact-dir=" + str(artifact_dir)]
         if args.inject_failure:
             extra.append("--inject-failure")
-        run([exe, *flags, "--path", str(ROOT), "--script", "res://tests/shell_smoke.gd", "--", *extra],
-            "ROGUEWOOD_SHELL_OK", artifact_dir / "journey.log", timeout=30)
-        if args.rendered and not all((artifact_dir / (name + ".png")).is_file() for name in ("menu", "session", "reset", "returned")):
-            raise RuntimeError("Rendered J01 missing required screenshots")
+        run([exe, *flags, "--path", str(ROOT), "--script", script, "--", *extra],
+            marker, artifact_dir / "journey.log", timeout=timeout)
+        if args.rendered and not all((artifact_dir / (name + ".png")).is_file() for name in captures):
+            raise RuntimeError(f"Rendered {args.journey} missing required screenshots")
     elif args.command == "shell":
         run([exe, "--headless", "--path", str(ROOT), "--script", "res://tests/shell_smoke.gd"], "ROGUEWOOD_SHELL_OK", ROOT / "artifacts/e03/shell.log")
     elif args.command == "smoke":

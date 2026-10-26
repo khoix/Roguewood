@@ -1,0 +1,143 @@
+{
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "enum": [
+        1
+      ]
+    },
+    "launch_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ball_id": {
+      "type": "string",
+      "pattern": "^ball\\.[a-z][a-z0-9_]*$"
+    },
+    "roll_index": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 2
+    },
+    "knockdowns": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "properties": {
+          "position": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10
+          },
+          "sequence": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10
+          },
+          "tick": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "cause": {
+            "type": "string",
+            "enum": [
+              "ball",
+              "pin",
+              "environment"
+            ]
+          },
+          "source_position": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10
+          },
+          "chain_depth": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "tilt",
+              "off_deck",
+              "lean"
+            ]
+          }
+        },
+        "required": [
+          "position",
+          "sequence",
+          "tick",
+          "cause",
+          "source_position",
+          "chain_depth",
+          "reason"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "standing": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 10,
+      "items": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 10
+      }
+    },
+    "gutter": {
+      "type": "boolean"
+    },
+    "voided_positions": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 10,
+      "items": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 10
+      }
+    },
+    "target_crossed": {
+      "type": "boolean"
+    },
+    "target_offset": {
+      "type": "number",
+      "minimum": -10,
+      "maximum": 10
+    },
+    "settle": {
+      "type": "string",
+      "enum": [
+        "settled",
+        "timeout"
+      ]
+    },
+    "ticks": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100000
+    }
+  },
+  "required": [
+    "schema_version",
+    "launch_id",
+    "ball_id",
+    "roll_index",
+    "knockdowns",
+    "standing",
+    "gutter",
+    "voided_positions",
+    "target_crossed",
+    "target_offset",
+    "settle",
+    "ticks"
+  ],
+  "additionalProperties": false
+}

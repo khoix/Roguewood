@@ -1,5 +1,6 @@
 extends Control
-## Functional E03 shell; visual treatment remains E11/E12 work.
+## Functional shell; visual treatment remains E11/E12 work.
+const ThrowLab = preload("res://src/presentation/throw_lab.gd")
 var session: Dictionary = {}
 var screen := "menu"
 var heading: Label
@@ -9,9 +10,12 @@ var reset: Button
 var back: Button
 var league: OptionButton
 var kit: OptionButton
+var panel: VBoxContainer
+var session_bar: HBoxContainer
+var lab: ThrowLab
 
 func _ready() -> void:
-	var panel := VBoxContainer.new()
+	panel = VBoxContainer.new()
 	panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	panel.position = Vector2(-230, -190)
 	panel.custom_minimum_size = Vector2(460, 380)
@@ -34,9 +38,16 @@ func _ready() -> void:
 	kit.name = "KitChoice"
 	kit.add_item("House Kit")
 	panel.add_child(kit)
-	enter = _button(panel, "Enter League", "EnterLeague")
-	reset = _button(panel, "Restart Session", "ResetSession")
-	back = _button(panel, "Clubhouse", "BackToMenu")
+	enter = _button(panel, "Enter League", "EnterLeague", 460)
+	session_bar = HBoxContainer.new()
+	session_bar.name = "SessionBar"
+	session_bar.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+	session_bar.offset_top = 16
+	session_bar.alignment = BoxContainer.ALIGNMENT_CENTER
+	session_bar.add_theme_constant_override("separation", 16)
+	add_child(session_bar)
+	reset = _button(session_bar, "Restart Session", "ResetSession", 300)
+	back = _button(session_bar, "Clubhouse", "BackToMenu", 300)
 	enter.pressed.connect(_start_session)
 	reset.pressed.connect(_start_session)
 	back.pressed.connect(_show_menu)
@@ -45,11 +56,11 @@ func _ready() -> void:
 		print("ROGUEWOOD_BOOT_OK")
 		get_tree().quit(0)
 
-func _button(parent: Node, label: String, node_name: String) -> Button:
+func _button(parent: Node, label: String, node_name: String, width: float) -> Button:
 	var button := Button.new()
 	button.name = node_name
 	button.text = label
-	button.custom_minimum_size = Vector2(460, 64)
+	button.custom_minimum_size = Vector2(width, 64)
 	parent.add_child(button)
 	return button
 
@@ -57,21 +68,28 @@ func _start_session() -> void:
 	# Fixed shell fixture, not procedural League progression or a Career save.
 	session = {"schema_version": 1, "seed": 1, "league_id": "league.house", "kit_id": "kit.house", "division": 1, "match": 1, "frame": 1, "score": 0}
 	screen = "session"
-	details.text = "House League · Division 1\nBowling is coming soon."
-	league.hide()
-	kit.hide()
-	enter.hide()
-	reset.show()
-	back.show()
+	details.text = "House League · Division 1"
+	panel.hide()
+	_clear_lab()
+	# E04 throw lab; the lane draws beneath the session controls.
+	lab = ThrowLab.new()
+	lab.name = "ThrowLab"
+	add_child(lab)
+	move_child(lab, 0)
+	session_bar.show()
 	reset.grab_focus()
 
 func _show_menu() -> void:
 	screen = "menu"
 	session = {}
 	details.text = "The lanes are waiting."
-	league.show()
-	kit.show()
-	enter.show()
-	reset.hide()
-	back.hide()
+	_clear_lab()
+	panel.show()
+	session_bar.hide()
 	enter.grab_focus()
+
+func _clear_lab() -> void:
+	if lab:
+		remove_child(lab)
+		lab.free()
+		lab = null

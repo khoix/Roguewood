@@ -1,6 +1,6 @@
 # Development
 
-Use integration branch `codex/roguewood-build`; read AI-HANDOFF.md before changes.
+Read AI-HANDOFF.md before changes; it records the active branch (E04 work is on `claude/roguewood-build`, derived from the E03-accepted `codex/roguewood-build`).
 
 ## Prerequisites
 
@@ -14,13 +14,14 @@ python3 tools/qa.py import
 python3 tools/qa.py unit
 python3 tools/qa.py content
 python3 tools/qa.py integration
+python3 tools/qa.py physics
 python3 tools/qa.py smoke
 python3 tools/qa.py export
 ```
 
-`export` builds and starts Linux x86-64 debug output, requires matching templates, and is Linux-only. It does not validate iOS, Android, or Windows. Use the editor's template manager to install templates, or see the CI installation script for Linux. Outputs live in ignored build/. CI repeats doctor, unit, content, integration, smoke, and export on pushes and pull requests.
+`export` builds and starts Linux x86-64 debug output, requires matching templates, and is Linux-only. It does not validate iOS, Android, or Windows. Use the editor's template manager to install templates, or see the CI installation script for Linux. Outputs live in ignored build/. CI repeats doctor, unit, content, integration, physics, smoke, and export on pushes and pull requests.
 
-Open project.godot with the pinned editor; F6/F5 runs the title fixture. It is developer scaffolding, not release artwork or a playable game. Use `"$GODOT_BIN" --path .` with your shell's environment-variable syntax for CLI launch.
+Open project.godot with the pinned editor; F5 runs the shell, and Enter League opens the E04 throw lab. Hold the ball, drag to line up, then flick up (mouse works through touch emulation). It is developer scaffolding, not release artwork or the game loop. Use `"$GODOT_BIN" --path .` with your shell's environment-variable syntax for CLI launch.
 
 E02 supplies unit, content, and contract integration suites; see [Contracts](CONTRACTS.md). The E03 e2e command supports the bootstrap J01 journey described below. E03 must implement actual UI/input-driven E2E, deterministic fixtures and failure artifacts. Logs report engine script errors even if the engine returns zero.
 
@@ -37,3 +38,9 @@ CI verifies both downloads against tools/godot-downloads.sha512, copied from the
 Artifacts live in ignored `artifacts/e03/headless` and `artifacts/e03/rendered`. Per-run screenshot cleanup prevents old captures from falsely satisfying validation. Logs include state checkpoints. `--inject-failure` must return nonzero and retain the failure log (plus failure.png when rendered). State waits are bounded at two seconds; outer process timeout is thirty seconds and preserves partial output. A hung renderer may prevent a final failure screenshot, so earlier checkpoints and timeout logs are retained. CI runs both modes and uploads diagnostics even on failure. J01 is the E03 bootstrap journey, not later device/whole-game acceptance. Other journeys are rejected until implemented.
 
 Automated J01 explicitly uses Godot Dummy audio; normal gameplay audio is unchanged. Intentional failure artifacts use separate headless-failure/rendered-failure directories. CI also runs `xvfb-run -a python3 tools/verify_diagnostics.py`, checking the deliberate failure exit, PNG signatures, failure logs, timeout partial output and strict engine-error rejection. Locally `--headless` runs the same diagnostics without screenshot assertions.
+
+## E04 throw lab, physics fixtures and J02
+
+`python3 tools/qa.py physics` runs `content/fixtures/throws/lab_throws.json` through real Jolt worlds headless at `--fixed-fps 60`. It checks contracts and outcome classes and requires repeated launches, aim delays and a JSON rack round trip to produce identical results. It also reports start-x sensitivity. The output is `artifacts/e04/physics.log` and `physics-report.json`, whose `digest` summarizes every outcome and final pose, so you can compare digests across machines. A run takes about 20 s.
+
+`python3 tools/qa.py e2e --journey J02` drives the shell and throw lab through `Input.parse_input_event` touch and drag events. It covers three cancel paths (sideways only, slow, and OS-cancelled) that must consume nothing, and a touch away from the ball. It then plays a straight two-roll frame in which survivors are respotted, no pin is credited twice and the E02 `FrameRules.validate` accepts the frame, followed by Next Rack and a gutter frame. Finally it checks that both live rolls replay identically from their committed records in fresh worlds. J02 passes `--fixed-fps 60`, so gesture timing is deterministic. `--rendered` (via `xvfb-run -a` on Linux) saves aim, cancelled, rolling, roll1, roll2_aim, frame and gutter PNGs to `artifacts/e04/rendered`, and `--inject-failure` must exit 1. Expect about 1 minute rendered on llvmpipe. These captures show developmental geometry, not art approval or device feel.

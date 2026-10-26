@@ -3,7 +3,7 @@ const Contracts = preload("res://src/contracts/contracts.gd")
 
 static func run() -> Array[String]:
 	var failures: Array[String] = []
-	for kind in ["catalogue", "launch", "roll_result"]:
+	for kind in ["catalogue", "launch", "roll_result", "knockdown_log"]:
 		var fixture = Contracts.read_json("res://content/fixtures/" + kind + ".json")
 		_expect(Contracts.validate(kind, fixture).is_empty(), kind + " valid fixture", failures)
 		var roundtrip = JSON.parse_string(JSON.stringify(fixture))
@@ -57,7 +57,44 @@ static func run() -> Array[String]:
 	var wrong_owner = catalogue.duplicate(true)
 	wrong_owner.items[0].effects[0].trigger = "charm"
 	_expect(not Contracts.validate("catalogue", wrong_owner).is_empty(), "wrong effect owner", failures)
+	_knockdown_cases(valid_result, failures)
 	return failures
+
+static func _knockdown_cases(valid_result: Dictionary, failures: Array[String]) -> void:
+	var record = Contracts.read_json("res://content/fixtures/knockdown_log.json")
+	_expect(Contracts.validate_log_for_result(valid_result, record).is_empty(), "record credits result pinfall", failures)
+	var engine_built := {"schema_version": 1, "launch_id": "x", "ball_id": "ball.house", "roll_index": 1, "fallen_positions": [1], "accuracy": "miss"}
+	_expect(Contracts.validate("roll_result", engine_built).is_empty(), "engine int fields match JSON enum", failures)
+	_expect(not Contracts.validate("roll_result", engine_built.merged({"schema_version": true}, true)).is_empty(), "bool never equals numeric enum", failures)
+	var mutations := {
+		"duplicate credit": func(bad): bad.knockdowns[2].position = 1,
+		"credited and standing": func(bad): bad.standing.append(3),
+		"sequence gap": func(bad): bad.knockdowns[1].sequence = 3,
+		"tick order": func(bad): bad.knockdowns[2].tick = 1,
+		"ball with source": func(bad): bad.knockdowns[0].source_position = 2,
+		"pin self source": func(bad): bad.knockdowns[2].source_position = 2,
+		"pin depth": func(bad): bad.knockdowns[2].chain_depth = 1,
+		"gutter credit": func(bad): bad.gutter = true,
+		"void without gutter": func(bad): bad.voided_positions = [4],
+		"uncrossed offset": func(bad): bad.target_crossed = false,
+		"unknown cause": func(bad): bad.knockdowns[0].cause = "ghost",
+	}
+	for label in mutations:
+		var bad = record.duplicate(true)
+		mutations[label].call(bad)
+		_expect(not Contracts.validate("knockdown_log", bad).is_empty(), "knockdown record rejects " + label, failures)
+	var gutter = record.duplicate(true)
+	gutter.knockdowns = []
+	gutter.gutter = true
+	gutter.voided_positions = [10]
+	gutter.standing = range(1, 11)
+	_expect(Contracts.validate("knockdown_log", gutter).is_empty(), "gutter record voids and respots", failures)
+	var mismatch = valid_result.duplicate(true)
+	mismatch.fallen_positions = [1, 2]
+	_expect(not Contracts.validate_log_for_result(mismatch, record).is_empty(), "record/result pinfall mismatch", failures)
+	mismatch = valid_result.duplicate(true)
+	mismatch.launch_id = "other"
+	_expect(not Contracts.validate_log_for_result(mismatch, record).is_empty(), "record/result identity mismatch", failures)
 
 static func _expect(condition: bool, label: String, failures: Array[String]) -> void:
 	if not condition: failures.append(label)
