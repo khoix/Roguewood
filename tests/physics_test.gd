@@ -1,7 +1,8 @@
 extends RefCounted
 ## Physics lab suite: launch fixtures through real Jolt worlds. Checks contracts,
-## outcome classes, exact same-build repeatability, aim-delay invariance and
-## JSON rack round trips; reports 0.002 start-x sensitivity without asserting it.
+## outcome classes, hook direction/size, exact same-build repeatability, aim-delay
+## invariance and JSON rack round trips; reports 0.002 start-x sensitivity
+## without asserting it.
 const Contracts = preload("res://src/contracts/contracts.gd")
 const Lane = preload("res://src/simulation/lane_spec.gd")
 const LaneWorld = preload("res://src/simulation/lane_world.gd")
@@ -26,7 +27,12 @@ static func launch_of(fixture: Dictionary, id: String, start_x: float = NAN) -> 
 	var angle := deg_to_rad(float(fixture.angle_deg))
 	return {"schema_version": 1, "launch_id": id, "ball_id": "ball.house", "roll_index": 1,
 		"start_x": float(fixture.start_x) if is_nan(start_x) else start_x, "direction_x": sin(angle), "direction_forward": cos(angle),
-		"power": float(fixture.power), "spin": 0.0, "target_x": Lane.DEFAULT_TARGET_X, "ring_radius": Lane.DEFAULT_RING_RADIUS}
+		"power": float(fixture.power), "spin": float(fixture.get("spin", 0.0)), "target_x": Lane.DEFAULT_TARGET_X, "ring_radius": Lane.DEFAULT_RING_RADIUS}
+
+## Hook at the target plane (meters); 0 when the ball never reached it, so reports stay valid JSON.
+static func curve_of(report: Dictionary) -> float:
+	var hook := Lane.hook_at_target(report.launch, report.knockdown_log)
+	return 0.0 if is_nan(hook) else hook
 
 func _check(condition: bool, label: String) -> void:
 	if not condition:
@@ -86,7 +92,7 @@ func run(tree: SceneTree, report_path: String) -> Array[String]:
 			for key in COMPARED:
 				_check(results.get("%s#%d" % [fixture.id, repeat], {}).get(key) == first[key], "%s repeat %d identical %s" % [fixture.id, repeat, key])
 		var fallen: Array = first.roll_result.fallen_positions
-		summary[fixture.id] = {"fallen": fallen, "standing": first.knockdown_log.standing, "gutter": first.knockdown_log.gutter,
+		summary[fixture.id] = {"fallen": fallen, "standing": first.knockdown_log.standing, "gutter": first.knockdown_log.gutter, "curve_m": curve_of(first),
 			"accuracy": first.roll_result.accuracy, "settle": first.knockdown_log.settle, "ticks": first.knockdown_log.ticks,
 			"chain": first.knockdown_log.knockdowns.map(func(k): return [k.position, k.cause, k.source_position]),
 			"digest": JSON.stringify(first.final_state, "", true, true).sha256_text()}
@@ -96,6 +102,7 @@ func run(tree: SceneTree, report_path: String) -> Array[String]:
 			summary[fixture.id].nudged_fallen = nudge
 			if nudge != fallen:
 				changed += 1
+	_hook_relations(summary)
 	for idle in [13, 97]:
 		for key in COMPARED:
 			_check(results.get("pocket@idle%d" % idle, {}).get(key) == results.get("pocket#0", {}).get(key), "aim delay %d ticks cannot change %s" % [idle, key])
@@ -109,8 +116,16 @@ func run(tree: SceneTree, report_path: String) -> Array[String]:
 		file.store_string(JSON.stringify(report, "  ", true, true))
 	print("PHYSICS simulations=%d elapsed_ms=%d sensitivity_changed=%d/%d digest=%s" % [results.size(), report.elapsed_ms, changed, nudged, report.digest])
 	for id in summary:
-		print("PHYSICS %s fallen=%s gutter=%s settle=%s ticks=%d" % [id, str(summary[id].fallen), str(summary[id].gutter), summary[id].settle, summary[id].ticks])
+		print("PHYSICS %s fallen=%s gutter=%s curve_m=%+.3f settle=%s ticks=%d" % [id, str(summary[id].fallen), str(summary[id].gutter), summary[id].curve_m, summary[id].settle, summary[id].ticks])
 	return failures
+
+## Hook grows with spin, mirrors exactly with its sign, and shrinks with speed.
+func _hook_relations(summary: Dictionary) -> void:
+	var curve := func(id: String) -> float: return summary.get(id, {}).get("curve_m", NAN)
+	_check(curve.call("curve_right_25") < curve.call("curve_right_50") and curve.call("curve_right_50") < curve.call("curve_right_100"), "hook grows with spin")
+	_check(absf(curve.call("curve_right_50") + curve.call("curve_left_50")) < 1e-4, "hook mirrors exactly with spin sign")
+	_check(curve.call("curve_right_50_slow") > curve.call("curve_right_50") and curve.call("curve_right_50") > curve.call("curve_right_50_fast"), "faster throws hook less")
+	_check(absf(summary.get("pocket", {}).get("curve_m", 1.0)) < 1e-4, "spin 0 stays straight")
 
 ## Survivor racks persist as JSON (E10); a round trip must not change roll two.
 func _second_roll_round_trip(tree: SceneTree, fixtures: Array) -> void:
@@ -146,6 +161,9 @@ func _check_report(fixture: Dictionary, report: Dictionary) -> void:
 		_check(int(position) in fallen, "%s knocks pin %d, got %s" % [id, int(position), str(fallen)])
 	for position in expect.get("excludes", []):
 		_check(int(position) not in fallen, "%s leaves pin %d, got %s" % [id, int(position), str(fallen)])
+	if expect.has("curve"):
+		var hook := curve_of(report)
+		_check(report.knockdown_log.target_crossed and hook >= float(expect.curve[0]) and hook <= float(expect.curve[1]), "%s hook %.3f m outside %s" % [id, hook, str(expect.curve)])
 	if expect.has("gutter"):
 		_check(report.knockdown_log.gutter == expect.gutter, "%s gutter=%s" % [id, str(expect.gutter)])
 	for knockdown in report.knockdown_log.knockdowns:

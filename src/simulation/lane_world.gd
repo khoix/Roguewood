@@ -24,12 +24,14 @@ var _tokens: Dictionary = {}
 var _pending := false
 var _dressing: Object
 var _rack_in: Array = []
+var _ball_material: PhysicsMaterial
+var _zone_friction := 0.0
 
 ## dressing (optional) attaches presentation meshes; it never adds collision.
 func setup(rack_state: Dictionary, dressing: Object = null) -> void:
 	_dressing = dressing
 	# One seamless surface from approach to pit: abutting boxes create internal
-	# edges that make a rolling ball hop. Oil-zone friction for hook belongs to E05.
+	# edges that make a rolling ball hop. The oil pattern is the ball's friction (ADR 003).
 	# Jolt combines friction by minimum and bounce by sum (measured E04): pin-pin
 	# restitution is 2 x PIN_BOUNCE, ball-pin is BALL_BOUNCE + PIN_BOUNCE.
 	var surface := _material(Lane.SURFACE_FRICTION, 0.0)
@@ -154,7 +156,9 @@ func _add_ball() -> void:
 	ball = RigidBody3D.new()
 	ball.name = "Ball"
 	ball.mass = Lane.BALL_MASS
-	ball.physics_material_override = _material(0.12, Lane.BALL_BOUNCE)
+	_zone_friction = Lane.ball_friction(Lane.BALL_START_F)
+	_ball_material = _material(_zone_friction, Lane.BALL_BOUNCE)
+	ball.physics_material_override = _ball_material
 	ball.continuous_cd = true
 	ball.contact_monitor = true
 	ball.max_contacts_reported = 8
@@ -187,12 +191,10 @@ func commit(record: Dictionary) -> Array[String]:
 	if state != "ready":
 		errors.append("Lane already committed")
 	if errors.is_empty():
-		if record.spin != 0:
-			errors.append("Spin and hook are not implemented until E05")
 		if absf(record.start_x) > Lane.MAX_START_X + 1e-9:
 			errors.append("start_x places the ball off the lane")
 		if record.ball_id != "ball.house":
-			errors.append("Only ball.house is simulated in E04")
+			errors.append("Only ball.house is simulated until catalogue balls exist")
 	if errors.is_empty():
 		launch = record.duplicate(true)
 		state = "committed"
@@ -207,7 +209,8 @@ func _apply_launch() -> void:
 	ball.position = Lane.world(launch.start_x * Lane.LANE_HALF_WIDTH, Lane.BALL_START_F, Lane.BALL_RADIUS)
 	add_child(ball, true)
 	ball.linear_velocity = velocity
-	ball.angular_velocity = Vector3.UP.cross(velocity) / Lane.BALL_RADIUS # true roll, no hook
+	# True forward roll plus side rotation about the travel axis (positive hooks right).
+	ball.angular_velocity = Vector3.UP.cross(velocity) / Lane.BALL_RADIUS + direction * Lane.side_spin(launch.spin)
 	for position in pins:
 		pins[position].freeze = false
 	tracker = Tracker.new(pins.keys())
@@ -219,6 +222,15 @@ func _physics_process(_delta: float) -> void:
 		_apply_launch()
 	elif state == "rolling" and tracker.step(observe()):
 		_finish()
+	if state == "rolling":
+		_oil_pattern()
+
+## Sets the ball's friction for the zone it is in before the next step.
+func _oil_pattern() -> void:
+	var friction := Lane.ball_friction(-ball.global_position.z)
+	if friction != _zone_friction:
+		_zone_friction = friction
+		_ball_material.friction = friction
 
 func observe() -> Dictionary:
 	var contacts := {}

@@ -12,7 +12,10 @@ var league: OptionButton
 var kit: OptionButton
 var panel: VBoxContainer
 var session_bar: HBoxContainer
+var options: Button
 var lab: ThrowLab
+## Throw settings shared by every session this run (persistence is E25).
+var throw_settings: Dictionary = {}
 
 func _ready() -> void:
 	panel = VBoxContainer.new()
@@ -46,8 +49,10 @@ func _ready() -> void:
 	session_bar.alignment = BoxContainer.ALIGNMENT_CENTER
 	session_bar.add_theme_constant_override("separation", 16)
 	add_child(session_bar)
-	reset = _button(session_bar, "Restart Session", "ResetSession", 300)
-	back = _button(session_bar, "Clubhouse", "BackToMenu", 300)
+	reset = _button(session_bar, "Restart Session", "ResetSession", 220)
+	back = _button(session_bar, "Clubhouse", "BackToMenu", 220)
+	options = _button(session_bar, "Options", "ThrowOptions", 220)
+	options.pressed.connect(func(): if lab: lab.toggle_settings())
 	enter.pressed.connect(_start_session)
 	reset.pressed.connect(_start_session)
 	back.pressed.connect(_show_menu)
@@ -71,9 +76,10 @@ func _start_session() -> void:
 	details.text = "House League · Division 1"
 	panel.hide()
 	_clear_lab()
-	# E04 throw lab; the lane draws beneath the session controls.
+	# Throw lab (E04/E05); the lane draws beneath the session controls.
 	lab = ThrowLab.new()
 	lab.name = "ThrowLab"
+	lab.settings = throw_settings
 	add_child(lab)
 	move_child(lab, 0)
 	session_bar.show()

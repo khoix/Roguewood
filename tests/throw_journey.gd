@@ -1,16 +1,22 @@
 extends SceneTree
-## J02 straight-throw journey. Drives the real shell and throw lab through
-## Input.parse_input_event touch/drag events and focused-button actions; no lab
-## callbacks are invoked directly. Run with --fixed-fps 60 for deterministic time.
+## J02 throw journey (E04 straight, E05 curve/controls). Drives the real shell and
+## throw lab through Input.parse_input_event touch, drag, mouse and focused-control
+## actions; no lab callbacks are invoked directly. Run with --fixed-fps 60 for
+## deterministic time.
 const Contracts = preload("res://src/contracts/contracts.gd")
 const Rules = preload("res://src/rules/frame_rules.gd")
 const Lane = preload("res://src/simulation/lane_spec.gd")
 const LaneWorld = preload("res://src/simulation/lane_world.gd")
+const Mapper = preload("res://src/input/launch_mapper.gd")
+const Ring = preload("res://src/input/target_ring.gd")
 const ROLL_FRAMES := 1800
+const PORTRAIT := Vector2i(450, 800)
+const LANDSCAPE := Vector2i(800, 450)
 var failures: Array[String] = []
 var artifact_dir := ""
 var scene: Control
 var lab: Control
+var trials_path := ""
 
 func _initialize() -> void:
 	call_deferred("_run")
@@ -87,6 +93,9 @@ func _gesture(slide: Vector2, slide_frames: int, step: Vector2, step_frames: int
 func _run() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--artifact-dir="): artifact_dir = arg.trim_prefix("--artifact-dir=")
+	# Device profile: phone portrait (450x800 window -> 720x1280 canvas) in both
+	# headless and rendered runs, so the same gestures mean the same thing.
+	root.size = PORTRAIT
 	scene = load("res://src/bootstrap/bootstrap.tscn").instantiate()
 	root.add_child(scene)
 	await process_frame
@@ -94,6 +103,11 @@ func _run() -> void:
 	await _accept()
 	await _wait_for(func(): return scene.screen == "session" and scene.lab != null, "session with throw lab")
 	lab = scene.lab
+	# Fixture: keep the device-trial log as evidence instead of in user://.
+	trials_path = artifact_dir.path_join("trials.jsonl") if not artifact_dir.is_empty() else ""
+	if not trials_path.is_empty():
+		DirAccess.remove_absolute(trials_path)
+	lab.trial_log_path = trials_path
 	await _wait_for(func(): return lab.state == "aim" and lab.lane.state == "ready", "aim state")
 	for i in 3: await process_frame
 	await _capture("aim")
@@ -103,6 +117,11 @@ func _run() -> void:
 	var frame := await _two_roll_frame()
 	await _gutter_frame()
 	await _replays(frame)
+	await _curves_and_target()
+	await _mouse_throw()
+	await _assist_throw()
+	await _landscape_throw()
+	_check_trial_log()
 	if "--inject-failure" in OS.get_cmdline_user_args(): _check(false, "Injected diagnostic failure")
 	if not failures.is_empty(): await _capture("failure")
 	if failures.is_empty(): print("ROGUEWOOD_J02_OK")
@@ -121,10 +140,12 @@ func _cancellations(lane_before: Node, ball_home: Vector3) -> void:
 	await _gesture(Vector2.ZERO, 0, Vector2(0, -40), 3, false)
 	await _touch(lab.ball_screen_position(), false, true)
 	_check(lab.cancels == 3 and lab.last_cancel == "touch_canceled", "OS touch cancel cancels")
-	# Touching away from the ball never starts a throw.
+	# Touching the lane away from the ball moves the target and never throws.
+	var target_before: float = lab.target_x
 	await _touch(Vector2(60, 400), true)
 	await _touch(Vector2(60, 300), false)
-	_check(lab.state == "aim" and lab.cancels == 3, "touch off the ball ignored")
+	_check(lab.state == "aim" and lab.cancels == 3 and lab.history.is_empty(), "touch off the ball does not throw")
+	_check(lab.target_x < target_before, "tap on the lane moves the target")
 	_check(lab.lane == lane_before and lab.lane.state == "ready" and lab.lane.launch.is_empty(), "cancellations consume no launch")
 	_check(lab.history.is_empty() and lab.roll_index == 1 and lab.frame_number == 1, "cancellations consume no roll")
 	_check(lab.lane.ball_position().is_equal_approx(ball_home), "ball returned after cancel")
@@ -228,3 +249,185 @@ func _check_report(report: Dictionary, rack_in: Dictionary) -> void:
 	print("J02 report launch=%s roll=%d fallen=%s standing=%s gutter=%s accuracy=%s settle=%s ticks=%d" % [report.launch.launch_id, report.launch.roll_index,
 		str(report.roll_result.fallen_positions), str(report.knockdown_log.standing), str(report.knockdown_log.gutter), report.roll_result.accuracy,
 		report.knockdown_log.settle, report.knockdown_log.ticks])
+
+## Waits for the next throwable aim state, pressing Next Rack when a frame is done.
+func _ready_to_throw() -> void:
+	await _wait_for(func(): return lab.state in ["aim", "frame_done"], "aim or frame done", ROLL_FRAMES)
+	if lab.state == "frame_done":
+		lab.next_rack.grab_focus()
+		await _accept()
+	await _wait_for(func(): return lab.state == "aim" and lab.lane.state == "ready", "aim before throw")
+
+## Holds the ball, circles sweep_deg (clockwise positive on screen) starting at the
+## circle's bottom (the ball), then flicks straight up. Captures mid-hold if asked.
+func _circle_throw(sweep_deg: float, hold_capture: String = "") -> void:
+	var radius := 60.0
+	var at: Vector2 = lab.ball_screen_position()
+	var center := at + Vector2(0.0, -radius)
+	await _touch(at, true)
+	for i in int(absf(sweep_deg) / 10.0):
+		var angle := deg_to_rad(90.0 + signf(sweep_deg) * 10.0 * (i + 1))
+		var next := center + Vector2(cos(angle), sin(angle)) * radius
+		await _drag(next, next - at)
+		at = next
+	if not hold_capture.is_empty():
+		await _capture(hold_capture)
+	for i in 8:
+		at += Vector2(0, -32)
+		await _drag(at, Vector2(0, -32))
+	await _touch(at, false)
+
+func _await_result(label: String) -> Dictionary:
+	if not await _wait_for(func(): return lab.state == "result", label + " settles", ROLL_FRAMES):
+		return {}
+	var report: Dictionary = lab.history[-1]
+	_check_report(report, lab.rack)
+	var crossed: bool = report.knockdown_log.target_crossed
+	var grade := Lane.grade_accuracy(crossed, report.knockdown_log.target_offset - report.launch.target_x, report.launch.ring_radius)
+	_check(grade == report.roll_result.accuracy, label + " accuracy uses the frozen ring and target")
+	return report
+
+func _curves_and_target() -> void:
+	await _ready_to_throw()
+	# Move the target to just right of the head pin by tapping the lane there.
+	var pocket := 0.08
+	var tap: Vector2 = lab.get_global_transform() * lab.screen_point(Lane.world(pocket, Lane.TARGET_PLANE_F, 0.0))
+	await _touch(tap, true)
+	await _touch(tap, false)
+	_check(absf(lab.target_x - pocket / Lane.LANE_HALF_WIDTH) < 0.01, "tap moves the target ring under the finger")
+	await _capture("target")
+	# Short flick: too little travel to throw.
+	var cancels: int = lab.cancels
+	await _gesture(Vector2.ZERO, 0, Vector2(0, -6), 3)
+	_check(lab.cancels == cancels + 1 and lab.last_cancel == "short", "short flick cancels")
+	for sweep in [450.0, -450.0]:
+		await _ready_to_throw()
+		var label := "curve_right" if sweep > 0.0 else "curve_left"
+		await _circle_throw(sweep, label + "_hold" if sweep > 0.0 else "")
+		_check(lab.state == "rolling", label + " commits")
+		var launch: Dictionary = lab.lane.launch
+		_check(signf(launch.spin) == signf(sweep) and Lane.is_curved(launch.spin) and absf(absf(launch.spin) - 450.0 / 720.0) < 0.05, label + " gesture charges matching spin")
+		_check(absf(launch.direction_x) < 0.01, label + " circle does not steer the flick")
+		_check(absf(launch.target_x - pocket / Lane.LANE_HALF_WIDTH) < 0.01, label + " launch carries the moved target")
+		_check(launch.ring_radius < Ring.RING_MAX and launch.ring_radius >= Ring.RING_MIN, label + " ring contracted while held and froze at release")
+		for i in 50: await process_frame
+		await _capture(label)
+		var report := await _await_result(label)
+		if report.is_empty(): return
+		var hook := Lane.hook_at_target(report.launch, report.knockdown_log)
+		_check(not is_nan(hook) and signf(hook) == signf(sweep) and absf(hook) > 0.05, "%s hooks %+.3f m the matching way" % [label, hook])
+		print("J02 %s spin=%+.3f hook_m=%+.3f ring=%.3f accuracy=%s fallen=%s" % [label, launch.spin, hook, launch.ring_radius, report.roll_result.accuracy, str(report.roll_result.fallen_positions)])
+
+func _mouse_button(canvas: Vector2, pressed: bool) -> void:
+	var event := InputEventMouseButton.new()
+	event.button_index = MOUSE_BUTTON_LEFT
+	event.pressed = pressed
+	event.button_mask = MOUSE_BUTTON_MASK_LEFT if pressed else 0
+	event.position = _window(canvas)
+	event.global_position = event.position
+	Input.parse_input_event(event)
+	await process_frame
+
+func _mouse_move(canvas: Vector2, relative: Vector2) -> void:
+	var event := InputEventMouseMotion.new()
+	event.button_mask = MOUSE_BUTTON_MASK_LEFT
+	event.position = _window(canvas)
+	event.global_position = event.position
+	event.relative = relative
+	Input.parse_input_event(event)
+	await process_frame
+
+## A desktop mouse drives the same gesture through touch emulation.
+func _mouse_throw() -> void:
+	await _ready_to_throw()
+	var at: Vector2 = lab.ball_screen_position()
+	await _mouse_button(at, true)
+	_check(lab.state == "holding", "mouse press on the ball holds it")
+	for i in 8:
+		at += Vector2(0, -32)
+		await _mouse_move(at, Vector2(0, -32))
+	await _mouse_button(at, false)
+	_check(lab.state == "rolling" and lab.last_source == "mouse", "mouse flick commits a throw")
+	await _await_result("mouse")
+
+func _focus_accept(control: Control) -> void:
+	control.grab_focus()
+	await _accept()
+
+func _ui(action: String, times: int) -> void:
+	for i in times:
+		for pressed in [true, false]:
+			var event := InputEventAction.new()
+			event.action = action
+			event.pressed = pressed
+			Input.parse_input_event(event)
+			await process_frame
+
+## Settings through focused controls, then a throw with no gesture at all.
+func _assist_throw() -> void:
+	await _ready_to_throw()
+	await _focus_accept(scene.options)
+	_check(lab.settings_panel.visible, "Options opens throw settings")
+	await _focus_accept(lab.settings_panel.reduced_motion)
+	await _focus_accept(lab.settings_panel.assist)
+	_check(lab.settings.reduced_motion and lab.settings.assist and lab.assist_panel.visible, "settings toggle reduced motion and assist controls")
+	await _focus_accept(lab.settings_panel.close)
+	_check(not lab.settings_panel.visible, "settings close")
+	var panel: Control = lab.assist_panel
+	panel.spin_slider.grab_focus()
+	await _ui("ui_right", 2)
+	panel.position_slider.grab_focus()
+	await _ui("ui_left", 4)
+	panel.aim_slider.grab_focus()
+	await _ui("ui_right", 1)
+	var controls: Dictionary = panel.values()
+	_check(controls.spin == 0.5 and absf(controls.start_x + 0.2) < 1e-6 and controls.angle_deg == 0.25, "keyboard adjusts assist sliders")
+	_check(absf(lab.lane.ball_position().x + 0.2 * Lane.LANE_HALF_WIDTH) < 1e-4, "assist position previews the ball")
+	await _capture("assist")
+	await _focus_accept(panel.throw_button)
+	_check(lab.state == "rolling" and lab.last_source == "assist", "assist Throw commits")
+	var expected := Mapper.from_controls(controls, lab.lane.launch.launch_id, lab.lane.launch.roll_index, controls.target_x, Ring.RING_MAX)
+	_check(lab.lane.launch == expected, "assist launch equals the gesture-equivalent record (steady ring under reduced motion)")
+	var report := await _await_result("assist")
+	if not report.is_empty():
+		_check(Lane.hook_at_target(report.launch, report.knockdown_log) > 0.05, "assist spin hooks right")
+	# Back to gestures for the remaining checks.
+	await _ready_to_throw()
+	await _focus_accept(scene.options)
+	await _focus_accept(lab.settings_panel.assist)
+	await _focus_accept(lab.settings_panel.reduced_motion)
+	await _focus_accept(lab.settings_panel.close)
+	_check(not lab.settings.assist and not lab.assist_panel.visible, "assist controls turn off")
+
+## Rotating to landscape keeps hit-testing and gesture units correct.
+func _landscape_throw() -> void:
+	await _ready_to_throw()
+	root.size = LANDSCAPE
+	for i in 4: await process_frame
+	_check(lab.size.x > lab.size.y, "lab fills a landscape viewport")
+	var at: Vector2 = lab.ball_screen_position()
+	_check(Rect2(Vector2.ZERO, lab.size).has_point(at - lab.get_global_transform().origin), "ball visible after resize")
+	await _gesture(Vector2.ZERO, 0, Vector2(0, -40), 8)
+	_check(lab.state == "rolling" and lab.lane.launch.power > 0.0, "flick works after resize")
+	for i in 30: await process_frame
+	await _capture("landscape")
+	await _await_result("landscape")
+	root.size = PORTRAIT
+	for i in 4: await process_frame
+	_check(lab.size.y > lab.size.x, "back to portrait")
+
+func _check_trial_log() -> void:
+	_check(lab.trials.size() == lab.history.size(), "one trial entry per committed roll")
+	if trials_path.is_empty():
+		return
+	var lines := FileAccess.get_file_as_string(trials_path).strip_edges().split("\n")
+	_check(lines.size() == lab.history.size(), "trial log file has one line per roll")
+	var sources := {}
+	for line in lines:
+		var entry = JSON.parse_string(line)
+		_check(entry is Dictionary and entry.has("launch") and entry.has("input") and entry.has("fallen"), "trial log line is a complete record")
+		if entry is Dictionary:
+			sources[entry.input.get("source", "?")] = true
+	for source in ["touch", "mouse", "assist"]:
+		_check(sources.has(source), "trial log records %s throws" % source)
+	print("J02 trials=%d sources=%s" % [lines.size(), str(sources.keys())])
