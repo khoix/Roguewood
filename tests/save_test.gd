@@ -92,11 +92,16 @@ static func _corruption(failures: Array[String]) -> void:
 
 static func _versions(failures: Array[String]) -> void:
 	var store = Store.create(_dir("versions"))
-	_expect(store.migrate("attempt", 2, {}).error.contains("newer version"), "a newer save is refused", failures)
+	_expect(store.migrate("attempt", 3, {}).error.contains("newer version"), "a newer save is refused", failures)
 	_expect(not store.migrate("attempt", 0, {}).ok, "version 0 is refused", failures)
-	_expect(store.migrate("attempt", 1, {"a": 1}).ok, "the current version needs no migration", failures)
+	_expect(store.migrate("attempt", 2, {"a": 1}).ok and store.migrate("attempt", 2, {"a": 1}).payload == {"a": 1}, "the current version needs no migration", failures)
+	# The game's own v1 -> v2 step (ADR 008): lab content, one Division as a League.
+	var migrated: Dictionary = store.migrate("attempt", 1, {"division": {"practice": false, "match_index": 1}})
+	_expect(migrated.ok and migrated.payload.content_set == "lab" and migrated.payload.division.index == 0 and migrated.payload.division.current.match_index == 1,
+		"attempt v1 migrates to v2 (lab content, a one-Division League)", failures)
 	# A future v3 game with migrations from v1 and v2 loads a v1 save step by step.
 	var future = Store.create(_dir("future"))
+	future.versions = {"attempt": 1, "career": 1}
 	future.write("attempt", {"money": 5})
 	future.versions = {"attempt": 3, "career": 1}
 	future.migrations = {"attempt": {1: func(p): return p.merged({"wallet": p.money}), 2: func(p): p.erase("money"); return p}}
@@ -129,7 +134,10 @@ static func _snapshots(catalogue: Dictionary, spec: Dictionary, failures: Array[
 		_expect(Snapshot.validate(payload, catalogue).is_empty(), "%s snapshot validates" % model, failures)
 		var back := Snapshot.restore(payload, catalogue, spec, content)
 		for key in ["run", "shop", "division", "equipment"]:
-			_expect(JSON.stringify(back[key].to_dict(), "", true) == JSON.stringify(parts[key].to_dict(), "", true), "%s %s survives a save" % [model, key], failures)
+			var before: Dictionary = parts[key].to_dict()
+			if key == "division": # a lone Division comes back as a one-Division League (ADR 008)
+				before = Snapshot.league_dict(before)
+			_expect(JSON.stringify(back[key].to_dict(), "", true) == JSON.stringify(before, "", true), "%s %s survives a save" % [model, key], failures)
 		_expect(back.lab.frame_tactics.has(2) and back.lab.roll_index == 2 and back.warnings.is_empty(), "%s lab state comes back typed" % model, failures)
 		# Restored randomness continues exactly: the shop rerolls and the deck draws as before.
 		parts.shop.reroll(parts.run)

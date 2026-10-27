@@ -56,6 +56,8 @@ func _draw() -> void:
 		var normal := Vector2(cos(end), sin(end))
 		draw_colored_polygon(PackedVector2Array([tip + tangent * 16.0, tip - tangent * 4.0 + normal * 10.0, tip - tangent * 4.0 - normal * 10.0]), color)
 	var label := "Straight" if spin == 0.0 else "Spin %s %d%%" % ["↻" if spin > 0.0 else "↺", roundi(absf(spin) * 100.0)]
+	if lab.spin_disabled():
+		label = "Spin disabled ⊘" # Dead Straight: the committed launch has no spin
 	var font := get_theme_default_font()
 	var width := font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 26).x
 	draw_string_outline(font, center + Vector2(-width * 0.5, -radius - 18.0), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 26, 6, Color.BLACK)

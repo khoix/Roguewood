@@ -18,10 +18,12 @@ var directory := ""
 ## kind -> {from_version: Callable(payload) -> payload}; each step moves one version up.
 var migrations: Dictionary = {}
 ## kind -> current schema version
-var versions: Dictionary = {"attempt": 1, "career": 1}
+var versions: Dictionary = {"attempt": 2, "career": 1}
 
+## A store with the game's migration chain (attempt v1 -> v2, ADR 008).
 static func create(dir_path: String) -> RefCounted:
 	var store = load("res://src/persistence/save_store.gd").new()
+	store.migrations = {"attempt": {1: load("res://src/persistence/attempt_snapshot.gd").migrate_v1}}
 	store.directory = ProjectSettings.globalize_path(dir_path) if dir_path.begins_with("user://") or dir_path.begins_with("res://") else dir_path
 	DirAccess.make_dir_recursive_absolute(store.directory)
 	return store

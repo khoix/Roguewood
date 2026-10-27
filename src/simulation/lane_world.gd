@@ -26,10 +26,15 @@ var _dressing: Object
 var _rack_in: Array = []
 var _ball_material: PhysicsMaterial
 var _zone_friction := 0.0
+## Item physics (ItemPhysics.profiles): balls by id, pins by position. Empty keeps
+## the House ball and Wood pins exactly.
+var physics: Dictionary = {}
 
 ## dressing (optional) attaches presentation meshes; it never adds collision.
-func setup(rack_state: Dictionary, dressing: Object = null) -> void:
+## item_physics (optional) gives per-item ball and pin profiles (ADR 008).
+func setup(rack_state: Dictionary, dressing: Object = null, item_physics: Dictionary = {}) -> void:
 	_dressing = dressing
+	physics = item_physics
 	# One seamless surface from approach to pit: abutting boxes create internal
 	# edges that make a rolling ball hop. The oil pattern is the ball's friction (ADR 003).
 	# Jolt combines friction by minimum and bounce by sum (measured E04): pin-pin
@@ -124,10 +129,13 @@ static func hull_points(first: int, last: int) -> PackedVector3Array:
 func _add_pin(position: int, x: float, f: float) -> void:
 	var pin := RigidBody3D.new()
 	pin.name = "Pin%d" % position
-	pin.mass = Lane.PIN_MASS
+	var profile: Dictionary = physics.get("pins", {}).get(position, {})
+	pin.mass = Lane.PIN_MASS * float(profile.get("mass_scale", 1.0))
 	pin.center_of_mass_mode = RigidBody3D.CENTER_OF_MASS_MODE_CUSTOM
 	pin.center_of_mass = Vector3(0.0, Lane.PIN_CENTER_OF_MASS_Y, 0.0)
-	pin.physics_material_override = _material(0.35, Lane.PIN_BOUNCE)
+	pin.physics_material_override = _material(0.35, float(profile.get("bounce", Lane.PIN_BOUNCE)))
+	if profile.has("item_id"):
+		pin.set_meta("item_id", profile.item_id)
 	pin.continuous_cd = true
 	pin.contact_monitor = true
 	pin.max_contacts_reported = 8
@@ -193,7 +201,7 @@ func commit(record: Dictionary) -> Array[String]:
 	if errors.is_empty():
 		if absf(record.start_x) > Lane.MAX_START_X + 1e-9:
 			errors.append("start_x places the ball off the lane")
-		if record.ball_id not in Lane.SIMULATED_BALLS:
+		if record.ball_id not in Lane.SIMULATED_BALLS and not physics.get("balls", {}).has(record.ball_id):
 			errors.append("Ball is not simulated yet: " + record.ball_id)
 	if errors.is_empty():
 		launch = record.duplicate(true)
@@ -206,11 +214,14 @@ func _apply_launch() -> void:
 	var velocity := direction * Lane.ball_speed(launch.power)
 	remove_child(aim_ball)
 	aim_ball.free()
+	var profile: Dictionary = physics.get("balls", {}).get(launch.ball_id, {})
+	ball.mass = Lane.BALL_MASS * float(profile.get("mass_scale", 1.0))
 	ball.position = Lane.world(launch.start_x * Lane.LANE_HALF_WIDTH, Lane.BALL_START_F, Lane.BALL_RADIUS)
 	add_child(ball, true)
 	ball.linear_velocity = velocity
-	# True forward roll plus side rotation about the travel axis (positive hooks right).
-	ball.angular_velocity = Vector3.UP.cross(velocity) / Lane.BALL_RADIUS + direction * Lane.side_spin(launch.spin)
+	# True forward roll plus side rotation about the travel axis (positive hooks right);
+	# a ball's spin response scales the side spin its charge produces.
+	ball.angular_velocity = Vector3.UP.cross(velocity) / Lane.BALL_RADIUS + direction * Lane.side_spin(launch.spin) * float(profile.get("spin_response", 1.0))
 	for position in pins:
 		pins[position].freeze = false
 	tracker = Tracker.new(pins.keys())

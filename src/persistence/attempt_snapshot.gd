@@ -19,6 +19,10 @@ const Shop = preload("res://src/rules/shop.gd")
 const Deck = preload("res://src/rules/card_deck.gd")
 const Direct = preload("res://src/rules/direct_loadout.gd")
 const Division = preload("res://src/rules/division_run.gd")
+const League = preload("res://src/rules/league_run.gd")
+## v2 (E13, ADR 008): the content set is recorded and the Division became a League
+## (a chain of Divisions). v1 saves were all lab content with one Division.
+const SCHEMA_VERSION := 2
 const PHASES := ["aim", "committed", "roll_resolved", "frame_done", "shop", "intro", "division_over"]
 const LAB_KEYS := ["frame_number", "roll_index", "match_number", "match_frame", "total_score", "launch_serial", "rack",
 	"frame_reports", "frame_tactics", "frame_mods", "kept_last_frame", "equipment_model", "settlement", "last_scored", "pending", "result"]
@@ -29,22 +33,41 @@ static func content_hashes(catalogue_path: String, division_path: String) -> Dic
 	return {"catalogue": FileAccess.get_file_as_string(catalogue_path).sha256_text(),
 		"division": FileAccess.get_file_as_string(division_path).sha256_text()}
 
-## parts: {attempt, seed, phase, lab (LAB_KEYS), run, shop, division, equipment}.
-static func build(parts: Dictionary, content: Dictionary) -> Dictionary:
+## parts: {attempt, seed, phase, lab (LAB_KEYS), run, shop, division (League or
+## Division run), equipment}. content_set names the ContentSet ("lab" by default).
+static func build(parts: Dictionary, content: Dictionary, content_set: String = "lab") -> Dictionary:
 	var lab := {}
 	for key in LAB_KEYS:
 		lab[key] = parts.lab.get(key)
 	return {"attempt": int(parts.attempt), "seed": int(parts.seed), "phase": parts.phase, "content": content.duplicate(),
-		"lab": lab, "run": parts.run.to_dict(), "shop": parts.shop.to_dict(), "division": parts.division.to_dict(),
-		"equipment": parts.equipment.to_dict()}
+		"content_set": content_set, "lab": lab, "run": parts.run.to_dict(), "shop": parts.shop.to_dict(),
+		"division": league_dict(parts.division.to_dict()), "equipment": parts.equipment.to_dict()}
 
-## Problems that make a loaded payload unusable with the current content.
-static func validate(payload: Dictionary, catalogue: Dictionary) -> Array[String]:
+## A League dict from either a League's or a single Division run's to_dict().
+static func league_dict(data: Dictionary) -> Dictionary:
+	if data.has("current"):
+		return data
+	return {"schema_version": League.SCHEMA_VERSION, "index": 0, "practice": bool(data.get("practice", false)), "done": [], "current": data}
+
+## Attempt v1 -> v2: every v1 save was made with the lab content and one Division.
+static func migrate_v1(payload: Dictionary) -> Dictionary:
+	var out := payload.duplicate(true)
+	out["content_set"] = "lab"
+	if out.get("division") is Dictionary:
+		out.division = league_dict(out.division)
+	return out
+
+## Problems that make a loaded payload unusable with the current content. A
+## content_set, when given, must match the one the attempt was made with.
+static func validate(payload: Dictionary, catalogue: Dictionary, content_set: String = "") -> Array[String]:
 	var errors: Array[String] = []
 	for key in ["attempt", "seed", "phase", "content", "lab", "run", "shop", "division", "equipment"]:
 		if not payload.has(key):
 			errors.append("missing " + key)
 	if not errors.is_empty():
+		return errors
+	if not content_set.is_empty() and String(payload.get("content_set", "lab")) != content_set:
+		errors.append("made with the %s content, not %s" % [payload.get("content_set", "lab"), content_set])
 		return errors
 	if payload.phase not in PHASES:
 		errors.append("unknown phase " + str(payload.phase))
@@ -74,8 +97,10 @@ static func referenced_items(payload: Dictionary) -> Array:
 			ids[offer.item_id] = true
 	return ids.keys()
 
-## Rebuilds the pure objects: {run, shop, division, equipment, lab, warnings}.
-static func restore(payload: Dictionary, catalogue: Dictionary, division_spec: Dictionary, content: Dictionary) -> Dictionary:
+## Rebuilds the pure objects: {run, shop, division (a League run), equipment, lab,
+## warnings}. divisions: the content set's Division specs (or one spec).
+static func restore(payload: Dictionary, catalogue: Dictionary, divisions: Variant, content: Dictionary) -> Dictionary:
+	var specs: Array = divisions if divisions is Array else [divisions]
 	var warnings: Array = []
 	for key in ["catalogue", "division"]:
 		if payload.content.get(key) != content.get(key):
@@ -86,7 +111,7 @@ static func restore(payload: Dictionary, catalogue: Dictionary, division_spec: D
 	else:
 		equipment = Deck.from_dict(payload.equipment)
 	return {"run": RunInventory.from_dict(payload.run, catalogue), "shop": Shop.from_dict(payload.shop, catalogue),
-		"division": Division.from_dict(payload.division, division_spec), "equipment": equipment,
+		"division": League.from_dict(league_dict(payload.division), specs), "equipment": equipment,
 		"lab": normalized_lab(payload.lab), "warnings": warnings}
 
 ## JSON gives every number as a float and every key as a string; the lab wants ints.

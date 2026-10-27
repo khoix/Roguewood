@@ -5,8 +5,11 @@ extends RefCounted
 ## JSON-serializable for saves (E10). Never Career-scoped: a new attempt starts a
 ## new inventory.
 ##
-## Every owned thing is an entry {item_id, paid, mod, mod_paid}: paid is the price
-## actually paid (0 for the starting kit), so sale values can never exceed it.
+## Every owned thing is an entry {item_id, paid, mod, mod_paid, growth}: paid is the
+## price actually paid (0 for the starting kit), so sale values can never exceed it;
+## growth is the entry's run-persistent counter (a Grower pin's knockdowns, Patient
+## Investor's completed matches; ADR 008). It travels with the entry and is lost
+## when the entry is sold. strike_streak counts consecutive strikes across the run.
 ## Places are refs: "rack:3", "reserve:1", "charm:2", "card:card-4".
 const Economy = preload("res://src/rules/economy.gd")
 const SCHEMA_VERSION := 1
@@ -27,6 +30,7 @@ var charms: Array = [] # ordered entries, at most CHARM_SLOTS
 var cards: Dictionary = {} # uid -> entry
 var next_card := 1
 var ledger: Array = [] # {match, kind, amount, item_id}
+var strike_streak := 0
 var _catalogue: Dictionary = {}
 var _items: Dictionary = {}
 
@@ -44,7 +48,7 @@ static func create(catalogue: Dictionary, pins: Array, deck: Array, starting_mon
 	return inventory
 
 static func _entry(item_id: String, paid: int) -> Dictionary:
-	return {"item_id": item_id, "paid": paid, "mod": "", "mod_paid": 0}
+	return {"item_id": item_id, "paid": paid, "mod": "", "mod_paid": 0, "growth": 0}
 
 func _index(catalogue: Dictionary) -> void:
 	_catalogue = catalogue
@@ -239,14 +243,46 @@ func credit_frame(result: Dictionary, frame: Dictionary) -> int:
 		total += amount
 	return total
 
-## Match end: interest on the balance held, then the match payout. Returns the summary.
+## After a frame resolves: growth effects add to their owners' counters (deferred,
+## never retriggered) and the run's strike streak follows the frame. Returns the
+## growth applied as [{ref, item_id, amount}].
+func apply_frame(result: Dictionary, frame: Dictionary) -> Array:
+	var grown: Array = []
+	for event in result.get("future_effects", []):
+		if event.op != "grow_value":
+			continue
+		var parts: PackedStringArray = String(event.source).split(":")
+		var ref := ""
+		match parts[0]:
+			"pin": ref = "rack:" + parts[1]
+			"charm": ref = "charm:" + parts[1]
+		var entry = entry_at(ref) if not ref.is_empty() else null
+		if entry == null:
+			continue
+		entry.growth = int(entry.get("growth", 0)) + int(event.amount)
+		grown.append({"ref": ref, "item_id": entry.item_id, "amount": int(event.amount)})
+	strike_streak = int(result.get("strike_streak", 0))
+	return grown
+
+## Completed-match growth: every owned Charm with a match_end grow_value effect.
+func grow_after_match() -> Array:
+	var grown: Array = []
+	for i in charms.size():
+		for effect in item(charms[i].item_id).get("effects", []):
+			if effect.trigger == "match_end" and effect.op == "grow_value":
+				charms[i].growth = int(charms[i].get("growth", 0)) + int(effect.amount)
+				grown.append({"ref": "charm:%d" % (i + 1), "item_id": charms[i].item_id, "amount": int(effect.amount)})
+	return grown
+
+## Match end: growth for the completed match, interest on the balance held, then
+## the match payout. Returns the summary.
 func settle_match(frames_used: int) -> Dictionary:
 	var earned := 0
 	for row in ledger:
 		if row.match == match_number and row.kind == "item_income":
 			earned += int(row.amount)
 	var summary := {"match": match_number, "balance_before": money, "interest": Economy.interest(money),
-		"payout": Economy.match_payout(frames_used), "item_income": earned}
+		"payout": Economy.match_payout(frames_used), "item_income": earned, "grown": grow_after_match()}
 	credit(summary.interest, "interest")
 	credit(summary.payout, "payout")
 	summary.balance = money
@@ -373,7 +409,11 @@ func loadout() -> Dictionary:
 		pins[position] = rack[position].item_id
 		if not String(rack[position].mod).is_empty():
 			pin_mods[position] = rack[position].mod
-	return {"pins": pins, "charms": charms.map(func(e): return e.item_id), "pin_mods": pin_mods}
+	var pin_growth := {}
+	for position in range(1, RACK_SIZE + 1):
+		pin_growth[position] = int(rack[position].get("growth", 0))
+	return {"pins": pins, "charms": charms.map(func(e): return e.item_id), "pin_mods": pin_mods,
+		"pin_growth": pin_growth, "charm_growth": charms.map(func(e): return int(e.get("growth", 0)))}
 
 ## The deck's cards as uid -> item id.
 func deck_cards() -> Dictionary:
@@ -391,7 +431,7 @@ func to_dict() -> Dictionary:
 		rack_out[str(position)] = rack[position].duplicate()
 	return {"schema_version": SCHEMA_VERSION, "money": money, "match_number": match_number, "rack": rack_out,
 		"reserves": reserves.duplicate(true), "charms": charms.duplicate(true), "cards": cards.duplicate(true),
-		"next_card": next_card, "ledger": ledger.duplicate(true)}
+		"next_card": next_card, "ledger": ledger.duplicate(true), "strike_streak": strike_streak}
 
 static func from_dict(data: Dictionary, catalogue: Dictionary) -> RefCounted:
 	var inventory = load("res://src/rules/run_inventory.gd").new()
@@ -406,7 +446,8 @@ static func from_dict(data: Dictionary, catalogue: Dictionary) -> RefCounted:
 		inventory.cards[uid] = _ints(data.cards[uid])
 	inventory.next_card = int(data.next_card)
 	inventory.ledger = data.ledger.map(func(row): return {"match": int(row.match), "kind": row.kind, "amount": int(row.amount), "item_id": row.item_id})
+	inventory.strike_streak = int(data.get("strike_streak", 0))
 	return inventory
 
 static func _ints(entry: Dictionary) -> Dictionary:
-	return {"item_id": entry.item_id, "paid": int(entry.paid), "mod": entry.mod, "mod_paid": int(entry.mod_paid)}
+	return {"item_id": entry.item_id, "paid": int(entry.paid), "mod": entry.mod, "mod_paid": int(entry.mod_paid), "growth": int(entry.get("growth", 0))}

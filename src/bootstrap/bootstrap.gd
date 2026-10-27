@@ -6,6 +6,7 @@ const Snapshot = preload("res://src/persistence/attempt_snapshot.gd")
 const CareerProfile = preload("res://src/persistence/career_profile.gd")
 const Contracts = preload("res://src/contracts/contracts.gd")
 const FrameBuilder = preload("res://src/rules/frame_builder.gd")
+const ContentSet = preload("res://src/rules/content_set.gd")
 var session: Dictionary = {}
 var screen := "menu"
 var heading: Label
@@ -29,6 +30,8 @@ var store: RefCounted
 var continue_button: Button
 var notice: Label
 var save_notice := ""
+## The content set every attempt this run plays (E13): the slice, or --content=lab.
+var content: Dictionary = {}
 
 func _ready() -> void:
 	get_window().size_changed.connect(_viewport_layout)
@@ -48,13 +51,16 @@ func _ready() -> void:
 	details.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	details.text = "The lanes are waiting."
 	panel.add_child(details)
+	content = ContentSet.load_set(ContentSet.requested())
+	if not content.errors.is_empty():
+		push_error("Content set %s invalid: %s" % [content.id, str(content.errors)])
 	league = OptionButton.new()
 	league.name = "LeagueChoice"
-	league.add_item("House League")
+	league.add_item(content.get("name", "House League") if content.id == "slice" else "House League (lab)")
 	panel.add_child(league)
 	kit = OptionButton.new()
 	kit.name = "KitChoice"
-	kit.add_item("House Kit")
+	kit.add_item(content.kit.get("name", "House Kit"))
 	panel.add_child(kit)
 	continue_button = _button(panel, "Continue Attempt", "ContinueAttempt", 460)
 	continue_button.pressed.connect(_continue_attempt)
@@ -111,7 +117,7 @@ func _saved_attempt() -> Dictionary:
 	var read: Dictionary = store.read("attempt")
 	if not read.ok:
 		return read
-	var problems := Snapshot.validate(read.payload, Contracts.read_json(FrameBuilder.LAB_CATALOGUE))
+	var problems := Snapshot.validate(read.payload, content.catalogue, content.id)
 	if not problems.is_empty():
 		return {"ok": false, "notice": "The saved attempt no longer fits this version's content (%s); start a new attempt." % problems[0]}
 	if read.payload.phase == "division_over":
@@ -122,12 +128,13 @@ func _continue_attempt() -> void:
 	var saved := _saved_attempt()
 	if saved.ok:
 		_begin_attempt(int(saved.payload.attempt), saved.payload)
-## Attempt n of the fixed House League Division (seed n). Restart Session begins
+## Attempt n of the content set's League (seed n). Restart Session begins
 ## attempt 1 again; Retry and New Attempt begin the next one.
 ## A saved payload resumes that attempt instead of starting fresh.
 func _begin_attempt(attempt: int, saved: Dictionary = {}) -> void:
 	# Fixed shell fixture, not procedural League progression or a Career save.
-	session = {"schema_version": 1, "seed": attempt, "attempt": attempt, "league_id": "league.house", "kit_id": "kit.house", "division": 1, "match": 1, "frame": 1, "score": 0, "money": 6}
+	session = {"schema_version": 1, "seed": attempt, "attempt": attempt, "league_id": "league.house", "kit_id": content.kit.get("id", "kit.house"),
+		"content": content.id, "division": 1, "match": 1, "frame": 1, "score": 0, "money": int(content.kit.get("money", 6))}
 	if not saved.is_empty():
 		session.seed = int(saved.seed)
 		session.score = int(saved.lab.total_score)
@@ -135,13 +142,14 @@ func _begin_attempt(attempt: int, saved: Dictionary = {}) -> void:
 		session.match = int(saved.lab.match_number)
 		session.money = int(saved.run.money)
 	screen = "session"
-	details.text = "House League · Division 1"
+	details.text = "%s · %d Division%s" % [content.get("name", "House League"), content.divisions.size(), "" if content.divisions.size() == 1 else "s"]
 	panel.hide()
 	_clear_lab()
 	# Throw lab (E04–E09); the lane draws beneath the session controls.
 	lab = ThrowLab.new()
 	lab.name = "ThrowLab"
 	lab.settings = throw_settings
+	lab.content = content
 	lab.equipment_seed = session.seed
 	lab.career = career
 	lab.attempt = attempt
@@ -162,6 +170,8 @@ func _on_frame_scored(scored: Dictionary) -> void:
 	session.score = int(session.score) + int(scored.get("banked", scored.result.score))
 	session.frame = int(scored.frame_number) + 1
 	session.match = int(scored.get("match_number", session.match))
+	if lab != null:
+		session.division = lab.division.division_number()
 
 func _show_menu() -> void:
 	screen = "menu"

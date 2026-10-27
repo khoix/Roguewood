@@ -28,6 +28,9 @@ JOURNEYS = {
             ("continue_menu", "resumed_hand", "resumed_roll", "resumed_frame", "resumed_shop", "resumed_reroll",
              "resumed_roll2", "career_kept", "fallback", "no_save"), 300, ["--fixed-fps", "60"]),
 }
+# Content set per journey (E13, ADR 008): mechanism journeys keep the lab fixtures;
+# the shell journey and J06 play the production slice (the game's default).
+CONTENT = {"J02": "lab", "J03": "lab", "J04": "lab", "J05": "lab", "J07": "lab", "J08": "lab"}
 # Journeys that restart the game: each stage is a separate engine process sharing
 # one save directory; stage k prints ROGUEWOOD_<journey>_STAGE<k>_OK.
 STAGES = {"J07": 10}
@@ -109,7 +112,8 @@ def main():
         save_dir = artifact_dir / "saves"
         shutil.rmtree(save_dir, ignore_errors=True)
         save_dir.mkdir(parents=True)
-        extra = ["--artifact-dir=" + str(artifact_dir), "--save-dir=" + str(save_dir)]
+        extra = ["--artifact-dir=" + str(artifact_dir), "--save-dir=" + str(save_dir),
+                 "--content=" + CONTENT.get(args.journey, "slice")]
         stages = STAGES.get(args.journey, 0)
         if not stages:
             if args.inject_failure:

@@ -50,7 +50,7 @@ static func steps(result: Dictionary, frame: Dictionary, names: Dictionary = {},
 				banked = event.score
 			"after_bank":
 				var owner := _effect_owner(event, frame, owners, names, seen, _owner(event.source, pins, balls, charms, names), true)
-				var change := ("+$%s" % _n(event.amount)) if event.op == "payout" else "%s %s" % [event.op.replace("_", " "), _n(event.amount)]
+				var change := ("+$%s" % _n(event.amount)) if event.op == "payout" else ("grows +%s" % _n(event.amount) if event.op == "grow_value" else "%s %s" % [event.op.replace("_", " "), _n(event.amount)])
 				step.text = "After bank: %s %s (%s)" % [owner, change, event.scope]
 				step.symbol = "→"
 				step.score = banked # the bank stands; after-bank effects never rescore it
@@ -69,10 +69,17 @@ static func steps(result: Dictionary, frame: Dictionary, names: Dictionary = {},
 					"multiply_mult":
 						step.text = "%s %s%s Mult" % [owner, TIMES, amount]
 						step.symbol = TIMES
+				if event.has("count"):
+					step.text += " (%d × %s%s%s)" % [int(event.count), ADD if event.op != "multiply_mult" else TIMES, _n(event.base), _per_text(String(event.per), names)]
+				if event.has("condition"):
+					step.text += " (%s)" % condition_text(event.condition)
 				if event.phase == "standing":
 					step.text += " (standing)"
 				if int(event.get("repeat", 0)) > 0:
-					step.text += " (retrigger %d)" % int(event.repeat)
+					var by := ""
+					if not String(event.get("cause", "")).is_empty():
+						by = " · " + _owner(event.cause, pins, balls, charms, names)
+					step.text += " (retrigger %d%s)" % [int(event.repeat), by]
 				if String(event.source).begins_with("pin:"):
 					step.pin = int(String(event.source).trim_prefix("pin:"))
 		step.pin_value = value
@@ -90,6 +97,10 @@ static func _effect_owner(event: Dictionary, frame: Dictionary, owners: Dictiona
 	if supplied.is_empty() or parts[0] not in ["pin", "roll"]:
 		return fallback
 	var index := int(parts[1])
+	# v2 events name the effect they came from; older event lists are matched by order.
+	if event.has("effect_index"):
+		var at := int(event.effect_index)
+		return "%s %d %s" % [parts[0].capitalize(), index, names.get(supplied[at], supplied[at])] if at < supplied.size() else fallback
 	var trigger: String = event.get("trigger", event.phase) if deferred else event.phase
 	var effects: Array = []
 	for owner in (frame.pins if parts[0] == "pin" else frame.rolls):
@@ -118,6 +129,31 @@ static func _owner(source: String, pins: Dictionary, balls: Dictionary, charms: 
 		"charm":
 			return ("Charm %d %s" % [index, names.get(charms.get(index, ""), charms.get(index, ""))]).strip_edges()
 	return source
+
+## Short reason a conditional effect applied, e.g. "strike", "frame 2", "1 standing".
+static func condition_text(condition: Dictionary) -> String:
+	var parts: Array = []
+	for key in condition:
+		var v: Variant = condition[key]
+		match key:
+			"category": parts.append(" or ".join(v))
+			"match_frame": parts.append("frame %d" % int(v))
+			"standing_count": parts.append("%d standing" % int(v))
+			"curved": parts.append("curved" if v else "straight")
+			"all_house": parts.append("all House" if v else "not all House")
+			"streak_min": parts.append("strike streak %d+" % int(v))
+	return ", ".join(parts)
+
+static func _per_text(per: String, names: Dictionary) -> String:
+	var kind := per.get_slice(":", 0)
+	var item_id := per.get_slice(":", 1) if per.contains(":") else ""
+	var what: String = names.get(item_id, item_id) if not item_id.is_empty() else "pin"
+	match kind:
+		"growth": return " per growth"
+		"retriggers": return " per retrigger"
+		"fallen": return " per %s down" % what
+		"standing": return " per %s standing" % what
+	return ""
 
 ## Integral values print without decimals; others keep two places.
 static func _n(number: Variant) -> String:

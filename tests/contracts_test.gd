@@ -9,7 +9,7 @@ static func run() -> Array[String]:
 		var roundtrip = JSON.parse_string(JSON.stringify(fixture))
 		_expect(roundtrip == fixture and Contracts.validate(kind, roundtrip).is_empty(), kind + " JSON round-trip", failures)
 		var bad = fixture.duplicate(true)
-		bad.schema_version = 2
+		bad.schema_version = 3 if kind == "catalogue" else 2 # catalogue v2 is the E13 extension
 		_expect(not Contracts.validate(kind, bad).is_empty(), kind + " unknown version", failures)
 		bad = fixture.duplicate(true)
 		bad.extra_field = true
