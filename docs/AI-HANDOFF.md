@@ -156,3 +156,5 @@ the consolidated branch is pushed; commits and evidence remain reachable.
 - Integration remaining: consume generated schedule in E13 LeagueRun, save it through E10, native J09 win/fail/endless evidence. These are technical dependencies, not pending-owner status.
 
 E14 checkpoint: pure generator and independent RNG streams implemented; 200-seed standalone suite and existing unit suite PASS. E14 remains IN_PROGRESS: live LeagueRun/save integration, eligible gameplay pools and native J09 remain. See handoffs/E14.md. No owner action pending.
+
+E14 second review: generator/RNG schema v2 corrects target-boundary drops, implicit championship repeats, weak recovery and seed aliases. Actual E13 LeagueRun 5aac9d2 model probe covers 24-match win, every loss position and endless; validator mismatch is documented in handoffs/E14.md. Native J09 and live save/UI integration remain unfinished under the active E13 shared-file claim.
