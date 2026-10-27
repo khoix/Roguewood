@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "status": "candidate",
+  "colors": {"ink":"#101820","petrol":"#17363D","teal":"#377D83","sea_glass":"#95D9CB","walnut":"#573A2E","honey":"#C58A49","brass":"#E7BC70","ivory":"#F4E6CD","ruby":"#BE4B60","violet":"#8976CF"},
+  "world_grids": {"portrait":[360,640],"landscape":[640,360]},
+  "capture_sizes": {"portrait":[720,1280],"landscape":[1280,720]},
+  "rarities": ["common","uncommon","rare","epic","legendary"],
+  "final_assets": false
+}

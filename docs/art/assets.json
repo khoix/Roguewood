@@ -1,0 +1,22 @@
+[
+  {
+    "path": "assets/art_direction/card-art.png",
+    "sha256": "82e80f616b70e6b99f9b89f1107c9b572b435fbe7f4f7f979859daf05351b17c",
+    "dimensions": [
+      1983,
+      793
+    ],
+    "status": "generated still candidate; user approval pending",
+    "source": "OpenAI image generation 2026-10-26"
+  },
+  {
+    "path": "assets/art_direction/lane.png",
+    "sha256": "015d071374be43753f4fd550f614a10b95e1bf338bf527d88ce94f90300bf4b1",
+    "dimensions": [
+      1024,
+      1536
+    ],
+    "status": "generated still candidate; user approval pending",
+    "source": "OpenAI image generation 2026-10-26"
+  }
+]

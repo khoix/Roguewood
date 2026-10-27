@@ -1,0 +1,42 @@
+name: E11 still review
+on:
+  push:
+    paths:
+      - 'assets/art_direction/**'
+      - 'docs/art/**'
+      - '.github/workflows/e11-art.yml'
+  pull_request:
+    paths:
+      - 'assets/art_direction/**'
+      - 'docs/art/**'
+      - '.github/workflows/e11-art.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Install pinned renderer
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION=$(cat .godot-version)
+          mkdir -p "$RUNNER_TEMP/godot"
+          cd "$RUNNER_TEMP/godot"
+          curl --fail --location --retry 3 -O "https://github.com/godotengine/godot-builds/releases/download/${VERSION}-stable/Godot_v${VERSION}-stable_linux.x86_64.zip"
+          sha512sum --check --ignore-missing "$GITHUB_WORKSPACE/tools/godot-downloads.sha512"
+          unzip -q "Godot_v${VERSION}-stable_linux.x86_64.zip"
+          echo "GODOT_BIN=$RUNNER_TEMP/godot/Godot_v${VERSION}-stable_linux.x86_64" >> "$GITHUB_ENV"
+          sudo apt-get update -qq
+          sudo apt-get install -y xvfb xauth libgl1-mesa-dri
+      - name: Capture both layouts and check source hashes and text bounds
+        run: xvfb-run -a python3 docs/art/capture.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e11-still-review
+          path: artifacts/e11/
+          if-no-files-found: error
