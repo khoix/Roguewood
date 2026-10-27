@@ -55,7 +55,7 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E11 — Art bible and representative still scene | DONE | Codex | main (PR #4) | 2882483; CI 40428621822 PASS; owner merge is approval |
 | E12 — Representative motion and visual review | DONE | Codex | codex/roguewood-build | Implementation 90f5690; handoff 046d109; CI 40444945503 + 40444945245 PASS; consolidated on codex/roguewood-build; not yet merged to main |
 | E13 — Vertical-slice integration | NOT_STARTED | unassigned | — | See dependency graph |
-| E14 — Seeded eight-Division progression | IN_PROGRESS | Codex | codex/roguewood-build | Generator and constraints; live integration follows E13 LeagueRun |
+| E14 — Seeded eight-Division progression | IN_PROGRESS | Codex | codex/roguewood-build | Generator stage tested across 200 seeds; live integration/J09 remain; handoffs/E14.md |
 | E15 — Career persistence and unlock graph | NOT_STARTED | unassigned | — | See dependency graph |
 | E16 — Clubhouse and collection UI | NOT_STARTED | unassigned | — | See dependency graph |
 | E17 — Catalogue and unlock authoring batches | NOT_STARTED | unassigned | — | See dependency graph |
@@ -154,3 +154,5 @@ the consolidated branch is pushed; commits and evidence remain reachable.
 - Exclusive paths: src/procedural/, tests/campaign_generator_test.gd, tools/test_campaign_generator.gd, docs/handoffs/E14.md.
 - Scope: independent serializable RNG streams, deterministic eight-Division generation, explicit compatibility and target tables, reveal payloads, endless schedule extension. No authored production catalogue or hidden dynamic targets.
 - Integration remaining: consume generated schedule in E13 LeagueRun, save it through E10, native J09 win/fail/endless evidence. These are technical dependencies, not pending-owner status.
+
+E14 checkpoint: pure generator and independent RNG streams implemented; 200-seed standalone suite and existing unit suite PASS. E14 remains IN_PROGRESS: live LeagueRun/save integration, eligible gameplay pools and native J09 remain. See handoffs/E14.md. No owner action pending.
