@@ -21,7 +21,7 @@ static func validate(kind: String, record: Variant) -> Array[String]:
 	if not errors.is_empty():
 		return errors
 	if kind == "catalogue":
-		_catalogue(record.items, errors)
+		_catalogue(record.items, int(record.schema_version), errors)
 	elif kind == "roll_result":
 		var seen := {}
 		for position in record.fallen_positions:
@@ -139,9 +139,22 @@ static func _in_enum(value: Variant, options: Array) -> bool:
 			return true
 	return false
 
-static func _catalogue(items: Array, errors: Array[String]) -> void:
+## Catalogue v2 (E13, ADR 008) adds effect conditions, per-count scaling, the
+## first-direct-pin retrigger, match-end growth and item physics profiles; a v1
+## catalogue may use none of them.
+const V2_TRIGGERS := ["match_end"]
+const V2_OPS := ["retrigger"]
+
+static func _catalogue(items: Array, version: int, errors: Array[String]) -> void:
 	var ids := {}
 	for item in items:
+		if version < 2:
+			var uses_v2: bool = item.has("physics") or item.effects.any(func(e): return e.has("condition") or e.has("per") or e.op in V2_OPS or e.trigger in V2_TRIGGERS)
+			if uses_v2: errors.append(item.id + ": conditions, scaling, retriggers, growth and physics need catalogue v2")
+		if item.has("physics"):
+			if item.category not in ["ball", "pin"]: errors.append(item.id + ": only balls and pins have physics profiles")
+			if item.category == "pin" and item.physics.has("spin_response"): errors.append(item.id + ": pins have no spin response")
+			if item.category == "ball" and item.physics.has("bounce"): errors.append(item.id + ": ball bounce is fixed")
 		if ids.has(item.id): errors.append("Duplicate item ID: " + item.id)
 		ids[item.id] = true
 		if not item.id.begins_with(item.category + "."): errors.append(item.id + ": ID prefix must match category")
@@ -150,10 +163,18 @@ static func _catalogue(items: Array, errors: Array[String]) -> void:
 		if item.unlock.kind == "initial" and not item.unlock.prerequisites.is_empty(): errors.append(item.id + ": initial unlock cannot have prerequisites")
 		if item.unlock.kind != "initial" and item.unlock.prerequisites.is_empty(): errors.append(item.id + ": locked item needs prerequisites")
 		for effect in item.effects:
-			var allowed := {"pin": ["fallen", "standing", "after_bank"], "ball": ["ball", "after_bank"], "charm": ["charm", "after_bank"]}
+			var allowed := {"pin": ["fallen", "standing", "after_bank"], "ball": ["ball", "after_bank"], "charm": ["charm", "after_bank", "match_end"]}
 			if allowed.has(item.category) and effect.trigger not in allowed[item.category]: errors.append(item.id + ": effect trigger does not match category")
 			if effect.op not in ["payout", "grow_value"] and effect.trigger == "after_bank": errors.append(item.id + ": score mutation cannot follow banking")
 			if effect.op == "multiply_mult" and effect.amount <= 0: errors.append(item.id + ": multiplier must be positive")
+			if effect.trigger == "match_end" and effect.op != "grow_value": errors.append(item.id + ": only growth happens at match end")
+			if effect.op == "retrigger":
+				if effect.trigger != "ball" or effect.amount != floor(effect.amount) or effect.amount < 1 or effect.amount > 8: errors.append(item.id + ": a retrigger is 1-8 repeats from a ball")
+				if effect.has("per"): errors.append(item.id + ": a retrigger does not scale")
+			if effect.has("per") and effect.op in ["payout", "multiply_mult"]: errors.append(item.id + ": payouts and multipliers do not scale per count")
+			if effect.has("per") and String(effect.per).contains(":") and not ids.has(String(effect.per).get_slice(":", 1)) and not items.any(func(i): return i.id == String(effect.per).get_slice(":", 1)):
+				errors.append(item.id + ": scales by unknown item " + String(effect.per).get_slice(":", 1))
+			if effect.has("condition") and effect.trigger in ["after_bank", "match_end"]: errors.append(item.id + ": deferred effects are unconditional")
 		if item.completeness.artwork:
 			for key in ["icon", "card", "rarity_treatment"]:
 				if item.assets[key].is_empty(): errors.append(item.id + ": artwork marked complete without " + key)

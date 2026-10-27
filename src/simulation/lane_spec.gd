@@ -109,10 +109,10 @@ static func grade_accuracy(crossed: bool, offset: float, ring_radius: float) -> 
 		return "sweet"
 	return "clean"
 
-static func ball_friction(f: float) -> float:
+static func ball_friction(f: float, condition: String = "lane.house") -> float:
 	if f >= DECK_ZONE_F:
 		return BALL_PIN_FRICTION
-	return OIL_FRICTION if f < OIL_END_F else BACKEND_FRICTION
+	return OIL_FRICTION if f < OIL_END_F else (0.3 if condition == "lane.dry" else BACKEND_FRICTION)
 
 static func side_spin(spin: float) -> float:
 	return clampf(spin, -1.0, 1.0) * MAX_SIDE_SPIN

@@ -37,8 +37,19 @@ func dress_static(body: StaticBody3D, dimensions: Vector3, role: String) -> void
 			light_mat.emission=Color("377d83")
 			_mesh_child(body,rail,light_mat,Lane.world(side*0.77,10,0.06)-body.position)
 
+## Slice pin materials (E13): finish and colour per catalogue pin, so a Ruby or
+## Anchor reads as itself on the lane. Developmental: final pin art is E19.
+const PIN_FINISHES := {"pin.wood": [2, "f4e6cd"], "pin.ruby": [4, "b8323f"], "pin.gold": [3, "e7bc70"],
+	"pin.anchor": [4, "17363d"], "pin.grower": [2, "95d9cb"], "pin.rubber": [4, "8976cf"]}
+
 func dress_pin(pin: RigidBody3D) -> void:
 	super.dress_pin(pin)
+	var item_id := String(pin.get_meta("item_id", ""))
+	if PIN_FINISHES.has(item_id):
+		for child in pin.get_children():
+			if child is MeshInstance3D:
+				child.material_override = surface(PIN_FINISHES[item_id][0], Color(PIN_FINISHES[item_id][1]))
+		return
 	# Wood remains Wood mechanically; alternate finishes are a presentation study.
 	var number := str(pin.name).to_int()
 	var colors := [Color("f4e6cd"),Color("e7bc70"),Color("17363d"),Color("95d9cb"),Color("8976cf")]

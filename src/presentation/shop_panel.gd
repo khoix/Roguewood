@@ -11,6 +11,7 @@ signal sell_pressed(ref: String)
 signal continue_pressed
 signal choice_made(index: int)
 signal choice_cancelled
+signal charm_moved(slot: int)
 
 var title: Label
 var summary: Label
@@ -29,11 +30,13 @@ var choice_list: VBoxContainer
 var cancel_choice: Button
 var offer_buttons: Array = []
 var _main: VBoxContainer
+var _scroll: ScrollContainer
 
 func _ready() -> void:
 	name = "ShopPanel"
 	add_theme_stylebox_override("panel", _style(Color(0.05, 0.04, 0.09, 0.97)))
 	var scroll := ScrollContainer.new()
+	_scroll = scroll
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.follow_focus = true # keyboard and gamepad focus scrolls its button into view
 	add_child(scroll)
@@ -127,13 +130,17 @@ func _button(parent: Control, node_name: String, action: Callable, flags: int = 
 	return button
 
 ## view: {title, summary, money, offers: [{text, state}], reroll_cost, can_reroll,
-## removal_price, can_remove, rack, sellables: [{ref, label}], message, columns}.
+## removal_price, can_remove, rack, sellables: [{ref, label}], charm_order, charm_moves:
+## [{slot, label}], message, columns}.
 ## Offer states: "buy", "poor" (unaffordable), "blocked", "sold", "empty".
 func show_view(view: Dictionary) -> void:
 	title.text = view.title
 	summary.text = view.summary
 	preview.text = view.get("preview", "")
 	money.text = "$%d" % view.money
+	# A reflow (portrait <-> landscape) brings the offers back into view.
+	if offers_grid.columns != int(view.get("columns", 3)):
+		_scroll.scroll_vertical = 0
 	offers_grid.columns = view.get("columns", 3)
 	for i in offer_buttons.size():
 		var offer: Dictionary = view.offers[i]
@@ -158,6 +165,18 @@ func show_view(view: Dictionary) -> void:
 		# Deferred: selling rebuilds this list, so the button must not vanish mid-input.
 		var button := _button(owned_list, "Sell_" + ref.replace(":", "_").replace("-", "_"), func(): sell_pressed.emit(ref), CONNECT_DEFERRED)
 		button.text = owned.label
+		button.custom_minimum_size = Vector2(0, 52)
+		button.disabled = choice_sheet.visible
+	# Charm order (E13), after the sales so existing controls keep their place: each
+	# Charm after the first can move one slot left.
+	if not String(view.get("charm_order", "")).is_empty():
+		var order := _label(owned_list, "CharmOrder", 20)
+		order.text = view.charm_order
+		order.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	for move in view.get("charm_moves", []):
+		var slot: int = move.slot
+		var button := _button(owned_list, "MoveCharm_%d" % slot, func(): charm_moved.emit(slot), CONNECT_DEFERRED)
+		button.text = move.label
 		button.custom_minimum_size = Vector2(0, 52)
 		button.disabled = choice_sheet.visible
 
@@ -188,6 +207,9 @@ func button_for_offer(index: int) -> Button:
 
 func choice_button(index: int) -> Button:
 	return choice_list.get_child(index) if index < choice_list.get_child_count() else null
+
+func move_button(slot: int) -> Button:
+	return owned_list.get_node_or_null("MoveCharm_%d" % slot)
 
 func sell_button(ref: String) -> Button:
 	return owned_list.get_node_or_null("Sell_" + ref.replace(":", "_").replace("-", "_"))

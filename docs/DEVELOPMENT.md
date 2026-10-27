@@ -140,3 +140,55 @@ Options → Practice removes targets. J02–J05 use Practice.
 3. Confirm the unlock carried over, lose the opener, check the Career record survives, then return to the Clubhouse.
 
 `--rendered` saves the preview, shop_preview, intro, boss, lost, won and lost_again PNGs to `artifacts/e09/rendered`.
+
+## E10 saves and J07
+
+The game saves the attempt as one snapshot at every committed step (ADR 007):
+- before a thrown roll animates;
+- after each roll and frame resolves;
+- after every shop transaction, cycle and frame start;
+- on backgrounding.
+
+It saves the Career separately. The Clubhouse offers **Continue Attempt** for an unfinished attempt and explains any fallback to a backup or any unusable save.
+
+`tools/qa.py` gives every journey its own fresh `artifacts/<task>/<mode>/saves` directory (`--save-dir=`), so tests never touch your own saves. `python3 tools/qa.py unit` includes `save_test`, which checks the store, corruption, versions and migrations, snapshots, the golden v1 saves and the Career. Regenerate golden saves only when adding a new version, with `godot --headless --script res://tools/make_save_fixture.gd -- --out=<dir>`.
+
+`python3 tools/qa.py e2e --journey J07` runs ten stages, each a **separate engine process** sharing one save directory. Each stage leaves the game at a chosen moment, and the next continues through the real menu:
+1. Before a throw: after a cycle; backgrounding saves.
+2. During a throw: the committed launch re-simulates and equals a clean replay; the card stays spent.
+3. During score resolution: banked once.
+4. After a purchase: owned once, paid once.
+5. After a reroll: the same offers and price.
+6. Between rolls: the same standing pins, positions exact.
+7. After a boss win: the Career award is kept once and reaches the next attempt's shop pool.
+8. A corrupt latest save falls back to the previous checkpoint.
+9. With every copy broken, the menu says so and a new attempt starts.
+
+Stage logs are `journey-stage<k>.log`, and `journey.log` collects them. `--rendered` saves the continue_menu, resumed_hand, resumed_roll, resumed_frame, resumed_shop, resumed_reroll, resumed_roll2, career_kept, fallback and no_save PNGs to `artifacts/e10/rendered`.
+
+## E13 vertical slice, J06 and the strategy simulation
+
+The game now plays the production slice by default (ADR 008): the House League's two Divisions with The Surveyor (Dead Straight, 800) and The Custodian (Clean Sweep, 2400), the House Kit (ten Wood pins; two each of Hook, Hammer and Echo; $6) and catalogue batch E13-S01. `--content=lab` selects the E06–E10 fixtures instead. `tools/qa.py` passes `--content=lab` to the mechanism journeys (J02–J05, J07, J08, and `tools/capture_motion.py`); J01 and J06 stage 1 use the slice.
+
+In the shop, ◀ buttons move a Charm one slot left (order matters: additions before multipliers).
+
+`python3 tools/qa.py e2e --journey J06` now has two stages, each a separate engine process with its own save directory:
+1. `tests/slice_journey.gd` (slice): an Echo strike retriggers a Wood pin (600); Charms are bought and reordered; Dead Straight locks the spin control and commits a real charged circle gesture as a straight launch; beating The Surveyor clears Division 1 and banks its first clear at once; Clubhouse → Continue Attempt resumes the saved shop exactly; Division 2's targets are met; Clean Sweep banks an open frame as 0; a strike beats The Custodian and wins the League; attempt 2 has both unlocks, loses the opener and keeps the Career.
+2. `tests/division_journey.gd` (lab): the E09 Division journey, unchanged.
+
+`--rendered` saves slice_preview, slice_echo, slice_shop, slice_dead_straight, slice_cleared, slice_clean_sweep, slice_won and slice_lost_again, plus the E09 PNGs, to `artifacts/e13/rendered`.
+
+`python3 tools/qa.py slice` runs the seeded build-strategy simulation (`tools/slice_strategies.gd`, 400 attempts per strategy, fresh Career and with both rival unlocks) and writes `artifacts/e13/slice-strategies-{locked,unlocked}.json`. Pinfall there is synthetic (see ADR 008); everything else is the real rules code.
+
+The real-device play session is blocked; its protocol and the outstanding defects are in `docs/playtests/E13-slice-playtest.md`.
+
+## E14 campaign
+
+Select **House Campaign · 8 Divisions (provisional)** in the League menu, or launch
+with `--content=campaign`. Attempt number is the seed. The profile uses implemented
+rules with provisional encounter fixtures/targets; see ADR 009 for content limits.
+
+`python3 tools/qa.py e2e --journey J09` (optionally `--rendered`) drives the menu,
+24 real matches, a midcampaign process restart, a championship restart, endless
+continuation, and loss. Captures/logs are under ignored `artifacts/e14/`.
+Generator and persistence/stream tests also run in `qa.py unit`.

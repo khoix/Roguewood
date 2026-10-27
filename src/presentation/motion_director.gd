@@ -34,8 +34,24 @@ func _ready() -> void:
 	reaction.add_theme_constant_override("outline_size",5)
 	reaction.mouse_filter=MOUSE_FILTER_IGNORE
 	add_child(reaction)
-	set_reaction(0,"The Custodian\nShow me a clean rack.")
+	set_reaction(0,_line("entrance"))
 	lab.frame_scored.connect(_scored)
+
+## Only rivals with an original portrait appear here (E13): The Custodian's atlas.
+## Other rivals (The Surveyor) wait for their E21 art and keep the HUD bubble only.
+const PORTRAITS := ["rival.lab_custodian", "rival.custodian"]
+
+## The Division's rival (previewed before the boss match; practice shows the first
+## Division's), or {}.
+func _rival() -> Dictionary:
+	if lab.division == null:
+		return {}
+	return lab.division.rival_for(lab.division.boss())
+
+func _line(key: String) -> String:
+	var r := _rival()
+	var fallback := {"entrance": "Show me a clean rack.", "impressed": "Clean sweep. Well played.", "confident": "A clever line."}
+	return "%s\n%s" % [r.get("name", "The Custodian"), r.get("reactions", {}).get(key, fallback.get(key, ""))]
 
 func set_reaction(index: int, text: String) -> void:
 	reaction_state=index
@@ -49,7 +65,7 @@ func set_reaction(index: int, text: String) -> void:
 
 func _scored(scored: Dictionary) -> void:
 	reaction_count+=1
-	set_reaction(2 if scored.result.category=="strike" else 1,"Clean sweep. Well played." if scored.result.category=="strike" else "A clever line.")
+	set_reaction(2 if scored.result.category=="strike" else 1,_line("impressed") if scored.result.category=="strike" else _line("confident"))
 
 func _process(delta: float) -> void:
 	if not lab.lane: return
@@ -57,7 +73,7 @@ func _process(delta: float) -> void:
 	rival.size=Vector2(76,108 if size.y>size.x else 72)
 	reaction.position=rival.position+(Vector2(0,112) if size.y>size.x else Vector2(84,8))
 	reaction.size=Vector2(220,44)
-	rival.visible=lab.state in ["aim","holding","result","scoring","frame_done"] and not lab.settings_panel.visible
+	rival.visible=lab.state in ["aim","holding","result","scoring","frame_done"] and not lab.settings_panel.visible and _rival().get("id","") in PORTRAITS
 	reaction.visible=rival.visible
 	if _state!=lab.state:
 		_state=lab.state
@@ -65,7 +81,7 @@ func _process(delta: float) -> void:
 			_trail.clear()
 			_seen_fallen=0
 			_seen_step=0
-			set_reaction(0,"The Custodian\nShow me a clean rack.")
+			set_reaction(0,_line("entrance"))
 		elif _state=="rolling":
 			_samples.clear()
 			_physics_samples.clear()

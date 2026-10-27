@@ -1,6 +1,6 @@
 extends Control
 ## Throw lab (E04 straight, E05 spin/curve, E06 scoring, E07 equipment, E08 shop,
-## E09 Division): elevated
+## E09 Division, E10 saves, E13 vertical slice): elevated
 ## behind-ball camera, hold / circle / flick gestures, a movable contracting target
 ## ring, accessible controls and a two-roll frame where survivors are respotted,
 ## then scored by FrameRules and explained step by step. The equipment row plays
@@ -9,15 +9,21 @@ extends Control
 ## (ADR 006) runs an opener, a feature and a rival boss, each a posted target in two
 ## frames; won matches are paid and visit the Pro Shop (ADR 005), and what the run
 ## owns (rack, Charms, deck, modifications) is what scores. Practice drops the
-## targets. Every roll
-## runs in a fresh World3D so it depends only on its rack state and committed
-## launch. Developmental presentation.
+## targets. Every committed step is saved as one snapshot (ADR 007): a launch before
+## it animates, each resolved roll and frame, every shop transaction, cycle and frame
+## start, so a restart resumes exactly where play was and never rerolls. Since E13
+## (ADR 008) the attempt plays a content set: the production slice (two Divisions,
+## The Surveyor's Dead Straight and The Custodian's Clean Sweep, item physics, run
+## growth and the strike streak) or the lab fixtures. Every roll runs in a fresh
+## World3D so it depends only on its rack state, item physics and committed launch.
+## Developmental presentation.
 signal roll_reported(report: Dictionary)
 signal frame_scored(scored: Dictionary)
 signal money_changed(money: int)
 signal attempt_finished(outcome: String)
 signal retry_requested
 signal menu_requested
+signal checkpoint_written(phase: String)
 const Lane = preload("res://src/simulation/lane_spec.gd")
 const LaneWorld = preload("res://src/simulation/lane_world.gd")
 const Dressing = preload("res://src/presentation/live_dressing.gd")
@@ -43,14 +49,14 @@ const Division = preload("res://src/rules/division_run.gd")
 const RivalRules = preload("res://src/rules/rival_rules.gd")
 const Reactions = preload("res://src/presentation/rival_reactions.gd")
 const DivisionHud = preload("res://src/presentation/division_hud.gd")
-const DIVISION_SPEC := "res://content/fixtures/lab_division.json"
+const Snapshot = preload("res://src/persistence/attempt_snapshot.gd")
+const CareerProfile = preload("res://src/persistence/career_profile.gd")
+const ContentSet = preload("res://src/rules/content_set.gd")
+const Generator = preload("res://src/procedural/campaign_generator.gd")
+const Streams = preload("res://src/procedural/random_streams.gd")
+const League = preload("res://src/rules/league_run.gd")
+const ItemPhysics = preload("res://src/simulation/item_physics.gd")
 const NEAR_VICTORY := 0.75 # share of the target that makes a rival nervous
-## Lab starting kit (fixture items, not the production kit): ten Wood pins and a deck
-## of two copies of three lab ball types plus one tactical card. Direct selection
-## shows the first two ball types and the tactical cards of the same collection.
-const LAB_DECK := ["ball.lab_value", "ball.lab_value", "ball.lab_mult", "ball.lab_mult", "ball.lab_coin", "ball.lab_coin", "consumable.lab_focus"]
-const LAB_RACK := ["pin.wood", "pin.wood", "pin.wood", "pin.wood", "pin.wood", "pin.wood", "pin.wood", "pin.wood", "pin.wood", "pin.wood"]
-const LAB_DIVISION := 1
 const HOUSE := "ball.house"
 const LANDSCAPE_HAND_WIDTH := 440.0
 const RESULT_HOLD_SEC := 1.2
@@ -121,14 +127,28 @@ var shop_panel: ShopPanel
 var settlement: Dictionary = {}
 var shop_message := ""
 var _choice: Dictionary = {} # pending shop choice: {kind, index, targets}
-var division: Division
-var division_spec: Dictionary = {}
+## The attempt's League run (one or more Divisions); it answers DivisionRun's questions.
+var division: League
+var divisions: Array = []
+## ContentSet.load_set() result the shell hands in; the lab content when unset.
+var content: Dictionary = {}
 var hud: DivisionHud
 var reactions := Reactions.new()
 ## Career record shared by the shell across attempts this run (in memory until
 ## E10/E15 persist it): first_clears (rival id -> true), unlocked gates, intros_seen.
 var career: Dictionary = {}
 var attempt := 1
+## E10 saves: the shell hands in its store (null = no saving) and, to resume, the
+## loaded snapshot payload before the lab enters the tree.
+var save_store: RefCounted
+var restore_from: Dictionary = {}
+var restored_phase := "" # the phase a resume started from ("" for a new attempt)
+var restore_warnings: Array = []
+var checkpoints := 0
+var pending_launch: Dictionary = {} # committed launch not yet resolved: {launch, input}
+var _result_view: Dictionary = {}
+var _replay_only := false # showing a restored, already banked frame
+var _content: Dictionary = {}
 
 func _ready() -> void:
 	SettingsPanel.with_defaults(settings)
@@ -185,20 +205,23 @@ func _ready() -> void:
 	next_rack.pressed.connect(_next_rack)
 	next_rack.hide()
 	add_child(next_rack)
-	_catalogue = Contracts.read_json(FrameBuilder.LAB_CATALOGUE)
+	if content.is_empty():
+		content = ContentSet.load_set("lab")
+	if not content.errors.is_empty():
+		push_error("Content set %s invalid: %s" % [content.id, str(content.errors)])
+	_catalogue = content.catalogue
 	for entry in _catalogue.items:
 		_names[entry.id] = entry.name
-	run = RunInventory.create(_catalogue, LAB_RACK, LAB_DECK)
-	shop = Shop.create(_catalogue, hash([equipment_seed, "shop"])) # its own stream, never the deck's
+	run = RunInventory.create(_catalogue, content.kit.pins, content.kit.deck, int(content.kit.money))
+	shop = Shop.create(_catalogue, int(content.campaign.rng.states.shops) if content.id == "campaign" else hash([equipment_seed, "shop"])) # its own stream, never the deck's
 	for key in ["first_clears", "unlocked", "intros_seen"]:
 		if not career.has(key):
 			career[key] = {} if key != "unlocked" else []
-	shop.unlocked = career.unlocked
-	division_spec = Contracts.read_json(DIVISION_SPEC)
-	var spec_errors := Division.validate_spec(division_spec, _catalogue)
-	if not spec_errors.is_empty():
-		push_error("Division spec invalid: " + str(spec_errors))
-	division = Division.create(division_spec, settings.get("practice", false))
+	shop.unlocked = career.unlocked.duplicate() # a snapshot: later unlocks wait for the next attempt (§16)
+	divisions = content.divisions
+	division = League.create(divisions, settings.get("practice", false))
+	division.campaign = content.get("campaign", {}).duplicate(true)
+	_content = content.hashes
 	score_panel = ScorePanel.new()
 	score_panel.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
 	score_panel.offset_top = -540.0
@@ -231,9 +254,11 @@ func _ready() -> void:
 	shop_panel.continue_pressed.connect(_start_next_match)
 	shop_panel.choice_made.connect(_on_choice)
 	shop_panel.choice_cancelled.connect(_on_choice_cancelled)
+	shop_panel.charm_moved.connect(_on_charm_moved)
 	shop_panel.hide()
 	add_child(shop_panel)
 	hud = DivisionHud.new()
+	hud.endless_pressed.connect(_continue_endless)
 	add_child(hud)
 	hud.layout(TOP_UI_HEIGHT, TOP_UI_HEIGHT + 300.0)
 	hud.intro_done.connect(_on_intro_done)
@@ -251,6 +276,9 @@ func _ready() -> void:
 	motion.lab = self
 	add_child(motion)
 	move_child(motion, 2)
+	if not restore_from.is_empty():
+		_restore(restore_from)
+		return
 	_apply_settings()
 	_new_roll()
 
@@ -303,6 +331,8 @@ func _on_card(uid: String) -> void:
 			if armed_ball == uid: armed_ball = ""
 			if armed_tactical == uid: armed_tactical = ""
 		cycling = false
+		if errors.is_empty():
+			_checkpoint("aim") # the draw is spent; a reload cannot fish again
 	elif Deck.kind(_item_of(uid)) == "ball":
 		armed_ball = "" if armed_ball == uid else uid
 	else:
@@ -365,17 +395,8 @@ func _refresh_hand() -> void:
 		card_hand.offset_top = -16.0
 		card_hand.offset_bottom = -16.0
 
-static func _effect_text(item: Dictionary) -> String:
-	var parts: Array = []
-	for effect in item.get("effects", []):
-		match effect.op:
-			"add_value": parts.append("+%s Value" % ScoreLog._n(effect.amount))
-			"add_mult": parts.append("+%s Mult" % ScoreLog._n(effect.amount))
-			"multiply_mult": parts.append("×%s Mult" % ScoreLog._n(effect.amount))
-			"payout": parts.append("+$%s" % ScoreLog._n(effect.amount))
-	if item.get("category", "") == "consumable":
-		parts.append("once")
-	return " ".join(parts) if not parts.is_empty() else "—"
+func _effect_text(item: Dictionary) -> String:
+	return ScoreLog.item_text(item, _names)
 
 ## In-world target marker; the readable ring itself is drawn by the aim overlay.
 func _build_ring() -> void:
@@ -391,7 +412,9 @@ func _build_ring() -> void:
 	_marker.rotation_degrees = Vector3(0.0, 0.0, 180.0)
 	_viewport.add_child(_marker)
 
-func _new_roll() -> void:
+## A fresh lane for the next roll; saves the aim checkpoint unless a restore is
+## rebuilding a lane for a state that is already saved.
+func _new_roll(save: bool = true) -> void:
 	if lane:
 		_viewport.remove_child(lane)
 		lane.free()
@@ -402,7 +425,8 @@ func _new_roll() -> void:
 	lane = LaneWorld.new()
 	lane.name = "Lane"
 	_viewport.add_child(lane)
-	lane.setup(rack, _dressing)
+	lane.lane_condition = division.current().get("lane_condition", "lane.house")
+	lane.setup(rack, _dressing, ItemPhysics.profiles(_catalogue, run.loadout().pins))
 	lane.roll_finished.connect(_on_roll_finished)
 	start_x = assist_panel.values().start_x if settings.assist else 0.0
 	lane.place_ball(start_x)
@@ -411,6 +435,8 @@ func _new_roll() -> void:
 	_camera.position = Lane.world(0.0, Lane.BALL_START_F - AIM_BACK, AIM_HEIGHT)
 	_camera.look_at(Lane.world(0.0, 11.0, 0.0))
 	_update_status()
+	if save:
+		_checkpoint("aim")
 
 func _apply_settings() -> void:
 	if settings.handedness != _handedness:
@@ -428,13 +454,17 @@ func _apply_settings() -> void:
 	if settings.assist and state == "aim" and lane:
 		_assist_preview(assist_panel.values())
 	# Practice applies to an attempt that has not thrown yet, otherwise to the next attempt.
-	if division != null and settings.get("practice", false) != division.practice and history.is_empty():
-		division = Division.create(division_spec, settings.practice)
+	if division != null and settings.get("practice", false) != division.practice and _launch_serial == 0:
+		division = League.create(divisions, settings.practice)
+		_checkpoint("aim")
 	if hud != null:
 		hud.reduced_motion = settings.reduced_motion
 	# A model switch applies now at the very start of a match, otherwise at the next match.
 	if settings.equipment != _equipment_model and (equipment == null or (state == "aim" and roll_index == 1 and match_frame == 1)):
+		var first := equipment == null
 		_build_equipment()
+		if not first:
+			_checkpoint("aim")
 	_update_status()
 
 func toggle_settings() -> void:
@@ -517,6 +547,12 @@ func _notification(what: int) -> void:
 		_refresh_hand()
 	if state == "holding" and what in [NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_WM_WINDOW_FOCUS_OUT, NOTIFICATION_APPLICATION_PAUSED]:
 		_cancel("interrupted")
+	# Backgrounding or closing: save the current resting state (a committed throw,
+	# resolved roll or scored frame is already saved, so those need nothing more).
+	if what in [NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_WM_CLOSE_REQUEST, NOTIFICATION_APPLICATION_FOCUS_OUT]:
+		var phase: String = {"aim": "aim", "frame_done": "frame_done", "shop": "shop", "intro": "intro", "division_over": "division_over"}.get(state, "")
+		if not phase.is_empty():
+			_checkpoint(phase)
 
 func _release(position: Vector2) -> void:
 	var origin := _flick.origin
@@ -526,7 +562,7 @@ func _release(position: Vector2) -> void:
 		_cancel(flick.reason)
 		return
 	var x := _placed_x(flick.placement, origin)
-	var launch := Mapper.to_launch(flick, x, "lab-%d" % (_launch_serial + 1), roll_index, target_x, frozen, armed_ball_id())
+	var launch := RivalRules.constrain_launch(division.rules(), Mapper.to_launch(flick, x, "lab-%d" % (_launch_serial + 1), roll_index, target_x, frozen, armed_ball_id()))
 	_last_input = {"source": _hold_source, "speed": flick.speed, "screen_angle_deg": flick.angle_deg, "turn_deg": flick.turn_deg,
 		"spin": flick.spin, "power": flick.power}
 	_commit(launch, _hold_source)
@@ -536,7 +572,7 @@ func _assist_throw(controls: Dictionary) -> void:
 		return
 	target_x = controls.target_x
 	var frozen := Ring.radius(_clock_usec - _ring_start_usec, settings.reduced_motion)
-	var launch := Mapper.from_controls(controls, "lab-%d" % (_launch_serial + 1), roll_index, target_x, frozen, armed_ball_id())
+	var launch := RivalRules.constrain_launch(division.rules(), Mapper.from_controls(controls, "lab-%d" % (_launch_serial + 1), roll_index, target_x, frozen, armed_ball_id()))
 	_last_input = {"source": "assist", "controls": controls.duplicate()}
 	_commit(launch, "assist")
 
@@ -559,6 +595,24 @@ func _commit(launch: Dictionary, source: String) -> void:
 	_touch = -1
 	last_cancel = ""
 	last_source = source
+	state = "rolling"
+	# Saved before the roll animates: the spent cards and this launch are one
+	# transaction, and a restart re-simulates exactly this launch.
+	pending_launch = {"launch": launch.duplicate(true), "input": _last_input.duplicate(true)}
+	_checkpoint("committed")
+	_update_status()
+
+## Resume a committed launch after a restart: the same launch, in the same rack,
+## with the cards already spent. There is no way to throw it again differently.
+func _resume_commit(pending: Dictionary) -> void:
+	var errors := lane.commit(pending.launch)
+	if not errors.is_empty():
+		push_error("Saved launch rejected on resume: " + str(errors))
+		return
+	pending_launch = pending
+	_last_input = pending.input.duplicate(true)
+	start_x = pending.launch.start_x
+	last_source = String(pending.input.get("source", ""))
 	state = "rolling"
 	_update_status()
 
@@ -601,6 +655,8 @@ func _cancel(reason: String) -> void:
 func _on_roll_finished(report: Dictionary) -> void:
 	frame_reports.append(report)
 	history.append(report)
+	pending_launch = {}
+	_checkpoint("roll_resolved")
 	_log_trial(report)
 	if report.knockdown_log.gutter:
 		_react("gutter")
@@ -647,7 +703,7 @@ func _score_frame() -> void:
 		var played: Array = ([frame_mods[roll]] if frame_mods.has(roll) else []) + frame_tactics.get(roll, [])
 		if not played.is_empty():
 			extras[roll] = played
-	var built := FrameBuilder.build(run.loadout(), _catalogue, frame_reports, extras)
+	var built := FrameBuilder.build(run.loadout(), _catalogue, frame_reports, extras, {"match_frame": match_frame, "strike_streak": run.strike_streak})
 	var result := Rules.resolve(built.frame) if built.ok else {"ok": false, "errors": built.errors}
 	if not result.ok:
 		push_error("Frame could not be scored: " + str(result.errors))
@@ -659,18 +715,27 @@ func _score_frame() -> void:
 	for note in banked.notes:
 		steps.append({"phase": "rule", "symbol": "✕", "pin": 0, "text": note, "pin_value": steps[-1].pin_value, "mult": steps[-1].mult, "score": banked.score})
 	var income := run.credit_frame(result, built.frame)
+	var grown: Array = run.apply_frame(result, built.frame) # growth and the strike streak, banked with the frame
 	var outcome: Dictionary = division.record_frame(banked.score)
+	total_score += int(banked.score)
+	var title := "Frame %d — %s" % [frame_number, String(result.category).capitalize()]
 	scored_frames.append({"frame_number": frame_number, "match_number": match_number, "frame": built.frame, "result": result, "steps": steps,
-		"income": income, "money": run.money, "banked": banked.score, "match_score": division.match_score, "match_over": outcome.over, "match_won": outcome.won})
+		"income": income, "grown": grown, "money": run.money, "banked": banked.score, "match_score": division.match_score, "match_over": outcome.over, "match_won": outcome.won,
+		"title": title})
+	# The frame is banked (score, income, match result) before its explanation plays.
+	_checkpoint("frame_done")
 	money_changed.emit(run.money)
 	state = "scoring"
 	_update_status()
 	score_panel.reduced_motion = settings.reduced_motion or settings.reduced_flash
-	score_panel.play(steps, frame_reports, "Frame %d — %s" % [frame_number, String(result.category).capitalize()], int(settings.score_speed))
+	score_panel.play(steps, frame_reports, title, int(settings.score_speed))
 
 func _on_scored() -> void:
 	var scored: Dictionary = scored_frames[-1]
-	total_score += int(scored.banked)
+	if _replay_only: # a restored frame: already banked, so only show it
+		_replay_only = false
+		_frame_done()
+		return
 	if scored.match_over:
 		_react("victory" if scored.match_won else "defeat")
 	elif not division.practice and division.match_score >= NEAR_VICTORY * division.target():
@@ -688,6 +753,8 @@ func _frame_done() -> void:
 			next_rack.text = "See Result"
 		elif division.outcome == "won":
 			next_rack.text = "Division Result"
+		elif division.division_cleared():
+			next_rack.text = "Division Cleared · Shop"
 		else:
 			next_rack.text = "Collect & Shop"
 	next_rack.show()
@@ -726,11 +793,20 @@ func _advance_frame() -> void:
 ## its unused-frame bonus) are paid, and the Pro Shop opens with the next match,
 ## and the rival's rule, on show before anything is bought.
 func _open_shop() -> void:
+	shop_message = ""
+	if division.division_cleared():
+		# A boss beaten mid-League: its first-clear reward is banked now (Career
+		# first, so a crash can neither repeat nor lose it), then the shop opens.
+		var rival: Dictionary = division.rival()
+		shop_message = "%s defeated — Division %d cleared!" % [rival.name, division.division_number()]
+		if CareerProfile.record_first_clear(career, rival, attempt):
+			_save_career()
+			shop_message += " First clear: " + rival.first_clear.text
 	run.drop_consumed(equipment.exhausted.duplicate())
 	settlement = run.settle_match(int(division.results[-1].frames))
-	shop.open_visit(run, int(division_spec.get("division", LAB_DIVISION)))
-	shop_message = ""
+	shop.open_visit(run, division.division_number() + (1 if division.division_cleared() else 0))
 	state = "shop"
+	_checkpoint("shop")
 	next_rack.hide()
 	score_panel.hide()
 	shop_panel.show()
@@ -764,7 +840,9 @@ func _show_intro() -> void:
 	var rival: Dictionary = division.rival()
 	var seen: bool = career.intros_seen.has(rival.id)
 	career.intros_seen[rival.id] = true
+	_save_career()
 	state = "intro"
+	_checkpoint("intro")
 	hud.show_intro(rival, division.target(), RivalRules.summary(rival.rule), rival.first_clear.text, seen)
 	_update_status()
 
@@ -792,17 +870,18 @@ func _show_result() -> void:
 	score_panel.hide()
 	var last: Dictionary = division.results[-1]
 	var lines: Array = []
+	if content.id == "campaign": lines.append("Campaign seed %d · provisional targets" % equipment_seed)
 	for r in division.results:
-		lines.append("%s: %d / %d %s" % [String(r.kind).capitalize(), r.score, r.target, "✓" if r.won else "✗"])
+		var where := "D%d " % int(r.division) if division.division_count() > 1 else ""
+		lines.append("%s%s: %d / %d %s" % [where, String(r.kind).capitalize(), r.score, r.target, "✓" if r.won else "✗"])
 	var title: String
 	if division.outcome == "won":
 		var rival: Dictionary = division.rival()
-		title = "%s defeated — Division cleared!" % rival.name
-		if not career.first_clears.has(rival.id):
-			career.first_clears[rival.id] = true
-			for gate in rival.first_clear.unlocks:
-				if gate not in career.unlocked:
-					career.unlocked.append(gate)
+		title = "%s defeated — %s cleared!" % [rival.name, "Division" if division.division_count() == 1 else content.get("name", "League")]
+		if CareerProfile.record_first_clear(career, rival, attempt):
+			# The Career is saved before the attempt records its result, so a crash
+			# between the two can repeat neither the award nor lose it.
+			_save_career()
 			lines.append("First clear: " + rival.first_clear.text)
 		else:
 			lines.append("Already cleared before; no new reward.")
@@ -814,9 +893,107 @@ func _show_result() -> void:
 		if not career.first_clears.is_empty():
 			lines.append("Career progress kept: %d rival(s) cleared." % career.first_clears.size())
 	lines.append("Attempt %d · total %d · $%d left" % [attempt, total_score, run.money])
-	hud.show_result(title, "\n".join(lines), division.outcome == "won")
+	_result_view = {"title": title, "body": "\n".join(lines), "won": division.outcome == "won"}
+	_checkpoint("division_over")
+	hud.show_result(title, _result_view.body, _result_view.won, _retry_label())
+	hud.endless_button.visible = _can_endless()
 	_update_status()
 	attempt_finished.emit(division.outcome)
+
+## A retry always starts a new attempt from the first Division.
+func _retry_label() -> String:
+	return "Retry Division" if division.division_count() == 1 else "Retry League"
+
+## Writes the attempt as one snapshot at a committed point (ADR 007).
+func _checkpoint(phase: String) -> void:
+	if save_store == null or equipment == null or run == null:
+		return
+	var last_scored = null
+	if phase == "frame_done" and not scored_frames.is_empty():
+		var s: Dictionary = scored_frames[-1]
+		last_scored = {"steps": s.steps, "title": s.get("title", ""), "banked": s.banked, "category": s.result.category,
+			"score": s.result.score, "income": s.income, "match_over": s.match_over, "match_won": s.match_won, "frame_number": s.frame_number}
+	var lab := {"frame_number": frame_number, "roll_index": roll_index, "match_number": match_number, "match_frame": match_frame,
+		"total_score": total_score, "launch_serial": _launch_serial, "rack": rack, "frame_reports": frame_reports,
+		"frame_tactics": frame_tactics, "frame_mods": frame_mods, "kept_last_frame": _kept_last_frame, "equipment_model": _equipment_model,
+		"settlement": settlement, "last_scored": last_scored, "pending": pending_launch if phase == "committed" else null,
+		"result": _result_view if phase == "division_over" else null}
+	var payload := Snapshot.build({"attempt": attempt, "seed": equipment_seed, "phase": phase, "lab": lab, "run": run, "shop": shop,
+		"division": division, "equipment": equipment}, _content, content.id)
+	var errors: Array[String] = save_store.write("attempt", payload)
+	if not errors.is_empty():
+		push_warning("Attempt not saved: " + str(errors))
+		return
+	checkpoints += 1
+	checkpoint_written.emit(phase)
+
+func _save_career() -> void:
+	if save_store != null:
+		var errors: Array[String] = save_store.write("career", CareerProfile.normalized(career))
+		if not errors.is_empty():
+			push_warning("Career not saved: " + str(errors))
+
+## Rebuilds a saved attempt and continues from its phase without re-applying any
+## committed step: a committed launch re-simulates, a banked frame is only shown.
+func _restore(payload: Dictionary) -> void:
+	var parts := Snapshot.restore(payload, _catalogue, divisions, _content)
+	restore_warnings = parts.warnings
+	run = parts.run
+	shop = parts.shop
+	division = parts.division
+	divisions = division.specs
+	equipment = parts.equipment
+	var lab: Dictionary = parts.lab
+	frame_number = lab.frame_number
+	roll_index = lab.roll_index
+	match_number = lab.match_number
+	match_frame = lab.match_frame
+	total_score = lab.total_score
+	_launch_serial = lab.launch_serial
+	rack = lab.rack
+	frame_reports = lab.frame_reports
+	history = frame_reports.duplicate()
+	frame_tactics = lab.frame_tactics
+	frame_mods = lab.frame_mods
+	_kept_last_frame = lab.kept_last_frame
+	_equipment_model = lab.equipment_model
+	settlement = lab.settlement if lab.settlement is Dictionary else {}
+	# The saved model and mode win over this session's settings, so loading never
+	# rebuilds (and redraws) the equipment or resets the Division.
+	settings.equipment = _equipment_model
+	settings.practice = division.practice
+	restored_phase = payload.phase
+	_apply_settings()
+	_new_roll(false)
+	match restored_phase:
+		"committed":
+			_resume_commit(lab.pending)
+		"roll_resolved":
+			state = "result"
+			_advance()
+		"frame_done":
+			var last: Dictionary = lab.last_scored
+			scored_frames.append({"frame_number": int(last.frame_number), "match_number": match_number, "result": {"category": last.category, "score": last.score},
+				"steps": last.steps, "income": last.income, "money": run.money, "banked": int(last.banked), "match_score": division.match_score,
+				"match_over": last.match_over, "match_won": last.match_won, "title": last.title})
+			state = "scoring"
+			_replay_only = true
+			score_panel.play(last.steps, frame_reports, last.title, int(settings.score_speed))
+			score_panel.skip()
+		"shop":
+			state = "shop"
+			shop_panel.show()
+			_refresh_shop()
+			shop_panel.continue_button.grab_focus()
+		"intro":
+			_show_intro()
+		"division_over":
+			state = "division_over"
+			_result_view = lab.result
+			hud.show_result(_result_view.title, _result_view.body, _result_view.won, _retry_label())
+			hud.endless_button.visible = _can_endless()
+	_update_status()
+	money_changed.emit(run.money)
 
 func _on_offer(index: int) -> void:
 	if state != "shop" or not _choice.is_empty():
@@ -846,6 +1023,8 @@ func _finish_buy(index: int, target: String) -> void:
 	var item_id: String = shop.offers[index].item_id
 	var errors: Array[String] = shop.buy(index, target, run)
 	shop_message = ("Bought %s." % _names.get(item_id, item_id)) if errors.is_empty() else "Can't buy that: %s." % ", ".join(errors)
+	if errors.is_empty():
+		_checkpoint("shop") # payment, the item and the sold offer: one transaction
 	_refresh_shop()
 
 func _on_choice(index: int) -> void:
@@ -860,6 +1039,8 @@ func _on_choice(index: int) -> void:
 			var removed: String = _names.get(run.cards[uid].item_id, "")
 			var errors: Array[String] = shop.remove_card(uid, run)
 			shop_message = ("Removed %s from the deck." % removed) if errors.is_empty() else "Can't remove: %s." % ", ".join(errors)
+			if errors.is_empty():
+				_checkpoint("shop")
 			_refresh_shop()
 
 func _on_choice_cancelled() -> void:
@@ -874,6 +1055,8 @@ func _on_reroll() -> void:
 		return
 	var errors: Array[String] = shop.reroll(run)
 	shop_message = "New offers." if errors.is_empty() else "Can't reroll: %s." % ", ".join(errors)
+	if errors.is_empty():
+		_checkpoint("shop") # paid and drawn: reloading cannot undo or repeat a reroll
 	_refresh_shop()
 
 func _on_remove() -> void:
@@ -899,6 +1082,18 @@ func _on_sell(ref: String) -> void:
 	var value: int = run.sale_value(ref)
 	var errors: Array[String] = run.sell(ref)
 	shop_message = ("Sold %s for $%d." % [label, value]) if errors.is_empty() else "Can't sell: %s." % ", ".join(errors)
+	if errors.is_empty():
+		_checkpoint("shop")
+	_refresh_shop()
+
+## Reorders Charms between matches (saved like any other shop change).
+func _on_charm_moved(slot: int) -> void:
+	if state != "shop" or not _choice.is_empty():
+		return
+	var errors: Array[String] = run.move_charm_left(slot)
+	shop_message = ("Moved %s to Charm slot %d." % [_names.get(run.charms[slot - 2].item_id, ""), slot - 1]) if errors.is_empty() else "Can't move: %s." % ", ".join(errors)
+	if errors.is_empty():
+		_checkpoint("shop")
 	_refresh_shop()
 
 ## What comes next, shown before any purchase: the target and, for the boss, the
@@ -906,15 +1101,18 @@ func _on_sell(ref: String) -> void:
 func _next_match_preview() -> String:
 	if division.practice:
 		return "Next: another practice match (no target)."
-	var next: Dictionary = division.spec.matches[division.match_index + 1]
-	var text := "Next: %s — target %d in two frames." % [next.name, int(next.target)]
-	var rival: Dictionary = division.rival_for(next)
+	var next: Dictionary = division.upcoming()
+	var where := "Division %d " % int(next.division) if division.division_count() > 1 else ""
+	var text := "Next: %s%s — target %d in two frames." % [where, next.match.name, int(next.match.target)]
+	var rival: Dictionary = next.rival
 	if not rival.is_empty():
 		text += "\n%s: %s\nFirst clear: %s" % [rival.name, RivalRules.summary(rival.rule),
 			rival.first_clear.text if not career.first_clears.has(rival.id) else "already cleared"]
 	else:
-		var boss: Dictionary = division.boss()
-		text += "\nBoss later: %s (%s)." % [division.rival_for(boss).name, RivalRules.summary(division.rival_for(boss).rule).trim_suffix(".")]
+		text += "\nBoss later: %s (%s)." % [next.boss_rival.name, RivalRules.summary(next.boss_rival.rule).trim_suffix(".")]
+	if content.id == "campaign":
+		text += "\nLane: " + _lane_text(next.match.get("lane_condition", ""))
+		text += "\nDivision boss target %d · %s" % [int(next.boss.target), _lane_text(next.boss.get("lane_condition", ""))]
 	return text
 
 ## A readable name for an owned place, with its modification.
@@ -978,6 +1176,9 @@ func _refresh_shop() -> void:
 	var rack_text := "Rack: " + ", ".join(pins)
 	var reserves: Array = run.reserves.map(func(e): return "empty" if e == null else _names.get(e.item_id, ""))
 	rack_text += "\nReserves: " + ", ".join(reserves) + " · Charms %d/%d · Deck %d/%d" % [run.charms.size(), RunInventory.CHARM_SLOTS, run.cards.size(), RunInventory.DECK_CAP]
+	var charm_moves: Array = []
+	for i in range(1, run.charms.size()):
+		charm_moves.append({"slot": i + 1, "label": "◀ Move %s before %s" % [_names.get(run.charms[i].item_id, ""), _names.get(run.charms[i - 1].item_id, "")]})
 	var sellables: Array = []
 	for owned in run.entries():
 		if run.can_sell(owned.ref):
@@ -987,7 +1188,8 @@ func _refresh_shop() -> void:
 	shop_panel.show_view({"title": "Pro Shop", "summary": summary, "preview": _next_match_preview(), "money": run.money, "offers": offers,
 		"reroll_cost": shop.reroll_cost(), "can_reroll": run.money >= shop.reroll_cost(),
 		"removal_price": Economy.REMOVAL_PRICE, "can_remove": run.money >= Economy.REMOVAL_PRICE and not run.cards.is_empty(),
-		"rack": rack_text, "sellables": sellables, "message": shop_message, "columns": 5 if size.x > size.y else 3})
+		"rack": rack_text, "charm_moves": charm_moves, "sellables": sellables,
+		"charm_order": "" if run.charms.is_empty() else "Charm order (left to right): " + ", ".join(run.charms.map(func(e): return _names.get(e.item_id, e.item_id))), "message": shop_message, "columns": 5 if size.x > size.y else 3})
 	money_changed.emit(run.money)
 
 func _normalized(position: Vector2) -> Vector2:
@@ -1048,8 +1250,15 @@ func ball_touch_radius() -> float:
 func _on_ball(position: Vector2) -> bool:
 	return lane != null and position.distance_to(_screen(lane.ball_position())) <= ball_touch_radius()
 
-## Spin shown by the meter and guide: live gesture charge or the assist setting.
+## True while a rule in force (Dead Straight) disables charged spin.
+func spin_disabled() -> bool:
+	return division != null and RivalRules.spin_disabled(division.rules())
+
+## Spin shown by the meter and guide: live gesture charge or the assist setting;
+## always zero while spin is disabled, because that is what will be committed.
 func charged_spin() -> float:
+	if spin_disabled():
+		return 0.0
 	if state == "holding":
 		return _flick.charge()
 	return assist_panel.values().spin if settings.assist and state == "aim" else 0.0
@@ -1060,6 +1269,7 @@ func _update_status() -> void:
 	_layout_resolution()
 	_refresh_hand()
 	_refresh_hud()
+	assist_panel.spin_slider.editable = not spin_disabled()
 	if state in ["shop", "intro", "division_over"]:
 		status.text = ""
 		return
@@ -1076,6 +1286,8 @@ func _update_status() -> void:
 				status.text = lead + "\nSet position, aim, power and spin, then Throw."
 			else:
 				status.text = lead + "\nHold the ball · circle to spin · flick up. Tap the lane to move the target."
+			if spin_disabled():
+				status.text += "\nDead Straight: spin is disabled — every throw rolls straight."
 			if not last_cancel.is_empty():
 				status.text += "\nNo throw (%s) — nothing used." % last_cancel.replace("_", " ")
 		"holding":
@@ -1108,6 +1320,9 @@ func _refresh_hud() -> void:
 	else:
 		var index: int = division.spec.matches.find(m) + 1
 		view.text = "%s %d/3 · Target %d · Score %d · %s" % [m.name, index, division.target(), division.match_score, frames]
+		if division.division_count() > 1:
+			view.text = "D%d/%d · %s" % [division.division_number(), division.division_count(), view.text]
+		if content.id == "campaign": view.text += " · " + ("Dry backend" if m.get("lane_condition") == "lane.dry" else "House oil")
 		var boss: Dictionary = division.boss()
 		var rival: Dictionary = division.rival_for(boss)
 		var reward: String = rival.first_clear.text if not career.first_clears.has(rival.id) else "already cleared"
@@ -1118,7 +1333,7 @@ func _refresh_hud() -> void:
 			view.badge = "Boss: %s ⓘ" % rival.name
 		view.rule_text = "%s — target %d in two frames.\n%s\nFirst clear: %s" % [rival.name, int(boss.target), RivalRules.summary(rival.rule), reward]
 	hud.show_match(view)
-	if not division.is_boss() or reactions.visible_at(_clock_usec).is_empty():
+	if state in ["shop", "division_over"] or not division.is_boss() or reactions.visible_at(_clock_usec).is_empty():
 		hud.hide_reaction()
 
 func _describe(report: Dictionary) -> String:
@@ -1143,3 +1358,22 @@ func _layout_resolution() -> void:
 	score_panel.offset_right = -LANDSCAPE_HAND_WIDTH - 32.0 if landscape and left_hand else -16.0
 	next_rack.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	next_rack.position = Vector2(size.x - 336 if left_hand else 16, size.y - 100) if landscape else Vector2(size.x / 2 - 160, size.y / 2 - 36)
+
+func _can_endless() -> bool:
+	return content.id == "campaign" and division.outcome == "won" and division.specs.size() < Generator.MAX_DIVISIONS
+
+func _continue_endless() -> void:
+	if state != "division_over" or not _can_endless(): return
+	var last := int(division.specs.back().matches.back().target)
+	var extended := Generator.extend_endless(division.campaign, content.profile, _catalogue, [last + 10, last + 20, last + 30], true)
+	if not extended.errors.is_empty(): return
+	division.campaign = extended
+	division.specs = extended.divisions
+	divisions = division.specs
+	hud.hide_result()
+	_open_shop()
+
+func _lane_text(id: String) -> String:
+	for entry in content.get("profile", {}).get("lanes", []):
+		if entry.id == id: return entry.text
+	return id

@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "id": "league.house",
+  "name": "House League",
+  "batch": "E13-S01",
+  "kit": {
+    "id": "kit.house",
+    "name": "House Kit",
+    "pins": [
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.wood"
+    ],
+    "deck": [
+      "ball.hook",
+      "ball.hook",
+      "ball.hammer",
+      "ball.hammer",
+      "ball.echo",
+      "ball.echo"
+    ],
+    "money": 6
+  },
+  "divisions": [
+    {
+      "schema_version": 1,
+      "division": 1,
+      "name": "House League · Division 1",
+      "frames_per_match": 2,
+      "matches": [
+        {
+          "id": "match.slice_d1_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 300
+        },
+        {
+          "id": "match.slice_d1_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 500
+        },
+        {
+          "id": "match.slice_d1_boss",
+          "kind": "boss",
+          "name": "Boss",
+          "target": 800,
+          "rival": "rival.surveyor"
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.surveyor",
+          "name": "The Surveyor",
+          "initials": "TS",
+          "color": "#d8cf8a",
+          "rule": "boss_rule.dead_straight",
+          "intro": "Every line measured, every angle true. The Surveyor allows no charged spin: each ball rolls exactly where it is aimed, so placement and straight-line equipment win this lane.",
+          "first_clear": {
+            "unlocks": [
+              "gate.surveyor_cleared"
+            ],
+            "text": "Encore joins the shop pool from your next attempt."
+          },
+          "reactions": {
+            "entrance": "Plumb, level, true. Show me a straight line.",
+            "confident": "Off by a board. I measured it.",
+            "impressed": "A true line. Precisely as charted.",
+            "threatened": "Your figures are… converging on mine.",
+            "defeated": "The survey is complete. You hold the line.",
+            "victorious": "Out of true. Recalibrate and return."
+          }
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "division": 2,
+      "name": "House League · Division 2",
+      "frames_per_match": 2,
+      "matches": [
+        {
+          "id": "match.slice_d2_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 1100
+        },
+        {
+          "id": "match.slice_d2_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 1600
+        },
+        {
+          "id": "match.slice_d2_boss",
+          "kind": "boss",
+          "name": "Boss",
+          "target": 2400,
+          "rival": "rival.custodian"
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.custodian",
+          "name": "The Custodian",
+          "initials": "TC",
+          "color": "#9fd8ff",
+          "rule": "boss_rule.clean_sweep",
+          "intro": "Every lane spotless, every frame finished. The Custodian banks only clean work: strikes and spares. Leave a pin standing and the frame is swept away.",
+          "first_clear": {
+            "unlocks": [
+              "gate.custodian_cleared"
+            ],
+            "text": "Standing Order joins the shop pool from your next attempt."
+          },
+          "reactions": {
+            "entrance": "Mind the corners. I only count what's cleared.",
+            "confident": "Untidy. That one goes in the bin.",
+            "impressed": "Hm. A clean strike. Noted.",
+            "threatened": "You're closing in… don't leave a mess now.",
+            "defeated": "Spotless. I concede the lane.",
+            "victorious": "Swept away. Come back with a cleaner game."
+          }
+        }
+      ]
+    }
+  ]
+}
