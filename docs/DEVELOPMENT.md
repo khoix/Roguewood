@@ -181,3 +181,14 @@ In the shop, ◀ buttons move a Charm one slot left (order matters: additions be
 `python3 tools/qa.py slice` runs the seeded build-strategy simulation (`tools/slice_strategies.gd`, 400 attempts per strategy, fresh Career and with both rival unlocks) and writes `artifacts/e13/slice-strategies-{locked,unlocked}.json`. Pinfall there is synthetic (see ADR 008); everything else is the real rules code.
 
 The real-device play session is blocked; its protocol and the outstanding defects are in `docs/playtests/E13-slice-playtest.md`.
+
+## E14 campaign
+
+Select **House Campaign · 8 Divisions (provisional)** in the League menu, or launch
+with `--content=campaign`. Attempt number is the seed. The profile uses implemented
+rules with provisional encounter fixtures/targets; see ADR 009 for content limits.
+
+`python3 tools/qa.py e2e --journey J09` (optionally `--rendered`) drives the menu,
+24 real matches, a midcampaign process restart, a championship restart, endless
+continuation, and loss. Captures/logs are under ignored `artifacts/e14/`.
+Generator and persistence/stream tests also run in `qa.py unit`.

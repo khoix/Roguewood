@@ -11,6 +11,7 @@ const Division = preload("res://src/rules/division_run.gd")
 const RivalRules = preload("res://src/rules/rival_rules.gd")
 const SCHEMA_VERSION := 1
 
+var campaign: Dictionary = {}
 var specs: Array = []
 var index := 0 # the Division being played (0-based)
 var active: RefCounted # the DivisionRun being played
@@ -173,10 +174,13 @@ func next_match() -> Array[String]:
 	return active.next_match()
 
 func to_dict() -> Dictionary:
-	return {"schema_version": SCHEMA_VERSION, "index": index, "practice": practice, "done": done.duplicate(true), "current": active.to_dict()}
+	var data := {"schema_version": SCHEMA_VERSION, "index": index, "practice": practice, "done": done.duplicate(true), "current": active.to_dict()}
+	if not campaign.is_empty(): data["campaign"] = campaign.duplicate(true)
+	return data
 
 static func from_dict(data: Dictionary, division_specs: Array) -> RefCounted:
 	var league = create(division_specs, bool(data.practice))
+	league.campaign = data.get("campaign", {}).duplicate(true)
 	league.index = int(data.index)
 	# Through DivisionRun so JSON numbers come back as ints.
 	for i in data.done.size():

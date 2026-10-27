@@ -9,6 +9,8 @@ extends RefCounted
 const Contracts = preload("res://src/contracts/contracts.gd")
 const League = preload("res://src/rules/league_run.gd")
 const RunInventory = preload("res://src/rules/run_inventory.gd")
+const Generator = preload("res://src/procedural/campaign_generator.gd")
+const CAMPAIGN_PROFILE := "res://content/campaign/profile.json"
 const DEFAULT := "slice"
 const SETS := {
 	"slice": {"catalogue": "res://content/catalogue.json", "league": "res://content/slice/league.json"},
@@ -27,7 +29,20 @@ static func requested() -> String:
 	return DEFAULT
 
 ## {id, name, catalogue, divisions, kit, hashes, errors}; errors is [] when usable.
-static func load_set(set_id: String) -> Dictionary:
+static func load_set(set_id: String, seed_value: int = 1) -> Dictionary:
+	if set_id == "campaign":
+		var out := load_set("slice")
+		var profile: Dictionary = Contracts.read_json(CAMPAIGN_PROFILE)
+		var schedule := Generator.generate(seed_value, profile, out.catalogue)
+		out.errors.append_array(schedule.errors)
+		out.id = "campaign"
+		out.name = "House Campaign (provisional)"
+		out["profile"] = profile
+		out["campaign"] = schedule
+		out.divisions = schedule.get("divisions", [])
+		if schedule.errors.is_empty(): out.errors.append_array(League.validate({"schema_version": 1, "divisions": out.divisions, "championship_reuses_encountered_rule": profile.get("championship_reuses_encountered_rule", false)}, out.catalogue))
+		out.hashes.division = FileAccess.get_file_as_string(CAMPAIGN_PROFILE).sha256_text()
+		return out
 	var out := {"id": set_id, "errors": [], "catalogue": {}, "divisions": [], "kit": {}, "name": "", "hashes": {}}
 	if not SETS.has(set_id):
 		out.errors.append("unknown content set: " + set_id)

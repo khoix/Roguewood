@@ -1,0 +1,226 @@
+{
+  "id": "House Campaign (provisional)",
+  "division_template": {
+    "schema_version": 1,
+    "frames_per_match": 2
+  },
+  "championship_reuses_encountered_rule": true,
+  "bosses": [
+    {
+      "id": "rival.campaign_1",
+      "name": "The Surveyor",
+      "initials": "TS",
+      "color": "#d8cf8a",
+      "rule": "boss_rule.dead_straight",
+      "intro": "Every line measured, every angle true. The Surveyor allows no charged spin: each ball rolls exactly where it is aimed, so placement and straight-line equipment win this lane.",
+      "first_clear": {
+        "unlocks": [],
+        "text": "Campaign encounter recorded; no item reward."
+      },
+      "reactions": {
+        "entrance": "Plumb, level, true. Show me a straight line.",
+        "confident": "Off by a board. I measured it.",
+        "impressed": "A true line. Precisely as charted.",
+        "threatened": "Your figures are\u2026 converging on mine.",
+        "defeated": "The survey is complete. You hold the line.",
+        "victorious": "Out of true. Recalibrate and return."
+      },
+      "compatible_lanes": [
+        "lane.house"
+      ]
+    },
+    {
+      "id": "rival.campaign_2",
+      "name": "The Custodian",
+      "initials": "TC",
+      "color": "#9fd8ff",
+      "rule": "boss_rule.clean_sweep",
+      "intro": "Every lane spotless, every frame finished. The Custodian banks only clean work: strikes and spares. Leave a pin standing and the frame is swept away.",
+      "first_clear": {
+        "unlocks": [],
+        "text": "Campaign encounter recorded; no item reward."
+      },
+      "reactions": {
+        "entrance": "Mind the corners. I only count what's cleared.",
+        "confident": "Untidy. That one goes in the bin.",
+        "impressed": "Hm. A clean strike. Noted.",
+        "threatened": "You're closing in\u2026 don't leave a mess now.",
+        "defeated": "Spotless. I concede the lane.",
+        "victorious": "Swept away. Come back with a cleaner game."
+      },
+      "compatible_lanes": [
+        "lane.house",
+        "lane.dry"
+      ]
+    },
+    {
+      "id": "rival.campaign_3",
+      "name": "The Porter",
+      "initials": "TP",
+      "color": "#d8cf8a",
+      "rule": "boss_rule.dead_straight",
+      "intro": "Every line measured, every angle true. The Surveyor allows no charged spin: each ball rolls exactly where it is aimed, so placement and straight-line equipment win this lane.",
+      "first_clear": {
+        "unlocks": [],
+        "text": "Campaign encounter recorded; no item reward."
+      },
+      "reactions": {
+        "entrance": "Plumb, level, true. Show me a straight line.",
+        "confident": "Off by a board. I measured it.",
+        "impressed": "A true line. Precisely as charted.",
+        "threatened": "Your figures are\u2026 converging on mine.",
+        "defeated": "The survey is complete. You hold the line.",
+        "victorious": "Out of true. Recalibrate and return."
+      },
+      "compatible_lanes": [
+        "lane.house"
+      ]
+    },
+    {
+      "id": "rival.campaign_4",
+      "name": "The Steward",
+      "initials": "TS",
+      "color": "#9fd8ff",
+      "rule": "boss_rule.clean_sweep",
+      "intro": "Every lane spotless, every frame finished. The Custodian banks only clean work: strikes and spares. Leave a pin standing and the frame is swept away.",
+      "first_clear": {
+        "unlocks": [],
+        "text": "Campaign encounter recorded; no item reward."
+      },
+      "reactions": {
+        "entrance": "Mind the corners. I only count what's cleared.",
+        "confident": "Untidy. That one goes in the bin.",
+        "impressed": "Hm. A clean strike. Noted.",
+        "threatened": "You're closing in\u2026 don't leave a mess now.",
+        "defeated": "Spotless. I concede the lane.",
+        "victorious": "Swept away. Come back with a cleaner game."
+      },
+      "compatible_lanes": [
+        "lane.house",
+        "lane.dry"
+      ]
+    },
+    {
+      "id": "rival.campaign_5",
+      "name": "The Groundskeeper",
+      "initials": "TG",
+      "color": "#d8cf8a",
+      "rule": "boss_rule.dead_straight",
+      "intro": "Every line measured, every angle true. The Surveyor allows no charged spin: each ball rolls exactly where it is aimed, so placement and straight-line equipment win this lane.",
+      "first_clear": {
+        "unlocks": [],
+        "text": "Campaign encounter recorded; no item reward."
+      },
+      "reactions": {
+        "entrance": "Plumb, level, true. Show me a straight line.",
+        "confident": "Off by a board. I measured it.",
+        "impressed": "A true line. Precisely as charted.",
+        "threatened": "Your figures are\u2026 converging on mine.",
+        "defeated": "The survey is complete. You hold the line.",
+        "victorious": "Out of true. Recalibrate and return."
+      },
+      "compatible_lanes": [
+        "lane.house"
+      ]
+    },
+    {
+      "id": "rival.campaign_6",
+      "name": "The Inspector",
+      "initials": "TI",
+      "color": "#9fd8ff",
+      "rule": "boss_rule.clean_sweep",
+      "intro": "Every lane spotless, every frame finished. The Custodian banks only clean work: strikes and spares. Leave a pin standing and the frame is swept away.",
+      "first_clear": {
+        "unlocks": [],
+        "text": "Campaign encounter recorded; no item reward."
+      },
+      "reactions": {
+        "entrance": "Mind the corners. I only count what's cleared.",
+        "confident": "Untidy. That one goes in the bin.",
+        "impressed": "Hm. A clean strike. Noted.",
+        "threatened": "You're closing in\u2026 don't leave a mess now.",
+        "defeated": "Spotless. I concede the lane.",
+        "victorious": "Swept away. Come back with a cleaner game."
+      },
+      "compatible_lanes": [
+        "lane.house",
+        "lane.dry"
+      ]
+    },
+    {
+      "id": "rival.campaign_7",
+      "name": "The Caretaker",
+      "initials": "TC",
+      "color": "#d8cf8a",
+      "rule": "boss_rule.dead_straight",
+      "intro": "Every line measured, every angle true. The Surveyor allows no charged spin: each ball rolls exactly where it is aimed, so placement and straight-line equipment win this lane.",
+      "first_clear": {
+        "unlocks": [],
+        "text": "Campaign encounter recorded; no item reward."
+      },
+      "reactions": {
+        "entrance": "Plumb, level, true. Show me a straight line.",
+        "confident": "Off by a board. I measured it.",
+        "impressed": "A true line. Precisely as charted.",
+        "threatened": "Your figures are\u2026 converging on mine.",
+        "defeated": "The survey is complete. You hold the line.",
+        "victorious": "Out of true. Recalibrate and return."
+      },
+      "compatible_lanes": [
+        "lane.house"
+      ]
+    }
+  ],
+  "lanes": [
+    {
+      "id": "lane.house",
+      "text": "House oil \u2014 standard hook."
+    },
+    {
+      "id": "lane.dry",
+      "text": "Dry backend \u2014 increased hook after the oil."
+    }
+  ],
+  "targets": [
+    [
+      50,
+      60,
+      70
+    ],
+    [
+      80,
+      90,
+      100
+    ],
+    [
+      110,
+      120,
+      130
+    ],
+    [
+      140,
+      150,
+      160
+    ],
+    [
+      170,
+      180,
+      190
+    ],
+    [
+      200,
+      210,
+      220
+    ],
+    [
+      230,
+      240,
+      250
+    ],
+    [
+      260,
+      270,
+      280
+    ]
+  ]
+}

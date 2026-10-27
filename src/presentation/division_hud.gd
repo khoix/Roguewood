@@ -5,6 +5,7 @@ extends Control
 ## A view only: the lab and the pure DivisionRun own every rule and number.
 ## Developmental portrait (a drawn badge); final rival art and animation are E21.
 signal intro_done
+signal endless_pressed
 signal retry_pressed
 signal menu_pressed
 
@@ -27,6 +28,7 @@ var intro_button: Button
 var result: PanelContainer
 var result_title: Label
 var result_body: Label
+var endless_button: Button
 var retry_button: Button
 var menu_button: Button
 var reduced_motion := false
@@ -125,7 +127,14 @@ func _ready() -> void:
 	result = _sheet("AttemptResult")
 	var result_box: VBoxContainer = result.get_child(0)
 	result_title = _label(result_box, "ResultTitle", 36)
-	result_body = _label(result_box, "ResultBody", 22)
+	var result_scroll := ScrollContainer.new()
+	result_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	result_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	result_box.add_child(result_scroll)
+	result_body = _label(result_scroll, "ResultBody", 22)
+	result_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	endless_button = _button(result_box, "ContinueEndless", "Continue Endless", func(): endless_pressed.emit())
+	endless_button.hide()
 	retry_button = _button(result_box, "RetryDivision", "Retry Division", func(): retry_pressed.emit())
 	menu_button = _button(result_box, "ResultClubhouse", "Clubhouse", func(): menu_pressed.emit())
 
@@ -240,6 +249,7 @@ func show_result(title: String, body: String, won: bool, retry_label: String = "
 	result_title.text = title
 	result_body.text = body
 	retry_button.text = "New Attempt" if won else retry_label
+	endless_button.hide()
 	result.show()
 	retry_button.grab_focus()
 

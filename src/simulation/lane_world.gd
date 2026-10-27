@@ -237,8 +237,10 @@ func _physics_process(_delta: float) -> void:
 		_oil_pattern()
 
 ## Sets the ball's friction for the zone it is in before the next step.
+var lane_condition := "lane.house"
+
 func _oil_pattern() -> void:
-	var friction := Lane.ball_friction(-ball.global_position.z)
+	var friction := Lane.ball_friction(-ball.global_position.z, lane_condition)
 	if friction != _zone_friction:
 		_zone_friction = friction
 		_ball_material.friction = friction

@@ -56,7 +56,12 @@ func _ready() -> void:
 		push_error("Content set %s invalid: %s" % [content.id, str(content.errors)])
 	league = OptionButton.new()
 	league.name = "LeagueChoice"
-	league.add_item(content.get("name", "House League") if content.id == "slice" else "House League (lab)")
+	league.add_item(content.get("name", "House League"))
+	if content.id == "slice":
+		league.add_item("House Campaign · 8 Divisions (provisional)")
+		league.item_selected.connect(func(index):
+			content = ContentSet.load_set("campaign" if index == 1 else "slice")
+			_show_menu())
 	panel.add_child(league)
 	kit = OptionButton.new()
 	kit.name = "KitChoice"
@@ -120,7 +125,7 @@ func _saved_attempt() -> Dictionary:
 	var problems := Snapshot.validate(read.payload, content.catalogue, content.id)
 	if not problems.is_empty():
 		return {"ok": false, "notice": "The saved attempt no longer fits this version's content (%s); start a new attempt." % problems[0]}
-	if read.payload.phase == "division_over":
+	if read.payload.phase == "division_over" and not (content.id == "campaign" and read.payload.division.current.outcome == "won"):
 		return {"ok": false, "notice": read.notice}
 	return read
 
@@ -132,7 +137,7 @@ func _continue_attempt() -> void:
 ## attempt 1 again; Retry and New Attempt begin the next one.
 ## A saved payload resumes that attempt instead of starting fresh.
 func _begin_attempt(attempt: int, saved: Dictionary = {}) -> void:
-	# Fixed shell fixture, not procedural League progression or a Career save.
+	if content.id == "campaign": content = ContentSet.load_set("campaign", int(saved.get("seed", attempt)))
 	session = {"schema_version": 1, "seed": attempt, "attempt": attempt, "league_id": "league.house", "kit_id": content.kit.get("id", "kit.house"),
 		"content": content.id, "division": 1, "match": 1, "frame": 1, "score": 0, "money": int(content.kit.get("money", 6))}
 	if not saved.is_empty():
@@ -143,6 +148,7 @@ func _begin_attempt(attempt: int, saved: Dictionary = {}) -> void:
 		session.money = int(saved.run.money)
 	screen = "session"
 	details.text = "%s · %d Division%s" % [content.get("name", "House League"), content.divisions.size(), "" if content.divisions.size() == 1 else "s"]
+	if content.id == "campaign": details.text += " · Seed %d" % int(session.seed)
 	panel.hide()
 	_clear_lab()
 	# Throw lab (E04–E09); the lane draws beneath the session controls.

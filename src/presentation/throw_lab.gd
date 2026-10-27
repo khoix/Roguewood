@@ -52,6 +52,8 @@ const DivisionHud = preload("res://src/presentation/division_hud.gd")
 const Snapshot = preload("res://src/persistence/attempt_snapshot.gd")
 const CareerProfile = preload("res://src/persistence/career_profile.gd")
 const ContentSet = preload("res://src/rules/content_set.gd")
+const Generator = preload("res://src/procedural/campaign_generator.gd")
+const Streams = preload("res://src/procedural/random_streams.gd")
 const League = preload("res://src/rules/league_run.gd")
 const ItemPhysics = preload("res://src/simulation/item_physics.gd")
 const NEAR_VICTORY := 0.75 # share of the target that makes a rival nervous
@@ -211,13 +213,14 @@ func _ready() -> void:
 	for entry in _catalogue.items:
 		_names[entry.id] = entry.name
 	run = RunInventory.create(_catalogue, content.kit.pins, content.kit.deck, int(content.kit.money))
-	shop = Shop.create(_catalogue, hash([equipment_seed, "shop"])) # its own stream, never the deck's
+	shop = Shop.create(_catalogue, int(content.campaign.rng.states.shops) if content.id == "campaign" else hash([equipment_seed, "shop"])) # its own stream, never the deck's
 	for key in ["first_clears", "unlocked", "intros_seen"]:
 		if not career.has(key):
 			career[key] = {} if key != "unlocked" else []
 	shop.unlocked = career.unlocked.duplicate() # a snapshot: later unlocks wait for the next attempt (§16)
 	divisions = content.divisions
 	division = League.create(divisions, settings.get("practice", false))
+	division.campaign = content.get("campaign", {}).duplicate(true)
 	_content = content.hashes
 	score_panel = ScorePanel.new()
 	score_panel.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
@@ -255,6 +258,7 @@ func _ready() -> void:
 	shop_panel.hide()
 	add_child(shop_panel)
 	hud = DivisionHud.new()
+	hud.endless_pressed.connect(_continue_endless)
 	add_child(hud)
 	hud.layout(TOP_UI_HEIGHT, TOP_UI_HEIGHT + 300.0)
 	hud.intro_done.connect(_on_intro_done)
@@ -421,6 +425,7 @@ func _new_roll(save: bool = true) -> void:
 	lane = LaneWorld.new()
 	lane.name = "Lane"
 	_viewport.add_child(lane)
+	lane.lane_condition = division.current().get("lane_condition", "lane.house")
 	lane.setup(rack, _dressing, ItemPhysics.profiles(_catalogue, run.loadout().pins))
 	lane.roll_finished.connect(_on_roll_finished)
 	start_x = assist_panel.values().start_x if settings.assist else 0.0
@@ -865,6 +870,7 @@ func _show_result() -> void:
 	score_panel.hide()
 	var last: Dictionary = division.results[-1]
 	var lines: Array = []
+	if content.id == "campaign": lines.append("Campaign seed %d · provisional targets" % equipment_seed)
 	for r in division.results:
 		var where := "D%d " % int(r.division) if division.division_count() > 1 else ""
 		lines.append("%s%s: %d / %d %s" % [where, String(r.kind).capitalize(), r.score, r.target, "✓" if r.won else "✗"])
@@ -890,6 +896,7 @@ func _show_result() -> void:
 	_result_view = {"title": title, "body": "\n".join(lines), "won": division.outcome == "won"}
 	_checkpoint("division_over")
 	hud.show_result(title, _result_view.body, _result_view.won, _retry_label())
+	hud.endless_button.visible = _can_endless()
 	_update_status()
 	attempt_finished.emit(division.outcome)
 
@@ -934,6 +941,7 @@ func _restore(payload: Dictionary) -> void:
 	run = parts.run
 	shop = parts.shop
 	division = parts.division
+	divisions = division.specs
 	equipment = parts.equipment
 	var lab: Dictionary = parts.lab
 	frame_number = lab.frame_number
@@ -983,6 +991,7 @@ func _restore(payload: Dictionary) -> void:
 			state = "division_over"
 			_result_view = lab.result
 			hud.show_result(_result_view.title, _result_view.body, _result_view.won, _retry_label())
+			hud.endless_button.visible = _can_endless()
 	_update_status()
 	money_changed.emit(run.money)
 
@@ -1101,6 +1110,9 @@ func _next_match_preview() -> String:
 			rival.first_clear.text if not career.first_clears.has(rival.id) else "already cleared"]
 	else:
 		text += "\nBoss later: %s (%s)." % [next.boss_rival.name, RivalRules.summary(next.boss_rival.rule).trim_suffix(".")]
+	if content.id == "campaign":
+		text += "\nLane: " + _lane_text(next.match.get("lane_condition", ""))
+		text += "\nDivision boss target %d · %s" % [int(next.boss.target), _lane_text(next.boss.get("lane_condition", ""))]
 	return text
 
 ## A readable name for an owned place, with its modification.
@@ -1310,6 +1322,7 @@ func _refresh_hud() -> void:
 		view.text = "%s %d/3 · Target %d · Score %d · %s" % [m.name, index, division.target(), division.match_score, frames]
 		if division.division_count() > 1:
 			view.text = "D%d/%d · %s" % [division.division_number(), division.division_count(), view.text]
+		if content.id == "campaign": view.text += " · " + ("Dry backend" if m.get("lane_condition") == "lane.dry" else "House oil")
 		var boss: Dictionary = division.boss()
 		var rival: Dictionary = division.rival_for(boss)
 		var reward: String = rival.first_clear.text if not career.first_clears.has(rival.id) else "already cleared"
@@ -1320,7 +1333,7 @@ func _refresh_hud() -> void:
 			view.badge = "Boss: %s ⓘ" % rival.name
 		view.rule_text = "%s — target %d in two frames.\n%s\nFirst clear: %s" % [rival.name, int(boss.target), RivalRules.summary(rival.rule), reward]
 	hud.show_match(view)
-	if not division.is_boss() or reactions.visible_at(_clock_usec).is_empty():
+	if state in ["shop", "division_over"] or not division.is_boss() or reactions.visible_at(_clock_usec).is_empty():
 		hud.hide_reaction()
 
 func _describe(report: Dictionary) -> String:
@@ -1345,3 +1358,22 @@ func _layout_resolution() -> void:
 	score_panel.offset_right = -LANDSCAPE_HAND_WIDTH - 32.0 if landscape and left_hand else -16.0
 	next_rack.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	next_rack.position = Vector2(size.x - 336 if left_hand else 16, size.y - 100) if landscape else Vector2(size.x / 2 - 160, size.y / 2 - 36)
+
+func _can_endless() -> bool:
+	return content.id == "campaign" and division.outcome == "won" and division.specs.size() < Generator.MAX_DIVISIONS
+
+func _continue_endless() -> void:
+	if state != "division_over" or not _can_endless(): return
+	var last := int(division.specs.back().matches.back().target)
+	var extended := Generator.extend_endless(division.campaign, content.profile, _catalogue, [last + 10, last + 20, last + 30], true)
+	if not extended.errors.is_empty(): return
+	division.campaign = extended
+	division.specs = extended.divisions
+	divisions = division.specs
+	hud.hide_result()
+	_open_shop()
+
+func _lane_text(id: String) -> String:
+	for entry in content.get("profile", {}).get("lanes", []):
+		if entry.id == id: return entry.text
+	return id

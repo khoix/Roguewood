@@ -14,6 +14,7 @@ extends RefCounted
 ##   shop           in the Pro Shop after the settlement
 ##   intro          the boss match is about to begin
 ##   division_over  the attempt has ended (result recorded)
+const Generator = preload("res://src/procedural/campaign_generator.gd")
 const RunInventory = preload("res://src/rules/run_inventory.gd")
 const Shop = preload("res://src/rules/shop.gd")
 const Deck = preload("res://src/rules/card_deck.gd")
@@ -69,6 +70,16 @@ static func validate(payload: Dictionary, catalogue: Dictionary, content_set: St
 	if not content_set.is_empty() and String(payload.get("content_set", "lab")) != content_set:
 		errors.append("made with the %s content, not %s" % [payload.get("content_set", "lab"), content_set])
 		return errors
+	if payload.get("content_set") == "campaign":
+		var schedule = payload.get("division", {}).get("campaign")
+		if not schedule is Dictionary: return ["missing campaign schedule"]
+		var profile: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://content/campaign/profile.json"))
+		errors.append_array(Generator.validate_schedule(schedule, profile, catalogue))
+		if not errors.is_empty(): return errors
+		if not Generator._integer(payload.division.get("index"), 0, schedule.divisions.size() - 1): return ["invalid campaign position"]
+		if not payload.division.get("done") is Array or payload.division.done.size() != int(payload.division.index): return ["invalid completed Division count"]
+		if not payload.division.get("current") is Dictionary or not Generator._integer(payload.division.current.get("match_index"), 0, 2): return ["invalid current match"]
+		if int(payload.seed) != int(schedule.seed): return ["campaign seed differs from attempt"]
 	if payload.phase not in PHASES:
 		errors.append("unknown phase " + str(payload.phase))
 	for key in LAB_KEYS:
@@ -101,6 +112,7 @@ static func referenced_items(payload: Dictionary) -> Array:
 ## warnings}. divisions: the content set's Division specs (or one spec).
 static func restore(payload: Dictionary, catalogue: Dictionary, divisions: Variant, content: Dictionary) -> Dictionary:
 	var specs: Array = divisions if divisions is Array else [divisions]
+	if payload.get("content_set") == "campaign": specs = payload.division.campaign.divisions
 	var warnings: Array = []
 	for key in ["catalogue", "division"]:
 		if payload.content.get(key) != content.get(key):

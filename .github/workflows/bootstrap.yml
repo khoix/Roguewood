@@ -54,6 +54,8 @@ jobs:
           xvfb-run -a python3 tools/qa.py e2e --journey J06 --rendered
           python3 tools/qa.py e2e --journey J07
           xvfb-run -a python3 tools/qa.py e2e --journey J07 --rendered
+          python3 tools/qa.py e2e --journey J09
+          xvfb-run -a python3 tools/qa.py e2e --journey J09 --rendered
           python3 tools/qa.py e2e --journey J08
           python3 tools/qa.py experiment
           python3 tools/qa.py slice
@@ -70,4 +72,5 @@ jobs:
             artifacts/e08/
             artifacts/e10/
             artifacts/e13/
+            artifacts/e14/
           if-no-files-found: warn
