@@ -38,6 +38,10 @@ const BALL_PIN_FRICTION := 0.12
 const MAX_SIDE_SPIN := 15.0 # rad/s at |spin| = 1 for the House ball
 const CURVE_SPIN_THRESHOLD := 0.25 # |spin| at or above this is a curved shot
 
+## Ball ids the lane can simulate. Lab fixture balls (E07) differ only in scoring
+## effects and share the House physics; real special-ball physics is E17/E18.
+const SIMULATED_BALLS := ["ball.house", "ball.lab_value", "ball.lab_mult", "ball.lab_coin"]
+
 const BALL_RADIUS := 0.108
 const BALL_MASS := 6.35 # 14 lb House ball
 const BALL_START_F := 0.25

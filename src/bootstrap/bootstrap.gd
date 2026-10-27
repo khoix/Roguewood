@@ -76,10 +76,11 @@ func _start_session() -> void:
 	details.text = "House League · Division 1"
 	panel.hide()
 	_clear_lab()
-	# Throw lab (E04/E05); the lane draws beneath the session controls.
+	# Throw lab (E04–E07); the lane draws beneath the session controls.
 	lab = ThrowLab.new()
 	lab.name = "ThrowLab"
 	lab.settings = throw_settings
+	lab.equipment_seed = session.seed
 	lab.frame_scored.connect(_on_frame_scored)
 	add_child(lab)
 	move_child(lab, 0)
@@ -90,6 +91,7 @@ func _start_session() -> void:
 func _on_frame_scored(scored: Dictionary) -> void:
 	session.score = int(session.score) + int(scored.result.score)
 	session.frame = int(scored.frame_number) + 1
+	session.match = int(scored.get("match_number", session.match))
 
 func _show_menu() -> void:
 	screen = "menu"

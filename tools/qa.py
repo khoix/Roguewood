@@ -16,6 +16,8 @@ JOURNEYS = {
              "curve_right", "curve_left", "assist", "landscape"), 600, ["--fixed-fps", "60"]),
     "J03": ("res://tests/scoring_journey.gd", "ROGUEWOOD_J03_OK", "artifacts/e06",
             ("scoring", "strike", "spare", "open"), 600, ["--fixed-fps", "60"]),
+    "J04": ("res://tests/deck_journey.gd", "ROGUEWOOD_J04_OK", "artifacts/e07",
+            ("hand", "keep", "match_over", "exhausted", "direct"), 900, ["--fixed-fps", "60"]),
 }
 
 
@@ -53,7 +55,7 @@ def run(args, marker=None, log_path=None, timeout=120):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["doctor", "import", "smoke", "export", "unit", "integration", "content", "physics", "shell", "e2e"])
+    parser.add_argument("command", choices=["doctor", "import", "smoke", "export", "unit", "integration", "content", "physics", "shell", "e2e", "experiment"])
     parser.add_argument("--journey", choices=sorted(JOURNEYS), default="J01")
     parser.add_argument("--rendered", action="store_true", help="Use a real display; on Linux run via xvfb-run")
     parser.add_argument("--inject-failure", action="store_true", help="Exercise J01 failure artifacts")
@@ -72,6 +74,13 @@ def main():
         report.unlink(missing_ok=True)
         run([exe, "--headless", "--fixed-fps", "60", "--path", str(ROOT), "--script", "res://tests/run_tests.gd", "--", "physics",
              "--report=" + str(report)], "ROGUEWOOD_PHYSICS_OK", artifact_dir / "physics.log", timeout=600)
+    elif args.command == "experiment":
+        artifact_dir = ROOT / "artifacts/e07"
+        artifact_dir.mkdir(parents=True, exist_ok=True)
+        report = artifact_dir / "deck-experiment.json"
+        report.unlink(missing_ok=True)
+        run([exe, "--headless", "--path", str(ROOT), "--script", "res://tools/deck_experiment.gd", "--", "--runs=1000",
+             "--out=" + str(report)], "ROGUEWOOD_EXPERIMENT_OK", artifact_dir / "experiment.log", timeout=600)
     elif args.command == "e2e":
         script, marker, artifacts, captures, timeout, engine_flags = JOURNEYS[args.journey]
         flags = ["--audio-driver", "Dummy", *engine_flags]

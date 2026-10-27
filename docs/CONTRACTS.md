@@ -58,10 +58,23 @@ The current numeric range is finite nonnegative effect amounts up to one million
 
 The throw lab's loadout is ten `pin.wood` and `ball.house` from `content/fixtures/lab_catalogue.json`. That is a lab fixture outside the production registry, with every completeness flag false. E17/E18 replace it with authored items and Charms.
 
-`ScoreLog.steps(result, frame, names)` translates the authoritative event list into ordered calculation steps:
+`ScoreLog.steps(result, frame, names, owners)` translates the authoritative event list into ordered calculation steps:
 - The category base comes first, then fallen pins in rack order (with retriggers), standing pins, balls, the single best accuracy award, Charms, the single bank, and deferred effects last.
 - Each step carries a text line, a symbol (`+` add, `×` multiply, `=` base or bank, `→` deferred), the pin to highlight, and the running Pin Value and Mult the resolver recorded.
 - The score panel only reveals these steps (1×/2×/4×, or Skip), so presentation can never change a banked score. Unit tests and J03 compare every displayed number with an independent resolution.
+
+## E07 equipment state (provisional, ADR 004)
+
+Two equipment models share one interface: `start_match`, `start_frame(retain)`, `options()`, `play(uid, roll_index)`, `can_cycle`/`cycle(uid)`, `can_retain`, `counts`, `to_dict`:
+- `CardDeck` (`src/rules/card_deck.gd`, model `"deck"`) is the experimental draw-and-cycle deck. Its saved form is `{schema_version: 1, model, cards: {uid: item_id}, draw_pile (last = top), hand, discard, exhausted, frame, cycled, reshuffles, tactical_rolls, seed, rng_state}`. `seed` and `rng_state` are decimal strings, so JSON cannot round the 64-bit values. `from_dict` continues the exact same shuffles.
+- `DirectLoadout` (`src/rules/direct_loadout.gd`, model `"direct"`) is the comparison model: House plus two specials with two uses each per match, and directly chosen tactical items.
+
+How the deck plays:
+- Card uids (`card-N`) are stable per copy. The item id's category prefix decides how a card plays: `ball.` goes to discard after use; `consumable.` is exhausted for the run, at most one per roll.
+- The House ball is never a card, and `ball.house` is thrown whenever nothing is armed.
+- Every shuffle uses only the deck's own RNG stream, over uid-sorted piles, so physics and other systems never consume it.
+
+`FrameBuilder.build(loadout, catalogue, reports, tactics)` takes `tactics` as roll index → tactical item ids. It appends their catalogue effects (category `consumable` only) to that roll's effects. It returns `owners` (roll index → the item id behind each roll effect), which `ScoreLog` uses to credit each step to the card that supplied it. Payout and growth steps keep the banked score on show. The lab fixture balls (`ball.lab_value`, `ball.lab_mult`, `ball.lab_coin`) are simulated with House physics (`LaneSpec.SIMULATED_BALLS`); any other ball id is still refused at commit.
 
 ## Commands and evidence
 

@@ -1,9 +1,10 @@
 extends PanelContainer
 ## In-session throw settings: handedness, flick sensitivity, reduced motion, larger
-## touch targets and the accessible controls. Values live in the shell's settings
+## touch targets, the accessible controls and the E07 equipment model under test. Values live in the shell's settings
 ## dictionary so they survive Restart Session; saving them is E25 work.
 signal changed
-const DEFAULTS := {"handedness": "right", "sensitivity": 1.0, "reduced_motion": false, "large_targets": false, "assist": false, "score_speed": 1}
+const DEFAULTS := {"handedness": "right", "sensitivity": 1.0, "reduced_motion": false, "large_targets": false, "assist": false, "score_speed": 1,
+	"equipment": "deck"}
 
 var settings: Dictionary = {}
 var handedness: OptionButton
@@ -11,6 +12,7 @@ var sensitivity: HSlider
 var reduced_motion: CheckButton
 var large_targets: CheckButton
 var assist: CheckButton
+var equipment: OptionButton
 var close: Button
 var _sensitivity_label: Label
 
@@ -50,6 +52,15 @@ func _ready() -> void:
 	reduced_motion = _toggle(box, "ReducedMotion", "Reduced motion (steady ring)", "reduced_motion")
 	large_targets = _toggle(box, "LargeTargets", "Larger touch targets", "large_targets")
 	assist = _toggle(box, "AssistControls", "Assist controls (no gestures)", "assist")
+	# E07 experiment: the proposed deck against direct selection (ADR 004).
+	equipment = OptionButton.new()
+	equipment.name = "EquipmentModel"
+	equipment.add_item("Equipment: draw & cycle deck")
+	equipment.add_item("Equipment: direct selection")
+	equipment.custom_minimum_size = Vector2(320, 56)
+	equipment.select(1 if settings.equipment == "direct" else 0)
+	equipment.item_selected.connect(func(index): _store("equipment", "direct" if index == 1 else "deck"))
+	box.add_child(equipment)
 	close = Button.new()
 	close.name = "CloseSettings"
 	close.text = "Done"

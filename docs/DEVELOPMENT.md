@@ -77,3 +77,23 @@ Each frame must:
 - Update the running total.
 
 The journey also exercises speed cycling, the carried speed preference and Skip. `--rendered` saves scoring, strike, spare and open PNGs to `artifacts/e06/rendered`. The outcomes come from the deterministic physics, so a physics change that alters them fails J03 with a category message.
+
+## E07 equipment, J04 and the experiment
+
+The lab's card row plays the experimental deck (default) or direct selection (Options → Equipment). Switching models starts a new match on a fresh frame, or at Next Rack. The deck is seeded from the session seed.
+
+`python3 tools/qa.py e2e --journey J04` drives the real lab with touch, mouse and keyboard on the card row and with assist throws. Frame scores are checked against an independent `FrameBuilder` + `FrameRules` resolution with the played tactical cards. The journey checks:
+- The first draw (four of seven).
+- Arming and disarming a card without starting a throw.
+- A cycle, once per frame.
+- A tactical card exhausted for the run.
+- A kept card leading the next hand.
+- The empty draw pile reshuffling.
+- No keep at match end, then the recombine at the next match.
+- House thrown when nothing is armed.
+- Cards locked while the ball rolls.
+- Switching to direct selection, where a special's two uses run out and leave the bag while House stays available.
+
+`--rendered` saves the hand, keep, match_over, exhausted and direct PNGs to `artifacts/e07/rendered`. Deck order comes from session seed 1 and outcomes from the deterministic physics, so a change to either can alter which cards appear. The journey picks cards by kind rather than by position.
+
+`python3 tools/qa.py experiment` runs the ADR 004 structural comparison: 1000 seeded runs through the real models and `FrameRules`. It writes `artifacts/e07/deck-experiment.json`, and `deck_test` checks that the experiment is repeatable.
