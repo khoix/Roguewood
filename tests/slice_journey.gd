@@ -254,10 +254,10 @@ func _division_one() -> void:
 	print("J06 bought in Division 1: %s" % str(first))
 	if lab.run.charms.size() >= 2:
 		var order: Array = lab.run.charms.map(func(e): return e.item_id)
-		await _tap(lab.shop_panel.move_button(2))
+		await _focus_accept(lab.shop_panel.move_button(2))
 		await process_frame
 		_check(lab.run.charms[0].item_id == order[1] and lab.run.charms[1].item_id == order[0] and lab.shop_panel.message.text.contains("Moved"), "a Charm moves one slot left")
-		await _tap(lab.shop_panel.move_button(2)) # and back: additions stay first
+		await _focus_accept(lab.shop_panel.move_button(2)) # and back: additions stay first
 		await process_frame
 	await _capture("slice_shop")
 	await _leave_shop()

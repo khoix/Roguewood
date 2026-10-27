@@ -1167,8 +1167,6 @@ func _refresh_shop() -> void:
 	var charm_moves: Array = []
 	for i in range(1, run.charms.size()):
 		charm_moves.append({"slot": i + 1, "label": "◀ Move %s before %s" % [_names.get(run.charms[i].item_id, ""), _names.get(run.charms[i - 1].item_id, "")]})
-	if not run.charms.is_empty():
-		rack_text += "\nCharm order (left to right): " + ", ".join(run.charms.map(func(e): return _names.get(e.item_id, e.item_id)))
 	var sellables: Array = []
 	for owned in run.entries():
 		if run.can_sell(owned.ref):
@@ -1178,7 +1176,8 @@ func _refresh_shop() -> void:
 	shop_panel.show_view({"title": "Pro Shop", "summary": summary, "preview": _next_match_preview(), "money": run.money, "offers": offers,
 		"reroll_cost": shop.reroll_cost(), "can_reroll": run.money >= shop.reroll_cost(),
 		"removal_price": Economy.REMOVAL_PRICE, "can_remove": run.money >= Economy.REMOVAL_PRICE and not run.cards.is_empty(),
-		"rack": rack_text, "charm_moves": charm_moves, "sellables": sellables, "message": shop_message, "columns": 5 if size.x > size.y else 3})
+		"rack": rack_text, "charm_moves": charm_moves, "sellables": sellables,
+		"charm_order": "" if run.charms.is_empty() else "Charm order (left to right): " + ", ".join(run.charms.map(func(e): return _names.get(e.item_id, e.item_id))), "message": shop_message, "columns": 5 if size.x > size.y else 3})
 	money_changed.emit(run.money)
 
 func _normalized(position: Vector2) -> Vector2:
