@@ -192,3 +192,34 @@ rules with provisional encounter fixtures/targets; see ADR 009 for content limit
 24 real matches, a midcampaign process restart, a championship restart, endless
 continuation, and loss. Captures/logs are under ignored `artifacts/e14/`.
 Generator and persistence/stream tests also run in `qa.py unit`.
+
+## E15 Career and J10
+
+The Career (`career.json`, schema 2, ADR 010) records unlock gates and where each
+came from, first clears, League championships, mastery objectives, per-League
+records and the item collection. Every reward is saved the moment it is earned and
+counted once. The unlock registry is `content/career/unlocks.json`; `qa.py content`
+validates the whole graph (IDs, kinds, sources, loops, reachability, self-unlocks,
+starting counters) and prints the availability counts. The menu shows a Career
+summary and up to three goals; results list new unlocks ("joins the shop pool from
+your next attempt"), titles and goals. Practice attempts grant no unlocks or
+mastery progress; the toggle and the match bar say so.
+
+`python3 tools/qa.py e2e --journey J10` runs three real engine processes sharing
+one save directory, all through native input on the production slice:
+1. A fresh Career: beat The Surveyor. The gate is on disk at once, while this
+   attempt's pool keeps Encore locked, even after a reroll. Bank a spare in
+   Division 2, then stop while the frame is shown.
+2. Restart: the Career is intact and the resumed frame is not counted twice.
+   Lose the attempt; the result names the unlock, the kept progress and the
+   goals. Retry: the new attempt's pool has Encore. Beat The Surveyor again;
+   nothing is awarded twice.
+3. Restart: nothing is duplicated, and the saved attempt keeps its Career uid.
+   A new attempt in Practice banks a spare that advances no mastery but records
+   a practice best.
+
+`--rendered` saves career_fresh, career_unlocked, career_spare, career_lost,
+career_no_duplicate, career_practice and career_menu to `artifacts/e15/rendered`.
+J09 also asserts that the campaign title is banked once, across its restarts and
+Endless. The schema 2 golden Career is `tests/fixtures/saves/v2/career.json`
+(`tools/make_save_fixture.gd -- --out=<dir> --career-v2`).

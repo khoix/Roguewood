@@ -134,10 +134,15 @@ var divisions: Array = []
 var content: Dictionary = {}
 var hud: DivisionHud
 var reactions := Reactions.new()
-## Career record shared by the shell across attempts this run (in memory until
-## E10/E15 persist it): first_clears (rival id -> true), unlocked gates, intros_seen.
+## Career record shared by the shell across attempts (CareerProfile, saved apart
+## from the attempt since E10). E15 (ADR 010): each attempt has a Career uid; frames,
+## first clears, championships and discoveries are banked into it at once.
 var career: Dictionary = {}
 var attempt := 1
+var career_attempt := 0
+## ContentSet.career_graph() for this content's registry (the shell hands it in).
+var career_graph: Dictionary = {}
+var league_entry: Dictionary = {} # the registry's League for this content set
 ## E10 saves: the shell hands in its store (null = no saving) and, to resume, the
 ## loaded snapshot payload before the lab enters the tree.
 var save_store: RefCounted
@@ -214,9 +219,13 @@ func _ready() -> void:
 		_names[entry.id] = entry.name
 	run = RunInventory.create(_catalogue, content.kit.pins, content.kit.deck, int(content.kit.money))
 	shop = Shop.create(_catalogue, int(content.campaign.rng.states.shops) if content.id == "campaign" else hash([equipment_seed, "shop"])) # its own stream, never the deck's
-	for key in ["first_clears", "unlocked", "intros_seen"]:
+	var blank := CareerProfile.fresh()
+	for key in blank:
 		if not career.has(key):
-			career[key] = {} if key != "unlocked" else []
+			career[key] = blank[key] # in place: the shell shares this record
+	if career_graph.is_empty():
+		career_graph = ContentSet.career_graph(content.get("unlocks", ContentSet.LAB_UNLOCKS))
+	league_entry = career_graph.get("leagues", {}).get(career_graph.get("league_of_set", {}).get(content.id, ""), {})
 	shop.unlocked = career.unlocked.duplicate() # a snapshot: later unlocks wait for the next attempt (§16)
 	divisions = content.divisions
 	division = League.create(divisions, settings.get("practice", false))
@@ -279,8 +288,23 @@ func _ready() -> void:
 	if not restore_from.is_empty():
 		_restore(restore_from)
 		return
+	career_attempt = CareerProfile.begin_attempt(career)
+	CareerProfile.record_items(career, _owned_ids(), career_attempt)
+	_save_career()
 	_apply_settings()
 	_new_roll()
+
+## Item ids the run owns now (rack, reserves, Charms, cards and their modifications).
+func _owned_ids() -> Array:
+	var ids: Array = []
+	for owned in run.entries():
+		for id in [owned.entry.item_id, String(owned.entry.get("mod", ""))]:
+			if not id.is_empty() and id not in ids:
+				ids.append(id)
+	return ids
+
+func _league_key() -> String:
+	return league_entry.get("id", "league." + String(content.get("id", "lab")))
 
 ## The selected model over the run's card collection; the deck shuffles from the
 ## session seed. Direct selection is rebuilt every match (its uses are per match).
@@ -718,6 +742,14 @@ func _score_frame() -> void:
 	var grown: Array = run.apply_frame(result, built.frame) # growth and the strike streak, banked with the frame
 	var outcome: Dictionary = division.record_frame(banked.score)
 	total_score += int(banked.score)
+	# E15: the frame counts toward Career records and mastery once, saved before the
+	# attempt's frame_done checkpoint (a crash between them cannot count it twice).
+	var stats := CareerProfile.frame_stats(result.category, frame_reports, run.loadout().pins, func(spin): return Lane.is_curved(spin))
+	var counted: Dictionary = CareerProfile.bank_frame(career, career_attempt, frame_number, stats, {"league": _league_key(),
+		"practice": division.practice, "division": division.division_number(), "total": total_score, "frame_score": int(banked.score)},
+		career_graph.get("objectives", []))
+	if counted.counted:
+		_save_career()
 	var title := "Frame %d — %s" % [frame_number, String(result.category).capitalize()]
 	scored_frames.append({"frame_number": frame_number, "match_number": match_number, "frame": built.frame, "result": result, "steps": steps,
 		"income": income, "grown": grown, "money": run.money, "banked": banked.score, "match_score": division.match_score, "match_over": outcome.over, "match_won": outcome.won,
@@ -799,7 +831,7 @@ func _open_shop() -> void:
 		# first, so a crash can neither repeat nor lose it), then the shop opens.
 		var rival: Dictionary = division.rival()
 		shop_message = "%s defeated — Division %d cleared!" % [rival.name, division.division_number()]
-		if CareerProfile.record_first_clear(career, rival, attempt):
+		if CareerProfile.record_first_clear(career, rival, attempt, career_attempt, division.practice):
 			_save_career()
 			shop_message += " First clear: " + rival.first_clear.text
 	run.drop_consumed(equipment.exhausted.duplicate())
@@ -819,6 +851,8 @@ func _start_next_match() -> void:
 	if state != "shop" or not _choice.is_empty():
 		return
 	shop_panel.hide()
+	if CareerProfile.record_items(career, _owned_ids(), career_attempt): # purchases are discoveries
+		_save_career()
 	_kept_last_frame = ""
 	_advance_frame()
 	match_number += 1
@@ -878,13 +912,21 @@ func _show_result() -> void:
 	if division.outcome == "won":
 		var rival: Dictionary = division.rival()
 		title = "%s defeated — %s cleared!" % [rival.name, "Division" if division.division_count() == 1 else content.get("name", "League")]
-		if CareerProfile.record_first_clear(career, rival, attempt):
-			# The Career is saved before the attempt records its result, so a crash
-			# between the two can repeat neither the award nor lose it.
-			_save_career()
+		# The Career is saved before the attempt records its result, so a crash
+		# between the two can neither repeat an award nor lose it.
+		CareerProfile.record_items(career, _owned_ids(), career_attempt)
+		if CareerProfile.record_first_clear(career, rival, attempt, career_attempt, division.practice):
 			lines.append("First clear: " + rival.first_clear.text)
 		else:
 			lines.append("Already cleared before; no new reward.")
+		if not league_entry.is_empty():
+			var title_won: Dictionary = CareerProfile.record_championship(career, league_entry, career_attempt, _owned_ids(), division.practice)
+			var wins := int(career.championships.get(league_entry.id, {}).get("wins", 0))
+			if title_won.first:
+				lines.append("Champion: first %s title. %s" % [league_entry.name, league_entry.championship.text])
+			elif wins > 1:
+				lines.append("Champion again: %d %s titles (a record, not a repeat unlock)." % [wins, league_entry.name])
+		_save_career()
 	else:
 		title = "Attempt over — %s lost" % String(last.kind).capitalize()
 		lines.append("Scored %d of the %d target." % [last.score, last.target])
@@ -892,6 +934,9 @@ func _show_result() -> void:
 			lines.append("Rule in force: " + RivalRules.summary(rule))
 		if not career.first_clears.is_empty():
 			lines.append("Career progress kept: %d rival(s) cleared." % career.first_clears.size())
+		if CareerProfile.record_items(career, _owned_ids(), career_attempt):
+			_save_career()
+	lines.append_array(_career_lines())
 	lines.append("Attempt %d · total %d · $%d left" % [attempt, total_score, run.money])
 	_result_view = {"title": title, "body": "\n".join(lines), "won": division.outcome == "won"}
 	_checkpoint("division_over")
@@ -899,6 +944,29 @@ func _show_result() -> void:
 	hud.endless_button.visible = _can_endless()
 	_update_status()
 	attempt_finished.emit(division.outcome)
+
+## What this attempt changed in the Career, and up to three goals in progress (§16):
+## unlocks join the pool from the next attempt, never this one.
+func _career_lines() -> Array:
+	var lines: Array = []
+	for objective in career_graph.get("objectives", []):
+		if int(career.mastery.get(objective.id, {}).get("career_attempt", -1)) == career_attempt:
+			lines.append("Mastery complete: %s — %s" % [objective.name, objective.reward])
+	for gate in CareerProfile.gates_from(career, career_attempt):
+		if String(career.awards[gate].source).begins_with("mastery:"):
+			continue # listed with its objective above
+		var items: Array = career_graph.get("items_by_gate", {}).get(gate, [])
+		var gate_name: String = career_graph.get("gates", {}).get(gate, {}).get("name", gate)
+		if items.is_empty():
+			lines.append("Earned: %s (kept for good)." % gate_name)
+		else:
+			lines.append("Unlocked: %s join%s the shop pool from your next attempt." % [", ".join(items.map(func(i): return _names.get(i, i))), "s" if items.size() == 1 else ""])
+	if division.practice:
+		lines.append("Practice: discoveries and practice records only; no unlocks or mastery progress.")
+	var goals: Array = CareerProfile.goals(career, career_graph.get("objectives", []), career_attempt)
+	if not goals.is_empty():
+		lines.append("Goals: " + " · ".join(goals.map(func(g): return "%s %d/%d" % [g.name, mini(g.progress, g.threshold), g.threshold])))
+	return lines
 
 ## A retry always starts a new attempt from the first Division.
 func _retry_label() -> String:
@@ -919,7 +987,7 @@ func _checkpoint(phase: String) -> void:
 		"settlement": settlement, "last_scored": last_scored, "pending": pending_launch if phase == "committed" else null,
 		"result": _result_view if phase == "division_over" else null}
 	var payload := Snapshot.build({"attempt": attempt, "seed": equipment_seed, "phase": phase, "lab": lab, "run": run, "shop": shop,
-		"division": division, "equipment": equipment}, _content, content.id)
+		"division": division, "equipment": equipment, "career_attempt": career_attempt}, _content, content.id)
 	var errors: Array[String] = save_store.write("attempt", payload)
 	if not errors.is_empty():
 		push_warning("Attempt not saved: " + str(errors))
@@ -938,6 +1006,10 @@ func _save_career() -> void:
 func _restore(payload: Dictionary) -> void:
 	var parts := Snapshot.restore(payload, _catalogue, divisions, _content)
 	restore_warnings = parts.warnings
+	career_attempt = int(payload.get("career_attempt", 0))
+	if career_attempt <= 0: # saved before E15: give it its own uid from now on
+		career_attempt = CareerProfile.begin_attempt(career)
+		_save_career()
 	run = parts.run
 	shop = parts.shop
 	division = parts.division
@@ -1316,7 +1388,7 @@ func _refresh_hud() -> void:
 	var frames := "%d frame%s left" % [left, "" if left == 1 else "s"]
 	var view := {"text": "", "badge": "", "rule_text": ""}
 	if division.practice:
-		view.text = "Practice · no target · score %d · %s" % [division.match_score, frames]
+		view.text = "Practice · no target · score %d · %s · no unlocks" % [division.match_score, frames]
 	else:
 		var index: int = division.spec.matches.find(m) + 1
 		view.text = "%s %d/3 · Target %d · Score %d · %s" % [m.name, index, division.target(), division.match_score, frames]
