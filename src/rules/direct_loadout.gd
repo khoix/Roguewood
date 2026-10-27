@@ -83,3 +83,14 @@ func counts() -> Dictionary:
 func to_dict() -> Dictionary:
 	return {"schema_version": SCHEMA_VERSION, "model": MODEL, "specials": specials.duplicate(), "uses": uses.duplicate(),
 		"tacticals": tacticals.duplicate(), "exhausted": exhausted.duplicate(), "frame": frame, "tactical_rolls": tactical_rolls.duplicate()}
+
+static func from_dict(data: Dictionary) -> RefCounted:
+	var loadout = load("res://src/rules/direct_loadout.gd").new()
+	loadout.specials = data.specials.duplicate()
+	for item_id in data.uses:
+		loadout.uses[item_id] = int(data.uses[item_id])
+	loadout.tacticals = data.tacticals.duplicate()
+	loadout.exhausted = data.exhausted.duplicate()
+	loadout.frame = int(data.frame)
+	loadout.tactical_rolls = data.tactical_rolls.map(func(r): return int(r))
+	return loadout

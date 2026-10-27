@@ -140,3 +140,28 @@ Options → Practice removes targets. J02–J05 use Practice.
 3. Confirm the unlock carried over, lose the opener, check the Career record survives, then return to the Clubhouse.
 
 `--rendered` saves the preview, shop_preview, intro, boss, lost, won and lost_again PNGs to `artifacts/e09/rendered`.
+
+## E10 saves and J07
+
+The game saves the attempt as one snapshot at every committed step (ADR 007):
+- before a thrown roll animates;
+- after each roll and frame resolves;
+- after every shop transaction, cycle and frame start;
+- on backgrounding.
+
+It saves the Career separately. The Clubhouse offers **Continue Attempt** for an unfinished attempt and explains any fallback to a backup or any unusable save.
+
+`tools/qa.py` gives every journey its own fresh `artifacts/<task>/<mode>/saves` directory (`--save-dir=`), so tests never touch your own saves. `python3 tools/qa.py unit` includes `save_test`, which checks the store, corruption, versions and migrations, snapshots, the golden v1 saves and the Career. Regenerate golden saves only when adding a new version, with `godot --headless --script res://tools/make_save_fixture.gd -- --out=<dir>`.
+
+`python3 tools/qa.py e2e --journey J07` runs ten stages, each a **separate engine process** sharing one save directory. Each stage leaves the game at a chosen moment, and the next continues through the real menu:
+1. Before a throw: after a cycle; backgrounding saves.
+2. During a throw: the committed launch re-simulates and equals a clean replay; the card stays spent.
+3. During score resolution: banked once.
+4. After a purchase: owned once, paid once.
+5. After a reroll: the same offers and price.
+6. Between rolls: the same standing pins, positions exact.
+7. After a boss win: the Career award is kept once and reaches the next attempt's shop pool.
+8. A corrupt latest save falls back to the previous checkpoint.
+9. With every copy broken, the menu says so and a new attempt starts.
+
+Stage logs are `journey-stage<k>.log`, and `journey.log` collects them. `--rendered` saves the continue_menu, resumed_hand, resumed_roll, resumed_frame, resumed_shop, resumed_reroll, resumed_roll2, career_kept, fallback and no_save PNGs to `artifacts/e10/rendered`.
