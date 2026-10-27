@@ -16,6 +16,9 @@ var options: Button
 var lab: ThrowLab
 ## Throw settings shared by every session this run (persistence is E25).
 var throw_settings: Dictionary = {}
+## Career record for this run of the app: first clears, unlocked gates and rivals
+## met. In memory only; E10/E15 make it durable. Restart and retry keep it.
+var career: Dictionary = {}
 
 func _ready() -> void:
 	panel = VBoxContainer.new()
@@ -70,17 +73,27 @@ func _button(parent: Node, label: String, node_name: String, width: float) -> Bu
 	return button
 
 func _start_session() -> void:
+	_begin_attempt(1)
+
+## Attempt n of the fixed House League Division (seed n). Restart Session begins
+## attempt 1 again; Retry and New Attempt begin the next one.
+func _begin_attempt(attempt: int) -> void:
 	# Fixed shell fixture, not procedural League progression or a Career save.
-	session = {"schema_version": 1, "seed": 1, "league_id": "league.house", "kit_id": "kit.house", "division": 1, "match": 1, "frame": 1, "score": 0, "money": 6}
+	session = {"schema_version": 1, "seed": attempt, "attempt": attempt, "league_id": "league.house", "kit_id": "kit.house", "division": 1, "match": 1, "frame": 1, "score": 0, "money": 6}
 	screen = "session"
 	details.text = "House League · Division 1"
 	panel.hide()
 	_clear_lab()
-	# Throw lab (E04–E07); the lane draws beneath the session controls.
+	# Throw lab (E04–E09); the lane draws beneath the session controls.
 	lab = ThrowLab.new()
 	lab.name = "ThrowLab"
 	lab.settings = throw_settings
 	lab.equipment_seed = session.seed
+	lab.career = career
+	lab.attempt = attempt
+	lab.attempt_finished.connect(func(outcome): session.outcome = outcome)
+	lab.retry_requested.connect(func(): _begin_attempt(int(session.attempt) + 1), CONNECT_DEFERRED)
+	lab.menu_requested.connect(_show_menu, CONNECT_DEFERRED)
 	lab.frame_scored.connect(_on_frame_scored)
 	lab.money_changed.connect(func(money): session.money = money)
 	add_child(lab)
@@ -90,7 +103,7 @@ func _start_session() -> void:
 
 ## The session fixture tracks the lab's banked total and current frame.
 func _on_frame_scored(scored: Dictionary) -> void:
-	session.score = int(session.score) + int(scored.result.score)
+	session.score = int(session.score) + int(scored.get("banked", scored.result.score))
 	session.frame = int(scored.frame_number) + 1
 	session.match = int(scored.get("match_number", session.match))
 

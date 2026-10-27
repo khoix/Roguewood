@@ -15,6 +15,7 @@ signal choice_cancelled
 var title: Label
 var summary: Label
 var money: Label
+var preview: Label
 var message: Label
 var offers_grid: GridContainer
 var reroll_button: Button
@@ -34,6 +35,7 @@ func _ready() -> void:
 	add_theme_stylebox_override("panel", _style(Color(0.05, 0.04, 0.09, 0.97)))
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true # keyboard and gamepad focus scrolls its button into view
 	add_child(scroll)
 	_main = VBoxContainer.new()
 	_main.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -42,6 +44,9 @@ func _ready() -> void:
 	title = _label(_main, "ShopTitle", 30)
 	summary = _label(_main, "Settlement", 22)
 	summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	preview = _label(_main, "NextMatch", 22)
+	preview.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	preview.add_theme_color_override("font_color", Color(0.75, 0.85, 1.0))
 	money = _label(_main, "Money", 28)
 	money.add_theme_color_override("font_color", Color(1.0, 0.85, 0.35))
 	offers_grid = GridContainer.new()
@@ -127,6 +132,7 @@ func _button(parent: Control, node_name: String, action: Callable, flags: int = 
 func show_view(view: Dictionary) -> void:
 	title.text = view.title
 	summary.text = view.summary
+	preview.text = view.get("preview", "")
 	money.text = "$%d" % view.money
 	offers_grid.columns = view.get("columns", 3)
 	for i in offer_buttons.size():

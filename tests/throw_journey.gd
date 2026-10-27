@@ -108,6 +108,14 @@ func _run() -> void:
 	if not trials_path.is_empty():
 		DirAccess.remove_absolute(trials_path)
 	lab.trial_log_path = trials_path
+	# Practice (E09): this journey tests throwing, so the Division's targets are off.
+	scene.options.grab_focus()
+	await _accept()
+	lab.settings_panel.practice.grab_focus()
+	await _accept()
+	lab.settings_panel.close.grab_focus()
+	await _accept()
+	_check(lab.division.practice, "practice mode via Options")
 	await _wait_for(func(): return lab.state == "aim" and lab.lane.state == "ready", "aim state")
 	for i in 3: await process_frame
 	await _capture("aim")

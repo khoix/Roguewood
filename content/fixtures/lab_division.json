@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "division": 1,
+  "name": "House League · Division 1",
+  "frames_per_match": 2,
+  "matches": [
+    {
+      "id": "match.lab_opener",
+      "kind": "opener",
+      "name": "Opener",
+      "target": 300
+    },
+    {
+      "id": "match.lab_feature",
+      "kind": "feature",
+      "name": "Feature",
+      "target": 500
+    },
+    {
+      "id": "match.lab_boss",
+      "kind": "boss",
+      "name": "Boss",
+      "target": 800,
+      "rival": "rival.lab_custodian"
+    }
+  ],
+  "rivals": [
+    {
+      "id": "rival.lab_custodian",
+      "name": "The Custodian",
+      "initials": "TC",
+      "color": "#9fd8ff",
+      "rule": "boss_rule.lab_clean_sweep",
+      "intro": "Every lane spotless, every frame finished. The Custodian banks only clean work: strikes and spares. Leave a pin standing and the frame is swept away.",
+      "first_clear": {
+        "unlocks": [
+          "gate.lab_rival"
+        ],
+        "text": "Lab Lead pins join the shop pool."
+      },
+      "reactions": {
+        "entrance": "Mind the corners. I only count what's cleared.",
+        "confident": "Untidy. That one goes in the bin.",
+        "impressed": "Hm. A clean strike. Noted.",
+        "threatened": "You're closing in… don't leave a mess now.",
+        "defeated": "Spotless. I concede the lane.",
+        "victorious": "Swept away. Come back with a cleaner game."
+      }
+    }
+  ]
+}

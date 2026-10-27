@@ -99,6 +99,16 @@ Places are refs: `rack:N`, `reserve:N`, `charm:N`, `card:<uid>`. Purchases go th
 
 `RunInventory.credit_frame(result, frame)` credits every payout in `future_effects` once, since FrameRules never retriggers payouts.
 
+## E09 Division state (ADR 006)
+
+A Division spec (`content/fixtures/lab_division.json`, schema 1) has `division`, `name`, `frames_per_match` and three `matches` (opener, feature, boss), each `{id, kind, name, target}`. The boss names a `rival`. Each rival is `{id, name, initials, color, rule, intro, first_clear: {unlocks, text}, reactions}`, and its `rule` must be a catalogue `boss_rule`. `DivisionRun.validate_spec` checks the order, rising targets, the boss's rival and the rule category.
+
+`DivisionRun` saves `{schema_version, practice, match_index, match_score, frames_played, results: [{id, kind, target, score, frames, won}], outcome, started}`. `record_frame(banked)` ends a match the moment its target is reached, or when the budget is spent. It refuses frames after the match is over.
+
+`RivalRules.bank(rule_ids, result)` returns what the match banks plus explanatory notes, and leaves the FrameRules result unchanged. Unknown rule ids are refused. The score log shows a rule as an extra `rule` step with symbol ✕.
+
+The lab's scored-frame record now also carries `banked`, `match_score`, `match_over` and `match_won`. The session fixture adds `attempt` and `outcome`, and banks `banked` points.
+
 ## Commands and evidence
 
 `python3 tools/qa.py unit` exercises invalid data, JSON round-trips, pure scoring, lane geometry, knockdown bookkeeping and gesture recognition. `physics` runs launch fixtures through real Jolt worlds (see DEVELOPMENT.md). `content` lints the actual production registry. `integration` hydrates a frame from catalogue and launch/result fixtures and verifies its score and serialized events. These are headless contract tests, **not gameplay E2E**. E03 supplies real input-driven E2E. All commands use the pinned Godot engine and fail on engine script errors or a missing completion marker.

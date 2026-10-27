@@ -1,10 +1,11 @@
 extends PanelContainer
 ## In-session throw settings: handedness, flick sensitivity, reduced motion, larger
-## touch targets, the accessible controls and the E07 equipment model under test. Values live in the shell's settings
+## touch targets, the accessible controls, the E07 equipment model under test and
+## E09 practice mode. Values live in the shell's settings
 ## dictionary so they survive Restart Session; saving them is E25 work.
 signal changed
 const DEFAULTS := {"handedness": "right", "sensitivity": 1.0, "reduced_motion": false, "large_targets": false, "assist": false, "score_speed": 1,
-	"equipment": "deck"}
+	"equipment": "deck", "practice": false}
 
 var settings: Dictionary = {}
 var handedness: OptionButton
@@ -13,6 +14,7 @@ var reduced_motion: CheckButton
 var large_targets: CheckButton
 var assist: CheckButton
 var equipment: OptionButton
+var practice: CheckButton
 var close: Button
 var _sensitivity_label: Label
 
@@ -61,6 +63,8 @@ func _ready() -> void:
 	equipment.select(1 if settings.equipment == "direct" else 0)
 	equipment.item_selected.connect(func(index): _store("equipment", "direct" if index == 1 else "deck"))
 	box.add_child(equipment)
+	# E09: practice drops the Division's targets (applies to an attempt not yet thrown).
+	practice = _toggle(box, "PracticeMode", "Practice (no targets)", "practice")
 	close = Button.new()
 	close.name = "CloseSettings"
 	close.text = "Done"

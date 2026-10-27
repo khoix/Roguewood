@@ -20,6 +20,8 @@ JOURNEYS = {
             ("hand", "keep", "match_over", "exhausted", "direct"), 900, ["--fixed-fps", "60"]),
     "J05": ("res://tests/shop_journey.gd", "ROGUEWOOD_J05_OK", "artifacts/e08",
             ("shop", "bought", "funds", "place_pin", "full_slot", "removed", "landscape", "match2"), 900, ["--fixed-fps", "60"]),
+    "J06": ("res://tests/division_journey.gd", "ROGUEWOOD_J06_OK", "artifacts/e09",
+            ("preview", "shop_preview", "intro", "boss", "lost", "won", "lost_again"), 900, ["--fixed-fps", "60"]),
 }
 
 
