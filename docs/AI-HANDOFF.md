@@ -51,7 +51,7 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E09 — Single Division loop and rival | NOT_STARTED | unassigned | — | See dependency graph |
 | E10 — Attempt saves and recovery | NOT_STARTED | unassigned | — | See dependency graph |
 | E11 — Art bible and representative still scene | REVIEW | Codex | codex/roguewood-e11-art | 2882483; handoff: runtime candidate, visual quality not accepted; unmerged |
-| E12 — Representative motion and visual review | IN_PROGRESS | Codex | codex/roguewood-e12-motion | Claimed from main 1d2ea35; user explicitly requested E12 completion |
+| E12 — Representative motion and visual review | REVIEW | Codex | codex/roguewood-e12-motion | 90f5690; CI 40444945503 + 40444945245 PASS; four-mode J08 and videos; user visual sign-off pending |
 | E13 — Vertical-slice integration | NOT_STARTED | unassigned | — | See dependency graph |
 | E14 — Seeded eight-Division progression | NOT_STARTED | unassigned | — | See dependency graph |
 | E15 — Career persistence and unlock graph | NOT_STARTED | unassigned | — | See dependency graph |
@@ -139,3 +139,13 @@ tests/motion_journey.gd, docs/art/E12*, docs/handoffs/E12.md. Shared coordinated
 changes: tools/qa.py, .github/workflows/e12-motion.yml, src/bootstrap/bootstrap.gd
 (orientation canvas sizing only), this checkpoint.
 No scoring, physics, deck rules, catalogue completeness or future milestone work.
+
+## E12 verified checkpoint
+
+Implementation `90f5690` is complete and verified. Both E12 motion review and
+Bootstrap CI passed, including J01–J04 headless/rendered and Linux export.
+Four-mode J08, final videos, metrics, artifact ID and limits are in handoffs/E12.md.
+E07 is integrated by owner PR #5 (main 1d2ea35), and E11 by PR #4 (cbca3c0);
+older unmerged descriptions above are historical. E12 user visual review remains
+the G3 acceptance gate. No E13 or mass asset production begun. Next independent
+gameplay work E08: High; E13: High after E09/E10/E12 acceptance.
