@@ -13,8 +13,9 @@ static func grade_name(frame: Dictionary) -> String:
 			best = roll.accuracy
 	return best
 
-## names: optional {item_id: display name}.
-static func steps(result: Dictionary, frame: Dictionary, names: Dictionary = {}) -> Array:
+## names: optional {item_id: display name}. owners: optional FrameBuilder map of
+## roll index -> item id per roll effect, so tactical cards are named, not the ball.
+static func steps(result: Dictionary, frame: Dictionary, names: Dictionary = {}, owners: Dictionary = {}) -> Array:
 	var out: Array = []
 	var pins := {}
 	for pin in frame.pins:
@@ -24,6 +25,8 @@ static func steps(result: Dictionary, frame: Dictionary, names: Dictionary = {})
 		balls[int(roll.roll_index)] = roll.ball_id
 	var value := 0.0
 	var mult := 1.0
+	var seen := {}
+	var banked := -1
 	for event in result.events:
 		var step := {"phase": event.phase, "symbol": "", "pin": 0}
 		match event.phase:
@@ -40,13 +43,21 @@ static func steps(result: Dictionary, frame: Dictionary, names: Dictionary = {})
 				step.text = "Bank ⌊%s × %s⌋ = %s" % [_n(event.pin_value), _n(event.mult), _n(event.score)]
 				step.symbol = "="
 				step.score = event.score
+				banked = event.score
 			"after_bank":
-				step.text = "After bank: %s %s %s (%s)" % [_owner(event.source, pins, balls, names), event.op.replace("_", " "), _n(event.amount), event.scope]
+				var owner := _owner(event.source, pins, balls, names)
+				if event.get("trigger", "") == "ball":
+					owner = _roll_owner(event, frame, owners, names, seen, owner, true)
+				var change := ("+$%s" % _n(event.amount)) if event.op == "payout" else "%s %s" % [event.op.replace("_", " "), _n(event.amount)]
+				step.text = "After bank: %s %s (%s)" % [owner, change, event.scope]
 				step.symbol = "→"
+				step.score = banked # the bank stands; after-bank effects never rescore it
 			_:
 				value = event.pin_value
 				mult = event.mult
 				var owner := _owner(event.source, pins, balls, names)
+				if event.phase == "ball":
+					owner = _roll_owner(event, frame, owners, names, seen, owner)
 				var amount := _n(event.amount)
 				match event.op:
 					"add_value":
@@ -68,6 +79,26 @@ static func steps(result: Dictionary, frame: Dictionary, names: Dictionary = {})
 		step.mult = mult
 		out.append(step)
 	return out
+
+## The k-th "ball" event of a roll comes from its k-th ball-trigger effect of the
+## same kind: deferred payouts/growth settle after the bank, the rest before it.
+static func _roll_owner(event: Dictionary, frame: Dictionary, owners: Dictionary, names: Dictionary, seen: Dictionary, fallback: String, deferred: bool = false) -> String:
+	var index := int(String(event.source).trim_prefix("roll:"))
+	var key := "%s#%d#%s" % [event.source, int(event.get("repeat", 0)), deferred]
+	var k: int = seen.get(key, 0)
+	seen[key] = k + 1
+	var supplied: Array = owners.get(index, [])
+	for roll in frame.rolls:
+		if int(roll.roll_index) != index:
+			continue
+		var count := 0
+		for i in roll.effects.size():
+			if roll.effects[i].trigger != "ball" or (roll.effects[i].op in ["payout", "grow_value"]) != deferred:
+				continue
+			if count == k and i < supplied.size():
+				return "Roll %d %s" % [index, names.get(supplied[i], supplied[i])]
+			count += 1
+	return fallback
 
 static func _owner(source: String, pins: Dictionary, balls: Dictionary, names: Dictionary) -> String:
 	var parts := source.split(":")

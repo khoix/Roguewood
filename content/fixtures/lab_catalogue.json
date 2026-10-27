@@ -93,6 +93,210 @@
         "unlock_assigned": false,
         "integrated": false
       }
+    },
+    {
+      "id": "ball.lab_value",
+      "name": "Lab Value",
+      "category": "ball",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 4,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "add_value",
+          "amount": 30,
+          "trigger": "ball",
+          "scope": "roll"
+        }
+      ],
+      "limits": {
+        "max_owned": 2,
+        "charges": 0,
+        "exhaustion": "cycle"
+      },
+      "downside": "Lab fixture: House physics; value only.",
+      "synergy_tags": [
+        "lab",
+        "value"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": false,
+        "mechanics": false,
+        "automated_validation": false,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": false,
+        "integrated": false
+      }
+    },
+    {
+      "id": "ball.lab_mult",
+      "name": "Lab Mult",
+      "category": "ball",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 4,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "add_mult",
+          "amount": 2,
+          "trigger": "ball",
+          "scope": "roll"
+        }
+      ],
+      "limits": {
+        "max_owned": 2,
+        "charges": 0,
+        "exhaustion": "cycle"
+      },
+      "downside": "Lab fixture: House physics; mult only.",
+      "synergy_tags": [
+        "lab",
+        "mult"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": false,
+        "mechanics": false,
+        "automated_validation": false,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": false,
+        "integrated": false
+      }
+    },
+    {
+      "id": "ball.lab_coin",
+      "name": "Lab Coin",
+      "category": "ball",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 4,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "payout",
+          "amount": 1,
+          "trigger": "ball",
+          "scope": "roll"
+        }
+      ],
+      "limits": {
+        "max_owned": 2,
+        "charges": 0,
+        "exhaustion": "cycle"
+      },
+      "downside": "Lab fixture: House physics; no score, pays $1 after bank.",
+      "synergy_tags": [
+        "lab",
+        "economy"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": false,
+        "mechanics": false,
+        "automated_validation": false,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": false,
+        "integrated": false
+      }
+    },
+    {
+      "id": "consumable.lab_focus",
+      "name": "Lab Focus",
+      "category": "consumable",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 3,
+      "resale_price": 1,
+      "effects": [
+        {
+          "op": "add_mult",
+          "amount": 3,
+          "trigger": "ball",
+          "scope": "roll"
+        }
+      ],
+      "limits": {
+        "max_owned": 2,
+        "charges": 1,
+        "exhaustion": "consume"
+      },
+      "downside": "Lab fixture: one use, then exhausted for the run.",
+      "synergy_tags": [
+        "lab",
+        "tactical"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": false,
+        "mechanics": false,
+        "automated_validation": false,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": false,
+        "integrated": false
+      }
     }
   ]
 }

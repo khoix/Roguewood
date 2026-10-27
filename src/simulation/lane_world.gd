@@ -193,8 +193,8 @@ func commit(record: Dictionary) -> Array[String]:
 	if errors.is_empty():
 		if absf(record.start_x) > Lane.MAX_START_X + 1e-9:
 			errors.append("start_x places the ball off the lane")
-		if record.ball_id != "ball.house":
-			errors.append("Only ball.house is simulated until catalogue balls exist")
+		if record.ball_id not in Lane.SIMULATED_BALLS:
+			errors.append("Ball is not simulated yet: " + record.ball_id)
 	if errors.is_empty():
 		launch = record.duplicate(true)
 		state = "committed"

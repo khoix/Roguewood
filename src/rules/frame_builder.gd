@@ -26,8 +26,9 @@ static func item(catalogue: Dictionary, item_id: String) -> Dictionary:
 	return {}
 
 ## Returns {ok, frame} or {ok=false, errors}. Reports are LaneWorld reports
-## ({launch, roll_result, knockdown_log}) in roll order.
-static func build(loadout: Dictionary, catalogue: Dictionary, reports: Array) -> Dictionary:
+## ({launch, roll_result, knockdown_log}) in roll order. tactics maps a roll index
+## to the tactical item ids played with that roll; their effects join the roll's.
+static func build(loadout: Dictionary, catalogue: Dictionary, reports: Array, tactics: Dictionary = {}) -> Dictionary:
 	var errors: Array[String] = []
 	if not is_complete(reports):
 		errors.append("frame is not complete")
@@ -40,6 +41,7 @@ static func build(loadout: Dictionary, catalogue: Dictionary, reports: Array) ->
 			continue
 		pins.append({"position": position, "item_id": pin.id, "effects": pin.effects.duplicate(true)})
 	var rolls: Array = []
+	var owners := {}
 	for report in reports:
 		var result: Dictionary = report.roll_result
 		errors.append_array(Contracts.validate_result_for_launch(report.launch, result))
@@ -48,8 +50,19 @@ static func build(loadout: Dictionary, catalogue: Dictionary, reports: Array) ->
 		if ball.is_empty() or ball.category != "ball":
 			errors.append("unknown ball item: %s" % str(result.get("ball_id")))
 			continue
+		var effects: Array = ball.effects.duplicate(true)
+		var effect_owners: Array = ball.effects.map(func(_e): return ball.id)
+		for tactical_id in tactics.get(int(result.roll_index), []):
+			var tactical := item(catalogue, tactical_id)
+			if tactical.is_empty() or tactical.category != "consumable":
+				errors.append("unknown tactical item: %s" % tactical_id)
+				continue
+			effects.append_array(tactical.effects.duplicate(true))
+			for _e in tactical.effects:
+				effect_owners.append(tactical.id)
+		owners[int(result.roll_index)] = effect_owners
 		rolls.append({"roll_index": int(result.roll_index), "ball_id": ball.id, "fallen_positions": result.fallen_positions.duplicate(),
-			"accuracy": result.accuracy, "effects": ball.effects.duplicate(true)})
+			"accuracy": result.accuracy, "effects": effects})
 	var charms: Array = []
 	for charm_id in loadout.charms:
 		var charm := item(catalogue, charm_id)
@@ -62,4 +75,5 @@ static func build(loadout: Dictionary, catalogue: Dictionary, reports: Array) ->
 		errors.append_array(Rules.validate(frame))
 	if not errors.is_empty():
 		return {"ok": false, "errors": errors}
-	return {"ok": true, "frame": frame}
+	# owners: roll index -> item id that supplied each roll effect, for the log.
+	return {"ok": true, "frame": frame, "owners": owners}

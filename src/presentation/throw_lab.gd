@@ -1,10 +1,12 @@
 extends Control
-## Throw lab (E04 straight, E05 spin/curve, E06 scoring): elevated behind-ball
-## camera, hold / circle / flick gestures, a movable contracting target ring,
-## accessible controls and a two-roll frame where survivors are respotted, then
-## scored by FrameRules and explained step by step. Every roll runs in a fresh
-## World3D so it depends only on its rack state and committed launch.
-## Developmental presentation.
+## Throw lab (E04 straight, E05 spin/curve, E06 scoring, E07 equipment): elevated
+## behind-ball camera, hold / circle / flick gestures, a movable contracting target
+## ring, accessible controls and a two-roll frame where survivors are respotted,
+## then scored by FrameRules and explained step by step. The equipment row plays
+## special balls and tactical cards from the experimental deck or the direct
+## selection model (ADR 004); House is thrown when nothing is armed. Every roll
+## runs in a fresh World3D so it depends only on its rack state and committed
+## launch. Developmental presentation.
 signal roll_reported(report: Dictionary)
 signal frame_scored(scored: Dictionary)
 const Lane = preload("res://src/simulation/lane_spec.gd")
@@ -21,6 +23,18 @@ const Rules = preload("res://src/rules/frame_rules.gd")
 const FrameBuilder = preload("res://src/rules/frame_builder.gd")
 const ScoreLog = preload("res://src/rules/score_log.gd")
 const ScorePanel = preload("res://src/presentation/score_panel.gd")
+const CardHand = preload("res://src/presentation/card_hand.gd")
+const Deck = preload("res://src/rules/card_deck.gd")
+const Direct = preload("res://src/rules/direct_loadout.gd")
+## Lab equipment under test (fixture items, not the production starter kit): two
+## copies of three lab ball types plus one tactical card, and the same items as a
+## direct-selection bag.
+const LAB_DECK := ["ball.lab_value", "ball.lab_value", "ball.lab_mult", "ball.lab_mult", "ball.lab_coin", "ball.lab_coin", "consumable.lab_focus"]
+const LAB_DIRECT_BALLS := ["ball.lab_value", "ball.lab_mult"]
+const LAB_DIRECT_TACTICALS := ["consumable.lab_focus"]
+const MATCH_FRAMES := 2 # design §2: a match is two frames
+const HOUSE := "ball.house"
+const LANDSCAPE_HAND_WIDTH := 440.0
 const RESULT_HOLD_SEC := 1.2
 const AIM_BACK := 2.0
 const AIM_HEIGHT := 1.05
@@ -68,6 +82,18 @@ var _result_timer := 0.0
 var _launch_serial := 0
 var _last_input: Dictionary = {}
 var _handedness := ""
+var equipment: RefCounted # CardDeck or DirectLoadout
+var equipment_seed := 1
+var card_hand: CardHand
+var armed_ball := "" # card uid (deck) or item id (direct); empty throws House
+var armed_tactical := ""
+var keep_card := ""
+var cycling := false
+var frame_tactics: Dictionary = {} # roll index -> tactical item ids
+var match_number := 1
+var match_frame := 1
+var _equipment_model := ""
+var _kept_last_frame := ""
 
 func _ready() -> void:
 	SettingsPanel.with_defaults(settings)
@@ -135,6 +161,10 @@ func _ready() -> void:
 	score_panel.speed_changed.connect(func(speed): settings.score_speed = speed)
 	score_panel.hide()
 	add_child(score_panel)
+	card_hand = CardHand.new()
+	card_hand.card_pressed.connect(_on_card)
+	card_hand.cycle_pressed.connect(_on_cycle)
+	add_child(card_hand)
 	assist_panel = AssistPanel.new()
 	assist_panel.throw_requested.connect(_assist_throw)
 	assist_panel.preview_changed.connect(_assist_preview)
@@ -147,6 +177,117 @@ func _ready() -> void:
 	add_child(settings_panel)
 	_apply_settings()
 	_new_roll()
+
+## A fresh match with the selected model; the deck shuffles from the session seed.
+func _build_equipment() -> void:
+	_equipment_model = settings.equipment
+	if _equipment_model == "direct":
+		equipment = Direct.create(LAB_DIRECT_BALLS, LAB_DIRECT_TACTICALS)
+	else:
+		equipment = Deck.create(LAB_DECK, equipment_seed)
+	if roll_index == 1 and frame_number > 1:
+		match_number += 1
+	match_frame = 1
+	equipment.start_frame()
+	_clear_choices()
+
+func _clear_choices() -> void:
+	armed_ball = ""
+	armed_tactical = ""
+	keep_card = ""
+	cycling = false
+
+func _item_of(uid: String) -> String:
+	return equipment.cards.get(uid, "") if equipment.MODEL == "deck" else equipment.tacticals.get(uid, uid)
+
+func armed_ball_id() -> String:
+	return HOUSE if armed_ball.is_empty() else _item_of(armed_ball)
+
+func _on_card(uid: String) -> void:
+	if state == "frame_done":
+		if equipment.can_retain() and match_frame < MATCH_FRAMES:
+			keep_card = "" if keep_card == uid else uid
+		_refresh_hand()
+		return
+	if state != "aim":
+		return
+	if cycling:
+		var errors: Array[String] = equipment.cycle(uid)
+		if errors.is_empty():
+			if armed_ball == uid: armed_ball = ""
+			if armed_tactical == uid: armed_tactical = ""
+		cycling = false
+	elif Deck.kind(_item_of(uid)) == "ball":
+		armed_ball = "" if armed_ball == uid else uid
+	else:
+		armed_tactical = "" if armed_tactical == uid else uid
+	_update_status()
+
+## Cycle arms a one-card swap: the next card pressed is discarded and replaced.
+func _on_cycle() -> void:
+	if state == "aim" and equipment.can_cycle():
+		cycling = not cycling
+		_update_status()
+
+func _refresh_hand() -> void:
+	if card_hand == null or equipment == null:
+		return
+	var cards: Array = []
+	for option in equipment.options():
+		var item := FrameBuilder.item(_catalogue, option.item_id)
+		var detail := _effect_text(item)
+		if equipment.MODEL == "direct" and option.kind == "ball":
+			detail += "\n%d left" % option.uses
+		cards.append({"uid": option.uid, "title": item.get("name", option.item_id), "detail": detail, "kind": option.kind})
+	var marks := {}
+	if not armed_ball.is_empty(): marks[armed_ball] = "ball"
+	if not armed_tactical.is_empty(): marks[armed_tactical] = "tactical"
+	if not keep_card.is_empty(): marks[keep_card] = "keep"
+	var counts: Dictionary = equipment.counts()
+	var header: String
+	if equipment.MODEL == "deck":
+		header = "Deck · draw %d · discard %d · used %d · House always ready" % [counts.draw, counts.discard, counts.exhausted]
+		if state == "frame_done":
+			header = "Tap one card to keep for next frame (optional)" if match_frame < MATCH_FRAMES else "Match over — the deck recombines and reshuffles"
+		elif cycling:
+			header = "Cycle: tap a card to discard it and draw one"
+	else:
+		header = "Bag · House always ready · specials %d uses left this match" % counts.special_uses
+	var choosing: bool = state == "aim" or (state == "frame_done" and equipment.can_retain() and match_frame < MATCH_FRAMES)
+	card_hand.show_cards(cards, marks, header, equipment.MODEL == "deck", state == "aim" and equipment.can_cycle(), choosing)
+	card_hand.cycle_button.text = "Cancel" if cycling else "Cycle"
+	card_hand.visible = state != "scoring"
+	# Bottom for thumbs while aiming; under the status line once the score panel is up.
+	# Landscape keeps the ball clear: a narrow two-row panel away from the assist side.
+	card_hand.set_anchors_preset(Control.PRESET_TOP_WIDE if state == "frame_done" else Control.PRESET_BOTTOM_WIDE)
+	card_hand.offset_left = 16.0
+	card_hand.offset_right = -16.0
+	if size.x > size.y:
+		var left: bool = settings.handedness != "left"
+		card_hand.anchor_left = 0.0 if left else 1.0
+		card_hand.anchor_right = card_hand.anchor_left
+		card_hand.offset_left = 16.0 if left else -16.0 - LANDSCAPE_HAND_WIDTH
+		card_hand.offset_right = card_hand.offset_left + LANDSCAPE_HAND_WIDTH
+	if state == "frame_done":
+		card_hand.grow_vertical = Control.GROW_DIRECTION_END
+		card_hand.offset_top = TOP_UI_HEIGHT + 110.0
+		card_hand.offset_bottom = TOP_UI_HEIGHT + 110.0
+	else:
+		card_hand.grow_vertical = Control.GROW_DIRECTION_BEGIN
+		card_hand.offset_top = -16.0
+		card_hand.offset_bottom = -16.0
+
+static func _effect_text(item: Dictionary) -> String:
+	var parts: Array = []
+	for effect in item.get("effects", []):
+		match effect.op:
+			"add_value": parts.append("+%s Value" % ScoreLog._n(effect.amount))
+			"add_mult": parts.append("+%s Mult" % ScoreLog._n(effect.amount))
+			"multiply_mult": parts.append("×%s Mult" % ScoreLog._n(effect.amount))
+			"payout": parts.append("+$%s" % ScoreLog._n(effect.amount))
+	if item.get("category", "") == "consumable":
+		parts.append("once")
+	return " ".join(parts) if not parts.is_empty() else "—"
 
 ## In-world target marker; the readable ring itself is drawn by the aim overlay.
 func _build_ring() -> void:
@@ -198,6 +339,9 @@ func _apply_settings() -> void:
 	assist_panel.offset_bottom = 330.0
 	if settings.assist and state == "aim" and lane:
 		_assist_preview(assist_panel.values())
+	# A model switch starts a new match now if this frame has no roll yet, else at Next Rack.
+	if settings.equipment != _equipment_model and (equipment == null or (state == "aim" and roll_index == 1)):
+		_build_equipment()
 	_update_status()
 
 func toggle_settings() -> void:
@@ -272,6 +416,8 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 func _notification(what: int) -> void:
+	if what == NOTIFICATION_RESIZED:
+		_refresh_hand()
 	if state == "holding" and what in [NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_WM_WINDOW_FOCUS_OUT, NOTIFICATION_APPLICATION_PAUSED]:
 		_cancel("interrupted")
 
@@ -283,7 +429,7 @@ func _release(position: Vector2) -> void:
 		_cancel(flick.reason)
 		return
 	var x := _placed_x(flick.placement, origin)
-	var launch := Mapper.to_launch(flick, x, "lab-%d" % (_launch_serial + 1), roll_index, target_x, frozen)
+	var launch := Mapper.to_launch(flick, x, "lab-%d" % (_launch_serial + 1), roll_index, target_x, frozen, armed_ball_id())
 	_last_input = {"source": _hold_source, "speed": flick.speed, "screen_angle_deg": flick.angle_deg, "turn_deg": flick.turn_deg,
 		"spin": flick.spin, "power": flick.power}
 	_commit(launch, _hold_source)
@@ -293,7 +439,7 @@ func _assist_throw(controls: Dictionary) -> void:
 		return
 	target_x = controls.target_x
 	var frozen := Ring.radius(_clock_usec - _ring_start_usec, settings.reduced_motion)
-	var launch := Mapper.from_controls(controls, "lab-%d" % (_launch_serial + 1), roll_index, target_x, frozen)
+	var launch := Mapper.from_controls(controls, "lab-%d" % (_launch_serial + 1), roll_index, target_x, frozen, armed_ball_id())
 	_last_input = {"source": "assist", "controls": controls.duplicate()}
 	_commit(launch, "assist")
 
@@ -312,11 +458,33 @@ func _commit(launch: Dictionary, source: String) -> void:
 		return
 	_launch_serial += 1
 	start_x = launch.start_x
+	_play_armed()
 	_touch = -1
 	last_cancel = ""
 	last_source = source
 	state = "rolling"
 	_update_status()
+
+## Committed cards are spent exactly once; a cancelled or rejected throw spends none.
+func _play_armed() -> void:
+	_last_input.equipment = {"model": equipment.MODEL, "ball_id": armed_ball_id(), "card": armed_ball, "tactical": null,
+		"hand": equipment.options().map(func(o): return o.item_id), "cycled": equipment.MODEL == "deck" and equipment.cycled,
+		"kept": _kept_last_frame, "counts": equipment.counts()}
+	if not armed_ball.is_empty():
+		var errors: Array[String] = equipment.play(armed_ball, roll_index)
+		if not errors.is_empty():
+			push_error("Ball card not played: " + str(errors))
+	if not armed_tactical.is_empty():
+		var tactical_id := _item_of(armed_tactical)
+		var errors: Array[String] = equipment.play(armed_tactical, roll_index)
+		if errors.is_empty():
+			frame_tactics[roll_index] = [tactical_id]
+			_last_input.equipment.tactical = tactical_id
+		else:
+			push_error("Tactical card not played: " + str(errors))
+	armed_ball = ""
+	armed_tactical = ""
+	cycling = false
 
 ## Cancelling restores the pre-gesture ball and consumes no roll or launch.
 func _cancel(reason: String) -> void:
@@ -370,14 +538,14 @@ func _advance() -> void:
 
 ## Scores the completed frame from its roll reports and plays the explanation.
 func _score_frame() -> void:
-	var built := FrameBuilder.build(FrameBuilder.lab_loadout(), _catalogue, frame_reports)
+	var built := FrameBuilder.build(FrameBuilder.lab_loadout(), _catalogue, frame_reports, frame_tactics)
 	var result := Rules.resolve(built.frame) if built.ok else {"ok": false, "errors": built.errors}
 	if not result.ok:
 		push_error("Frame could not be scored: " + str(result.errors))
 		_frame_done()
 		return
-	var steps := ScoreLog.steps(result, built.frame, _names)
-	scored_frames.append({"frame_number": frame_number, "frame": built.frame, "result": result, "steps": steps})
+	var steps := ScoreLog.steps(result, built.frame, _names, built.owners)
+	scored_frames.append({"frame_number": frame_number, "match_number": match_number, "frame": built.frame, "result": result, "steps": steps})
 	state = "scoring"
 	_update_status()
 	score_panel.play(steps, frame_reports, "Frame %d — %s" % [frame_number, String(result.category).capitalize()], int(settings.score_speed))
@@ -397,9 +565,25 @@ func _frame_done() -> void:
 func _next_rack() -> void:
 	if state != "frame_done":
 		return
+	_kept_last_frame = _item_of(keep_card) if not keep_card.is_empty() else ""
 	frame_number += 1
 	roll_index = 1
 	frame_reports = []
+	frame_tactics = {}
+	if settings.equipment != _equipment_model:
+		_build_equipment()
+		_kept_last_frame = ""
+	elif match_frame >= MATCH_FRAMES:
+		match_number += 1
+		match_frame = 1
+		equipment.start_match()
+		equipment.start_frame()
+	else:
+		match_frame += 1
+		var errors: Array[String] = equipment.start_frame(keep_card)
+		if not errors.is_empty():
+			push_error("Frame start: " + str(errors))
+	_clear_choices()
 	rack = Lane.fresh_rack()
 	next_rack.hide()
 	score_panel.hide()
@@ -444,7 +628,7 @@ func _over_ui(position: Vector2) -> bool:
 	if position.y < TOP_UI_HEIGHT:
 		return true
 	var global := get_global_transform() * position
-	for control in [settings_panel, assist_panel, next_rack]:
+	for control in [settings_panel, assist_panel, next_rack, card_hand]:
 		if control.visible and control.get_global_rect().has_point(global):
 			return true
 	return false
@@ -472,7 +656,14 @@ func charged_spin() -> float:
 func _update_status() -> void:
 	if status == null:
 		return
-	var lead := "Frame %d · Roll %d · Target %+.2f" % [frame_number, roll_index, target_x]
+	_refresh_hand()
+	var lead := "Match %d · Frame %d · Roll %d · Target %+.2f" % [match_number, frame_number, roll_index, target_x]
+	if equipment != null and state in ["aim", "holding", "rolling"]:
+		var ball_id: String = lane.launch.get("ball_id", HOUSE) if state == "rolling" else armed_ball_id()
+		lead += "\nBall: %s" % _names.get(ball_id, ball_id)
+		var tactical: Array = frame_tactics.get(roll_index, []) if state == "rolling" else ([_item_of(armed_tactical)] if not armed_tactical.is_empty() else [])
+		if not tactical.is_empty():
+			lead += " · Tactic: %s" % _names.get(tactical[0], tactical[0])
 	match state:
 		"aim":
 			if settings.assist:
