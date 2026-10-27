@@ -17,6 +17,8 @@ var steps: Array = []
 var shown := 0
 var speed := 1
 var playing := false
+var reduced_motion := false
+var _accent: Tween
 var header: Label
 var counters: Label
 var rack_view: Control
@@ -121,9 +123,18 @@ func _reveal() -> void:
 	elif step.phase == "bank":
 		line.add_theme_color_override("font_color", HIGHLIGHT)
 	log_list.add_child(line)
+	if not reduced_motion:
+		line.modulate.a = 0.45
+		create_tween().tween_property(line, "modulate:a", 1.0, 0.16)
 	_scroll_to_end()
 	shown += 1
 	_refresh_counters()
+	if _accent and _accent.is_running(): _accent.kill()
+	counters.modulate = Color.WHITE
+	if not reduced_motion:
+		counters.modulate = Color(0.65, 1.0, 0.9)
+		_accent = create_tween()
+		_accent.tween_property(counters, "modulate", Color.WHITE, 0.2)
 	rack_view.queue_redraw()
 	if shown >= steps.size():
 		_finish()

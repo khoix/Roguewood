@@ -1,3 +1,6 @@
+> Current status: E11 DONE, approved by owner merge PR #4. Review notes below
+> are historical design evidence, not an outstanding owner gate. See AGENTS.md.
+
 # E11 runtime review — continuation
 
 Status: REVIEW CANDIDATE pending visual-quality acceptance. Original independent

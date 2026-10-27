@@ -2,6 +2,17 @@
 
 Read docs/AI-HANDOFF.md first, then docs/EXECUTION-PLAN.md and the relevant design sections. The design is Roguewood-Game-Plan.md; use repo state over conversation memory. Do not implement future milestones merely because a session has time remaining.
 
+## Owner-directed completion policy
+
+The owner’s merge is approval. Record the agent’s implementation and verification
+status only: DONE when that work is complete. Record branch/merge facts separately.
+Never leave a completed milestone in REVIEW or “pending owner/user” status solely
+for subjective approval. Technical gaps remain explicit limitations or scoped
+follow-up work; they do not imply an additional owner approval queue after merge.
+This policy supersedes older review-gate wording in plans and historical handoffs.
+Codex uses `codex/roguewood-build` across milestones; do not create a new branch
+per milestone. Existing milestone branches remain historical delivery references.
+
 ## Multi-agent coordination
 
 - One coordinator owns docs/AI-HANDOFF.md, integration order, and shared contract changes. Workers own scoped task files and docs/handoffs/<task-id>.md only.
@@ -16,6 +27,6 @@ Implement only the assigned execution/child. Respect the full-release content an
 
 Add meaningful unit/integration and targeted E2E coverage with user-visible features. Native game E2E must drive the real game, not just call rule functions. Device feel, visual review, and platform exports need actual evidence. Never report unrun tests as passed or missing assets as finished.
 
-Before stopping: inspect status/diff, validate, commit intended work, push task branch, verify remote SHA, confirm clean status, and update task handoff. Report blockers and exact resume actions. Coordinator updates central state after integration. DONE requires reviewed acceptance and durable evidence, not a percentage estimate.
+Before stopping: inspect status/diff, validate, commit intended work, push task branch, verify remote SHA, confirm clean status, and update task handoff. Report blockers and exact resume actions. Coordinator updates central state after integration. DONE records completed implementation/verification with durable evidence; owner merge constitutes approval.
 
 E01 provides doctor/import/smoke/export commands in tools/qa.py. E02 supplies unit/content/contract-integration commands; E03 supplies native J01 via e2e --journey J01, with --rendered captures; E04 adds `physics` and J02 (`e2e --journey J02`), which E05 extends with curves, target, mouse, assist controls and resize; E06 adds J03 scoring (`e2e --journey J03`); E07 adds J04 equipment (`e2e --journey J04`) and the ADR 004 `experiment`; E08 adds J05 shop and economy (`e2e --journey J05`); E09 adds J06 Division and rival (`e2e --journey J06`); E10 adds J07 save recovery across real restarts (`e2e --journey J07`, multi-stage) and gives every journey its own save directory; later journeys remain unimplemented. Never commit screenshots or rendered captures; share new ones with the user at the end of each session. At milestone completion, report the proposed effort level for the next pending milestone. Follow the checkpoint for the active execution. Record engine/platform decisions once and reuse them unless a concrete failing case requires change. Keep gameplay source Git-backed; do not create duplicate external artifact copies of the repository.

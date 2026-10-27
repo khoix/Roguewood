@@ -31,6 +31,8 @@ var notice: Label
 var save_notice := ""
 
 func _ready() -> void:
+	get_window().size_changed.connect(_viewport_layout)
+	_viewport_layout()
 	panel = VBoxContainer.new()
 	panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	panel.position = Vector2(-230, -190)
@@ -182,3 +184,8 @@ func _clear_lab() -> void:
 		remove_child(lab)
 		lab.free()
 		lab = null
+
+## Preserve native reference typography in both orientations.
+func _viewport_layout() -> void:
+	var window := get_window()
+	window.content_scale_size = Vector2i(1280,720) if window.size.x > window.size.y else Vector2i(720,1280)

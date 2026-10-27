@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-10-27. State: E01–E09 DONE (integrated on main; E05 real-phone gate still open; E07's equipment decision provisional until E13; E08 prices and E09 targets provisional until E24); E11 DONE (owner approval by the PR #4 merge); E10 REVIEW (Claude, `claude/roguewood-build`, unmerged).
+Updated: 2026-10-27. Agent work: E01–E12 DONE (owner merge is approval; see AGENTS.md). E10 is complete on `claude/roguewood-build` (not yet merged); E12 merged to main by PR #8. E13 IN_PROGRESS (Claude, claimed); E14 is being assigned to Codex by the owner. Provisional decisions: E07 equipment model (E13 playtest), E08 prices and E09 targets (E24). Device gates: E05 real-phone trials and phone readability (E26).
 
 ## Read first
 
@@ -27,8 +27,8 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - E07 DONE: accepted by the owner through the PR #5 merge (main `1d2ea35`), no review comments. Implementation `bec334158db1ec743b7cb3e476d9b47224a7d950` on `claude/roguewood-build`. The deck and direct models, the lab card row, scoring of played cards, the structural experiment and J04 pass locally; CI 40435623701 PASS (run on `e1c8f9b`, which adds only the checkpoint; artifact `journeys` 12704037055); J04 and experiment output identical to local. The equipment decision is **provisional** (decisions/004-deck-draw-cycle-experiment.md): the deck stays the default and direct selection stays a lab option until the E13 vertical-slice playtest. See handoffs/E07.md.
 - E08 DONE: accepted by the owner through the PR #6 merge (main `121b74f`), no review comments. Implementation `7b57919bad1b789f8ef18db48289f40cceb52029` on `claude/roguewood-build`. The run wallet and ledger, inventory slots and limits, the seeded Pro Shop with explicit replacement or cancel, modifications, removal, and purchases scoring in play all pass locally (unit with mutation checks, J01–J05 headless and rendered); CI 40442532881 PASS (run on `38d9c75`, which adds only the checkpoint; artifact `journeys` 12706493183); J04 and J05 output identical to local. Prices and rates are provisional (decisions/005-shop-and-match-economy.md). See handoffs/E08.md.
 - E09 DONE: accepted by the owner through the PR #7 merge (main `1132fca`), no review comments. Implementation `fcea7f3b36f40077628c5a33bab89c819baaa1b7` on `claude/roguewood-build` (E09 commit `c427fad` plus the J05 scroll fix). The opener, feature and boss with fixed targets, The Custodian's Clean Sweep, previews before every shop, the skippable introduction, non-blocking reactions, win/loss/retry and the in-memory first-clear record pass locally (unit with mutation checks, J01–J06 headless and rendered); CI 40451844709 PASS (run on `90b9270`, which adds only the checkpoint; artifact `journeys` 12711515136); J06 output identical to local. Targets are provisional (decisions/006-division-loop-and-rival.md). See handoffs/E09.md.
-- E10 REVIEW: implementation `8e4edd5fa99651f5b5d91cde5fb5c8ab1ab0bb6d` on `claude/roguewood-build`. Checksummed atomic saves with backup and quarantine, versioned attempt snapshots at every committed step, committed-throw re-simulation, no double banking, purchases or rerolls by reload, a separate idempotent Career file, Continue and save notices, golden v1 saves, and J07 across ten real process restarts all pass locally; CI 40460928513 PASS on `8e4edd5` (artifact `journeys` 12715071786; J07's ten stages ran in both modes with values identical to local). See decisions/007-attempt-saves-and-recovery.md and handoffs/E10.md.
-- Active: none. E10 awaits owner review.
+- E10 DONE (owner policy: completed implementation and verification; not yet merged to main): implementation `8e4edd5fa99651f5b5d91cde5fb5c8ab1ab0bb6d` on `claude/roguewood-build`. Checksummed atomic saves with backup and quarantine, versioned attempt snapshots at every committed step, committed-throw re-simulation, no double banking, purchases or rerolls by reload, a separate idempotent Career file, Continue and save notices, golden v1 saves, and J07 across ten real process restarts all pass locally; CI 40460928513 PASS on `8e4edd5` (artifact `journeys` 12715071786; J07's ten stages ran in both modes with values identical to local). See decisions/007-attempt-saves-and-recovery.md and handoffs/E10.md.
+- Active: E13 (Claude), claimed below; E14 is being assigned to Codex by the owner.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
@@ -52,9 +52,9 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E07 — Deck draw and cycle experiment | DONE (decision provisional) | Claude | main (PR #5) | bec3341; owner merge; CI 40435623701 PASS (run on `e1c8f9b`, which adds only the checkpoint; artifact `journeys` 12704037055); J04 and experiment output identical to local; ADR 004 provisional; E07 handoff |
 | E08 — Shop and match economy | DONE (prices provisional) | Claude | main (PR #6) | 7b57919; owner merge; CI 40442532881 PASS; ADR 005 provisional; E08 handoff |
 | E09 — Single Division loop and rival | DONE (targets provisional) | Claude | main (PR #7) | fcea7f3; CI 40451844709 PASS; ADR 006 provisional; E09 handoff |
-| E10 — Attempt saves and recovery | REVIEW | Claude | claude/roguewood-build | 8e4edd5; CI 40460928513 PASS; ADR 007; E10 handoff |
+| E10 — Attempt saves and recovery | DONE | Claude | claude/roguewood-build (not yet merged) | 8e4edd5; CI 40460928513 PASS; ADR 007; E10 handoff |
 | E11 — Art bible and representative still scene | DONE | Codex | main (PR #4) | 2882483; E11 CI 40428621822 PASS; owner approval by merge (confirmed 2026-10-27) |
-| E12 — Representative motion and visual review | NOT_STARTED | unassigned | — | See dependency graph |
+| E12 — Representative motion and visual review | DONE | Codex | main (PR #8) | Implementation 90f5690; handoff 046d109; CI 40444945503 + 40444945245 PASS; merged by PR #8 (main 9225f7c) |
 | E13 — Vertical-slice integration | NOT_STARTED | unassigned | — | See dependency graph |
 | E14 — Seeded eight-Division progression | NOT_STARTED | unassigned | — | See dependency graph |
 | E15 — Career persistence and unlock graph | NOT_STARTED | unassigned | — | See dependency graph |
@@ -90,6 +90,8 @@ E10 claim (2026-10-27):
 - Out of scope: cross-platform bit-identical physics (not claimed); the Career unlock graph, milestones and Clubhouse (E15/E16); settings persistence (E25); cloud saves and platform save locations (E26).
 
 Standing user preferences:
+- Log agent work only; owner merge means approval. Do not mark completed milestones pending the owner. Integration facts are separate.
+- Codex uses codex/roguewood-build across milestones, not new milestone branches.
 - At the end of each milestone, state the proposed effort level for the next pending milestone.
 - At the end of every session, share newly produced screenshots with the user (as files in chat). Never commit screenshots or other rendered captures to the repository; CI's uploaded artifact is their durable copy.
 
@@ -127,3 +129,10 @@ No local blocker. The native Apple toolchain, signing, the Android SDK and mobil
 Workers copy AGENT-TASK-TEMPLATE.md to docs/handoffs/<task-id>.md on their own branch. Push code and handoff together; send coordinator branch/SHA and validation summary. Coordinator reviews and integrates, records the integrated code SHA and relevant test evidence, clears stale claims, updates the next action, and pushes checkpoint. Preserve unfinished tasks honestly; no running diary.
 
 Do not insert the checkpoint's own future commit SHA. Record already-known implementation commits; the Git history identifies the checkpoint commit. On resume inspect remote changes before accepting an old ownership claim. Stop after the assigned execution is durably saved.
+
+## Current Codex coordination
+
+The owner's completion policy in AGENTS.md supersedes historical REVIEW wording above and in older documents: completed agent work is DONE, and the owner's merge is approval.
+- E11 and E12 are DONE and merged; E12 reached main by PR #8 (`9225f7c`), consolidated on `codex/roguewood-build`.
+- E10 is DONE on `claude/roguewood-build` and not yet merged. Claude's branch merged main `9225f7c` on 2026-10-27 to integrate E12 with E10 for E13.
+- Codex uses `codex/roguewood-build` across milestones (now E14). Claude uses `claude/roguewood-build`.
