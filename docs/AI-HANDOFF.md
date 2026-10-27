@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-10-27. State: E01–E07 DONE (integrated on main; E05 real-phone gate still open; E07's equipment decision provisional until E13); E11 merged by the owner (PR #4) with its visual-quality gate still open; E08 REVIEW (Claude, `claude/roguewood-build`, unmerged).
+Updated: 2026-10-27. State: E01–E08 DONE (integrated on main; E05 real-phone gate still open; E07's equipment decision provisional until E13; E08 prices provisional until E24); E11 merged by the owner (PR #4) with its visual-quality gate still open; E09 IN_PROGRESS (claimed).
 
 ## Read first
 
@@ -14,7 +14,7 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 ## Current state
 
 - Integration: `main`. The repository owner merges task branches by pull request: PR #1 (`codex/roguewood-build`, E01–E03) and PR #2 (`claude/roguewood-build` at `7ddb8af`, E04) were merged by the owner on 2026-10-26, and the `main` head `d9fda660a35f5e298733d059c210120efa62e03e` has a tree identical to `7ddb8af`.
-- Claude's work branch: `claude/roguewood-build`, restarted from `main` after each owner merge; for E08 from `1d2ea35` (PR #5). `codex/roguewood-build` and `codex/roguewood-e11-art` are historical.
+- Claude's work branch: `claude/roguewood-build`, restarted from `main` after each owner merge; for E09 from `121b74f` (PR #6). `codex/roguewood-build` and `codex/roguewood-e11-art` are historical.
 - E01 DONE: implementation, independent review, clean-checkout export, and remote CI passed. No gameplay implemented.
 - Source baseline: main 30d76547ec2f49fa3b1be609f146cdd7b913695d; claim commit f63ea6ca6f08357f6b2c32587811ad49ff5f17d9.
 - E02 DONE: implementation cdb48595fe28d08e9c1bf20333b63061dcc49412; independent review and CI40245188289 PASS. See handoffs/E02.md and CONTRACTS.md.
@@ -25,8 +25,8 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - E05 and E06 were accepted by the repository owner through the PR #3 merge (main `4af230b`); no review comments. E05's real-phone trials remain an open gate (NOT RUN).
 - E11 (Codex): `codex/roguewood-e11-art` (head `2882483`) was merged by the owner through PR #4 (main `cbca3c0`). Its own handoff still says final visual quality is not accepted (owner material/composition/readability feedback and phone readability pending), so the ledger keeps its quality gate open rather than calling it DONE. It only touches docs/art, assets/art_direction and its own workflow.
 - E07 DONE: accepted by the owner through the PR #5 merge (main `1d2ea35`), no review comments. Implementation `bec334158db1ec743b7cb3e476d9b47224a7d950` on `claude/roguewood-build`. The deck and direct models, the lab card row, scoring of played cards, the structural experiment and J04 pass locally; CI 40435623701 PASS (run on `e1c8f9b`, which adds only the checkpoint; artifact `journeys` 12704037055); J04 and experiment output identical to local. The equipment decision is **provisional** (decisions/004-deck-draw-cycle-experiment.md): the deck stays the default and direct selection stays a lab option until the E13 vertical-slice playtest. See handoffs/E07.md.
-- E08 REVIEW: implementation `7b57919bad1b789f8ef18db48289f40cceb52029` on `claude/roguewood-build`. The run wallet and ledger, inventory slots and limits, the seeded Pro Shop with explicit replacement or cancel, modifications, removal, and purchases scoring in play all pass locally (unit with mutation checks, J01–J05 headless and rendered); CI 40442532881 PASS (run on `38d9c75`, which adds only the checkpoint; artifact `journeys` 12706493183); J04 and J05 output identical to local. Prices and rates are provisional (decisions/005-shop-and-match-economy.md). See handoffs/E08.md.
-- Active: none. E08 awaits owner review.
+- E08 DONE: accepted by the owner through the PR #6 merge (main `121b74f`), no review comments. Implementation `7b57919bad1b789f8ef18db48289f40cceb52029` on `claude/roguewood-build`. The run wallet and ledger, inventory slots and limits, the seeded Pro Shop with explicit replacement or cancel, modifications, removal, and purchases scoring in play all pass locally (unit with mutation checks, J01–J05 headless and rendered); CI 40442532881 PASS (run on `38d9c75`, which adds only the checkpoint; artifact `journeys` 12706493183); J04 and J05 output identical to local. Prices and rates are provisional (decisions/005-shop-and-match-economy.md). See handoffs/E08.md.
+- Active: E09, claimed below at the user's direction.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
@@ -48,8 +48,8 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E05 — Spin, curve, and mobile gesture feel | DONE (device gate open) | Claude | main (PR #3) | 0ad08c2; CI 40324357857 PASS; owner merge; real-phone trials NOT RUN |
 | E06 — Frame scoring and readable resolution | DONE | Claude | main (PR #3) | b325c56; CI 40375789785 PASS; owner merge |
 | E07 — Deck draw and cycle experiment | DONE (decision provisional) | Claude | main (PR #5) | bec3341; owner merge; CI 40435623701 PASS (run on `e1c8f9b`, which adds only the checkpoint; artifact `journeys` 12704037055); J04 and experiment output identical to local; ADR 004 provisional; E07 handoff |
-| E08 — Shop and match economy | REVIEW | Claude | claude/roguewood-build | 7b57919; CI 40442532881 PASS; ADR 005 provisional; E08 handoff |
-| E09 — Single Division loop and rival | NOT_STARTED | unassigned | — | See dependency graph |
+| E08 — Shop and match economy | DONE (prices provisional) | Claude | main (PR #6) | 7b57919; owner merge; CI 40442532881 PASS; ADR 005 provisional; E08 handoff |
+| E09 — Single Division loop and rival | IN_PROGRESS | Claude | claude/roguewood-build | Claimed 2026-10-27 from main 121b74f |
 | E10 — Attempt saves and recovery | NOT_STARTED | unassigned | — | See dependency graph |
 | E11 — Art bible and representative still scene | REVIEW (merged, quality gate open) | Codex | main (PR #4) | 2882483; E11 CI 40428621822 PASS; handoff: visual quality not accepted, owner feedback pending |
 | E12 — Representative motion and visual review | NOT_STARTED | unassigned | — | See dependency graph |
@@ -73,19 +73,19 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 
 ## Active claims and ownership
 
-E08 claim (2026-10-27):
+E09 claim (2026-10-27):
 - Owner/coordinator: Claude (single-agent session). Reviewer: the repository owner by PR, unless an agent reviewer is requested.
-- Branch: `claude/roguewood-build`, restarted from main; base SHA `1d2ea35` (PR #5 merge). Dependencies: E02 and E07 (DONE).
+- Branch: `claude/roguewood-build`, restarted from main; base SHA `121b74f` (PR #6 merge). Dependencies: E06 and E08 (DONE).
 - Scope:
-  - Pure, serializable run economy: a run-scoped wallet and ledger (match payout, unused-frame bonus, capped interest, item payouts, purchases, sales, rerolls, removal), sale values from the actual price paid, and no buy/sell profit loop.
-  - Run inventory: rack (ten positions) and two reserves, five ordered Charm slots, the equipment deck (16-card cap, per-identity copy limits), and pin/ball modifications (at most one per item, compatibility-checked).
-  - A seeded shop on its own RNG stream: two Charms, one ball/pin card, one tactical card and one workshop modification. Schema-driven eligibility (unlock, earliest Division, owned limits, incompatibilities, legendary exclusion), rarity weights with redistribution, escalating rerolls, an affordable-offer guarantee, selection logs, explicit replacement or cancel for full slots, and the removal service.
-  - Lab integration: payout and the shop between two-frame matches; inventory-driven rack, Charms, deck and modifications in scoring.
-  - J05 journey and an economy ADR (all prices and rates provisional).
-- Lab fixtures: additional pins, Charms, tactical cards and modifications in content/fixtures/lab_catalogue.json, with completeness false. They are not catalogue content.
-- Exclusive paths: src/rules/economy.gd, src/rules/run_inventory.gd, src/rules/shop.gd, src/presentation/shop_panel.gd, the lab's match/shop flow in src/presentation/throw_lab.gd, tests/economy_test.gd, tests/shop_journey.gd, docs/decisions/005-*.md, docs/handoffs/E08.md, content/fixtures/lab_catalogue.json.
-- Shared files (coordinator-owned this session): src/rules/card_deck.gd and direct_loadout.gd (adding and removing cards), src/rules/frame_builder.gd and score_log.gd (Charms, modifications, owners), the earlier journeys (passing through the shop), src/bootstrap/*, tests/run_tests.gd, tools/qa.py, the CI workflow, CONTRACTS, DEVELOPMENT, AGENTS, README and this checkpoint.
-- Out of scope: seeded League/Division generation, match targets and win/loss (E09); saving (E10, although state is serializable); technique lessons and shop upgrades (need effect vocabulary, E17/E18); production items and final prices (E17/E24); final card art (E12/E19).
+  - A pure, serializable Division run: opener, feature and boss matches with fixed posted targets; a match ends when the target is crossed (after that frame resolves) or is lost after two frames; shops between matches with the unused-frame payout; victory, failure and retry.
+  - One rival (The Custodian, Clean Sweep: only strikes and spares bank points) with its rule applied in scoring and named in the calculation log; rule, target and first-clear reward shown before the shop decisions that precede the boss.
+  - Presentation: a match HUD (target, score, frames left, inspectable rule badge), a skippable rival introduction (shortened after the first encounter, static under reduced motion), event-driven reactions with precedence and cooldown that never block input, and result screens with Retry and navigation.
+  - A session-scoped (in-memory) first-clear record that unlocks a shop gate and survives later losses and retries; durable Career persistence remains E10/E15.
+  - A Practice setting (no targets) so throw, scoring, deck and shop journeys keep testing their subsystems; J06 for the Division.
+- Lab fixtures: content/fixtures/lab_division.json (Division spec and rival) and a boss_rule fixture in lab_catalogue.json, completeness false. Developmental portrait only; final rival art and animation are E21.
+- Exclusive paths: src/rules/division_run.gd, src/rules/rival_rules.gd, src/presentation/division_hud.gd, src/presentation/rival_reactions.gd, the lab's match/Division flow in src/presentation/throw_lab.gd, tests/division_test.gd, tests/division_journey.gd, content/fixtures/lab_division.json, content/fixtures/lab_catalogue.json, docs/decisions/006-*.md, docs/handoffs/E09.md.
+- Shared files (coordinator-owned this session): src/rules/score_log.gd (rule step), throw_settings_panel.gd (Practice), the earlier journeys (enable Practice), src/bootstrap/* (attempts, retry, first-clear record), tests/run_tests.gd, tools/qa.py, the CI workflow, CONTRACTS, DEVELOPMENT, AGENTS, README and this checkpoint.
+- Out of scope: AI bowling turns; the eight-Division campaign and seeded League generation (E14); saves (E10); Career persistence (E15); final rival art, animation and lane treatments (E21); other boss rules (E17/E18).
 
 Standing user preferences:
 - At the end of each milestone, state the proposed effort level for the next pending milestone.
