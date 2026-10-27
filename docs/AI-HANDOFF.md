@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-10-26. State: E01–E03 DONE; E04 REVIEW (implemented, CI green, awaiting independent review).
+Updated: 2026-10-26. State: E01–E04 DONE (integrated on main); E05 REVIEW (implemented, CI green, real-phone gate open); E06 REVIEW (implemented, CI green).
 
 ## Read first
 
@@ -13,14 +13,16 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 
 ## Current state
 
-- Integration branch through E03: `codex/roguewood-build` (coordinator Codex), accepted head `981c7c5269ce46bd7684486e9b4de29d067d5253`.
-- E04 branch: `claude/roguewood-build`, created from `981c7c5` at the user's direction (2026-10-26); Claude coordinates and executes E04 there. `codex/roguewood-build` is not modified by this session.
+- Integration: `main`. The repository owner merges task branches by pull request: PR #1 (`codex/roguewood-build`, E01–E03) and PR #2 (`claude/roguewood-build` at `7ddb8af`, E04) were merged by the owner on 2026-10-26, and the `main` head `d9fda660a35f5e298733d059c210120efa62e03e` has a tree identical to `7ddb8af`.
+- Claude's work branch: `claude/roguewood-build`, restarted from `main` `d9fda66` for E05 (after PR #2 merged). `codex/roguewood-build` is historical.
 - E01 DONE: implementation, independent review, clean-checkout export, and remote CI passed. No gameplay implemented.
 - Source baseline: main 30d76547ec2f49fa3b1be609f146cdd7b913695d; claim commit f63ea6ca6f08357f6b2c32587811ad49ff5f17d9.
 - E02 DONE: implementation cdb48595fe28d08e9c1bf20333b63061dcc49412; independent review and CI40245188289 PASS. See handoffs/E02.md and CONTRACTS.md.
 - E03 DONE: implementation78b1740159ee7c458fa9c36629ed6360009b0142, independent review and CI40256553911 PASS, rendered artifacts inspected. See handoffs/E03.md.
-- E04 REVIEW: implementation `44bbd7e7bad2d41ddb9e062b29e1733dae1a9bfe` on `claude/roguewood-build`; local suites and CI 40262418442 PASS; the physics digest matches across machines. See handoffs/E04.md and decisions/002-throw-lab-physics.md.
-- Next action: an independent reviewer validates E04 (see handoffs/E04.md, Resume). After acceptance, E05 is next (proposed effort **Extra High**); E06 and E11 (High) also become eligible. Do not start them without a claim.
+- E04 DONE: implementation `44bbd7e7bad2d41ddb9e062b29e1733dae1a9bfe`, CI 40262418442 PASS. Accepted by the repository owner through the PR #2 merge, which had no review comments; no separate agent reviewer was run. See handoffs/E04.md and decisions/002-throw-lab-physics.md.
+- E05 REVIEW: implementation `0ad08c299f0f478eeed846bf9513853cff63006d` on `claude/roguewood-build`; local suites and CI 40324357857 PASS; the physics digest `75d1a3c0…` and J02 curve outcomes are identical locally and in CI. Real-phone trials are NOT RUN (no device or mobile build); the protocol is in playtests/E05-device-trials.md. See handoffs/E05.md and decisions/003-spin-curve-input.md.
+- E06 REVIEW: implementation `b325c5641e10a3cbb160d4199d4384fcfa647ef2` on `claude/roguewood-build` (stacked on E05); local suites and CI 40375789785 PASS. J03 strike 560, spare 240 and open 70 are identical locally and in CI. See handoffs/E06.md.
+- Next action: the owner reviews and merges E05 and E06. After E06 is accepted, E07 (deck draw and cycle experiment, High) becomes READY. E11 (High) is READY now.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
@@ -38,14 +40,14 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E01 — Architecture and project bootstrap | DONE | Codex | codex/roguewood-build | f50f916; CI 40230415594 PASS; E01 handoff |
 | E02 — Headless rules and content contracts | DONE | Codex | codex/roguewood-build | cdb4859; CI40245188289 PASS; E02 handoff |
 | E03 — Application shell and E2E harness | DONE | Codex | codex/roguewood-build | 78b1740; CI40256553911 PASS; E03 handoff |
-| E04 — Straight throw and pin collision lab | REVIEW | Claude | claude/roguewood-build | 44bbd7e; CI 40262418442 PASS; independent review pending |
-| E05 — Spin, curve, and mobile gesture feel | NOT_STARTED | unassigned | — | See dependency graph |
-| E06 — Frame scoring and readable resolution | NOT_STARTED | unassigned | — | See dependency graph |
+| E04 — Straight throw and pin collision lab | DONE | Claude | claude/roguewood-build → main (PR #2) | 44bbd7e; CI 40262418442 PASS; owner merge |
+| E05 — Spin, curve, and mobile gesture feel | REVIEW | Claude | claude/roguewood-build | 0ad08c2; CI 40324357857 PASS; real-phone trials open gate |
+| E06 — Frame scoring and readable resolution | REVIEW | Claude | claude/roguewood-build | b325c56; CI 40375789785 PASS; stacked on E05 |
 | E07 — Deck draw and cycle experiment | NOT_STARTED | unassigned | — | See dependency graph |
 | E08 — Shop and match economy | NOT_STARTED | unassigned | — | See dependency graph |
 | E09 — Single Division loop and rival | NOT_STARTED | unassigned | — | See dependency graph |
 | E10 — Attempt saves and recovery | NOT_STARTED | unassigned | — | See dependency graph |
-| E11 — Art bible and representative still scene | NOT_STARTED | unassigned | — | See dependency graph |
+| E11 — Art bible and representative still scene | READY | unassigned | — | E01/E04 accepted; proposed effort High |
 | E12 — Representative motion and visual review | NOT_STARTED | unassigned | — | See dependency graph |
 | E13 — Vertical-slice integration | NOT_STARTED | unassigned | — | See dependency graph |
 | E14 — Seeded eight-Division progression | NOT_STARTED | unassigned | — | See dependency graph |
@@ -67,18 +69,43 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 
 ## Active claims and ownership
 
-E04 claim (2026-10-26T02:20Z):
-- Owner/coordinator: Claude (single-agent session). Reviewer: not yet assigned; independent review is required before DONE.
-- Branch: `claude/roguewood-build`; base SHA `981c7c5269ce46bd7684486e9b4de29d067d5253`. Dependencies E02, E03 (DONE).
-- Scope: elevated behind-ball camera, regulation lane, ten Wood pins, straight hold/drag/flick launch, collision attribution, fall/settle/timeout rules, gutters, cancellation, repeated-launch fixtures, J02 straight-throw journey.
-- Exclusive paths: src/input/, src/simulation/, src/presentation/, new tests for gesture/simulation/physics/J02, content/schemas/knockdown_log.schema.json, content/fixtures/throws/, docs/handoffs/E04.md.
-- Shared files changed under this claim (coordinator-owned this session): project.godot (physics engine/tick/touch emulation), src/bootstrap/*, src/contracts/contracts.gd, tests/run_tests.gd, tools/qa.py, .github/workflows/bootstrap.yml, docs/CONTRACTS.md, docs/DEVELOPMENT.md, docs/decisions/, this checkpoint.
-- Out of scope: spin/hook/curve, target-ring UI, sensitivity settings, effects catalogue, random bounce modifiers, scoring presentation (E05/E06).
-- Status: implementation pushed (`44bbd7e`) with handoffs/E04.md, and CI passed. The claim stays open until an independent reviewer accepts or rejects E04.
+E06 claim (2026-10-26):
+- Owner/coordinator: Claude (single-agent session). Reviewer: the repository owner by PR, unless an agent reviewer is requested.
+- Branch: `claude/roguewood-build`; base SHA `4b7ce12a4d5947ff67dae027164a37294b780acc`. Dependencies: E02 and E04 (DONE). This is stacked on unmerged E05 because the same branch carries it; E06 does not depend on E05's behaviour.
+- Scope:
+  - Assemble completed frames (strike on roll 1, otherwise two rolls) from live roll reports, hydrating item effects from a lab catalogue fixture (Wood pin, House ball).
+  - Resolve frames with the E02 `FrameRules`; one accuracy award per frame.
+  - Readable resolution: Value × Mult counters, sequential highlights on a flat ten-slot rack diagram with per-roll attribution, distinct add and multiply symbols, a persistent ordered calculation log, 1×/2×/4× speed and skip. Presentation never changes the score.
+  - Frame and session totals; J03 strike/spare/open journey; retrigger-bound and overflow tests.
+- Exclusive paths: src/rules/ (new files), src/presentation/, tests/{rules,scoring}_test.gd, tests/scoring_journey.gd, content/fixtures/lab_catalogue.json, docs/handoffs/E06.md.
+- Shared files (coordinator-owned this session): src/bootstrap/*, tests/run_tests.gd, tools/qa.py, the CI workflow, docs/CONTRACTS.md, docs/DEVELOPMENT.md, AGENTS.md, README.md and this checkpoint.
+- Out of scope: production catalogue items or Charms (E17/E18), match targets and payout (E08/E09), final VFX and audio (E12/E20), balance claims.
+- Status: implementation pushed (`b325c56`) with handoffs/E06.md, and CI passed. The claim stays open until the owner reviews and merges.
 
-Prior: E03 coordinator Codex and reviewer e02_review completed implementation/review. Accepted code78b1740159ee7c458fa9c36629ed6360009b0142; final claimfe3a2f71a11386d613c7511b37340d85f55f1141 released after CI success. E02 rules branch codex/roguewood-e02-rules remains integrated at95d46c59ca4d5381d3309d309d1bf32d4e11a266.
 
-Standing reporting preference: at the end of each milestone, state the proposed effort level for the next pending milestone.
+E05 claim (2026-10-26T12:20Z):
+- Owner/coordinator: Claude (single-agent session). Reviewer: the repository owner by PR, unless an agent reviewer is requested.
+- Branch: `claude/roguewood-build`; base SHA `d9fda660a35f5e298733d059c210120efa62e03e` (main). Dependency: E04 (DONE).
+- Scope:
+  - Circular spin charge separated from the final forward flick, with a capped readable spin meter and a documented spin sign and curve threshold.
+  - Physical hook response: side rotation and a lane oil profile, so faster throws hook less.
+  - Speed caps.
+  - A contracting target ring that can be moved before holding and freezes at release.
+  - A short directional guide.
+  - Sensitivity, handedness, larger touch targets and reduced motion settings.
+  - Mouse input.
+  - Accessible aim/power/spin controls that emit identical launch records.
+  - Resize handling.
+  - A device-trial protocol and an in-game trial log.
+  - J02 extended with curves both ways, a short flick, target movement, mouse input, assist controls and resize.
+- Exclusive paths: src/input/, src/simulation/, src/presentation/, tests/{input,simulation,physics}_test.gd, tests/throw_journey.gd, content/fixtures/throws/, docs/decisions/003-*.md, docs/playtests/, docs/handoffs/E05.md.
+- Shared files changed under this claim (coordinator-owned this session): project.godot (stretch aspect), src/bootstrap/*, tools/qa.py, the CI workflow, docs/CONTRACTS.md, docs/DEVELOPMENT.md, AGENTS.md, README.md and this checkpoint.
+- Out of scope: catalogue balls (the Hook ball and others), scoring and curved-shot effects (E06/E18), final VFX and art (E11/E12), settings persistence and onboarding (E25), device exports (E26). Real-phone trials need hardware this Linux session lacks; they remain an open gate with a written protocol.
+- Status: implementation pushed (`0ad08c2`) with handoffs/E05.md, and CI passed. The claim stays open until the owner reviews and merges.
+
+Standing user preferences:
+- At the end of each milestone, state the proposed effort level for the next pending milestone.
+- At the end of every session, share newly produced screenshots with the user (as files in chat). Never commit screenshots or other rendered captures to the repository; CI's uploaded artifact is their durable copy.
 
 ## Batch queue and content completeness
 
@@ -97,11 +124,13 @@ Content registry: content/catalogue.json is empty by design; E02 defines validat
 - E02 PASS: unit, content, contract integration, smoke, Python compile, diff checks; reviewer independently reran unit/integration and accepted final numeric-identity fix. Code cdb48595fe28d08e9c1bf20333b63061dcc49412; CI PASS https://github.com/khoix/Roguewood/actions/runs/40245188289 (includes Linux debug export/startup).
 - E03 PASS: native headless and rendered J01, deterministic reset, intentional-failure screenshots/logs and timeout/error probes. CI40256553911 on78b1740; artifact12622383032 inspected. Full bowling/device journeys remain later work.
 - E04 PASS (local, Godot 4.5.2.stable.official.6ce3de25a, Linux x86-64): unit (contracts, rules, lane geometry, knockdown tracker, gesture), content, integration, physics, smoke, Linux export plus exported boot, J01 headless and rendered, diagnostics, J02 headless and rendered, J02 injected failure exiting 1, py_compile and diff check. CI PASS https://github.com/khoix/Roguewood/actions/runs/40262418442 on `44bbd7e`; artifact `journeys` 12625271435. The physics outcome digest `d80a9fa440a2cc13b186509b7fc35b589cd49b7e42c0f0314908c62a6fc33cce` is identical locally, in separate processes and in CI. J02 covers real-touch straight throws, cancellation consuming nothing, no duplicate knockdowns, respotted survivors, a gutter void, and live play equal to a replay of the committed records.
-- Native iOS/Android/Windows, physical device feel, visual review and balance: NOT VALIDATED; assigned later. E04 throw thresholds and physics tuning are provisional (ADR 002).
+- E05 PASS (local and CI): unit (spin phases, ring, assist equivalence, oil zones), content, integration, physics (23 fixtures, 92 simulations; hook grows with spin, mirrors exactly, shrinks with speed; E04 straight outcomes unchanged), smoke, Linux export, J01 headless and rendered, diagnostics, J02 headless and rendered (curves both ways from real circle gestures at ±0.618 spin and ±0.282 m hook, target move, short flick, mouse, keyboard assist, landscape, trial log), and J02 injected failure exiting 1. CI https://github.com/khoix/Roguewood/actions/runs/40324357857 on `0ad08c2`; artifact `journeys` 12650896331.
+- E06 PASS (local and CI): unit (frame assembly, calculation log, 560/240/90, 3360/2800 logs, retrigger 8/9 bound, exact large score and overflow refusal), every earlier suite, and J03 headless and rendered (strike, spare and open through real input, checked against an independent resolution; log order; roll attribution; speed and skip; totals). CI https://github.com/khoix/Roguewood/actions/runs/40375789785 on `b325c56`; artifact `journeys` 12674518848.
+- Native iOS/Android/Windows, physical device feel (E05 trials NOT RUN), visual review and balance: NOT VALIDATED. E04/E05 throw thresholds and physics tuning are provisional (ADR 002/003).
 
 ## Blockers and limitations
 
-No local blocker. The native Apple toolchain, signing and mobile hardware are not available in this Linux execution. E04 provides a straight-throw lab with developmental geometry. Spin and hook, real-device feel, scoring presentation, production visuals and content remain unfinished, and pure frame rules and contracts exist. E04 independent review needs a reviewer: none was spawned, because this session ran a single agent. Current UI is functional developmental scaffolding only. E03 has one House League/House Kit fixture, not the full release selection system.
+No local blocker. The native Apple toolchain, signing, the Android SDK and mobile hardware are not available in this Linux execution, so E05's real-phone trials stay open until a device build exists. E04 provides a straight-throw lab with developmental geometry. Spin and hook, real-device feel, scoring presentation, production visuals and content remain unfinished, and pure frame rules and contracts exist. E04 independent review needs a reviewer: none was spawned, because this session ran a single agent. Current UI is functional developmental scaffolding only. E03 has one House League/House Kit fixture, not the full release selection system.
 
 ## Session handoff protocol
 

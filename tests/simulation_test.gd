@@ -37,6 +37,12 @@ static func _geometry(failures: Array[String]) -> void:
 	_expect(Lane.grade_accuracy(true, 0.2, 0.25) == "clean", "wide ring clean", failures)
 	_expect(Lane.grade_accuracy(true, 0.1, 0.12) == "sweet", "narrow ring sweet", failures)
 	_expect(Lane.grade_accuracy(true, -0.05, 0.06) == "perfect", "narrowest ring perfect", failures)
+	_expect(Lane.ball_friction(1.0) == Lane.OIL_FRICTION and Lane.ball_friction(14.0) == Lane.BACKEND_FRICTION and Lane.ball_friction(Lane.HEAD_PIN_F) == Lane.BALL_PIN_FRICTION, "oil, backend and deck zones", failures)
+	_expect(Lane.side_spin(2.0) == Lane.MAX_SIDE_SPIN and Lane.side_spin(-0.5) == -0.5 * Lane.MAX_SIDE_SPIN, "side spin clamps and keeps sign", failures)
+	_expect(not Lane.is_curved(0.2) and Lane.is_curved(-0.25) and Lane.is_curved(1.0), "documented curve threshold", failures)
+	var straight := {"start_x": 0.2, "direction_x": 0.0, "direction_forward": 1.0}
+	_expect(absf(Lane.hook_at_target(straight, {"target_crossed": true, "target_offset": 0.3}) - 0.1 * Lane.LANE_HALF_WIDTH) < 1e-6, "hook measured from the straight line", failures)
+	_expect(is_nan(Lane.hook_at_target(straight, {"target_crossed": false, "target_offset": 0.0})), "no hook without a crossing", failures)
 	var points := World.hull_points(0, Lane.PIN_NECK_INDEX)
 	_expect(points.size() == (Lane.PIN_NECK_INDEX + 1) * World.HULL_SEGMENTS, "pin hull ring count", failures)
 

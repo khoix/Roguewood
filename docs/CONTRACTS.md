@@ -20,7 +20,7 @@ Completeness separately tracks authored, mechanics, automated validation, artwor
 
 ## E04 simulation records
 
-E04 maps logical launches to physical units (see [ADR 002](decisions/002-throw-lab-physics.md)). The simulated `start_x` range is ±0.795; anything wider would put the ball over the gutter, so the lane rejects it rather than clamping. Until E05, `spin` must be 0 and only `ball.house` is simulated: these are rejected explicitly, never ignored. `power` maps linearly to 4.5–9.0 m/s. Accuracy measures where the ball center crosses the ring plane, using the launch's frozen `target_x`/`ring_radius`. The grade bands are provisional E05 values.
+E04 maps logical launches to physical units (see [ADR 002](decisions/002-throw-lab-physics.md)). The simulated `start_x` range is ±0.795; anything wider would put the ball over the gutter, so the lane rejects it rather than clamping. Only `ball.house` is simulated; any other ball is rejected explicitly, never ignored. `power` maps linearly to 4.5–9.0 m/s. `spin` (E05, [ADR 003](decisions/003-spin-curve-input.md)) is positive when clockwise as the bowler sees it, and hooks the ball right (+x). It is side rotation about the travel axis at up to 15 rad/s, acting through the lane oil pattern. A shot is curved when |spin| ≥ 0.25 (`LaneSpec.is_curved`); rules must use that function, never a visual judgement. `target_x` is where the player put the ring, and `ring_radius` is the ring's size frozen at release. Accuracy measures where the ball center crosses the ring plane and grades it with those frozen values (perfect ≤ 0.08, sweet ≤ 0.16, otherwise clean when inside). Gestures and the accessible controls build launches through the same `LaunchMapper` path.
 
 `knockdown_log` (schema `knockdown_log.schema.json`, version 1) is the simulation's causal record for one roll, crossing the boundary as JSON data:
 
@@ -48,6 +48,20 @@ Ordering is category → fallen pins by original position (including repeats) �
 Godot JSON parsing represents numbers as floats; integer fields accept only finite integral values. Round-trip comparisons preserve numeric value and event order, rather than requiring an engine integer/float storage tag.
 
 The current numeric range is finite nonnegative effect amounts up to one million, positive multipliers, and banked scores within the exact JSON integer range (2^53−1). Oversized scoring chains return an error instead of silently overflowing. A later large-number representation must be explicit. No random number generator is consumed here; probabilistic breakage and all physical operations remain future mechanics.
+
+## E06 frame assembly and readable resolution
+
+`FrameBuilder.build(loadout, catalogue, reports)` turns a completed frame's LaneWorld reports into a `FrameRules` frame. A frame is complete after a first-roll strike or a second roll. The builder:
+- Revalidates each report's launch, result and knockdown-log contracts.
+- Hydrates every pin, ball and Charm effect from the catalogue by stable ID; neither UI nor loadout can carry effects.
+- Applies `FrameRules.validate`, which, among other checks, refuses a pin credited in both rolls.
+
+The throw lab's loadout is ten `pin.wood` and `ball.house` from `content/fixtures/lab_catalogue.json`. That is a lab fixture outside the production registry, with every completeness flag false. E17/E18 replace it with authored items and Charms.
+
+`ScoreLog.steps(result, frame, names)` translates the authoritative event list into ordered calculation steps:
+- The category base comes first, then fallen pins in rack order (with retriggers), standing pins, balls, the single best accuracy award, Charms, the single bank, and deferred effects last.
+- Each step carries a text line, a symbol (`+` add, `×` multiply, `=` base or bank, `→` deferred), the pin to highlight, and the running Pin Value and Mult the resolver recorded.
+- The score panel only reveals these steps (1×/2×/4×, or Skip), so presentation can never change a banked score. Unit tests and J03 compare every displayed number with an independent resolution.
 
 ## Commands and evidence
 
