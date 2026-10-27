@@ -100,6 +100,24 @@ func _click(control: Control) -> void:
 		Input.parse_input_event(event)
 		await process_frame
 
+## Scrolls the shop with the mouse wheel, as a player would, until control is on screen.
+func _reveal(control: Control) -> void:
+	var screen := Rect2(Vector2.ZERO, lab.size)
+	var over: Vector2 = root.get_screen_transform() * lab.shop_panel.get_global_rect().get_center()
+	for i in 30:
+		if screen.encloses(control.get_global_rect()):
+			return
+		for pressed in [true, false]:
+			var event := InputEventMouseButton.new()
+			event.button_index = MOUSE_BUTTON_WHEEL_DOWN
+			event.pressed = pressed
+			event.factor = 1.0
+			event.position = over
+			event.global_position = over
+			Input.parse_input_event(event)
+			await process_frame
+	_check(screen.encloses(control.get_global_rect()), "scrolling reveals " + control.name)
+
 func _slide(slider: HSlider, value: float) -> void:
 	slider.grab_focus()
 	var steps := roundi((value - slider.value) / slider.step)
@@ -343,6 +361,7 @@ func _removal_and_sale() -> void:
 	var card_ref: String = "card:" + run.cards.keys()[0]
 	var value: int = run.sale_value(card_ref)
 	money = run.money
+	await _reveal(lab.shop_panel.sell_button(card_ref))
 	await _tap(lab.shop_panel.sell_button(card_ref))
 	_check(run.money == money + value and run.entry_at(card_ref) == null, "selling pays the sale value")
 	_check(lab.shop_panel.sell_button("rack:1") == null, "rack pins are not for sale")

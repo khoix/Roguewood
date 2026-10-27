@@ -35,6 +35,7 @@ func _ready() -> void:
 	add_theme_stylebox_override("panel", _style(Color(0.05, 0.04, 0.09, 0.97)))
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true # keyboard and gamepad focus scrolls its button into view
 	add_child(scroll)
 	_main = VBoxContainer.new()
 	_main.size_flags_horizontal = Control.SIZE_EXPAND_FILL
