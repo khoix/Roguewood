@@ -1,3 +1,6 @@
+> Current status: E11 DONE, approved by owner merge PR #4. Review notes below
+> are historical design evidence, not an outstanding owner gate. See AGENTS.md.
+
 # E11 candidate01 review
 
 Source concept: assets/art_direction/candidate-01.png, built-in image generation, original brief in candidate-01-prompt.txt and targeted edit in candidate-01-edit-prompt.txt. This is original source concept artwork, not an engine screenshot or rendered game capture. Generated at1024×1536 (2:3). It is not a720×1280 (9:16) layout proof. No source image was resized to imply that proof.

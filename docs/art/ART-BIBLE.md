@@ -1,3 +1,6 @@
+> Current status: E11 DONE, approved by owner merge PR #4. Review notes below
+> are historical design evidence, not an outstanding owner gate. See AGENTS.md.
+
 # Roguewood art bible — candidate 01
 
 Status: proposed visual target for E11. Production approval is pending representative **engine-rendered** portrait and landscape scenes. Generated concept art is a reference, not proof of actual gameplay rendering. E06 and current throw-lab geometry are unchanged.

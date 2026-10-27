@@ -6,10 +6,14 @@ extends PanelContainer
 ## Developmental look; card art and foil are E12/E19.
 signal card_pressed(uid: String)
 signal cycle_pressed
+signal inspect_requested(card: Dictionary, origin: Control)
 
 var cards_row: HFlowContainer
 var cycle_button: Button
 var info: Label
+var inspect_button: Button
+var inspecting := false
+var card_data: Dictionary = {}
 var buttons: Dictionary = {} # uid -> Button
 
 func _ready() -> void:
@@ -24,6 +28,8 @@ func _ready() -> void:
 	add_child(box)
 	info = Label.new()
 	info.name = "EquipmentInfo"
+	info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	info.add_theme_font_size_override("font_size", 20)
 	box.add_child(info)
 	var row := HBoxContainer.new()
@@ -41,7 +47,18 @@ func _ready() -> void:
 	cycle_button.text = "Cycle"
 	cycle_button.custom_minimum_size = Vector2(110, 96)
 	cycle_button.pressed.connect(func(): cycle_pressed.emit())
-	row.add_child(cycle_button)
+	var actions := VBoxContainer.new()
+	row.add_child(actions)
+	cycle_button.custom_minimum_size = Vector2(110, 48)
+	actions.add_child(cycle_button)
+	inspect_button = Button.new()
+	inspect_button.name = "InspectCard"
+	inspect_button.text = "Inspect"
+	inspect_button.custom_minimum_size = Vector2(110,48)
+	inspect_button.pressed.connect(func():
+		inspecting = not inspecting
+		inspect_button.text = "Pick card" if inspecting else "Inspect")
+	actions.add_child(inspect_button)
 
 ## cards: [{uid, title, detail, kind}], marks: uid -> "ball"/"tactical"/"keep"/"cycle".
 ## cycle_supported hides the Cycle button for models without one.
@@ -54,6 +71,7 @@ func show_cards(cards: Array, marks: Dictionary, header: String, cycle_supported
 			buttons[uid].queue_free()
 			buttons.erase(uid)
 	for card in cards:
+		card_data[card.uid] = card
 		var button: Button = buttons.get(card.uid)
 		if button == null:
 			button = Button.new()
@@ -61,9 +79,23 @@ func show_cards(cards: Array, marks: Dictionary, header: String, cycle_supported
 			button.custom_minimum_size = Vector2(124, 96)
 			button.toggle_mode = false
 			button.clip_text = true
+			button.add_theme_font_size_override("font_size", 16)
+			button.expand_icon = true
+			button.add_theme_constant_override("icon_max_width", 24)
+			button.icon = preload("res://src/presentation/card_inspector.gd").illustration(int(card.get("art_index", 2)))
+			var frame := StyleBoxFlat.new()
+			frame.bg_color = Color("17363d")
+			frame.border_color = Color("c4b69b")
+			frame.set_border_width_all(2)
+			frame.set_content_margin_all(6)
+			button.add_theme_stylebox_override("normal", frame)
 			var uid: String = card.uid
-			# Deferred: a press can redraw the row (cycle), so the button must not vanish mid-input.
-			button.pressed.connect(func(): card_pressed.emit(uid), CONNECT_DEFERRED)
+			button.pressed.connect(func():
+				if inspecting:
+					inspecting = false
+					inspect_button.text = "Inspect"
+					inspect_requested.emit(card_data[uid], buttons[uid])
+				else: card_pressed.emit(uid), CONNECT_DEFERRED)
 			cards_row.add_child(button)
 			buttons[card.uid] = button
 		cards_row.move_child(button, wanted.find(card.uid))
@@ -72,6 +104,10 @@ func show_cards(cards: Array, marks: Dictionary, header: String, cycle_supported
 		button.text = "%s\n%s%s" % [card.title, card.detail, ("\n" + tag) if not tag.is_empty() else ""]
 		button.modulate = Color(1.0, 0.9, 0.45) if not mark.is_empty() else (Color(0.75, 0.9, 1.0) if card.kind == "tactical" else Color.WHITE)
 		button.disabled = not enabled
+	inspect_button.disabled = not enabled
+	if not enabled:
+		inspecting = false
+		inspect_button.text = "Inspect"
 	info.text = header
 	cycle_button.visible = cycle_supported
 	cycle_button.disabled = not (can_cycle and enabled)
