@@ -55,7 +55,7 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E11 — Art bible and representative still scene | DONE | Codex | main (PR #4) | 2882483; CI 40428621822 PASS; owner merge is approval |
 | E12 — Representative motion and visual review | DONE | Codex | codex/roguewood-build | Implementation 90f5690; handoff 046d109; CI 40444945503 + 40444945245 PASS; consolidated on codex/roguewood-build; not yet merged to main |
 | E13 — Vertical-slice integration | NOT_STARTED | unassigned | — | See dependency graph |
-| E14 — Seeded eight-Division progression | NOT_STARTED | unassigned | — | See dependency graph |
+| E14 — Seeded eight-Division progression | IN_PROGRESS | Codex | codex/roguewood-build | Generator and constraints; live integration follows E13 LeagueRun |
 | E15 — Career persistence and unlock graph | NOT_STARTED | unassigned | — | See dependency graph |
 | E16 — Clubhouse and collection UI | NOT_STARTED | unassigned | — | See dependency graph |
 | E17 — Catalogue and unlock authoring batches | NOT_STARTED | unassigned | — | See dependency graph |
@@ -144,3 +144,13 @@ alongside main 1132fca (E08/E09). Earlier descriptions of E12 as code existing o
 on its delivery branch are superseded. Future Codex work and delivery use
 codex/roguewood-build. Redundant E02/E11/E12 Codex task refs can be removed after
 the consolidated branch is pushed; commits and evidence remain reachable.
+
+## E14 active claim (2026-10-27)
+
+- Owner/executor: Codex; self-review and automated checks. Owner merge is approval.
+- Branch: codex/roguewood-build; base main 9225f7c.
+- Dependencies: E09 merged; E10 implementation 8e4edd5 complete on Claude branch.
+- Inspected Claude E13 claim 882adcf: Claude owns LeagueRun, live flow, persistence integration and shared contracts. E14 supplies DivisionRun-format specs without editing those paths.
+- Exclusive paths: src/procedural/, tests/campaign_generator_test.gd, tools/test_campaign_generator.gd, docs/handoffs/E14.md.
+- Scope: independent serializable RNG streams, deterministic eight-Division generation, explicit compatibility and target tables, reveal payloads, endless schedule extension. No authored production catalogue or hidden dynamic targets.
+- Integration remaining: consume generated schedule in E13 LeagueRun, save it through E10, native J09 win/fail/endless evidence. These are technical dependencies, not pending-owner status.
