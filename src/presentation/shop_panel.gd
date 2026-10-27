@@ -61,7 +61,6 @@ func _ready() -> void:
 		button.name = "Offer_%d" % i
 		button.custom_minimum_size = Vector2(216, 150)
 		button.clip_text = true
-		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART # conditional effects need two lines
 		button.pressed.connect(func(): offer_pressed.emit(i))
 		offers_grid.add_child(button)
 		offer_buttons.append(button)

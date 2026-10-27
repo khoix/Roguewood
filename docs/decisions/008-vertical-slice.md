@@ -19,7 +19,7 @@ Catalogue `schema_version` 2 and frame `schema_version` 2 extend the closed effe
 - **Growth** — op `grow_value` adds to the owner's run counter after banking; trigger `match_end` grows a Charm after each completed match (Patient Investor). `RunInventory` keeps `growth` on each owned entry (it moves with the pin and is lost on sale) and applies it with `apply_frame`/`settle_match`. Grower: +10 Value, +5 Value per growth, grows +1 when knocked down.
 - **Strike streak** — the run keeps `strike_streak` across matches; the frame `context` carries the streak before the frame and `match_frame`. Any non-strike resets it.
 - **Physics profiles** — optional `item.physics` on balls (`mass_scale`, `spin_response`) and pins (`mass_scale`, `bounce`), applied per roll by `src/simulation/item_physics.gd` and `LaneWorld.setup(..., item_physics)`. Items without a profile keep the House/Wood values exactly: the E04/E05 physics digest `75d1a3c0…` is unchanged.
-- **Events** carry `effect_index` (the score log names the exact item behind each effect), and `count`/`base`/`per`, `condition` and `cause` when present. `ScoreLog.item_text` states every rule on cards and shop offers ("×2 Mult (strike)", "+2 Mult per Gold Pin down", "hook ×1.6").
+- **Events** carry `effect_index` (the score log names the exact item behind each effect), and `count`/`base`/`per`, `condition` and `cause` when present. `ScoreLog.item_text` states every rule ("×2 Mult (strike)", "+2 Mult per Gold Pin down", "hook ×1.6") on hand cards and their inspection and on shop offers, where long texts are still clipped (playtest defect 9).
 
 ## Production batch E13-S01 (`content/catalogue.json`)
 

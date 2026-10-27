@@ -42,4 +42,4 @@ Status: **BLOCKED — NOT RUN.** No phone, iOS toolchain, Android SDK or mobile 
 | 6 | Balance | Division 2 targets (1100/1600/2400), prices and item numbers come from a synthetic simulation, not human play. Rival unlocks dilute the Charm pool and slightly lower win rates. | E24 |
 | 7 | Feel | Item physics (Hook ×1.6 spin response, Hammer ×1.35 mass, Anchor ×1.6 mass, Rubber bounce 0.45) are untested by hand. | E05/E26 device trials |
 | 8 | Duration | The 10–15 minute target is unmeasured. | this session |
-| 9 | Layout | Long condition texts wrap inside shop offers; long HUD lines ("The Surveyor · D1/2 · Boss 3/3 · …") are tight at narrow portrait widths. Check readability on a phone. | E25/E26 |
+| 9 | Layout | Shop offer buttons clip long rule texts (e.g. Grower's three effects); wrapping them pushed the landscape offer row off screen, so the full rule text of a shop offer is not readable in the shop yet (hand cards show it in inspection; shop offers have no inspection). Long HUD lines ("The Surveyor · D1/2 · Boss 3/3 · …") are tight at narrow portrait widths. Check readability on a phone. | E25/E26 |
