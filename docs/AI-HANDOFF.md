@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-10-27. Agent work: E01–E12 DONE (owner merge is approval; see AGENTS.md). E10 is complete on `claude/roguewood-build` (not yet merged); E12 merged to main by PR #8. E13 IN_PROGRESS (Claude, claimed); E14 is being assigned to Codex by the owner. Provisional decisions: E07 equipment model (E13 playtest), E08 prices and E09 targets (E24). Device gates: E05 real-phone trials and phone readability (E26).
+Updated: 2026-10-27. Agent work: E01–E13 DONE (owner merge is approval; see AGENTS.md). E10 and E13 are complete on `claude/roguewood-build` (not yet merged); E12 merged to main by PR #8. E14 IN_PROGRESS (Codex, `codex/roguewood-build`). Provisional decisions: E07 equipment model (waits for the blocked E13 device play session), E08 prices, E09/E13 targets and E13 item numbers (E24). Device gates: E05 real-phone trials, phone readability and the E13 play session (E26).
 
 ## Read first
 
@@ -28,7 +28,8 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - E08 DONE: accepted by the owner through the PR #6 merge (main `121b74f`), no review comments. Implementation `7b57919bad1b789f8ef18db48289f40cceb52029` on `claude/roguewood-build`. The run wallet and ledger, inventory slots and limits, the seeded Pro Shop with explicit replacement or cancel, modifications, removal, and purchases scoring in play all pass locally (unit with mutation checks, J01–J05 headless and rendered); CI 40442532881 PASS (run on `38d9c75`, which adds only the checkpoint; artifact `journeys` 12706493183); J04 and J05 output identical to local. Prices and rates are provisional (decisions/005-shop-and-match-economy.md). See handoffs/E08.md.
 - E09 DONE: accepted by the owner through the PR #7 merge (main `1132fca`), no review comments. Implementation `fcea7f3b36f40077628c5a33bab89c819baaa1b7` on `claude/roguewood-build` (E09 commit `c427fad` plus the J05 scroll fix). The opener, feature and boss with fixed targets, The Custodian's Clean Sweep, previews before every shop, the skippable introduction, non-blocking reactions, win/loss/retry and the in-memory first-clear record pass locally (unit with mutation checks, J01–J06 headless and rendered); CI 40451844709 PASS (run on `90b9270`, which adds only the checkpoint; artifact `journeys` 12711515136); J06 output identical to local. Targets are provisional (decisions/006-division-loop-and-rival.md). See handoffs/E09.md.
 - E10 DONE (owner policy: completed implementation and verification; not yet merged to main): implementation `8e4edd5fa99651f5b5d91cde5fb5c8ab1ab0bb6d` on `claude/roguewood-build`. Checksummed atomic saves with backup and quarantine, versioned attempt snapshots at every committed step, committed-throw re-simulation, no double banking, purchases or rerolls by reload, a separate idempotent Career file, Continue and save notices, golden v1 saves, and J07 across ten real process restarts all pass locally; CI 40460928513 PASS on `8e4edd5` (artifact `journeys` 12715071786; J07's ten stages ran in both modes with values identical to local). See decisions/007-attempt-saves-and-recovery.md and handoffs/E10.md.
-- Active: E13 (Claude), claimed below; E14 is being assigned to Codex by the owner.
+- E13 DONE (owner policy: completed implementation and verification; not yet merged to main): on `claude/roguewood-build` (implementation commits `5aac9d2` and `aea54e0` plus the validation/doc commit that follows; see handoffs/E13.md). Catalogue/frame contract v2, production batch E13-S01, the two-Division House League with The Surveyor and The Custodian, content sets, attempt saves v2, J06 across both Divisions, and the seeded strategy simulation. The real-device play session is BLOCKED (docs/playtests/E13-slice-playtest.md). See decisions/008-vertical-slice.md.
+- Active: E14 (Codex, `codex/roguewood-build`).
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
@@ -55,8 +56,8 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E10 — Attempt saves and recovery | DONE | Claude | claude/roguewood-build (not yet merged) | 8e4edd5; CI 40460928513 PASS; ADR 007; E10 handoff |
 | E11 — Art bible and representative still scene | DONE | Codex | main (PR #4) | 2882483; E11 CI 40428621822 PASS; owner approval by merge (confirmed 2026-10-27) |
 | E12 — Representative motion and visual review | DONE | Codex | main (PR #8) | Implementation 90f5690; handoff 046d109; CI 40444945503 + 40444945245 PASS; merged by PR #8 (main 9225f7c) |
-| E13 — Vertical-slice integration | IN_PROGRESS | Claude | claude/roguewood-build | Claimed 2026-10-27 at 0d32a32 (main 9225f7c merged with unmerged E10) |
-| E14 — Seeded eight-Division progression | NOT_STARTED | unassigned | — | See dependency graph |
+| E13 — Vertical-slice integration | DONE (device play session blocked) | Claude | claude/roguewood-build (not yet merged) | 5aac9d2 + aea54e0; validation in progress; ADR 008; E13 handoff |
+| E14 — Seeded eight-Division progression | IN_PROGRESS | Codex | codex/roguewood-build | Codex checkpoint on its branch (a104b36 at E13 completion) |
 | E15 — Career persistence and unlock graph | NOT_STARTED | unassigned | — | See dependency graph |
 | E16 — Clubhouse and collection UI | NOT_STARTED | unassigned | — | See dependency graph |
 | E17 — Catalogue and unlock authoring batches | NOT_STARTED | unassigned | — | See dependency graph |
@@ -75,31 +76,12 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 
 ## Active claims and ownership
 
-E13 claim (2026-10-27):
-- Owner/coordinator: Claude. Owner merge is approval (AGENTS.md).
-- Branch: `claude/roguewood-build` at `0d32a32`: main `9225f7c` (E12 merged) plus E10 (DONE, unmerged). Dependencies: E09, E10 and E12 (DONE).
-- Scope: the design's stage-3 roguelike slice (§13):
-  - Two Divisions (six matches) with two bosses: The Surveyor (Dead Straight: charged spin disabled) and The Custodian (Clean Sweep).
-  - Four balls: House, Hook, Hammer, Echo.
-  - Six pins: Wood, Ruby, Gold, Anchor, Grower, Rubber.
-  - Twelve Charms: the ten in §9 plus two authored.
-  - A slice starting kit, shop pools and save/resume, with representative E12 presentation.
-- Items are authored as production catalogue batch E13-S01 (stable IDs) in content/catalogue.json. Completeness flags are honest: artwork and effects/audio stay false (E19/E20).
-- Missing mechanics, added as a closed, versioned contract extension:
-  - effect conditions (frame category, frame in match, standing count, curved shot, all-House);
-  - per-count scaling;
-  - a first-ball-pin retrigger;
-  - pin growth persisted in the run;
-  - per-item physics profiles for balls (spin response, mass) and pins (mass, restitution);
-  - a run streak and match growth for Turkey Club and Patient Investor.
-- Validation:
-  - J01–J08 integrated pass. Mechanism journeys keep the lab fixtures through a `--content=lab` content set; J06 plays the slice's two Divisions.
-  - A seeded slice simulation demonstrating three intentional build strategies.
-  - Real-device play session: blocked (no device in this environment), recorded as a gate with outstanding defects.
-- Exclusive paths: content/slice/, src/rules/league_run.gd, src/rules/conditions in frame_rules.gd (contract extension), src/simulation/item_physics.gd, tools/slice_strategies.gd, tests/slice_test.gd, docs/decisions/008-*.md, docs/handoffs/E13.md, and production entries of content/catalogue.json for batch E13-S01.
-- Shared files (coordinator-owned this session): content/schemas/catalogue.schema.json and contracts.gd (versioned extension), frame_rules.gd, frame_builder.gd, lane_spec.gd, lane_world.gd, throw_lab.gd, bootstrap.gd, division_run.gd, run_inventory.gd, the journeys (content set), qa.py, the CI workflow, CONTRACTS, DEVELOPMENT, AGENTS, README and this checkpoint.
-- Coordination with E14 (Codex, `codex/roguewood-build`): E14 owns seeded eight-Division generation in its own paths. It should produce Division specs in the DivisionRun format; LeagueRun will chain them. Edits to division_run.gd, throw_lab.gd or bootstrap.gd should be coordinated through this checkpoint.
-- Out of scope: a declaration of full release or a validated economy; final item art and effects (E19/E20); further rivals' art (E21); device play (blocked).
+No active Claude claim (E13 complete). Codex holds the E14 claim on `codex/roguewood-build` (exclusive paths src/procedural/, its tests and tools, handoffs/E14.md).
+
+E13 → E14 coordination:
+- `src/rules/league_run.gd` (LeagueRun) chains DivisionRun-format specs and is ready for generated schedules; a Division with `championship: true` may bring back a boss already met (the validator mismatch Codex's probe reported is fixed). Distinct bosses may share a rule.
+- `src/rules/content_set.gd` loads a catalogue, League and kit; attempt saves (schema 2) store the League as `{index, practice, done, current}` with `content_set`.
+- Live wiring of generated schedules into the lab, shell and saves (throw_lab.gd, bootstrap.gd, attempt_snapshot.gd, a new content set or League source) is E14's integration work; coordinate edits to those shared files through this checkpoint.
 
 Standing user preferences:
 - Log agent work only; owner merge means approval. Do not mark completed milestones pending the owner. Integration facts are separate.
@@ -109,9 +91,9 @@ Standing user preferences:
 
 ## Batch queue and content completeness
 
-No batches allocated yet. Coordinator allocates E17-Dxx / E18-Cxx / E19-Axx / E20-Vxx / E21-Rxx / E22-Lxx / E26-Pxx with explicit scopes. Expected content totals: 24 balls, 32 pins, 16 ball modifications, 16 pin modifications, 100 Charms, 24 consumables, 16 shop upgrades, 12 lane conditions, 20 boss rules, 10 kits; six League specs separate.
+Batch E13-S01 (E13, delivered): 25 production definitions in content/catalogue.json — balls house, hook, hammer, echo; pins wood, ruby, gold, anchor, grower, rubber; Charms flat_bonus, finisher, spare_change, lone_survivor, hook_artist, house_favorite, gold_rush, turkey_club, patient_investor, last_chance, encore, standing_order; boss rules dead_straight, clean_sweep; kit house. Flags: authored, mechanics, automated_validation, unlock_assigned true; artwork, effects_audio, integrated false. Production counts against release targets: balls 4/24, pins 6/32, Charms 12/100, boss rules 2/20, kits 1/10; modifications, consumables, upgrades and lane conditions 0. No further batches allocated. Coordinator allocates E17-Dxx / E18-Cxx / E19-Axx / E20-Vxx / E21-Rxx / E22-Lxx / E26-Pxx with explicit scopes. Expected content totals: 24 balls, 32 pins, 16 ball modifications, 16 pin modifications, 100 Charms, 24 consumables, 16 shop upgrades, 12 lane conditions, 20 boss rules, 10 kits; six League specs separate.
 
-Content registry: content/catalogue.json is empty by design; E02 defines validated schema/completeness fields, E17 populates production items. Fixtures are excluded from release counts. All production counts currently unverified/not implemented. Track authored, mechanics, tests, artwork, VFX/audio, unlocks, and integration independently. Do not count examples in the design as finished content.
+Content registry: content/catalogue.json holds batch E13-S01 (catalogue v2); E02 defines validated schema/completeness fields, E17 populates further production items. Fixtures are excluded from release counts. All production counts currently unverified/not implemented. Track authored, mechanics, tests, artwork, VFX/audio, unlocks, and integration independently. Do not count examples in the design as finished content.
 
 ## Validation
 
