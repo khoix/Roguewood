@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-10-27. Agent work: E01–E13 DONE (owner merge is approval; see AGENTS.md). E10 and E13 are complete on `claude/roguewood-build` (not yet merged); E12 merged to main by PR #8. E14 DONE (Codex, implementation 71b2bd2 on `codex/roguewood-build`; not yet merged to main). Provisional decisions: E07 equipment model (waits for the blocked E13 device play session), E08 prices, E09/E13 targets and E13 item numbers (E24). Device gates: E05 real-phone trials, phone readability and the E13 play session (E26).
+Updated: 2026-10-27. Agent work: E01–E13 DONE (owner merge is approval; see AGENTS.md). E10 and E13 are complete on `claude/roguewood-build` (not yet merged); E12 merged to main by PR #8. E14 DONE (Codex, implementation 71b2bd2; merged to main by PR #9, `fd1d466`, which also carried E10 and E13). E15 IN_PROGRESS (Claude, `claude/roguewood-build`). Provisional decisions: E07 equipment model (waits for the blocked E13 device play session), E08 prices, E09/E13 targets and E13 item numbers (E24). Device gates: E05 real-phone trials, phone readability and the E13 play session (E26).
 
 ## Read first
 
@@ -29,7 +29,7 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - E09 DONE: accepted by the owner through the PR #7 merge (main `1132fca`), no review comments. Implementation `fcea7f3b36f40077628c5a33bab89c819baaa1b7` on `claude/roguewood-build` (E09 commit `c427fad` plus the J05 scroll fix). The opener, feature and boss with fixed targets, The Custodian's Clean Sweep, previews before every shop, the skippable introduction, non-blocking reactions, win/loss/retry and the in-memory first-clear record pass locally (unit with mutation checks, J01–J06 headless and rendered); CI 40451844709 PASS (run on `90b9270`, which adds only the checkpoint; artifact `journeys` 12711515136); J06 output identical to local. Targets are provisional (decisions/006-division-loop-and-rival.md). See handoffs/E09.md.
 - E10 DONE (owner policy: completed implementation and verification; not yet merged to main): implementation `8e4edd5fa99651f5b5d91cde5fb5c8ab1ab0bb6d` on `claude/roguewood-build`. Checksummed atomic saves with backup and quarantine, versioned attempt snapshots at every committed step, committed-throw re-simulation, no double banking, purchases or rerolls by reload, a separate idempotent Career file, Continue and save notices, golden v1 saves, and J07 across ten real process restarts all pass locally; CI 40460928513 PASS on `8e4edd5` (artifact `journeys` 12715071786; J07's ten stages ran in both modes with values identical to local). See decisions/007-attempt-saves-and-recovery.md and handoffs/E10.md.
 - E13 DONE (owner policy: completed implementation and verification; not yet merged to main): on `claude/roguewood-build` (implementation `98cc2aa`, building on `5aac9d2` and `aea54e0`; CI 40524506207 PASS, artifact `journeys` 12744012079; see handoffs/E13.md). Catalogue/frame contract v2, production batch E13-S01, the two-Division House League with The Surveyor and The Custodian, content sets, attempt saves v2, J06 across both Divisions, and the seeded strategy simulation. The real-device play session is BLOCKED (docs/playtests/E13-slice-playtest.md). See decisions/008-vertical-slice.md.
-- Active: none. E14 DONE; E15 is next (High), not started.
+- Active: E15 (Claude, `claude/roguewood-build`, fast-forwarded to main `fd1d466`).
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
@@ -58,7 +58,7 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E12 — Representative motion and visual review | DONE | Codex | main (PR #8) | Implementation 90f5690; handoff 046d109; CI 40444945503 + 40444945245 PASS; merged by PR #8 (main 9225f7c) |
 | E13 — Vertical-slice integration | DONE (device play session blocked) | Claude | claude/roguewood-build (not yet merged) | 98cc2aa (with 5aac9d2, aea54e0); CI 40524506207 PASS; ADR 008; E13 handoff |
 | E14 — Seeded eight-Division progression | DONE | Codex | codex/roguewood-build | 71b2bd2; local unit/content/integration/physics, J01/J06/J07 and native J09 headless/rendered PASS; handoffs/E14.md |
-| E15 — Career persistence and unlock graph | NOT_STARTED | unassigned | — | See dependency graph |
+| E15 — Career persistence and unlock graph | IN_PROGRESS | Claude | claude/roguewood-build | Claim on base `fd1d466` |
 | E16 — Clubhouse and collection UI | NOT_STARTED | unassigned | — | See dependency graph |
 | E17 — Catalogue and unlock authoring batches | NOT_STARTED | unassigned | — | See dependency graph |
 | E18 — Content mechanics batches | NOT_STARTED | unassigned | — | See dependency graph |
@@ -76,7 +76,7 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 
 ## Active claims and ownership
 
-No active Claude claim (E13 complete). E14 claim is complete on `codex/roguewood-build`; no active Codex claim.
+E15 claim (Claude, coordinator and executor; reviewer: the repository owner by PR). Branch `claude/roguewood-build`, base main `fd1d466`. Scope: Career profile v2 and migration, unlock registry and graph validation, boss/championship/mastery awards banked immediately and idempotently, attempt pool snapshots, practice-mode policy, records and discoveries, J10. Exclusive paths: src/persistence/career_profile.gd, src/career/, content/career/, content/fixtures/lab_unlocks.json, tests/career_test.gd, tests/career_journey.gd, tests/fixtures/saves/v2/, docs/decisions/010-*, docs/handoffs/E15.md. Shared files touched with care: throw_lab.gd, bootstrap.gd, content_set.gd, attempt_snapshot.gd, save_store.gd, throw_settings_panel.gd, qa.py, run_tests.gd, CI workflow, campaign_journey.gd (an assertion only). E14 claim is complete; no active Codex claim.
 
 E13 → E14 coordination:
 - `src/rules/league_run.gd` (LeagueRun) chains DivisionRun-format specs and is ready for generated schedules; a Division with `championship: true` may bring back a boss already met (the validator mismatch Codex's probe reported is fixed). Distinct bosses may share a rule.
