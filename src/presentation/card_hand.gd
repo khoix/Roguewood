@@ -62,7 +62,8 @@ func show_cards(cards: Array, marks: Dictionary, header: String, cycle_supported
 			button.toggle_mode = false
 			button.clip_text = true
 			var uid: String = card.uid
-			button.pressed.connect(func(): card_pressed.emit(uid))
+			# Deferred: a press can redraw the row (cycle), so the button must not vanish mid-input.
+			button.pressed.connect(func(): card_pressed.emit(uid), CONNECT_DEFERRED)
 			cards_row.add_child(button)
 			buttons[card.uid] = button
 		cards_row.move_child(button, wanted.find(card.uid))

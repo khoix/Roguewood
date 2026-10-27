@@ -71,7 +71,7 @@ func _button(parent: Node, label: String, node_name: String, width: float) -> Bu
 
 func _start_session() -> void:
 	# Fixed shell fixture, not procedural League progression or a Career save.
-	session = {"schema_version": 1, "seed": 1, "league_id": "league.house", "kit_id": "kit.house", "division": 1, "match": 1, "frame": 1, "score": 0}
+	session = {"schema_version": 1, "seed": 1, "league_id": "league.house", "kit_id": "kit.house", "division": 1, "match": 1, "frame": 1, "score": 0, "money": 6}
 	screen = "session"
 	details.text = "House League · Division 1"
 	panel.hide()
@@ -82,6 +82,7 @@ func _start_session() -> void:
 	lab.settings = throw_settings
 	lab.equipment_seed = session.seed
 	lab.frame_scored.connect(_on_frame_scored)
+	lab.money_changed.connect(func(money): session.money = money)
 	add_child(lab)
 	move_child(lab, 0)
 	session_bar.show()

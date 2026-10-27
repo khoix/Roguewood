@@ -30,6 +30,27 @@ static func create(item_ids: Array, deck_seed: int) -> RefCounted:
 	deck.start_match()
 	return deck
 
+## A deck over existing card identities (uid -> item_id), e.g. a run's collection.
+static func create_with(uid_items: Dictionary, deck_seed: int) -> RefCounted:
+	var deck = load("res://src/rules/card_deck.gd").new()
+	deck.cards = uid_items.duplicate()
+	deck.rng_seed = deck_seed
+	deck._rng.seed = deck_seed
+	deck.start_match()
+	return deck
+
+## Between matches (E08): match the collection, keeping this deck's RNG stream.
+## New cards join; sold, removed or consumed cards leave every pile. Call
+## start_match afterwards to recombine and shuffle.
+func sync(uid_items: Dictionary) -> void:
+	for uid in cards.keys():
+		if not uid_items.has(uid):
+			cards.erase(uid)
+			for pile in [draw_pile, hand, discard, exhausted]:
+				pile.erase(uid)
+	for uid in uid_items:
+		cards[uid] = uid_items[uid]
+
 static func kind(item_id: String) -> String:
 	if item_id.begins_with("ball."):
 		return "ball"

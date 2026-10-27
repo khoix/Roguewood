@@ -16,11 +16,14 @@ var exhausted: Array = []
 var frame := 0
 var tactical_rolls: Array = []
 
-static func create(ball_ids: Array, tactical_ids: Array) -> RefCounted:
+## tactical_uids optionally names each tactical (a run's card uids), so a used one
+## can be dropped from the collection.
+static func create(ball_ids: Array, tactical_ids: Array, tactical_uids: Array = []) -> RefCounted:
 	var loadout = load("res://src/rules/direct_loadout.gd").new()
 	loadout.specials = ball_ids.slice(0, MAX_SPECIALS)
 	for index in tactical_ids.size():
-		loadout.tacticals["tactical-%d" % (index + 1)] = tactical_ids[index]
+		var uid: String = tactical_uids[index] if index < tactical_uids.size() else "tactical-%d" % (index + 1)
+		loadout.tacticals[uid] = tactical_ids[index]
 	loadout.start_match()
 	return loadout
 

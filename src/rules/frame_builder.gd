@@ -25,23 +25,38 @@ static func item(catalogue: Dictionary, item_id: String) -> Dictionary:
 			return entry
 	return {}
 
-## Returns {ok, frame} or {ok=false, errors}. Reports are LaneWorld reports
-## ({launch, roll_result, knockdown_log}) in roll order. tactics maps a roll index
-## to the tactical item ids played with that roll; their effects join the roll's.
-static func build(loadout: Dictionary, catalogue: Dictionary, reports: Array, tactics: Dictionary = {}) -> Dictionary:
+## Returns {ok, frame, owners} or {ok=false, errors}. Reports are LaneWorld reports
+## ({launch, roll_result, knockdown_log}) in roll order. The loadout gives pins by
+## position, ordered Charms and optional pin_mods (position -> pin_mod id), whose
+## effects join that pin's. extras maps a roll index to the tactical cards and ball
+## modification played with that roll; their effects join the roll's.
+static func build(loadout: Dictionary, catalogue: Dictionary, reports: Array, extras: Dictionary = {}) -> Dictionary:
 	var errors: Array[String] = []
 	if not is_complete(reports):
 		errors.append("frame is not complete")
 	var pins: Array = []
+	var owners := {}
+	var pin_mods: Dictionary = loadout.get("pin_mods", {})
 	for position in range(1, 11):
 		var pin_id: String = loadout.pins.get(position, loadout.pins.get(str(position), ""))
 		var pin := item(catalogue, pin_id)
 		if pin.is_empty() or pin.category != "pin":
 			errors.append("unknown pin item at %d: %s" % [position, pin_id])
 			continue
-		pins.append({"position": position, "item_id": pin.id, "effects": pin.effects.duplicate(true)})
+		var effects: Array = pin.effects.duplicate(true)
+		var effect_owners: Array = pin.effects.map(func(_e): return pin.id)
+		var mod_id: String = pin_mods.get(position, pin_mods.get(str(position), ""))
+		if not mod_id.is_empty():
+			var mod := item(catalogue, mod_id)
+			if mod.is_empty() or mod.category != "pin_mod":
+				errors.append("unknown pin modification at %d: %s" % [position, mod_id])
+			else:
+				effects.append_array(mod.effects.duplicate(true))
+				for _e in mod.effects:
+					effect_owners.append(mod.id)
+		owners["pin:%d" % position] = effect_owners
+		pins.append({"position": position, "item_id": pin.id, "effects": effects})
 	var rolls: Array = []
-	var owners := {}
 	for report in reports:
 		var result: Dictionary = report.roll_result
 		errors.append_array(Contracts.validate_result_for_launch(report.launch, result))
@@ -52,15 +67,15 @@ static func build(loadout: Dictionary, catalogue: Dictionary, reports: Array, ta
 			continue
 		var effects: Array = ball.effects.duplicate(true)
 		var effect_owners: Array = ball.effects.map(func(_e): return ball.id)
-		for tactical_id in tactics.get(int(result.roll_index), []):
-			var tactical := item(catalogue, tactical_id)
-			if tactical.is_empty() or tactical.category != "consumable":
-				errors.append("unknown tactical item: %s" % tactical_id)
+		for extra_id in extras.get(int(result.roll_index), []):
+			var extra := item(catalogue, extra_id)
+			if extra.is_empty() or extra.category not in ["consumable", "ball_mod"]:
+				errors.append("unknown tactical item or ball modification: %s" % extra_id)
 				continue
-			effects.append_array(tactical.effects.duplicate(true))
-			for _e in tactical.effects:
-				effect_owners.append(tactical.id)
-		owners[int(result.roll_index)] = effect_owners
+			effects.append_array(extra.effects.duplicate(true))
+			for _e in extra.effects:
+				effect_owners.append(extra.id)
+		owners["roll:%d" % int(result.roll_index)] = effect_owners
 		rolls.append({"roll_index": int(result.roll_index), "ball_id": ball.id, "fallen_positions": result.fallen_positions.duplicate(),
 			"accuracy": result.accuracy, "effects": effects})
 	var charms: Array = []
@@ -75,5 +90,5 @@ static func build(loadout: Dictionary, catalogue: Dictionary, reports: Array, ta
 		errors.append_array(Rules.validate(frame))
 	if not errors.is_empty():
 		return {"ok": false, "errors": errors}
-	# owners: roll index -> item id that supplied each roll effect, for the log.
+	# owners: event source ("pin:3", "roll:1") -> item id behind each effect, for the log.
 	return {"ok": true, "frame": frame, "owners": owners}

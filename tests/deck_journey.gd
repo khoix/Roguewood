@@ -254,6 +254,8 @@ func _second_frame() -> void:
 	_check(lab.card_hand.buttons.values().all(func(b): return b.disabled) and lab.card_hand.info.text.contains("Match over"), "no keep at the end of a match")
 	await _capture("match_over")
 	await _focus_accept(lab.next_rack)
+	_check(lab.state == "shop", "match end opens the Pro Shop")
+	await _focus_accept(lab.shop_panel.continue_button)
 	await _wait_for(func(): return lab.state == "aim" and lab.frame_number == 3, "frame 3", ROLL_FRAMES)
 
 ## Match two recombines everything except an exhausted tactical card.
@@ -272,7 +274,9 @@ func _new_match() -> void:
 		await _verify_frame("frame 3", ["Lab Focus +3 Mult"])
 		await _focus_accept(lab.next_rack)
 		await _wait_for(func(): return lab.state == "aim" and lab.frame_number == 4, "frame 4", ROLL_FRAMES)
-	_check(tactical_uid in deck.exhausted and tactical_uid not in deck.hand + deck.draw_pile + deck.discard, "the tactical card is exhausted and never returns")
+	# A tactical played this match is still exhausted; one played earlier has left the run (E08).
+	var gone: bool = tactical_uid in deck.exhausted or (not deck.cards.has(tactical_uid) and not lab.run.cards.has(tactical_uid))
+	_check(gone and tactical_uid not in deck.hand + deck.draw_pile + deck.discard, "the tactical card is exhausted and never returns")
 	await _capture("exhausted")
 
 ## Switching the model on a fresh frame starts a direct-selection match.
@@ -285,7 +289,8 @@ func _direct_model() -> void:
 	await _focus_accept(lab.settings_panel.close)
 	var bag = lab.equipment
 	_check(lab.settings.equipment == "direct" and bag.MODEL == "direct", "options switch to direct selection")
-	_check(not lab.card_hand.cycle_button.visible and lab.card_hand.buttons.size() == 3, "direct bag shows two specials and the tactical, no Cycle")
+	var tacticals: int = lab.run.cards.values().filter(func(e): return e.item_id.begins_with("consumable.")).size()
+	_check(not lab.card_hand.cycle_button.visible and lab.card_hand.buttons.size() == 2 + tacticals, "direct bag shows two specials and the run's unused tactical cards, no Cycle")
 	await _capture("direct")
 	await _focus_accept(_card("ball.lab_mult"))
 	var report := await _throw(LEAVE)

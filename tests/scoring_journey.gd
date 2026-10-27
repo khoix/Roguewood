@@ -139,6 +139,8 @@ func _verify_frame(category: String, label: String, during: Callable = Callable(
 
 func _next_frame() -> void:
 	await _focus_accept(lab.next_rack)
+	if lab.state == "shop": # match end (E08): leave the Pro Shop without buying
+		await _focus_accept(lab.shop_panel.continue_button)
 	await _wait_for(func(): return lab.state == "aim" and lab.roll_index == 1, "next rack", ROLL_FRAMES)
 
 func _strike_frame() -> void:

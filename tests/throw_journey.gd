@@ -250,11 +250,15 @@ func _check_report(report: Dictionary, rack_in: Dictionary) -> void:
 		str(report.roll_result.fallen_positions), str(report.knockdown_log.standing), str(report.knockdown_log.gutter), report.roll_result.accuracy,
 		report.knockdown_log.settle, report.knockdown_log.ticks])
 
-## Waits for the next throwable aim state, pressing Next Rack when a frame is done.
+## Waits for the next throwable aim state, pressing Next Rack when a frame is done
+## and Next Match in the shop.
 func _ready_to_throw() -> void:
 	await _wait_for(func(): return lab.state in ["aim", "frame_done"], "aim or frame done", ROLL_FRAMES)
 	if lab.state == "frame_done":
 		lab.next_rack.grab_focus()
+		await _accept()
+	if lab.state == "shop": # match end (E08): leave the Pro Shop without buying
+		lab.shop_panel.continue_button.grab_focus()
 		await _accept()
 	await _wait_for(func(): return lab.state == "aim" and lab.lane.state == "ready", "aim before throw")
 

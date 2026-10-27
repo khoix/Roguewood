@@ -18,6 +18,8 @@ JOURNEYS = {
             ("scoring", "strike", "spare", "open"), 600, ["--fixed-fps", "60"]),
     "J04": ("res://tests/deck_journey.gd", "ROGUEWOOD_J04_OK", "artifacts/e07",
             ("hand", "keep", "match_over", "exhausted", "direct"), 900, ["--fixed-fps", "60"]),
+    "J05": ("res://tests/shop_journey.gd", "ROGUEWOOD_J05_OK", "artifacts/e08",
+            ("shop", "bought", "funds", "place_pin", "full_slot", "removed", "landscape", "match2"), 900, ["--fixed-fps", "60"]),
 }
 
 
