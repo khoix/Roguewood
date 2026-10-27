@@ -51,7 +51,7 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E09 — Single Division loop and rival | NOT_STARTED | unassigned | — | See dependency graph |
 | E10 — Attempt saves and recovery | NOT_STARTED | unassigned | — | See dependency graph |
 | E11 — Art bible and representative still scene | REVIEW | Codex | codex/roguewood-e11-art | 2882483; handoff: runtime candidate, visual quality not accepted; unmerged |
-| E12 — Representative motion and visual review | NOT_STARTED | unassigned | — | See dependency graph |
+| E12 — Representative motion and visual review | IN_PROGRESS | Codex | codex/roguewood-e12-motion | Claimed from main 1d2ea35; user explicitly requested E12 completion |
 | E13 — Vertical-slice integration | NOT_STARTED | unassigned | — | See dependency graph |
 | E14 — Seeded eight-Division progression | NOT_STARTED | unassigned | — | See dependency graph |
 | E15 — Career persistence and unlock graph | NOT_STARTED | unassigned | — | See dependency graph |
@@ -122,3 +122,19 @@ No local blocker. The native Apple toolchain, signing, the Android SDK and mobil
 Workers copy AGENT-TASK-TEMPLATE.md to docs/handoffs/<task-id>.md on their own branch. Push code and handoff together; send coordinator branch/SHA and validation summary. Coordinator reviews and integrates, records the integrated code SHA and relevant test evidence, clears stale claims, updates the next action, and pushes checkpoint. Preserve unfinished tasks honestly; no running diary.
 
 Do not insert the checkpoint's own future commit SHA. Record already-known implementation commits; the Git history identifies the checkpoint commit. On resume inspect remote changes before accepting an old ownership claim. Stop after the assigned execution is durably saved.
+
+## E12 active claim
+
+Owner/coordinator Codex; reviewer repository owner on concrete video/stills.
+Base main `1d2ea35` includes owner merges PR #4 (E11) and #5 (E07); prior
+unmerged descriptions above are historical. E05/E06 accepted via PR #3.
+The user explicitly authorized proceeding with E12; final visual acceptance
+remains separate from merge/integration acceptance.
+Branch `codex/roguewood-e12-motion`. Scope: live lane visual dressing and
+throw/impact/score presentation, inspectable cards with directional foil and
+skippable reveal, one representative rival reaction, reduced motion/flash,
+scene timing metrics, native J08, portrait/landscape video/stills.
+Exclusive: src/presentation/ (E12 additions and integrations), assets/motion/,
+tests/motion_journey.gd, docs/art/E12*, docs/handoffs/E12.md. Shared coordinated
+changes: tools/qa.py, .github/workflows/e12-motion.yml, this checkpoint.
+No scoring, physics, deck rules, catalogue completeness or future milestone work.
