@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-10-27. State: E01–E07 DONE (integrated on main; E05 real-phone gate still open; E07's equipment decision provisional until E13); E11 merged by the owner (PR #4) with its visual-quality gate still open; E08 IN_PROGRESS (claimed).
+Updated: 2026-10-27. State: E01–E07 DONE (integrated on main; E05 real-phone gate still open; E07's equipment decision provisional until E13); E11 merged by the owner (PR #4) with its visual-quality gate still open; E08 REVIEW (Claude, `claude/roguewood-build`, unmerged).
 
 ## Read first
 
@@ -25,7 +25,8 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - E05 and E06 were accepted by the repository owner through the PR #3 merge (main `4af230b`); no review comments. E05's real-phone trials remain an open gate (NOT RUN).
 - E11 (Codex): `codex/roguewood-e11-art` (head `2882483`) was merged by the owner through PR #4 (main `cbca3c0`). Its own handoff still says final visual quality is not accepted (owner material/composition/readability feedback and phone readability pending), so the ledger keeps its quality gate open rather than calling it DONE. It only touches docs/art, assets/art_direction and its own workflow.
 - E07 DONE: accepted by the owner through the PR #5 merge (main `1d2ea35`), no review comments. Implementation `bec334158db1ec743b7cb3e476d9b47224a7d950` on `claude/roguewood-build`. The deck and direct models, the lab card row, scoring of played cards, the structural experiment and J04 pass locally; CI 40435623701 PASS (run on `e1c8f9b`, which adds only the checkpoint; artifact `journeys` 12704037055); J04 and experiment output identical to local. The equipment decision is **provisional** (decisions/004-deck-draw-cycle-experiment.md): the deck stays the default and direct selection stays a lab option until the E13 vertical-slice playtest. See handoffs/E07.md.
-- Active: E08, claimed below at the user's direction.
+- E08 REVIEW: implementation `7b57919bad1b789f8ef18db48289f40cceb52029` on `claude/roguewood-build`. The run wallet and ledger, inventory slots and limits, the seeded Pro Shop with explicit replacement or cancel, modifications, removal, and purchases scoring in play all pass locally (unit with mutation checks, J01–J05 headless and rendered); CI pending. Prices and rates are provisional (decisions/005-shop-and-match-economy.md). See handoffs/E08.md.
+- Active: none. E08 awaits owner review.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
@@ -47,7 +48,7 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E05 — Spin, curve, and mobile gesture feel | DONE (device gate open) | Claude | main (PR #3) | 0ad08c2; CI 40324357857 PASS; owner merge; real-phone trials NOT RUN |
 | E06 — Frame scoring and readable resolution | DONE | Claude | main (PR #3) | b325c56; CI 40375789785 PASS; owner merge |
 | E07 — Deck draw and cycle experiment | DONE (decision provisional) | Claude | main (PR #5) | bec3341; owner merge; CI 40435623701 PASS (run on `e1c8f9b`, which adds only the checkpoint; artifact `journeys` 12704037055); J04 and experiment output identical to local; ADR 004 provisional; E07 handoff |
-| E08 — Shop and match economy | IN_PROGRESS | Claude | claude/roguewood-build | Claimed 2026-10-27 from main 1d2ea35 |
+| E08 — Shop and match economy | REVIEW | Claude | claude/roguewood-build | 7b57919; CI pending; ADR 005 provisional; E08 handoff |
 | E09 — Single Division loop and rival | NOT_STARTED | unassigned | — | See dependency graph |
 | E10 — Attempt saves and recovery | NOT_STARTED | unassigned | — | See dependency graph |
 | E11 — Art bible and representative still scene | REVIEW (merged, quality gate open) | Codex | main (PR #4) | 2882483; E11 CI 40428621822 PASS; handoff: visual quality not accepted, owner feedback pending |
@@ -110,6 +111,7 @@ Content registry: content/catalogue.json is empty by design; E02 defines validat
 - E05 PASS (local and CI): unit (spin phases, ring, assist equivalence, oil zones), content, integration, physics (23 fixtures, 92 simulations; hook grows with spin, mirrors exactly, shrinks with speed; E04 straight outcomes unchanged), smoke, Linux export, J01 headless and rendered, diagnostics, J02 headless and rendered (curves both ways from real circle gestures at ±0.618 spin and ±0.282 m hook, target move, short flick, mouse, keyboard assist, landscape, trial log), and J02 injected failure exiting 1. CI https://github.com/khoix/Roguewood/actions/runs/40324357857 on `0ad08c2`; artifact `journeys` 12650896331.
 - E06 PASS (local and CI): unit (frame assembly, calculation log, 560/240/90, 3360/2800 logs, retrigger 8/9 bound, exact large score and overflow refusal), every earlier suite, and J03 headless and rendered (strike, spare and open through real input, checked against an independent resolution; log order; roll attribution; speed and skip; totals). CI https://github.com/khoix/Roguewood/actions/runs/40375789785 on `b325c56`; artifact `journeys` 12674518848.
 - E07 PASS (local): unit (deck_test: draw, keep, cycle, reshuffle, exhaustion, recombine, House fallback, JSON continuation, direct uses, card and tactical scoring, payout attribution, experiment repeatability), every earlier suite with the physics digest unchanged, the `experiment` (1000 seeded runs; results in ADR 004), J01–J04 headless and rendered, diagnostics, and J04 injected failure exiting 1. CI 40435623701 PASS (run on `e1c8f9b`, which adds only the checkpoint; artifact `journeys` 12704037055); J04 and experiment output identical to local.
+- E08 PASS (local): unit (economy_test: payout, interest, sale and reroll tables; no buy/sell profit; slots, placements, replacement and cancel; modifications; removal; shop eligibility, rarity renormalization, rerolls and the affordability guarantee across seeds; currency scopes; JSON round trips; a 60-run fuzz), mutation checks, every earlier suite with the physics digest unchanged and J03 at 560/240/70, J01–J05 headless and rendered (J05 match-2 score 21060 identical), diagnostics, and J05 injected failure exiting 1. CI pending.
 - Native iOS/Android/Windows, physical device feel (E05 trials NOT RUN), visual review and balance: NOT VALIDATED. E04/E05 throw thresholds and physics tuning are provisional (ADR 002/003).
 
 ## Blockers and limitations
