@@ -853,6 +853,49 @@
         "unlock_assigned": false,
         "integrated": false
       }
+    },
+    {
+      "id": "boss_rule.lab_clean_sweep",
+      "name": "Clean Sweep",
+      "category": "boss_rule",
+      "rarity": "common",
+      "pool_weight": 0,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 0,
+      "resale_price": 0,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Only strike and spare frames bank points; an open frame banks nothing. Lab fixture for E09.",
+      "synergy_tags": [
+        "clearing"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": false,
+        "mechanics": false,
+        "automated_validation": false,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": false,
+        "integrated": false
+      }
     }
   ]
 }

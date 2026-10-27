@@ -121,3 +121,22 @@ The lab's rack, Charms, deck and modifications come from the run inventory, so p
 - Match 2 scoring with the purchases, against an independent resolution.
 
 To reach a full Charm row in one visit, the journey grants $30 and seats four reward-only Crown Charms through the inventory API. This fixture setup is logged in the ledger. `--rendered` saves the shop, bought, funds, place_pin, full_slot, removed, landscape and match2 PNGs to `artifacts/e08/rendered`.
+
+## E09 Division and J06
+
+Entering the League starts attempt 1 of House League Division 1: an opener (target 300), a feature (500) and The Custodian (800, Clean Sweep), each within two frames.
+- The match bar shows the match, target, score and frames left, plus an inspectable boss or rule badge.
+- Crossing a target ends the match after that frame and opens the shop, which previews the next match and the boss rule.
+- A missed target ends the attempt.
+- The boss match opens with a skippable introduction. The rival reacts (with precedence and a cooldown) without ever taking input.
+- The result screen offers Retry Division or New Attempt, and Clubhouse.
+- First clears are kept in an in-memory Career record for the app run.
+
+Options → Practice removes targets. J02–J05 use Practice.
+
+`python3 tools/qa.py e2e --journey J06` plays three attempts with the deterministic J03 shots:
+1. Win the opener and feature early (unused-frame payout), skip the introduction, throw through a reaction, and lose the boss when Clean Sweep banks an open frame as 0. Then Retry.
+2. Watch the short introduction advance by itself, defeat the boss with two strikes, and bank the first clear.
+3. Confirm the unlock carried over, lose the opener, check the Career record survives, then return to the Clubhouse.
+
+`--rendered` saves the preview, shop_preview, intro, boss, lost, won and lost_again PNGs to `artifacts/e09/rendered`.

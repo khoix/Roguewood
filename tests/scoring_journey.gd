@@ -77,6 +77,7 @@ func _run() -> void:
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.assist)
+	await _focus_accept(lab.settings_panel.practice) # E09: targets off; this journey tests its own subsystem
 	await _focus_accept(lab.settings_panel.close)
 	_check(lab.settings.assist and lab.settings.reduced_motion, "assist and reduced motion on")
 	await _strike_frame()

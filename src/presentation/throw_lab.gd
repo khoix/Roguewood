@@ -1,17 +1,23 @@
 extends Control
-## Throw lab (E04 straight, E05 spin/curve, E06 scoring, E07 equipment, E08 shop): elevated
+## Throw lab (E04 straight, E05 spin/curve, E06 scoring, E07 equipment, E08 shop,
+## E09 Division): elevated
 ## behind-ball camera, hold / circle / flick gestures, a movable contracting target
 ## ring, accessible controls and a two-roll frame where survivors are respotted,
 ## then scored by FrameRules and explained step by step. The equipment row plays
 ## special balls and tactical cards from the experimental deck or the direct
-## selection model (ADR 004); House is thrown when nothing is armed. Between
-## two-frame matches the run is paid and visits the Pro Shop (ADR 005); what it
-## owns (rack, Charms, deck, modifications) is what scores. Every roll
+## selection model (ADR 004); House is thrown when nothing is armed. A Division
+## (ADR 006) runs an opener, a feature and a rival boss, each a posted target in two
+## frames; won matches are paid and visit the Pro Shop (ADR 005), and what the run
+## owns (rack, Charms, deck, modifications) is what scores. Practice drops the
+## targets. Every roll
 ## runs in a fresh World3D so it depends only on its rack state and committed
 ## launch. Developmental presentation.
 signal roll_reported(report: Dictionary)
 signal frame_scored(scored: Dictionary)
 signal money_changed(money: int)
+signal attempt_finished(outcome: String)
+signal retry_requested
+signal menu_requested
 const Lane = preload("res://src/simulation/lane_spec.gd")
 const LaneWorld = preload("res://src/simulation/lane_world.gd")
 const Dressing = preload("res://src/presentation/lane_dressing.gd")
@@ -33,13 +39,18 @@ const Economy = preload("res://src/rules/economy.gd")
 const RunInventory = preload("res://src/rules/run_inventory.gd")
 const Shop = preload("res://src/rules/shop.gd")
 const ShopPanel = preload("res://src/presentation/shop_panel.gd")
+const Division = preload("res://src/rules/division_run.gd")
+const RivalRules = preload("res://src/rules/rival_rules.gd")
+const Reactions = preload("res://src/presentation/rival_reactions.gd")
+const DivisionHud = preload("res://src/presentation/division_hud.gd")
+const DIVISION_SPEC := "res://content/fixtures/lab_division.json"
+const NEAR_VICTORY := 0.75 # share of the target that makes a rival nervous
 ## Lab starting kit (fixture items, not the production kit): ten Wood pins and a deck
 ## of two copies of three lab ball types plus one tactical card. Direct selection
 ## shows the first two ball types and the tactical cards of the same collection.
 const LAB_DECK := ["ball.lab_value", "ball.lab_value", "ball.lab_mult", "ball.lab_mult", "ball.lab_coin", "ball.lab_coin", "consumable.lab_focus"]
 const LAB_RACK := ["pin.wood", "pin.wood", "pin.wood", "pin.wood", "pin.wood", "pin.wood", "pin.wood", "pin.wood", "pin.wood", "pin.wood"]
 const LAB_DIVISION := 1
-const MATCH_FRAMES := 2 # design §2: a match is two frames
 const HOUSE := "ball.house"
 const LANDSCAPE_HAND_WIDTH := 440.0
 const RESULT_HOLD_SEC := 1.2
@@ -108,6 +119,14 @@ var shop_panel: ShopPanel
 var settlement: Dictionary = {}
 var shop_message := ""
 var _choice: Dictionary = {} # pending shop choice: {kind, index, targets}
+var division: Division
+var division_spec: Dictionary = {}
+var hud: DivisionHud
+var reactions := Reactions.new()
+## Career record shared by the shell across attempts this run (in memory until
+## E10/E15 persist it): first_clears (rival id -> true), unlocked gates, intros_seen.
+var career: Dictionary = {}
+var attempt := 1
 
 func _ready() -> void:
 	SettingsPanel.with_defaults(settings)
@@ -148,7 +167,7 @@ func _ready() -> void:
 	status.add_theme_color_override("font_outline_color", Color.BLACK)
 	status.add_theme_constant_override("outline_size", 6)
 	status.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
-	status.offset_top = TOP_UI_HEIGHT + 4.0
+	status.offset_top = TOP_UI_HEIGHT + 100.0 # below the Division match bar
 	status.offset_left = 24
 	status.offset_right = -24
 	status.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -167,6 +186,15 @@ func _ready() -> void:
 		_names[entry.id] = entry.name
 	run = RunInventory.create(_catalogue, LAB_RACK, LAB_DECK)
 	shop = Shop.create(_catalogue, hash([equipment_seed, "shop"])) # its own stream, never the deck's
+	for key in ["first_clears", "unlocked", "intros_seen"]:
+		if not career.has(key):
+			career[key] = {} if key != "unlocked" else []
+	shop.unlocked = career.unlocked
+	division_spec = Contracts.read_json(DIVISION_SPEC)
+	var spec_errors := Division.validate_spec(division_spec, _catalogue)
+	if not spec_errors.is_empty():
+		push_error("Division spec invalid: " + str(spec_errors))
+	division = Division.create(division_spec, settings.get("practice", false))
 	score_panel = ScorePanel.new()
 	score_panel.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
 	score_panel.offset_top = -540.0
@@ -187,7 +215,7 @@ func _ready() -> void:
 	add_child(assist_panel)
 	shop_panel = ShopPanel.new()
 	shop_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	shop_panel.offset_top = TOP_UI_HEIGHT + 8.0
+	shop_panel.offset_top = TOP_UI_HEIGHT + 84.0 # below the Division match bar
 	shop_panel.offset_left = 12.0
 	shop_panel.offset_right = -12.0
 	shop_panel.offset_bottom = -12.0
@@ -200,6 +228,12 @@ func _ready() -> void:
 	shop_panel.choice_cancelled.connect(_on_choice_cancelled)
 	shop_panel.hide()
 	add_child(shop_panel)
+	hud = DivisionHud.new()
+	add_child(hud)
+	hud.layout(TOP_UI_HEIGHT, TOP_UI_HEIGHT + 300.0)
+	hud.intro_done.connect(_on_intro_done)
+	hud.retry_pressed.connect(func(): retry_requested.emit())
+	hud.menu_pressed.connect(func(): menu_requested.emit())
 	settings_panel = SettingsPanel.new()
 	settings_panel.settings = settings
 	settings_panel.changed.connect(_apply_settings)
@@ -246,7 +280,7 @@ func armed_ball_id() -> String:
 
 func _on_card(uid: String) -> void:
 	if state == "frame_done":
-		if equipment.can_retain() and match_frame < MATCH_FRAMES:
+		if equipment.can_retain() and not division.match_over():
 			keep_card = "" if keep_card == uid else uid
 		_refresh_hand()
 		return
@@ -291,15 +325,15 @@ func _refresh_hand() -> void:
 	if equipment.MODEL == "deck":
 		header = "Deck · draw %d · discard %d · used %d · House always ready" % [counts.draw, counts.discard, counts.exhausted]
 		if state == "frame_done":
-			header = "Tap one card to keep for next frame (optional)" if match_frame < MATCH_FRAMES else "Match over — the deck recombines and reshuffles"
+			header = "Tap one card to keep for next frame (optional)" if not division.match_over() else "Match over — the deck recombines and reshuffles"
 		elif cycling:
 			header = "Cycle: tap a card to discard it and draw one"
 	else:
 		header = "Bag · House always ready · specials %d uses left this match" % counts.special_uses
-	var choosing: bool = state == "aim" or (state == "frame_done" and equipment.can_retain() and match_frame < MATCH_FRAMES)
+	var choosing: bool = state == "aim" or (state == "frame_done" and equipment.can_retain() and not division.match_over())
 	card_hand.show_cards(cards, marks, header, equipment.MODEL == "deck", state == "aim" and equipment.can_cycle(), choosing)
 	card_hand.cycle_button.text = "Cancel" if cycling else "Cycle"
-	card_hand.visible = state not in ["scoring", "shop"]
+	card_hand.visible = state not in ["scoring", "shop", "intro", "division_over"]
 	# Bottom for thumbs while aiming; under the status line once the score panel is up.
 	# Landscape keeps the ball clear: a narrow two-row panel away from the assist side.
 	card_hand.set_anchors_preset(Control.PRESET_TOP_WIDE if state == "frame_done" else Control.PRESET_BOTTOM_WIDE)
@@ -313,8 +347,8 @@ func _refresh_hand() -> void:
 		card_hand.offset_right = card_hand.offset_left + LANDSCAPE_HAND_WIDTH
 	if state == "frame_done":
 		card_hand.grow_vertical = Control.GROW_DIRECTION_END
-		card_hand.offset_top = TOP_UI_HEIGHT + 110.0
-		card_hand.offset_bottom = TOP_UI_HEIGHT + 110.0
+		card_hand.offset_top = TOP_UI_HEIGHT + 170.0
+		card_hand.offset_bottom = TOP_UI_HEIGHT + 170.0
 	else:
 		card_hand.grow_vertical = Control.GROW_DIRECTION_BEGIN
 		card_hand.offset_top = -16.0
@@ -382,6 +416,11 @@ func _apply_settings() -> void:
 	assist_panel.offset_bottom = 330.0
 	if settings.assist and state == "aim" and lane:
 		_assist_preview(assist_panel.values())
+	# Practice applies to an attempt that has not thrown yet, otherwise to the next attempt.
+	if division != null and settings.get("practice", false) != division.practice and history.is_empty():
+		division = Division.create(division_spec, settings.practice)
+	if hud != null:
+		hud.reduced_motion = settings.reduced_motion
 	# A model switch applies now at the very start of a match, otherwise at the next match.
 	if settings.equipment != _equipment_model and (equipment == null or (state == "aim" and roll_index == 1 and match_frame == 1)):
 		_build_equipment()
@@ -402,6 +441,8 @@ func _process(delta: float) -> void:
 		var target := Lane.world(0.0, cam_f, lerpf(AIM_HEIGHT, 1.25, inverse_lerp(0.0, DECK_VIEW_F, cam_f)))
 		_camera.position = _camera.position.lerp(target, 1.0 - exp(-8.0 * delta))
 		_camera.look_at(Lane.world(0.0, minf(_camera.position.z * -1.0 + 6.0, Lane.HEAD_PIN_F + 0.35), 0.12))
+	if hud != null and hud.reaction.visible and reactions.visible_at(_clock_usec).is_empty():
+		hud.hide_reaction()
 	var ringing: bool = state == "holding" or (state == "aim" and settings.assist)
 	ring_radius = Ring.radius(_clock_usec - _ring_start_usec, settings.reduced_motion) if ringing else Ring.RING_MAX
 	_update_ring()
@@ -548,6 +589,10 @@ func _on_roll_finished(report: Dictionary) -> void:
 	frame_reports.append(report)
 	history.append(report)
 	_log_trial(report)
+	if report.knockdown_log.gutter:
+		_react("gutter")
+	elif report.roll_result.roll_index == 1 and report.roll_result.fallen_positions.size() == 10:
+		_react("strike")
 	state = "result"
 	_result_timer = 0.0
 	_update_status()
@@ -596,9 +641,14 @@ func _score_frame() -> void:
 		_frame_done()
 		return
 	var steps := ScoreLog.steps(result, built.frame, _names, built.owners)
+	# A rival's rule decides what the match banks; the calculation above stays as resolved.
+	var banked: Dictionary = RivalRules.bank(division.rules(), result)
+	for note in banked.notes:
+		steps.append({"phase": "rule", "symbol": "✕", "pin": 0, "text": note, "pin_value": steps[-1].pin_value, "mult": steps[-1].mult, "score": banked.score})
 	var income := run.credit_frame(result, built.frame)
+	var outcome: Dictionary = division.record_frame(banked.score)
 	scored_frames.append({"frame_number": frame_number, "match_number": match_number, "frame": built.frame, "result": result, "steps": steps,
-		"income": income, "money": run.money})
+		"income": income, "money": run.money, "banked": banked.score, "match_score": division.match_score, "match_over": outcome.over, "match_won": outcome.won})
 	money_changed.emit(run.money)
 	state = "scoring"
 	_update_status()
@@ -606,12 +656,26 @@ func _score_frame() -> void:
 
 func _on_scored() -> void:
 	var scored: Dictionary = scored_frames[-1]
-	total_score += int(scored.result.score)
+	total_score += int(scored.banked)
+	if scored.match_over:
+		_react("victory" if scored.match_won else "defeat")
+	elif not division.practice and division.match_score >= NEAR_VICTORY * division.target():
+		_react("near_victory")
+	elif scored.result.category == "open":
+		_react("open")
 	_frame_done()
 	frame_scored.emit(scored.duplicate(true))
 
 func _frame_done() -> void:
 	state = "frame_done"
+	next_rack.text = "Next Rack"
+	if division.match_over():
+		if division.outcome == "lost":
+			next_rack.text = "See Result"
+		elif division.outcome == "won":
+			next_rack.text = "Division Result"
+		else:
+			next_rack.text = "Collect & Shop"
 	next_rack.show()
 	next_rack.grab_focus()
 	_update_status()
@@ -619,8 +683,11 @@ func _frame_done() -> void:
 func _next_rack() -> void:
 	if state != "frame_done":
 		return
-	if match_frame >= MATCH_FRAMES:
-		_open_shop()
+	if division.match_over():
+		if division.is_finished():
+			_show_result()
+		else:
+			_open_shop()
 		return
 	_kept_last_frame = _item_of(keep_card) if not keep_card.is_empty() else ""
 	_advance_frame()
@@ -641,12 +708,13 @@ func _advance_frame() -> void:
 	next_rack.hide()
 	score_panel.hide()
 
-## Match end: used tactical cards leave the run, interest and payout are paid, and
-## the Pro Shop opens. The lab plays every match's two frames (targets are E09).
+## A won match: used tactical cards leave the run, interest and the payout (with
+## its unused-frame bonus) are paid, and the Pro Shop opens with the next match,
+## and the rival's rule, on show before anything is bought.
 func _open_shop() -> void:
 	run.drop_consumed(equipment.exhausted.duplicate())
-	settlement = run.settle_match(MATCH_FRAMES)
-	shop.open_visit(run, LAB_DIVISION)
+	settlement = run.settle_match(int(division.results[-1].frames))
+	shop.open_visit(run, int(division_spec.get("division", LAB_DIVISION)))
 	shop_message = ""
 	state = "shop"
 	next_rack.hide()
@@ -665,6 +733,7 @@ func _start_next_match() -> void:
 	_advance_frame()
 	match_number += 1
 	match_frame = 1
+	division.next_match()
 	if settings.equipment != _equipment_model or _equipment_model == "direct":
 		_build_equipment()
 	else:
@@ -673,6 +742,67 @@ func _start_next_match() -> void:
 		equipment.start_frame()
 	_clear_choices()
 	_new_roll()
+	if division.is_boss():
+		_show_intro()
+
+## The rival's entrance before the boss match: skippable, shorter once seen.
+func _show_intro() -> void:
+	var rival: Dictionary = division.rival()
+	var seen: bool = career.intros_seen.has(rival.id)
+	career.intros_seen[rival.id] = true
+	state = "intro"
+	hud.show_intro(rival, division.target(), RivalRules.summary(rival.rule), rival.first_clear.text, seen)
+	_update_status()
+
+func _on_intro_done() -> void:
+	if state != "intro":
+		return
+	state = "aim"
+	_ring_start_usec = _clock_usec
+	_react("entrance")
+	_update_status()
+
+## Rival reactions during the boss match only; they never pause or block input.
+func _react(event: String) -> void:
+	if division == null or not division.is_boss():
+		return
+	var key: String = reactions.react(event, _clock_usec)
+	if not key.is_empty():
+		hud.show_reaction(division.rival(), key)
+
+## Attempt over: the boss defeated (first clear banks its Career reward at once) or
+## a target missed (the unmet score and the active rule are shown).
+func _show_result() -> void:
+	state = "division_over"
+	next_rack.hide()
+	score_panel.hide()
+	var last: Dictionary = division.results[-1]
+	var lines: Array = []
+	for r in division.results:
+		lines.append("%s: %d / %d %s" % [String(r.kind).capitalize(), r.score, r.target, "✓" if r.won else "✗"])
+	var title: String
+	if division.outcome == "won":
+		var rival: Dictionary = division.rival()
+		title = "%s defeated — Division cleared!" % rival.name
+		if not career.first_clears.has(rival.id):
+			career.first_clears[rival.id] = true
+			for gate in rival.first_clear.unlocks:
+				if gate not in career.unlocked:
+					career.unlocked.append(gate)
+			lines.append("First clear: " + rival.first_clear.text)
+		else:
+			lines.append("Already cleared before; no new reward.")
+	else:
+		title = "Attempt over — %s lost" % String(last.kind).capitalize()
+		lines.append("Scored %d of the %d target." % [last.score, last.target])
+		for rule in division.rules():
+			lines.append("Rule in force: " + RivalRules.summary(rule))
+		if not career.first_clears.is_empty():
+			lines.append("Career progress kept: %d rival(s) cleared." % career.first_clears.size())
+	lines.append("Attempt %d · total %d · $%d left" % [attempt, total_score, run.money])
+	hud.show_result(title, "\n".join(lines), division.outcome == "won")
+	_update_status()
+	attempt_finished.emit(division.outcome)
 
 func _on_offer(index: int) -> void:
 	if state != "shop" or not _choice.is_empty():
@@ -757,6 +887,22 @@ func _on_sell(ref: String) -> void:
 	shop_message = ("Sold %s for $%d." % [label, value]) if errors.is_empty() else "Can't sell: %s." % ", ".join(errors)
 	_refresh_shop()
 
+## What comes next, shown before any purchase: the target and, for the boss, the
+## rival, its rule and the first-clear reward.
+func _next_match_preview() -> String:
+	if division.practice:
+		return "Next: another practice match (no target)."
+	var next: Dictionary = division.spec.matches[division.match_index + 1]
+	var text := "Next: %s — target %d in two frames." % [next.name, int(next.target)]
+	var rival: Dictionary = division.rival_for(next)
+	if not rival.is_empty():
+		text += "\n%s: %s\nFirst clear: %s" % [rival.name, RivalRules.summary(rival.rule),
+			rival.first_clear.text if not career.first_clears.has(rival.id) else "already cleared"]
+	else:
+		var boss: Dictionary = division.boss()
+		text += "\nBoss later: %s (%s)." % [division.rival_for(boss).name, RivalRules.summary(division.rival_for(boss).rule).trim_suffix(".")]
+	return text
+
 ## A readable name for an owned place, with its modification.
 func _ref_label(ref: String) -> String:
 	var entry = run.entry_at(ref)
@@ -824,7 +970,7 @@ func _refresh_shop() -> void:
 			sellables.append({"ref": owned.ref, "label": "Sell %s +$%d" % [_ref_label(owned.ref), run.sale_value(owned.ref)]})
 	var summary := "Match %d paid: payout $%d · interest $%d (on $%d held) · item income $%d" % [settlement.match, settlement.payout,
 		settlement.interest, settlement.balance_before, settlement.item_income]
-	shop_panel.show_view({"title": "Pro Shop", "summary": summary, "money": run.money, "offers": offers,
+	shop_panel.show_view({"title": "Pro Shop", "summary": summary, "preview": _next_match_preview(), "money": run.money, "offers": offers,
 		"reroll_cost": shop.reroll_cost(), "can_reroll": run.money >= shop.reroll_cost(),
 		"removal_price": Economy.REMOVAL_PRICE, "can_remove": run.money >= Economy.REMOVAL_PRICE and not run.cards.is_empty(),
 		"rack": rack_text, "sellables": sellables, "message": shop_message, "columns": 5 if size.x > size.y else 3})
@@ -869,7 +1015,7 @@ func _over_ui(position: Vector2) -> bool:
 	if position.y < TOP_UI_HEIGHT:
 		return true
 	var global := get_global_transform() * position
-	for control in [settings_panel, assist_panel, next_rack, card_hand, shop_panel]:
+	for control in [settings_panel, assist_panel, next_rack, card_hand, shop_panel] + (hud.blocking_controls() if hud else []):
 		if control.visible and control.get_global_rect().has_point(global):
 			return true
 	return false
@@ -898,7 +1044,8 @@ func _update_status() -> void:
 	if status == null:
 		return
 	_refresh_hand()
-	if state == "shop":
+	_refresh_hud()
+	if state in ["shop", "intro", "division_over"]:
 		status.text = ""
 		return
 	var lead := "Match %d · Frame %d · Roll %d · $%d · Target %+.2f" % [match_number, frame_number, roll_index, run.money, target_x]
@@ -931,6 +1078,33 @@ func _update_status() -> void:
 			if not scored_frames.is_empty() and scored_frames[-1].frame_number == frame_number:
 				var result: Dictionary = scored_frames[-1].result
 				status.text += " · %s %s · Total %s" % [String(result.category).capitalize(), ScoreLog._n(result.score), ScoreLog._n(total_score)]
+
+## The match bar: which match, its target, the banked score and frames left; the
+## badge inspects the rival's rule (boss) or previews the boss (earlier matches).
+func _refresh_hud() -> void:
+	if hud == null or division == null:
+		return
+	var m: Dictionary = division.current()
+	var left: int = division.frames_left()
+	var frames := "%d frame%s left" % [left, "" if left == 1 else "s"]
+	var view := {"text": "", "badge": "", "rule_text": ""}
+	if division.practice:
+		view.text = "Practice · no target · score %d · %s" % [division.match_score, frames]
+	else:
+		var index: int = division.spec.matches.find(m) + 1
+		view.text = "%s %d/3 · Target %d · Score %d · %s" % [m.name, index, division.target(), division.match_score, frames]
+		var boss: Dictionary = division.boss()
+		var rival: Dictionary = division.rival_for(boss)
+		var reward: String = rival.first_clear.text if not career.first_clears.has(rival.id) else "already cleared"
+		if division.is_boss():
+			view.text = "%s · %s" % [rival.name, view.text]
+			view.badge = "Rule: %s ⓘ" % _names.get(rival.rule, rival.rule)
+		else:
+			view.badge = "Boss: %s ⓘ" % rival.name
+		view.rule_text = "%s — target %d in two frames.\n%s\nFirst clear: %s" % [rival.name, int(boss.target), RivalRules.summary(rival.rule), reward]
+	hud.show_match(view)
+	if not division.is_boss() or reactions.visible_at(_clock_usec).is_empty():
+		hud.hide_reaction()
 
 func _describe(report: Dictionary) -> String:
 	var knockdowns: Dictionary = report.knockdown_log

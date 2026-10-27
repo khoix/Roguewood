@@ -121,6 +121,7 @@ func _run() -> void:
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.assist)
+	await _focus_accept(lab.settings_panel.practice) # E09: targets off; this journey tests its own subsystem
 	await _focus_accept(lab.settings_panel.close)
 	_check(lab.run.money == Economy.STARTING_MONEY and lab.status.text.contains("$%d" % Economy.STARTING_MONEY), "the run starts with $6 on show")
 	await _first_match()
