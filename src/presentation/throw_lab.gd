@@ -953,8 +953,9 @@ func _career_lines() -> Array:
 		if int(career.mastery.get(objective.id, {}).get("career_attempt", -1)) == career_attempt:
 			lines.append("Mastery complete: %s — %s" % [objective.name, objective.reward])
 	for gate in CareerProfile.gates_from(career, career_attempt):
-		if String(career.awards[gate].source).begins_with("mastery:"):
-			continue # listed with its objective above
+		var source := String(career.awards[gate].source)
+		if source.begins_with("mastery:") or source.begins_with("championship:"):
+			continue # announced with its objective or title
 		var items: Array = career_graph.get("items_by_gate", {}).get(gate, [])
 		var gate_name: String = career_graph.get("gates", {}).get(gate, {}).get("name", gate)
 		if items.is_empty():
