@@ -22,9 +22,22 @@ JOURNEYS = {
             ("hand", "keep", "match_over", "exhausted", "direct"), 900, ["--fixed-fps", "60"]),
     "J05": ("res://tests/shop_journey.gd", "ROGUEWOOD_J05_OK", "artifacts/e08",
             ("shop", "bought", "funds", "place_pin", "full_slot", "removed", "landscape", "match2"), 900, ["--fixed-fps", "60"]),
-    "J06": ("res://tests/division_journey.gd", "ROGUEWOOD_J06_OK", "artifacts/e09",
-            ("preview", "shop_preview", "intro", "boss", "lost", "won", "lost_again"), 900, ["--fixed-fps", "60"]),
+    "J06": ("res://tests/division_journey.gd", "ROGUEWOOD_J06_OK", "artifacts/e13",
+            ("slice_preview", "slice_echo", "slice_shop", "slice_dead_straight", "slice_cleared", "slice_clean_sweep", "slice_won",
+             "slice_lost_again", "preview", "shop_preview", "intro", "boss", "lost", "won", "lost_again"), 1500, ["--fixed-fps", "60"]),
+    "J07": ("res://tests/save_journey.gd", "ROGUEWOOD_J07_OK", "artifacts/e10",
+            ("continue_menu", "resumed_hand", "resumed_roll", "resumed_frame", "resumed_shop", "resumed_reroll",
+             "resumed_roll2", "career_kept", "fallback", "no_save"), 300, ["--fixed-fps", "60"]),
 }
+# Content set per journey (E13, ADR 008): mechanism journeys keep the lab fixtures;
+# the shell journey and J06 stage 1 play the production slice (the game's default).
+CONTENT = {"J02": "lab", "J03": "lab", "J04": "lab", "J05": "lab", "J07": "lab", "J08": "lab"}
+# Multi-stage journeys whose stages are different scripts, content and save
+# directories: J06 plays the slice's two Divisions, then the E09 lab Division.
+STAGE_RUNS = {"J06": [("res://tests/slice_journey.gd", "slice"), ("res://tests/division_journey.gd", "lab")]}
+# Journeys that restart the game: each stage is a separate engine process sharing
+# one save directory; stage k prints ROGUEWOOD_<journey>_STAGE<k>_OK.
+STAGES = {"J07": 10}
 
 
 def engine():
@@ -61,7 +74,7 @@ def run(args, marker=None, log_path=None, timeout=120):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["doctor", "import", "smoke", "export", "unit", "integration", "content", "physics", "shell", "e2e", "experiment"])
+    parser.add_argument("command", choices=["doctor", "import", "smoke", "export", "unit", "integration", "content", "physics", "shell", "e2e", "experiment", "slice"])
     parser.add_argument("--journey", choices=sorted(JOURNEYS), default="J01")
     parser.add_argument("--rendered", action="store_true", help="Use a real display; on Linux run via xvfb-run")
     parser.add_argument("--inject-failure", action="store_true", help="Exercise J01 failure artifacts")
@@ -87,6 +100,16 @@ def main():
         report.unlink(missing_ok=True)
         run([exe, "--headless", "--path", str(ROOT), "--script", "res://tools/deck_experiment.gd", "--", "--runs=1000",
              "--out=" + str(report)], "ROGUEWOOD_EXPERIMENT_OK", artifact_dir / "experiment.log", timeout=600)
+    elif args.command == "slice":
+        # E13 seeded build-strategy simulation of the vertical slice (ADR 008), with a
+        # fresh Career and with both rival unlocks.
+        artifact_dir = ROOT / "artifacts/e13"
+        artifact_dir.mkdir(parents=True, exist_ok=True)
+        for label, flags in [("locked", []), ("unlocked", ["--unlocked"])]:
+            report = artifact_dir / ("slice-strategies-%s.json" % label)
+            report.unlink(missing_ok=True)
+            run([exe, "--headless", "--path", str(ROOT), "--script", "res://tools/slice_strategies.gd", "--", "--runs=400",
+                 "--out=" + str(report), *flags], "ROGUEWOOD_SLICE_SIM_OK", artifact_dir / ("slice-%s.log" % label), timeout=900)
     elif args.command == "e2e":
         script, marker, artifacts, captures, timeout, engine_flags = JOURNEYS[args.journey]
         flags = ["--audio-driver", "Dummy", *engine_flags]
@@ -99,11 +122,37 @@ def main():
         artifact_dir.mkdir(parents=True, exist_ok=True)
         for old in artifact_dir.glob("*.png"):
             old.unlink()
-        extra = ["--artifact-dir=" + str(artifact_dir)]
-        if args.inject_failure:
-            extra.append("--inject-failure")
-        run([exe, *flags, "--path", str(ROOT), "--script", script, "--", *extra],
-            marker, artifact_dir / "journey.log", timeout=timeout)
+        # Every journey saves into its own fresh directory, never the user's saves.
+        save_dir = artifact_dir / "saves"
+        shutil.rmtree(save_dir, ignore_errors=True)
+        save_dir.mkdir(parents=True)
+        extra = ["--artifact-dir=" + str(artifact_dir), "--save-dir=" + str(save_dir),
+                 "--content=" + CONTENT.get(args.journey, "slice")]
+        stages = STAGES.get(args.journey, 0) or len(STAGE_RUNS.get(args.journey, []))
+        if not stages:
+            if args.inject_failure:
+                extra.append("--inject-failure")
+            run([exe, *flags, "--path", str(ROOT), "--script", script, "--", *extra],
+                marker, artifact_dir / "journey.log", timeout=timeout)
+        else:
+            logs = []
+            for stage in range(1, stages + 1):
+                stage_script, stage_extra = script, extra + ["--stage=%d" % stage]
+                if args.journey in STAGE_RUNS:
+                    stage_script, content = STAGE_RUNS[args.journey][stage - 1]
+                    stage_dir = save_dir / ("stage%d" % stage)
+                    stage_dir.mkdir()
+                    stage_extra = ["--artifact-dir=" + str(artifact_dir), "--save-dir=" + str(stage_dir), "--content=" + content, "--stage=%d" % stage]
+                if args.inject_failure and stage == stages:
+                    stage_extra.append("--inject-failure")
+                stage_marker = marker if stage == stages else marker.replace("_OK", "_STAGE%d_OK" % stage)
+                log = artifact_dir / ("journey-stage%d.log" % stage)
+                try:
+                    run([exe, *flags, "--path", str(ROOT), "--script", stage_script, "--", *stage_extra], stage_marker, log, timeout=timeout)
+                finally:
+                    if log.is_file():
+                        logs.append(log.read_text())
+                    (artifact_dir / "journey.log").write_text("".join(logs))
         if args.rendered and not all((artifact_dir / (name + ".png")).is_file() for name in captures):
             raise RuntimeError(f"Rendered {args.journey} missing required screenshots")
     elif args.command == "shell":

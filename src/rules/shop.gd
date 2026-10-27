@@ -214,6 +214,10 @@ static func from_dict(data: Dictionary, catalogue: Dictionary) -> RefCounted:
 	shop.rerolls = int(data.rerolls)
 	shop.division = int(data.division)
 	shop.unlocked = data.unlocked.duplicate()
-	shop.selection_log = data.selection_log.duplicate(true)
+	shop.selection_log = data.selection_log.map(func(e):
+		var entry: Dictionary = e.duplicate()
+		for key in ["visit", "reroll", "slot", "eligible"]:
+			entry[key] = int(entry[key])
+		return entry)
 	shop._rng.state = int(data.rng_state)
 	return shop

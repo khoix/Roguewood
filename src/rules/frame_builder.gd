@@ -4,6 +4,7 @@ extends RefCounted
 ## supplies effects). Pure: no scene, physics or presentation access.
 const Contracts = preload("res://src/contracts/contracts.gd")
 const Rules = preload("res://src/rules/frame_rules.gd")
+const Lane = preload("res://src/simulation/lane_spec.gd")
 const LAB_CATALOGUE := "res://content/fixtures/lab_catalogue.json"
 
 ## The throw lab's fixed loadout: ten Wood pins, no Charms. Not a catalogue claim.
@@ -25,12 +26,24 @@ static func item(catalogue: Dictionary, item_id: String) -> Dictionary:
 			return entry
 	return {}
 
-## Returns {ok, frame, owners} or {ok=false, errors}. Reports are LaneWorld reports
-## ({launch, roll_result, knockdown_log}) in roll order. The loadout gives pins by
-## position, ordered Charms and optional pin_mods (position -> pin_mod id), whose
-## effects join that pin's. extras maps a roll index to the tactical cards and ball
-## modification played with that roll; their effects join the roll's.
-static func build(loadout: Dictionary, catalogue: Dictionary, reports: Array, extras: Dictionary = {}) -> Dictionary:
+## The first pin a roll's ball knocked down directly (0 if none): Echo's target.
+static func first_direct(knockdown_log: Dictionary) -> int:
+	var best := 0
+	var sequence := 1 << 30
+	for entry in knockdown_log.get("knockdowns", []):
+		if entry.cause == "ball" and int(entry.sequence) < sequence:
+			sequence = int(entry.sequence)
+			best = int(entry.position)
+	return best
+
+## Returns {ok, frame, owners} or {ok=false, errors}: a v2 frame (ADR 008). Reports
+## are LaneWorld reports ({launch, roll_result, knockdown_log}) in roll order. The
+## loadout gives pins by position, ordered Charms, optional pin_mods (position ->
+## pin_mod id), whose effects join that pin's, and optional run growth
+## (pin_growth: position -> count, charm_growth: [count per Charm slot]). extras
+## maps a roll index to the tactical cards and ball modification played with that
+## roll; their effects join the roll's. context: {match_frame, strike_streak}.
+static func build(loadout: Dictionary, catalogue: Dictionary, reports: Array, extras: Dictionary = {}, context: Dictionary = {}) -> Dictionary:
 	var errors: Array[String] = []
 	if not is_complete(reports):
 		errors.append("frame is not complete")
@@ -55,7 +68,9 @@ static func build(loadout: Dictionary, catalogue: Dictionary, reports: Array, ex
 				for _e in mod.effects:
 					effect_owners.append(mod.id)
 		owners["pin:%d" % position] = effect_owners
-		pins.append({"position": position, "item_id": pin.id, "effects": effects})
+		var pin_growth: Dictionary = loadout.get("pin_growth", {})
+		pins.append({"position": position, "item_id": pin.id, "effects": effects,
+			"growth": int(pin_growth.get(position, pin_growth.get(str(position), 0)))})
 	var rolls: Array = []
 	for report in reports:
 		var result: Dictionary = report.roll_result
@@ -77,15 +92,19 @@ static func build(loadout: Dictionary, catalogue: Dictionary, reports: Array, ex
 				effect_owners.append(extra.id)
 		owners["roll:%d" % int(result.roll_index)] = effect_owners
 		rolls.append({"roll_index": int(result.roll_index), "ball_id": ball.id, "fallen_positions": result.fallen_positions.duplicate(),
-			"accuracy": result.accuracy, "effects": effects})
+			"accuracy": result.accuracy, "effects": effects, "first_direct": first_direct(report.knockdown_log),
+			"curved": Lane.is_curved(float(report.launch.spin))})
 	var charms: Array = []
-	for charm_id in loadout.charms:
+	var charm_growth: Array = loadout.get("charm_growth", [])
+	for i in loadout.charms.size():
+		var charm_id: String = loadout.charms[i]
 		var charm := item(catalogue, charm_id)
 		if charm.is_empty() or charm.category != "charm":
 			errors.append("unknown Charm item: %s" % charm_id)
 			continue
-		charms.append({"item_id": charm.id, "effects": charm.effects.duplicate(true)})
-	var frame := {"schema_version": 1, "pins": pins, "rolls": rolls, "charms": charms}
+		charms.append({"item_id": charm.id, "effects": charm.effects.duplicate(true), "growth": int(charm_growth[i]) if i < charm_growth.size() else 0})
+	var frame := {"schema_version": 2, "pins": pins, "rolls": rolls, "charms": charms,
+		"context": {"match_frame": int(context.get("match_frame", 1)), "strike_streak": int(context.get("strike_streak", 0))}}
 	if errors.is_empty():
 		errors.append_array(Rules.validate(frame))
 	if not errors.is_empty():

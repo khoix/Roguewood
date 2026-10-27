@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-10-27. Agent work: E01–E09 and E11–E12 DONE. E11/E09 merged; E12 implementation is on its existing delivery branch and is not yet in main. Codex resumes on codex/roguewood-build.
+Updated: 2026-10-27. Agent work: E01–E13 DONE (owner merge is approval; see AGENTS.md). E10 and E13 are complete on `claude/roguewood-build` (not yet merged); E12 merged to main by PR #8. E14 IN_PROGRESS (Codex, `codex/roguewood-build`). Provisional decisions: E07 equipment model (waits for the blocked E13 device play session), E08 prices, E09/E13 targets and E13 item numbers (E24). Device gates: E05 real-phone trials, phone readability and the E13 play session (E26).
 
 ## Read first
 
@@ -14,7 +14,7 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 ## Current state
 
 - Integration: `main`. The repository owner merges task branches by pull request: PR #1 (`codex/roguewood-build`, E01–E03) and PR #2 (`claude/roguewood-build` at `7ddb8af`, E04) were merged by the owner on 2026-10-26, and the `main` head `d9fda660a35f5e298733d059c210120efa62e03e` has a tree identical to `7ddb8af`.
-- Claude's work branch: `claude/roguewood-build`, restarted from `main` after each owner merge; for E09 from `121b74f` (PR #6). `codex/roguewood-build` and `codex/roguewood-e11-art` are historical.
+- Claude's work branch: `claude/roguewood-build`, restarted from `main` after each owner merge; for E10 from `1132fca` (PR #7). `codex/roguewood-build` and `codex/roguewood-e11-art` are historical.
 - E01 DONE: implementation, independent review, clean-checkout export, and remote CI passed. No gameplay implemented.
 - Source baseline: main 30d76547ec2f49fa3b1be609f146cdd7b913695d; claim commit f63ea6ca6f08357f6b2c32587811ad49ff5f17d9.
 - E02 DONE: implementation cdb48595fe28d08e9c1bf20333b63061dcc49412; independent review and CI40245188289 PASS. See handoffs/E02.md and CONTRACTS.md.
@@ -23,11 +23,13 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - E05 (accepted, below): implementation `0ad08c299f0f478eeed846bf9513853cff63006d` on `claude/roguewood-build`; local suites and CI 40324357857 PASS; the physics digest `75d1a3c0…` and J02 curve outcomes are identical locally and in CI. Real-phone trials are NOT RUN (no device or mobile build); the protocol is in playtests/E05-device-trials.md. See handoffs/E05.md and decisions/003-spin-curve-input.md.
 - E06 (accepted, below): implementation `b325c5641e10a3cbb160d4199d4384fcfa647ef2` on `claude/roguewood-build` (stacked on E05); local suites and CI 40375789785 PASS. J03 strike 560, spare 240 and open 70 are identical locally and in CI. See handoffs/E06.md.
 - E05 and E06 were accepted by the repository owner through the PR #3 merge (main `4af230b`); no review comments. E05's real-phone trials remain an open gate (NOT RUN).
-- E11 DONE: owner approved by merging PR #4 (cbca3c0). No separate owner review gate remains.
+- E11 (Codex): `codex/roguewood-e11-art` (head `2882483`) was merged by the owner through PR #4 (main `cbca3c0`). E11 DONE: the owner confirmed on 2026-10-27 that merging PR #4 is the visual approval its handoff was waiting for. Physical-phone readability remains a device gate for E12/E26, as for E05. It only touches docs/art, assets/art_direction and its own workflow.
 - E07 DONE: accepted by the owner through the PR #5 merge (main `1d2ea35`), no review comments. Implementation `bec334158db1ec743b7cb3e476d9b47224a7d950` on `claude/roguewood-build`. The deck and direct models, the lab card row, scoring of played cards, the structural experiment and J04 pass locally; CI 40435623701 PASS (run on `e1c8f9b`, which adds only the checkpoint; artifact `journeys` 12704037055); J04 and experiment output identical to local. The equipment decision is **provisional** (decisions/004-deck-draw-cycle-experiment.md): the deck stays the default and direct selection stays a lab option until the E13 vertical-slice playtest. See handoffs/E07.md.
 - E08 DONE: accepted by the owner through the PR #6 merge (main `121b74f`), no review comments. Implementation `7b57919bad1b789f8ef18db48289f40cceb52029` on `claude/roguewood-build`. The run wallet and ledger, inventory slots and limits, the seeded Pro Shop with explicit replacement or cancel, modifications, removal, and purchases scoring in play all pass locally (unit with mutation checks, J01–J05 headless and rendered); CI 40442532881 PASS (run on `38d9c75`, which adds only the checkpoint; artifact `journeys` 12706493183); J04 and J05 output identical to local. Prices and rates are provisional (decisions/005-shop-and-match-economy.md). See handoffs/E08.md.
-- E09 REVIEW: implementation `fcea7f3b36f40077628c5a33bab89c819baaa1b7` on `claude/roguewood-build` (E09 commit `c427fad` plus the J05 scroll fix). The opener, feature and boss with fixed targets, The Custodian's Clean Sweep, previews before every shop, the skippable introduction, non-blocking reactions, win/loss/retry and the in-memory first-clear record pass locally (unit with mutation checks, J01–J06 headless and rendered); CI 40451844709 PASS (run on `90b9270`, which adds only the checkpoint; artifact `journeys` 12711515136); J06 output identical to local. Targets are provisional (decisions/006-division-loop-and-rival.md). See handoffs/E09.md.
-- Active: none. E09 awaits owner review.
+- E09 DONE: accepted by the owner through the PR #7 merge (main `1132fca`), no review comments. Implementation `fcea7f3b36f40077628c5a33bab89c819baaa1b7` on `claude/roguewood-build` (E09 commit `c427fad` plus the J05 scroll fix). The opener, feature and boss with fixed targets, The Custodian's Clean Sweep, previews before every shop, the skippable introduction, non-blocking reactions, win/loss/retry and the in-memory first-clear record pass locally (unit with mutation checks, J01–J06 headless and rendered); CI 40451844709 PASS (run on `90b9270`, which adds only the checkpoint; artifact `journeys` 12711515136); J06 output identical to local. Targets are provisional (decisions/006-division-loop-and-rival.md). See handoffs/E09.md.
+- E10 DONE (owner policy: completed implementation and verification; not yet merged to main): implementation `8e4edd5fa99651f5b5d91cde5fb5c8ab1ab0bb6d` on `claude/roguewood-build`. Checksummed atomic saves with backup and quarantine, versioned attempt snapshots at every committed step, committed-throw re-simulation, no double banking, purchases or rerolls by reload, a separate idempotent Career file, Continue and save notices, golden v1 saves, and J07 across ten real process restarts all pass locally; CI 40460928513 PASS on `8e4edd5` (artifact `journeys` 12715071786; J07's ten stages ran in both modes with values identical to local). See decisions/007-attempt-saves-and-recovery.md and handoffs/E10.md.
+- E13 DONE (owner policy: completed implementation and verification; not yet merged to main): on `claude/roguewood-build` (implementation `98cc2aa`, building on `5aac9d2` and `aea54e0`; CI 40524506207 PASS, artifact `journeys` 12744012079; see handoffs/E13.md). Catalogue/frame contract v2, production batch E13-S01, the two-Division House League with The Surveyor and The Custodian, content sets, attempt saves v2, J06 across both Divisions, and the seeded strategy simulation. The real-device play session is BLOCKED (docs/playtests/E13-slice-playtest.md). See decisions/008-vertical-slice.md.
+- Active: E14 (Codex, `codex/roguewood-build`).
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
@@ -50,12 +52,12 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E06 — Frame scoring and readable resolution | DONE | Claude | main (PR #3) | b325c56; CI 40375789785 PASS; owner merge |
 | E07 — Deck draw and cycle experiment | DONE (decision provisional) | Claude | main (PR #5) | bec3341; owner merge; CI 40435623701 PASS (run on `e1c8f9b`, which adds only the checkpoint; artifact `journeys` 12704037055); J04 and experiment output identical to local; ADR 004 provisional; E07 handoff |
 | E08 — Shop and match economy | DONE (prices provisional) | Claude | main (PR #6) | 7b57919; owner merge; CI 40442532881 PASS; ADR 005 provisional; E08 handoff |
-| E09 — Single Division loop and rival | DONE | Claude | main (PR #7) | fcea7f3; CI 40451844709 PASS; ADR 006 provisional; E09 handoff |
-| E10 — Attempt saves and recovery | NOT_STARTED | unassigned | — | See dependency graph |
-| E11 — Art bible and representative still scene | DONE | Codex | main (PR #4) | 2882483; CI 40428621822 PASS; owner merge is approval |
-| E12 — Representative motion and visual review | DONE | Codex | codex/roguewood-build | Implementation 90f5690; handoff 046d109; CI 40444945503 + 40444945245 PASS; consolidated on codex/roguewood-build; not yet merged to main |
-| E13 — Vertical-slice integration | NOT_STARTED | unassigned | — | See dependency graph |
-| E14 — Seeded eight-Division progression | IN_PROGRESS | Codex | codex/roguewood-build | Generator stage tested across 200 seeds; live integration/J09 remain; handoffs/E14.md |
+| E09 — Single Division loop and rival | DONE (targets provisional) | Claude | main (PR #7) | fcea7f3; CI 40451844709 PASS; ADR 006 provisional; E09 handoff |
+| E10 — Attempt saves and recovery | DONE | Claude | claude/roguewood-build (not yet merged) | 8e4edd5; CI 40460928513 PASS; ADR 007; E10 handoff |
+| E11 — Art bible and representative still scene | DONE | Codex | main (PR #4) | 2882483; E11 CI 40428621822 PASS; owner approval by merge (confirmed 2026-10-27) |
+| E12 — Representative motion and visual review | DONE | Codex | main (PR #8) | Implementation 90f5690; handoff 046d109; CI 40444945503 + 40444945245 PASS; merged by PR #8 (main 9225f7c) |
+| E13 — Vertical-slice integration | DONE (device play session blocked) | Claude | claude/roguewood-build (not yet merged) | 98cc2aa (with 5aac9d2, aea54e0); CI 40524506207 PASS; ADR 008; E13 handoff |
+| E14 — Seeded eight-Division progression | IN_PROGRESS | Codex | codex/roguewood-build | Codex checkpoint on its branch (a104b36 at E13 completion) |
 | E15 — Career persistence and unlock graph | NOT_STARTED | unassigned | — | See dependency graph |
 | E16 — Clubhouse and collection UI | NOT_STARTED | unassigned | — | See dependency graph |
 | E17 — Catalogue and unlock authoring batches | NOT_STARTED | unassigned | — | See dependency graph |
@@ -74,19 +76,12 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 
 ## Active claims and ownership
 
-E09 claim (2026-10-27):
-- Owner/coordinator: Claude (single-agent session). Reviewer: the repository owner by PR, unless an agent reviewer is requested.
-- Branch: `claude/roguewood-build`, restarted from main; base SHA `121b74f` (PR #6 merge). Dependencies: E06 and E08 (DONE).
-- Scope:
-  - A pure, serializable Division run: opener, feature and boss matches with fixed posted targets; a match ends when the target is crossed (after that frame resolves) or is lost after two frames; shops between matches with the unused-frame payout; victory, failure and retry.
-  - One rival (The Custodian, Clean Sweep: only strikes and spares bank points) with its rule applied in scoring and named in the calculation log; rule, target and first-clear reward shown before the shop decisions that precede the boss.
-  - Presentation: a match HUD (target, score, frames left, inspectable rule badge), a skippable rival introduction (shortened after the first encounter, static under reduced motion), event-driven reactions with precedence and cooldown that never block input, and result screens with Retry and navigation.
-  - A session-scoped (in-memory) first-clear record that unlocks a shop gate and survives later losses and retries; durable Career persistence remains E10/E15.
-  - A Practice setting (no targets) so throw, scoring, deck and shop journeys keep testing their subsystems; J06 for the Division.
-- Lab fixtures: content/fixtures/lab_division.json (Division spec and rival) and a boss_rule fixture in lab_catalogue.json, completeness false. Developmental portrait only; final rival art and animation are E21.
-- Exclusive paths: src/rules/division_run.gd, src/rules/rival_rules.gd, src/presentation/division_hud.gd, src/presentation/rival_reactions.gd, the lab's match/Division flow in src/presentation/throw_lab.gd, tests/division_test.gd, tests/division_journey.gd, content/fixtures/lab_division.json, content/fixtures/lab_catalogue.json, docs/decisions/006-*.md, docs/handoffs/E09.md.
-- Shared files (coordinator-owned this session): src/rules/score_log.gd (rule step), throw_settings_panel.gd (Practice), the earlier journeys (enable Practice), src/bootstrap/* (attempts, retry, first-clear record), tests/run_tests.gd, tools/qa.py, the CI workflow, CONTRACTS, DEVELOPMENT, AGENTS, README and this checkpoint.
-- Out of scope: AI bowling turns; the eight-Division campaign and seeded League generation (E14); saves (E10); Career persistence (E15); final rival art, animation and lane treatments (E21); other boss rules (E17/E18).
+No active Claude claim (E13 complete). Codex holds the E14 claim on `codex/roguewood-build` (exclusive paths src/procedural/, its tests and tools, handoffs/E14.md).
+
+E13 → E14 coordination:
+- `src/rules/league_run.gd` (LeagueRun) chains DivisionRun-format specs and is ready for generated schedules; a Division with `championship: true` may bring back a boss already met (the validator mismatch Codex's probe reported is fixed). Distinct bosses may share a rule.
+- `src/rules/content_set.gd` loads a catalogue, League and kit; attempt saves (schema 2) store the League as `{index, practice, done, current}` with `content_set`.
+- Live wiring of generated schedules into the lab, shell and saves (throw_lab.gd, bootstrap.gd, attempt_snapshot.gd, a new content set or League source) is E14's integration work; coordinate edits to those shared files through this checkpoint.
 
 Standing user preferences:
 - Log agent work only; owner merge means approval. Do not mark completed milestones pending the owner. Integration facts are separate.
@@ -96,9 +91,9 @@ Standing user preferences:
 
 ## Batch queue and content completeness
 
-No batches allocated yet. Coordinator allocates E17-Dxx / E18-Cxx / E19-Axx / E20-Vxx / E21-Rxx / E22-Lxx / E26-Pxx with explicit scopes. Expected content totals: 24 balls, 32 pins, 16 ball modifications, 16 pin modifications, 100 Charms, 24 consumables, 16 shop upgrades, 12 lane conditions, 20 boss rules, 10 kits; six League specs separate.
+Batch E13-S01 (E13, delivered): 25 production definitions in content/catalogue.json — balls house, hook, hammer, echo; pins wood, ruby, gold, anchor, grower, rubber; Charms flat_bonus, finisher, spare_change, lone_survivor, hook_artist, house_favorite, gold_rush, turkey_club, patient_investor, last_chance, encore, standing_order; boss rules dead_straight, clean_sweep; kit house. Flags: authored, mechanics, automated_validation, unlock_assigned true; artwork, effects_audio, integrated false. Production counts against release targets: balls 4/24, pins 6/32, Charms 12/100, boss rules 2/20, kits 1/10; modifications, consumables, upgrades and lane conditions 0. No further batches allocated. Coordinator allocates E17-Dxx / E18-Cxx / E19-Axx / E20-Vxx / E21-Rxx / E22-Lxx / E26-Pxx with explicit scopes. Expected content totals: 24 balls, 32 pins, 16 ball modifications, 16 pin modifications, 100 Charms, 24 consumables, 16 shop upgrades, 12 lane conditions, 20 boss rules, 10 kits; six League specs separate.
 
-Content registry: content/catalogue.json is empty by design; E02 defines validated schema/completeness fields, E17 populates production items. Fixtures are excluded from release counts. All production counts currently unverified/not implemented. Track authored, mechanics, tests, artwork, VFX/audio, unlocks, and integration independently. Do not count examples in the design as finished content.
+Content registry: content/catalogue.json holds batch E13-S01 (catalogue v2); E02 defines validated schema/completeness fields, E17 populates further production items. Fixtures are excluded from release counts. All production counts currently unverified/not implemented. Track authored, mechanics, tests, artwork, VFX/audio, unlocks, and integration independently. Do not count examples in the design as finished content.
 
 ## Validation
 
@@ -116,6 +111,8 @@ Content registry: content/catalogue.json is empty by design; E02 defines validat
 - E07 PASS (local): unit (deck_test: draw, keep, cycle, reshuffle, exhaustion, recombine, House fallback, JSON continuation, direct uses, card and tactical scoring, payout attribution, experiment repeatability), every earlier suite with the physics digest unchanged, the `experiment` (1000 seeded runs; results in ADR 004), J01–J04 headless and rendered, diagnostics, and J04 injected failure exiting 1. CI 40435623701 PASS (run on `e1c8f9b`, which adds only the checkpoint; artifact `journeys` 12704037055); J04 and experiment output identical to local.
 - E08 PASS (local): unit (economy_test: payout, interest, sale and reroll tables; no buy/sell profit; slots, placements, replacement and cancel; modifications; removal; shop eligibility, rarity renormalization, rerolls and the affordability guarantee across seeds; currency scopes; JSON round trips; a 60-run fuzz), mutation checks, every earlier suite with the physics digest unchanged and J03 at 560/240/70, J01–J05 headless and rendered (J05 match-2 score 21060 identical), diagnostics, and J05 injected failure exiting 1. CI 40442532881 PASS (run on `38d9c75`, which adds only the checkpoint; artifact `journeys` 12706493183); J04 and J05 output identical to local.
 - E09 PASS (local): unit (division_test: spec validation and refusals, match flow with early wins, exact targets, losses, boss win, practice, Clean Sweep, reaction precedence and cooldown, JSON round trips), mutation checks, every earlier suite with the physics digest unchanged, J03 at 560/240/70 and J05 at 21060, J01–J06 headless and rendered (J06 lines identical in both modes), diagnostics, and J06 injected failure exiting 1. CI 40451844709 PASS (run on `90b9270`, which adds only the checkpoint; artifact `journeys` 12711515136); J06 output identical to local.
+- E10 PASS (local): unit (save_test: atomic replace and backup, four corruption kinds with quarantine and fallback, version and migration rules, snapshot round trips for both equipment models with identical rerolls and draws, removed-item and phase refusals, golden v1 saves, Career idempotence and separation), mutation checks, every earlier suite with the physics digest unchanged, J03 at 560/240/70, J05 at 21060, J06 identical in both modes, J01–J07 headless and rendered (with per-journey save directories), diagnostics, and J07 injected failure exiting 1. CI 40460928513 PASS on `8e4edd5` (artifact `journeys` 12715071786; J07's ten stages ran in both modes with values identical to local).
+- E13 PASS (local and CI 40524506207 on `98cc2aa`): unit (slice_test: every slice item against hand-computed scores, catalogue and frame v2 refusals, League continuation and championship repeats, Dead Straight, physics profiles, content sets, slice saves, item texts; condition and retrigger mutations caught), content for both sets, every earlier suite with the physics digest unchanged, J03 at 560/240/70, J05 at 21060, J01–J08 headless and rendered (J06 stage 1 plays both slice Divisions, identical in both modes), diagnostics, J06 injected failure exiting 1, and the 400-run strategy simulation (ADR 008). The device play session is BLOCKED.
 - Native iOS/Android/Windows, physical device feel (E05 trials NOT RUN), visual review and balance: NOT VALIDATED. E04/E05 throw thresholds and physics tuning are provisional (ADR 002/003).
 
 ## Blockers and limitations
@@ -130,31 +127,10 @@ Do not insert the checkpoint's own future commit SHA. Record already-known imple
 
 ## Current Codex coordination
 
-The owner’s explicit completion policy in AGENTS.md supersedes historical REVIEW
-wording above and in older documents. E11 is DONE and merged. E12 agent work is
-DONE with passing CI; code remains on its existing delivery branch, based on
-1d2ea35, and must be reconciled with the subsequently merged E08/E09 before
-integration. That is an integration fact, not a pending-owner milestone status.
-Future Codex work uses codex/roguewood-build, synchronized to main 1132fca.
+The owner's completion policy in AGENTS.md supersedes historical REVIEW wording above and in older documents: completed agent work is DONE, and the owner's merge is approval.
+- E11 and E12 are DONE and merged; E12 reached main by PR #8 (`9225f7c`), consolidated on `codex/roguewood-build`.
+- E10 is DONE on `claude/roguewood-build` and not yet merged. Claude's branch merged main `9225f7c` on 2026-10-27 to integrate E12 with E10 for E13.
+- Codex uses `codex/roguewood-build` across milestones (now E14). Claude uses `claude/roguewood-build`.
 
-## Branch consolidation
-
-E12 code and its full commit history are now consolidated into codex/roguewood-build
-alongside main 1132fca (E08/E09). Earlier descriptions of E12 as code existing only
-on its delivery branch are superseded. Future Codex work and delivery use
-codex/roguewood-build. Redundant E02/E11/E12 Codex task refs can be removed after
-the consolidated branch is pushed; commits and evidence remain reachable.
-
-## E14 active claim (2026-10-27)
-
-- Owner/executor: Codex; self-review and automated checks. Owner merge is approval.
-- Branch: codex/roguewood-build; base main 9225f7c.
-- Dependencies: E09 merged; E10 implementation 8e4edd5 complete on Claude branch.
-- Inspected Claude E13 claim 882adcf: Claude owns LeagueRun, live flow, persistence integration and shared contracts. E14 supplies DivisionRun-format specs without editing those paths.
-- Exclusive paths: src/procedural/, tests/campaign_generator_test.gd, tools/test_campaign_generator.gd, docs/handoffs/E14.md.
-- Scope: independent serializable RNG streams, deterministic eight-Division generation, explicit compatibility and target tables, reveal payloads, endless schedule extension. No authored production catalogue or hidden dynamic targets.
-- Integration remaining: consume generated schedule in E13 LeagueRun, save it through E10, native J09 win/fail/endless evidence. These are technical dependencies, not pending-owner status.
-
-E14 checkpoint: pure generator and independent RNG streams implemented; 200-seed standalone suite and existing unit suite PASS. E14 remains IN_PROGRESS: live LeagueRun/save integration, eligible gameplay pools and native J09 remain. See handoffs/E14.md. No owner action pending.
-
-E14 second review: generator/RNG schema v2 corrects target-boundary drops, implicit championship repeats, weak recovery and seed aliases. Actual E13 LeagueRun 5aac9d2 model probe covers 24-match win, every loss position and endless; validator mismatch is documented in handoffs/E14.md. Native J09 and live save/UI integration remain unfinished under the active E13 shared-file claim.
+## E14 integration claim
+Codex owns E14 on codex/roguewood-build, integrating completed E13 b6c95ab. Shared LeagueRun, content selection, throw flow, persistence, HUD, lane condition application and J09/CI are now claimed for E14. Generator v2 at a104b36 is retained. No pending owner action. E14 IN_PROGRESS.

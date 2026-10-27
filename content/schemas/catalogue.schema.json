@@ -4,7 +4,8 @@
     "schema_version": {
       "type": "integer",
       "enum": [
-        1
+        1,
+        2
       ]
     },
     "items": {
@@ -105,7 +106,8 @@
                     "add_mult",
                     "multiply_mult",
                     "payout",
-                    "grow_value"
+                    "grow_value",
+                    "retrigger"
                   ]
                 },
                 "amount": {
@@ -120,7 +122,8 @@
                     "standing",
                     "ball",
                     "charm",
-                    "after_bank"
+                    "after_bank",
+                    "match_end"
                   ]
                 },
                 "scope": {
@@ -131,6 +134,51 @@
                     "match",
                     "run"
                   ]
+                },
+                "condition": {
+                  "type": "object",
+                  "properties": {
+                    "category": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "open",
+                          "spare",
+                          "strike"
+                        ]
+                      },
+                      "minItems": 1,
+                      "maxItems": 3
+                    },
+                    "match_frame": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 8
+                    },
+                    "standing_count": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 10
+                    },
+                    "curved": {
+                      "type": "boolean"
+                    },
+                    "all_house": {
+                      "type": "boolean"
+                    },
+                    "streak_min": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 100
+                    }
+                  },
+                  "required": [],
+                  "additionalProperties": false
+                },
+                "per": {
+                  "type": "string",
+                  "pattern": "^(growth|retriggers|fallen|standing)(:[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*)?$"
                 }
               },
               "required": [
@@ -264,6 +312,28 @@
               "unlock_assigned",
               "integrated"
             ],
+            "additionalProperties": false
+          },
+          "physics": {
+            "type": "object",
+            "properties": {
+              "mass_scale": {
+                "type": "number",
+                "minimum": 0.5,
+                "maximum": 2.0
+              },
+              "spin_response": {
+                "type": "number",
+                "minimum": 0.0,
+                "maximum": 2.0
+              },
+              "bounce": {
+                "type": "number",
+                "minimum": 0.0,
+                "maximum": 0.6
+              }
+            },
+            "required": [],
             "additionalProperties": false
           }
         },

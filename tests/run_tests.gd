@@ -11,9 +11,13 @@ func _initialize() -> void:
 		return
 	if mode == "content":
 		failures = Contracts.validate("catalogue", Contracts.read_json("res://content/catalogue.json"))
+		# Each content set: catalogue, League (Divisions, rivals, rules) and kit (E13).
+		for set_id in ["slice", "lab"]:
+			for e in load("res://src/rules/content_set.gd").load_set(set_id).errors:
+				failures.append("%s: %s" % [set_id, e])
 	elif mode == "unit":
 		failures = ContractTests.run()
-		for path in ["res://tests/rules_test.gd", "res://tests/simulation_test.gd", "res://tests/input_test.gd", "res://tests/scoring_test.gd", "res://tests/deck_test.gd", "res://tests/economy_test.gd", "res://tests/division_test.gd"]:
+		for path in ["res://tests/rules_test.gd", "res://tests/simulation_test.gd", "res://tests/input_test.gd", "res://tests/scoring_test.gd", "res://tests/deck_test.gd", "res://tests/economy_test.gd", "res://tests/division_test.gd", "res://tests/save_test.gd", "res://tests/slice_test.gd"]:
 			var suite = load(path)
 			if suite == null:
 				failures.append("Missing tests: " + path)
