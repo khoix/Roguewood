@@ -25,7 +25,7 @@ def main():
         avi = output / "sequence.avi"
         if video:
             args += ["--write-movie", str(avi)]
-        args += ["--script", "res://tests/motion_journey.gd", "--", f"--artifact-dir={output}"]
+        args += ["--script", "res://tests/motion_journey.gd", "--", f"--artifact-dir={output}", "--content=lab"]
         if landscape:
             args.append("--landscape")
         if reduced:

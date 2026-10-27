@@ -130,6 +130,41 @@ static func _owner(source: String, pins: Dictionary, balls: Dictionary, charms: 
 			return ("Charm %d %s" % [index, names.get(charms.get(index, ""), charms.get(index, ""))]).strip_edges()
 	return source
 
+## An item's exact rules for cards and shop offers (design §8: "show exact effects
+## on tap"): each effect with its trigger, condition and scaling, then any physics.
+static func item_text(item: Dictionary, names: Dictionary = {}) -> String:
+	var parts: Array = []
+	var when := {"fallen": " when down", "standing": " if standing"}
+	for effect in item.get("effects", []):
+		var amount := _n(effect.amount)
+		var text := ""
+		match effect.op:
+			"add_value": text = "+%s Value" % amount
+			"add_mult": text = "+%s Mult" % amount
+			"multiply_mult": text = "×%s Mult" % amount
+			"payout": text = "+$%s" % amount
+			"retrigger": text = "Retriggers the first pin it hits directly"
+			"grow_value": text = "grows +%s" % amount
+		if effect.has("per"):
+			text += _per_text(String(effect.per), names)
+		if effect.trigger == "match_end":
+			text += " after each match"
+		else:
+			text += when.get(effect.trigger, "")
+		if effect.has("condition"):
+			text += " (%s)" % condition_text(effect.condition)
+		parts.append(text)
+	var physics: Dictionary = item.get("physics", {})
+	if physics.has("spin_response"):
+		parts.append("hook ×%s" % String.num(physics.spin_response, 2))
+	if physics.has("mass_scale"):
+		parts.append("mass ×%s" % String.num(physics.mass_scale, 2))
+	if physics.has("bounce"):
+		parts.append("bouncier")
+	if item.get("category", "") == "consumable":
+		parts.append("once")
+	return " · ".join(parts) if not parts.is_empty() else "—"
+
 ## Short reason a conditional effect applied, e.g. "strike", "frame 2", "1 standing".
 static func condition_text(condition: Dictionary) -> String:
 	var parts: Array = []

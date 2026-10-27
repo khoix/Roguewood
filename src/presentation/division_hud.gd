@@ -236,10 +236,10 @@ func _finish_intro() -> void:
 	intro.hide()
 	intro_done.emit()
 
-func show_result(title: String, body: String, won: bool) -> void:
+func show_result(title: String, body: String, won: bool, retry_label: String = "Retry Division") -> void:
 	result_title.text = title
 	result_body.text = body
-	retry_button.text = "New Attempt" if won else "Retry Division"
+	retry_button.text = "New Attempt" if won else retry_label
 	result.show()
 	retry_button.grab_focus()
 

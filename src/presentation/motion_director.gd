@@ -41,9 +41,10 @@ func _ready() -> void:
 ## Other rivals (The Surveyor) wait for their E21 art and keep the HUD bubble only.
 const PORTRAITS := ["rival.lab_custodian", "rival.custodian"]
 
-## The Division's rival (previewed before the boss match), or {}.
+## The Division's rival (previewed before the boss match; practice shows the first
+## Division's), or {}.
 func _rival() -> Dictionary:
-	if lab.division == null or lab.division.practice:
+	if lab.division == null:
 		return {}
 	return lab.division.rival_for(lab.division.boss())
 

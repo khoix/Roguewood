@@ -1,6 +1,6 @@
 # E02 rules and data contracts
 
-Version 1 is a deliberately small executable contract, not the complete item catalogue. `content/catalogue.json` is the production registry and currently has **zero** items. `content/fixtures` is test data, excluded from catalogue counts. The full 270-definition target and six Leagues are unchanged. E17 authors production definitions; E18 extends the closed effect vocabulary with tested mechanics.
+Version 1 is a deliberately small executable contract, not the complete item catalogue. `content/catalogue.json` is the production registry; since E13 it holds batch **E13-S01** (25 definitions, catalogue v2; see the E13 section and ADR 008), with artwork and effects/audio still false. `content/fixtures` is test data, excluded from catalogue counts. The full 270-definition target and six Leagues are unchanged. E17 authors production definitions; E18 extends the closed effect vocabulary with tested mechanics.
 
 ## Identity and content
 
@@ -129,6 +129,28 @@ Saves live in one directory: `user://saves`, or the shell's `--save-dir=`.
 **Career payload (schema 1)** is `{first_clears: {rival_id: {attempt}}, unlocked: [gate ids], intros_seen: {rival_id: true}}`. `CareerProfile.record_first_clear` is idempotent.
 
 `tests/fixtures/saves/v1` holds the frozen golden saves that every later version must load.
+
+## E13 content contract v2 and the slice (ADR 008)
+
+**Catalogue v2** (`schema_version: 2`) adds, all optional and closed:
+- `effect.condition`: `category` (array of open/spare/strike), `match_frame` (1–8), `standing_count` (0–10), `curved` (bool), `all_house` (bool), `streak_min` (1–100). Every key must hold. Not allowed on `after_bank` or `match_end` effects.
+- `effect.per`: `growth`, `retriggers`, `fallen` or `standing`, optionally `:<item id>` (which must exist). Only additions and growth scale.
+- op `retrigger` (trigger `ball`, whole amount 1–8, never scaled): repeats the scoring effects of the roll's first directly knocked-down pin.
+- trigger `match_end` (Charms only, op `grow_value` only).
+- `item.physics`: balls `{mass_scale 0.5–2, spin_response 0–2}`, pins `{mass_scale, bounce 0–0.6}`; other categories have none.
+A v1 catalogue using any of these is refused.
+
+**Frame v2** (`FrameBuilder.build(loadout, catalogue, reports, extras, context)` always emits it): frame `context {match_frame, strike_streak}` (consecutive strikes before this frame); pin and Charm `growth`; roll `first_direct` (0–10, must have fallen that roll) and `curved`. The resolver returns `strike_streak` (after this frame) and `retriggers`. Events gain `effect_index`, and `count`/`base`/`per`, `condition` and `cause` (the roll behind a retrigger) when they apply. v1 frames resolve exactly as before.
+
+**Run state:** each owned entry has `growth`; the run has `strike_streak`. `apply_frame(result, frame)` banks growth and the streak; `settle_match` also grows match-end Charms and reports `grown`. `move_charm_left(slot)` reorders Charms. Missing fields default to 0.
+
+**League spec** (`content/slice/league.json`, schema 1): `{id, name, batch, kit: {id, name, pins[10], deck, money}, divisions: [DivisionRun specs numbered 1..n]}`. `LeagueRun.validate` adds rising targets across Divisions and no repeated boss (rival) unless that Division has `championship: true` (E14); distinct bosses may share a rule. `LeagueRun` saves `{schema_version, index, practice, done: [DivisionRun dicts], current}`; `results` lists every match with its `division`. `division_cleared()` marks a beaten boss that is not the last; `upcoming()` describes the next match for previews.
+
+**Boss rules:** `RivalRules` maps `boss_rule.clean_sweep` and the lab fixture to Clean Sweep, and `boss_rule.dead_straight` to Dead Straight (`spin_disabled`, `constrain_launch` → spin 0 before the launch is saved or simulated).
+
+**Content sets** (`ContentSet.load_set("slice"|"lab")`): `{id, name, catalogue, divisions, kit, hashes, errors}`; the shell takes `--content=`.
+
+**Attempt payload schema 2** adds `content_set` and stores `division` as the League dict. The store's migration v1 → v2 sets `content_set: "lab"` and wraps the v1 Division as a one-Division League. `AttemptSnapshot.validate(payload, catalogue, content_set)` refuses a save from another content set.
 
 ## Commands and evidence
 

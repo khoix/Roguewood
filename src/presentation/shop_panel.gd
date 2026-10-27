@@ -11,6 +11,7 @@ signal sell_pressed(ref: String)
 signal continue_pressed
 signal choice_made(index: int)
 signal choice_cancelled
+signal charm_moved(slot: int)
 
 var title: Label
 var summary: Label
@@ -60,6 +61,7 @@ func _ready() -> void:
 		button.name = "Offer_%d" % i
 		button.custom_minimum_size = Vector2(216, 150)
 		button.clip_text = true
+		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART # conditional effects need two lines
 		button.pressed.connect(func(): offer_pressed.emit(i))
 		offers_grid.add_child(button)
 		offer_buttons.append(button)
@@ -127,7 +129,8 @@ func _button(parent: Control, node_name: String, action: Callable, flags: int = 
 	return button
 
 ## view: {title, summary, money, offers: [{text, state}], reroll_cost, can_reroll,
-## removal_price, can_remove, rack, sellables: [{ref, label}], message, columns}.
+## removal_price, can_remove, rack, charm_moves: [{slot, label}], sellables: [{ref, label}],
+## message, columns}.
 ## Offer states: "buy", "poor" (unaffordable), "blocked", "sold", "empty".
 func show_view(view: Dictionary) -> void:
 	title.text = view.title
@@ -153,6 +156,13 @@ func show_view(view: Dictionary) -> void:
 	for child in owned_list.get_children():
 		owned_list.remove_child(child)
 		child.queue_free()
+	# Charm order (E13): each Charm after the first can move one slot left.
+	for move in view.get("charm_moves", []):
+		var slot: int = move.slot
+		var button := _button(owned_list, "MoveCharm_%d" % slot, func(): charm_moved.emit(slot), CONNECT_DEFERRED)
+		button.text = move.label
+		button.custom_minimum_size = Vector2(0, 52)
+		button.disabled = choice_sheet.visible
 	for owned in view.sellables:
 		var ref: String = owned.ref
 		# Deferred: selling rebuilds this list, so the button must not vanish mid-input.
@@ -188,6 +198,9 @@ func button_for_offer(index: int) -> Button:
 
 func choice_button(index: int) -> Button:
 	return choice_list.get_child(index) if index < choice_list.get_child_count() else null
+
+func move_button(slot: int) -> Button:
+	return owned_list.get_node_or_null("MoveCharm_%d" % slot)
 
 func sell_button(ref: String) -> Button:
 	return owned_list.get_node_or_null("Sell_" + ref.replace(":", "_").replace("-", "_"))

@@ -393,6 +393,18 @@ func swap_pins(a: String, b: String) -> Array[String]:
 	_set_pin(b, first)
 	return errors
 
+## Charm order between matches (design §4): Charm `slot` (1-based) moves one place
+## left. Order matters: additions before multipliers score more.
+func move_charm_left(slot: int) -> Array[String]:
+	var errors: Array[String] = []
+	if slot < 2 or slot > charms.size():
+		errors.append("no Charm to move at slot %d" % slot)
+		return errors
+	var moved = charms[slot - 1]
+	charms[slot - 1] = charms[slot - 2]
+	charms[slot - 2] = moved
+	return errors
+
 func _set_pin(ref: String, entry: Variant) -> void:
 	if ref.begins_with("rack:"):
 		rack[int(ref.split(":")[1])] = entry

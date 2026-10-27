@@ -165,3 +165,19 @@ It saves the Career separately. The Clubhouse offers **Continue Attempt** for an
 9. With every copy broken, the menu says so and a new attempt starts.
 
 Stage logs are `journey-stage<k>.log`, and `journey.log` collects them. `--rendered` saves the continue_menu, resumed_hand, resumed_roll, resumed_frame, resumed_shop, resumed_reroll, resumed_roll2, career_kept, fallback and no_save PNGs to `artifacts/e10/rendered`.
+
+## E13 vertical slice, J06 and the strategy simulation
+
+The game now plays the production slice by default (ADR 008): the House League's two Divisions with The Surveyor (Dead Straight, 800) and The Custodian (Clean Sweep, 2400), the House Kit (ten Wood pins; two each of Hook, Hammer and Echo; $6) and catalogue batch E13-S01. `--content=lab` selects the E06–E10 fixtures instead. `tools/qa.py` passes `--content=lab` to the mechanism journeys (J02–J05, J07, J08, and `tools/capture_motion.py`); J01 and J06 stage 1 use the slice.
+
+In the shop, ◀ buttons move a Charm one slot left (order matters: additions before multipliers).
+
+`python3 tools/qa.py e2e --journey J06` now has two stages, each a separate engine process with its own save directory:
+1. `tests/slice_journey.gd` (slice): an Echo strike retriggers a Wood pin (600); Charms are bought and reordered; Dead Straight locks the spin control and commits a real charged circle gesture as a straight launch; beating The Surveyor clears Division 1 and banks its first clear at once; Clubhouse → Continue Attempt resumes the saved shop exactly; Division 2's targets are met; Clean Sweep banks an open frame as 0; a strike beats The Custodian and wins the League; attempt 2 has both unlocks, loses the opener and keeps the Career.
+2. `tests/division_journey.gd` (lab): the E09 Division journey, unchanged.
+
+`--rendered` saves slice_preview, slice_echo, slice_shop, slice_dead_straight, slice_cleared, slice_clean_sweep, slice_won and slice_lost_again, plus the E09 PNGs, to `artifacts/e13/rendered`.
+
+`python3 tools/qa.py slice` runs the seeded build-strategy simulation (`tools/slice_strategies.gd`, 400 attempts per strategy, fresh Career and with both rival unlocks) and writes `artifacts/e13/slice-strategies-{locked,unlocked}.json`. Pinfall there is synthetic (see ADR 008); everything else is the real rules code.
+
+The real-device play session is blocked; its protocol and the outstanding defects are in `docs/playtests/E13-slice-playtest.md`.

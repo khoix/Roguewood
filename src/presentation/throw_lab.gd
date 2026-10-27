@@ -251,6 +251,7 @@ func _ready() -> void:
 	shop_panel.continue_pressed.connect(_start_next_match)
 	shop_panel.choice_made.connect(_on_choice)
 	shop_panel.choice_cancelled.connect(_on_choice_cancelled)
+	shop_panel.charm_moved.connect(_on_charm_moved)
 	shop_panel.hide()
 	add_child(shop_panel)
 	hud = DivisionHud.new()
@@ -390,17 +391,8 @@ func _refresh_hand() -> void:
 		card_hand.offset_top = -16.0
 		card_hand.offset_bottom = -16.0
 
-static func _effect_text(item: Dictionary) -> String:
-	var parts: Array = []
-	for effect in item.get("effects", []):
-		match effect.op:
-			"add_value": parts.append("+%s Value" % ScoreLog._n(effect.amount))
-			"add_mult": parts.append("+%s Mult" % ScoreLog._n(effect.amount))
-			"multiply_mult": parts.append("×%s Mult" % ScoreLog._n(effect.amount))
-			"payout": parts.append("+$%s" % ScoreLog._n(effect.amount))
-	if item.get("category", "") == "consumable":
-		parts.append("once")
-	return " ".join(parts) if not parts.is_empty() else "—"
+func _effect_text(item: Dictionary) -> String:
+	return ScoreLog.item_text(item, _names)
 
 ## In-world target marker; the readable ring itself is drawn by the aim overlay.
 func _build_ring() -> void:
@@ -897,9 +889,13 @@ func _show_result() -> void:
 	lines.append("Attempt %d · total %d · $%d left" % [attempt, total_score, run.money])
 	_result_view = {"title": title, "body": "\n".join(lines), "won": division.outcome == "won"}
 	_checkpoint("division_over")
-	hud.show_result(title, _result_view.body, _result_view.won)
+	hud.show_result(title, _result_view.body, _result_view.won, _retry_label())
 	_update_status()
 	attempt_finished.emit(division.outcome)
+
+## A retry always starts a new attempt from the first Division.
+func _retry_label() -> String:
+	return "Retry Division" if division.division_count() == 1 else "Retry League"
 
 ## Writes the attempt as one snapshot at a committed point (ADR 007).
 func _checkpoint(phase: String) -> void:
@@ -986,7 +982,7 @@ func _restore(payload: Dictionary) -> void:
 		"division_over":
 			state = "division_over"
 			_result_view = lab.result
-			hud.show_result(_result_view.title, _result_view.body, _result_view.won)
+			hud.show_result(_result_view.title, _result_view.body, _result_view.won, _retry_label())
 	_update_status()
 	money_changed.emit(run.money)
 
@@ -1081,6 +1077,16 @@ func _on_sell(ref: String) -> void:
 		_checkpoint("shop")
 	_refresh_shop()
 
+## Reorders Charms between matches (saved like any other shop change).
+func _on_charm_moved(slot: int) -> void:
+	if state != "shop" or not _choice.is_empty():
+		return
+	var errors: Array[String] = run.move_charm_left(slot)
+	shop_message = ("Moved %s to Charm slot %d." % [_names.get(run.charms[slot - 2].item_id, ""), slot - 1]) if errors.is_empty() else "Can't move: %s." % ", ".join(errors)
+	if errors.is_empty():
+		_checkpoint("shop")
+	_refresh_shop()
+
 ## What comes next, shown before any purchase: the target and, for the boss, the
 ## rival, its rule and the first-clear reward.
 func _next_match_preview() -> String:
@@ -1158,6 +1164,11 @@ func _refresh_shop() -> void:
 	var rack_text := "Rack: " + ", ".join(pins)
 	var reserves: Array = run.reserves.map(func(e): return "empty" if e == null else _names.get(e.item_id, ""))
 	rack_text += "\nReserves: " + ", ".join(reserves) + " · Charms %d/%d · Deck %d/%d" % [run.charms.size(), RunInventory.CHARM_SLOTS, run.cards.size(), RunInventory.DECK_CAP]
+	var charm_moves: Array = []
+	for i in range(1, run.charms.size()):
+		charm_moves.append({"slot": i + 1, "label": "◀ Move %s before %s" % [_names.get(run.charms[i].item_id, ""), _names.get(run.charms[i - 1].item_id, "")]})
+	if not run.charms.is_empty():
+		rack_text += "\nCharm order (left to right): " + ", ".join(run.charms.map(func(e): return _names.get(e.item_id, e.item_id)))
 	var sellables: Array = []
 	for owned in run.entries():
 		if run.can_sell(owned.ref):
@@ -1167,7 +1178,7 @@ func _refresh_shop() -> void:
 	shop_panel.show_view({"title": "Pro Shop", "summary": summary, "preview": _next_match_preview(), "money": run.money, "offers": offers,
 		"reroll_cost": shop.reroll_cost(), "can_reroll": run.money >= shop.reroll_cost(),
 		"removal_price": Economy.REMOVAL_PRICE, "can_remove": run.money >= Economy.REMOVAL_PRICE and not run.cards.is_empty(),
-		"rack": rack_text, "sellables": sellables, "message": shop_message, "columns": 5 if size.x > size.y else 3})
+		"rack": rack_text, "charm_moves": charm_moves, "sellables": sellables, "message": shop_message, "columns": 5 if size.x > size.y else 3})
 	money_changed.emit(run.money)
 
 func _normalized(position: Vector2) -> Vector2:

@@ -32,7 +32,49 @@ static func run() -> Array[String]:
 	_rules(failures)
 	_physics(catalogue, failures)
 	_content_sets(content, failures)
+	_saves(content, failures)
+	_texts(catalogue, failures)
 	return failures
+
+## Cards and offers state each rule exactly (design §8).
+static func _texts(catalogue: Dictionary, failures: Array[String]) -> void:
+	var names := {}
+	for entry in catalogue.items:
+		names[entry.id] = entry.name
+	var expected := {"charm.finisher": "×2 Mult (strike)", "charm.lone_survivor": "×3 Mult (open, 1 standing)", "charm.gold_rush": "+2 Mult per Gold Pin down",
+		"charm.patient_investor": "+1 Mult per growth · grows +1 after each match", "ball.echo": "Retriggers the first pin it hits directly",
+		"ball.hammer": "hook ×0.6 · mass ×1.35", "pin.anchor": "+10 Value when down · +3 Mult if standing · mass ×1.6",
+		"pin.grower": "+10 Value when down · +5 Value per growth when down · grows +1 when down", "charm.turkey_club": "×2 Mult (strike streak 3+)"}
+	for id in expected:
+		var text := ScoreLog.item_text(_find(catalogue, id), names)
+		_expect(text == expected[id], "%s reads \"%s\" (got \"%s\")" % [id, expected[id], text], failures)
+
+## A slice attempt saves and restores mid-League, and is refused by another set.
+static func _saves(content: Dictionary, failures: Array[String]) -> void:
+	var Snapshot = load("res://src/persistence/attempt_snapshot.gd")
+	var Shop = load("res://src/rules/shop.gd")
+	var Deck = load("res://src/rules/card_deck.gd")
+	var catalogue: Dictionary = content.catalogue
+	var run = RunInventory.create(catalogue, ["pin.grower"] + _woods(9), content.kit.deck, 6)
+	run.rack[1].growth = 3
+	run.strike_streak = 2
+	var league = League.create(content.divisions)
+	for m in 3:
+		league.record_frame(league.target())
+		league.next_match()
+	var lab := {}
+	for key in Snapshot.LAB_KEYS:
+		lab[key] = null
+	lab.merge({"frame_number": 7, "roll_index": 1, "match_number": 4, "match_frame": 1, "total_score": 1600, "launch_serial": 7, "rack": Lane.fresh_rack(),
+		"frame_reports": [], "frame_tactics": {}, "frame_mods": {}, "kept_last_frame": "", "equipment_model": "deck", "settlement": {}}, true)
+	var parts := {"attempt": 1, "seed": 1, "phase": "aim", "lab": lab, "run": run, "shop": Shop.create(catalogue, 5), "division": league,
+		"equipment": Deck.create_with(run.deck_cards(), 1)}
+	var payload: Dictionary = JSON.parse_string(JSON.stringify(Snapshot.build(parts, content.hashes, "slice"), "", true, true))
+	_expect(payload.content_set == "slice" and Snapshot.validate(payload, catalogue, "slice").is_empty(), "a slice attempt validates for the slice", failures)
+	_expect(Snapshot.validate(payload, catalogue, "lab").any(func(e): return e.contains("slice content")), "and is refused by the lab content set", failures)
+	var back: Dictionary = Snapshot.restore(payload, catalogue, content.divisions, content.hashes)
+	_expect(back.division.division_number() == 2 and back.division.current().kind == "opener" and back.division.results.size() == 3
+		and back.run.rack[1].growth == 3 and back.run.strike_streak == 2 and back.warnings.is_empty(), "the League, growth and streak come back exactly", failures)
 
 ## Rack: Wood everywhere except the given positions.
 static func _loadout(overrides: Dictionary = {}, charms: Array = []) -> Dictionary:
@@ -257,8 +299,14 @@ static func _league(content: Dictionary, failures: Array[String]) -> void:
 	_expect(practice.division_number() == 1 and practice.outcome == "", "practice never leaves Division 1", failures)
 	# League refusals.
 	var bad := {"schema_version": 1, "divisions": specs.duplicate(true)}
+	bad.divisions[1].rivals[0] = specs[0].rivals[0].duplicate(true)
+	bad.divisions[1].matches[2].rival = specs[0].rivals[0].id
+	_expect(League.validate(bad, content.catalogue).any(func(e): return e.contains("boss repeated")), "a boss cannot repeat within the attempt", failures)
+	bad.divisions[1]["championship"] = true
+	_expect(League.validate(bad, content.catalogue).is_empty(), "an explicit championship may bring back a boss already met (E14)", failures)
+	bad = {"schema_version": 1, "divisions": specs.duplicate(true)}
 	bad.divisions[1].rivals[0].rule = "boss_rule.dead_straight"
-	_expect(League.validate(bad, content.catalogue).any(func(e): return e.contains("repeated")), "a boss rule cannot repeat within the attempt", failures)
+	_expect(League.validate(bad, content.catalogue).is_empty(), "distinct bosses may share a rule", failures)
 	bad = {"schema_version": 1, "divisions": specs.duplicate(true)}
 	bad.divisions[1].matches[0].target = 400
 	_expect(League.validate(bad, content.catalogue).any(func(e): return e.contains("rise")), "targets keep rising across Divisions", failures)
