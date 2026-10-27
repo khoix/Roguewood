@@ -28,6 +28,8 @@ func _ready() -> void:
 	add_child(box)
 	info = Label.new()
 	info.name = "EquipmentInfo"
+	info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	info.add_theme_font_size_override("font_size", 20)
 	box.add_child(info)
 	var row := HBoxContainer.new()

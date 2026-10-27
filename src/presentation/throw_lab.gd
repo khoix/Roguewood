@@ -719,6 +719,9 @@ func _inspect_card(card: Dictionary, origin: Control) -> void:
 
 func _layout_resolution() -> void:
 	if not score_panel: return
-	score_panel.offset_left = LANDSCAPE_HAND_WIDTH + 32.0 if size.x > size.y else 16.0
+	var landscape := size.x > size.y
+	var left_hand: bool = settings.get("handedness", "right") == "left"
+	score_panel.offset_left = LANDSCAPE_HAND_WIDTH + 32.0 if landscape and not left_hand else 16.0
+	score_panel.offset_right = -LANDSCAPE_HAND_WIDTH - 32.0 if landscape and left_hand else -16.0
 	next_rack.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	next_rack.position = Vector2(16, size.y - 100) if size.x > size.y else Vector2(size.x / 2 - 160, size.y / 2 - 36)
+	next_rack.position = Vector2(size.x - 336 if left_hand else 16, size.y - 100) if landscape else Vector2(size.x / 2 - 160, size.y / 2 - 36)
