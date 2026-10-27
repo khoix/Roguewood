@@ -53,7 +53,7 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E09 — Single Division loop and rival | DONE | Claude | main (PR #7) | fcea7f3; CI 40451844709 PASS; ADR 006 provisional; E09 handoff |
 | E10 — Attempt saves and recovery | NOT_STARTED | unassigned | — | See dependency graph |
 | E11 — Art bible and representative still scene | DONE | Codex | main (PR #4) | 2882483; CI 40428621822 PASS; owner merge is approval |
-| E12 — Representative motion and visual review | DONE | Codex | codex/roguewood-e12-motion (historical delivery) | Implementation 90f5690; handoff 046d109; CI 40444945503 + 40444945245 PASS; not yet integrated into main |
+| E12 — Representative motion and visual review | DONE | Codex | codex/roguewood-build | Implementation 90f5690; handoff 046d109; CI 40444945503 + 40444945245 PASS; consolidated on codex/roguewood-build; not yet merged to main |
 | E13 — Vertical-slice integration | NOT_STARTED | unassigned | — | See dependency graph |
 | E14 — Seeded eight-Division progression | NOT_STARTED | unassigned | — | See dependency graph |
 | E15 — Career persistence and unlock graph | NOT_STARTED | unassigned | — | See dependency graph |
@@ -136,3 +136,11 @@ DONE with passing CI; code remains on its existing delivery branch, based on
 1d2ea35, and must be reconciled with the subsequently merged E08/E09 before
 integration. That is an integration fact, not a pending-owner milestone status.
 Future Codex work uses codex/roguewood-build, synchronized to main 1132fca.
+
+## Branch consolidation
+
+E12 code and its full commit history are now consolidated into codex/roguewood-build
+alongside main 1132fca (E08/E09). Earlier descriptions of E12 as code existing only
+on its delivery branch are superseded. Future Codex work and delivery use
+codex/roguewood-build. Redundant E02/E11/E12 Codex task refs can be removed after
+the consolidated branch is pushed; commits and evidence remain reachable.
