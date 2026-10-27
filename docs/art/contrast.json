@@ -1,0 +1,15 @@
+{
+  "background": "#1c2037",
+  "minimum": 4.5,
+  "ratios": {
+    "cream": 12.76,
+    "muted": 6.84,
+    "teal": 9.57,
+    "gold": 8.72,
+    "common": 8.02,
+    "uncommon": 5.67,
+    "rare": 8.56,
+    "epic": 6.45
+  },
+  "scope": "Opaque native text; not art or real-device certification"
+}
