@@ -1,0 +1,38 @@
+name: E12 motion review
+on:
+  push:
+    branches: ['codex/roguewood-e12-motion']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  motion:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Install pinned engine and video tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION=$(cat .godot-version)
+          mkdir -p "$RUNNER_TEMP/godot"
+          cd "$RUNNER_TEMP/godot"
+          curl --fail --location --retry 3 -O "https://github.com/godotengine/godot-builds/releases/download/${VERSION}-stable/Godot_v${VERSION}-stable_linux.x86_64.zip"
+          sha512sum --check --ignore-missing "$GITHUB_WORKSPACE/tools/godot-downloads.sha512"
+          unzip -q "Godot_v${VERSION}-stable_linux.x86_64.zip"
+          echo "GODOT_BIN=$RUNNER_TEMP/godot/Godot_v${VERSION}-stable_linux.x86_64" >> "$GITHUB_ENV"
+          sudo apt-get update -qq
+          sudo apt-get install -y xvfb xauth ffmpeg libgl1-mesa-dri
+      - name: Native inspection, throw, impact, score and reduced-motion matrix
+        run: xvfb-run -a python3 tools/capture_motion.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e12-motion-review
+          path: |
+            artifacts/e12/**/*.png
+            artifacts/e12/**/*.mp4
+            artifacts/e12/**/*.json
+            artifacts/e12/**/*.log
+          if-no-files-found: error

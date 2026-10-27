@@ -11,7 +11,7 @@ signal roll_reported(report: Dictionary)
 signal frame_scored(scored: Dictionary)
 const Lane = preload("res://src/simulation/lane_spec.gd")
 const LaneWorld = preload("res://src/simulation/lane_world.gd")
-const Dressing = preload("res://src/presentation/lane_dressing.gd")
+const Dressing = preload("res://src/presentation/live_dressing.gd")
 const AimOverlay = preload("res://src/presentation/aim_overlay.gd")
 const SettingsPanel = preload("res://src/presentation/throw_settings_panel.gd")
 const AssistPanel = preload("res://src/presentation/assist_panel.gd")
@@ -85,6 +85,8 @@ var _handedness := ""
 var equipment: RefCounted # CardDeck or DirectLoadout
 var equipment_seed := 1
 var card_hand: CardHand
+var inspector: Control
+var motion: Control
 var armed_ball := "" # card uid (deck) or item id (direct); empty throws House
 var armed_tactical := ""
 var keep_card := ""
@@ -102,6 +104,8 @@ func _ready() -> void:
 	var container := SubViewportContainer.new()
 	container.name = "LaneView"
 	container.stretch = true
+	container.stretch_shrink = 2
+	container.texture_filter = Control.TEXTURE_FILTER_NEAREST
 	container.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(container)
@@ -164,6 +168,7 @@ func _ready() -> void:
 	card_hand = CardHand.new()
 	card_hand.card_pressed.connect(_on_card)
 	card_hand.cycle_pressed.connect(_on_cycle)
+	card_hand.inspect_requested.connect(_inspect_card)
 	add_child(card_hand)
 	assist_panel = AssistPanel.new()
 	assist_panel.throw_requested.connect(_assist_throw)
@@ -175,6 +180,12 @@ func _ready() -> void:
 	settings_panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	settings_panel.hide()
 	add_child(settings_panel)
+	inspector = preload("res://src/presentation/card_inspector.gd").new()
+	add_child(inspector)
+	motion = preload("res://src/presentation/motion_director.gd").new()
+	motion.lab = self
+	add_child(motion)
+	move_child(motion, 2)
 	_apply_settings()
 	_new_roll()
 
@@ -238,7 +249,7 @@ func _refresh_hand() -> void:
 		var detail := _effect_text(item)
 		if equipment.MODEL == "direct" and option.kind == "ball":
 			detail += "\n%d left" % option.uses
-		cards.append({"uid": option.uid, "title": item.get("name", option.item_id), "detail": detail, "kind": option.kind})
+		cards.append({"uid": option.uid, "title": item.get("name", option.item_id), "detail": detail, "kind": option.kind, "rarity": item.get("rarity","common"), "art_index": 3 if option.kind == "tactical" else 2})
 	var marks := {}
 	if not armed_ball.is_empty(): marks[armed_ball] = "ball"
 	if not armed_tactical.is_empty(): marks[armed_tactical] = "tactical"
@@ -353,7 +364,7 @@ func _process(delta: float) -> void:
 	_clock_usec += int(round(delta * 1000000.0))
 	_camera.keep_aspect = Camera3D.KEEP_WIDTH if size.y > size.x else Camera3D.KEEP_HEIGHT
 	_camera.fov = 44.0 if size.y > size.x else 50.0
-	if state in ["rolling", "result", "frame_done"]:
+	if state in ["rolling", "result", "frame_done"] and not settings.reduced_motion:
 		var ball_f: float = -lane.ball_position().z
 		var cam_f := clampf(ball_f - 2.6, Lane.BALL_START_F - AIM_BACK, DECK_VIEW_F)
 		var target := Lane.world(0.0, cam_f, lerpf(AIM_HEIGHT, 1.25, inverse_lerp(0.0, DECK_VIEW_F, cam_f)))
@@ -380,6 +391,7 @@ func ring_color() -> Color:
 	return RING_COLORS[Ring.grade(ring_radius)]
 
 func _input(event: InputEvent) -> void:
+	if inspector and inspector.visible: return
 	if event is InputEventScreenTouch:
 		if event.pressed and state == "aim" and _touch == -1 and _target_touch == -1 and not _over_ui(event.position):
 			if _on_ball(event.position) and not settings.assist:
@@ -417,6 +429,7 @@ func _input(event: InputEvent) -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_RESIZED:
+		_layout_resolution()
 		_refresh_hand()
 	if state == "holding" and what in [NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_WM_WINDOW_FOCUS_OUT, NOTIFICATION_APPLICATION_PAUSED]:
 		_cancel("interrupted")
@@ -548,6 +561,7 @@ func _score_frame() -> void:
 	scored_frames.append({"frame_number": frame_number, "match_number": match_number, "frame": built.frame, "result": result, "steps": steps})
 	state = "scoring"
 	_update_status()
+	score_panel.reduced_motion = settings.reduced_motion or settings.reduced_flash
 	score_panel.play(steps, frame_reports, "Frame %d — %s" % [frame_number, String(result.category).capitalize()], int(settings.score_speed))
 
 func _on_scored() -> void:
@@ -628,7 +642,7 @@ func _over_ui(position: Vector2) -> bool:
 	if position.y < TOP_UI_HEIGHT:
 		return true
 	var global := get_global_transform() * position
-	for control in [settings_panel, assist_panel, next_rack, card_hand]:
+	for control in [settings_panel, assist_panel, next_rack, card_hand, inspector]:
 		if control.visible and control.get_global_rect().has_point(global):
 			return true
 	return false
@@ -656,6 +670,7 @@ func charged_spin() -> float:
 func _update_status() -> void:
 	if status == null:
 		return
+	_layout_resolution()
 	_refresh_hand()
 	var lead := "Match %d · Frame %d · Roll %d · Target %+.2f" % [match_number, frame_number, roll_index, target_x]
 	if equipment != null and state in ["aim", "holding", "rolling"]:
@@ -697,3 +712,13 @@ func _describe(report: Dictionary) -> String:
 	if not knockdowns.standing.is_empty():
 		text += " · standing %s" % str(knockdowns.standing)
 	return text
+
+func _inspect_card(card: Dictionary, origin: Control) -> void:
+	if state not in ["aim", "frame_done"]: return
+	inspector.inspect(card, origin, settings.reduced_motion)
+
+func _layout_resolution() -> void:
+	if not score_panel: return
+	score_panel.offset_left = LANDSCAPE_HAND_WIDTH + 32.0 if size.x > size.y else 16.0
+	next_rack.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	next_rack.position = Vector2(16, size.y - 100) if size.x > size.y else Vector2(size.x / 2 - 160, size.y / 2 - 36)

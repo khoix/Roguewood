@@ -4,12 +4,13 @@ extends PanelContainer
 ## dictionary so they survive Restart Session; saving them is E25 work.
 signal changed
 const DEFAULTS := {"handedness": "right", "sensitivity": 1.0, "reduced_motion": false, "large_targets": false, "assist": false, "score_speed": 1,
-	"equipment": "deck"}
+	"equipment": "deck", "reduced_flash": false}
 
 var settings: Dictionary = {}
 var handedness: OptionButton
 var sensitivity: HSlider
 var reduced_motion: CheckButton
+var reduced_flash: CheckButton
 var large_targets: CheckButton
 var assist: CheckButton
 var equipment: OptionButton
@@ -49,7 +50,8 @@ func _ready() -> void:
 	sensitivity.custom_minimum_size = Vector2(320, 44)
 	sensitivity.value_changed.connect(func(value): _store("sensitivity", value))
 	box.add_child(sensitivity)
-	reduced_motion = _toggle(box, "ReducedMotion", "Reduced motion (steady ring)", "reduced_motion")
+	reduced_motion = _toggle(box, "ReducedMotion", "Reduced motion (steady camera & foil)", "reduced_motion")
+	reduced_flash = _toggle(box, "ReducedFlash", "Reduced flash (no impact accents)", "reduced_flash")
 	large_targets = _toggle(box, "LargeTargets", "Larger touch targets", "large_targets")
 	assist = _toggle(box, "AssistControls", "Assist controls (no gestures)", "assist")
 	# E07 experiment: the proposed deck against direct selection (ADR 004).

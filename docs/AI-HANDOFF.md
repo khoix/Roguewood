@@ -136,5 +136,6 @@ skippable reveal, one representative rival reaction, reduced motion/flash,
 scene timing metrics, native J08, portrait/landscape video/stills.
 Exclusive: src/presentation/ (E12 additions and integrations), assets/motion/,
 tests/motion_journey.gd, docs/art/E12*, docs/handoffs/E12.md. Shared coordinated
-changes: tools/qa.py, .github/workflows/e12-motion.yml, this checkpoint.
+changes: tools/qa.py, .github/workflows/e12-motion.yml, src/bootstrap/bootstrap.gd
+(orientation canvas sizing only), this checkpoint.
 No scoring, physics, deck rules, catalogue completeness or future milestone work.
