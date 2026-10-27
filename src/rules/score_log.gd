@@ -14,7 +14,8 @@ static func grade_name(frame: Dictionary) -> String:
 	return best
 
 ## names: optional {item_id: display name}. owners: optional FrameBuilder map of
-## roll index -> item id per roll effect, so tactical cards are named, not the ball.
+## event source ("pin:3", "roll:1") -> item id per effect, so tactical cards and
+## modifications are named rather than the pin or ball that carries them.
 static func steps(result: Dictionary, frame: Dictionary, names: Dictionary = {}, owners: Dictionary = {}) -> Array:
 	var out: Array = []
 	var pins := {}
@@ -23,6 +24,9 @@ static func steps(result: Dictionary, frame: Dictionary, names: Dictionary = {},
 	var balls := {}
 	for roll in frame.rolls:
 		balls[int(roll.roll_index)] = roll.ball_id
+	var charms := {}
+	for i in frame.charms.size():
+		charms[i + 1] = frame.charms[i].item_id
 	var value := 0.0
 	var mult := 1.0
 	var seen := {}
@@ -45,9 +49,7 @@ static func steps(result: Dictionary, frame: Dictionary, names: Dictionary = {},
 				step.score = event.score
 				banked = event.score
 			"after_bank":
-				var owner := _owner(event.source, pins, balls, names)
-				if event.get("trigger", "") == "ball":
-					owner = _roll_owner(event, frame, owners, names, seen, owner, true)
+				var owner := _effect_owner(event, frame, owners, names, seen, _owner(event.source, pins, balls, charms, names), true)
 				var change := ("+$%s" % _n(event.amount)) if event.op == "payout" else "%s %s" % [event.op.replace("_", " "), _n(event.amount)]
 				step.text = "After bank: %s %s (%s)" % [owner, change, event.scope]
 				step.symbol = "→"
@@ -55,9 +57,7 @@ static func steps(result: Dictionary, frame: Dictionary, names: Dictionary = {},
 			_:
 				value = event.pin_value
 				mult = event.mult
-				var owner := _owner(event.source, pins, balls, names)
-				if event.phase == "ball":
-					owner = _roll_owner(event, frame, owners, names, seen, owner)
+				var owner := _effect_owner(event, frame, owners, names, seen, _owner(event.source, pins, balls, charms, names))
 				var amount := _n(event.amount)
 				match event.op:
 					"add_value":
@@ -80,27 +80,34 @@ static func steps(result: Dictionary, frame: Dictionary, names: Dictionary = {},
 		out.append(step)
 	return out
 
-## The k-th "ball" event of a roll comes from its k-th ball-trigger effect of the
-## same kind: deferred payouts/growth settle after the bank, the rest before it.
-static func _roll_owner(event: Dictionary, frame: Dictionary, owners: Dictionary, names: Dictionary, seen: Dictionary, fallback: String, deferred: bool = false) -> String:
-	var index := int(String(event.source).trim_prefix("roll:"))
-	var key := "%s#%d#%s" % [event.source, int(event.get("repeat", 0)), deferred]
+## The k-th event of an owner (pin or roll) for one trigger comes from its k-th
+## effect with that trigger and of the same kind: deferred payouts/growth settle
+## after the bank, the rest before it. Retriggers restart the count.
+static func _effect_owner(event: Dictionary, frame: Dictionary, owners: Dictionary, names: Dictionary, seen: Dictionary, fallback: String, deferred: bool = false) -> String:
+	var source: String = event.source
+	var supplied: Array = owners.get(source, [])
+	var parts := source.split(":")
+	if supplied.is_empty() or parts[0] not in ["pin", "roll"]:
+		return fallback
+	var index := int(parts[1])
+	var trigger: String = event.get("trigger", event.phase) if deferred else event.phase
+	var effects: Array = []
+	for owner in (frame.pins if parts[0] == "pin" else frame.rolls):
+		if int(owner.get("position", owner.get("roll_index", 0))) == index:
+			effects = owner.effects
+	var key := "%s#%d#%s#%s" % [source, int(event.get("repeat", 0)), trigger, deferred]
 	var k: int = seen.get(key, 0)
 	seen[key] = k + 1
-	var supplied: Array = owners.get(index, [])
-	for roll in frame.rolls:
-		if int(roll.roll_index) != index:
+	var count := 0
+	for i in effects.size():
+		if effects[i].trigger != trigger or (effects[i].op in ["payout", "grow_value"]) != deferred:
 			continue
-		var count := 0
-		for i in roll.effects.size():
-			if roll.effects[i].trigger != "ball" or (roll.effects[i].op in ["payout", "grow_value"]) != deferred:
-				continue
-			if count == k and i < supplied.size():
-				return "Roll %d %s" % [index, names.get(supplied[i], supplied[i])]
-			count += 1
+		if count == k and i < supplied.size():
+			return "%s %d %s" % [parts[0].capitalize(), index, names.get(supplied[i], supplied[i])]
+		count += 1
 	return fallback
 
-static func _owner(source: String, pins: Dictionary, balls: Dictionary, names: Dictionary) -> String:
+static func _owner(source: String, pins: Dictionary, balls: Dictionary, charms: Dictionary, names: Dictionary) -> String:
 	var parts := source.split(":")
 	var index := int(parts[1])
 	match parts[0]:
@@ -109,7 +116,7 @@ static func _owner(source: String, pins: Dictionary, balls: Dictionary, names: D
 		"roll":
 			return "Roll %d %s" % [index, names.get(balls.get(index, ""), balls.get(index, ""))]
 		"charm":
-			return "Charm %d" % index
+			return ("Charm %d %s" % [index, names.get(charms.get(index, ""), charms.get(index, ""))]).strip_edges()
 	return source
 
 ## Integral values print without decimals; others keep two places.

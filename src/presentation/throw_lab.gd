@@ -1,14 +1,17 @@
 extends Control
-## Throw lab (E04 straight, E05 spin/curve, E06 scoring, E07 equipment): elevated
+## Throw lab (E04 straight, E05 spin/curve, E06 scoring, E07 equipment, E08 shop): elevated
 ## behind-ball camera, hold / circle / flick gestures, a movable contracting target
 ## ring, accessible controls and a two-roll frame where survivors are respotted,
 ## then scored by FrameRules and explained step by step. The equipment row plays
 ## special balls and tactical cards from the experimental deck or the direct
-## selection model (ADR 004); House is thrown when nothing is armed. Every roll
+## selection model (ADR 004); House is thrown when nothing is armed. Between
+## two-frame matches the run is paid and visits the Pro Shop (ADR 005); what it
+## owns (rack, Charms, deck, modifications) is what scores. Every roll
 ## runs in a fresh World3D so it depends only on its rack state and committed
 ## launch. Developmental presentation.
 signal roll_reported(report: Dictionary)
 signal frame_scored(scored: Dictionary)
+signal money_changed(money: int)
 const Lane = preload("res://src/simulation/lane_spec.gd")
 const LaneWorld = preload("res://src/simulation/lane_world.gd")
 const Dressing = preload("res://src/presentation/lane_dressing.gd")
@@ -26,12 +29,16 @@ const ScorePanel = preload("res://src/presentation/score_panel.gd")
 const CardHand = preload("res://src/presentation/card_hand.gd")
 const Deck = preload("res://src/rules/card_deck.gd")
 const Direct = preload("res://src/rules/direct_loadout.gd")
-## Lab equipment under test (fixture items, not the production starter kit): two
-## copies of three lab ball types plus one tactical card, and the same items as a
-## direct-selection bag.
+const Economy = preload("res://src/rules/economy.gd")
+const RunInventory = preload("res://src/rules/run_inventory.gd")
+const Shop = preload("res://src/rules/shop.gd")
+const ShopPanel = preload("res://src/presentation/shop_panel.gd")
+## Lab starting kit (fixture items, not the production kit): ten Wood pins and a deck
+## of two copies of three lab ball types plus one tactical card. Direct selection
+## shows the first two ball types and the tactical cards of the same collection.
 const LAB_DECK := ["ball.lab_value", "ball.lab_value", "ball.lab_mult", "ball.lab_mult", "ball.lab_coin", "ball.lab_coin", "consumable.lab_focus"]
-const LAB_DIRECT_BALLS := ["ball.lab_value", "ball.lab_mult"]
-const LAB_DIRECT_TACTICALS := ["consumable.lab_focus"]
+const LAB_RACK := ["pin.wood", "pin.wood", "pin.wood", "pin.wood", "pin.wood", "pin.wood", "pin.wood", "pin.wood", "pin.wood", "pin.wood"]
+const LAB_DIVISION := 1
 const MATCH_FRAMES := 2 # design §2: a match is two frames
 const HOUSE := "ball.house"
 const LANDSCAPE_HAND_WIDTH := 440.0
@@ -94,6 +101,13 @@ var match_number := 1
 var match_frame := 1
 var _equipment_model := ""
 var _kept_last_frame := ""
+var frame_mods: Dictionary = {} # roll index -> ball modification of the thrown card
+var run: RunInventory
+var shop: Shop
+var shop_panel: ShopPanel
+var settlement: Dictionary = {}
+var shop_message := ""
+var _choice: Dictionary = {} # pending shop choice: {kind, index, targets}
 
 func _ready() -> void:
 	SettingsPanel.with_defaults(settings)
@@ -151,6 +165,8 @@ func _ready() -> void:
 	_catalogue = Contracts.read_json(FrameBuilder.LAB_CATALOGUE)
 	for entry in _catalogue.items:
 		_names[entry.id] = entry.name
+	run = RunInventory.create(_catalogue, LAB_RACK, LAB_DECK)
+	shop = Shop.create(_catalogue, hash([equipment_seed, "shop"])) # its own stream, never the deck's
 	score_panel = ScorePanel.new()
 	score_panel.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
 	score_panel.offset_top = -540.0
@@ -169,6 +185,21 @@ func _ready() -> void:
 	assist_panel.throw_requested.connect(_assist_throw)
 	assist_panel.preview_changed.connect(_assist_preview)
 	add_child(assist_panel)
+	shop_panel = ShopPanel.new()
+	shop_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	shop_panel.offset_top = TOP_UI_HEIGHT + 8.0
+	shop_panel.offset_left = 12.0
+	shop_panel.offset_right = -12.0
+	shop_panel.offset_bottom = -12.0
+	shop_panel.offer_pressed.connect(_on_offer)
+	shop_panel.reroll_pressed.connect(_on_reroll)
+	shop_panel.remove_pressed.connect(_on_remove)
+	shop_panel.sell_pressed.connect(_on_sell)
+	shop_panel.continue_pressed.connect(_start_next_match)
+	shop_panel.choice_made.connect(_on_choice)
+	shop_panel.choice_cancelled.connect(_on_choice_cancelled)
+	shop_panel.hide()
+	add_child(shop_panel)
 	settings_panel = SettingsPanel.new()
 	settings_panel.settings = settings
 	settings_panel.changed.connect(_apply_settings)
@@ -178,16 +209,26 @@ func _ready() -> void:
 	_apply_settings()
 	_new_roll()
 
-## A fresh match with the selected model; the deck shuffles from the session seed.
+## The selected model over the run's card collection; the deck shuffles from the
+## session seed. Direct selection is rebuilt every match (its uses are per match).
 func _build_equipment() -> void:
 	_equipment_model = settings.equipment
 	if _equipment_model == "direct":
-		equipment = Direct.create(LAB_DIRECT_BALLS, LAB_DIRECT_TACTICALS)
+		var balls: Array = []
+		var tacticals: Array = []
+		var tactical_uids: Array = []
+		for owned in run.entries():
+			if not owned.ref.begins_with("card:"):
+				continue
+			var id: String = owned.entry.item_id
+			if Deck.kind(id) == "ball" and id not in balls:
+				balls.append(id)
+			elif Deck.kind(id) == "tactical":
+				tacticals.append(id)
+				tactical_uids.append(owned.ref.trim_prefix("card:"))
+		equipment = Direct.create(balls, tacticals, tactical_uids)
 	else:
-		equipment = Deck.create(LAB_DECK, equipment_seed)
-	if roll_index == 1 and frame_number > 1:
-		match_number += 1
-	match_frame = 1
+		equipment = Deck.create_with(run.deck_cards(), equipment_seed)
 	equipment.start_frame()
 	_clear_choices()
 
@@ -238,6 +279,8 @@ func _refresh_hand() -> void:
 		var detail := _effect_text(item)
 		if equipment.MODEL == "direct" and option.kind == "ball":
 			detail += "\n%d left" % option.uses
+		elif equipment.MODEL == "deck" and not run.card_mod(option.uid).is_empty():
+			detail += "\n+ " + _names.get(run.card_mod(option.uid), "")
 		cards.append({"uid": option.uid, "title": item.get("name", option.item_id), "detail": detail, "kind": option.kind})
 	var marks := {}
 	if not armed_ball.is_empty(): marks[armed_ball] = "ball"
@@ -256,7 +299,7 @@ func _refresh_hand() -> void:
 	var choosing: bool = state == "aim" or (state == "frame_done" and equipment.can_retain() and match_frame < MATCH_FRAMES)
 	card_hand.show_cards(cards, marks, header, equipment.MODEL == "deck", state == "aim" and equipment.can_cycle(), choosing)
 	card_hand.cycle_button.text = "Cancel" if cycling else "Cycle"
-	card_hand.visible = state != "scoring"
+	card_hand.visible = state not in ["scoring", "shop"]
 	# Bottom for thumbs while aiming; under the status line once the score panel is up.
 	# Landscape keeps the ball clear: a narrow two-row panel away from the assist side.
 	card_hand.set_anchors_preset(Control.PRESET_TOP_WIDE if state == "frame_done" else Control.PRESET_BOTTOM_WIDE)
@@ -339,8 +382,8 @@ func _apply_settings() -> void:
 	assist_panel.offset_bottom = 330.0
 	if settings.assist and state == "aim" and lane:
 		_assist_preview(assist_panel.values())
-	# A model switch starts a new match now if this frame has no roll yet, else at Next Rack.
-	if settings.equipment != _equipment_model and (equipment == null or (state == "aim" and roll_index == 1)):
+	# A model switch applies now at the very start of a match, otherwise at the next match.
+	if settings.equipment != _equipment_model and (equipment == null or (state == "aim" and roll_index == 1 and match_frame == 1)):
 		_build_equipment()
 	_update_status()
 
@@ -474,6 +517,9 @@ func _play_armed() -> void:
 		var errors: Array[String] = equipment.play(armed_ball, roll_index)
 		if not errors.is_empty():
 			push_error("Ball card not played: " + str(errors))
+		elif equipment.MODEL == "deck" and not run.card_mod(armed_ball).is_empty():
+			frame_mods[roll_index] = run.card_mod(armed_ball)
+			_last_input.equipment.mod = frame_mods[roll_index]
 	if not armed_tactical.is_empty():
 		var tactical_id := _item_of(armed_tactical)
 		var errors: Array[String] = equipment.play(armed_tactical, roll_index)
@@ -538,14 +584,22 @@ func _advance() -> void:
 
 ## Scores the completed frame from its roll reports and plays the explanation.
 func _score_frame() -> void:
-	var built := FrameBuilder.build(FrameBuilder.lab_loadout(), _catalogue, frame_reports, frame_tactics)
+	var extras := {}
+	for roll in [1, 2]:
+		var played: Array = ([frame_mods[roll]] if frame_mods.has(roll) else []) + frame_tactics.get(roll, [])
+		if not played.is_empty():
+			extras[roll] = played
+	var built := FrameBuilder.build(run.loadout(), _catalogue, frame_reports, extras)
 	var result := Rules.resolve(built.frame) if built.ok else {"ok": false, "errors": built.errors}
 	if not result.ok:
 		push_error("Frame could not be scored: " + str(result.errors))
 		_frame_done()
 		return
 	var steps := ScoreLog.steps(result, built.frame, _names, built.owners)
-	scored_frames.append({"frame_number": frame_number, "match_number": match_number, "frame": built.frame, "result": result, "steps": steps})
+	var income := run.credit_frame(result, built.frame)
+	scored_frames.append({"frame_number": frame_number, "match_number": match_number, "frame": built.frame, "result": result, "steps": steps,
+		"income": income, "money": run.money})
+	money_changed.emit(run.money)
 	state = "scoring"
 	_update_status()
 	score_panel.play(steps, frame_reports, "Frame %d — %s" % [frame_number, String(result.category).capitalize()], int(settings.score_speed))
@@ -565,29 +619,216 @@ func _frame_done() -> void:
 func _next_rack() -> void:
 	if state != "frame_done":
 		return
+	if match_frame >= MATCH_FRAMES:
+		_open_shop()
+		return
 	_kept_last_frame = _item_of(keep_card) if not keep_card.is_empty() else ""
+	_advance_frame()
+	match_frame += 1
+	var errors: Array[String] = equipment.start_frame(keep_card)
+	if not errors.is_empty():
+		push_error("Frame start: " + str(errors))
+	_clear_choices()
+	_new_roll()
+
+func _advance_frame() -> void:
 	frame_number += 1
 	roll_index = 1
 	frame_reports = []
 	frame_tactics = {}
-	if settings.equipment != _equipment_model:
-		_build_equipment()
-		_kept_last_frame = ""
-	elif match_frame >= MATCH_FRAMES:
-		match_number += 1
-		match_frame = 1
-		equipment.start_match()
-		equipment.start_frame()
-	else:
-		match_frame += 1
-		var errors: Array[String] = equipment.start_frame(keep_card)
-		if not errors.is_empty():
-			push_error("Frame start: " + str(errors))
-	_clear_choices()
+	frame_mods = {}
 	rack = Lane.fresh_rack()
 	next_rack.hide()
 	score_panel.hide()
+
+## Match end: used tactical cards leave the run, interest and payout are paid, and
+## the Pro Shop opens. The lab plays every match's two frames (targets are E09).
+func _open_shop() -> void:
+	run.drop_consumed(equipment.exhausted.duplicate())
+	settlement = run.settle_match(MATCH_FRAMES)
+	shop.open_visit(run, LAB_DIVISION)
+	shop_message = ""
+	state = "shop"
+	next_rack.hide()
+	score_panel.hide()
+	shop_panel.show()
+	_refresh_shop()
+	shop_panel.continue_button.grab_focus()
+	_update_status()
+	money_changed.emit(run.money)
+
+func _start_next_match() -> void:
+	if state != "shop" or not _choice.is_empty():
+		return
+	shop_panel.hide()
+	_kept_last_frame = ""
+	_advance_frame()
+	match_number += 1
+	match_frame = 1
+	if settings.equipment != _equipment_model or _equipment_model == "direct":
+		_build_equipment()
+	else:
+		equipment.sync(run.deck_cards())
+		equipment.start_match()
+		equipment.start_frame()
+	_clear_choices()
 	_new_roll()
+
+func _on_offer(index: int) -> void:
+	if state != "shop" or not _choice.is_empty():
+		return
+	var plan: Dictionary = shop.plan(index, run)
+	if not plan.ok:
+		shop_message = "Can't buy that: %s." % plan.reason
+		_refresh_shop()
+		return
+	var options: Array = plan.placements
+	var simple: bool = options.size() == 1 and options[0].replaces.is_empty() and options[0].moves_to.is_empty() and options[0].target.ends_with(":new")
+	if simple:
+		_finish_buy(index, options[0].target)
+		return
+	var item_name: String = _names.get(plan.item_id, plan.item_id)
+	var full: bool = options.all(func(o): return not o.replaces.is_empty())
+	var prompt := "Place %s ($%d)" % [item_name, plan.price]
+	if full:
+		prompt = "No free slot for %s ($%d): replace one (it is sold) or Cancel." % [item_name, plan.price]
+	elif RunInventory.slot_kind(run.item(plan.item_id).category) == "mod":
+		prompt = "Attach %s ($%d) to:" % [item_name, plan.price]
+	_choice = {"kind": "buy", "index": index, "targets": options.map(func(o): return o.target)}
+	shop_panel.show_choices(prompt, options.map(_placement_label))
+	_refresh_shop()
+
+func _finish_buy(index: int, target: String) -> void:
+	var item_id: String = shop.offers[index].item_id
+	var errors: Array[String] = shop.buy(index, target, run)
+	shop_message = ("Bought %s." % _names.get(item_id, item_id)) if errors.is_empty() else "Can't buy that: %s." % ", ".join(errors)
+	_refresh_shop()
+
+func _on_choice(index: int) -> void:
+	var choice := _choice
+	_choice = {}
+	shop_panel.hide_choices()
+	match choice.get("kind", ""):
+		"buy":
+			_finish_buy(choice.index, choice.targets[index])
+		"remove":
+			var uid: String = choice.targets[index]
+			var removed: String = _names.get(run.cards[uid].item_id, "")
+			var errors: Array[String] = shop.remove_card(uid, run)
+			shop_message = ("Removed %s from the deck." % removed) if errors.is_empty() else "Can't remove: %s." % ", ".join(errors)
+			_refresh_shop()
+
+func _on_choice_cancelled() -> void:
+	_choice = {}
+	shop_panel.hide_choices()
+	shop_message = "Cancelled — nothing changed."
+	_refresh_shop()
+	shop_panel.continue_button.grab_focus()
+
+func _on_reroll() -> void:
+	if state != "shop" or not _choice.is_empty():
+		return
+	var errors: Array[String] = shop.reroll(run)
+	shop_message = "New offers." if errors.is_empty() else "Can't reroll: %s." % ", ".join(errors)
+	_refresh_shop()
+
+func _on_remove() -> void:
+	if state != "shop" or not _choice.is_empty():
+		return
+	if run.money < Economy.REMOVAL_PRICE:
+		shop_message = "Can't remove: insufficient funds."
+		_refresh_shop()
+		return
+	var targets: Array = []
+	for owned in run.entries():
+		if owned.ref.begins_with("card:"):
+			targets.append(owned.ref.trim_prefix("card:"))
+	_choice = {"kind": "remove", "targets": targets}
+	shop_panel.show_choices("Remove which card from the run for $%d? (No refund.)" % Economy.REMOVAL_PRICE,
+		targets.map(func(uid): return _ref_label("card:" + uid)))
+	_refresh_shop()
+
+func _on_sell(ref: String) -> void:
+	if state != "shop" or not _choice.is_empty():
+		return
+	var label := _ref_label(ref)
+	var value: int = run.sale_value(ref)
+	var errors: Array[String] = run.sell(ref)
+	shop_message = ("Sold %s for $%d." % [label, value]) if errors.is_empty() else "Can't sell: %s." % ", ".join(errors)
+	_refresh_shop()
+
+## A readable name for an owned place, with its modification.
+func _ref_label(ref: String) -> String:
+	var entry = run.entry_at(ref)
+	if entry == null:
+		return ref
+	var text: String = _names.get(entry.item_id, entry.item_id)
+	if not String(entry.mod).is_empty():
+		text += " + " + _names.get(entry.mod, entry.mod)
+	var parts := ref.split(":")
+	match parts[0]:
+		"rack": return "Rack %s %s" % [parts[1], text]
+		"reserve": return "Reserve %s %s" % [parts[1], text]
+		"charm": return "Charm %s %s" % [parts[1], text]
+	return "Card " + text
+
+func _placement_label(option: Dictionary) -> String:
+	var target: String = option.target
+	if target == "card:new":
+		return "Add to the deck"
+	if target == "charm:new":
+		return "Add to Charm slot %d" % (run.charms.size() + 1)
+	var parts := target.split(":")
+	var place := ("Rack %s" % parts[1]) if parts[0] == "rack" else ("Reserve %s" % parts[1]) if parts[0] == "reserve" else ""
+	if not option.moves_to.is_empty():
+		return "%s — %s moves to %s" % [place, _names.get(run.entry_at(target).item_id, ""), option.moves_to.replace("reserve:", "Reserve ")]
+	if not option.replaces.is_empty():
+		return "Replace %s (sell +$%d)" % [_ref_label(option.replaces), option.sale]
+	if run.entry_at(target) != null:
+		return "Modify " + _ref_label(target)
+	return place
+
+func _refresh_shop() -> void:
+	if shop_panel == null or state != "shop":
+		return
+	var offers: Array = []
+	for offer in shop.offers:
+		var slot_name: String = Shop.SLOT_NAMES[offer.slot]
+		if offer.item_id.is_empty():
+			offers.append({"text": "%s\nNothing available" % slot_name, "state": "empty"})
+			continue
+		var item: Dictionary = run.item(offer.item_id)
+		var text := "%s · %s\n%s\n%s\n$%d" % [slot_name, item.rarity, item.name, _effect_text(item), offer.price]
+		var offer_state := "buy"
+		if offer.sold:
+			offer_state = "sold"
+			text += "  SOLD"
+		else:
+			var plan: Dictionary = shop.plan(offer.slot, run)
+			if not plan.ok:
+				offer_state = "poor" if plan.reason == "insufficient funds" else "blocked"
+				var short := {"insufficient funds": "can't afford", "owned limit": "owned max", "incompatible with owned items": "incompatible",
+					"nothing to modify": "no target", "no place for it": "no slot"}
+				text += "  (%s)" % short.get(plan.reason, plan.reason)
+		offers.append({"text": text, "state": offer_state})
+	var pins: Array = []
+	for position in range(1, 11):
+		var pin: Dictionary = run.rack[position]
+		pins.append("%d %s%s" % [position, _names.get(pin.item_id, ""), "+" + _names.get(pin.mod, "") if not String(pin.mod).is_empty() else ""])
+	var rack_text := "Rack: " + ", ".join(pins)
+	var reserves: Array = run.reserves.map(func(e): return "empty" if e == null else _names.get(e.item_id, ""))
+	rack_text += "\nReserves: " + ", ".join(reserves) + " · Charms %d/%d · Deck %d/%d" % [run.charms.size(), RunInventory.CHARM_SLOTS, run.cards.size(), RunInventory.DECK_CAP]
+	var sellables: Array = []
+	for owned in run.entries():
+		if run.can_sell(owned.ref):
+			sellables.append({"ref": owned.ref, "label": "Sell %s +$%d" % [_ref_label(owned.ref), run.sale_value(owned.ref)]})
+	var summary := "Match %d paid: payout $%d · interest $%d (on $%d held) · item income $%d" % [settlement.match, settlement.payout,
+		settlement.interest, settlement.balance_before, settlement.item_income]
+	shop_panel.show_view({"title": "Pro Shop", "summary": summary, "money": run.money, "offers": offers,
+		"reroll_cost": shop.reroll_cost(), "can_reroll": run.money >= shop.reroll_cost(),
+		"removal_price": Economy.REMOVAL_PRICE, "can_remove": run.money >= Economy.REMOVAL_PRICE and not run.cards.is_empty(),
+		"rack": rack_text, "sellables": sellables, "message": shop_message, "columns": 5 if size.x > size.y else 3})
+	money_changed.emit(run.money)
 
 func _normalized(position: Vector2) -> Vector2:
 	return position / minf(size.x, size.y)
@@ -628,7 +869,7 @@ func _over_ui(position: Vector2) -> bool:
 	if position.y < TOP_UI_HEIGHT:
 		return true
 	var global := get_global_transform() * position
-	for control in [settings_panel, assist_panel, next_rack, card_hand]:
+	for control in [settings_panel, assist_panel, next_rack, card_hand, shop_panel]:
 		if control.visible and control.get_global_rect().has_point(global):
 			return true
 	return false
@@ -657,7 +898,10 @@ func _update_status() -> void:
 	if status == null:
 		return
 	_refresh_hand()
-	var lead := "Match %d · Frame %d · Roll %d · Target %+.2f" % [match_number, frame_number, roll_index, target_x]
+	if state == "shop":
+		status.text = ""
+		return
+	var lead := "Match %d · Frame %d · Roll %d · $%d · Target %+.2f" % [match_number, frame_number, roll_index, run.money, target_x]
 	if equipment != null and state in ["aim", "holding", "rolling"]:
 		var ball_id: String = lane.launch.get("ball_id", HOUSE) if state == "rolling" else armed_ball_id()
 		lead += "\nBall: %s" % _names.get(ball_id, ball_id)

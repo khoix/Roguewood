@@ -76,6 +76,29 @@ How the deck plays:
 
 `FrameBuilder.build(loadout, catalogue, reports, tactics)` takes `tactics` as roll index → tactical item ids. It appends their catalogue effects (category `consumable` only) to that roll's effects. It returns `owners` (roll index → the item id behind each roll effect), which `ScoreLog` uses to credit each step to the card that supplied it. Payout and growth steps keep the banked score on show. The lab fixture balls (`ball.lab_value`, `ball.lab_mult`, `ball.lab_coin`) are simulated with House physics (`LaneSpec.SIMULATED_BALLS`); any other ball id is still refused at commit.
 
+## E08 run economy state (ADR 005)
+
+`RunInventory` (`src/rules/run_inventory.gd`) is a League attempt's owned state, never Career-scoped. Its saved form (`to_dict`, schema 1) is:
+- `money` and `match_number`.
+- `rack`: positions "1".."10" mapped to entries.
+- `reserves`: two entries or null.
+- `charms`: an ordered list of entries.
+- `cards`: uid mapped to entry, plus `next_card`.
+- `ledger`: rows of `{match, kind, amount, item_id}`.
+
+An entry is `{item_id, paid, mod, mod_paid}`. `paid` is the price actually paid (0 for the kit), and sale values derive from it. `mod` is the attached modification ("" for none), at most one per pin or ball card.
+
+Places are refs: `rack:N`, `reserve:N`, `charm:N`, `card:<uid>`. Purchases go through `placements(item_id)`, which lists each possible target with what it would displace (`moves_to`) or replace and sell (`replaces`, `sale`). `place` accepts only a listed target, so nothing is dropped silently.
+
+`Shop` (`src/rules/shop.gd`, schema 1) saves its offers, visit, rerolls this visit, Division, unlocked prerequisites, selection log, seed and RNG state, with seed and state as decimal strings. `ineligibility(item, inventory)` is the executable eligibility rule. `plan(index, inventory)` previews a purchase without changing anything. `buy` and `remove_card` refuse without changing state.
+
+`FrameBuilder.build(loadout, catalogue, reports, extras)`:
+- Now hydrates `loadout.pin_mods` (position → `pin_mod` id) into that pin's effects.
+- `extras` (roll → item ids) accepts `consumable` and `ball_mod` items.
+- `owners` is keyed by event source (`pin:3`, `roll:1`). `ScoreLog` uses it to credit each step, deferred payouts included, to the item that supplied it. Charm steps are named ("Charm 1 Lab Tally +2 Mult").
+
+`RunInventory.credit_frame(result, frame)` credits every payout in `future_effects` once, since FrameRules never retriggers payouts.
+
 ## Commands and evidence
 
 `python3 tools/qa.py unit` exercises invalid data, JSON round-trips, pure scoring, lane geometry, knockdown bookkeeping and gesture recognition. `physics` runs launch fixtures through real Jolt worlds (see DEVELOPMENT.md). `content` lints the actual production registry. `integration` hydrates a frame from catalogue and launch/result fixtures and verifies its score and serialized events. These are headless contract tests, **not gameplay E2E**. E03 supplies real input-driven E2E. All commands use the pinned Godot engine and fail on engine script errors or a missing completion marker.

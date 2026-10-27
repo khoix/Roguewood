@@ -71,11 +71,12 @@ static func _log_cases(strike: Dictionary, failures: Array[String]) -> void:
 		ruby.pins[index].effects.append({"op": "add_mult", "amount": 2, "trigger": "fallen", "scope": "frame"})
 	ruby.charms = [{"item_id": "charm.flat_bonus", "effects": [{"op": "add_mult", "amount": 4, "trigger": "charm", "scope": "frame"}]},
 		{"item_id": "charm.finisher", "effects": [{"op": "multiply_mult", "amount": 2, "trigger": "charm", "scope": "frame"}]}]
-	var forward := ScoreLog.steps(Rules.resolve(ruby), ruby)
-	_expect(forward[-1].score == 3360 and forward[-3].text == "Charm 1 +4 Mult" and forward[-2].symbol == "×" and forward[-2].mult == 24.0, "3360 log shows add then multiply", failures)
+	var charm_names := {"charm.flat_bonus": "Flat Bonus", "charm.finisher": "Finisher"}
+	var forward := ScoreLog.steps(Rules.resolve(ruby), ruby, charm_names)
+	_expect(forward[-1].score == 3360 and forward[-3].text == "Charm 1 Flat Bonus +4 Mult" and forward[-2].symbol == "×" and forward[-2].mult == 24.0, "3360 log shows add then multiply", failures)
 	ruby.charms.reverse()
-	var reverse := ScoreLog.steps(Rules.resolve(ruby), ruby)
-	_expect(reverse[-1].score == 2800 and reverse[-3].text == "Charm 1 ×2 Mult" and reverse[-2].mult == 20.0, "2800 log shows multiply then add", failures)
+	var reverse := ScoreLog.steps(Rules.resolve(ruby), ruby, charm_names)
+	_expect(reverse[-1].score == 2800 and reverse[-3].text == "Charm 1 Finisher ×2 Mult" and reverse[-2].mult == 20.0, "2800 log shows multiply then add", failures)
 	# Every step mirrors the resolver's running numbers: presentation cannot rescore.
 	var result := Rules.resolve(ruby)
 	var replay := ScoreLog.steps(result, ruby)

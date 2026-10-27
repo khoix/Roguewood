@@ -97,3 +97,27 @@ The lab's card row plays the experimental deck (default) or direct selection (Op
 `--rendered` saves the hand, keep, match_over, exhausted and direct PNGs to `artifacts/e07/rendered`. Deck order comes from session seed 1 and outcomes from the deterministic physics, so a change to either can alter which cards appear. The journey picks cards by kind rather than by position.
 
 `python3 tools/qa.py experiment` runs the ADR 004 structural comparison: 1000 seeded runs through the real models and `FrameRules`. It writes `artifacts/e07/deck-experiment.json`, and `deck_test` checks that the experiment is repeatable.
+
+## E08 shop and J05
+
+After a match's second frame, Next Rack pays the match (interest on the held balance, then $3) and opens the Pro Shop:
+- Five offers: Charm, Charm, Equipment, Tactical and Workshop.
+- Reroll, the $3 removal service, Sell buttons, and a choice sheet for placements and replacements, with Cancel.
+- Next Match recombines the deck with the purchases.
+
+The lab's rack, Charms, deck and modifications come from the run inventory, so purchases score in the next match. The journeys from J02 to J04 now leave the shop with Next Match.
+
+`python3 tools/qa.py e2e --journey J05` plays a match with touch, mouse and keyboard. It then checks:
+- The settlement, including Lab Coin item income.
+- Five eligible offers, and a touch purchase into a free Charm slot.
+- A sold offer, and disabled unaffordable offers and reroll (with refused direct requests).
+- An escalating reroll.
+- A pin placement that moves Wood to a reserve, and a modification attached to a chosen host.
+- A full Charm row: Cancel changes nothing, and replacement sells the old Charm.
+- Removal, cancelled and then done.
+- Selling, and buy-then-sell losing money.
+- The ledger matching the wallet.
+- A landscape reflow.
+- Match 2 scoring with the purchases, against an independent resolution.
+
+To reach a full Charm row in one visit, the journey grants $30 and seats four reward-only Crown Charms through the inventory API. This fixture setup is logged in the ledger. `--rendered` saves the shop, bought, funds, place_pin, full_slot, removed, landscape and match2 PNGs to `artifacts/e08/rendered`.
