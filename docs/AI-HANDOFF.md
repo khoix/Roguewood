@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-10-26. State: E01–E04 DONE (integrated on main); E05 REVIEW (implemented, CI green, real-phone gate open); E06 REVIEW (implemented, CI green).
+Updated: 2026-10-26. State: E01–E04 DONE (integrated on main); E05–E06 DONE (owner merge, PR #3; E05 real-phone gate still open); E11 REVIEW (Codex, unmerged); E07 IN_PROGRESS (claimed).
 
 ## Read first
 
@@ -22,7 +22,9 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - E04 DONE: implementation `44bbd7e7bad2d41ddb9e062b29e1733dae1a9bfe`, CI 40262418442 PASS. Accepted by the repository owner through the PR #2 merge, which had no review comments; no separate agent reviewer was run. See handoffs/E04.md and decisions/002-throw-lab-physics.md.
 - E05 REVIEW: implementation `0ad08c299f0f478eeed846bf9513853cff63006d` on `claude/roguewood-build`; local suites and CI 40324357857 PASS; the physics digest `75d1a3c0…` and J02 curve outcomes are identical locally and in CI. Real-phone trials are NOT RUN (no device or mobile build); the protocol is in playtests/E05-device-trials.md. See handoffs/E05.md and decisions/003-spin-curve-input.md.
 - E06 REVIEW: implementation `b325c5641e10a3cbb160d4199d4384fcfa647ef2` on `claude/roguewood-build` (stacked on E05); local suites and CI 40375789785 PASS. J03 strike 560, spare 240 and open 70 are identical locally and in CI. See handoffs/E06.md.
-- Next action: the owner reviews and merges E05 and E06. After E06 is accepted, E07 (deck draw and cycle experiment, High) becomes READY. E11 (High) is READY now.
+- E05 and E06 were accepted by the repository owner through the PR #3 merge (main `4af230b`); no review comments. E05's real-phone trials remain an open gate (NOT RUN).
+- E11 (Codex) is on `codex/roguewood-e11-art` (head `2882483`), based on `e5b865a`. Its own handoff says REVIEW: a runtime candidate exists, but final visual quality is not accepted. It only touches docs/art, assets/art_direction and its own workflow. Not merged; that is the owner's decision.
+- Active: E07, claimed below at the user's direction.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
@@ -41,13 +43,13 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E02 — Headless rules and content contracts | DONE | Codex | codex/roguewood-build | cdb4859; CI40245188289 PASS; E02 handoff |
 | E03 — Application shell and E2E harness | DONE | Codex | codex/roguewood-build | 78b1740; CI40256553911 PASS; E03 handoff |
 | E04 — Straight throw and pin collision lab | DONE | Claude | claude/roguewood-build → main (PR #2) | 44bbd7e; CI 40262418442 PASS; owner merge |
-| E05 — Spin, curve, and mobile gesture feel | REVIEW | Claude | claude/roguewood-build | 0ad08c2; CI 40324357857 PASS; real-phone trials open gate |
-| E06 — Frame scoring and readable resolution | REVIEW | Claude | claude/roguewood-build | b325c56; CI 40375789785 PASS; stacked on E05 |
-| E07 — Deck draw and cycle experiment | NOT_STARTED | unassigned | — | See dependency graph |
+| E05 — Spin, curve, and mobile gesture feel | DONE (device gate open) | Claude | main (PR #3) | 0ad08c2; CI 40324357857 PASS; owner merge; real-phone trials NOT RUN |
+| E06 — Frame scoring and readable resolution | DONE | Claude | main (PR #3) | b325c56; CI 40375789785 PASS; owner merge |
+| E07 — Deck draw and cycle experiment | IN_PROGRESS | Claude | claude/roguewood-build | Claimed 2026-10-27 from main 4af230b |
 | E08 — Shop and match economy | NOT_STARTED | unassigned | — | See dependency graph |
 | E09 — Single Division loop and rival | NOT_STARTED | unassigned | — | See dependency graph |
 | E10 — Attempt saves and recovery | NOT_STARTED | unassigned | — | See dependency graph |
-| E11 — Art bible and representative still scene | READY | unassigned | — | E01/E04 accepted; proposed effort High |
+| E11 — Art bible and representative still scene | REVIEW | Codex | codex/roguewood-e11-art | 2882483; handoff: runtime candidate, visual quality not accepted; unmerged |
 | E12 — Representative motion and visual review | NOT_STARTED | unassigned | — | See dependency graph |
 | E13 — Vertical-slice integration | NOT_STARTED | unassigned | — | See dependency graph |
 | E14 — Seeded eight-Division progression | NOT_STARTED | unassigned | — | See dependency graph |
@@ -69,40 +71,19 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 
 ## Active claims and ownership
 
-E06 claim (2026-10-26):
+E07 claim (2026-10-27):
 - Owner/coordinator: Claude (single-agent session). Reviewer: the repository owner by PR, unless an agent reviewer is requested.
-- Branch: `claude/roguewood-build`; base SHA `4b7ce12a4d5947ff67dae027164a37294b780acc`. Dependencies: E02 and E04 (DONE). This is stacked on unmerged E05 because the same branch carries it; E06 does not depend on E05's behaviour.
+- Branch: `claude/roguewood-build`, restarted from main `4af230b7`; base SHA `4af230b` (PR #3 merge). Dependencies: E03 and E06 (DONE).
 - Scope:
-  - Assemble completed frames (strike on roll 1, otherwise two rolls) from live roll reports, hydrating item effects from a lab catalogue fixture (Wood pin, House ball).
-  - Resolve frames with the E02 `FrameRules`; one accuracy award per frame.
-  - Readable resolution: Value × Mult counters, sequential highlights on a flat ten-slot rack diagram with per-roll attribution, distinct add and multiply symbols, a persistent ordered calculation log, 1×/2×/4× speed and skip. Presentation never changes the score.
-  - Frame and session totals; J03 strike/spare/open journey; retrigger-bound and overflow tests.
-- Exclusive paths: src/rules/ (new files), src/presentation/, tests/{rules,scoring}_test.gd, tests/scoring_journey.gd, content/fixtures/lab_catalogue.json, docs/handoffs/E06.md.
-- Shared files (coordinator-owned this session): src/bootstrap/*, tests/run_tests.gd, tools/qa.py, the CI workflow, docs/CONTRACTS.md, docs/DEVELOPMENT.md, AGENTS.md, README.md and this checkpoint.
-- Out of scope: production catalogue items or Charms (E17/E18), match targets and payout (E08/E09), final VFX and audio (E12/E20), balance claims.
-- Status: implementation pushed (`b325c56`) with handoffs/E06.md, and CI passed. The claim stays open until the owner reviews and merges.
-
-
-E05 claim (2026-10-26T12:20Z):
-- Owner/coordinator: Claude (single-agent session). Reviewer: the repository owner by PR, unless an agent reviewer is requested.
-- Branch: `claude/roguewood-build`; base SHA `d9fda660a35f5e298733d059c210120efa62e03e` (main). Dependency: E04 (DONE).
-- Scope:
-  - Circular spin charge separated from the final forward flick, with a capped readable spin meter and a documented spin sign and curve threshold.
-  - Physical hook response: side rotation and a lane oil profile, so faster throws hook less.
-  - Speed caps.
-  - A contracting target ring that can be moved before holding and freezes at release.
-  - A short directional guide.
-  - Sensitivity, handedness, larger touch targets and reduced motion settings.
-  - Mouse input.
-  - Accessible aim/power/spin controls that emit identical launch records.
-  - Resize handling.
-  - A device-trial protocol and an in-game trial log.
-  - J02 extended with curves both ways, a short flick, target movement, mouse input, assist controls and resize.
-- Exclusive paths: src/input/, src/simulation/, src/presentation/, tests/{input,simulation,physics}_test.gd, tests/throw_journey.gd, content/fixtures/throws/, docs/decisions/003-*.md, docs/playtests/, docs/handoffs/E05.md.
-- Shared files changed under this claim (coordinator-owned this session): project.godot (stretch aspect), src/bootstrap/*, tools/qa.py, the CI workflow, docs/CONTRACTS.md, docs/DEVELOPMENT.md, AGENTS.md, README.md and this checkpoint.
-- Out of scope: catalogue balls (the Hook ball and others), scoring and curved-shot effects (E06/E18), final VFX and art (E11/E12), settings persistence and onboarding (E25), device exports (E26). Real-phone trials need hardware this Linux session lacks; they remain an open gate with a written protocol.
-- Status: implementation pushed (`0ad08c2`) with handoffs/E05.md, and CI passed. The claim stays open until the owner reviews and merges.
-
+  - A pure, seeded deck model: six-card starter deck (two each of three lab ball types), four-card hand, retain one and cycle one per frame, draw-pile reshuffle on a dedicated RNG stream, match recombine, tactical cards that exhaust, House always available outside the deck, and serializable state for E10.
+  - A direct-selection model for comparison: the original bag of specials with two uses per match.
+  - A lab card hand UI for both models, switched in Options; card plays hydrated into frame scoring.
+  - A seeded structural comparison simulation and an experiment ADR (provisional; the human vertical-slice playtest decides).
+  - The J04 journey.
+- Lab fixtures: three House-physics lab balls and one tactical card in content/fixtures/lab_catalogue.json, with completeness false. They are not catalogue content.
+- Exclusive paths: src/rules/ (deck files), src/presentation/, tests/{deck,…}_test.gd, tests/deck_journey.gd, tools/deck_experiment, docs/decisions/004-*.md, docs/handoffs/E07.md, content/fixtures/lab_catalogue.json.
+- Shared files (coordinator-owned this session): src/simulation/lane_world.gd and lane_spec.gd (accepting lab ball IDs with House physics), src/input/launch_mapper.gd (ball_id), src/rules/frame_builder.gd (tactical effects), src/bootstrap/*, tests/run_tests.gd, tools/qa.py, the CI workflow, CONTRACTS, DEVELOPMENT, AGENTS, README and this checkpoint. docs/art/ and assets/ are left to E11.
+- Out of scope: shop, buying, deck cap and removal (E08); real special-ball physics and production cards (E17/E18); saving deck state (E10).
 Standing user preferences:
 - At the end of each milestone, state the proposed effort level for the next pending milestone.
 - At the end of every session, share newly produced screenshots with the user (as files in chat). Never commit screenshots or other rendered captures to the repository; CI's uploaded artifact is their durable copy.
