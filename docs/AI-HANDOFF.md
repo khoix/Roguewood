@@ -55,7 +55,7 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E10 — Attempt saves and recovery | DONE | Claude | claude/roguewood-build (not yet merged) | 8e4edd5; CI 40460928513 PASS; ADR 007; E10 handoff |
 | E11 — Art bible and representative still scene | DONE | Codex | main (PR #4) | 2882483; E11 CI 40428621822 PASS; owner approval by merge (confirmed 2026-10-27) |
 | E12 — Representative motion and visual review | DONE | Codex | main (PR #8) | Implementation 90f5690; handoff 046d109; CI 40444945503 + 40444945245 PASS; merged by PR #8 (main 9225f7c) |
-| E13 — Vertical-slice integration | NOT_STARTED | unassigned | — | See dependency graph |
+| E13 — Vertical-slice integration | IN_PROGRESS | Claude | claude/roguewood-build | Claimed 2026-10-27 at 0d32a32 (main 9225f7c merged with unmerged E10) |
 | E14 — Seeded eight-Division progression | NOT_STARTED | unassigned | — | See dependency graph |
 | E15 — Career persistence and unlock graph | NOT_STARTED | unassigned | — | See dependency graph |
 | E16 — Clubhouse and collection UI | NOT_STARTED | unassigned | — | See dependency graph |
@@ -75,19 +75,31 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 
 ## Active claims and ownership
 
-E10 claim (2026-10-27):
-- Owner/coordinator: Claude (single-agent session). Reviewer: the repository owner by PR, unless an agent reviewer is requested.
-- Branch: `claude/roguewood-build`, restarted from main; base SHA `1132fca` (PR #7 merge). Dependencies: E07 and E09 (DONE).
-- Scope:
-  - A save store: checksummed, versioned envelopes; atomic write (temporary file, verification, then replace) with a kept backup; corruption detection and fallback to the backup; quarantine of unreadable files; refusal of newer or unknown versions; a migration registry.
-  - Versioned attempt snapshots: session seed, content hashes, RNG and deck state, inventory, shop, Division, frame and rack state, and the committed launch. They are written before a throw animates, after each roll and frame resolution, after every shop transaction, cycle and frame start, and on backgrounding.
-  - Recovery: resume each phase; a committed throw re-simulates its saved launch (no free reroll); a resolved frame or purchase is never applied twice.
-  - A separate, versioned Career profile file for first clears and unlocks, written before the attempt records a victory, so rewards are neither duplicated nor lost.
-  - Shell: Continue Attempt and a corruption or fallback notice in the menu.
-  - Migration and golden-save fixtures; J07 run across real process restarts.
-- Exclusive paths: src/persistence/ (new), tests/save_test.gd, tests/save_journey.gd, tests/fixtures/saves/, tools/make_save_fixture.gd, docs/decisions/007-*.md, docs/handoffs/E10.md.
-- Shared files (coordinator-owned this session): src/presentation/throw_lab.gd (checkpoints and restore), src/rules/direct_loadout.gd (`from_dict`), src/presentation/score_panel.gd if needed, src/bootstrap/* (store, Continue, Career loading), tools/qa.py (save directory and multi-stage J07), tests/run_tests.gd, the CI workflow, CONTRACTS, DEVELOPMENT, AGENTS, README and this checkpoint.
-- Out of scope: cross-platform bit-identical physics (not claimed); the Career unlock graph, milestones and Clubhouse (E15/E16); settings persistence (E25); cloud saves and platform save locations (E26).
+E13 claim (2026-10-27):
+- Owner/coordinator: Claude. Owner merge is approval (AGENTS.md).
+- Branch: `claude/roguewood-build` at `0d32a32`: main `9225f7c` (E12 merged) plus E10 (DONE, unmerged). Dependencies: E09, E10 and E12 (DONE).
+- Scope: the design's stage-3 roguelike slice (§13):
+  - Two Divisions (six matches) with two bosses: The Surveyor (Dead Straight: charged spin disabled) and The Custodian (Clean Sweep).
+  - Four balls: House, Hook, Hammer, Echo.
+  - Six pins: Wood, Ruby, Gold, Anchor, Grower, Rubber.
+  - Twelve Charms: the ten in §9 plus two authored.
+  - A slice starting kit, shop pools and save/resume, with representative E12 presentation.
+- Items are authored as production catalogue batch E13-S01 (stable IDs) in content/catalogue.json. Completeness flags are honest: artwork and effects/audio stay false (E19/E20).
+- Missing mechanics, added as a closed, versioned contract extension:
+  - effect conditions (frame category, frame in match, standing count, curved shot, all-House);
+  - per-count scaling;
+  - a first-ball-pin retrigger;
+  - pin growth persisted in the run;
+  - per-item physics profiles for balls (spin response, mass) and pins (mass, restitution);
+  - a run streak and match growth for Turkey Club and Patient Investor.
+- Validation:
+  - J01–J08 integrated pass. Mechanism journeys keep the lab fixtures through a `--content=lab` content set; J06 plays the slice's two Divisions.
+  - A seeded slice simulation demonstrating three intentional build strategies.
+  - Real-device play session: blocked (no device in this environment), recorded as a gate with outstanding defects.
+- Exclusive paths: content/slice/, src/rules/league_run.gd, src/rules/conditions in frame_rules.gd (contract extension), src/simulation/item_physics.gd, tools/slice_strategies.gd, tests/slice_test.gd, docs/decisions/008-*.md, docs/handoffs/E13.md, and production entries of content/catalogue.json for batch E13-S01.
+- Shared files (coordinator-owned this session): content/schemas/catalogue.schema.json and contracts.gd (versioned extension), frame_rules.gd, frame_builder.gd, lane_spec.gd, lane_world.gd, throw_lab.gd, bootstrap.gd, division_run.gd, run_inventory.gd, the journeys (content set), qa.py, the CI workflow, CONTRACTS, DEVELOPMENT, AGENTS, README and this checkpoint.
+- Coordination with E14 (Codex, `codex/roguewood-build`): E14 owns seeded eight-Division generation in its own paths. It should produce Division specs in the DivisionRun format; LeagueRun will chain them. Edits to division_run.gd, throw_lab.gd or bootstrap.gd should be coordinated through this checkpoint.
+- Out of scope: a declaration of full release or a validated economy; final item art and effects (E19/E20); further rivals' art (E21); device play (blocked).
 
 Standing user preferences:
 - Log agent work only; owner merge means approval. Do not mark completed milestones pending the owner. Integration facts are separate.
