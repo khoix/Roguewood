@@ -120,3 +120,7 @@ func _exit_tree() -> void:
 		if is_instance_valid(voice):
 			voice.stop()
 			voice.stream = null
+	if DisplayServer.get_name() == "headless":
+		# Godot 4.5's Dummy mixer retires stopped WAV playbacks on its next
+		# wall-clock mix. Fixed-fps tests can otherwise tear down first.
+		OS.delay_msec(50)
