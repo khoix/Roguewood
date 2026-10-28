@@ -176,8 +176,8 @@
         "card": "res://assets/items/balls/echo-card.tres",
         "in_play": "res://assets/items/balls/echo-material.tres",
         "rarity_treatment": "res://assets/items/balls/echo-frame.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/ball_echo.tres",
+        "sound": "res://assets/audio/ball_echo.wav",
         "reduced_motion": "res://assets/items/balls/echo-card.tres"
       },
       "completeness": {
@@ -185,7 +185,7 @@
         "mechanics": true,
         "automated_validation": true,
         "artwork": true,
-        "effects_audio": false,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -1119,8 +1119,8 @@
         "card": "res://assets/items/charms/encore-card.tres",
         "in_play": "res://assets/items/charms/encore-card.tres",
         "rarity_treatment": "res://assets/items/charms/encore-frame.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/charm_encore.tres",
+        "sound": "res://assets/audio/charm_encore.wav",
         "reduced_motion": "res://assets/items/charms/encore-card.tres"
       },
       "completeness": {
@@ -1128,7 +1128,7 @@
         "mechanics": true,
         "automated_validation": true,
         "artwork": true,
-        "effects_audio": false,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }

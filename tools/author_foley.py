@@ -28,6 +28,24 @@ for i in range(int(rate * seconds)):
     else:
         value = sum(a*math.sin(2*math.pi*freq*r*t)*math.exp(-p*d) for a,r,d in [(.35,1,5),(.22,2.41,9),(.12,4.13,15)])+.15*noise*math.exp(-p*60)
     values.append(value*attack*min(1.0,(1-p)*40))
+# Hand-authored short rhythmic identities, mixed before peak limiting.
+patterns = {
+ 'ball_echo': [(0,1),(.085,.65)],
+ 'charm_encore': [(0,1),(.075,.75)],
+ 'charm_turkey_club': [(0,.85),(.07,.9),(.14,1)],
+ 'charm_flat_bonus': [(0,1),(.04,.65),(.08,.65),(.12,.8)],
+ 'charm_gold_rush': [(0,1),(.055,.6),(.115,.7)],
+ 'charm_spare_change': [(0,.9),(.08,1)],
+ 'charm_last_chance': [(0,.4),(.09,.5),(.18,1)],
+}
+if name in patterns:
+    original = values[:]
+    values = [0.0]*len(original)
+    for hit, (delay,gain) in enumerate(patterns[name]):
+        offset = round(delay*rate)
+        for i in range(offset,len(values)):
+            at = int((i-offset)*(1+hit*.045))
+            if at < len(original): values[i] += original[at]*gain
 peak = max(abs(v) for v in values)
 values = [round(v / max(peak, .001) * .48 * 32767) for v in values]
 path = Path('assets/audio') / (name + '.wav')

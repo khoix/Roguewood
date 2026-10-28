@@ -39,6 +39,7 @@ func _initialize() -> void:
 				failures.append("Missing tests: " + path)
 			else:
 				failures.append_array(suite.run())
+		failures.append_array(load("res://tests/ability_events_test.gd").run())
 	elif mode == "integration":
 		var suite = load("res://tests/contract_rules_test.gd")
 		failures = suite.run()

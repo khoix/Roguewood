@@ -65,7 +65,7 @@ func _ready() -> void:
 	counters.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	row.add_child(counters)
 	log_scroll = ScrollContainer.new()
-	log_scroll.custom_minimum_size = Vector2(0, 220)
+	log_scroll.custom_minimum_size = Vector2(0, 150)
 	log_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	box.add_child(log_scroll)
 	log_list = VBoxContainer.new()

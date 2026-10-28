@@ -30,3 +30,12 @@ func _draw() -> void:
 			draw_rect(Rect2(c+Vector2(-8,-7),Vector2(16,14)),ink,false,3)
 		"sweep":
 			for j in 3: draw_line(c+Vector2(-26,-22+j*7+t*30),c+Vector2(26,-28+j*7+t*30),ink,2)
+
+		"echo":
+			draw_arc(c,20+8*t,0,TAU,24,ink,2)
+			draw_arc(c,12+10*t,0,TAU,24,ink,2)
+		"tickets":
+			for j in 2:
+				var offset := Vector2(-24+j*8,-22+j*8+(1-t)*5)
+				draw_rect(Rect2(c+offset,Vector2(38,34)),ink,false,2)
+				for dot in 4: draw_line(c+offset+Vector2(8+dot*7,8),c+offset+Vector2(10+dot*7,8),ink,2)

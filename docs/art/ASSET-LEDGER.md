@@ -103,3 +103,7 @@ exclusive-rights/clearance claim; phone readability stays E26.
 
 | E21-R02 rival.custodian | Original project-owned E12 reference, new six-state generated atlas with correction pass | `assets/rivals/custodian.png`; unchanged source | `docs/art/briefs/E21-R02-prompt.txt` | SHA-256 `89ba126e185923c47a873ec01a7cff12bbe349cdc31da414aadfe135b449f8d4` | 180/72px and real intro/reaction/result, portrait/landscape inspected |
 | E21-R02 Clean Sweep | Original brushed cloth PCM and diagonal sweep glyph | `assets/audio/clean_sweep.wav`, `assets/effects/clean_sweep.tres` | `tools/author_foley.py clean_sweep cloth 600 0.4`; no samples | Peak ≤0.48 | Actual open-frame rule-bank cue, shared sound controls |
+
+| E20-V01 ball.echo | Original echo vector recipe + metal PCM; existing final identity illustration | `assets/effects/ball_echo.tres`, `assets/audio/ball_echo.wav` | `tools/author_effect_batch.py E20-V01`; config in batches.json | Audio SHA-256 `0ec84db3ad8d95d768ce8bd91bd544635097b2b89ed4e17d212de3cbed4a4fbf` | Native activation, reduced, skip/mute; 64px contact |
+
+| E20-V01 charm.encore | Original tickets vector recipe + paper PCM; existing final identity illustration | `assets/effects/charm_encore.tres`, `assets/audio/charm_encore.wav` | `tools/author_effect_batch.py E20-V01`; config in batches.json | Audio SHA-256 `158120b13ad40555628404fbf45b0867b2bc70b0783cc2ae4e34a9dc865a762d` | Native activation, reduced, skip/mute; 64px contact |

@@ -6,6 +6,7 @@ var glyph: Control
 var intro_glyph: Control
 var history: Array = []
 var _boss := ""
+var _projected := {}
 func _ready() -> void:
 	name = "AbilityDirector"
 	glyph = preload("res://src/presentation/ability_glyph.gd").new()
@@ -33,4 +34,13 @@ func cue(id: String, event: String, skipped: bool) -> void:
 	if event == "encounter": intro_glyph.show_cue(recipe,lab.settings.reduced_motion or lab.settings.reduced_flash,Assets.slot(id,"icon"))
 	lab.motion.sound.cue(id,Assets.slot(id,"sound"),recipe.priority)
 func _step(step: Dictionary, index: int, skipped: bool) -> void:
+	if index == 0: _projected.clear()
 	if step.phase == "rule" and not _boss.is_empty(): cue(_boss,"bank_rule",skipped)
+	if lab.scored_frames.is_empty(): return
+	var scored: Dictionary = lab.scored_frames[-1]
+	if not scored.has("frame") or index >= scored.result.get("events",[]).size(): return
+	var event: Dictionary = scored.result.events[index]
+	for activation in preload("res://src/presentation/ability_events.gd").project(scored.frame,event):
+		if _projected.has(activation.key): continue
+		_projected[activation.key] = true
+		cue(activation.id,activation.phase,skipped)
