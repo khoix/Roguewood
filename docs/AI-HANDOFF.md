@@ -33,7 +33,7 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - Integration: the owner merged `claude/roguewood-build` at `06abb88` (E15 and the ownership plan) into main by PR #10 (`a65ed24`).
 - E16 core DONE: `b01fb4d` on `claude/roguewood-build`; full local matrix (J01–J11 headless and rendered) and CI 40616441249 PASS; see handoffs/E16.md. E16-ART is READY for Codex.
 - Integration: the owner merged PR #11 (Codex Wave 1, E16 core, E17-D01, the test fix) into main (`492f9f4`). Codex Wave 2 (`fcdb494`: E16-ART, E19-A08…A12) is reviewed and merged into `claude/roguewood-build`, along with main.
-- Active (Wave 3): Claude on E18-C01; Codex on E17-D02-ART (twelve Charm briefs, READY). E17-D01 and its briefs are DONE. E17-D02 (12 Charms) is DONE (handoffs/E17-D02.md); E17-D02-ART is READY for Codex, to follow Wave 2. Next for Claude: E18-C01 (the seven expressible D02 Charms, Medium) or E17-D03, the owner's choice.
+- Active (Wave 3): E18-C01 DONE (six Charms playable; J03C01). Codex on E17-D02-ART, then E19-A13…A15. Next for Claude: E17-D03 or E18-C02, the owner's choice. E17-D01 and its briefs are DONE. E17-D02 (12 Charms) is DONE (handoffs/E17-D02.md); E17-D02-ART is READY for Codex, to follow Wave 2. Next for Claude: E18-C01 (the seven expressible D02 Charms, Medium) or E17-D03, the owner's choice.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
@@ -65,7 +65,7 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E15 — Career persistence and unlock graph | DONE | Claude | claude/roguewood-build (not yet merged) | 2cdedb1 (+ 8c19905); local suites and J01–J10 headless/rendered PASS; CI 40577363221 and 40581437392 PASS; ADR 010; E15 handoff |
 | E16 — Clubhouse and collection UI | DONE (core and E16-ART) | Claude core · Codex E16-ART | claude/roguewood-build · codex/roguewood-build | Core b01fb4d; CI 40616441249 PASS; J11; handoffs/E16.md (Art hand-off) |
 | E17 — Catalogue and unlock authoring batches | IN_PROGRESS (D01, D01-ART, D02 DONE; D02-ART READY for Codex) | Claude definitions · Codex visual briefs | claude/roguewood-build · codex/roguewood-build | Split per batch; see Ownership |
-| E18 — Content mechanics batches | NOT_STARTED | Claude | claude/roguewood-build | Per E17 batch |
+| E18 — Content mechanics batches | IN_PROGRESS (C01 DONE) | Claude | claude/roguewood-build | C01: six D02 Charms landed; handoffs/E18-C01.md |
 | E19 — Final item artwork batches | IN_PROGRESS (A01–A12 DONE) | Codex | codex/roguewood-build | E13-S01 and E17-D01 identities; D02 art after its briefs |
 | E20 — Ability effects and audio batches | IN_PROGRESS (V01–V07 DONE) | Codex | codex/roguewood-build | E13-S01's 23 abilities; D01 effects wait for E18 |
 | E21 — Rival presentation batches | IN_PROGRESS (R01, R02 DONE) | Codex | codex/roguewood-build | Later rivals after E17 defines them |
@@ -272,6 +272,7 @@ Base for both agents: `claude/roguewood-build` at the commit containing this cla
 - **E17-D01 delivered:** 11 definitions in `content/catalogue/batches/E17-D01.json`, validated against the catalogue and the prospective unlock graph by `qa.py content`. **E17-D01-ART is READY for Codex:** visual briefs into `docs/art/briefs/E17-D01.md` from each definition's presentation needs and asset IDs, flagging any pair that does not read as distinct. **E18-C01 is READY for Claude:** eleven new primitives, listed in the handoff.
 
 ### Wave 1 coordination log
+- 2026-10-28, coordinator scope fix (E18-C01) in Codex's `tests/art_club_journey.gd`: the binder-icon check now covers items whose catalogue `artwork` flag is set, instead of every card. The six newly landed Charms have no art until E19-A13…A15. The intent is unchanged; once their art lands and the flags are set, the check covers them.
 - 2026-10-28, Codex request (A01/A02, `tests/slice_test.gd`): the blanket "no art or effects yet" assertion is replaced. **Done by the coordinator** on `claude/roguewood-build`, in the commit adding this entry. Every E13-S01 item must be authored and implemented and not integrated. A set `artwork` flag needs existing icon, card, rarity_treatment and reduced_motion resources, plus in_play for balls and pins. A set `effects_audio` flag needs existing activation and sound resources. Counts and scoring assertions are unchanged. Verified: `qa.py unit` PASS here, and on Codex's `f26ab50` (A01 and A02 final flags) with this test; a broken Ruby card path is caught. Codex merges `origin/claude/roguewood-build` to pick it up.
 - 2026-10-28, Codex request (E19-A01): add `item_id` to the hand-card view and the shop-offer view in throw_lab.gd. **Done by the coordinator** on `claude/roguewood-build`, in the commit that adds this entry. `_refresh_hand` cards carry `item_id`; `_refresh_shop` offers carry `item_id` ("" for empty slots). Purely additive: J04, J05, J06 and unit re-run PASS. Codex merges `origin/claude/roguewood-build` to pick it up, then resumes A01 shop binding.
 - 2026-10-28, **E16-ART READY for Codex.** The scope, asset IDs, drop path and captures are in handoffs/E16.md, "Art hand-off". On hand-off, `src/clubhouse/clubhouse.gd` and `src/clubhouse/clubhouse_art.gd` become Codex-exclusive presentation paths. `clubhouse_model.gd`, Career code and the registry stay Claude's. J11's node names must be kept.
@@ -297,7 +298,9 @@ Standing user preferences:
 
 ## Batch queue and content completeness
 
-Batch E17-D02 (E17, authored, not implemented): charm.pin_counter, hot_streak, last_stand, tip_jar, banana_ball, plumb_line, glass_cutter, split_specialist, sweet_spot, back_row, underdog, crown_jewel. Seven are expressible with existing frame rules and are already scored in authored_test.
+Batch E18-C01 (landed): charm.pin_counter, hot_streak, last_stand, tip_jar, banana_ball, plumb_line are in content/catalogue.json (mechanics and automated validation true; artwork pending). Production counts: Charms 18/100.
+
+Batch E17-D02 (E17, authored; six now landed by E18-C01): charm.pin_counter, hot_streak, last_stand, tip_jar, banana_ball, plumb_line, glass_cutter, split_specialist, sweet_spot, back_row, underdog, crown_jewel. Seven are expressible with existing frame rules and are already scored in authored_test.
 
 Batch E17-D01 (E17, authored, not implemented): ball.spark, ball.ghost, ball.splitter, ball.gold; pin.glass, pin.echo, pin.fuse, pin.crown; consumable.nudge, consumable.reserve_call, consumable.rule_waiver. Flags: authored and unlock_assigned true; everything else false. Not in the catalogue or any pool until E18. Authored (not implemented) counts: balls 4, pins 4, tactical 3.
 
