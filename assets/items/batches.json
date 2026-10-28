@@ -22,5 +22,11 @@
     "charm.lone_survivor",
     "charm.hook_artist",
     "charm.house_favorite"
+  ],
+  "E19-A05": [
+    "charm.gold_rush",
+    "charm.turkey_club",
+    "charm.patient_investor",
+    "charm.last_chance"
   ]
 }

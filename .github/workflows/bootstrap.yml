@@ -73,6 +73,9 @@ jobs:
           python3 tools/qa.py e2e --journey J08A04
           xvfb-run -a python3 tools/qa.py e2e --journey J08A04 --rendered
           xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_item_art.gd -- --batch=E19-A04
+          python3 tools/qa.py e2e --journey J08A05
+          xvfb-run -a python3 tools/qa.py e2e --journey J08A05 --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_item_art.gd -- --batch=E19-A05
           python3 tools/qa.py experiment
           python3 tools/qa.py slice
       - name: Preserve Wave 1 art evidence after an earlier failure
@@ -92,6 +95,9 @@ jobs:
           python3 tools/qa.py e2e --journey J08A04
           xvfb-run -a python3 tools/qa.py e2e --journey J08A04 --rendered
           xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_item_art.gd -- --batch=E19-A04
+          python3 tools/qa.py e2e --journey J08A05
+          xvfb-run -a python3 tools/qa.py e2e --journey J08A05 --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_item_art.gd -- --batch=E19-A05
       - name: Preserve journey diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -111,5 +117,6 @@ jobs:
             artifacts/e19-a02/
             artifacts/e19-a03/
             artifacts/e19-a04/
+            artifacts/e19-a05/
             artifacts/e16/
           if-no-files-found: warn

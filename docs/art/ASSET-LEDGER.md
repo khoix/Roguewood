@@ -69,3 +69,15 @@ reduced slots. Source pixels remain unchanged; row split y=600 retains complete
 loops. Frames use authored Common and Rare structures plus explicit rarity text.
 Native actual purchase/equipped/binder and 48px contact reviewed. Four artwork
 flags true; ability/audio work stays in E20. No third-party asset introduced.
+
+## Wave 1 / E19-A05
+
+`assets/items/sources/e19-a05.png`: unchanged original built-in generated source,
+no references; exact prompt in briefs/E19-A05-source-prompt.txt. SHA256
+`147ff9dc5c40ac24ebc4a98720e5c33bb22a8f6a7549779d835e9a7a61bc561e`.
+Four distinct original pendant designs (coin cart, three-pin turkey fan, coin
+hourglass, final-sector watch) use authored AtlasTexture views for card/icon/
+in-play/static reduced slots and Common-family Uncommon/Rare frames. All four
+native purchases, equipped identities and binder cards verified; 192px/48px
+contact and reduced view inspected. Artwork true, effects/audio false. No
+third-party material, exclusive-rights or clearance claim. Phone remains E26.
