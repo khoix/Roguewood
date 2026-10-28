@@ -341,8 +341,8 @@
         "card": "res://assets/items/pins/gold-card.tres",
         "in_play": "res://assets/items/pins/gold-material.tres",
         "rarity_treatment": "res://assets/items/pins/gold-frame.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/pin_gold.tres",
+        "sound": "res://assets/audio/pin_gold.wav",
         "reduced_motion": "res://assets/items/pins/gold-card.tres"
       },
       "completeness": {
@@ -350,7 +350,7 @@
         "mechanics": true,
         "automated_validation": true,
         "artwork": true,
-        "effects_audio": false,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -899,8 +899,8 @@
         "card": "res://assets/items/charms/gold_rush-card.tres",
         "in_play": "res://assets/items/charms/gold_rush-card.tres",
         "rarity_treatment": "res://assets/items/charms/gold_rush-frame.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/charm_gold_rush.tres",
+        "sound": "res://assets/audio/charm_gold_rush.wav",
         "reduced_motion": "res://assets/items/charms/gold_rush-card.tres"
       },
       "completeness": {
@@ -908,7 +908,7 @@
         "mechanics": true,
         "automated_validation": true,
         "artwork": true,
-        "effects_audio": false,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
