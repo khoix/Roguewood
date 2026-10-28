@@ -1757,7 +1757,7 @@
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
+        "artwork": true,
         "effects_audio": false,
         "unlock_assigned": true,
         "integrated": false
