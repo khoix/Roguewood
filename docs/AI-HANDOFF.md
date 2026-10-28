@@ -34,7 +34,7 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - E16 core DONE: `b01fb4d` on `claude/roguewood-build`; full local matrix (J01–J11 headless and rendered) and CI 40616441249 PASS; see handoffs/E16.md. E16-ART is READY for Codex.
 - Integration: the owner merged PR #11 (Codex Wave 1, E16 core, E17-D01, the test fix) into main (`492f9f4`). Codex Wave 2 (`fcdb494`: E16-ART, E19-A08…A12) is reviewed and merged into `claude/roguewood-build`, along with main.
 - Wave 2 MERGED to main by PR #13 (`1d44302`).
-- Wave 3 MERGED to main by PR #14 (`3a7e938`; CI 40736417912 PASS on `afe5852`): Codex E17-D02-ART and E19-A13…A15; Claude E18-C02 and E17-D03. **Wave 4 is open** (see "Wave 4 claims"): Codex starts from this branch with docs/prompts/codex-wave4.md. Wave 4 progress: E18-C03 DONE (handoffs/E18-C03.md); next for Claude: E17-D04 (Medium).
+- Wave 3 MERGED to main by PR #14 (`3a7e938`; CI 40736417912 PASS on `afe5852`): Codex E17-D02-ART and E19-A13…A15; Claude E18-C02 and E17-D03. **Wave 4 is open** (see "Wave 4 claims"): Codex starts from this branch with docs/prompts/codex-wave4.md. Wave 4 progress: E18-C03 DONE (handoffs/E18-C03.md); E17-D04 DONE (twelve modifications; handoffs/E17-D04.md). Claude's Wave 4 claims are complete; the wave closes when Codex's delivery is integrated.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
@@ -65,7 +65,7 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E14 — Seeded eight-Division progression | DONE | Codex | codex/roguewood-build | 71b2bd2; local unit/content/integration/physics, J01/J06/J07 and native J09 headless/rendered PASS; handoffs/E14.md |
 | E15 — Career persistence and unlock graph | DONE | Claude | claude/roguewood-build (not yet merged) | 2cdedb1 (+ 8c19905); local suites and J01–J10 headless/rendered PASS; CI 40577363221 and 40581437392 PASS; ADR 010; E15 handoff |
 | E16 — Clubhouse and collection UI | DONE (core and E16-ART) | Claude core · Codex E16-ART | claude/roguewood-build · codex/roguewood-build | Core b01fb4d; CI 40616441249 PASS; J11; handoffs/E16.md (Art hand-off) |
-| E17 — Catalogue and unlock authoring batches | IN_PROGRESS (D01–D03 DONE; D01-ART, D02-ART DONE; D03-ART in Wave 4) | Claude definitions · Codex visual briefs | claude/roguewood-build · codex/roguewood-build | Split per batch; see Ownership |
+| E17 — Catalogue and unlock authoring batches | IN_PROGRESS (D01–D04 DONE; D01-ART, D02-ART DONE; D03-ART in Wave 4; D04-ART READY) | Claude definitions · Codex visual briefs | claude/roguewood-build · codex/roguewood-build | Split per batch; see Ownership |
 | E18 — Content mechanics batches | IN_PROGRESS (C01–C03 DONE) | Claude | claude/roguewood-build | C01: six D02 Charms; C02: transform primitive, Glass Pin and Glass Cutter; C03: five primitives, Crown Pin and the last five D02 Charms; handoffs/E18-C0x.md |
 | E19 — Final item artwork batches | IN_PROGRESS (A01–A15 DONE) | Codex | codex/roguewood-build | E13-S01, E17-D01 and E17-D02 identities; artwork flags set on the seven landed D02 Charms; Glass Pin's native check in Wave 4 |
 | E20 — Ability effects and audio batches | IN_PROGRESS (V01–V07 DONE) | Codex | codex/roguewood-build | E13-S01's 23 abilities; D01 effects wait for E18 |
@@ -347,6 +347,8 @@ Standing user preferences:
 ## Batch queue and content completeness
 
 Batch E17-D03 (authored): boss_rule.oil_slick, heavy_set, frugal_house, house_rules, charm_freeze, narrow_lane, one_and_done, mult_cap, dull_pins (boss rules 2 implemented + 9 authored of 20).
+
+Batch E17-D04 (authored): ball_mod.chalk_grip, spin_wax, coin_slot, echo_charge, lead_core, bumper_guard; pin_mod.brass_cap, gilt_leaf, lantern, keystone, lead_weight, spearhead. Nine expressible; three need primitives (physics.mod_mass_scale, physics.gutter_rebound, condition.first_fallen). Authored counts: ball and pin modifications 6/16 each.
 
 Batch E18-C03 (landed): pin.crown, charm.split_specialist, sweet_spot, back_row, underdog, crown_jewel (primitives leave_min, behind, last_fallen, per accurate, per fallen_at). E17-D02 is fully landed. Production counts: pins 8/32, Charms 24/100. Artwork false until Codex's native checks (Wave 5).
 
