@@ -1355,8 +1355,8 @@
         "card": "res://assets/items/d02/card.charm.pin_counter.tres",
         "in_play": "",
         "rarity_treatment": "res://assets/items/d02/rarity_treatment.charm.pin_counter.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/activation.charm.pin_counter.tres",
+        "sound": "res://assets/audio/sound.charm.pin_counter.wav",
         "reduced_motion": "res://assets/items/d02/reduced_motion.charm.pin_counter.tres"
       },
       "completeness": {
@@ -1364,7 +1364,7 @@
         "mechanics": true,
         "automated_validation": true,
         "artwork": true,
-        "effects_audio": false,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -1413,8 +1413,8 @@
         "card": "res://assets/items/d02/card.charm.hot_streak.tres",
         "in_play": "",
         "rarity_treatment": "res://assets/items/d02/rarity_treatment.charm.hot_streak.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/activation.charm.hot_streak.tres",
+        "sound": "res://assets/audio/sound.charm.hot_streak.wav",
         "reduced_motion": "res://assets/items/d02/reduced_motion.charm.hot_streak.tres"
       },
       "completeness": {
@@ -1422,7 +1422,7 @@
         "mechanics": true,
         "automated_validation": true,
         "artwork": true,
-        "effects_audio": false,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -1466,8 +1466,8 @@
         "card": "res://assets/items/d02/card.charm.last_stand.tres",
         "in_play": "",
         "rarity_treatment": "res://assets/items/d02/rarity_treatment.charm.last_stand.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/activation.charm.last_stand.tres",
+        "sound": "res://assets/audio/sound.charm.last_stand.wav",
         "reduced_motion": "res://assets/items/d02/reduced_motion.charm.last_stand.tres"
       },
       "completeness": {
@@ -1475,7 +1475,7 @@
         "mechanics": true,
         "automated_validation": true,
         "artwork": true,
-        "effects_audio": false,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -1522,8 +1522,8 @@
         "card": "res://assets/items/d02/card.charm.tip_jar.tres",
         "in_play": "",
         "rarity_treatment": "res://assets/items/d02/rarity_treatment.charm.tip_jar.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/activation.charm.tip_jar.tres",
+        "sound": "res://assets/audio/sound.charm.tip_jar.wav",
         "reduced_motion": "res://assets/items/d02/reduced_motion.charm.tip_jar.tres"
       },
       "completeness": {
@@ -1531,7 +1531,7 @@
         "mechanics": true,
         "automated_validation": true,
         "artwork": true,
-        "effects_audio": false,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -1582,8 +1582,8 @@
         "card": "res://assets/items/d02/card.charm.banana_ball.tres",
         "in_play": "",
         "rarity_treatment": "res://assets/items/d02/rarity_treatment.charm.banana_ball.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/activation.charm.banana_ball.tres",
+        "sound": "res://assets/audio/sound.charm.banana_ball.wav",
         "reduced_motion": "res://assets/items/d02/reduced_motion.charm.banana_ball.tres"
       },
       "completeness": {
@@ -1591,7 +1591,7 @@
         "mechanics": true,
         "automated_validation": true,
         "artwork": true,
-        "effects_audio": false,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -1637,8 +1637,8 @@
         "card": "res://assets/items/d02/card.charm.plumb_line.tres",
         "in_play": "",
         "rarity_treatment": "res://assets/items/d02/rarity_treatment.charm.plumb_line.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/activation.charm.plumb_line.tres",
+        "sound": "res://assets/audio/sound.charm.plumb_line.wav",
         "reduced_motion": "res://assets/items/d02/reduced_motion.charm.plumb_line.tres"
       },
       "completeness": {
@@ -1646,7 +1646,7 @@
         "mechanics": true,
         "automated_validation": true,
         "artwork": true,
-        "effects_audio": false,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -1696,8 +1696,8 @@
         "card": "res://assets/items/d01/card.pin.glass.tres",
         "in_play": "res://assets/items/d01/in_play.pin.glass.tscn",
         "rarity_treatment": "res://assets/items/d01/rarity_treatment.pin.glass.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/activation.pin.glass.tres",
+        "sound": "res://assets/audio/sound.pin.glass.wav",
         "reduced_motion": "res://assets/items/d01/reduced_motion.pin.glass.tres"
       },
       "completeness": {
@@ -1705,7 +1705,7 @@
         "mechanics": true,
         "automated_validation": true,
         "artwork": true,
-        "effects_audio": false,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -1749,8 +1749,8 @@
         "card": "res://assets/items/d02/card.charm.glass_cutter.tres",
         "in_play": "",
         "rarity_treatment": "res://assets/items/d02/rarity_treatment.charm.glass_cutter.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/activation.charm.glass_cutter.tres",
+        "sound": "res://assets/audio/sound.charm.glass_cutter.wav",
         "reduced_motion": "res://assets/items/d02/reduced_motion.charm.glass_cutter.tres"
       },
       "completeness": {
@@ -1758,7 +1758,7 @@
         "mechanics": true,
         "automated_validation": true,
         "artwork": true,
-        "effects_audio": false,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }

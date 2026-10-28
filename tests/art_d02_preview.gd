@@ -26,7 +26,9 @@ func run() -> void:
 	for id in ids:
 		var item: Dictionary = all_items[id]
 		items.append(item)
-		check(item.assets.activation.is_empty() and item.assets.sound.is_empty() and item.assets.in_play.is_empty(),"no invented in-play ID or E20 slots")
+		check(item.assets.in_play.is_empty(),"no invented in-play ID")
+		if not item.completeness.mechanics:
+			check(item.assets.activation.is_empty() and item.assets.sound.is_empty(),"authored effects wait for E18/E20")
 		for slot in designs[id].asset_ids:
 			if slot in ["activation","sound"]: continue
 			var path: String = item.assets[slot]

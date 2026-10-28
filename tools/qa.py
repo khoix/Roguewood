@@ -14,6 +14,9 @@ ROOT = Path(__file__).resolve().parents[1]
 VERSION = (ROOT / ".godot-version").read_text().strip()
 # journey -> script, success marker, artifact directory, rendered captures, timeout, extra engine flags
 JOURNEYS = {
+    "J12V08C": ("res://tests/ability_v08_contact.gd", "ROGUEWOOD_V08_CONTACT_OK", "artifacts/e20-v08/contact", ("contact",), 180, ["--fixed-fps", "60"]),
+    "J12V08": ("res://tests/ability_v08_journey.gd", "ROGUEWOOD_V08_OK", "artifacts/e20-v08/native",
+        ("charm_pin_counter_activation", "charm_hot_streak_activation", "charm_last_stand_activation", "charm_tip_jar_activation", "charm_banana_ball_activation", "charm_plumb_line_activation", "charm_glass_cutter_activation", "pin_glass_activation", "glass_ordered_breaks", "stage3_fast", "stage1_reduced", "stage2_reduced", "stage3_reduced", "stage1_landscape", "stage2_landscape", "stage3_landscape"), 900, ["--fixed-fps", "60"]),
     "J19A16": ("res://tests/glass_art_journey.gd", "ROGUEWOOD_GLASS_ART_OK", "artifacts/e19-a16/native",
         ("glass_shop", "glass_inventory", "glass_rack", "glass_rack_detail", "glass_reduced", "glass_landscape", "glass_break", "glass_break_detail", "glass_binder", "glass_restored", "glass_next_rack"), 900, ["--fixed-fps", "60"]),
     "J03C02": ("res://tests/glass_c02_journey.gd", "ROGUEWOOD_J03C02_OK", "artifacts/e18-c02", ("c02_breaks", "c02_reloaded", "c02_second"), 600, ["--fixed-fps", "60"]),
@@ -90,6 +93,7 @@ CONTENT = {"J09": "slice", "J02": "lab", "J03": "lab", "J04": "lab", "J05": "lab
 # Multi-stage journeys whose stages are different scripts, content and save
 # directories: J06 plays the slice's two Divisions, then the E09 lab Division.
 STAGE_RUNS = {"J06": [("res://tests/slice_journey.gd", "slice"), ("res://tests/division_journey.gd", "lab")]}
+STAGE_RUNS["J12V08"] = [("res://tests/ability_v08_journey.gd", "slice")] * 3
 # Journeys that restart the game: each stage is a separate engine process sharing
 # one save directory; stage k prints ROGUEWOOD_<journey>_STAGE<k>_OK.
 STAGES = {"J09": 3, "J07": 10, "J10": 3, "J11": 2}

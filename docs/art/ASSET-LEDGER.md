@@ -210,3 +210,25 @@ under the actual pin body. The read-only saved break-row observer restores Wood
 at the same body/slot. Native shop, inventory summary, binder, real Glass rack,
 post-break and restored next-rack views: `artifacts/e19-a16/native/`. Diagnostic
 close views use the same live bodies with a test-only camera move.
+
+## Wave 4 — E20-V08 original ability effects and foley
+
+Eight original vector glyph recipes reuse the final identity illustrations; no
+external art or recordings. `tools/author_v08_effects.py` reads exact landed
+D01/D02 IDs and emits recipes plus deterministic PCM through `author_foley.py`.
+Reproduction parameters are also in `assets/effects/batches.json`. Glass, crack
+and swish have separate original synthesis recipes; Hot Streak has a double-tap
+pattern. Each WAV is mono 22,050 Hz / 16 bit, peak 0.48, 0.20–0.28 seconds.
+Native playback, mute/volume, bounded mixing, causal and quiet cases are checked
+in J12V08. Static reduced variants retain resolver counts and saved break slots.
+
+| Batch / item | Original recipe | Resources | Audio SHA-256 |
+|---|---|---|---|
+| E20-V08 `charm.pin_counter` | `tally` / `paper`; 870 Hz parameter, 0.22s | `res://assets/effects/activation.charm.pin_counter.tres`; `res://assets/audio/sound.charm.pin_counter.wav` | `8a27f74c588c9a64b125dccd8a8fd3ebeead8b20e9986e822a1f0cb5f9e2312c` |
+| E20-V08 `charm.hot_streak` | `flame_tally` / `wood`; 780 Hz parameter, 0.28s | `res://assets/effects/activation.charm.hot_streak.tres`; `res://assets/audio/sound.charm.hot_streak.wav` | `7bd86e68c0b5914d21f887cb722ea1d59f353566e2ce97a18fcb159bbf9b87ce` |
+| E20-V08 `charm.last_stand` | `standing` / `wood`; 310 Hz parameter, 0.24s | `res://assets/effects/activation.charm.last_stand.tres`; `res://assets/audio/sound.charm.last_stand.wav` | `48330eb5372167d3f1576ddeffb82d84b084041e0ea714044f40eb35359a282a` |
+| E20-V08 `charm.tip_jar` | `jar_drop` / `glass`; 1320 Hz parameter, 0.28s | `res://assets/effects/activation.charm.tip_jar.tres`; `res://assets/audio/sound.charm.tip_jar.wav` | `37388ef8d1568e6cec6052b71d940967d0a651d777c6f2bf6837b3119aba5389` |
+| E20-V08 `charm.banana_ball` | `banana_strike` / `swish`; 630 Hz parameter, 0.28s | `res://assets/effects/activation.charm.banana_ball.tres`; `res://assets/audio/sound.charm.banana_ball.wav` | `b3e4c0f87ff68b9aa5175750ee253cabe386692f7f9d2ecd19574a6c966783df` |
+| E20-V08 `charm.plumb_line` | `plumb` / `metal`; 860 Hz parameter, 0.2s | `res://assets/effects/activation.charm.plumb_line.tres`; `res://assets/audio/sound.charm.plumb_line.wav` | `6e1f3bb147563834d30ffab54d9ab28261ded74dd275651220a04d5f46c71d68` |
+| E20-V08 `charm.glass_cutter` | `cutter` / `glass`; 2150 Hz parameter, 0.22s | `res://assets/effects/activation.charm.glass_cutter.tres`; `res://assets/audio/sound.charm.glass_cutter.wav` | `4117d3e29a078c9b9c9d075145bec81b0c0719a417aaebceb8ac3613fb44f050` |
+| E20-V08 `pin.glass` | `crack` / `crack`; 1780 Hz parameter, 0.26s | `res://assets/effects/activation.pin.glass.tres`; `res://assets/audio/sound.pin.glass.wav` | `86a05c8189c47b480a3e6e7daf269a4cee4777ca882cb9af1393ae7de5f5522d` |

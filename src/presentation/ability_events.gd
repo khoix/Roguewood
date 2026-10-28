@@ -28,7 +28,10 @@ static func project(frame: Dictionary, event: Dictionary) -> Array:
 	elif id == "pin.gold": eligible = phase == "after_bank" and op == "payout"
 	elif id == "pin.anchor": eligible = phase == "standing"
 	elif id in ["pin.wood","pin.ruby","pin.rubber"]: eligible = phase == "fallen"
-	if eligible: out.append({"id":id,"key":key,"phase":phase})
+	if eligible:
+		out.append({"id":id,"key":key,"phase":phase,"count":int(event.get("count",0)),
+			"amount":float(event.get("amount",0)),
+			"streak":int(frame.get("context",{}).get("strike_streak",0))+1 if id == "charm.hot_streak" else 0})
 	if repeat > 0:
 		var cause: String = event.get("cause", "")
 		var origin := owner(frame,cause)

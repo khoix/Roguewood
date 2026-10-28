@@ -64,26 +64,35 @@ func _process(_delta: float) -> void:
 	if rule != _boss:
 		_boss = rule
 		if not rule.is_empty(): cue(rule,"encounter",false)
-func cue(id: String, event: String, skipped: bool) -> void:
+func cue(id: String, event: String, skipped: bool, details: Dictionary = {}) -> void:
 	var recipe := Assets.slot(id,"activation")
 	if recipe == null: return
-	history.append({"id":id,"event":event,"skipped":skipped})
+	history.append({"id":id,"event":event,"skipped":skipped,"details":details.duplicate(true),"audio_played":false})
 	if history.size() > 512: history.pop_front()
 	if skipped: return
-	glyph.show_cue(recipe,lab.settings.reduced_motion or lab.settings.reduced_flash,Assets.slot(id,"icon"))
+	glyph.show_cue(recipe,lab.settings.reduced_motion or lab.settings.reduced_flash,Assets.slot(id,"icon"),details)
 	if event == "encounter": intro_glyph.show_cue(recipe,lab.settings.reduced_motion or lab.settings.reduced_flash,Assets.slot(id,"icon"))
-	lab.motion.sound.cue(id,Assets.slot(id,"sound"),recipe.priority)
+	# Distinct confirmed breaks are separate causes even at 4x score speed.
+	# Keep the four-voice/priority limit, without debouncing adjacent rack slots.
+	var audio_key := id + ":%d" % int(details.position) if details.has("position") else id
+	var before: int = lab.motion.sound.played
+	lab.motion.sound.cue(audio_key,Assets.slot(id,"sound"),recipe.priority)
+	history[-1].audio_played = lab.motion.sound.played > before
 func _step(step: Dictionary, index: int, skipped: bool) -> void:
 	if index == 0: _projected.clear()
-	if step.phase == "rule" and not _boss.is_empty(): cue(_boss,"bank_rule",skipped)
+	if step.phase == "rule" and int(step.get("pin",0)) == 0 and not _boss.is_empty(): cue(_boss,"bank_rule",skipped)
 	if lab.scored_frames.is_empty(): return
 	var scored: Dictionary = lab.scored_frames[-1]
+	var broken := preload("res://src/presentation/glass_presentation.gd").broken_position(scored,lab.run.rack,step,index)
+	if broken > 0:
+		cue("pin.glass","after_bank_break",skipped,{"position":broken,"step":index})
+		return
 	if not scored.has("frame") or index >= scored.result.get("events",[]).size(): return
 	var event: Dictionary = scored.result.events[index]
 	for activation in preload("res://src/presentation/ability_events.gd").project(scored.frame,event):
 		if _projected.has(activation.key): continue
 		_projected[activation.key] = true
-		cue(activation.id,activation.phase,skipped)
+		cue(activation.id,activation.phase,skipped,activation)
 
 func _physical() -> void:
 	for marker in world_glyphs:
