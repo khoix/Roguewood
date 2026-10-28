@@ -32,7 +32,7 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - E15 DONE (owner policy: completed implementation and verification; not yet merged to main): on `claude/roguewood-build` (implementation `2cdedb1` plus the result-line follow-up; base main `fd1d466`). Career schema 2 with a v1 migration and a golden v2 file; the unlock registry and validated graph (IDs, kinds, sources, loops, reachability, self-unlocks, starting counters); immediate idempotent banking of first clears, titles, mastery, records and discoveries; attempt pool snapshots; the practice policy; the menu summary and League access; J10 across three real processes. See decisions/010-career-and-unlock-graph.md and handoffs/E15.md.
 - Integration: the owner merged `claude/roguewood-build` at `06abb88` (E15 and the ownership plan) into main by PR #10 (`a65ed24`).
 - E16 core DONE: `b01fb4d` on `claude/roguewood-build`; full local matrix (J01–J11 headless and rendered) and CI 40616441249 PASS; see handoffs/E16.md. E16-ART is READY for Codex.
-- Active (Wave 1): Codex on E19-A01 (IN_PROGRESS, checkpoint `96ba030`); E19-A02…A07, E20-V01…V07, E21-R01/R02 and E16-ART are queued for Codex. E17-D01 definitions DONE (handoffs/E17-D01.md). Next for Claude: E17-D02 or E18-C01, the owner's choice. Codex: E17-D01-ART is READY after Wave 1.
+- Active (Wave 1): Codex on E19-A01 (IN_PROGRESS, checkpoint `96ba030`); E19-A02…A07, E20-V01…V07, E21-R01/R02 and E16-ART are queued for Codex. E17-D01 definitions DONE (`8cfcf44`, CI 40620488616 PASS; handoffs/E17-D01.md). Next for Claude: E17-D02 or E18-C01, the owner's choice. Codex: E17-D01-ART is READY after Wave 1.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
