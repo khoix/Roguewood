@@ -174,3 +174,5 @@ A v1 catalogue using any of these is refused.
 Rules: rarity price bands (common $3–5, uncommon $5–7, rare $7–10, epic $10–14; legendary pool weight 0), resale is half the price rounded down, and no two definitions in a category may share effects, physics and primitives.
 
 When E18 lands an authored item, it moves to `content/catalogue.json` and its design stays in the batch under `landed: [{id, landed_in: "E18-Cxx", design}]`. Definitions plus landed entries never exceed 12 per batch.
+
+**E18-C02 transform:** a pin effect `{op: "transform", trigger: "fallen", amount: 1–100 (whole percent), into: "pin.*", scope}`. It is deferred: it never changes the bank and is never retriggered. `RunInventory.apply_frame` rolls it once on the attempt's effects stream (`run.effects_state`, saved, additive), and exposes the result as `transformed: [{position, from, into, roll}]`.

@@ -218,6 +218,8 @@ func _ready() -> void:
 	for entry in _catalogue.items:
 		_names[entry.id] = entry.name
 	run = RunInventory.create(_catalogue, content.kit.pins, content.kit.deck, int(content.kit.money))
+	# E18-C02: after-bank chances (Glass breaking) use the attempt's effects stream.
+	run.seed_effects(equipment_seed, int(content.campaign.rng.states.effects) if content.id == "campaign" else 0)
 	shop = Shop.create(_catalogue, int(content.campaign.rng.states.shops) if content.id == "campaign" else hash([equipment_seed, "shop"])) # its own stream, never the deck's
 	var blank := CareerProfile.fresh()
 	for key in blank:
@@ -740,6 +742,9 @@ func _score_frame() -> void:
 		steps.append({"phase": "rule", "symbol": "✕", "pin": 0, "text": note, "pin_value": steps[-1].pin_value, "mult": steps[-1].mult, "score": banked.score})
 	var income := run.credit_frame(result, built.frame)
 	var grown: Array = run.apply_frame(result, built.frame) # growth and the strike streak, banked with the frame
+	for change in run.transformed: # rolled once on the effects stream; saved with the frame below
+		steps.append({"phase": "rule", "symbol": "✕", "pin": int(change.position), "pin_value": steps[-1].pin_value, "mult": steps[-1].mult, "score": banked.score,
+			"text": "%s at %d cracked: now a %s." % [_names.get(change.from, change.from), int(change.position), _names.get(change.into, change.into)]})
 	var outcome: Dictionary = division.record_frame(banked.score)
 	total_score += int(banked.score)
 	# E15: the frame counts toward Career records and mastery once, saved before the

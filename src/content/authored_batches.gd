@@ -20,6 +20,7 @@ const BATCH_LIMIT := 12
 const TARGETS := {"ball": 24, "pin": 32, "ball_mod": 16, "pin_mod": 16, "charm": 100, "consumable": 24, "shop_upgrade": 16,
 	"lane_condition": 12, "boss_rule": 20, "kit": 10}
 ## Provisional purchase bands (design §15); legendary is reward-only.
+const NOT_SOLD := ["boss_rule", "lane_condition", "kit"]
 const PRICE_BANDS := {"common": [3, 5], "uncommon": [5, 7], "rare": [7, 10], "epic": [10, 14]}
 ## Asset slots each category needs (asset IDs are "<slot>.<item id>").
 const SLOTS := {"ball": ["icon", "card", "in_play", "rarity_treatment", "activation", "sound", "reduced_motion"],
@@ -95,14 +96,21 @@ static func _definition(definition: Variant, shipped: Dictionary, signatures: Di
 		errors.append(id + ": art and effects are not complete before the item exists")
 	var rarity: String = str(item.get("rarity", ""))
 	var price := int(item.get("purchase_price", -1))
-	if rarity == "legendary":
+	var category: String = str(item.get("category", ""))
+	if category in NOT_SOLD:
+		# Boss rules, lane conditions and kits are never sold.
+		if float(item.get("pool_weight", 1)) != 0.0 or price != 0 or int(item.get("resale_price", -1)) != 0:
+			errors.append(id + ": %s is never sold (pool weight 0, price 0)" % category)
+		if category == "boss_rule" and String(design.get("counterplay", "")).length() < 20:
+			errors.append(id + ": a boss rule names its counterplay")
+	elif rarity == "legendary":
 		if float(item.get("pool_weight", 1)) != 0.0:
 			errors.append(id + ": legendary is reward-only (pool weight 0)")
 	elif PRICE_BANDS.has(rarity):
 		var band: Array = PRICE_BANDS[rarity]
 		if price < band[0] or price > band[1]:
 			errors.append("%s: %s price $%d outside $%d–%d" % [id, rarity, price, band[0], band[1]])
-	if int(item.get("resale_price", -1)) != price / 2:
+	if category not in NOT_SOLD and int(item.get("resale_price", -1)) != price / 2:
 		errors.append(id + ": resale is half the price, rounded down")
 	if String(item.get("downside", "")).length() < 20:
 		errors.append(id + ": needs a real tradeoff")
