@@ -54,7 +54,8 @@ artifacts/e21-r01/r02, artifacts/e20-v01…v07 and artifacts/e20-dense.
 Screenshots are ignored, never committed; the Bootstrap CI journeys artifact
 regenerates and uploads them. CI on executable commit `8a131a0`:
 [Bootstrap run 40633591372](https://github.com/khoix/Roguewood/actions/runs/40633591372).
-Its completion is recorded separately from the native verification above.
+CI was running at this handoff; native verification above is complete.
+Delivery PR: [#11](https://github.com/khoix/Roguewood/pull/11).
 
 ## Density and practical limits
 
@@ -73,9 +74,11 @@ voices in this run (other runs reached the tested four-voice limit).
 
 ## Next hand-off
 
-All claimed Wave 1 batches above are complete. The requested follow-on is
-E17-D01-ART: eleven written visual briefs using the authored trigger, tags,
-presentation needs and exact asset IDs; see its separate handoff when delivered.
+All claimed Wave 1 batches above are complete. The requested follow-on
+E17-D01-ART is also DONE in `7f5d850`: eleven written visual briefs using the
+authored trigger, tags, presentation needs and 74 exact asset IDs. See
+[E17-D01-ART.md](E17-D01-ART.md); E19 art for those definitions is READY, with
+in-game activation verification dependent on E18.
 E16-ART remains a separate READY follow-on with exclusive presentation paths and
 its asset drop list in E16.md. It was not one of the claimed Wave 1 batches and
 no E16 art completion is claimed. Proposed effort: Medium for E16-ART and ordinary
