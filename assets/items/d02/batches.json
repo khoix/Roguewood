@@ -1,0 +1,20 @@
+{
+  "E19-A13": [
+    "charm.pin_counter",
+    "charm.hot_streak",
+    "charm.last_stand",
+    "charm.tip_jar"
+  ],
+  "E19-A14": [
+    "charm.banana_ball",
+    "charm.plumb_line",
+    "charm.glass_cutter",
+    "charm.split_specialist"
+  ],
+  "E19-A15": [
+    "charm.sweet_spot",
+    "charm.back_row",
+    "charm.underdog",
+    "charm.crown_jewel"
+  ]
+}

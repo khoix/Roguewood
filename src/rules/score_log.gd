@@ -51,6 +51,8 @@ static func steps(result: Dictionary, frame: Dictionary, names: Dictionary = {},
 			"after_bank":
 				var owner := _effect_owner(event, frame, owners, names, seen, _owner(event.source, pins, balls, charms, names), true)
 				var change := ("+$%s" % _n(event.amount)) if event.op == "payout" else ("grows +%s" % _n(event.amount) if event.op == "grow_value" else "%s %s" % [event.op.replace("_", " "), _n(event.amount)])
+				if event.op == "transform":
+					change = "%s%% chance to become %s" % [_n(event.amount), names.get(event.get("into", ""), event.get("into", ""))]
 				step.text = "After bank: %s %s (%s)" % [owner, change, event.scope]
 				step.symbol = "→"
 				step.score = banked # the bank stands; after-bank effects never rescore it

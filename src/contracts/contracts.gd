@@ -143,7 +143,7 @@ static func _in_enum(value: Variant, options: Array) -> bool:
 ## first-direct-pin retrigger, match-end growth and item physics profiles; a v1
 ## catalogue may use none of them.
 const V2_TRIGGERS := ["match_end"]
-const V2_OPS := ["retrigger"]
+const V2_OPS := ["retrigger", "transform"]
 
 static func _catalogue(items: Array, version: int, errors: Array[String]) -> void:
 	var ids := {}
@@ -172,6 +172,14 @@ static func _catalogue(items: Array, version: int, errors: Array[String]) -> voi
 				if effect.trigger != "ball" or effect.amount != floor(effect.amount) or effect.amount < 1 or effect.amount > 8: errors.append(item.id + ": a retrigger is 1-8 repeats from a ball")
 				if effect.has("per"): errors.append(item.id + ": a retrigger does not scale")
 			if effect.has("per") and effect.op in ["payout", "multiply_mult"]: errors.append(item.id + ": payouts and multipliers do not scale per count")
+			if effect.op == "transform":
+				var into: Variant = effect.get("into")
+				if item.category != "pin" or effect.trigger != "fallen" or effect.amount != floor(effect.amount) or effect.amount < 1 or effect.amount > 100 or effect.has("per"):
+					errors.append(item.id + ": a transform is a fallen pin's whole-percent chance (1-100), unscaled")
+				if not items.any(func(i): return i.id == into and i.category == "pin") or into == item.id:
+					errors.append(item.id + ": transforms into unknown pin " + str(into))
+			elif effect.has("into"):
+				errors.append(item.id + ": only a transform names an into pin")
 			if effect.has("per") and String(effect.per).contains(":") and not ids.has(String(effect.per).get_slice(":", 1)) and not items.any(func(i): return i.id == String(effect.per).get_slice(":", 1)):
 				errors.append(item.id + ": scales by unknown item " + String(effect.per).get_slice(":", 1))
 			if effect.has("condition") and effect.trigger in ["after_bank", "match_end"]: errors.append(item.id + ": deferred effects are unconditional")

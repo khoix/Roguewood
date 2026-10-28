@@ -1,0 +1,584 @@
+{
+  "schema_version": 1,
+  "batch": "E17-D03",
+  "status": "authored",
+  "note": "Boss rules (9). Each needs a rule primitive in rival_rules.gd (E18) and a rival identity (E17 League batches, E21). Counter tags are in content/career/unlocks.json. Nothing here is in content/catalogue.json until E18.",
+  "definitions": [
+    {
+      "item": {
+        "id": "boss_rule.oil_slick",
+        "name": "Oil Slick",
+        "category": "boss_rule",
+        "rarity": "common",
+        "pool_weight": 0,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 0,
+        "resale_price": 0,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Hook response is halved for the whole boss match.",
+        "synergy_tags": [
+          "straight",
+          "precision",
+          "power"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "For every roll of the boss match, the ball's hook response is multiplied by 0.5 (the lane's oil and the ball's spin response are unchanged; the curve the same charge produces is halved). Straight throws are unaffected.",
+        "primitives": [
+          "rule.hook_scale"
+        ],
+        "pool": "Boss rule: never in a shop; assigned to rivals by League specs (E17 League batch, E21).",
+        "counterplay": "Straight-line aim, precision Charms (Plumb Line, House Favorite), or a strong spin ball (Hook Ball) to recover the curve.",
+        "presentation_needs": "A glossy lane sheen readable without colour; the rule badge shows a halved hook arc. The aim preview reflects the reduced curve.",
+        "asset_ids": {
+          "icon": "icon.boss_rule.oil_slick",
+          "card": "card.boss_rule.oil_slick",
+          "rarity_treatment": "rarity_treatment.boss_rule.oil_slick",
+          "activation": "activation.boss_rule.oil_slick",
+          "sound": "sound.boss_rule.oil_slick",
+          "reduced_motion": "reduced_motion.boss_rule.oil_slick"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "boss_rule.heavy_set",
+        "name": "Heavy Set",
+        "category": "boss_rule",
+        "rarity": "common",
+        "pool_weight": 0,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 0,
+        "resale_price": 0,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Pins are half again as heavy for the whole boss match.",
+        "synergy_tags": [
+          "power",
+          "spare",
+          "strike"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "For the boss match every pin's mass is multiplied by 1.5 (on top of its material's own mass scale). Collisions deflect less, so carry and chain reactions drop.",
+        "primitives": [
+          "rule.pin_mass_scale"
+        ],
+        "pool": "Boss rule: never in a shop; assigned to rivals by League specs (E17 League batch, E21).",
+        "counterplay": "Hammer Ball's impact, spare-focused scoring (Spare Change, Tip Jar), or Mult builds that need fewer pins.",
+        "presentation_needs": "Pins visibly heavier (iron banding motif) without colour reliance; a heavy thud on impact; the badge shows a weight.",
+        "asset_ids": {
+          "icon": "icon.boss_rule.heavy_set",
+          "card": "card.boss_rule.heavy_set",
+          "rarity_treatment": "rarity_treatment.boss_rule.heavy_set",
+          "activation": "activation.boss_rule.heavy_set",
+          "sound": "sound.boss_rule.heavy_set",
+          "reduced_motion": "reduced_motion.boss_rule.heavy_set"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "boss_rule.frugal_house",
+        "name": "Frugal House",
+        "category": "boss_rule",
+        "rarity": "common",
+        "pool_weight": 0,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 0,
+        "resale_price": 0,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "No item income during the boss match.",
+        "synergy_tags": [
+          "baseline",
+          "mult",
+          "value"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "During the boss match, pin, ball and Charm payouts pay nothing (Gold pins, Gold Ball, Tip Jar, Gold Rush's money). Match payout, interest and scoring are unchanged. The suppressed amount is shown in the log.",
+        "primitives": [
+          "rule.no_item_income"
+        ],
+        "pool": "Boss rule: never in a shop; assigned to rivals by League specs (E17 League batch, E21).",
+        "counterplay": "Scoring strength over economy, and money saved before the boss match.",
+        "presentation_needs": "A closed till motif; suppressed payouts show as struck-through $ amounts.",
+        "asset_ids": {
+          "icon": "icon.boss_rule.frugal_house",
+          "card": "card.boss_rule.frugal_house",
+          "rarity_treatment": "rarity_treatment.boss_rule.frugal_house",
+          "activation": "activation.boss_rule.frugal_house",
+          "sound": "sound.boss_rule.frugal_house",
+          "reduced_motion": "reduced_motion.boss_rule.frugal_house"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "boss_rule.house_rules",
+        "name": "House Rules",
+        "category": "boss_rule",
+        "rarity": "common",
+        "pool_weight": 0,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 0,
+        "resale_price": 0,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Only the House Ball may be thrown in the boss match.",
+        "synergy_tags": [
+          "straight",
+          "baseline",
+          "house"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "During the boss match, special-ball cards cannot be armed or played; every roll uses the House Ball. Tactical cards are still playable, and the hand still draws (cards return at the next match).",
+        "primitives": [
+          "rule.house_only"
+        ],
+        "pool": "Boss rule: never in a shop; assigned to rivals by League specs (E17 League batch, E21).",
+        "counterplay": "House Favorite, straight and precision builds, rack materials and Charms instead of special balls.",
+        "presentation_needs": "Special-ball cards in the hand show a clear locked state (shape, not only dimming); the badge shows the House Ball.",
+        "asset_ids": {
+          "icon": "icon.boss_rule.house_rules",
+          "card": "card.boss_rule.house_rules",
+          "rarity_treatment": "rarity_treatment.boss_rule.house_rules",
+          "activation": "activation.boss_rule.house_rules",
+          "sound": "sound.boss_rule.house_rules",
+          "reduced_motion": "reduced_motion.boss_rule.house_rules"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "boss_rule.charm_freeze",
+        "name": "Charm Freeze",
+        "category": "boss_rule",
+        "rarity": "common",
+        "pool_weight": 0,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 0,
+        "resale_price": 0,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "The leftmost Charm does nothing in the boss match.",
+        "synergy_tags": [
+          "mult",
+          "value",
+          "order"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "During the boss match the Charm in slot 1 (leftmost) is silent: its effects do not apply and do not grow. The other Charms apply in order as usual. An empty slot 1 means nothing is lost.",
+        "primitives": [
+          "rule.silence_charm_slot"
+        ],
+        "pool": "Boss rule: never in a shop; assigned to rivals by League specs (E17 League batch, E21).",
+        "counterplay": "Reorder Charms in the shop before the boss match so the weakest sits in slot 1, or keep slot 1 empty.",
+        "presentation_needs": "Slot 1 visibly frozen (frost overlay, a lock glyph); the shop preview names the rule before purchases so reordering is possible.",
+        "asset_ids": {
+          "icon": "icon.boss_rule.charm_freeze",
+          "card": "card.boss_rule.charm_freeze",
+          "rarity_treatment": "rarity_treatment.boss_rule.charm_freeze",
+          "activation": "activation.boss_rule.charm_freeze",
+          "sound": "sound.boss_rule.charm_freeze",
+          "reduced_motion": "reduced_motion.boss_rule.charm_freeze"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "boss_rule.narrow_lane",
+        "name": "Narrow Lane",
+        "category": "boss_rule",
+        "rarity": "common",
+        "pool_weight": 0,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 0,
+        "resale_price": 0,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "The gutters reach two boards further in for the whole boss match.",
+        "synergy_tags": [
+          "precision",
+          "straight",
+          "positional"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "For the boss match each gutter edge moves 2 boards (5.1 cm) toward the centre: a ball crossing the new edge is a gutter ball. Pins, rack and target ring are unchanged.",
+        "primitives": [
+          "rule.lane_width"
+        ],
+        "pool": "Boss rule: never in a shop; assigned to rivals by League specs (E17 League batch, E21).",
+        "counterplay": "Precise, straight launches; Sweet Spot and Plumb Line; avoiding wide curves.",
+        "presentation_needs": "Painted guard lines at the new edges visible from the behind-ball view; the aim preview clips at them.",
+        "asset_ids": {
+          "icon": "icon.boss_rule.narrow_lane",
+          "card": "card.boss_rule.narrow_lane",
+          "rarity_treatment": "rarity_treatment.boss_rule.narrow_lane",
+          "activation": "activation.boss_rule.narrow_lane",
+          "sound": "sound.boss_rule.narrow_lane",
+          "reduced_motion": "reduced_motion.boss_rule.narrow_lane"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "boss_rule.one_and_done",
+        "name": "One and Done",
+        "category": "boss_rule",
+        "rarity": "common",
+        "pool_weight": 0,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 0,
+        "resale_price": 0,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Every frame of the boss match is a single roll.",
+        "synergy_tags": [
+          "strike",
+          "standing",
+          "open"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "In the boss match each frame ends after roll 1: a strike scores as a strike, anything else scores as an open frame with the pins left standing. There are no spares in this match.",
+        "primitives": [
+          "rule.single_roll"
+        ],
+        "pool": "Boss rule: never in a shop; assigned to rivals by League specs (E17 League batch, E21).",
+        "counterplay": "Strike builds, or standing-pin builds (Anchor, Last Stand, Lone Survivor) that profit from open frames.",
+        "presentation_needs": "The frame counter shows one roll per frame; the badge shows a single ball.",
+        "asset_ids": {
+          "icon": "icon.boss_rule.one_and_done",
+          "card": "card.boss_rule.one_and_done",
+          "rarity_treatment": "rarity_treatment.boss_rule.one_and_done",
+          "activation": "activation.boss_rule.one_and_done",
+          "sound": "sound.boss_rule.one_and_done",
+          "reduced_motion": "reduced_motion.boss_rule.one_and_done"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "boss_rule.mult_cap",
+        "name": "Mult Cap",
+        "category": "boss_rule",
+        "rarity": "common",
+        "pool_weight": 0,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 0,
+        "resale_price": 0,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Mult cannot exceed 20 in the boss match.",
+        "synergy_tags": [
+          "value",
+          "glass",
+          "backrow"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "During the boss match a frame's Mult is clamped to at most 20 after the Charm phase, just before banking. Value is not capped. The clamp is shown in the log when it applies.",
+        "primitives": [
+          "rule.mult_cap"
+        ],
+        "pool": "Boss rule: never in a shop; assigned to rivals by League specs (E17 League batch, E21).",
+        "counterplay": "Value builds: Glass pins, Back Row, Grower, Echo retriggers of Value.",
+        "presentation_needs": "The Mult counter shows a visible ceiling at 20; the clamp step is its own log line.",
+        "asset_ids": {
+          "icon": "icon.boss_rule.mult_cap",
+          "card": "card.boss_rule.mult_cap",
+          "rarity_treatment": "rarity_treatment.boss_rule.mult_cap",
+          "activation": "activation.boss_rule.mult_cap",
+          "sound": "sound.boss_rule.mult_cap",
+          "reduced_motion": "reduced_motion.boss_rule.mult_cap"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "boss_rule.dull_pins",
+        "name": "Dull Pins",
+        "category": "boss_rule",
+        "rarity": "common",
+        "pool_weight": 0,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 0,
+        "resale_price": 0,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Pins give half their Value in the boss match.",
+        "synergy_tags": [
+          "mult",
+          "charm",
+          "strike"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "During the boss match every Value a pin adds (its own and copied or retriggered pin effects) is halved, rounded down per effect. Charm Value and Mult from any source are unchanged.",
+        "primitives": [
+          "rule.pin_value_scale"
+        ],
+        "pool": "Boss rule: never in a shop; assigned to rivals by League specs (E17 League batch, E21).",
+        "counterplay": "Mult builds: Charms (Flat Bonus, Finisher, Pin Counter), Ruby pins' Mult.",
+        "presentation_needs": "Pins drawn with a matte, dull finish; halved Value steps marked in the log.",
+        "asset_ids": {
+          "icon": "icon.boss_rule.dull_pins",
+          "card": "card.boss_rule.dull_pins",
+          "rarity_treatment": "rarity_treatment.boss_rule.dull_pins",
+          "activation": "activation.boss_rule.dull_pins",
+          "sound": "sound.boss_rule.dull_pins",
+          "reduced_motion": "reduced_motion.boss_rule.dull_pins"
+        }
+      }
+    }
+  ]
+}

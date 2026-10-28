@@ -6,75 +6,6 @@
   "definitions": [
     {
       "item": {
-        "id": "charm.glass_cutter",
-        "name": "Glass Cutter",
-        "category": "charm",
-        "rarity": "uncommon",
-        "pool_weight": 1,
-        "unlock": {
-          "kind": "initial",
-          "prerequisites": []
-        },
-        "earliest_division": 1,
-        "purchase_price": 6,
-        "resale_price": 3,
-        "effects": [
-          {
-            "op": "add_mult",
-            "amount": 4,
-            "trigger": "charm",
-            "scope": "frame",
-            "per": "fallen:pin.glass"
-          }
-        ],
-        "limits": {
-          "max_owned": 1,
-          "charges": 0,
-          "exhaustion": "none"
-        },
-        "downside": "Needs Glass pins in the rack, and every Glass fall risks turning it into Wood.",
-        "synergy_tags": [
-          "glass",
-          "fragile",
-          "mult"
-        ],
-        "incompatibilities": [],
-        "assets": {
-          "icon": "",
-          "card": "",
-          "in_play": "",
-          "rarity_treatment": "",
-          "activation": "",
-          "sound": "",
-          "reduced_motion": ""
-        },
-        "completeness": {
-          "authored": true,
-          "mechanics": false,
-          "automated_validation": false,
-          "artwork": false,
-          "effects_audio": false,
-          "unlock_assigned": true,
-          "integrated": false
-        }
-      },
-      "design": {
-        "trigger": "+4 Mult for each Glass pin knocked down this frame. Pairs with Glass Pin's +30 Value and its 20% chance to become Wood after banking.",
-        "primitives": [],
-        "pool": "Shop Charm slot from Division 1; shown only once Glass Pin is playable (E18 lands Glass first).",
-        "presentation_needs": "A glazier's cutter card; the count reads as Glass pins, by shape not colour.",
-        "asset_ids": {
-          "icon": "icon.charm.glass_cutter",
-          "card": "card.charm.glass_cutter",
-          "rarity_treatment": "rarity_treatment.charm.glass_cutter",
-          "activation": "activation.charm.glass_cutter",
-          "sound": "sound.charm.glass_cutter",
-          "reduced_motion": "reduced_motion.charm.glass_cutter"
-        }
-      }
-    },
-    {
-      "item": {
         "id": "charm.split_specialist",
         "name": "Split Specialist",
         "category": "charm",
@@ -103,13 +34,13 @@
         ],
         "incompatibilities": [],
         "assets": {
-          "icon": "",
-          "card": "",
+          "icon": "res://assets/items/d02/icon.charm.split_specialist.tres",
+          "card": "res://assets/items/d02/card.charm.split_specialist.tres",
           "in_play": "",
-          "rarity_treatment": "",
+          "rarity_treatment": "res://assets/items/d02/rarity_treatment.charm.split_specialist.tres",
           "activation": "",
           "sound": "",
-          "reduced_motion": ""
+          "reduced_motion": "res://assets/items/d02/reduced_motion.charm.split_specialist.tres"
         },
         "completeness": {
           "authored": true,
@@ -166,13 +97,13 @@
         ],
         "incompatibilities": [],
         "assets": {
-          "icon": "",
-          "card": "",
+          "icon": "res://assets/items/d02/icon.charm.sweet_spot.tres",
+          "card": "res://assets/items/d02/card.charm.sweet_spot.tres",
           "in_play": "",
-          "rarity_treatment": "",
+          "rarity_treatment": "res://assets/items/d02/rarity_treatment.charm.sweet_spot.tres",
           "activation": "",
           "sound": "",
-          "reduced_motion": ""
+          "reduced_motion": "res://assets/items/d02/reduced_motion.charm.sweet_spot.tres"
         },
         "completeness": {
           "authored": true,
@@ -229,13 +160,13 @@
         ],
         "incompatibilities": [],
         "assets": {
-          "icon": "",
-          "card": "",
+          "icon": "res://assets/items/d02/icon.charm.back_row.tres",
+          "card": "res://assets/items/d02/card.charm.back_row.tres",
           "in_play": "",
-          "rarity_treatment": "",
+          "rarity_treatment": "res://assets/items/d02/rarity_treatment.charm.back_row.tres",
           "activation": "",
           "sound": "",
-          "reduced_motion": ""
+          "reduced_motion": "res://assets/items/d02/reduced_motion.charm.back_row.tres"
         },
         "completeness": {
           "authored": true,
@@ -291,13 +222,13 @@
         ],
         "incompatibilities": [],
         "assets": {
-          "icon": "",
-          "card": "",
+          "icon": "res://assets/items/d02/icon.charm.underdog.tres",
+          "card": "res://assets/items/d02/card.charm.underdog.tres",
           "in_play": "",
-          "rarity_treatment": "",
+          "rarity_treatment": "res://assets/items/d02/rarity_treatment.charm.underdog.tres",
           "activation": "",
           "sound": "",
-          "reduced_motion": ""
+          "reduced_motion": "res://assets/items/d02/reduced_motion.charm.underdog.tres"
         },
         "completeness": {
           "authored": true,
@@ -356,13 +287,13 @@
         ],
         "incompatibilities": [],
         "assets": {
-          "icon": "",
-          "card": "",
+          "icon": "res://assets/items/d02/icon.charm.crown_jewel.tres",
+          "card": "res://assets/items/d02/card.charm.crown_jewel.tres",
           "in_play": "",
-          "rarity_treatment": "",
+          "rarity_treatment": "res://assets/items/d02/rarity_treatment.charm.crown_jewel.tres",
           "activation": "",
           "sound": "",
-          "reduced_motion": ""
+          "reduced_motion": "res://assets/items/d02/reduced_motion.charm.crown_jewel.tres"
         },
         "completeness": {
           "authored": true,
@@ -498,6 +429,24 @@
           "activation": "activation.charm.plumb_line",
           "sound": "sound.charm.plumb_line",
           "reduced_motion": "reduced_motion.charm.plumb_line"
+        }
+      }
+    },
+    {
+      "id": "charm.glass_cutter",
+      "landed_in": "E18-C02",
+      "design": {
+        "trigger": "+4 Mult for each Glass pin knocked down this frame. Pairs with Glass Pin's +30 Value and its 20% chance to become Wood after banking.",
+        "primitives": [],
+        "pool": "Shop Charm slot from Division 1; shown only once Glass Pin is playable (E18 lands Glass first).",
+        "presentation_needs": "A glazier's cutter card; the count reads as Glass pins, by shape not colour.",
+        "asset_ids": {
+          "icon": "icon.charm.glass_cutter",
+          "card": "card.charm.glass_cutter",
+          "rarity_treatment": "rarity_treatment.charm.glass_cutter",
+          "activation": "activation.charm.glass_cutter",
+          "sound": "sound.charm.glass_cutter",
+          "reduced_motion": "reduced_motion.charm.glass_cutter"
         }
       }
     }

@@ -119,6 +119,47 @@
       "strike",
       "spare",
       "clearing"
+    ],
+    "boss_rule.oil_slick": [
+      "straight",
+      "precision",
+      "power"
+    ],
+    "boss_rule.heavy_set": [
+      "power",
+      "spare",
+      "strike"
+    ],
+    "boss_rule.frugal_house": [
+      "mult",
+      "value",
+      "baseline"
+    ],
+    "boss_rule.house_rules": [
+      "straight",
+      "baseline",
+      "house"
+    ],
+    "boss_rule.charm_freeze": [
+      "mult",
+      "value"
+    ],
+    "boss_rule.narrow_lane": [
+      "precision",
+      "straight"
+    ],
+    "boss_rule.one_and_done": [
+      "strike",
+      "standing"
+    ],
+    "boss_rule.mult_cap": [
+      "value",
+      "growth",
+      "glass"
+    ],
+    "boss_rule.dull_pins": [
+      "mult",
+      "strike"
     ]
   },
   "cosmetics": [

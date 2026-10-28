@@ -33,7 +33,8 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - Integration: the owner merged `claude/roguewood-build` at `06abb88` (E15 and the ownership plan) into main by PR #10 (`a65ed24`).
 - E16 core DONE: `b01fb4d` on `claude/roguewood-build`; full local matrix (J01–J11 headless and rendered) and CI 40616441249 PASS; see handoffs/E16.md. E16-ART is READY for Codex.
 - Integration: the owner merged PR #11 (Codex Wave 1, E16 core, E17-D01, the test fix) into main (`492f9f4`). Codex Wave 2 (`fcdb494`: E16-ART, E19-A08…A12) is reviewed and merged into `claude/roguewood-build`, along with main.
-- Wave 2 CLOSED (see "Wave 2 closed"); the owner merges `claude/roguewood-build` after its CI. Wave 3 claims: Codex E17-D02-ART then E19-A13…A15; Claude E18-C02 (High) then E17-D03 (Medium). Claude's Wave 3 commits stay local until the Wave 2 merge. E17-D01 and its briefs are DONE. E17-D02 (12 Charms) is DONE (handoffs/E17-D02.md); E17-D02-ART is READY for Codex, to follow Wave 2. Next for Claude: E18-C01 (the seven expressible D02 Charms, Medium) or E17-D03, the owner's choice.
+- Wave 2 MERGED to main by PR #13 (`1d44302`).
+- **Wave 3 CLOSED** (see "Wave 3 closed"): Codex E17-D02-ART and E19-A13…A15; Claude E18-C02 and E17-D03. The owner merges `claude/roguewood-build` into main after the CI of the "Wave 3 closed" commit. Wave 4 claims are recorded; Wave 4 pushes to `claude/roguewood-build` wait for that merge.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
@@ -64,9 +65,9 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E14 — Seeded eight-Division progression | DONE | Codex | codex/roguewood-build | 71b2bd2; local unit/content/integration/physics, J01/J06/J07 and native J09 headless/rendered PASS; handoffs/E14.md |
 | E15 — Career persistence and unlock graph | DONE | Claude | claude/roguewood-build (not yet merged) | 2cdedb1 (+ 8c19905); local suites and J01–J10 headless/rendered PASS; CI 40577363221 and 40581437392 PASS; ADR 010; E15 handoff |
 | E16 — Clubhouse and collection UI | DONE (core and E16-ART) | Claude core · Codex E16-ART | claude/roguewood-build · codex/roguewood-build | Core b01fb4d; CI 40616441249 PASS; J11; handoffs/E16.md (Art hand-off) |
-| E17 — Catalogue and unlock authoring batches | IN_PROGRESS (D01, D01-ART, D02 DONE; D02-ART READY for Codex) | Claude definitions · Codex visual briefs | claude/roguewood-build · codex/roguewood-build | Split per batch; see Ownership |
-| E18 — Content mechanics batches | IN_PROGRESS (C01 DONE) | Claude | claude/roguewood-build | C01: six D02 Charms landed; handoffs/E18-C01.md |
-| E19 — Final item artwork batches | IN_PROGRESS (A01–A12 DONE) | Codex | codex/roguewood-build | E13-S01 and E17-D01 identities; D02 art after its briefs |
+| E17 — Catalogue and unlock authoring batches | IN_PROGRESS (D01–D03 DONE; D01-ART, D02-ART DONE; D03-ART in Wave 4) | Claude definitions · Codex visual briefs | claude/roguewood-build · codex/roguewood-build | Split per batch; see Ownership |
+| E18 — Content mechanics batches | IN_PROGRESS (C01, C02 DONE; C03 in Wave 4) | Claude | claude/roguewood-build | C01: six D02 Charms; C02: transform primitive, Glass Pin and Glass Cutter; handoffs/E18-C0x.md |
+| E19 — Final item artwork batches | IN_PROGRESS (A01–A15 DONE) | Codex | codex/roguewood-build | E13-S01, E17-D01 and E17-D02 identities; artwork flags set on the seven landed D02 Charms; Glass Pin's native check in Wave 4 |
 | E20 — Ability effects and audio batches | IN_PROGRESS (V01–V07 DONE) | Codex | codex/roguewood-build | E13-S01's 23 abilities; D01 effects wait for E18 |
 | E21 — Rival presentation batches | IN_PROGRESS (R01, R02 DONE) | Codex | codex/roguewood-build | Later rivals after E17 defines them |
 | E22 — League theme integration batches | NOT_STARTED | Codex (whole: art and integration) | codex/roguewood-build | Per League; needs E16 core and the League's content |
@@ -194,6 +195,27 @@ Claude's next step: E16 core (it unblocks E16-ART and E22), then E17-D01 onward.
   - The full CI command list was re-run locally on the C01 tree: 98/98, and J03C01 injected failure exits 1.
   - CI 40699664160 PASS on `973ba00`. Every later Wave 2 commit is documentation.
 - **Merge:** `claude/roguewood-build` into main after the CI of the "Wave 2 closed" commit. It supersedes Codex's PR #12, which lacks the CI fix and Claude's Wave 2 work.
+
+## Wave 4 claims (coordinator: Claude, 2026-10-28)
+Pushes for Wave 4 wait until the owner merges Wave 3. Codex starts from `claude/roguewood-build` at the "Wave 3 closed" commit (merge it with a merge commit).
+- **Codex** (prompt: docs/prompts/codex-wave4.md):
+  - E17-D03-ART (Medium): briefs in `docs/art/briefs/E17-D03.md` for the nine boss rules in `content/catalogue/batches/E17-D03.json`, from `design.asset_ids`, `counterplay` and `presentation_needs`. A boss rule is shown on the rival's preview and the HUD boss chip, so the brief covers the 48px chip and the preview card. Flag look-alikes: Oil Slick / Narrow Lane, Mult Cap / Dull Pins, Frugal House / House Rules, and each against Dead Straight and Clean Sweep.
+  - E19-A16 (Medium): Glass Pin. Attach `in_play.pin.glass` to the real pin body as a cosmetic scene (no collision, mass or score change), check it natively in the rack, shop, inventory and binder, including a cracked-to-Wood frame from J03C02, then set its `artwork` flag in content/catalogue.json.
+  - E20-V08 (High): activation and sound for the eight landed E18 items: Pin Counter, Hot Streak, Last Stand, Tip Jar, Banana Ball, Plumb Line, Glass Cutter, and Glass Pin's crack (shown after the bank, in the order the explanation names breaks). Set `effects_audio` only after a native check; reduced motion follows E12.
+- **Claude:**
+  - E18-C03 (High): land the five remaining D02 Charms and Crown Pin, with the primitives `condition.first_roll_standing` (Split Specialist), `scaling.accurate_rolls` (Sweet Spot), `scaling.positions` (Back Row), `condition.match_behind` (Underdog) and `condition.last_fallen` (Crown Pin, Crown Jewel). Rules, validation, explanation text, tests and native evidence; their Wave 3 art paths come with them, flags false until Codex's native check.
+  - Then E17-D04 (Medium): the next definitions (ball and pin modifications, which are 0 of 16 each), so Codex has briefs for Wave 5.
+
+## Wave 3 closed (coordinator, 2026-10-28)
+- **Contents** (all on `claude/roguewood-build` at the "Wave 3 closed" commit):
+  - Claude: E18-C02 (`d3391f5`) and E17-D03 (`20703ee`).
+  - Codex: E17-D02-ART (`7101689`) and E19-A13…A15 (`a78354c`; handoffs/WAVE3-CODEX.md, E17-D02-ART.md, E19-A13…A15.md), merged by the coordinator.
+- **Coordinator review and integration:**
+  - Codex's diff against `fede206` changes only 24 identity paths and six artwork flags in content/catalogue.json, 24 identity paths in E17-D02.json, and add-only qa.py and workflow entries (the upload folders are inside `path`; `if-no-files-found: warn` stays last). The one source change, EquipmentArtStrip's icon fallback for Charms without an in-play texture, is presentation only.
+  - Conflict: Codex worked from the Wave 2 base, before E18-C02 landed Glass Cutter. The batch keeps Glass Cutter under `landed`; its four identity paths moved onto its catalogue entry.
+  - Glass Cutter's native check: J19A14N (headless and rendered) now buys it from a real offer and shows it in the inventory and binder; captures inspected. Its `artwork` flag is set, so seven landed D02 Charms have final identity art.
+- **Validation:** the full CI command list (110 commands: doctor, unit, content, integration, physics, smoke, export, experiment, slice, every journey headless and rendered, including J03C02 and the five new D02 art checks) PASS locally on the merged tree with Glass Cutter's flag set; the J03C02 injected failure exits 1. CI runs on this commit.
+- **Merge:** `claude/roguewood-build` into main after the CI of the "Wave 3 closed" commit.
 
 ## Wave 3 claims (coordinator: Claude, 2026-10-28)
 - **Codex:**
@@ -323,6 +345,12 @@ Standing user preferences:
 - At the end of every session, share newly produced screenshots with the user (as files in chat). Never commit screenshots or other rendered captures to the repository; CI's uploaded artifact is their durable copy.
 
 ## Batch queue and content completeness
+
+Batch E17-D03 (authored): boss_rule.oil_slick, heavy_set, frugal_house, house_rules, charm_freeze, narrow_lane, one_and_done, mult_cap, dull_pins (boss rules 2 implemented + 9 authored of 20).
+
+Batch E19-A13…A15 (Codex, Wave 3): identity art for all 12 D02 Charms. Artwork true on the seven landed (pin_counter, hot_streak, last_stand, tip_jar, banana_ball, plumb_line, glass_cutter); the five still authored have paths in E17-D02.json only.
+
+Batch E18-C02 (landed): pin.glass (transform primitive) and charm.glass_cutter. Production counts: pins 7/32, Charms 19/100.
 
 Batch E18-C01 (landed): charm.pin_counter, hot_streak, last_stand, tip_jar, banana_ball, plumb_line are in content/catalogue.json (mechanics and automated validation true; artwork pending). Production counts: Charms 18/100.
 
