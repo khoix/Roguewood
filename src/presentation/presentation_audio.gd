@@ -120,7 +120,15 @@ func _exit_tree() -> void:
 		if is_instance_valid(voice):
 			voice.stop()
 			voice.stream = null
-	if DisplayServer.get_name() == "headless":
-		# Godot 4.5's Dummy mixer retires stopped WAV playbacks on its next
-		# wall-clock mix. Fixed-fps tests can otherwise tear down first.
-		OS.delay_msec(50)
+	if AudioServer.get_driver_name() == "Dummy":
+		# Godot 4.5 retires stopped WAV playbacks on the next mixer pass.
+		# Dummy uses 4096 frames (~93 ms at 44.1 kHz), independently of
+		# fixed-fps simulation. Wait for an actual pass, not a fixed delay.
+		# The clock query takes the driver's lock, so that pass is complete
+		# when it returns. Bound the wait if the driver has already stopped.
+		var stopped_at := Time.get_ticks_usec()
+		while Time.get_ticks_usec() - stopped_at < 1000000:
+			var sampled_at := Time.get_ticks_usec()
+			var since_mix := int(AudioServer.get_time_since_last_mix() * 1000000.0)
+			if sampled_at - since_mix > stopped_at: break
+			OS.delay_msec(1)
