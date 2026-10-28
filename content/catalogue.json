@@ -570,8 +570,8 @@
         "card": "res://assets/items/charms/flat_bonus-card.tres",
         "in_play": "res://assets/items/charms/flat_bonus-card.tres",
         "rarity_treatment": "res://assets/items/charms/flat_bonus-frame.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/charm_flat_bonus.tres",
+        "sound": "res://assets/audio/charm_flat_bonus.wav",
         "reduced_motion": "res://assets/items/charms/flat_bonus-card.tres"
       },
       "completeness": {
@@ -579,7 +579,7 @@
         "mechanics": true,
         "automated_validation": true,
         "artwork": true,
-        "effects_audio": false,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -682,8 +682,8 @@
         "card": "res://assets/items/charms/spare_change-card.tres",
         "in_play": "res://assets/items/charms/spare_change-card.tres",
         "rarity_treatment": "res://assets/items/charms/spare_change-frame.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/charm_spare_change.tres",
+        "sound": "res://assets/audio/charm_spare_change.wav",
         "reduced_motion": "res://assets/items/charms/spare_change-card.tres"
       },
       "completeness": {
@@ -691,7 +691,7 @@
         "mechanics": true,
         "automated_validation": true,
         "artwork": true,
-        "effects_audio": false,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -847,8 +847,8 @@
         "card": "res://assets/items/charms/house_favorite-card.tres",
         "in_play": "res://assets/items/charms/house_favorite-card.tres",
         "rarity_treatment": "res://assets/items/charms/house_favorite-frame.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/charm_house_favorite.tres",
+        "sound": "res://assets/audio/charm_house_favorite.wav",
         "reduced_motion": "res://assets/items/charms/house_favorite-card.tres"
       },
       "completeness": {
@@ -856,7 +856,7 @@
         "mechanics": true,
         "automated_validation": true,
         "artwork": true,
-        "effects_audio": false,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
