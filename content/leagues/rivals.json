@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "batch": "E17-L01",
+  "status": "authored",
+  "note": "The roster of all 20 rivals: one per boss rule, assigned to the six Leagues (docs/ROADMAP.md). Names are working character names (design §18). Full identities (intro, reactions, first clear) are written in each League's spec; portraits, colours and presentation are Codex's E21 work.",
+  "rivals": [
+    {
+      "id": "rival.surveyor",
+      "name": "The Surveyor",
+      "initials": "TS",
+      "rule": "boss_rule.dead_straight",
+      "league": "league.house",
+      "signature": "Measures every line; no charged spin."
+    },
+    {
+      "id": "rival.custodian",
+      "name": "The Custodian",
+      "initials": "TC",
+      "rule": "boss_rule.clean_sweep",
+      "league": "league.house",
+      "signature": "Only clean frames count: strikes and spares."
+    },
+    {
+      "id": "rival.proprietor",
+      "name": "The Proprietor",
+      "initials": "TP",
+      "rule": "boss_rule.house_rules",
+      "league": "league.house",
+      "signature": "Owns the alley; House Ball only."
+    },
+    {
+      "id": "rival.old_lou",
+      "name": "Old Lou",
+      "initials": "OL",
+      "rule": "boss_rule.house_pins",
+      "league": "league.house",
+      "signature": "Forty years on these lanes; every pin plays as plain Wood."
+    },
+    {
+      "id": "rival.slick",
+      "name": "Slick",
+      "initials": "SL",
+      "rule": "boss_rule.oil_slick",
+      "league": "league.neon",
+      "signature": "Iridescent oil halves every hook."
+    },
+    {
+      "id": "rival.laser_lena",
+      "name": "Laser Lena",
+      "initials": "LL",
+      "rule": "boss_rule.narrow_lane",
+      "league": "league.neon",
+      "signature": "Neon rails pull the gutters in."
+    },
+    {
+      "id": "rival.dj_flicker",
+      "name": "DJ Flicker",
+      "initials": "DF",
+      "rule": "boss_rule.strobe",
+      "league": "league.neon",
+      "signature": "A strobing ring with half-size sweet spots."
+    },
+    {
+      "id": "rival.miser_moll",
+      "name": "Miser Moll",
+      "initials": "MM",
+      "rule": "boss_rule.frugal_house",
+      "league": "league.salvage",
+      "signature": "Pays nothing for items during her match."
+    },
+    {
+      "id": "rival.grimewell",
+      "name": "Grimewell",
+      "initials": "GW",
+      "rule": "boss_rule.dull_pins",
+      "league": "league.salvage",
+      "signature": "Grime halves every pin's Value."
+    },
+    {
+      "id": "rival.scrapjack",
+      "name": "Scrapjack",
+      "initials": "SJ",
+      "rule": "boss_rule.rust",
+      "league": "league.salvage",
+      "signature": "Rusts every modification shut."
+    },
+    {
+      "id": "rival.duchess",
+      "name": "The Duchess",
+      "initials": "TD",
+      "rule": "boss_rule.one_and_done",
+      "league": "league.royal",
+      "signature": "One roll per frame; no second chances."
+    },
+    {
+      "id": "rival.lord_tally",
+      "name": "Lord Tally",
+      "initials": "LT",
+      "rule": "boss_rule.mult_cap",
+      "league": "league.royal",
+      "signature": "Keeps the books: Mult stops at 20."
+    },
+    {
+      "id": "rival.herald",
+      "name": "The Herald",
+      "initials": "TH",
+      "rule": "boss_rule.court_order",
+      "league": "league.royal",
+      "signature": "The head pin must fall first."
+    },
+    {
+      "id": "rival.winter_widow",
+      "name": "The Winter Widow",
+      "initials": "WW",
+      "rule": "boss_rule.charm_freeze",
+      "league": "league.spectral",
+      "signature": "Freezes the first Charm slot."
+    },
+    {
+      "id": "rival.hush",
+      "name": "The Hush",
+      "initials": "HU",
+      "rule": "boss_rule.silence",
+      "league": "league.spectral",
+      "signature": "Nothing echoes: retriggers are silenced."
+    },
+    {
+      "id": "rival.wisp",
+      "name": "Wisp",
+      "initials": "WI",
+      "rule": "boss_rule.fading",
+      "league": "league.spectral",
+      "signature": "First-roll pins fade to half Value."
+    },
+    {
+      "id": "rival.iron_mae",
+      "name": "Iron Mae",
+      "initials": "IM",
+      "rule": "boss_rule.heavy_set",
+      "league": "league.foundry",
+      "signature": "Reinforced pins at one and a half times the weight."
+    },
+    {
+      "id": "rival.glassjaw",
+      "name": "Glassjaw",
+      "initials": "GJ",
+      "rule": "boss_rule.brittle_rack",
+      "league": "league.foundry",
+      "signature": "Fallen pins may crack into Wood."
+    },
+    {
+      "id": "rival.foreman_kole",
+      "name": "Foreman Kole",
+      "initials": "FK",
+      "rule": "boss_rule.blast_doors",
+      "league": "league.foundry",
+      "signature": "Only the ball's own hits count."
+    },
+    {
+      "id": "rival.gauge",
+      "name": "Gauge",
+      "initials": "GA",
+      "rule": "boss_rule.pressure_gauge",
+      "league": "league.foundry",
+      "signature": "Small frames don't move the needle."
+    }
+  ]
+}

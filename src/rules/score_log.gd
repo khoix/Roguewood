@@ -31,8 +31,15 @@ static func steps(result: Dictionary, frame: Dictionary, names: Dictionary = {},
 	var mult := 1.0
 	var seen := {}
 	var banked := -1
+	var facts: Dictionary = result.get("facts", {})
 	for event in result.events:
 		var step := {"phase": event.phase, "symbol": "", "pin": 0}
+		if event.phase == "accuracy":
+			# A fallen pin that pays only if it fell last shows its 0 when it did not.
+			for pin in frame.pins:
+				if _fell(frame, int(pin.position)) and int(pin.position) != int(facts.get("last_fallen", 0)) and pin.effects.any(func(e): return e.get("condition", {}).get("last_fallen") == "self"):
+					out.append({"phase": "fallen", "symbol": ADD, "pin": int(pin.position), "pin_value": value, "mult": mult,
+						"text": "Pin %d %s +0 Value (did not fall last)" % [int(pin.position), names.get(pin.item_id, pin.item_id)]})
 		match event.phase:
 			"category":
 				value = event.pin_value
@@ -74,7 +81,7 @@ static func steps(result: Dictionary, frame: Dictionary, names: Dictionary = {},
 				if event.has("count"):
 					step.text += " (%d × %s%s%s)" % [int(event.count), ADD if event.op != "multiply_mult" else TIMES, _n(event.base), _per_text(String(event.per), names)]
 				if event.has("condition"):
-					step.text += " (%s)" % condition_text(event.condition)
+					step.text += " (%s)" % condition_text(event.condition, facts, names)
 				if event.phase == "standing":
 					step.text += " (standing)"
 				if int(event.get("repeat", 0)) > 0:
@@ -167,8 +174,12 @@ static func item_text(item: Dictionary, names: Dictionary = {}) -> String:
 		parts.append("once")
 	return " · ".join(parts) if not parts.is_empty() else "—"
 
+static func _fell(frame: Dictionary, position: int) -> bool:
+	return frame.rolls.any(func(r): return position in r.fallen_positions.map(func(p): return int(p)))
+
 ## Short reason a conditional effect applied, e.g. "strike", "frame 2", "1 standing".
-static func condition_text(condition: Dictionary) -> String:
+## facts: the resolver's frame facts, to show the checked numbers when they are known.
+static func condition_text(condition: Dictionary, facts: Dictionary = {}, names: Dictionary = {}) -> String:
 	var parts: Array = []
 	for key in condition:
 		var v: Variant = condition[key]
@@ -179,6 +190,15 @@ static func condition_text(condition: Dictionary) -> String:
 			"curved": parts.append("curved" if v else "straight")
 			"all_house": parts.append("all House" if v else "not all House")
 			"streak_min": parts.append("strike streak %d+" % int(v))
+			"leave_min":
+				parts.append("first roll left %d, needs %d+" % [int(facts.leave), int(v)] if facts.has("leave") else "first roll leaves %d+" % int(v))
+			"behind":
+				if facts.has("match_target") and int(facts.match_target) > 0:
+					parts.append("%s: %d vs half of %d" % ["behind" if v else "not behind", int(facts.match_score), int(facts.match_target)])
+				else:
+					parts.append("match score under half the target" if v else "not behind")
+			"last_fallen":
+				parts.append("fell last" if v == "self" else "%s fell last" % names.get(v, v))
 	return ", ".join(parts)
 
 static func _per_text(per: String, names: Dictionary) -> String:
@@ -190,6 +210,10 @@ static func _per_text(per: String, names: Dictionary) -> String:
 		"retriggers": return " per retrigger"
 		"fallen": return " per %s down" % what
 		"standing": return " per %s standing" % what
+		"accurate": return " per sweet or perfect roll"
+		"fallen_at":
+			var at := per.trim_prefix("fallen_at:")
+			return " per back-row pin down" if at == "7,8,9,10" else " per pin down at " + at.replace(",", ", ")
 	return ""
 
 ## Integral values print without decimals; others keep two places.

@@ -31,9 +31,21 @@ func _initialize() -> void:
 			failures.append(e)
 		print("Authored batches: %d; counts (implemented/authored/target) %s" % [batches.size(), str(authored.counts(production, batches))])
 		print("Primitives for E18: %s" % str(authored.primitives(batches)))
+		# E17-L League specs and the rival roster, against the prospective catalogue.
+		var leagues = load("res://src/content/league_specs.gd")
+		var catalogue_ahead: Dictionary = production.duplicate(true)
+		catalogue_ahead.items.append_array(authored.items(batches))
+		var roster: Dictionary = leagues.roster()
+		for e in leagues.validate_roster(roster, catalogue_ahead):
+			failures.append(e)
+		var specs: Array = leagues.load_all()
+		for spec in specs:
+			for e in leagues.validate_spec(spec.data, roster, catalogue_ahead, String(spec.path).get_file()):
+				failures.append(e)
+		print("League specs: %s" % leagues.summary(specs, roster))
 	elif mode == "unit":
 		failures = ContractTests.run()
-		for path in ["res://tests/rules_test.gd", "res://tests/simulation_test.gd", "res://tests/input_test.gd", "res://tests/scoring_test.gd", "res://tests/deck_test.gd", "res://tests/economy_test.gd", "res://tests/division_test.gd", "res://tests/save_test.gd", "res://tests/slice_test.gd", "res://tests/campaign_generator_test.gd", "res://tests/campaign_integration_test.gd", "res://tests/career_test.gd", "res://tests/clubhouse_test.gd", "res://tests/authored_test.gd", "res://tests/mechanics_c02_test.gd"]:
+		for path in ["res://tests/rules_test.gd", "res://tests/simulation_test.gd", "res://tests/input_test.gd", "res://tests/scoring_test.gd", "res://tests/deck_test.gd", "res://tests/economy_test.gd", "res://tests/division_test.gd", "res://tests/save_test.gd", "res://tests/slice_test.gd", "res://tests/campaign_generator_test.gd", "res://tests/campaign_integration_test.gd", "res://tests/career_test.gd", "res://tests/clubhouse_test.gd", "res://tests/authored_test.gd", "res://tests/mechanics_c02_test.gd", "res://tests/mechanics_c03_test.gd", "res://tests/mechanics_c04_test.gd", "res://tests/league_spec_test.gd"]:
 			var suite = load(path)
 			if suite == null:
 				failures.append("Missing tests: " + path)

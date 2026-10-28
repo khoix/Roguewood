@@ -1,0 +1,417 @@
+{
+  "schema_version": 1,
+  "batch": "E17-D04",
+  "status": "authored",
+  "note": "Ball and pin modifications (6 each), the first of the 32. Nine use existing frame-rule pieces; three need new primitives (E18): physics.mod_mass_scale (Lead Core, Lead Weight), physics.gutter_rebound (Bumper Guard) and condition.first_fallen (Spearhead). A modification attaches to one ball card or rack position and its effects join the host's. Nothing here is in content/catalogue.json until E18. E18-C04 landed the eight that use existing rule pieces; Lead Core, Lead Weight, Bumper Guard and Spearhead wait for their primitives (docs/ROADMAP.md).",
+  "definitions": [
+    {
+      "item": {
+        "id": "ball_mod.lead_core",
+        "name": "Lead Core",
+        "category": "ball_mod",
+        "rarity": "uncommon",
+        "pool_weight": 1,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 6,
+        "resale_price": 3,
+        "effects": [],
+        "limits": {
+          "max_owned": 4,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Less hook: a curved line bends 15% less, and it cannot core a Hammer Ball.",
+        "synergy_tags": [
+          "power",
+          "straight",
+          "physics"
+        ],
+        "incompatibilities": [
+          "ball.hammer"
+        ],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "The cored ball's mass is ×1.2 for every roll (multiplied with the ball's own profile) and its hook response ×0.85, so it carries through pins on a straighter line.",
+        "primitives": [
+          "physics.mod_mass_scale"
+        ],
+        "pool": "Shop modification slot; initial pool from Division 1. Attaches to one ball card (one modification per ball).",
+        "presentation_needs": "A badge on the host card and a small overlay on the host in play; the host's own silhouette and marking stay readable. A heavier roll sound and a dense core mark; the aim preview shows the reduced hook.",
+        "asset_ids": {
+          "icon": "icon.ball_mod.lead_core",
+          "card": "card.ball_mod.lead_core",
+          "rarity_treatment": "rarity_treatment.ball_mod.lead_core",
+          "activation": "activation.ball_mod.lead_core",
+          "sound": "sound.ball_mod.lead_core",
+          "reduced_motion": "reduced_motion.ball_mod.lead_core"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "ball_mod.bumper_guard",
+        "name": "Bumper Guard",
+        "category": "ball_mod",
+        "rarity": "rare",
+        "pool_weight": 1,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 2,
+        "purchase_price": 7,
+        "resale_price": 3,
+        "effects": [],
+        "limits": {
+          "max_owned": 2,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "A rescued roll costs 2 Mult (never below 1), and it does nothing for a roll that stays on the lane.",
+        "synergy_tags": [
+          "safety",
+          "consistency",
+          "physics"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "The first time in a frame a roll thrown with this ball reaches a gutter, it rebounds once off a bumper toward the pins instead of being voided. Pins it then knocks down count; that roll gives −2 Mult, never taking Mult below 1.",
+        "primitives": [
+          "physics.gutter_rebound"
+        ],
+        "pool": "Shop modification slot; initial pool from Division 2. Attaches to one ball card (one modification per ball).",
+        "presentation_needs": "A badge on the host card and a small overlay on the host in play; the host's own silhouette and marking stay readable. A visible bumper rail appears only for the rebound; the −2 Mult is named in the explanation.",
+        "asset_ids": {
+          "icon": "icon.ball_mod.bumper_guard",
+          "card": "card.ball_mod.bumper_guard",
+          "rarity_treatment": "rarity_treatment.ball_mod.bumper_guard",
+          "activation": "activation.ball_mod.bumper_guard",
+          "sound": "sound.ball_mod.bumper_guard",
+          "reduced_motion": "reduced_motion.ball_mod.bumper_guard"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "pin_mod.lead_weight",
+        "name": "Lead Weight",
+        "category": "pin_mod",
+        "rarity": "uncommon",
+        "pool_weight": 1,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 5,
+        "resale_price": 2,
+        "effects": [
+          {
+            "op": "add_value",
+            "amount": 15,
+            "trigger": "fallen",
+            "scope": "frame"
+          }
+        ],
+        "limits": {
+          "max_owned": 4,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Harder to knock down, so it stands more often; cannot weight an Anchor pin.",
+        "synergy_tags": [
+          "value",
+          "physics",
+          "rack"
+        ],
+        "incompatibilities": [
+          "pin.anchor"
+        ],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "The weighted pin's mass is ×1.3, so it is harder to topple and carries further when it does fall; +15 Value when it is knocked down.",
+        "primitives": [
+          "physics.mod_mass_scale"
+        ],
+        "pool": "Shop modification slot; initial pool from Division 1. Attaches to one rack position (one modification per pin).",
+        "presentation_needs": "A badge on the host card and a small overlay on the host in play; the host's own silhouette and marking stay readable. A heavier impact sound for the weighted pin.",
+        "asset_ids": {
+          "icon": "icon.pin_mod.lead_weight",
+          "card": "card.pin_mod.lead_weight",
+          "rarity_treatment": "rarity_treatment.pin_mod.lead_weight",
+          "activation": "activation.pin_mod.lead_weight",
+          "sound": "sound.pin_mod.lead_weight",
+          "reduced_motion": "reduced_motion.pin_mod.lead_weight"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "pin_mod.spearhead",
+        "name": "Spearhead",
+        "category": "pin_mod",
+        "rarity": "rare",
+        "pool_weight": 1,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 2,
+        "purchase_price": 7,
+        "resale_price": 3,
+        "effects": [],
+        "limits": {
+          "max_owned": 2,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Only the pin the ball meets first pays, which on most racks means the head pin.",
+        "synergy_tags": [
+          "precision",
+          "positional",
+          "rack"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "+30 Value if the tipped pin is the first pin knocked down in the frame (the lowest knockdown sequence of roll 1, the mirror of Crown Pin's last-fallen test); otherwise nothing.",
+        "primitives": [
+          "condition.first_fallen"
+        ],
+        "pool": "Shop modification slot; initial pool from Division 2. Attaches to one rack position (one modification per pin).",
+        "presentation_needs": "A badge on the host card and a small overlay on the host in play; the host's own silhouette and marking stay readable. During resolution, shows whether it fell first (the +30) or not (a clear 0).",
+        "asset_ids": {
+          "icon": "icon.pin_mod.spearhead",
+          "card": "card.pin_mod.spearhead",
+          "rarity_treatment": "rarity_treatment.pin_mod.spearhead",
+          "activation": "activation.pin_mod.spearhead",
+          "sound": "sound.pin_mod.spearhead",
+          "reduced_motion": "reduced_motion.pin_mod.spearhead"
+        }
+      }
+    }
+  ],
+  "landed": [
+    {
+      "id": "ball_mod.chalk_grip",
+      "landed_in": "E18-C04",
+      "design": {
+        "trigger": "+2 Mult for each roll thrown with the chalked ball in a frame that ends as a spare (both rolls count when both use it). A strike or an open frame gets nothing.",
+        "primitives": [],
+        "pool": "Shop modification slot; initial pool from Division 1. Attaches to one ball card (one modification per ball).",
+        "presentation_needs": "A badge on the host card and a small overlay on the host in play; the host's own silhouette and marking stay readable. A chalk-dust puff on release in a spare frame.",
+        "asset_ids": {
+          "icon": "icon.ball_mod.chalk_grip",
+          "card": "card.ball_mod.chalk_grip",
+          "rarity_treatment": "rarity_treatment.ball_mod.chalk_grip",
+          "activation": "activation.ball_mod.chalk_grip",
+          "sound": "sound.ball_mod.chalk_grip",
+          "reduced_motion": "reduced_motion.ball_mod.chalk_grip"
+        }
+      }
+    },
+    {
+      "id": "ball_mod.spin_wax",
+      "landed_in": "E18-C04",
+      "design": {
+        "trigger": "+4 Mult for each roll thrown with the waxed ball in a frame where any roll curved (committed spin past the curve threshold). A frame of straight rolls gets nothing.",
+        "primitives": [],
+        "pool": "Unlocked by the True Curve objective; then the modification slot from Division 1.",
+        "presentation_needs": "A badge on the host card and a small overlay on the host in play; the host's own silhouette and marking stay readable. A wax sheen on the ball's curve trail, readable without colour.",
+        "asset_ids": {
+          "icon": "icon.ball_mod.spin_wax",
+          "card": "card.ball_mod.spin_wax",
+          "rarity_treatment": "rarity_treatment.ball_mod.spin_wax",
+          "activation": "activation.ball_mod.spin_wax",
+          "sound": "sound.ball_mod.spin_wax",
+          "reduced_motion": "reduced_motion.ball_mod.spin_wax"
+        }
+      }
+    },
+    {
+      "id": "ball_mod.coin_slot",
+      "landed_in": "E18-C04",
+      "design": {
+        "trigger": "Pays $2 after the bank when a roll thrown with this ball is a strike, credited with the frame income. A spare or an open frame pays nothing; a retrigger never pays twice.",
+        "primitives": [],
+        "pool": "Shop modification slot; initial pool from Division 1. Attaches to one ball card (one modification per ball).",
+        "presentation_needs": "A badge on the host card and a small overlay on the host in play; the host's own silhouette and marking stay readable. A coin-slot mark; the payout uses the shared coin feedback after the bank.",
+        "asset_ids": {
+          "icon": "icon.ball_mod.coin_slot",
+          "card": "card.ball_mod.coin_slot",
+          "rarity_treatment": "rarity_treatment.ball_mod.coin_slot",
+          "activation": "activation.ball_mod.coin_slot",
+          "sound": "sound.ball_mod.coin_slot",
+          "reduced_motion": "reduced_motion.ball_mod.coin_slot"
+        }
+      }
+    },
+    {
+      "id": "ball_mod.echo_charge",
+      "landed_in": "E18-C04",
+      "design": {
+        "trigger": "Retriggers the scoring effects of the first pin the charged ball knocks down directly that roll, once, in that pin's rack slot: Echo Ball's rule on any other ball.",
+        "primitives": [],
+        "pool": "Unlocked by the first House League title; then the modification slot from Division 2.",
+        "presentation_needs": "A badge on the host card and a small overlay on the host in play; the host's own silhouette and marking stay readable. Concentric pulses like Echo's, but as a ring on the host ball so the two never read alike.",
+        "asset_ids": {
+          "icon": "icon.ball_mod.echo_charge",
+          "card": "card.ball_mod.echo_charge",
+          "rarity_treatment": "rarity_treatment.ball_mod.echo_charge",
+          "activation": "activation.ball_mod.echo_charge",
+          "sound": "sound.ball_mod.echo_charge",
+          "reduced_motion": "reduced_motion.ball_mod.echo_charge"
+        }
+      }
+    },
+    {
+      "id": "pin_mod.brass_cap",
+      "landed_in": "E18-C04",
+      "design": {
+        "trigger": "+1 Mult when the capped pin is knocked down; a retrigger of that pin repeats it. It adds no Value and the pin keeps all of its own effects.",
+        "primitives": [],
+        "pool": "Shop modification slot; initial pool from Division 1. Attaches to one rack position (one modification per pin).",
+        "presentation_needs": "A badge on the host card and a small overlay on the host in play; the host's own silhouette and marking stay readable.",
+        "asset_ids": {
+          "icon": "icon.pin_mod.brass_cap",
+          "card": "card.pin_mod.brass_cap",
+          "rarity_treatment": "rarity_treatment.pin_mod.brass_cap",
+          "activation": "activation.pin_mod.brass_cap",
+          "sound": "sound.pin_mod.brass_cap",
+          "reduced_motion": "reduced_motion.pin_mod.brass_cap"
+        }
+      }
+    },
+    {
+      "id": "pin_mod.gilt_leaf",
+      "landed_in": "E18-C04",
+      "design": {
+        "trigger": "Pays $1 after the bank when the gilded pin falls, credited with the frame income. A retrigger never pays twice; a standing gilded pin pays nothing.",
+        "primitives": [],
+        "pool": "Shop modification slot; initial pool from Division 1. Attaches to one rack position (one modification per pin).",
+        "presentation_needs": "A badge on the host card and a small overlay on the host in play; the host's own silhouette and marking stay readable. Gold leaf over the base material, not a recolour of Gold Pin.",
+        "asset_ids": {
+          "icon": "icon.pin_mod.gilt_leaf",
+          "card": "card.pin_mod.gilt_leaf",
+          "rarity_treatment": "rarity_treatment.pin_mod.gilt_leaf",
+          "activation": "activation.pin_mod.gilt_leaf",
+          "sound": "sound.pin_mod.gilt_leaf",
+          "reduced_motion": "reduced_motion.pin_mod.gilt_leaf"
+        }
+      }
+    },
+    {
+      "id": "pin_mod.lantern",
+      "landed_in": "E18-C04",
+      "design": {
+        "trigger": "While the lit pin is still standing when the frame ends, +1 Mult for each pin left standing (itself included). A strike or a spare knocks it down and pays nothing.",
+        "primitives": [],
+        "pool": "Shop modification slot; initial pool from Division 1. Attaches to one rack position (one modification per pin).",
+        "presentation_needs": "A badge on the host card and a small overlay on the host in play; the host's own silhouette and marking stay readable. A small flame that stays lit while the pin stands; it counts the standing pins in the rack diagram.",
+        "asset_ids": {
+          "icon": "icon.pin_mod.lantern",
+          "card": "card.pin_mod.lantern",
+          "rarity_treatment": "rarity_treatment.pin_mod.lantern",
+          "activation": "activation.pin_mod.lantern",
+          "sound": "sound.pin_mod.lantern",
+          "reduced_motion": "reduced_motion.pin_mod.lantern"
+        }
+      }
+    },
+    {
+      "id": "pin_mod.keystone",
+      "landed_in": "E18-C04",
+      "design": {
+        "trigger": "When the keystone pin falls, +4 Value for each pin knocked down this frame, itself included (a strike gives +40). If it stands, nothing.",
+        "primitives": [],
+        "pool": "Unlocked by the Mixed Rack objective; then the modification slot from Division 2.",
+        "presentation_needs": "A badge on the host card and a small overlay on the host in play; the host's own silhouette and marking stay readable. A carved keystone mark; the count reads as pins down in the rack diagram.",
+        "asset_ids": {
+          "icon": "icon.pin_mod.keystone",
+          "card": "card.pin_mod.keystone",
+          "rarity_treatment": "rarity_treatment.pin_mod.keystone",
+          "activation": "activation.pin_mod.keystone",
+          "sound": "sound.pin_mod.keystone",
+          "reduced_motion": "reduced_motion.pin_mod.keystone"
+        }
+      }
+    }
+  ]
+}

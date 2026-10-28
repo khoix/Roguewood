@@ -91,7 +91,7 @@
       "gates": [
         "gate.mastery_true_curve"
       ],
-      "reward": "True Curve ribbon for the trophy shelf; Banana Ball joins the shop pool from your next attempt."
+      "reward": "True Curve ribbon for the trophy shelf; Banana Ball and Spin Wax join the shop pool from your next attempt."
     },
     {
       "id": "mastery.mixed_rack",
@@ -104,7 +104,7 @@
       "gates": [
         "gate.mastery_mixed_rack"
       ],
-      "reward": "Mixed Rack ribbon for the trophy shelf."
+      "reward": "Mixed Rack ribbon for the trophy shelf; Keystone joins the shop pool from your next attempt."
     }
   ],
   "counters": {
@@ -160,6 +160,51 @@
     "boss_rule.dull_pins": [
       "mult",
       "strike"
+    ],
+    "boss_rule.house_pins": [
+      "mult",
+      "strike",
+      "retrigger"
+    ],
+    "boss_rule.strobe": [
+      "straight",
+      "power",
+      "value"
+    ],
+    "boss_rule.rust": [
+      "baseline",
+      "mult",
+      "value"
+    ],
+    "boss_rule.court_order": [
+      "precision",
+      "positional",
+      "accuracy"
+    ],
+    "boss_rule.silence": [
+      "value",
+      "mult",
+      "straight"
+    ],
+    "boss_rule.fading": [
+      "spare",
+      "standing",
+      "open"
+    ],
+    "boss_rule.brittle_rack": [
+      "baseline",
+      "economy",
+      "value"
+    ],
+    "boss_rule.blast_doors": [
+      "power",
+      "precision",
+      "accuracy"
+    ],
+    "boss_rule.pressure_gauge": [
+      "mult",
+      "strike",
+      "growth"
     ]
   },
   "cosmetics": [

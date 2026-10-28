@@ -36,13 +36,24 @@ static func first_direct(knockdown_log: Dictionary) -> int:
 			best = int(entry.position)
 	return best
 
+## The pin a roll knocked down last (highest knockdown sequence; 0 if none): Crown's test.
+static func last_fallen(knockdown_log: Dictionary) -> int:
+	var best := 0
+	var sequence := 0
+	for entry in knockdown_log.get("knockdowns", []):
+		if int(entry.sequence) > sequence:
+			sequence = int(entry.sequence)
+			best = int(entry.position)
+	return best
+
 ## Returns {ok, frame, owners} or {ok=false, errors}: a v2 frame (ADR 008). Reports
 ## are LaneWorld reports ({launch, roll_result, knockdown_log}) in roll order. The
 ## loadout gives pins by position, ordered Charms, optional pin_mods (position ->
 ## pin_mod id), whose effects join that pin's, and optional run growth
 ## (pin_growth: position -> count, charm_growth: [count per Charm slot]). extras
 ## maps a roll index to the tactical cards and ball modification played with that
-## roll; their effects join the roll's. context: {match_frame, strike_streak}.
+## roll; their effects join the roll's. context: {match_frame, strike_streak} and,
+## when known, {match_score, match_target} before this frame (target 0 in Practice).
 static func build(loadout: Dictionary, catalogue: Dictionary, reports: Array, extras: Dictionary = {}, context: Dictionary = {}) -> Dictionary:
 	var errors: Array[String] = []
 	if not is_complete(reports):
@@ -92,7 +103,7 @@ static func build(loadout: Dictionary, catalogue: Dictionary, reports: Array, ex
 				effect_owners.append(extra.id)
 		owners["roll:%d" % int(result.roll_index)] = effect_owners
 		rolls.append({"roll_index": int(result.roll_index), "ball_id": ball.id, "fallen_positions": result.fallen_positions.duplicate(),
-			"accuracy": result.accuracy, "effects": effects, "first_direct": first_direct(report.knockdown_log),
+			"accuracy": result.accuracy, "effects": effects, "first_direct": first_direct(report.knockdown_log), "last_fallen": last_fallen(report.knockdown_log),
 			"curved": Lane.is_curved(float(report.launch.spin))})
 	var charms: Array = []
 	var charm_growth: Array = loadout.get("charm_growth", [])
@@ -103,8 +114,11 @@ static func build(loadout: Dictionary, catalogue: Dictionary, reports: Array, ex
 			errors.append("unknown Charm item: %s" % charm_id)
 			continue
 		charms.append({"item_id": charm.id, "effects": charm.effects.duplicate(true), "growth": int(charm_growth[i]) if i < charm_growth.size() else 0})
-	var frame := {"schema_version": 2, "pins": pins, "rolls": rolls, "charms": charms,
-		"context": {"match_frame": int(context.get("match_frame", 1)), "strike_streak": int(context.get("strike_streak", 0))}}
+	var frame_context := {"match_frame": int(context.get("match_frame", 1)), "strike_streak": int(context.get("strike_streak", 0))}
+	for key in ["match_score", "match_target"]:
+		if context.has(key):
+			frame_context[key] = int(context[key])
+	var frame := {"schema_version": 2, "pins": pins, "rolls": rolls, "charms": charms, "context": frame_context}
 	if errors.is_empty():
 		errors.append_array(Rules.validate(frame))
 	if not errors.is_empty():
