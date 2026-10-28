@@ -28,5 +28,11 @@
     "charm.turkey_club",
     "charm.patient_investor",
     "charm.last_chance"
+  ],
+  "E19-A06": [
+    "charm.encore",
+    "charm.standing_order",
+    "boss_rule.dead_straight",
+    "boss_rule.clean_sweep"
   ]
 }

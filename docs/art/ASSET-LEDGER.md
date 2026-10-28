@@ -81,3 +81,17 @@ in-play/static reduced slots and Common-family Uncommon/Rare frames. All four
 native purchases, equipped identities and binder cards verified; 192px/48px
 contact and reduced view inspected. Artwork true, effects/audio false. No
 third-party material, exclusive-rights or clearance claim. Phone remains E26.
+
+## Wave 1 / E19-A06
+
+`assets/items/sources/e19-a06.png`: original unchanged built-in generation,
+no references. Exact prompt retained; SHA256
+`d1f853e5652e1eccb28e0bb05dee997cedd5d02047ad39c618829030eb5ef6b8`.
+Authored AtlasTexture bounds retain full ticket edges and badge loops. Encore's
+layered tickets, Standing Order's sealed clipboard, Dead Straight's hexagonal
+survey seal and Clean Sweep's round broom seal are distinct constructions.
+Original Common/Uncommon frames and explicit type/rarity text. Card/icon/in-play/
+static reduced slots use the same identities. Charms verified in actual shop and
+binder; rule badges verified by stable rule ID through both complete slice
+encounters. Artwork true, effects/audio separate. No external material or
+exclusive-rights/clearance claim; phone readability stays E26.

@@ -1115,19 +1115,19 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
+        "icon": "res://assets/items/charms/encore-card.tres",
+        "card": "res://assets/items/charms/encore-card.tres",
+        "in_play": "res://assets/items/charms/encore-card.tres",
+        "rarity_treatment": "res://assets/items/charms/encore-frame.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/charms/encore-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
+        "artwork": true,
         "effects_audio": false,
         "unlock_assigned": true,
         "integrated": false
@@ -1169,19 +1169,19 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
+        "icon": "res://assets/items/charms/standing_order-card.tres",
+        "card": "res://assets/items/charms/standing_order-card.tres",
+        "in_play": "res://assets/items/charms/standing_order-card.tres",
+        "rarity_treatment": "res://assets/items/charms/standing_order-frame.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/charms/standing_order-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
+        "artwork": true,
         "effects_audio": false,
         "unlock_assigned": true,
         "integrated": false
@@ -1212,19 +1212,19 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
+        "icon": "res://assets/items/rules/dead_straight-card.tres",
+        "card": "res://assets/items/rules/dead_straight-card.tres",
+        "in_play": "res://assets/items/rules/dead_straight-card.tres",
+        "rarity_treatment": "res://assets/items/rules/dead_straight-frame.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/rules/dead_straight-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
+        "artwork": true,
         "effects_audio": false,
         "unlock_assigned": true,
         "integrated": false
@@ -1255,19 +1255,19 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
+        "icon": "res://assets/items/rules/clean_sweep-card.tres",
+        "card": "res://assets/items/rules/clean_sweep-card.tres",
+        "in_play": "res://assets/items/rules/clean_sweep-card.tres",
+        "rarity_treatment": "res://assets/items/rules/clean_sweep-frame.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/rules/clean_sweep-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
+        "artwork": true,
         "effects_audio": false,
         "unlock_assigned": true,
         "integrated": false

@@ -11,7 +11,7 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	if lab.run == null: return
-	visible = lab.state in ["aim", "holding", "rolling", "result", "frame_done"] and not lab.settings_panel.visible and not lab.score_panel.visible
+	visible = lab.state in ["aim", "holding", "rolling", "result", "frame_done"] and not lab.settings_panel.visible and not lab.score_panel.visible and not lab.hud.reaction.visible
 	var ids: Array = lab.run.charms.map(func(entry): return String(entry.item_id))
 	var signature := str(ids)
 	if signature != _signature:

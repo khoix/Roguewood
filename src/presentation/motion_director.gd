@@ -74,6 +74,15 @@ func _scored(scored: Dictionary) -> void:
 
 func _process(delta: float) -> void:
 	if not lab.lane: return
+	# The HUD already previews the Division's boss. Resolve artwork from its stable
+	# rule ID without parsing labels or changing any active rule/target.
+	var boss := _rival()
+	var badge_art := ItemAssets.slot(String(boss.get("rule", "")), "in_play") as Texture2D
+	if lab.hud.badge.icon != badge_art:
+		lab.hud.badge.icon = badge_art
+		lab.hud.badge.expand_icon = true
+		lab.hud.badge.add_theme_constant_override("icon_max_width", 32)
+		lab.hud.badge.texture_filter = TEXTURE_FILTER_NEAREST
 	var ball_id: String = lab.lane.launch.get("ball_id", "ball.house") if lab.state in ["rolling", "result", "scoring", "frame_done"] else lab.armed_ball_id()
 	ItemAssets.dress_ball(lab.lane.ball, ball_id)
 	if is_instance_valid(lab.lane.aim_ball): ItemAssets.dress_ball(lab.lane.aim_ball, ball_id)
