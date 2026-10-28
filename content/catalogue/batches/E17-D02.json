@@ -1,0 +1,826 @@
+{
+  "schema_version": 1,
+  "batch": "E17-D02",
+  "status": "authored",
+  "note": "Authored Charm definitions. Seven use existing frame-rule pieces (conditions and per-count scaling); five need new primitives (E18). Nothing here is in content/catalogue.json or any pool until E18 moves it there.",
+  "definitions": [
+    {
+      "item": {
+        "id": "charm.pin_counter",
+        "name": "Pin Counter",
+        "category": "charm",
+        "rarity": "common",
+        "pool_weight": 1,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 3,
+        "resale_price": 1,
+        "effects": [
+          {
+            "op": "add_mult",
+            "amount": 1,
+            "trigger": "charm",
+            "scope": "frame",
+            "per": "fallen"
+          }
+        ],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Small on its own: only worth +10 Mult on a full clear, and a gutter frame gets nothing.",
+        "synergy_tags": [
+          "baseline",
+          "mult",
+          "pinfall"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "+1 Mult for each pin knocked down this frame (all rolls), applied in the Charm phase in slot order. Ten pins give +10 Mult; a frame with no pins down adds nothing.",
+        "primitives": [],
+        "pool": "Shop Charm slot; initial pool from Division 1.",
+        "presentation_needs": "A score-slip card that ticks up per pin; the log line shows the count (×N pins).",
+        "asset_ids": {
+          "icon": "icon.charm.pin_counter",
+          "card": "card.charm.pin_counter",
+          "rarity_treatment": "rarity_treatment.charm.pin_counter",
+          "activation": "activation.charm.pin_counter",
+          "sound": "sound.charm.pin_counter",
+          "reduced_motion": "reduced_motion.charm.pin_counter"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "charm.hot_streak",
+        "name": "Hot Streak",
+        "category": "charm",
+        "rarity": "common",
+        "pool_weight": 1,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 4,
+        "resale_price": 2,
+        "effects": [
+          {
+            "op": "add_mult",
+            "amount": 6,
+            "trigger": "charm",
+            "scope": "frame",
+            "condition": {
+              "category": [
+                "strike"
+              ],
+              "streak_min": 2
+            }
+          }
+        ],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Nothing until the second strike in a row, and any spare or open frame resets the streak.",
+        "synergy_tags": [
+          "strike",
+          "streak",
+          "mult"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "+6 Mult on a strike that is at least the second consecutive strike of the attempt (the strike streak counts this frame). Any non-strike frame resets the streak to zero.",
+        "primitives": [],
+        "pool": "Shop Charm slot; initial pool from Division 1.",
+        "presentation_needs": "A flame tally that shows the current streak; inactive cards stay quiet.",
+        "asset_ids": {
+          "icon": "icon.charm.hot_streak",
+          "card": "card.charm.hot_streak",
+          "rarity_treatment": "rarity_treatment.charm.hot_streak",
+          "activation": "activation.charm.hot_streak",
+          "sound": "sound.charm.hot_streak",
+          "reduced_motion": "reduced_motion.charm.hot_streak"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "charm.last_stand",
+        "name": "Last Stand",
+        "category": "charm",
+        "rarity": "uncommon",
+        "pool_weight": 1,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 5,
+        "resale_price": 2,
+        "effects": [
+          {
+            "op": "add_mult",
+            "amount": 2,
+            "trigger": "charm",
+            "scope": "frame",
+            "per": "standing"
+          }
+        ],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Pays only for pins left standing, which pulls you away from strikes and spares.",
+        "synergy_tags": [
+          "standing",
+          "open",
+          "mult"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "+2 Mult for each pin still standing when the frame ends. A strike or spare gives nothing; an open frame with three pins left gives +6 Mult.",
+        "primitives": [],
+        "pool": "Shop Charm slot; initial pool from Division 1.",
+        "presentation_needs": "Pins left standing light up in the rack diagram as the Mult is counted.",
+        "asset_ids": {
+          "icon": "icon.charm.last_stand",
+          "card": "card.charm.last_stand",
+          "rarity_treatment": "rarity_treatment.charm.last_stand",
+          "activation": "activation.charm.last_stand",
+          "sound": "sound.charm.last_stand",
+          "reduced_motion": "reduced_motion.charm.last_stand"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "charm.tip_jar",
+        "name": "Tip Jar",
+        "category": "charm",
+        "rarity": "common",
+        "pool_weight": 1,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 4,
+        "resale_price": 2,
+        "effects": [
+          {
+            "op": "payout",
+            "amount": 1,
+            "trigger": "charm",
+            "scope": "frame",
+            "condition": {
+              "category": [
+                "spare"
+              ]
+            }
+          }
+        ],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Only $1, only on spares; no help to strike or standing builds.",
+        "synergy_tags": [
+          "economy",
+          "spare"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "$1 for each spare frame, paid with the frame's income after banking. Not retriggered (currency never is).",
+        "primitives": [],
+        "pool": "Shop Charm slot; initial pool from Division 1.",
+        "presentation_needs": "A coin drops into a jar on spare frames; the $1 joins the frame income line.",
+        "asset_ids": {
+          "icon": "icon.charm.tip_jar",
+          "card": "card.charm.tip_jar",
+          "rarity_treatment": "rarity_treatment.charm.tip_jar",
+          "activation": "activation.charm.tip_jar",
+          "sound": "sound.charm.tip_jar",
+          "reduced_motion": "reduced_motion.charm.tip_jar"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "charm.banana_ball",
+        "name": "Banana Ball",
+        "category": "charm",
+        "rarity": "uncommon",
+        "pool_weight": 1,
+        "unlock": {
+          "kind": "mastery",
+          "prerequisites": [
+            "gate.mastery_true_curve"
+          ]
+        },
+        "earliest_division": 2,
+        "purchase_price": 6,
+        "resale_price": 3,
+        "effects": [
+          {
+            "op": "multiply_mult",
+            "amount": 1.5,
+            "trigger": "charm",
+            "scope": "frame",
+            "condition": {
+              "category": [
+                "strike"
+              ],
+              "curved": true
+            }
+          }
+        ],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Needs a curved strike; useless under Dead Straight and for straight builds.",
+        "synergy_tags": [
+          "curve",
+          "hook",
+          "strike"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "×1.5 Mult on a strike whose roll was curved (its committed spin passed the curve threshold). Applied in slot order, so place it after additive Charms.",
+        "primitives": [],
+        "pool": "Unlocked by the True Curve mastery goal; then the Charm slot from Division 2.",
+        "presentation_needs": "A curving trail motif; it must read differently from Hook Artist (which adds Mult on any curved frame).",
+        "asset_ids": {
+          "icon": "icon.charm.banana_ball",
+          "card": "card.charm.banana_ball",
+          "rarity_treatment": "rarity_treatment.charm.banana_ball",
+          "activation": "activation.charm.banana_ball",
+          "sound": "sound.charm.banana_ball",
+          "reduced_motion": "reduced_motion.charm.banana_ball"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "charm.plumb_line",
+        "name": "Plumb Line",
+        "category": "charm",
+        "rarity": "common",
+        "pool_weight": 1,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 4,
+        "resale_price": 2,
+        "effects": [
+          {
+            "op": "add_mult",
+            "amount": 5,
+            "trigger": "charm",
+            "scope": "frame",
+            "condition": {
+              "curved": false
+            }
+          }
+        ],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Gives up curve: any curved roll in the frame cancels it, so it fights Hook builds.",
+        "synergy_tags": [
+          "straight",
+          "precision",
+          "mult"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "+5 Mult on any frame in which no roll was curved. A direct counter to Dead Straight, and a straight-line build piece.",
+        "primitives": [],
+        "pool": "Shop Charm slot; initial pool from Division 1.",
+        "presentation_needs": "A plumb bob that settles when the frame was straight; must not resemble House Favorite.",
+        "asset_ids": {
+          "icon": "icon.charm.plumb_line",
+          "card": "card.charm.plumb_line",
+          "rarity_treatment": "rarity_treatment.charm.plumb_line",
+          "activation": "activation.charm.plumb_line",
+          "sound": "sound.charm.plumb_line",
+          "reduced_motion": "reduced_motion.charm.plumb_line"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "charm.glass_cutter",
+        "name": "Glass Cutter",
+        "category": "charm",
+        "rarity": "uncommon",
+        "pool_weight": 1,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 6,
+        "resale_price": 3,
+        "effects": [
+          {
+            "op": "add_mult",
+            "amount": 4,
+            "trigger": "charm",
+            "scope": "frame",
+            "per": "fallen:pin.glass"
+          }
+        ],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Needs Glass pins in the rack, and every Glass fall risks turning it into Wood.",
+        "synergy_tags": [
+          "glass",
+          "fragile",
+          "mult"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "+4 Mult for each Glass pin knocked down this frame. Pairs with Glass Pin's +30 Value and its 20% chance to become Wood after banking.",
+        "primitives": [],
+        "pool": "Shop Charm slot from Division 1; shown only once Glass Pin is playable (E18 lands Glass first).",
+        "presentation_needs": "A glazier's cutter card; the count reads as Glass pins, by shape not colour.",
+        "asset_ids": {
+          "icon": "icon.charm.glass_cutter",
+          "card": "card.charm.glass_cutter",
+          "rarity_treatment": "rarity_treatment.charm.glass_cutter",
+          "activation": "activation.charm.glass_cutter",
+          "sound": "sound.charm.glass_cutter",
+          "reduced_motion": "reduced_motion.charm.glass_cutter"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "charm.split_specialist",
+        "name": "Split Specialist",
+        "category": "charm",
+        "rarity": "rare",
+        "pool_weight": 1,
+        "unlock": {
+          "kind": "championship",
+          "prerequisites": [
+            "gate.house_champion"
+          ]
+        },
+        "earliest_division": 2,
+        "purchase_price": 8,
+        "resale_price": 4,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Pays only for hard conversions; easy spares and every strike get nothing.",
+        "synergy_tags": [
+          "spare",
+          "split",
+          "precision"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "×3 Mult on a spare whose first roll left four or more pins standing. A strike, an open frame or a spare after a light leave (three or fewer standing) gets nothing.",
+        "primitives": [
+          "condition.first_roll_standing"
+        ],
+        "pool": "Unlocked by the first House League title; then the Charm slot from Division 2.",
+        "presentation_needs": "Shows the first-roll leave count during resolution so the condition is legible.",
+        "asset_ids": {
+          "icon": "icon.charm.split_specialist",
+          "card": "card.charm.split_specialist",
+          "rarity_treatment": "rarity_treatment.charm.split_specialist",
+          "activation": "activation.charm.split_specialist",
+          "sound": "sound.charm.split_specialist",
+          "reduced_motion": "reduced_motion.charm.split_specialist"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "charm.sweet_spot",
+        "name": "Sweet Spot",
+        "category": "charm",
+        "rarity": "uncommon",
+        "pool_weight": 1,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 6,
+        "resale_price": 3,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Rewards aim, not pins: a sloppy release on a strike still earns nothing.",
+        "synergy_tags": [
+          "precision",
+          "accuracy",
+          "mult"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "+3 Mult for each roll this frame whose release was graded sweet or perfect by the target ring (clean and miss count zero). At most +6 Mult per frame.",
+        "primitives": [
+          "scaling.accurate_rolls"
+        ],
+        "pool": "Shop Charm slot; initial pool from Division 1.",
+        "presentation_needs": "The ring grades of the frame's rolls appear on the card as they are counted.",
+        "asset_ids": {
+          "icon": "icon.charm.sweet_spot",
+          "card": "card.charm.sweet_spot",
+          "rarity_treatment": "rarity_treatment.charm.sweet_spot",
+          "activation": "activation.charm.sweet_spot",
+          "sound": "sound.charm.sweet_spot",
+          "reduced_motion": "reduced_motion.charm.sweet_spot"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "charm.back_row",
+        "name": "Back Row",
+        "category": "charm",
+        "rarity": "uncommon",
+        "pool_weight": 1,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 5,
+        "resale_price": 2,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Ignores the front of the rack; a pocket hit that leaves the corners gets little.",
+        "synergy_tags": [
+          "positional",
+          "backrow",
+          "value"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "+6 Value for each back-row pin (positions 7, 8, 9 and 10) knocked down this frame, whatever its material. A full back row gives +24 Value.",
+        "primitives": [
+          "scaling.positions"
+        ],
+        "pool": "Shop Charm slot; initial pool from Division 1.",
+        "presentation_needs": "The back row is highlighted in the rack diagram while it counts.",
+        "asset_ids": {
+          "icon": "icon.charm.back_row",
+          "card": "card.charm.back_row",
+          "rarity_treatment": "rarity_treatment.charm.back_row",
+          "activation": "activation.charm.back_row",
+          "sound": "sound.charm.back_row",
+          "reduced_motion": "reduced_motion.charm.back_row"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "charm.underdog",
+        "name": "Underdog",
+        "category": "charm",
+        "rarity": "rare",
+        "pool_weight": 1,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 8,
+        "resale_price": 4,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Only works when behind: a strong first frame switches it off for the match.",
+        "synergy_tags": [
+          "comeback",
+          "mult"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "×2 Mult on a frame that starts with the match score below half the match target. Practice (no target) never triggers it.",
+        "primitives": [
+          "condition.match_behind"
+        ],
+        "pool": "Shop Charm slot; initial pool from Division 1.",
+        "presentation_needs": "Shows the score-versus-half-target check at the start of the Charm phase.",
+        "asset_ids": {
+          "icon": "icon.charm.underdog",
+          "card": "card.charm.underdog",
+          "rarity_treatment": "rarity_treatment.charm.underdog",
+          "activation": "activation.charm.underdog",
+          "sound": "sound.charm.underdog",
+          "reduced_motion": "reduced_motion.charm.underdog"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "charm.crown_jewel",
+        "name": "Crown Jewel",
+        "category": "charm",
+        "rarity": "epic",
+        "pool_weight": 1,
+        "unlock": {
+          "kind": "championship",
+          "prerequisites": [
+            "gate.house_champion"
+          ]
+        },
+        "earliest_division": 3,
+        "purchase_price": 11,
+        "resale_price": 5,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Needs a Crown pin to fall last; otherwise an expensive empty slot.",
+        "synergy_tags": [
+          "crown",
+          "precision",
+          "positional"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "×2 Mult on a frame in which a Crown pin was the last distinct pin to fall (the same test as Crown Pin's +40).",
+        "primitives": [
+          "condition.last_fallen"
+        ],
+        "pool": "Unlocked by the first House League title (with Crown Pin); then the Charm slot from Division 3.",
+        "presentation_needs": "A jewelled crown with a full-card holographic Epic treatment; it activates with the Crown pin's own cue.",
+        "asset_ids": {
+          "icon": "icon.charm.crown_jewel",
+          "card": "card.charm.crown_jewel",
+          "rarity_treatment": "rarity_treatment.charm.crown_jewel",
+          "activation": "activation.charm.crown_jewel",
+          "sound": "sound.charm.crown_jewel",
+          "reduced_motion": "reduced_motion.charm.crown_jewel"
+        }
+      }
+    }
+  ]
+}
