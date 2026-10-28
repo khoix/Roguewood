@@ -22,9 +22,18 @@ func _initialize() -> void:
 			for e in graph.errors:
 				failures.append("%s: %s" % [registry, e])
 			print("Unlock graph %s: %d gates, %d objectives, availability %s" % [registry, graph.gates.size(), graph.objectives.size(), str(graph.availability)])
+		# E17 authored batches: valid against the catalogue and the prospective graph.
+		var authored = load("res://src/content/authored_batches.gd")
+		var batches: Array = authored.load_all()
+		var production: Dictionary = content_set.load_set("slice").catalogue
+		var prospective: Dictionary = content_set.career_graph(content_set.UNLOCKS, authored.items(batches))
+		for e in authored.validate(batches, production, prospective.errors):
+			failures.append(e)
+		print("Authored batches: %d; counts (implemented/authored/target) %s" % [batches.size(), str(authored.counts(production, batches))])
+		print("Primitives for E18: %s" % str(authored.primitives(batches)))
 	elif mode == "unit":
 		failures = ContractTests.run()
-		for path in ["res://tests/rules_test.gd", "res://tests/simulation_test.gd", "res://tests/input_test.gd", "res://tests/scoring_test.gd", "res://tests/deck_test.gd", "res://tests/economy_test.gd", "res://tests/division_test.gd", "res://tests/save_test.gd", "res://tests/slice_test.gd", "res://tests/campaign_generator_test.gd", "res://tests/campaign_integration_test.gd", "res://tests/career_test.gd", "res://tests/clubhouse_test.gd"]:
+		for path in ["res://tests/rules_test.gd", "res://tests/simulation_test.gd", "res://tests/input_test.gd", "res://tests/scoring_test.gd", "res://tests/deck_test.gd", "res://tests/economy_test.gd", "res://tests/division_test.gd", "res://tests/save_test.gd", "res://tests/slice_test.gd", "res://tests/campaign_generator_test.gd", "res://tests/campaign_integration_test.gd", "res://tests/career_test.gd", "res://tests/clubhouse_test.gd", "res://tests/authored_test.gd"]:
 			var suite = load(path)
 			if suite == null:
 				failures.append("Missing tests: " + path)

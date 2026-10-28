@@ -15,9 +15,9 @@ extends RefCounted
 ## exists and a marked placeholder otherwise (E16-ART supplies the files).
 const Career = preload("res://src/persistence/career_profile.gd")
 ## Categories a player collects; boss rules appear on rival plaques instead.
-const BINDER_CATEGORIES := ["ball", "pin", "charm", "consumable", "ball_mod", "pin_mod", "upgrade", "kit"]
+const BINDER_CATEGORIES := ["ball", "pin", "charm", "consumable", "ball_mod", "pin_mod", "shop_upgrade", "kit"]
 const CATEGORY_NAMES := {"ball": "Balls", "pin": "Pins", "charm": "Charms", "consumable": "Tactical", "ball_mod": "Ball mods",
-	"pin_mod": "Pin mods", "upgrade": "Upgrades", "kit": "Kits"}
+	"pin_mod": "Pin mods", "shop_upgrade": "Upgrades", "kit": "Kits"}
 const STATE_NAMES := {"locked": "Locked", "available": "Available", "discovered": "Discovered", "mastered": "Mastered"}
 
 ## Asset ID for a Clubhouse slot: trophy.<league>, ribbon.<objective>, plaque.<rival>,

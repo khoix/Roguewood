@@ -32,7 +32,7 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - E15 DONE (owner policy: completed implementation and verification; not yet merged to main): on `claude/roguewood-build` (implementation `2cdedb1` plus the result-line follow-up; base main `fd1d466`). Career schema 2 with a v1 migration and a golden v2 file; the unlock registry and validated graph (IDs, kinds, sources, loops, reachability, self-unlocks, starting counters); immediate idempotent banking of first clears, titles, mastery, records and discoveries; attempt pool snapshots; the practice policy; the menu summary and League access; J10 across three real processes. See decisions/010-career-and-unlock-graph.md and handoffs/E15.md.
 - Integration: the owner merged `claude/roguewood-build` at `06abb88` (E15 and the ownership plan) into main by PR #10 (`a65ed24`).
 - E16 core DONE: `b01fb4d` on `claude/roguewood-build`; full local matrix (J01–J11 headless and rendered) and CI 40616441249 PASS; see handoffs/E16.md. E16-ART is READY for Codex.
-- Active (Wave 1): Codex on E19-A01 (IN_PROGRESS, checkpoint `96ba030`); E19-A02…A07, E20-V01…V07, E21-R01/R02 and E16-ART are queued for Codex. Next for Claude: E17-D01.
+- Active (Wave 1): Codex on E19-A01 (IN_PROGRESS, checkpoint `96ba030`); E19-A02…A07, E20-V01…V07, E21-R01/R02 and E16-ART are queued for Codex. E17-D01 definitions DONE (`8cfcf44`, CI 40620488616 PASS; handoffs/E17-D01.md). Next for Claude: E17-D02 or E18-C01, the owner's choice. Codex: E17-D01-ART is READY after Wave 1.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
@@ -63,7 +63,7 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E14 — Seeded eight-Division progression | DONE | Codex | codex/roguewood-build | 71b2bd2; local unit/content/integration/physics, J01/J06/J07 and native J09 headless/rendered PASS; handoffs/E14.md |
 | E15 — Career persistence and unlock graph | DONE | Claude | claude/roguewood-build (not yet merged) | 2cdedb1 (+ 8c19905); local suites and J01–J10 headless/rendered PASS; CI 40577363221 and 40581437392 PASS; ADR 010; E15 handoff |
 | E16 — Clubhouse and collection UI | Core DONE · E16-ART READY | Claude core · Codex E16-ART | claude/roguewood-build · codex/roguewood-build | Core b01fb4d; CI 40616441249 PASS; J11; handoffs/E16.md (Art hand-off) |
-| E17 — Catalogue and unlock authoring batches | NOT_STARTED (READY) | Claude definitions · Codex visual briefs | claude/roguewood-build · codex/roguewood-build | Split per batch; see Ownership |
+| E17 — Catalogue and unlock authoring batches | IN_PROGRESS (D01 DONE; D01-ART READY for Codex) | Claude definitions · Codex visual briefs | claude/roguewood-build · codex/roguewood-build | Split per batch; see Ownership |
 | E18 — Content mechanics batches | NOT_STARTED | Claude | claude/roguewood-build | Per E17 batch |
 | E19 — Final item artwork batches | CLAIMED for Codex (A01–A07) | Codex | codex/roguewood-build | Wave 1 claim; later batches wait for E17 briefs |
 | E20 — Ability effects and audio batches | CLAIMED for Codex (V01–V07) | Codex | codex/roguewood-build | Wave 1 claim; each after its E19 art |
@@ -207,6 +207,23 @@ Base for both agents: `claude/roguewood-build` at the commit containing this cla
   - completeness flags set only for slots delivered at final quality.
   - Push, then report the branch SHA and the batch IDs to the coordinator.
 
+### E17-D01 claim (Claude, 2026-10-28)
+- **Branch** `claude/roguewood-build`, base `c611dea`. Medium.
+- **Scope:** 11 definitions from the design's starter tables (§7, §8, §10) not yet authored:
+  - balls Spark, Ghost, Splitter, Gold;
+  - pins Glass, Echo, Fuse, Crown;
+  - tactical cards Nudge, Reserve Call, Rule Waiver.
+  Each has exact triggers, tradeoffs, prices, pools, compatibility, unlocks and asset IDs.
+- **Decision:** authored definitions live in a content manifest, `content/catalogue/batches/E17-Dxx.json`, not in `content/catalogue.json`. So nothing unimplemented reaches a shop, the binder or a save. E18 moves each item into the catalogue when its mechanics land.
+- **Exclusive paths:** content/catalogue/batches/, src/content/, tests/authored_test.gd, docs/handoffs/E17-D01.md.
+- **Shared edits:**
+  - content_set.gd: a prospective graph including the batches;
+  - run_tests.gd: content mode;
+  - clubhouse_model.gd: the `shop_upgrade` category name.
+- **After:** the batch's visual briefs become READY for Codex (`E17-D01-ART`), and its definitions READY for E18-C01.
+
+- **E17-D01 delivered:** 11 definitions in `content/catalogue/batches/E17-D01.json`, validated against the catalogue and the prospective unlock graph by `qa.py content`. **E17-D01-ART is READY for Codex:** visual briefs into `docs/art/briefs/E17-D01.md` from each definition's presentation needs and asset IDs, flagging any pair that does not read as distinct. **E18-C01 is READY for Claude:** eleven new primitives, listed in the handoff.
+
 ### Wave 1 coordination log
 - 2026-10-28, Codex request (A01/A02 validation): `tests/slice_test.gd:125–126` still asserts `not entry.completeness.artwork` for every E13-S01 item. Final A01 flags make `qa.py unit` fail on the four balls; A02's four pins will have the same conflict. Please replace the historical blanket “no art or effects yet” assertion with independent authored/mechanics assertions and, when artwork/effects flags are true, required asset-slot/resource validation. Keep the E13 count and scoring assertions unchanged. This is a Claude-owned test; Codex has not edited it. A01's reported unit pass preceded its final artwork flag update; content and affected native journeys pass with final flags. No owner approval is requested: this is a scoped test-contract correction for the coordinator.
 - 2026-10-28, Codex request (E19-A01): add `item_id` to the hand-card view and the shop-offer view in throw_lab.gd. **Done by the coordinator** on `claude/roguewood-build`, in the commit that adds this entry. `_refresh_hand` cards carry `item_id`; `_refresh_shop` offers carry `item_id` ("" for empty slots). Purely additive: J04, J05, J06 and unit re-run PASS. Codex merges `origin/claude/roguewood-build` to pick it up, then resumes A01 shop binding.
@@ -232,6 +249,8 @@ Standing user preferences:
 - At the end of every session, share newly produced screenshots with the user (as files in chat). Never commit screenshots or other rendered captures to the repository; CI's uploaded artifact is their durable copy.
 
 ## Batch queue and content completeness
+
+Batch E17-D01 (E17, authored, not implemented): ball.spark, ball.ghost, ball.splitter, ball.gold; pin.glass, pin.echo, pin.fuse, pin.crown; consumable.nudge, consumable.reserve_call, consumable.rule_waiver. Flags: authored and unlock_assigned true; everything else false. Not in the catalogue or any pool until E18. Authored (not implemented) counts: balls 4, pins 4, tactical 3.
 
 Batch E13-S01 (E13, delivered): 25 production definitions in content/catalogue.json — balls house, hook, hammer, echo; pins wood, ruby, gold, anchor, grower, rubber; Charms flat_bonus, finisher, spare_change, lone_survivor, hook_artist, house_favorite, gold_rush, turkey_club, patient_investor, last_chance, encore, standing_order; boss rules dead_straight, clean_sweep; kit house. Flags: authored, mechanics, automated_validation, unlock_assigned true; artwork, effects_audio, integrated false. Production counts against release targets: balls 4/24, pins 6/32, Charms 12/100, boss rules 2/20, kits 1/10; modifications, consumables, upgrades and lane conditions 0. No further batches allocated. Coordinator allocates E17-Dxx / E18-Cxx / E19-Axx / E20-Vxx / E21-Rxx / E22-Lxx / E26-Pxx with explicit scopes. Expected content totals: 24 balls, 32 pins, 16 ball modifications, 16 pin modifications, 100 Charms, 24 consumables, 16 shop upgrades, 12 lane conditions, 20 boss rules, 10 kits; six League specs separate.
 
