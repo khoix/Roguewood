@@ -39,3 +39,26 @@ func _draw() -> void:
 				var offset := Vector2(-24+j*8,-22+j*8+(1-t)*5)
 				draw_rect(Rect2(c+offset,Vector2(38,34)),ink,false,2)
 				for dot in 4: draw_line(c+offset+Vector2(8+dot*7,8),c+offset+Vector2(10+dot*7,8),ink,2)
+		"growth":
+			for j in 3:
+				var y := 24.0-j*10-t*8
+				draw_line(c+Vector2(-24,y),c+Vector2(-13,y),ink,3)
+				draw_line(c+Vector2(13,y),c+Vector2(24,y),ink,3)
+			draw_line(c+Vector2(0,-28),c+Vector2(0,-20),ink,3)
+			draw_line(c+Vector2(0,-28),c+Vector2(-5,-23),ink,3)
+			draw_line(c+Vector2(0,-28),c+Vector2(5,-23),ink,3)
+		"hourglass":
+			var points := PackedVector2Array([c+Vector2(-23,-25),c+Vector2(23,-25),c+Vector2(13,0),c+Vector2(23,25),c+Vector2(-23,25),c+Vector2(-13,0),c+Vector2(-23,-25)])
+			draw_polyline(points,ink,2)
+			draw_line(c+Vector2(-18,22-t*4),c+Vector2(18,22-t*4),ink,3)
+		"coin":
+			var at := c+Vector2(0,-24-5*sin(t*PI))
+			draw_circle(at,5,ink)
+			draw_line(at+Vector2(0,-3),at+Vector2(0,3),Color("604626"),2)
+			draw_arc(c+Vector2(0,23),10,0,PI,12,ink,2)
+		"coins":
+			for j in 3:
+				var angle := -PI*0.75+j*PI*0.25
+				var at := c+Vector2(cos(angle),sin(angle))*(20+8*t)
+				draw_circle(at,5,ink)
+				draw_line(at+Vector2(0,-3),at+Vector2(0,3),Color("604626"),2)

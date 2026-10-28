@@ -465,8 +465,8 @@
         "card": "res://assets/items/pins/grower-card.tres",
         "in_play": "res://assets/items/pins/grower-material.tres",
         "rarity_treatment": "res://assets/items/pins/grower-frame.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/pin_grower.tres",
+        "sound": "res://assets/audio/pin_grower.wav",
         "reduced_motion": "res://assets/items/pins/grower-card.tres"
       },
       "completeness": {
@@ -474,7 +474,7 @@
         "mechanics": true,
         "automated_validation": true,
         "artwork": true,
-        "effects_audio": false,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -1011,8 +1011,8 @@
         "card": "res://assets/items/charms/patient_investor-card.tres",
         "in_play": "res://assets/items/charms/patient_investor-card.tres",
         "rarity_treatment": "res://assets/items/charms/patient_investor-frame.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/charm_patient_investor.tres",
+        "sound": "res://assets/audio/charm_patient_investor.wav",
         "reduced_motion": "res://assets/items/charms/patient_investor-card.tres"
       },
       "completeness": {
@@ -1020,7 +1020,7 @@
         "mechanics": true,
         "automated_validation": true,
         "artwork": true,
-        "effects_audio": false,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }

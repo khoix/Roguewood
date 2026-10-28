@@ -66,6 +66,10 @@ JOURNEYS["J12R02"] = ("res://tests/rival_art_journey.gd", "ROGUEWOOD_J06_STAGE1_
                        ("rival_custodian_intro", "slice_dead_straight", "slice_clean_sweep", "slice_won"), 1200, ["--fixed-fps", "60"])
 JOURNEYS["J12V01"] = ("res://tests/ability_journey.gd", "ROGUEWOOD_ABILITY_OK", "artifacts/e20-v01/native",
                        ("ball_echo_activation", "charm_encore_activation", "resolved", "reduced", "landscape"), 900, ["--fixed-fps", "60"])
+JOURNEYS["J12V02"] = ("res://tests/ability_journey.gd", "ROGUEWOOD_ABILITY_OK", "artifacts/e20-v02/native",
+                       ("pin_grower_activation", "charm_patient_investor_activation", "resolved", "reduced", "landscape"), 900, ["--fixed-fps", "60"])
+JOURNEYS["J12V03"] = ("res://tests/ability_journey.gd", "ROGUEWOOD_ABILITY_OK", "artifacts/e20-v03/native",
+                       ("pin_gold_activation", "charm_gold_rush_activation", "resolved", "reduced", "landscape"), 900, ["--fixed-fps", "60"])
 # Content set per journey (E13, ADR 008): mechanism journeys keep the lab fixtures;
 # the shell journey and J06 stage 1 play the production slice (the game's default).
 CONTENT = {"J09": "slice", "J02": "lab", "J03": "lab", "J04": "lab", "J05": "lab", "J07": "lab", "J08": "lab"}

@@ -22,14 +22,19 @@ func _run() -> void:
 	for id in wanted:
 		if id.begins_with("charm."):
 			_check(lab.run.place(id,0,"charm:new").is_empty(),"fixture equips " + id)
+	if batch == "E20-V02": _check(lab.run.place("pin.grower",0,"rack:1").is_empty(),"fixture Grower")
+	if batch == "E20-V03":
+		for position in [1,3]: _check(lab.run.place("pin.gold",0,"rack:%d" % position).is_empty(),"fixture Gold")
 	lab._new_roll(false)
 	await _aim()
-	_check(await _arm("ball.echo"),"actual Echo card arms")
+	if batch == "E20-V01": _check(await _arm("ball.echo"),"actual Echo card arms")
 	await _throw(STRIKE)
 	var scored := await _scored()
-	_check(scored.result.retriggers == 1 and scored.banked == 1050,"real Echo and Encore bank 1050")
-	for id in wanted:
-		_check(lab.motion.abilities.history.any(func(e): return e.id == id),"actual ability observed: " + id)
+	if batch == "E20-V01": _check(scored.result.retriggers == 1 and scored.banked == 1050,"real Echo and Encore bank 1050")
+	if batch == "E20-V03": _check(scored.banked == 1120 and scored.income == 2 and lab.run.money == 8,"two real Gold payouts and Gold Rush bank")
+	if batch == "E20-V02":
+		_check(scored.banked == 560 and lab.run.rack[1].growth == 1,"Grower grows after unchanged bank")
+		_check(not lab.motion.abilities.history.any(func(e): return e.id == "charm.patient_investor"),"zero-growth Investor stays silent before settlement")
 	_check(Rect2(Vector2.ZERO,lab.size).encloses(lab.score_panel.get_rect()),"scoring and skip fit portrait")
 	await _capture("resolved")
 	root.size = Vector2i(800,450)
@@ -52,6 +57,13 @@ func _run() -> void:
 	await _capture("reduced")
 	lab.score_panel.skip()
 	_check(lab.total_score == bank and lab.motion.sound.max_active <= 4,"bounded voices and immutable bank")
+	if batch == "E20-V02":
+		await _to_shop("growth")
+		await _wait_for(func(): return lab.motion.abilities.growth_row.visible,"actual settlement growth")
+		_check(lab.run.charms[0].growth == 1 and lab.total_score == bank,"Investor grows after match without rescoring")
+		await _capture("charm_patient_investor_activation")
+	for id in wanted:
+		_check(lab.motion.abilities.history.any(func(e): return e.id == id),"actual ability observed: " + id)
 	metrics.append(lab.motion.metrics())
 	var file := FileAccess.open(artifact_dir.path_join("metrics.json"),FileAccess.WRITE)
 	file.store_string(JSON.stringify({"batch":batch,"motion":metrics,"audio":{"played":lab.motion.sound.played,"max_active":lab.motion.sound.max_active,"suppressed":lab.motion.sound.suppressed},"history":lab.motion.abilities.history},"\t"))
@@ -60,7 +72,7 @@ func _run() -> void:
 	quit(0 if failures.is_empty() else 1)
 func _scored() -> Dictionary:
 	for tick in ROLL_FRAMES * 3:
-		if lab.state == "scoring":
+		if lab.state in ["scoring","frame_done"]:
 			var glyph: Control = lab.motion.abilities.glyph
 			if glyph.style != null and glyph.age < glyph.style.duration:
 				var id: String = glyph.style.item_id

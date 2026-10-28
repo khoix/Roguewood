@@ -13,6 +13,12 @@ static func run() -> Array[String]:
 	var plain := Slice._score(catalogue,Slice._loadout({},["charm.encore"]),Slice._strike())
 	if "ball.echo" in _ids(plain) or "charm.encore" in _ids(plain): failures.append("inactive retriggers stay silent")
 	if Events.owner(echo.frame,"charm:100") != "": failures.append("invalid source is not guessed")
+	var growth := Slice._score(catalogue,Slice._loadout({1:"pin.grower"},["charm.patient_investor"]),Slice._strike())
+	if _ids(growth).count("pin.grower") != 1 or "charm.patient_investor" in _ids(growth): failures.append("growth only at authoritative deferred event; zero Investor stays silent")
+	var gold := Slice._score(catalogue,Slice._loadout({1:"pin.gold",3:"pin.gold"},["charm.gold_rush"]),Slice._strike())
+	if _ids(gold).count("pin.gold") != 2 or _ids(gold).count("charm.gold_rush") != 1: failures.append("gold cues only deferred payouts and actual counted bonus")
+	var no_gold := Slice._score(catalogue,Slice._loadout({},["charm.gold_rush"]),Slice._strike())
+	if "charm.gold_rush" in _ids(no_gold): failures.append("Gold Rush stays silent with no Gold")
 	return failures
 static func _ids(result: Dictionary) -> Array:
 	var keys := {}
