@@ -34,7 +34,7 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - E16 core DONE: `b01fb4d` on `claude/roguewood-build`; full local matrix (J01–J11 headless and rendered) and CI 40616441249 PASS; see handoffs/E16.md. E16-ART is READY for Codex.
 - Integration: the owner merged PR #11 (Codex Wave 1, E16 core, E17-D01, the test fix) into main (`492f9f4`). Codex Wave 2 (`fcdb494`: E16-ART, E19-A08…A12) is reviewed and merged into `claude/roguewood-build`, along with main.
 - Wave 2 MERGED to main by PR #13 (`1d44302`).
-- Wave 3 MERGED to main by PR #14 (`3a7e938`; CI 40736417912 PASS on `afe5852`): Codex E17-D02-ART and E19-A13…A15; Claude E18-C02 and E17-D03. - **Wave 4 CLOSED** (see "Wave 4 closed"): Claude E18-C03 and E17-D04; Codex E17-D03-ART, E19-A16 and E20-V08. The owner merges `claude/roguewood-build` into main after the CI of the "Wave 4 closed" commit. Wave 5 claims are recorded; Wave 5 pushes wait for that merge.
+- Wave 3 MERGED to main by PR #14 (`3a7e938`; CI 40736417912 PASS on `afe5852`): Codex E17-D02-ART and E19-A13…A15; Claude E18-C02 and E17-D03. - Wave 4 MERGED to main by PR #15 (CI 40760480791 PASS on `e72051b`): Claude E18-C03 and E17-D04; Codex E17-D03-ART, E19-A16 and E20-V08. **Wave 5 is open** (see "Wave 5 claims"): Codex starts from this branch with docs/prompts/codex-wave5.md; Claude starts E18-C04 (Medium).
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
@@ -197,7 +197,7 @@ Claude's next step: E16 core (it unblocks E16-ART and E22), then E17-D01 onward.
 - **Merge:** `claude/roguewood-build` into main after the CI of the "Wave 2 closed" commit. It supersedes Codex's PR #12, which lacks the CI fix and Claude's Wave 2 work.
 
 ## Wave 5 claims (coordinator: Claude, 2026-10-28)
-Pushes for Wave 5 wait until the owner merges Wave 4. Codex merges `origin/claude/roguewood-build` (the "Wave 4 closed" commit) with a merge commit before starting (prompt: docs/prompts/codex-wave5.md).
+Wave 4 is merged (PR #15). Codex merges `origin/claude/roguewood-build` (the "Wave 4 closed" commit) with a merge commit before starting (prompt: docs/prompts/codex-wave5.md).
 - **Codex:**
   - E17-D04-ART (Medium): briefs in `docs/art/briefs/E17-D04.md` for the twelve modifications in `content/catalogue/batches/E17-D04.json`. A modification is a badge on the host card and an overlay on the host in play that never hides the host's identity. Flag look-alikes: Echo Charge / Echo Ball, Lead Core / Hammer Ball, Gilt Leaf / Gold Pin, Lead Weight / Anchor Pin, Spearhead / Crown Pin.
   - E19-A17 (Medium): native checks and `artwork` flags for the six C03 items (Crown Pin's D01 in-play scene on the real body; the five Charms' Wave 3 identities), as A14 and A16 did.
@@ -213,7 +213,7 @@ Pushes for Wave 5 wait until the owner merges Wave 4. Codex merges `origin/claud
   - Codex: E17-D03-ART (`52c5455`), E19-A16 (`a6fc939`) and E20-V08 (`25f6995`; handoffs/WAVE4-CODEX.md, E17-D03-ART.md, E19-A16.md, E20-V08.md), merged by the coordinator without conflicts.
 - **Coordinator review:** Codex's diff against `0993250` changes exactly one artwork flag (Glass Pin), eight effects_audio flags and their sixteen activation and sound paths in content/catalogue.json. Its source changes are presentation only (Glass dressing on the real pin body, a saved-break observer that never rolls or writes, glyph counts read from resolver events). qa.py, run_tests.gd and the workflow are add-only; upload folders stay inside `path`. Batch files and every authored flag are unchanged.
 - **Validation:** the full CI command list (118 commands, every journey headless and rendered, including J03C03, J19A16, J12V08 and J12V08C) PASS locally on the merged tree; the J03C03 injected failure exits 1. CI 40747075594 PASS on `076a1b1` (Claude's Wave 4); CI runs on this commit.
-- **Merge:** `claude/roguewood-build` into main after the CI of the "Wave 4 closed" commit.
+- **Merge:** MERGED to main by PR #15 after CI 40760480791 PASS on `e72051b`.
 
 ## Wave 4 claims (coordinator: Claude, 2026-10-28)
 Wave 3 is merged (PR #14). Codex merges `origin/claude/roguewood-build` (with a merge commit) before starting.
