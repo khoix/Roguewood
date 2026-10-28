@@ -156,6 +156,12 @@ jobs:
             python3 tools/qa.py e2e --journey "$batch"
             xvfb-run -a python3 tools/qa.py e2e --journey "$batch" --rendered
           done
+      - name: Wave 3 D02 Charm artwork
+        run: |
+          for batch in J19A13 J19A14 J19A15 J19A13N J19A14N; do
+            python3 tools/qa.py e2e --journey "$batch"
+            xvfb-run -a python3 tools/qa.py e2e --journey "$batch" --rendered
+          done
       - name: Preserve journey diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -197,4 +203,7 @@ jobs:
             artifacts/e19-a10/
             artifacts/e19-a11/
             artifacts/e19-a12/
+            artifacts/e19-a13/
+            artifacts/e19-a14/
+            artifacts/e19-a15/
           if-no-files-found: warn
