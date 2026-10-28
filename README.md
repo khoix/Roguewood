@@ -90,15 +90,6 @@ docs/             plans, decisions, hand-offs, art briefs and playtests
 - [docs/handoffs/](docs/handoffs/): per-task implementation and verification records.
 - [docs/playtests/](docs/playtests/): device-trial and playtest protocols.
 
-## How development works
-
-Two AI agents build Roguewood under the repository owner's direction:
-
-- **Claude** handles content, rules, UI and release.
-- **Codex** handles all art, effects and audio, plus League themes and platform packaging.
-
-[AGENTS.md](AGENTS.md) holds the operating rules. Work ships in **waves**: each wave's commits are integrated on `claude/roguewood-build` and merged to `main` by pull request after CI passes. Codex delivers on `codex/roguewood-build`, and the coordinator integrates it. The owner's merge is the approval.
-
 ## License
 
 No license has been published. All rights are reserved by the repository owner until one is added.
