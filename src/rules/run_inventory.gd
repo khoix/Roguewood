@@ -34,6 +34,27 @@ var strike_streak := 0
 var _catalogue: Dictionary = {}
 var _items: Dictionary = {}
 
+## E18-C02: the attempt's effects stream (RandomStreams' Lehmer generator), used only
+## for after-bank chances such as Glass breaking. Saved with the run, so a reload
+## never rerolls; 0 means not seeded (fixtures without chance effects).
+const Streams = preload("res://src/procedural/random_streams.gd")
+var effects_state := 0
+## Pins changed after the last frame banked: [{position, from, into, roll}].
+var transformed: Array = []
+
+## Seeds the effects stream from the attempt seed (or a campaign's saved state).
+func seed_effects(seed_value: int, state: int = 0) -> void:
+	effects_state = state if state > 0 else int(Streams.create(seed_value).states.effects)
+
+func _draw_effect(bound: int) -> int:
+	if effects_state <= 0:
+		seed_effects(1)
+	var streams = Streams.new()
+	streams.states = {"effects": effects_state}
+	var value: int = streams.draw("effects", bound)
+	effects_state = int(streams.states.effects)
+	return value
+
 static func create(catalogue: Dictionary, pins: Array, deck: Array, starting_money: int = Economy.STARTING_MONEY) -> RefCounted:
 	var inventory = load("res://src/rules/run_inventory.gd").new()
 	inventory._index(catalogue)
@@ -261,6 +282,21 @@ func apply_frame(result: Dictionary, frame: Dictionary) -> Array:
 			continue
 		entry.growth = int(entry.get("growth", 0)) + int(event.amount)
 		grown.append({"ref": ref, "item_id": entry.item_id, "amount": int(event.amount)})
+	# Transforms (Glass breaking): one draw per event, in the resolver's stable order.
+	# The pin keeps its rack slot and modification; its growth and paid price reset.
+	transformed = []
+	for event in result.get("future_effects", []):
+		if event.op != "transform":
+			continue
+		var position := int(String(event.source).get_slice(":", 1))
+		var roll := _draw_effect(100)
+		if roll < int(event.amount) and rack.has(position):
+			var before: Dictionary = rack[position]
+			var after := _entry(String(event.into), 0)
+			after.mod = before.mod
+			after.mod_paid = before.mod_paid
+			rack[position] = after
+			transformed.append({"position": position, "from": before.item_id, "into": after.item_id, "roll": roll})
 	strike_streak = int(result.get("strike_streak", 0))
 	return grown
 
@@ -441,9 +477,12 @@ func to_dict() -> Dictionary:
 	var rack_out := {}
 	for position in rack:
 		rack_out[str(position)] = rack[position].duplicate()
-	return {"schema_version": SCHEMA_VERSION, "money": money, "match_number": match_number, "rack": rack_out,
+	var out := {"schema_version": SCHEMA_VERSION, "money": money, "match_number": match_number, "rack": rack_out,
 		"reserves": reserves.duplicate(true), "charms": charms.duplicate(true), "cards": cards.duplicate(true),
 		"next_card": next_card, "ledger": ledger.duplicate(true), "strike_streak": strike_streak}
+	if effects_state > 0:
+		out["effects_state"] = effects_state # additive (E18-C02); absent in older saves
+	return out
 
 static func from_dict(data: Dictionary, catalogue: Dictionary) -> RefCounted:
 	var inventory = load("res://src/rules/run_inventory.gd").new()
@@ -459,6 +498,7 @@ static func from_dict(data: Dictionary, catalogue: Dictionary) -> RefCounted:
 	inventory.next_card = int(data.next_card)
 	inventory.ledger = data.ledger.map(func(row): return {"match": int(row.match), "kind": row.kind, "amount": int(row.amount), "item_id": row.item_id})
 	inventory.strike_streak = int(data.get("strike_streak", 0))
+	inventory.effects_state = int(data.get("effects_state", 0))
 	return inventory
 
 static func _ints(entry: Dictionary) -> Dictionary:

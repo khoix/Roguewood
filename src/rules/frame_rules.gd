@@ -14,15 +14,19 @@ extends RefCounted
 ##   knocked down directly that roll (roll.first_direct), in that pin's rack slot;
 ## - pin/charm `growth`, roll `first_direct` and `curved`, frame `context`
 ##   {match_frame, strike_streak (consecutive strikes before this frame)}.
+## - op `transform` (E18-C02) on a pin's `fallen` trigger, with `into` (a pin item
+##   id) and an integer percent `amount` (1..100): deferred like a payout, so it
+##   never touches the score, is never retriggered, and only reports the chance;
+##   the run inventory rolls it on the attempt's effects stream after banking.
 const SCOPES = ["roll", "frame", "match", "run"]
 const OPS = ["add_value", "add_mult", "multiply_mult", "payout", "grow_value"]
-const V2_OPS = ["retrigger"]
+const V2_OPS = ["retrigger", "transform"]
 const GRADES = {"miss": 0, "clean": 0, "sweet": 1, "perfect": 2}
 const MAX_SAFE_SCORE = 9007199254740991.0
 const MAX_RETRIGGERS := 8
 const HOUSE := "ball.house"
 const CONDITIONS := ["category", "match_frame", "standing_count", "curved", "all_house", "streak_min"]
-const DEFERRED := ["payout", "grow_value"]
+const DEFERRED := ["payout", "grow_value", "transform"]
 
 static func resolve(frame: Dictionary) -> Dictionary:
 	var errors: Array[String] = validate(frame)
@@ -158,6 +162,8 @@ static func _apply_effects(state: Dictionary, owner: Dictionary, trigger: String
 			event["base"] = amount
 		if effect.has("condition"):
 			event["condition"] = effect.condition.duplicate(true)
+		if effect.has("into"):
+			event["into"] = effect.into
 		if not cause.is_empty():
 			event["cause"] = cause
 		if op in DEFERRED:
@@ -280,7 +286,9 @@ static func _validate_owner(owner: Dictionary, id_key: String, prefix: String, t
 		if not effect is Dictionary:
 			errors.append("effect must be an object")
 			continue
-		_unknown_keys(effect, ["op", "amount", "trigger", "scope"] + (["condition", "per"] if v2 else []), errors)
+		_unknown_keys(effect, ["op", "amount", "trigger", "scope"] + (["condition", "per"] if v2 else []) + (["into"] if v2 and effect.get("op") == "transform" else []), errors)
+		if effect.get("op") == "transform" and (effect.get("trigger") != "fallen" or not _integer_between(effect.get("amount"), 1, 100) or not _valid_id(effect.get("into"), "pin.") or effect.has("per")):
+			errors.append("transform is a fallen pin's 1..100 percent chance to become another pin (into), unscaled")
 		if not effect.get("op") in OPS + (V2_OPS if v2 else []):
 			errors.append("unsupported effect op")
 		if effect.get("trigger") == "match_end" and not v2:

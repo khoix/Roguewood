@@ -268,77 +268,6 @@
     },
     {
       "item": {
-        "id": "pin.glass",
-        "name": "Glass Pin",
-        "category": "pin",
-        "rarity": "uncommon",
-        "pool_weight": 1,
-        "unlock": {
-          "kind": "initial",
-          "prerequisites": []
-        },
-        "earliest_division": 1,
-        "purchase_price": 6,
-        "resale_price": 3,
-        "effects": [
-          {
-            "op": "add_value",
-            "amount": 30,
-            "trigger": "fallen",
-            "scope": "frame"
-          }
-        ],
-        "limits": {
-          "max_owned": 12,
-          "charges": 0,
-          "exhaustion": "none"
-        },
-        "downside": "Maintenance risk: one fall in five turns it into a Wood pin.",
-        "synergy_tags": [
-          "value",
-          "fragile",
-          "glass"
-        ],
-        "incompatibilities": [],
-        "assets": {
-          "icon": "res://assets/items/d01/icon.pin.glass.tres",
-          "card": "res://assets/items/d01/card.pin.glass.tres",
-          "in_play": "res://assets/items/d01/in_play.pin.glass.tscn",
-          "rarity_treatment": "res://assets/items/d01/rarity_treatment.pin.glass.tres",
-          "activation": "",
-          "sound": "",
-          "reduced_motion": "res://assets/items/d01/reduced_motion.pin.glass.tres"
-        },
-        "completeness": {
-          "authored": true,
-          "mechanics": false,
-          "automated_validation": false,
-          "artwork": false,
-          "effects_audio": false,
-          "unlock_assigned": true,
-          "integrated": false
-        }
-      },
-      "design": {
-        "trigger": "+30 Value when knocked down. After the frame banks, each Glass pin that fell in that frame has a 20% chance to become a Wood pin in the same rack position. The roll uses the attempt's effects stream, and the change is saved. The rack never loses a slot. The chance is provisional (E24).",
-        "primitives": [
-          "pin.break_chance"
-        ],
-        "pool": "Shop Equipment slot; initial pool from Division 1.",
-        "presentation_needs": "Clearly glass in silhouette and marking (not only colour). The crack-to-Wood change is announced after banking and is visible in the rack diagram.",
-        "asset_ids": {
-          "icon": "icon.pin.glass",
-          "card": "card.pin.glass",
-          "in_play": "in_play.pin.glass",
-          "rarity_treatment": "rarity_treatment.pin.glass",
-          "activation": "activation.pin.glass",
-          "sound": "sound.pin.glass",
-          "reduced_motion": "reduced_motion.pin.glass"
-        }
-      }
-    },
-    {
-      "item": {
         "id": "pin.echo",
         "name": "Echo Pin",
         "category": "pin",
@@ -733,6 +662,29 @@
           "activation": "activation.consumable.rule_waiver",
           "sound": "sound.consumable.rule_waiver",
           "reduced_motion": "reduced_motion.consumable.rule_waiver"
+        }
+      }
+    }
+  ],
+  "landed": [
+    {
+      "id": "pin.glass",
+      "landed_in": "E18-C02",
+      "design": {
+        "trigger": "+30 Value when knocked down. After the frame banks, each Glass pin that fell in that frame has a 20% chance to become a Wood pin in the same rack position. The roll uses the attempt's effects stream, and the change is saved. The rack never loses a slot. The chance is provisional (E24).",
+        "primitives": [
+          "pin.break_chance"
+        ],
+        "pool": "Shop Equipment slot; initial pool from Division 1.",
+        "presentation_needs": "Clearly glass in silhouette and marking (not only colour). The crack-to-Wood change is announced after banking and is visible in the rack diagram.",
+        "asset_ids": {
+          "icon": "icon.pin.glass",
+          "card": "card.pin.glass",
+          "in_play": "in_play.pin.glass",
+          "rarity_treatment": "rarity_treatment.pin.glass",
+          "activation": "activation.pin.glass",
+          "sound": "sound.pin.glass",
+          "reduced_motion": "reduced_motion.pin.glass"
         }
       }
     }

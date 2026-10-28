@@ -107,7 +107,8 @@
                     "multiply_mult",
                     "payout",
                     "grow_value",
-                    "retrigger"
+                    "retrigger",
+                    "transform"
                   ]
                 },
                 "amount": {
@@ -179,6 +180,10 @@
                 "per": {
                   "type": "string",
                   "pattern": "^(growth|retriggers|fallen|standing)(:[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*)?$"
+                },
+                "into": {
+                  "type": "string",
+                  "pattern": "^pin\\.[a-z][a-z0-9_]*$"
                 }
               },
               "required": [

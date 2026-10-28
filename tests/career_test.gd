@@ -68,7 +68,7 @@ static func _shipped_graphs(failures: Array[String]) -> void:
 	_expect(production.items_by_gate.get("gate.surveyor_cleared") == ["charm.encore"] and production.items_by_gate.get("gate.custodian_cleared") == ["charm.standing_order"],
 		"the slice's boss gates unlock Encore and Standing Order", failures)
 	_expect(production.objectives.size() == 3 and production.gates.size() == 7, "three mastery objectives and seven gates", failures)
-	_expect(production.availability.charm == {"initial": 15, "locked": 3}, "availability report: 15 Charms initially, 3 locked (E18-C01 added Banana Ball behind True Curve)", failures)
+	_expect(production.availability.charm == {"initial": 16, "locked": 3} and production.availability.pin == {"initial": 7, "locked": 0}, "availability report: 16 Charms initially, 3 locked; 7 pins (E18-C01/C02)", failures)
 	var lab := ContentSet.career_graph(ContentSet.LAB_UNLOCKS)
 	_expect(lab.errors.is_empty() and lab.items_by_gate.get("gate.lab_rival") == ["pin.lab_lead"], "the lab fixture graph validates", failures)
 	_expect(Graph.build(_world().registry, _world().catalogue, _world().sources).errors.is_empty(), "the synthetic world validates", failures)

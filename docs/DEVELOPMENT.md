@@ -254,3 +254,5 @@ They never enter `content/catalogue.json`, a shop, the binder or a save. E18 mov
 E18-C01 landed six D02 Charms (Pin Counter, Hot Streak, Last Stand, Tip Jar, Banana Ball, Plumb Line) in the catalogue; their design blocks stay in the batch under `landed`.
 
 `python3 tools/qa.py e2e --journey J03C01` seats five of them through the inventory API (logged fixture), then plays strikes, a spare and an open frame in Practice through real input. Each banked score must equal an independent resolution. `--rendered` saves c01_strike, c01_streak, c01_spare and c01_open to `artifacts/e18-c01/rendered`.
+
+`python3 tools/qa.py e2e --journey J03C02` racks ten Glass pins (logged fixture) and checks the Glass breaks against an independent replay of the effects stream, across a real Clubhouse → Continue reload. `--rendered` saves c02_breaks, c02_reloaded and c02_second to `artifacts/e18-c02/rendered`.

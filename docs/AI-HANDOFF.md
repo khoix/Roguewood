@@ -33,7 +33,7 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - Integration: the owner merged `claude/roguewood-build` at `06abb88` (E15 and the ownership plan) into main by PR #10 (`a65ed24`).
 - E16 core DONE: `b01fb4d` on `claude/roguewood-build`; full local matrix (J01–J11 headless and rendered) and CI 40616441249 PASS; see handoffs/E16.md. E16-ART is READY for Codex.
 - Integration: the owner merged PR #11 (Codex Wave 1, E16 core, E17-D01, the test fix) into main (`492f9f4`). Codex Wave 2 (`fcdb494`: E16-ART, E19-A08…A12) is reviewed and merged into `claude/roguewood-build`, along with main.
-- Wave 2 CLOSED (see "Wave 2 closed"); the owner merges `claude/roguewood-build` after its CI. Wave 3 claims: Codex E17-D02-ART then E19-A13…A15; Claude E18-C02 (High) then E17-D03 (Medium). Claude's Wave 3 commits stay local until the Wave 2 merge. E17-D01 and its briefs are DONE. E17-D02 (12 Charms) is DONE (handoffs/E17-D02.md); E17-D02-ART is READY for Codex, to follow Wave 2. Next for Claude: E18-C01 (the seven expressible D02 Charms, Medium) or E17-D03, the owner's choice.
+- Wave 2 CLOSED (see "Wave 2 closed"); the owner merges `claude/roguewood-build` after its CI. Wave 3 claims: Codex E17-D02-ART then E19-A13…A15; Claude E18-C02 (High) then E17-D03 (Medium). Claude's Wave 3 commits stay local until the Wave 2 merge. Wave 3 progress: E18-C02 DONE (handoffs/E18-C02.md). E17-D01 and its briefs are DONE. E17-D02 (12 Charms) is DONE (handoffs/E17-D02.md); E17-D02-ART is READY for Codex, to follow Wave 2. Next for Claude: E18-C01 (the seven expressible D02 Charms, Medium) or E17-D03, the owner's choice.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
@@ -65,7 +65,7 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E15 — Career persistence and unlock graph | DONE | Claude | claude/roguewood-build (not yet merged) | 2cdedb1 (+ 8c19905); local suites and J01–J10 headless/rendered PASS; CI 40577363221 and 40581437392 PASS; ADR 010; E15 handoff |
 | E16 — Clubhouse and collection UI | DONE (core and E16-ART) | Claude core · Codex E16-ART | claude/roguewood-build · codex/roguewood-build | Core b01fb4d; CI 40616441249 PASS; J11; handoffs/E16.md (Art hand-off) |
 | E17 — Catalogue and unlock authoring batches | IN_PROGRESS (D01, D01-ART, D02 DONE; D02-ART READY for Codex) | Claude definitions · Codex visual briefs | claude/roguewood-build · codex/roguewood-build | Split per batch; see Ownership |
-| E18 — Content mechanics batches | IN_PROGRESS (C01 DONE) | Claude | claude/roguewood-build | C01: six D02 Charms landed; handoffs/E18-C01.md |
+| E18 — Content mechanics batches | IN_PROGRESS (C01, C02 DONE) | Claude | claude/roguewood-build | C01: six D02 Charms; C02: transform primitive, Glass Pin and Glass Cutter; handoffs/E18-C0x.md |
 | E19 — Final item artwork batches | IN_PROGRESS (A01–A12 DONE) | Codex | codex/roguewood-build | E13-S01 and E17-D01 identities; D02 art after its briefs |
 | E20 — Ability effects and audio batches | IN_PROGRESS (V01–V07 DONE) | Codex | codex/roguewood-build | E13-S01's 23 abilities; D01 effects wait for E18 |
 | E21 — Rival presentation batches | IN_PROGRESS (R01, R02 DONE) | Codex | codex/roguewood-build | Later rivals after E17 defines them |
@@ -323,6 +323,8 @@ Standing user preferences:
 - At the end of every session, share newly produced screenshots with the user (as files in chat). Never commit screenshots or other rendered captures to the repository; CI's uploaded artifact is their durable copy.
 
 ## Batch queue and content completeness
+
+Batch E18-C02 (landed): pin.glass (transform primitive) and charm.glass_cutter. Production counts: pins 7/32, Charms 19/100.
 
 Batch E18-C01 (landed): charm.pin_counter, hot_streak, last_stand, tip_jar, banana_ball, plumb_line are in content/catalogue.json (mechanics and automated validation true; artwork pending). Production counts: Charms 18/100.
 
