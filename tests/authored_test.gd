@@ -27,6 +27,7 @@ static func run() -> Array[String]:
 		"a landed item keeps its design block and asset IDs in the batch", failures)
 	_refuses(func(b): b[1].data.landed[0].id = "charm.nowhere", catalogue, "a landed entry names a catalogue item", "a landed entry for an item not in the catalogue", failures)
 	_expressible(catalogue, batches, failures)
+	_boss_rules(catalogue, batches, failures)
 	_expect(not ContentSet.load_set("slice").catalogue.items.any(func(i): return i.id == "ball.spark"), "authored items stay out of the playable catalogue", failures)
 	# Each rule refuses a mutation.
 	_refuses(func(b): b[0].data.definitions[0].item.purchase_price = 9; b[0].data.definitions[0].item.resale_price = 4, catalogue, "price $9 outside", "a price outside its rarity band", failures)
@@ -82,6 +83,23 @@ static func _expressible(catalogue: Dictionary, batches: Array, failures: Array[
 	var glass := {1: "pin.glass", 2: "pin.glass"}
 	_expect(with.call("charm.glass_cutter", SliceTest._strike(), {}, glass).score == plus.call(base.call(SliceTest._strike(), {}, glass), 8),
 		"Glass Cutter: two Glass pins down add +8 Mult", failures)
+
+## D03: nine boss rules, each with counterplay and counter tags that the shipped,
+## initially available catalogue already satisfies (no rule without an answer).
+static func _boss_rules(catalogue: Dictionary, batches: Array, failures: Array[String]) -> void:
+	var d03: Array = batches.filter(func(b): return b.data.batch == "E17-D03")
+	_expect(d03.size() == 1 and d03[0].data.definitions.size() == 9 and d03[0].data.definitions.all(func(d): return d.item.category == "boss_rule" and d.design.counterplay.length() > 20),
+		"D03: nine boss rules, each naming its counterplay", failures)
+	if d03.is_empty():
+		return
+	var counters: Dictionary = preload("res://src/career/unlock_graph.gd").read(ContentSet.UNLOCKS).counters
+	for d in d03[0].data.definitions:
+		var tags: Array = counters.get(d.item.id, [])
+		var answer: bool = catalogue.items.any(func(i): return i.unlock.kind == "initial" and float(i.pool_weight) > 0 and i.synergy_tags.any(func(t): return t in tags))
+		_expect(not tags.is_empty() and answer, "%s has counter tags met by an initially available item" % d.item.id, failures)
+	var index := batches.find(d03[0])
+	_refuses(func(b): b[index].data.definitions[0].item.purchase_price = 4, catalogue, "is never sold", "a priced boss rule", failures)
+	_refuses(func(b): b[index].data.definitions[0].design.counterplay = "", catalogue, "names its counterplay", "a boss rule without counterplay", failures)
 
 static func _errors(batches: Array, catalogue: Dictionary) -> Array[String]:
 	var graph := ContentSet.career_graph(ContentSet.UNLOCKS, Authored.items(batches))
