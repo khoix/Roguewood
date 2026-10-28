@@ -27,13 +27,13 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
+        "icon": "res://assets/items/balls/house-card.tres",
+        "card": "res://assets/items/balls/house-card.tres",
+        "in_play": "res://assets/items/balls/house-material.tres",
+        "rarity_treatment": "res://assets/items/balls/house-frame.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/balls/house-card.tres"
       },
       "completeness": {
         "authored": true,
@@ -71,13 +71,13 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
+        "icon": "res://assets/items/balls/hook-card.tres",
+        "card": "res://assets/items/balls/hook-card.tres",
+        "in_play": "res://assets/items/balls/hook-material.tres",
+        "rarity_treatment": "res://assets/items/balls/hook-frame.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/balls/hook-card.tres"
       },
       "completeness": {
         "authored": true,
@@ -118,13 +118,13 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
+        "icon": "res://assets/items/balls/hammer-card.tres",
+        "card": "res://assets/items/balls/hammer-card.tres",
+        "in_play": "res://assets/items/balls/hammer-material.tres",
+        "rarity_treatment": "res://assets/items/balls/hammer-frame.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/balls/hammer-card.tres"
       },
       "completeness": {
         "authored": true,
@@ -172,13 +172,13 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
+        "icon": "res://assets/items/balls/echo-card.tres",
+        "card": "res://assets/items/balls/echo-card.tres",
+        "in_play": "res://assets/items/balls/echo-material.tres",
+        "rarity_treatment": "res://assets/items/balls/echo-frame.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/balls/echo-card.tres"
       },
       "completeness": {
         "authored": true,

@@ -59,6 +59,9 @@ jobs:
           python3 tools/qa.py e2e --journey J10
           xvfb-run -a python3 tools/qa.py e2e --journey J10 --rendered
           python3 tools/qa.py e2e --journey J08
+          python3 tools/qa.py e2e --journey J08A01
+          xvfb-run -a python3 tools/qa.py e2e --journey J08A01 --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_ball_art.gd
           python3 tools/qa.py experiment
           python3 tools/qa.py slice
       - name: Preserve journey diagnostics
@@ -76,4 +79,5 @@ jobs:
             artifacts/e13/
             artifacts/e14/
             artifacts/e15/
+            artifacts/e19-a01/
           if-no-files-found: warn

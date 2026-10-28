@@ -1,5 +1,6 @@
 extends Control
 ## Observes the real lab; never writes physics, equipment, frame reports or scores.
+const ItemAssets = preload("res://src/presentation/item_assets.gd")
 var lab: Control
 var rival: TextureRect
 var reaction: Label
@@ -69,6 +70,9 @@ func _scored(scored: Dictionary) -> void:
 
 func _process(delta: float) -> void:
 	if not lab.lane: return
+	var ball_id: String = lab.lane.launch.get("ball_id", "ball.house") if lab.state in ["rolling", "result", "scoring", "frame_done"] else lab.armed_ball_id()
+	ItemAssets.dress_ball(lab.lane.ball, ball_id)
+	if is_instance_valid(lab.lane.aim_ball): ItemAssets.dress_ball(lab.lane.aim_ball, ball_id)
 	rival.position=Vector2(16,270 if size.y>size.x else 88)
 	rival.size=Vector2(76,108 if size.y>size.x else 72)
 	reaction.position=rival.position+(Vector2(0,112) if size.y>size.x else Vector2(84,8))

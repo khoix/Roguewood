@@ -270,3 +270,16 @@ The owner's completion policy in AGENTS.md supersedes historical REVIEW wording 
 
 ## E14 integration claim
 Codex owns E14 on codex/roguewood-build, integrating completed E13 b6c95ab. Shared LeagueRun, content selection, throw flow, persistence, HUD, lane condition application and J09/CI are now claimed for E14. Generator v2 at a104b36 is retained. E14 implementation and verification are complete at 71b2bd2. Native J09 passes in three processes headless and rendered, including menu selection, 24 matches, saves and endless/loss. No pending owner action. E15 next, High.
+
+### Codex Wave 1 presentation contract request (E19-A01)
+
+The presentation loader is now using production assets for the four ball IDs.
+Please add `item_id: option.item_id` to `_refresh_hand`'s card view and
+`item_id: offer.item_id` to `_refresh_shop`'s offer view (empty string for empty
+slots) in throw_lab.gd. No rules or behavior change is needed. Current cards have
+only UID/title and shop offers have only formatted text/state. Card presentation
+has a temporary exact unique-title lookup; shop art will not parse formatted text.
+Codex has not edited the restricted throw flow. Resume A01 shop binding after this
+additive contract lands; keep artwork completeness false until that evidence and
+remaining actual-size refinements are complete. This is a technical handoff, not
+an owner-review wait.
