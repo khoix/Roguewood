@@ -32,7 +32,7 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - E15 DONE (owner policy: completed implementation and verification; not yet merged to main): on `claude/roguewood-build` (implementation `2cdedb1` plus the result-line follow-up; base main `fd1d466`). Career schema 2 with a v1 migration and a golden v2 file; the unlock registry and validated graph (IDs, kinds, sources, loops, reachability, self-unlocks, starting counters); immediate idempotent banking of first clears, titles, mastery, records and discoveries; attempt pool snapshots; the practice policy; the menu summary and League access; J10 across three real processes. See decisions/010-career-and-unlock-graph.md and handoffs/E15.md.
 - Integration: the owner merged `claude/roguewood-build` at `06abb88` (E15 and the ownership plan) into main by PR #10 (`a65ed24`).
 - E16 core DONE: `b01fb4d` on `claude/roguewood-build`; full local matrix (J01–J11 headless and rendered) and CI 40616441249 PASS; see handoffs/E16.md. E16-ART is READY for Codex.
-- Active (Wave 2): Codex on E16-ART and E19-A08…A12 (D01 art). Wave 1 is complete and integrated (`be3b3e6`; see "Wave 1 result"). E17-D01 and its briefs are DONE. Next for Claude: E17-D02 or E18-C01, the owner's choice.
+- Active (Wave 2): Codex on E16-ART and E19-A08…A12 (D01 art). Wave 1 is complete and integrated (`be3b3e6`; see "Wave 1 result"). E17-D01 and its briefs are DONE. E17-D02 (12 Charms) is DONE (handoffs/E17-D02.md); E17-D02-ART is READY for Codex, to follow Wave 2. Next for Claude: E18-C01 (the seven expressible D02 Charms, Medium) or E17-D03, the owner's choice.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
@@ -63,7 +63,7 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E14 — Seeded eight-Division progression | DONE | Codex | codex/roguewood-build | 71b2bd2; local unit/content/integration/physics, J01/J06/J07 and native J09 headless/rendered PASS; handoffs/E14.md |
 | E15 — Career persistence and unlock graph | DONE | Claude | claude/roguewood-build (not yet merged) | 2cdedb1 (+ 8c19905); local suites and J01–J10 headless/rendered PASS; CI 40577363221 and 40581437392 PASS; ADR 010; E15 handoff |
 | E16 — Clubhouse and collection UI | Core DONE · E16-ART CLAIMED (Codex, Wave 2) | Claude core · Codex E16-ART | claude/roguewood-build · codex/roguewood-build | Core b01fb4d; CI 40616441249 PASS; J11; handoffs/E16.md (Art hand-off) |
-| E17 — Catalogue and unlock authoring batches | IN_PROGRESS (D01 and D01-ART DONE) | Claude definitions · Codex visual briefs | claude/roguewood-build · codex/roguewood-build | Split per batch; see Ownership |
+| E17 — Catalogue and unlock authoring batches | IN_PROGRESS (D01, D01-ART, D02 DONE; D02-ART READY for Codex) | Claude definitions · Codex visual briefs | claude/roguewood-build · codex/roguewood-build | Split per batch; see Ownership |
 | E18 — Content mechanics batches | NOT_STARTED | Claude | claude/roguewood-build | Per E17 batch |
 | E19 — Final item artwork batches | IN_PROGRESS (A01–A07 DONE; A08–A12 CLAIMED) | Codex | codex/roguewood-build | Wave 1 integrated in `be3b3e6`; Wave 2 claim |
 | E20 — Ability effects and audio batches | IN_PROGRESS (V01–V07 DONE) | Codex | codex/roguewood-build | E13-S01's 23 abilities; D01 effects wait for E18 |
@@ -281,6 +281,8 @@ Standing user preferences:
 - At the end of every session, share newly produced screenshots with the user (as files in chat). Never commit screenshots or other rendered captures to the repository; CI's uploaded artifact is their durable copy.
 
 ## Batch queue and content completeness
+
+Batch E17-D02 (E17, authored, not implemented): charm.pin_counter, hot_streak, last_stand, tip_jar, banana_ball, plumb_line, glass_cutter, split_specialist, sweet_spot, back_row, underdog, crown_jewel. Seven are expressible with existing frame rules and are already scored in authored_test.
 
 Batch E17-D01 (E17, authored, not implemented): ball.spark, ball.ghost, ball.splitter, ball.gold; pin.glass, pin.echo, pin.fuse, pin.crown; consumable.nudge, consumable.reserve_call, consumable.rule_waiver. Flags: authored and unlock_assigned true; everything else false. Not in the catalogue or any pool until E18. Authored (not implemented) counts: balls 4, pins 4, tactical 3.
 
