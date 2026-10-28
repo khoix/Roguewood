@@ -2,6 +2,7 @@ extends Control
 ## Inspection never plays cards or changes their rarity. Finish samples are visual only.
 const ItemAssets = preload("res://src/presentation/item_assets.gd")
 var _item_texture: Texture2D
+var _default_frame: StyleBox
 signal closed
 const FINISHES = ["Common — matte", "Uncommon — metal", "Rare — border foil", "Epic — full foil", "Legendary — crown reveal"]
 const COLORS = [Color("c4b69b"),Color("bb935b"),Color("75cbd1"),Color("c691d9"),Color("e9b768")]
@@ -37,6 +38,7 @@ func _ready() -> void:
 	style.border_color = Color("e7bc70")
 	style.set_border_width_all(3)
 	style.set_content_margin_all(18)
+	_default_frame = style
 	panel.add_theme_stylebox_override("panel",style)
 	add_child(panel)
 	var box := VBoxContainer.new()
@@ -96,6 +98,8 @@ static func illustration(index: int) -> AtlasTexture:
 
 func inspect(card: Dictionary, origin: Control, reduce: bool) -> void:
 	_item_texture = ItemAssets.slot(ItemAssets.identify(card), "reduced_motion" if reduce else "card") as Texture2D
+	var frame := ItemAssets.slot(ItemAssets.identify(card), "rarity_treatment") as StyleBox
+	panel.add_theme_stylebox_override("panel", frame if frame else _default_frame)
 	_origin = origin
 	reduced = reduce
 	selected_uid = card.uid

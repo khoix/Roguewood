@@ -19,10 +19,11 @@ Source transport: the binary upload could not complete through the connector. Th
 |---|---|---|
 | `assets/items/balls/a01-source.png` | Original built-in generation from `briefs/E19-A01-source-prompt.txt`, no external image/brand reference. Generated output; no claim of exclusive copyright or independent legal clearance. Unchanged RGBA 1280×1280 source. SHA256 `d9e0b9184fef96226157eca6e74efc32a772593b4870cd1d82833d8d32172c7a`. | Four distinct ball illustrations; source art, not a screenshot. |
 | `assets/items/balls/{house,hook,hammer,echo}-card.tres` | Original Codex-authored AtlasTexture regions of the source above; no added third-party material. | Card/icon/static reduced-motion slots. Native 48px contact sheet inspected; in-engine inspection wired. |
-| `assets/items/balls/identity.gdshader` and four `*-material.tres` | Original repository-authored shader/material definitions, no external code or textures. | Object-local marbling/crescent/crossed bands/rings; no TIME or random animation. In-play finish still subject to A01 refinement. |
+| `assets/items/balls/identity.gdshader` and four `*-material.tres` | Original repository-authored shader/material definitions, no external code or textures. | Object-local marbling/crescent/crossed bands/rings; no TIME or random animation. Refined engraved edging, riveted bands and stable local material grain; verified in-play. |
 | Four `assets/items/balls/*-frame.tres` | Original repository-authored frames using E11 palette. | Common single border / Uncommon paired side border; text seals rendered by live UI. |
 
-All four production `artwork` flags remain false at this checkpoint: shop offer
-binding needs the coordinator's stable item_id view field; the in-play finish and
-compact hand still need final weakest-asset review. No effects/audio completion
-is claimed. No third-party texture, font, sound or logo was added.
+A01 completion: all four production `artwork` flags are true after native card,
+shop, armed/committed material, reduced-effects and House binder verification.
+Coordinator contract c611dea supplies stable IDs; the title fallback was removed.
+No effects/audio completion is claimed. Phone testing remains E26. No third-party
+texture, font, sound or logo was added.

@@ -1,20 +1,18 @@
 extends RefCounted
 ## Read-only presentation adapter. Catalogue assets are paths, never gameplay data.
-## Older card view models omit item_id; exact unique display-name lookup bridges
-## them until the owning coordinator adds item_id to the view contract.
+## Hand and shop views carry stable item_id (coordinator contract c611dea).
+## Empty IDs intentionally have no artwork; display text is never an identifier.
 static var _items: Dictionary = {}
-static var _names: Dictionary = {}
 
 static func _ensure() -> void:
 	if not _items.is_empty(): return
 	var data = JSON.parse_string(FileAccess.get_file_as_string("res://content/catalogue.json"))
 	for item in data.get("items", []):
 		_items[item.id] = item
-		_names[item.name] = item.id if not _names.has(item.name) else ""
 
 static func identify(view: Dictionary) -> String:
 	_ensure()
-	return str(view.get("item_id", _names.get(view.get("title", ""), "")))
+	return str(view.get("item_id", ""))
 
 static func slot(item_id: String, name: String) -> Resource:
 	_ensure()

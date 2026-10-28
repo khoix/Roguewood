@@ -23,13 +23,17 @@ void fragment() {
   float crescent = band(length(p.xy - vec2(-0.12, 0.12)) - 0.67, 0.12);
   crescent *= smoothstep(-0.3, 0.5, p.x) * smoothstep(-0.5, 0.3, p.z);
   float seam = band(p.x + 0.35 * sin(p.y * 4.0 + p.z), 0.028);
+  float engraving = band(p.x + 0.35 * sin(p.y * 4.0 + p.z) - 0.06, 0.01);
   c = mix(petrol, brass, max(crescent, seam * 0.8));
-  c += vec3(0.03) * band(p.y - 0.4, 0.02);
+  c = mix(c, ivory * 0.65, engraving * 0.5);
+  rough = mix(0.24, 0.16, crescent);
  } else if (identity == 2) {
   float straps = max(band(p.x + p.y * 0.7, 0.16), band(p.y - p.x * 0.7, 0.16));
   c = mix(vec3(0.13, 0.16, 0.19), vec3(0.40, 0.20, 0.10), straps);
   float rivet = band(length(fract(vec2(atan(n.z,n.x)*3.0, n.y*4.0))-0.5), 0.12);
   c = mix(c, brass, rivet * straps);
+  float edge = max(band(abs(p.x + p.y * 0.7) - 0.16, 0.015), band(abs(p.y - p.x * 0.7) - 0.16, 0.015));
+  c = mix(c, brass * 0.8, edge);
   metal = 0.78; rough = 0.34;
  } else {
   float rings = band(sin(acos(clamp(n.z, -1.0, 1.0)) * 12.0), 0.15);
@@ -37,5 +41,8 @@ void fragment() {
   c = mix(c, brass, band(sin(acos(clamp(n.z, -1.0, 1.0)) * 12.0) - 0.28, 0.04));
   rough = 0.27; metal = 0.35;
  }
- ALBEDO = c; METALLIC = metal; ROUGHNESS = rough; SPECULAR = 0.4;
+ // Quiet local material grain; no RNG, UV animation or silhouette change.
+ float grain = sin(p.x * 179.0 + p.z * 137.0) * sin(p.y * 113.0) * 0.018;
+ c += vec3(grain);
+ ALBEDO = c; EMISSION = c * 0.035; METALLIC = metal; ROUGHNESS = rough; SPECULAR = 0.4;
 }
