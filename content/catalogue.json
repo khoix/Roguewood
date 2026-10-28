@@ -1806,16 +1806,16 @@
         "card": "res://assets/items/d01/card.pin.crown.tres",
         "in_play": "res://assets/items/d01/in_play.pin.crown.tscn",
         "rarity_treatment": "res://assets/items/d01/rarity_treatment.pin.crown.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/activation.pin.crown.tres",
+        "sound": "res://assets/audio/sound.pin.crown.wav",
         "reduced_motion": "res://assets/items/d01/reduced_motion.pin.crown.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -1866,16 +1866,16 @@
         "card": "res://assets/items/d02/card.charm.split_specialist.tres",
         "in_play": "",
         "rarity_treatment": "res://assets/items/d02/rarity_treatment.charm.split_specialist.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/activation.charm.split_specialist.tres",
+        "sound": "res://assets/audio/sound.charm.split_specialist.wav",
         "reduced_motion": "res://assets/items/d02/reduced_motion.charm.split_specialist.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -2083,16 +2083,16 @@
         "card": "res://assets/items/d02/card.charm.crown_jewel.tres",
         "in_play": "",
         "rarity_treatment": "res://assets/items/d02/rarity_treatment.charm.crown_jewel.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/activation.charm.crown_jewel.tres",
+        "sound": "res://assets/audio/sound.charm.crown_jewel.wav",
         "reduced_motion": "res://assets/items/d02/reduced_motion.charm.crown_jewel.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }

@@ -54,6 +54,7 @@ func _initialize() -> void:
 		failures.append_array(load("res://tests/ability_events_test.gd").run())
 		failures.append_array(load("res://tests/glass_presentation_test.gd").run())
 		failures.append_array(load("res://tests/ability_v08_test.gd").run())
+		failures.append_array(load("res://tests/ability_c03_test.gd").run())
 	elif mode == "integration":
 		var suite = load("res://tests/contract_rules_test.gd")
 		failures = suite.run()

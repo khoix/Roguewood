@@ -72,6 +72,7 @@ func cue(id: String, event: String, skipped: bool, details: Dictionary = {}) -> 
 	if skipped: return
 	glyph.show_cue(recipe,lab.settings.reduced_motion or lab.settings.reduced_flash,Assets.slot(id,"icon"),details)
 	if event == "encounter": intro_glyph.show_cue(recipe,lab.settings.reduced_motion or lab.settings.reduced_flash,Assets.slot(id,"icon"))
+	if details.get("zero",false): return # The explicit Crown zero is legible, without a success sound.
 	# Distinct confirmed breaks are separate causes even at 4x score speed.
 	# Keep the four-voice/priority limit, without debouncing adjacent rack slots.
 	var audio_key := id + ":%d" % int(details.position) if details.has("position") else id
@@ -87,9 +88,14 @@ func _step(step: Dictionary, index: int, skipped: bool) -> void:
 	if broken > 0:
 		cue("pin.glass","after_bank_break",skipped,{"position":broken,"step":index})
 		return
-	if not scored.has("frame") or index >= scored.result.get("events",[]).size(): return
-	var event: Dictionary = scored.result.events[index]
-	for activation in preload("res://src/presentation/ability_events.gd").project(scored.frame,event):
+	if not scored.has("frame"): return
+	var row := preload("res://src/presentation/ability_score_rows.gd").at(scored,index)
+	if row.get("zero","") == "pin.crown":
+		cue("pin.crown","explained_zero",skipped,{"zero":true,"amount":0,"position":row.position,"last_fallen":int(scored.result.get("facts",{}).get("last_fallen",0))})
+		return
+	if not row.has("event"): return
+	var event: Dictionary = row.event
+	for activation in preload("res://src/presentation/ability_events.gd").project(scored.frame,event,scored.result.get("facts",{})):
 		if _projected.has(activation.key): continue
 		_projected[activation.key] = true
 		cue(activation.id,activation.phase,skipped,activation)
