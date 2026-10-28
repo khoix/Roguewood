@@ -99,6 +99,9 @@ jobs:
           python3 tools/qa.py e2e --journey J12V03
           xvfb-run -a python3 tools/qa.py e2e --journey J12V03 --rendered
           xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_effect_art.gd -- --batch=E20-V03
+          python3 tools/qa.py e2e --journey J12V04
+          xvfb-run -a python3 tools/qa.py e2e --journey J12V04 --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_effect_art.gd -- --batch=E20-V04
           python3 tools/qa.py experiment
           python3 tools/qa.py slice
       - name: Preserve Wave 1 art evidence after an earlier failure
@@ -153,6 +156,7 @@ jobs:
             artifacts/e19-a07/
             artifacts/e21-r01/
             artifacts/e21-r02/
+            artifacts/e20-v04/
             artifacts/e20-v03/
             artifacts/e20-v02/
             artifacts/e20-v01/

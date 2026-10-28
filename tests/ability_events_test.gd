@@ -19,6 +19,25 @@ static func run() -> Array[String]:
 	if _ids(gold).count("pin.gold") != 2 or _ids(gold).count("charm.gold_rush") != 1: failures.append("gold cues only deferred payouts and actual counted bonus")
 	var no_gold := Slice._score(catalogue,Slice._loadout({},["charm.gold_rush"]),Slice._strike())
 	if "charm.gold_rush" in _ids(no_gold): failures.append("Gold Rush stays silent with no Gold")
+	var standing := Slice._score(catalogue,Slice._loadout({8:"pin.anchor"},["charm.standing_order","charm.lone_survivor"]),Slice._open([1,2,3,4,5,6,7,9,10],[]))
+	for id in ["pin.anchor","charm.standing_order","charm.lone_survivor"]:
+		if _ids(standing).count(id) != 1: failures.append("one standing Anchor projects " + id)
+	var cleared := Slice._score(catalogue,Slice._loadout({8:"pin.anchor"},["charm.standing_order","charm.lone_survivor"]),Slice._strike())
+	for id in ["pin.anchor","charm.standing_order","charm.lone_survivor"]:
+		if id in _ids(cleared): failures.append("standing cue must stay silent when cleared: " + id)
+	var conditional := ["charm.finisher","charm.turkey_club","charm.last_chance"]
+	var active := Slice._score(catalogue,Slice._loadout({},conditional),Slice._strike(),{"strike_streak":2,"match_frame":2})
+	for id in conditional:
+		if _ids(active).count(id) != 1: failures.append("active multiplier cue " + id)
+	var inactive := Slice._score(catalogue,Slice._loadout({},conditional),Slice._open([1],[]),{"strike_streak":0,"match_frame":1})
+	for id in conditional:
+		if id in _ids(inactive): failures.append("inactive multiplier cue " + id)
+	var bonuses := ["charm.flat_bonus","charm.spare_change","charm.house_favorite"]
+	var spare := Slice._score(catalogue,Slice._loadout({},bonuses),Slice._spare([1,2,3]))
+	for id in bonuses:
+		if _ids(spare).count(id) != 1: failures.append("actual flat bonus " + id)
+	var other_ball := Slice._score(catalogue,Slice._loadout({},bonuses),Slice._strike("ball.hammer"))
+	if "charm.spare_change" in _ids(other_ball) or "charm.house_favorite" in _ids(other_ball): failures.append("spare/House cues are conditional")
 	return failures
 static func _ids(result: Dictionary) -> Array:
 	var keys := {}

@@ -398,8 +398,8 @@
         "card": "res://assets/items/pins/anchor-card.tres",
         "in_play": "res://assets/items/pins/anchor-material.tres",
         "rarity_treatment": "res://assets/items/pins/anchor-frame.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/pin_anchor.tres",
+        "sound": "res://assets/audio/pin_anchor.wav",
         "reduced_motion": "res://assets/items/pins/anchor-card.tres"
       },
       "completeness": {
@@ -407,7 +407,7 @@
         "mechanics": true,
         "automated_validation": true,
         "artwork": true,
-        "effects_audio": false,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       },
@@ -739,8 +739,8 @@
         "card": "res://assets/items/charms/lone_survivor-card.tres",
         "in_play": "res://assets/items/charms/lone_survivor-card.tres",
         "rarity_treatment": "res://assets/items/charms/lone_survivor-frame.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/charm_lone_survivor.tres",
+        "sound": "res://assets/audio/charm_lone_survivor.wav",
         "reduced_motion": "res://assets/items/charms/lone_survivor-card.tres"
       },
       "completeness": {
@@ -748,7 +748,7 @@
         "mechanics": true,
         "automated_validation": true,
         "artwork": true,
-        "effects_audio": false,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -1173,8 +1173,8 @@
         "card": "res://assets/items/charms/standing_order-card.tres",
         "in_play": "res://assets/items/charms/standing_order-card.tres",
         "rarity_treatment": "res://assets/items/charms/standing_order-frame.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/charm_standing_order.tres",
+        "sound": "res://assets/audio/charm_standing_order.wav",
         "reduced_motion": "res://assets/items/charms/standing_order-card.tres"
       },
       "completeness": {
@@ -1182,7 +1182,7 @@
         "mechanics": true,
         "automated_validation": true,
         "artwork": true,
-        "effects_audio": false,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }

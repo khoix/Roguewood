@@ -13,6 +13,7 @@ func _run() -> void:
 	wanted = rows.map(func(row): return row[0])
 	root.size = PORTRAIT
 	scene = load("res://src/bootstrap/bootstrap.tscn").instantiate()
+	if batch == "E20-V05": scene.throw_settings = {"practice":true}
 	root.add_child(scene)
 	await process_frame
 	await _focus_accept(scene.enter)
@@ -25,11 +26,31 @@ func _run() -> void:
 	if batch == "E20-V02": _check(lab.run.place("pin.grower",0,"rack:1").is_empty(),"fixture Grower")
 	if batch == "E20-V03":
 		for position in [1,3]: _check(lab.run.place("pin.gold",0,"rack:%d" % position).is_empty(),"fixture Gold")
+	if batch == "E20-V04": _check(lab.run.place("pin.anchor",0,"rack:8").is_empty(),"fixture Anchor")
+	if batch == "E20-V05": lab.run.strike_streak = 2 # declared prior-streak fixture
 	lab._new_roll(false)
 	await _aim()
 	if batch == "E20-V01": _check(await _arm("ball.echo"),"actual Echo card arms")
-	await _throw(STRIKE)
+	if batch == "E20-V04":
+		var first := await _throw([-0.1,0.0,0.7],0.25)
+		_check(first.knockdown_log.standing == [8],"real nine-pin leave is the Anchor")
+		await _focus_accept(lab.next_rack)
+		await _throw(GUTTER)
+	elif batch == "E20-V06":
+		await _throw(LEAVE)
+		await _focus_accept(lab.next_rack)
+		await _throw([0.0,0.0,0.6])
+	else:
+		await _throw(STRIKE)
 	var scored := await _scored()
+	if batch == "E20-V05":
+		_check(scored.banked == 2240 and not lab.motion.abilities.history.any(func(e): return e.id == "charm.last_chance"),"third strike activates Turkey and Finisher, not Last Chance in frame one")
+		await _focus_accept(lab.next_rack)
+		await _throw(STRIKE)
+		scored = await _scored()
+		_check(scored.banked == 4480 and lab.match_frame == 2,"real second frame activates Last Chance")
+	if batch == "E20-V06": _check(scored.result.category == "spare" and scored.banked == 2160,"real all-House spare: 180 Value times 12 Mult")
+	if batch == "E20-V04": _check(scored.result.category == "open" and scored.banked == scored.result.score,"one real standing Anchor frame banks unchanged")
 	if batch == "E20-V01": _check(scored.result.retriggers == 1 and scored.banked == 1050,"real Echo and Encore bank 1050")
 	if batch == "E20-V03": _check(scored.banked == 1120 and scored.income == 2 and lab.run.money == 8,"two real Gold payouts and Gold Rush bank")
 	if batch == "E20-V02":
@@ -69,6 +90,8 @@ func _run() -> void:
 	file.store_string(JSON.stringify({"batch":batch,"motion":metrics,"audio":{"played":lab.motion.sound.played,"max_active":lab.motion.sound.max_active,"suppressed":lab.motion.sound.suppressed},"history":lab.motion.abilities.history},"\t"))
 	if failures.is_empty(): print("ROGUEWOOD_ABILITY_OK")
 	else: await _capture("failure")
+	# Flush deferred log scrolling before SceneTree teardown.
+	for i in 6: await process_frame
 	quit(0 if failures.is_empty() else 1)
 func _scored() -> Dictionary:
 	for tick in ROLL_FRAMES * 3:

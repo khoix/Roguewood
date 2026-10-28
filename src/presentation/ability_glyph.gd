@@ -62,3 +62,46 @@ func _draw() -> void:
 				var at := c+Vector2(cos(angle),sin(angle))*(20+8*t)
 				draw_circle(at,5,ink)
 				draw_line(at+Vector2(0,-3),at+Vector2(0,3),Color("604626"),2)
+		"brace":
+			for side in [-1,1]:
+				var x: float = side*(28-4*t)
+				draw_polyline(PackedVector2Array([c+Vector2(x-side*7,-24),c+Vector2(x,-24),c+Vector2(x,24),c+Vector2(x-side*7,24)]),ink,3)
+		"tabs":
+			for j in 3:
+				var y := -24.0+j*10-t*4
+				draw_rect(Rect2(c+Vector2(18,y),Vector2(9,7)),ink,false,2)
+			draw_line(c+Vector2(-23,-24),c+Vector2(-23,24),ink,3)
+		"isolate":
+			for x in [-1,1]:
+				for y in [-1,1]:
+					var at := c+Vector2(x,y)*(28-t*4)
+					draw_line(at,at-Vector2(x*9,0),ink,3)
+					draw_line(at,at-Vector2(0,y*9),ink,3)
+		"flag":
+			draw_line(c+Vector2(-26,26),c+Vector2(-26,-26),ink,3)
+			for x in 4:
+				for y in 2:
+					if (x+y)%2 == 0: draw_rect(Rect2(c+Vector2(-23+x*7,-26+y*7),Vector2(6,6)),ink)
+		"feathers":
+			for j in 3:
+				var angle := -PI*0.75+j*PI*0.25
+				var tip := c+Vector2(cos(angle),sin(angle))*(22+6*t)
+				var tangent := Vector2(-sin(angle),cos(angle))*4
+				draw_colored_polygon(PackedVector2Array([tip,tip+tangent+Vector2(0,8),c+Vector2(0,-14),tip-tangent+Vector2(0,8)]),ink)
+		"clock":
+			draw_arc(c,27,-PI*0.5,-PI*0.5+TAU*(1-t*0.6),24,ink,3)
+			draw_line(c+Vector2(0,-27),c+Vector2(0,-20),ink,3)
+			draw_line(c+Vector2(21,20),c+Vector2(26,25),ink,4)
+		"pips":
+			for j in 4:
+				var at := c+Vector2(-21+j*14,-26)
+				draw_rect(Rect2(at,Vector2(7,7)),ink,j <= int(t*4))
+		"halves":
+			var gap := 7*(1-t)
+			draw_arc(c-Vector2(gap,0),26,PI*0.5,PI*1.5,16,ink,3)
+			draw_arc(c+Vector2(gap,0),26,-PI*0.5,PI*0.5,16,ink,3)
+			draw_line(c+Vector2(0,21),c+Vector2(0,28),ink,3)
+		"gable":
+			draw_polyline(PackedVector2Array([c+Vector2(-27,-17),c+Vector2(0,-29+3*t),c+Vector2(27,-17)]),ink,3)
+			draw_line(c+Vector2(16,-22),c+Vector2(16,-29),ink,4)
+			draw_line(c+Vector2(-25,24),c+Vector2(25,24),ink,3)

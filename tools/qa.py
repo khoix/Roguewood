@@ -70,6 +70,12 @@ JOURNEYS["J12V02"] = ("res://tests/ability_journey.gd", "ROGUEWOOD_ABILITY_OK", 
                        ("pin_grower_activation", "charm_patient_investor_activation", "resolved", "reduced", "landscape"), 900, ["--fixed-fps", "60"])
 JOURNEYS["J12V03"] = ("res://tests/ability_journey.gd", "ROGUEWOOD_ABILITY_OK", "artifacts/e20-v03/native",
                        ("pin_gold_activation", "charm_gold_rush_activation", "resolved", "reduced", "landscape"), 900, ["--fixed-fps", "60"])
+JOURNEYS["J12V04"] = ("res://tests/ability_journey.gd", "ROGUEWOOD_ABILITY_OK", "artifacts/e20-v04/native",
+                       ("pin_anchor_activation", "charm_standing_order_activation", "charm_lone_survivor_activation", "resolved", "reduced", "landscape"), 900, ["--fixed-fps", "60"])
+JOURNEYS["J12V05"] = ("res://tests/ability_journey.gd", "ROGUEWOOD_ABILITY_OK", "artifacts/e20-v05/native",
+                       ("charm_finisher_activation", "charm_turkey_club_activation", "charm_last_chance_activation", "resolved", "reduced", "landscape"), 900, ["--fixed-fps", "60"])
+JOURNEYS["J12V06"] = ("res://tests/ability_journey.gd", "ROGUEWOOD_ABILITY_OK", "artifacts/e20-v06/native",
+                       ("charm_flat_bonus_activation", "charm_spare_change_activation", "charm_house_favorite_activation", "resolved", "reduced", "landscape"), 900, ["--fixed-fps", "60"])
 # Content set per journey (E13, ADR 008): mechanism journeys keep the lab fixtures;
 # the shell journey and J06 stage 1 play the production slice (the game's default).
 CONTENT = {"J09": "slice", "J02": "lab", "J03": "lab", "J04": "lab", "J05": "lab", "J07": "lab", "J08": "lab"}
