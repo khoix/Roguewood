@@ -50,8 +50,7 @@ func _ready() -> void:
 	abilities.lab = lab
 	add_child(abilities)
 
-## Only rivals with an original portrait appear here (E13): The Custodian's atlas.
-## Other rivals (The Surveyor) wait for their E21 art and keep the HUD bubble only.
+## Legacy lab fixture only. Production rivals use the E21 manifest and HUD portraits.
 const PORTRAITS := ["rival.lab_custodian"]
 
 ## The Division's rival (previewed before the boss match; practice shows the first
