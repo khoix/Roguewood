@@ -84,7 +84,7 @@ func _stage_one_clubhouse() -> void:
 	_check(club.category == "charm" and club.binder_grid.get_child_count() == 12, "the Charms filter shows the twelve Charms")
 	var encore := await _card("charm.encore")
 	_check(encore.state == "locked" and club.selected_item == "charm.encore" and club.binder_detail.text.contains("Unlock: Beat The Surveyor (House League)")
-		and club.binder_art.get_child(0).name == "Placeholder", "inspecting Encore: Locked, the rival that unlocks it, a marked art placeholder")
+		and club.binder_art.get_child(0) is TextureRect and club.binder_art.get_child(0).texture == load(encore.asset), "inspecting Encore: Locked, the rival that unlocks it, actual catalogue artwork")
 	await _capture("clubhouse_locked")
 	await _tab("goals")
 	await _focus_accept(club.track_button("mastery.mixed_rack"))
