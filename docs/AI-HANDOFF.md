@@ -34,7 +34,7 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - E16 core DONE: `b01fb4d` on `claude/roguewood-build`; full local matrix (J01–J11 headless and rendered) and CI 40616441249 PASS; see handoffs/E16.md. E16-ART is READY for Codex.
 - Integration: the owner merged PR #11 (Codex Wave 1, E16 core, E17-D01, the test fix) into main (`492f9f4`). Codex Wave 2 (`fcdb494`: E16-ART, E19-A08…A12) is reviewed and merged into `claude/roguewood-build`, along with main.
 - Wave 2 MERGED to main by PR #13 (`1d44302`).
-- Wave 3 MERGED to main by PR #14 (`3a7e938`; CI 40736417912 PASS on `afe5852`): Codex E17-D02-ART and E19-A13…A15; Claude E18-C02 and E17-D03. - **Wave 4 closing** (see "Wave 4 closed"): Claude E18-C03 and E17-D04; Codex E17-D03-ART, E19-A16 and E20-V08. The owner merges `claude/roguewood-build` into main after the CI of the "Wave 4 closed" commit. Wave 5 claims are recorded; Wave 5 pushes wait for that merge.
+- Wave 3 MERGED to main by PR #14 (`3a7e938`; CI 40736417912 PASS on `afe5852`): Codex E17-D02-ART and E19-A13…A15; Claude E18-C02 and E17-D03. - **Wave 4 CLOSED** (see "Wave 4 closed"): Claude E18-C03 and E17-D04; Codex E17-D03-ART, E19-A16 and E20-V08. The owner merges `claude/roguewood-build` into main after the CI of the "Wave 4 closed" commit. Wave 5 claims are recorded; Wave 5 pushes wait for that merge.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
@@ -212,7 +212,7 @@ Pushes for Wave 5 wait until the owner merges Wave 4. Codex merges `origin/claud
   - Claude: E18-C03 (`313b8a0`, `2bd7ae7`) and E17-D04 (`076a1b1`).
   - Codex: E17-D03-ART (`52c5455`), E19-A16 (`a6fc939`) and E20-V08 (`25f6995`; handoffs/WAVE4-CODEX.md, E17-D03-ART.md, E19-A16.md, E20-V08.md), merged by the coordinator without conflicts.
 - **Coordinator review:** Codex's diff against `0993250` changes exactly one artwork flag (Glass Pin), eight effects_audio flags and their sixteen activation and sound paths in content/catalogue.json. Its source changes are presentation only (Glass dressing on the real pin body, a saved-break observer that never rolls or writes, glyph counts read from resolver events). qa.py, run_tests.gd and the workflow are add-only; upload folders stay inside `path`. Batch files and every authored flag are unchanged.
-- **Validation:** in progress (full local CI command list on the merged tree, then CI on this branch).
+- **Validation:** the full CI command list (118 commands, every journey headless and rendered, including J03C03, J19A16, J12V08 and J12V08C) PASS locally on the merged tree; the J03C03 injected failure exits 1. CI 40747075594 PASS on `076a1b1` (Claude's Wave 4); CI runs on this commit.
 - **Merge:** `claude/roguewood-build` into main after the CI of the "Wave 4 closed" commit.
 
 ## Wave 4 claims (coordinator: Claude, 2026-10-28)
