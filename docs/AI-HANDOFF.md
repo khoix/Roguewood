@@ -60,8 +60,8 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E13 — Vertical-slice integration | DONE (device play session blocked) | Claude | claude/roguewood-build (not yet merged) | 98cc2aa (with 5aac9d2, aea54e0); CI 40524506207 PASS; ADR 008; E13 handoff |
 | E14 — Seeded eight-Division progression | DONE | Codex | codex/roguewood-build | 71b2bd2; local unit/content/integration/physics, J01/J06/J07 and native J09 headless/rendered PASS; handoffs/E14.md |
 | E15 — Career persistence and unlock graph | DONE | Claude | claude/roguewood-build (not yet merged) | 2cdedb1 (+ 8c19905); local suites and J01–J10 headless/rendered PASS; CI 40577363221 and 40581437392 PASS; ADR 010; E15 handoff |
-| E16 — Clubhouse and collection UI | NOT_STARTED (READY) | Claude core · Codex E16-ART | claude/roguewood-build · codex/roguewood-build | Split; see Art ownership |
-| E17 — Catalogue and unlock authoring batches | NOT_STARTED (READY) | Claude definitions · Codex visual briefs | claude/roguewood-build · codex/roguewood-build | Split per batch; see Art ownership |
+| E16 — Clubhouse and collection UI | NOT_STARTED (READY) | Claude core · Codex E16-ART | claude/roguewood-build · codex/roguewood-build | Split; see Ownership |
+| E17 — Catalogue and unlock authoring batches | NOT_STARTED (READY) | Claude definitions · Codex visual briefs | claude/roguewood-build · codex/roguewood-build | Split per batch; see Ownership |
 | E18 — Content mechanics batches | NOT_STARTED | Claude | claude/roguewood-build | Per E17 batch |
 | E19 — Final item artwork batches | READY (E19-A01…A07) | Codex | codex/roguewood-build | E13-S01 batches allocated; later batches wait for E17 briefs |
 | E20 — Ability effects and audio batches | NOT_STARTED | Codex | codex/roguewood-build | E13-S01 abilities after their E19 art |
@@ -69,9 +69,9 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E22 — League theme integration batches | NOT_STARTED | Codex (whole: art and integration) | codex/roguewood-build | Per League; needs E16 core and the League's content |
 | E23 — Starting kits, mastery, difficulty, and endless | NOT_STARTED | Claude | claude/roguewood-build | See Ownership |
 | E24 — Economy and procedural balance study | NOT_STARTED | Claude | claude/roguewood-build | See Ownership |
-| E25 — Onboarding and accessibility completion | NOT_STARTED | Claude core · Codex E25-ART | claude/roguewood-build · codex/roguewood-build | Split; see Art ownership |
+| E25 — Onboarding and accessibility completion | NOT_STARTED | Claude core · Codex E25-ART | claude/roguewood-build · codex/roguewood-build | Split; see Ownership |
 | E26 — Platform packaging and performance | NOT_STARTED (BLOCKED: hardware) | Codex | codex/roguewood-build | Claude assists on E10 save/suspend defects |
-| E27 — Content and asset completeness audit | NOT_STARTED | Claude content audit · Codex asset audit | claude/roguewood-build · codex/roguewood-build | Split; see Art ownership |
+| E27 — Content and asset completeness audit | NOT_STARTED | Claude content audit · Codex asset audit | claude/roguewood-build · codex/roguewood-build | Split; see Ownership |
 | E28 — Cross-system release candidate | NOT_STARTED | Claude (coordinator) | claude/roguewood-build | See Ownership |
 | E29 — Delivery and final handoff | NOT_STARTED | Claude (coordinator) | claude/roguewood-build | See Ownership |
 
