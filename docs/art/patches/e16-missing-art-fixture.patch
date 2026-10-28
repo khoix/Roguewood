@@ -1,0 +1,12 @@
+--- a/tests/clubhouse_test.gd
++++ b/tests/clubhouse_test.gd
+@@ -113,7 +113,7 @@
+ 	_expect(Graph.build(registry, graph.catalogue, sources).errors.any(func(e): return e.contains("deco.bad: requires one milestone count")), "cosmetics need a known milestone", failures)
+ 
+ static func _art(failures: Array[String]) -> void:
+-	var slot := Art.slot("trophy.house", 96)
+-	_expect(slot.name == "Placeholder" and slot.get_child(0).text.contains("trophy.house"), "missing art draws a placeholder naming its asset ID", failures)
++	var slot := Art.slot("test.missing_clubhouse_art", 96)
++	_expect(slot.name == "Placeholder" and slot.get_child(0).text.contains("test.missing_clubhouse_art"), "missing art draws a placeholder naming its asset ID", failures)
+ 	_expect(Art.path_for("trophy.house") == "res://assets/clubhouse/trophy.house.png" and Art.path_for("res://x.png") == "res://x.png", "asset paths resolve by ID", failures)
+ 	slot.free()

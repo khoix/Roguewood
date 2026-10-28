@@ -58,6 +58,8 @@ jobs:
           xvfb-run -a python3 tools/qa.py e2e --journey J09 --rendered
           python3 tools/qa.py e2e --journey J10
           xvfb-run -a python3 tools/qa.py e2e --journey J10 --rendered
+          python3 tools/qa.py e2e --journey J03C01
+          xvfb-run -a python3 tools/qa.py e2e --journey J03C01 --rendered
           python3 tools/qa.py e2e --journey J11
           xvfb-run -a python3 tools/qa.py e2e --journey J11 --rendered
           python3 tools/qa.py e2e --journey J08
@@ -143,6 +145,15 @@ jobs:
           python3 tools/qa.py e2e --journey J08A07
           xvfb-run -a python3 tools/qa.py e2e --journey J08A07 --rendered
           xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_item_art.gd -- --batch=E19-A07
+      - name: Wave 2 Clubhouse and authored D01 art previews
+        run: |
+          python3 tools/qa.py e2e --journey J11ART
+          xvfb-run -a python3 tools/qa.py e2e --journey J11ART --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_club_art.gd
+          for batch in J19A08 J19A09 J19A10 J19A11 J19A12; do
+            python3 tools/qa.py e2e --journey "$batch"
+            xvfb-run -a python3 tools/qa.py e2e --journey "$batch" --rendered
+          done
       - name: Preserve journey diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -176,4 +187,11 @@ jobs:
             artifacts/e20-v02/
             artifacts/e20-v01/
             artifacts/e16/
+            artifacts/e18-c01/
+            artifacts/e16-art/
+            artifacts/e19-a08/
+            artifacts/e19-a09/
+            artifacts/e19-a10/
+            artifacts/e19-a11/
+            artifacts/e19-a12/
           if-no-files-found: warn

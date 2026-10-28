@@ -248,3 +248,9 @@ Catalogue authoring batches (`content/catalogue/batches/E17-Dxx.json`, at most 1
 - the pool note, presentation needs for the visual brief, and asset IDs per slot.
 
 They never enter `content/catalogue.json`, a shop, the binder or a save. E18 moves each item in when its mechanics land. `qa.py content` validates every batch against the catalogue and the prospective unlock graph, and prints counts against the release targets and the primitive list. `authored_test` (in `unit`) proves each rule refuses bad data.
+
+## E18 mechanics batches and J03C01
+
+E18-C01 landed six D02 Charms (Pin Counter, Hot Streak, Last Stand, Tip Jar, Banana Ball, Plumb Line) in the catalogue; their design blocks stay in the batch under `landed`.
+
+`python3 tools/qa.py e2e --journey J03C01` seats five of them through the inventory API (logged fixture), then plays strikes, a spare and an open frame in Practice through real input. Each banked score must equal an independent resolution. `--rendered` saves c01_strike, c01_streak, c01_spare and c01_open to `artifacts/e18-c01/rendered`.
