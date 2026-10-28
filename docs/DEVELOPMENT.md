@@ -239,3 +239,12 @@ Art comes by asset ID from `assets/clubhouse/<id>.png`; until E16-ART delivers i
 2. After a restart, Try Again: buy a new Charm, lose, and see it Discovered with every reward kept. Then return to play.
 
 `--rendered` saves clubhouse_locked, clubhouse_goals, clubhouse_mastered, clubhouse_trophies, clubhouse_discovered and clubhouse_return to `artifacts/e16/rendered`.
+
+## E17 authored batches
+
+Catalogue authoring batches (`content/catalogue/batches/E17-Dxx.json`, at most 12 definitions each) hold full item definitions written ahead of their mechanics:
+- the catalogue v2 item;
+- the exact trigger text and the new effect primitives E18 must build;
+- the pool note, presentation needs for the visual brief, and asset IDs per slot.
+
+They never enter `content/catalogue.json`, a shop, the binder or a save. E18 moves each item in when its mechanics land. `qa.py content` validates every batch against the catalogue and the prospective unlock graph, and prints counts against the release targets and the primitive list. `authored_test` (in `unit`) proves each rule refuses bad data.
