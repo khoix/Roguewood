@@ -2096,6 +2096,440 @@
         "unlock_assigned": true,
         "integrated": false
       }
+    },
+    {
+      "id": "ball_mod.chalk_grip",
+      "name": "Chalk Grip",
+      "category": "ball_mod",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 4,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "add_mult",
+          "amount": 2,
+          "trigger": "ball",
+          "scope": "roll",
+          "condition": {
+            "category": [
+              "spare"
+            ]
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 6,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Nothing on strikes, so it competes with strike builds for the modification slot.",
+      "synergy_tags": [
+        "spare",
+        "mult"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "ball_mod.spin_wax",
+      "name": "Spin Wax",
+      "category": "ball_mod",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "mastery",
+        "prerequisites": [
+          "gate.mastery_true_curve"
+        ]
+      },
+      "earliest_division": 1,
+      "purchase_price": 5,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "add_mult",
+          "amount": 4,
+          "trigger": "ball",
+          "scope": "roll",
+          "condition": {
+            "curved": true
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 4,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Straight frames earn nothing, so it pulls against Plumb Line and straight builds.",
+      "synergy_tags": [
+        "curve",
+        "mult"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "ball_mod.coin_slot",
+      "name": "Coin Slot",
+      "category": "ball_mod",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 6,
+      "resale_price": 3,
+      "effects": [
+        {
+          "op": "payout",
+          "amount": 2,
+          "trigger": "ball",
+          "scope": "roll",
+          "condition": {
+            "category": [
+              "strike"
+            ]
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 4,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Money, not score: a strike with it banks no extra points.",
+      "synergy_tags": [
+        "economy",
+        "strike"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "ball_mod.echo_charge",
+      "name": "Echo Charge",
+      "category": "ball_mod",
+      "rarity": "rare",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "championship",
+        "prerequisites": [
+          "gate.house_champion"
+        ]
+      },
+      "earliest_division": 2,
+      "purchase_price": 9,
+      "resale_price": 4,
+      "effects": [
+        {
+          "op": "retrigger",
+          "amount": 1,
+          "trigger": "ball",
+          "scope": "roll"
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Cannot charge an Echo Ball, and a glancing first contact wastes it.",
+      "synergy_tags": [
+        "retrigger",
+        "precision"
+      ],
+      "incompatibilities": [
+        "ball.echo"
+      ],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "pin_mod.brass_cap",
+      "name": "Brass Cap",
+      "category": "pin_mod",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 3,
+      "resale_price": 1,
+      "effects": [
+        {
+          "op": "add_mult",
+          "amount": 1,
+          "trigger": "fallen",
+          "scope": "frame"
+        }
+      ],
+      "limits": {
+        "max_owned": 6,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Small, and only on a fall: a standing capped pin adds nothing.",
+      "synergy_tags": [
+        "mult",
+        "rack"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "pin_mod.gilt_leaf",
+      "name": "Gilt Leaf",
+      "category": "pin_mod",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 5,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "payout",
+          "amount": 1,
+          "trigger": "fallen",
+          "scope": "frame"
+        }
+      ],
+      "limits": {
+        "max_owned": 4,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Cannot gild a Gold pin, and it adds no score of its own.",
+      "synergy_tags": [
+        "economy",
+        "rack"
+      ],
+      "incompatibilities": [
+        "pin.gold"
+      ],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "pin_mod.lantern",
+      "name": "Lantern",
+      "category": "pin_mod",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 5,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "add_mult",
+          "amount": 1,
+          "trigger": "standing",
+          "scope": "frame",
+          "per": "standing"
+        }
+      ],
+      "limits": {
+        "max_owned": 4,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Pays only when it survives the frame, so it fights strike builds.",
+      "synergy_tags": [
+        "standing",
+        "mult"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "pin_mod.keystone",
+      "name": "Keystone",
+      "category": "pin_mod",
+      "rarity": "rare",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "mastery",
+        "prerequisites": [
+          "gate.mastery_mixed_rack"
+        ]
+      },
+      "earliest_division": 2,
+      "purchase_price": 8,
+      "resale_price": 4,
+      "effects": [
+        {
+          "op": "add_value",
+          "amount": 4,
+          "trigger": "fallen",
+          "scope": "frame",
+          "per": "fallen"
+        }
+      ],
+      "limits": {
+        "max_owned": 2,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Nothing while it stands; a split around it leaves an expensive slot empty.",
+      "synergy_tags": [
+        "value",
+        "strike",
+        "rack"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
     }
   ]
 }

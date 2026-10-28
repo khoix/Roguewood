@@ -111,8 +111,9 @@ static func _boss_rules(catalogue: Dictionary, batches: Array, failures: Array[S
 ## thrown with, pin modifications the rack position they are attached to.
 static func _modifications(catalogue: Dictionary, batches: Array, failures: Array[String]) -> void:
 	var d04: Array = batches.filter(func(b): return b.data.batch == "E17-D04")
-	_expect(d04.size() == 1 and d04[0].data.definitions.filter(func(d): return d.item.category == "ball_mod").size() == 6
-		and d04[0].data.definitions.filter(func(d): return d.item.category == "pin_mod").size() == 6, "D04: six ball and six pin modifications", failures)
+	var d04_ids: Array = d04[0].data.definitions.map(func(d): return d.item.id) + d04[0].data.landed.map(func(l): return l.id) if d04.size() == 1 else []
+	_expect(d04_ids.filter(func(id): return id.begins_with("ball_mod.")).size() == 6 and d04_ids.filter(func(id): return id.begins_with("pin_mod.")).size() == 6
+		and d04[0].data.landed.size() == 8 and d04[0].data.landed.all(func(l): return l.landed_in == "E18-C04"), "D04: six ball and six pin modifications; eight landed by E18-C04", failures)
 	var cat := catalogue.duplicate(true)
 	cat.items.append_array(Authored.items(batches))
 	var score := func(reports: Array, ball_mod: String = "", pin_mods: Dictionary = {}) -> Dictionary:

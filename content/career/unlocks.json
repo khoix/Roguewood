@@ -91,7 +91,7 @@
       "gates": [
         "gate.mastery_true_curve"
       ],
-      "reward": "True Curve ribbon for the trophy shelf; Banana Ball joins the shop pool from your next attempt."
+      "reward": "True Curve ribbon for the trophy shelf; Banana Ball and Spin Wax join the shop pool from your next attempt."
     },
     {
       "id": "mastery.mixed_rack",
@@ -104,7 +104,7 @@
       "gates": [
         "gate.mastery_mixed_rack"
       ],
-      "reward": "Mixed Rack ribbon for the trophy shelf."
+      "reward": "Mixed Rack ribbon for the trophy shelf; Keystone joins the shop pool from your next attempt."
     }
   ],
   "counters": {
