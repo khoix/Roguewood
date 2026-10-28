@@ -1,0 +1,22 @@
+--- a/tests/slice_test.gd
++++ b/tests/slice_test.gd
+@@ -122,8 +122,17 @@
+ 	var by := {}
+ 	for entry in catalogue.items:
+ 		by[entry.category] = by.get(entry.category, []) + [entry.id]
+-		_expect(entry.completeness.authored and entry.completeness.mechanics and not entry.completeness.artwork and not entry.completeness.effects_audio
+-			and not entry.completeness.integrated, "%s: completeness is honest (no art or effects yet)" % entry.id, failures)
++		_expect(entry.completeness.authored and entry.completeness.mechanics,
++			"%s: E13 authored and mechanics complete" % entry.id, failures)
++		var required: Array = []
++		if entry.completeness.artwork:
++			required.append_array(["card", "icon", "in_play", "rarity_treatment", "reduced_motion"])
++		if entry.completeness.effects_audio:
++			required.append_array(["activation", "sound", "reduced_motion"])
++		for slot in required:
++			var path: String = entry.assets.get(slot, "")
++			_expect(not path.is_empty() and ResourceLoader.exists(path),
++				"%s: completed %s resource exists" % [entry.id, slot], failures)
+ 	_expect(by.ball.size() == 4 and by.pin.size() == 6 and by.charm.size() == 12 and by.boss_rule.size() == 2 and by.kit.size() == 1,
+ 		"batch E13-S01: four balls, six pins, twelve Charms, two boss rules, one kit", failures)
+ 
