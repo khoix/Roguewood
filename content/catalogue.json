@@ -222,19 +222,19 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
+        "icon": "res://assets/items/pins/wood-card.tres",
+        "card": "res://assets/items/pins/wood-card.tres",
+        "in_play": "res://assets/items/pins/wood-material.tres",
+        "rarity_treatment": "res://assets/items/pins/wood-frame.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/pins/wood-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
+        "artwork": true,
         "effects_audio": false,
         "unlock_assigned": true,
         "integrated": false
@@ -280,19 +280,19 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
+        "icon": "res://assets/items/pins/ruby-card.tres",
+        "card": "res://assets/items/pins/ruby-card.tres",
+        "in_play": "res://assets/items/pins/ruby-material.tres",
+        "rarity_treatment": "res://assets/items/pins/ruby-frame.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/pins/ruby-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
+        "artwork": true,
         "effects_audio": false,
         "unlock_assigned": true,
         "integrated": false
@@ -337,19 +337,19 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
+        "icon": "res://assets/items/pins/gold-card.tres",
+        "card": "res://assets/items/pins/gold-card.tres",
+        "in_play": "res://assets/items/pins/gold-material.tres",
+        "rarity_treatment": "res://assets/items/pins/gold-frame.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/pins/gold-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
+        "artwork": true,
         "effects_audio": false,
         "unlock_assigned": true,
         "integrated": false
@@ -394,19 +394,19 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
+        "icon": "res://assets/items/pins/anchor-card.tres",
+        "card": "res://assets/items/pins/anchor-card.tres",
+        "in_play": "res://assets/items/pins/anchor-material.tres",
+        "rarity_treatment": "res://assets/items/pins/anchor-frame.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/pins/anchor-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
+        "artwork": true,
         "effects_audio": false,
         "unlock_assigned": true,
         "integrated": false

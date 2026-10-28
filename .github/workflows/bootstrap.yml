@@ -64,8 +64,22 @@ jobs:
           python3 tools/qa.py e2e --journey J08A01
           xvfb-run -a python3 tools/qa.py e2e --journey J08A01 --rendered
           xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_ball_art.gd
+          python3 tools/qa.py e2e --journey J08A02
+          xvfb-run -a python3 tools/qa.py e2e --journey J08A02 --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_pin_art.gd
           python3 tools/qa.py experiment
           python3 tools/qa.py slice
+      - name: Preserve Wave 1 art evidence after an earlier failure
+        if: failure() && env.GODOT_BIN != ''
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y xvfb xauth libgl1-mesa-dri
+          python3 tools/qa.py e2e --journey J08A01
+          xvfb-run -a python3 tools/qa.py e2e --journey J08A01 --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_ball_art.gd
+          python3 tools/qa.py e2e --journey J08A02
+          xvfb-run -a python3 tools/qa.py e2e --journey J08A02 --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_pin_art.gd
       - name: Preserve journey diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -82,5 +96,6 @@ jobs:
             artifacts/e14/
             artifacts/e15/
             artifacts/e19-a01/
+            artifacts/e19-a02/
             artifacts/e16/
           if-no-files-found: warn

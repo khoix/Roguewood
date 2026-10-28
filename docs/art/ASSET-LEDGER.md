@@ -27,3 +27,18 @@ shop, armed/committed material, reduced-effects and House binder verification.
 Coordinator contract c611dea supplies stable IDs; the title fallback was removed.
 No effects/audio completion is claimed. Phone testing remains E26. No third-party
 texture, font, sound or logo was added.
+
+## Wave 1 / E19-A02 source and runtime resources
+
+| Assets | Source / rights basis | State / use |
+|---|---|---|
+| `assets/items/pins/a02-source.png` | Original built-in generation from `briefs/E19-A02-source-prompt.txt`; no external image or brand reference. Unchanged RGBA 1254×1254 output. SHA256 `2c0d0b0bb4e5bc596185d263a8b99364fa985f1aabe9f5f31926c71d95bb6967`. Generated output; no claim of exclusive copyright or independent legal clearance. | Four distinct pin illustrations; source art, never a game capture. |
+| `assets/items/pins/{wood,ruby,gold,anchor}-card.tres` | Original AtlasTexture views of the source above. Object-centered 620px regions, transparent margins retained. | Card/icon/static reduced-motion slots; 192px cards and 48px icons inspected. |
+| `assets/items/pins/identity.gdshader`, four material resources, `src/presentation/pin_identity.gd` | Original repository-authored shader and visual collar geometry, no external code/textures. | Wood bands/grain; Ruby faceted diamond inlays; Gold medallion and coin rings; Anchor chevrons/crossed braces/riveted foot collar. Object-local, no TIME or flash. Actual physical bodies retain their own collision/mass. |
+| Four pin frame resources | Original repository-authored E11 palette frame definitions, matching A01. | Common single border / Uncommon paired sides, with explicit rarity text in item views. |
+
+A02's four artwork flags are true after native purchase, placement, actual-body
+material, mixed-rack impact, reduced-effects and binder checks. No effects/audio
+flag is changed. The full unit suite has a separate historical E13 assertion
+conflict (see A02 handoff); it is not reported as passing. No third-party asset
+was introduced. Physical-phone readability remains E26.

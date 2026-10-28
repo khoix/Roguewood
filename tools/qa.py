@@ -39,6 +39,10 @@ JOURNEYS["J08A01"] = ("res://tests/ball_art_journey.gd", "ROGUEWOOD_BALL_ART_OK"
                        ("ball_inspect", "ball_aim", "ball_scored", "ball_reduced"), 300, ["--fixed-fps", "60"])
 # A01 completion evidence: actual offer artwork and House binder slot.
 JOURNEYS["J08A01"] = (*JOURNEYS["J08A01"][:3], JOURNEYS["J08A01"][3] + ("ball_shop", "ball_house"), *JOURNEYS["J08A01"][4:])
+JOURNEYS["J08A02"] = ("res://tests/pin_art_journey.gd", "ROGUEWOOD_PIN_ART_OK", "artifacts/e19-a02/native",
+                       ("pin_rack", "pin_reduced", "pin_fallen", "pin_ruby_shop", "pin_gold_shop", "pin_anchor_shop",
+                        "pin_wood_binder", "pin_ruby_binder", "pin_gold_binder", "pin_anchor_binder"), 300, ["--fixed-fps", "60"])
+JOURNEYS["J08A02"] = (*JOURNEYS["J08A02"][:3], JOURNEYS["J08A02"][3] + ("pin_rack_detail", "pin_impact_detail"), *JOURNEYS["J08A02"][4:])
 # Content set per journey (E13, ADR 008): mechanism journeys keep the lab fixtures;
 # the shell journey and J06 stage 1 play the production slice (the game's default).
 CONTENT = {"J09": "slice", "J02": "lab", "J03": "lab", "J04": "lab", "J05": "lab", "J07": "lab", "J08": "lab"}
