@@ -33,7 +33,7 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - Integration: the owner merged `claude/roguewood-build` at `06abb88` (E15 and the ownership plan) into main by PR #10 (`a65ed24`).
 - E16 core DONE: `b01fb4d` on `claude/roguewood-build`; full local matrix (J01–J11 headless and rendered) and CI 40616441249 PASS; see handoffs/E16.md. E16-ART is READY for Codex.
 - Integration: the owner merged PR #11 (Codex Wave 1, E16 core, E17-D01, the test fix) into main (`492f9f4`). Codex Wave 2 (`fcdb494`: E16-ART, E19-A08…A12) is reviewed and merged into `claude/roguewood-build`, along with main.
-- Active (Wave 3): E18-C01 DONE (six Charms playable; J03C01). Codex on E17-D02-ART, then E19-A13…A15. Next for Claude: E17-D03 or E18-C02, the owner's choice. E17-D01 and its briefs are DONE. E17-D02 (12 Charms) is DONE (handoffs/E17-D02.md); E17-D02-ART is READY for Codex, to follow Wave 2. Next for Claude: E18-C01 (the seven expressible D02 Charms, Medium) or E17-D03, the owner's choice.
+- Wave 2 CLOSED (see "Wave 2 closed"); the owner merges `claude/roguewood-build` after its CI. Wave 3 claims: Codex E17-D02-ART then E19-A13…A15; Claude E18-C02 (High) then E17-D03 (Medium). Claude's Wave 3 commits stay local until the Wave 2 merge. E17-D01 and its briefs are DONE. E17-D02 (12 Charms) is DONE (handoffs/E17-D02.md); E17-D02-ART is READY for Codex, to follow Wave 2. Next for Claude: E18-C01 (the seven expressible D02 Charms, Medium) or E17-D03, the owner's choice.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
@@ -79,6 +79,13 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E29 — Delivery and final handoff | NOT_STARTED | Claude (coordinator) | claude/roguewood-build | See Ownership |
 
 ## Ownership, lanes and hand-offs (owner directive, 2026-10-28)
+
+### Waves and merges (owner directive, 2026-10-28)
+- **A wave is a fixed set of claims** for both agents, listed under "Wave N claims". Nothing outside it is pushed as part of that wave.
+- **One merge path:** `claude/roguewood-build`. Codex pushes `codex/roguewood-build` and reports. The coordinator reviews and integrates it into `claude/roguewood-build`. Codex does not open PRs to main.
+- **A wave closes** with a commit titled "Wave N closed" on `claude/roguewood-build`. It records the closing state and the next wave's claims. The owner merges `claude/roguewood-build` into main once that commit's CI passes.
+- **Between closure and the owner's merge,** the coordinator does not push next-wave work to `claude/roguewood-build`. That work stays committed locally until the merge, so the PR contains exactly one wave.
+- **Codex starts the next wave** from the "Wave N closed" commit (merging it into its branch). It pushes to `codex/roguewood-build` as usual; that branch is never the merge path.
 
 ### Art rule
 **Codex owns every remaining art component.** That means artwork, illustration, iconography, portraits, environment art, VFX, animation, audio, trophy and cosmetic art, visual briefs and visual review. Claude owns the rules, data, UI logic, persistence, tests and integration code for the milestones in its lane.
@@ -179,7 +186,25 @@ Claude's next step: E16 core (it unblocks E16-ART and E22), then E17-D01 onward.
   - No rules, catalogue, Career, bootstrap or clubhouse_model changes. qa.py and workflow edits are add-only.
 - **Re-run on the merged tree** (identical to Codex's head): unit, content, integration, J01, J03, J05, J11, J11ART (headless and rendered), J19A08 and J19A12 — PASS.
 
+## Wave 2 closed (coordinator, 2026-10-28)
+- **Contents** (all on `claude/roguewood-build` at the "Wave 2 closed" commit; main has Wave 1 via PR #11):
+  - Codex: E16-ART and E19-A08…A12 (`fcdb494`), integrated in `c2003f2` (recorded in `147f137`).
+  - Claude: E17-D02 (`0c97ad0`), E18-C01 (`002590e`), and the CI upload-step fix for Wave 2's workflow edit (`973ba00`).
+- **Validation:**
+  - The full CI command list was re-run locally on the C01 tree: 98/98, and J03C01 injected failure exits 1.
+  - CI 40699664160 PASS on `973ba00`. Every later Wave 2 commit is documentation.
+- **Merge:** `claude/roguewood-build` into main after the CI of the "Wave 2 closed" commit. It supersedes Codex's PR #12, which lacks the CI fix and Claude's Wave 2 work.
+
 ## Wave 3 claims (coordinator: Claude, 2026-10-28)
+- **Codex:**
+  - E17-D02-ART (Medium): briefs in `docs/art/briefs/E17-D02.md` for all 12 D02 Charms. Asset IDs are under `definitions` and `landed` in `content/catalogue/batches/E17-D02.json`. Flag look-alikes: Banana Ball / Hook Artist, Plumb Line / House Favorite, Hot Streak / Turkey Club, Pin Counter / Flat Bonus.
+  - Then E19-A13…A15 (four Charms each, Medium).
+  - The six landed Charms are in content/catalogue.json. Set their `completeness.artwork` only after a native shop, inventory and binder check; J11ART then requires their icons. For the six still authored, put paths in the batch file only.
+- **Claude:**
+  - E18-C02 (High): primitive `pin.break_chance`, the after-banking Glass-to-Wood roll on the attempt's effects stream. Saved, deterministic and shown, with no reroll by reload. It lands Glass Pin and Glass Cutter, and ends with native evidence.
+  - Then E17-D03 (Medium): the next 12 definitions, so Codex has briefs for Wave 4.
+
+## Wave 2 work recorded under the earlier "Wave 3" heading (historical)
 - **Codex: E17-D02-ART** (Medium). Briefs in `docs/art/briefs/E17-D02.md` for the 12 Charms in `content/catalogue/batches/E17-D02.json`, using `design.asset_ids`. Flag look-alikes: Banana Ball / Hook Artist, Plumb Line / House Favorite, Hot Streak / Turkey Club, Pin Counter / Flat Bonus. Then E19 art for these 12 (A13–A15, four Charms each) is READY; it may follow in the same session with paths in E17-D02.json only.
 - **Claude: E18-C01** (Medium). Land the seven expressible D02 Charms (pin_counter, hot_streak, last_stand, tip_jar, banana_ball, plumb_line, glass_cutter) into content/catalogue.json with mechanics, tests and in-game evidence. Glass Cutter depends on Glass Pin (D01, which needs a new primitive), so it stays in its batch until Glass lands; C01 lands six.
 
