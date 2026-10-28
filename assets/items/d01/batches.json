@@ -1,0 +1,23 @@
+{
+  "E19-A08": [
+    "ball.gold",
+    "pin.glass",
+    "pin.fuse",
+    "pin.crown"
+  ],
+  "E19-A09": [
+    "pin.echo",
+    "consumable.nudge",
+    "consumable.reserve_call",
+    "consumable.rule_waiver"
+  ],
+  "E19-A10": [
+    "ball.spark"
+  ],
+  "E19-A11": [
+    "ball.ghost"
+  ],
+  "E19-A12": [
+    "ball.splitter"
+  ]
+}

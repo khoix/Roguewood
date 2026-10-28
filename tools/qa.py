@@ -89,6 +89,14 @@ STAGE_RUNS = {"J06": [("res://tests/slice_journey.gd", "slice"), ("res://tests/d
 # Journeys that restart the game: each stage is a separate engine process sharing
 # one save directory; stage k prints ROGUEWOOD_<journey>_STAGE<k>_OK.
 STAGES = {"J09": 3, "J07": 10, "J10": 3, "J11": 2}
+# Wave 2: retain the complete J11 flow and add Clubhouse art/layout assertions.
+JOURNEYS["J11ART"] = ("res://tests/art_club_journey.gd", "ROGUEWOOD_J11_OK", "artifacts/e16-art/native",
+    ("clubhouse_locked_720", "clubhouse_mastered_1280", "clubhouse_trophies_bottom_720", "clubhouse_discovered_1280"), 1200, ["--fixed-fps", "60"])
+STAGES["J11ART"] = 2
+# Authored D01 resources stay out of the live catalogue until E18.
+for art_batch in range(8, 13):
+    JOURNEYS[f"J19A{art_batch:02}"] = ("res://tests/art_d01_preview.gd", "ROGUEWOOD_D01_ART_OK",
+        f"artifacts/e19-a{art_batch:02}/preview", ("contact", "comparison"), 180, ["--fixed-fps", "60"])
 
 
 def engine():

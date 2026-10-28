@@ -32,13 +32,13 @@
         ],
         "incompatibilities": [],
         "assets": {
-          "icon": "",
-          "card": "",
-          "in_play": "",
-          "rarity_treatment": "",
+          "icon": "res://assets/items/d01/icon.ball.spark.tres",
+          "card": "res://assets/items/d01/card.ball.spark.tres",
+          "in_play": "res://assets/items/d01/in_play.ball.spark.tscn",
+          "rarity_treatment": "res://assets/items/d01/rarity_treatment.ball.spark.tres",
           "activation": "",
           "sound": "",
-          "reduced_motion": ""
+          "reduced_motion": "res://assets/items/d01/reduced_motion.ball.spark.tres"
         },
         "completeness": {
           "authored": true,
@@ -98,13 +98,13 @@
         ],
         "incompatibilities": [],
         "assets": {
-          "icon": "",
-          "card": "",
-          "in_play": "",
-          "rarity_treatment": "",
+          "icon": "res://assets/items/d01/icon.ball.ghost.tres",
+          "card": "res://assets/items/d01/card.ball.ghost.tres",
+          "in_play": "res://assets/items/d01/in_play.ball.ghost.tscn",
+          "rarity_treatment": "res://assets/items/d01/rarity_treatment.ball.ghost.tres",
           "activation": "",
           "sound": "",
-          "reduced_motion": ""
+          "reduced_motion": "res://assets/items/d01/reduced_motion.ball.ghost.tres"
         },
         "completeness": {
           "authored": true,
@@ -164,13 +164,13 @@
         ],
         "incompatibilities": [],
         "assets": {
-          "icon": "",
-          "card": "",
-          "in_play": "",
-          "rarity_treatment": "",
+          "icon": "res://assets/items/d01/icon.ball.splitter.tres",
+          "card": "res://assets/items/d01/card.ball.splitter.tres",
+          "in_play": "res://assets/items/d01/in_play.ball.splitter.tscn",
+          "rarity_treatment": "res://assets/items/d01/rarity_treatment.ball.splitter.tres",
           "activation": "",
           "sound": "",
-          "reduced_motion": ""
+          "reduced_motion": "res://assets/items/d01/reduced_motion.ball.splitter.tres"
         },
         "completeness": {
           "authored": true,
@@ -227,13 +227,13 @@
         ],
         "incompatibilities": [],
         "assets": {
-          "icon": "",
-          "card": "",
-          "in_play": "",
-          "rarity_treatment": "",
+          "icon": "res://assets/items/d01/icon.ball.gold.tres",
+          "card": "res://assets/items/d01/card.ball.gold.tres",
+          "in_play": "res://assets/items/d01/in_play.ball.gold.tscn",
+          "rarity_treatment": "res://assets/items/d01/rarity_treatment.ball.gold.tres",
           "activation": "",
           "sound": "",
-          "reduced_motion": ""
+          "reduced_motion": "res://assets/items/d01/reduced_motion.ball.gold.tres"
         },
         "completeness": {
           "authored": true,
@@ -301,13 +301,13 @@
         ],
         "incompatibilities": [],
         "assets": {
-          "icon": "",
-          "card": "",
-          "in_play": "",
-          "rarity_treatment": "",
+          "icon": "res://assets/items/d01/icon.pin.glass.tres",
+          "card": "res://assets/items/d01/card.pin.glass.tres",
+          "in_play": "res://assets/items/d01/in_play.pin.glass.tscn",
+          "rarity_treatment": "res://assets/items/d01/rarity_treatment.pin.glass.tres",
           "activation": "",
           "sound": "",
-          "reduced_motion": ""
+          "reduced_motion": "res://assets/items/d01/reduced_motion.pin.glass.tres"
         },
         "completeness": {
           "authored": true,
@@ -374,13 +374,13 @@
         ],
         "incompatibilities": [],
         "assets": {
-          "icon": "",
-          "card": "",
-          "in_play": "",
-          "rarity_treatment": "",
+          "icon": "res://assets/items/d01/icon.pin.echo.tres",
+          "card": "res://assets/items/d01/card.pin.echo.tres",
+          "in_play": "res://assets/items/d01/in_play.pin.echo.tscn",
+          "rarity_treatment": "res://assets/items/d01/rarity_treatment.pin.echo.tres",
           "activation": "",
           "sound": "",
-          "reduced_motion": ""
+          "reduced_motion": "res://assets/items/d01/reduced_motion.pin.echo.tres"
         },
         "completeness": {
           "authored": true,
@@ -445,13 +445,13 @@
         ],
         "incompatibilities": [],
         "assets": {
-          "icon": "",
-          "card": "",
-          "in_play": "",
-          "rarity_treatment": "",
+          "icon": "res://assets/items/d01/icon.pin.fuse.tres",
+          "card": "res://assets/items/d01/card.pin.fuse.tres",
+          "in_play": "res://assets/items/d01/in_play.pin.fuse.tscn",
+          "rarity_treatment": "res://assets/items/d01/rarity_treatment.pin.fuse.tres",
           "activation": "",
           "sound": "",
-          "reduced_motion": ""
+          "reduced_motion": "res://assets/items/d01/reduced_motion.pin.fuse.tres"
         },
         "completeness": {
           "authored": true,
@@ -511,13 +511,13 @@
         ],
         "incompatibilities": [],
         "assets": {
-          "icon": "",
-          "card": "",
-          "in_play": "",
-          "rarity_treatment": "",
+          "icon": "res://assets/items/d01/icon.pin.crown.tres",
+          "card": "res://assets/items/d01/card.pin.crown.tres",
+          "in_play": "res://assets/items/d01/in_play.pin.crown.tscn",
+          "rarity_treatment": "res://assets/items/d01/rarity_treatment.pin.crown.tres",
           "activation": "",
           "sound": "",
-          "reduced_motion": ""
+          "reduced_motion": "res://assets/items/d01/reduced_motion.pin.crown.tres"
         },
         "completeness": {
           "authored": true,
@@ -575,13 +575,13 @@
         ],
         "incompatibilities": [],
         "assets": {
-          "icon": "",
-          "card": "",
+          "icon": "res://assets/items/d01/icon.consumable.nudge.tres",
+          "card": "res://assets/items/d01/card.consumable.nudge.tres",
           "in_play": "",
-          "rarity_treatment": "",
+          "rarity_treatment": "res://assets/items/d01/rarity_treatment.consumable.nudge.tres",
           "activation": "",
           "sound": "",
-          "reduced_motion": ""
+          "reduced_motion": "res://assets/items/d01/reduced_motion.consumable.nudge.tres"
         },
         "completeness": {
           "authored": true,
@@ -638,13 +638,13 @@
         ],
         "incompatibilities": [],
         "assets": {
-          "icon": "",
-          "card": "",
+          "icon": "res://assets/items/d01/icon.consumable.reserve_call.tres",
+          "card": "res://assets/items/d01/card.consumable.reserve_call.tres",
           "in_play": "",
-          "rarity_treatment": "",
+          "rarity_treatment": "res://assets/items/d01/rarity_treatment.consumable.reserve_call.tres",
           "activation": "",
           "sound": "",
-          "reduced_motion": ""
+          "reduced_motion": "res://assets/items/d01/reduced_motion.consumable.reserve_call.tres"
         },
         "completeness": {
           "authored": true,
@@ -701,13 +701,13 @@
         ],
         "incompatibilities": [],
         "assets": {
-          "icon": "",
-          "card": "",
+          "icon": "res://assets/items/d01/icon.consumable.rule_waiver.tres",
+          "card": "res://assets/items/d01/card.consumable.rule_waiver.tres",
           "in_play": "",
-          "rarity_treatment": "",
+          "rarity_treatment": "res://assets/items/d01/rarity_treatment.consumable.rule_waiver.tres",
           "activation": "",
           "sound": "",
-          "reduced_motion": ""
+          "reduced_motion": "res://assets/items/d01/reduced_motion.consumable.rule_waiver.tres"
         },
         "completeness": {
           "authored": true,

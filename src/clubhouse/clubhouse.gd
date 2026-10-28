@@ -8,7 +8,7 @@ extends Control
 ## - Goals: every mastery objective with progress; follow up to three.
 ## It only reads the Career (ClubhouseModel), except for tracked goals, which it
 ## changes and announces with career_changed so the shell saves them. Art comes by
-## asset ID through ClubhouseArt (placeholders until E16-ART). No new currency.
+## asset ID through ClubhouseArt. E16-ART supplies final identities. No new currency.
 signal career_changed
 const Model = preload("res://src/clubhouse/clubhouse_model.gd")
 const Art = preload("res://src/clubhouse/clubhouse_art.gd")
@@ -40,7 +40,14 @@ func _init() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var theme_override := Theme.new()
 	theme_override.default_font_size = FONT_SIZE
+	theme_override.set_color("font_color", "Label", Color("f4e9cf"))
 	theme = theme_override
+	var background := ColorRect.new()
+	background.name = "ClubhouseBackdrop"
+	background.color = Color("101d25")
+	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(background)
 	var margin := MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for side in ["left", "right"]:
@@ -51,6 +58,15 @@ func _init() -> void:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 12)
 	margin.add_child(column)
+	var masthead := HBoxContainer.new()
+	masthead.alignment = BoxContainer.ALIGNMENT_CENTER
+	masthead.add_theme_constant_override("separation", 16)
+	column.add_child(masthead)
+	masthead.add_child(Art.slot("deco.club_sign", 56))
+	var club_title := Label.new()
+	club_title.text = "THE CLUBHOUSE"
+	club_title.add_theme_font_size_override("font_size", 28)
+	masthead.add_child(club_title)
 	var bar := HFlowContainer.new()
 	bar.name = "ClubhouseTabs"
 	bar.alignment = FlowContainer.ALIGNMENT_CENTER
@@ -62,6 +78,7 @@ func _init() -> void:
 		button.name = "Tab" + tab.capitalize()
 		button.text = TAB_NAMES[tab]
 		button.toggle_mode = true
+		Art.button_style(button)
 		button.custom_minimum_size = Vector2(160, 56)
 		button.pressed.connect(func(): show_tab(tab))
 		bar.add_child(button)
@@ -141,6 +158,7 @@ func _build_trophies() -> void:
 	_heading(pages.trophies, "Trophy shelf")
 	trophy_grid = HFlowContainer.new()
 	trophy_grid.name = "TrophyGrid"
+	trophy_grid.alignment = FlowContainer.ALIGNMENT_CENTER
 	trophy_grid.add_theme_constant_override("h_separation", 16)
 	trophy_grid.add_theme_constant_override("v_separation", 16)
 	pages.trophies.add_child(trophy_grid)
@@ -198,6 +216,7 @@ func _refresh_binder() -> void:
 		filter.text = Model.CATEGORY_NAMES.get(key, "All")
 		filter.toggle_mode = true
 		filter.button_pressed = key == category
+		Art.button_style(filter)
 		filter.custom_minimum_size = Vector2(0, 52)
 		filter.pressed.connect(func(): _filter(key))
 		binder_filters.add_child(filter)
@@ -208,18 +227,27 @@ func _refresh_binder() -> void:
 	for entry in shown:
 		var card := Button.new()
 		card.name = "Binder_" + entry.id.replace(".", "_")
-		card.text = "%s\n%s" % [entry.name, Model.STATE_NAMES[entry.state]]
+		card.text = "%s\n%s  %s" % [entry.name, Art.STATE_MARKS[entry.state], Model.STATE_NAMES[entry.state]]
+		card.add_theme_font_size_override("font_size", 20)
+		card.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		if Art.has_art(entry.asset):
+			card.icon = load(Art.path_for(entry.asset))
+			card.expand_icon = true
+			card.add_theme_constant_override("icon_max_width", 48)
+			card.add_theme_constant_override("h_separation", 12)
+		Art.button_style(card, entry.state)
 		card.toggle_mode = true
 		card.button_pressed = entry.id == selected_item
-		card.custom_minimum_size = Vector2(210, 84)
-		card.modulate = Color(1, 1, 1, 0.6) if entry.state == "locked" else Color.WHITE
+		card.custom_minimum_size = Vector2(316, 88)
 		card.pressed.connect(func(): _select(entry.id))
 		binder_grid.add_child(card)
 	_clear(binder_art)
 	binder_detail.text = ""
 	for entry in shown:
 		if entry.id == selected_item:
-			binder_art.add_child(Art.slot(entry.asset, 150, entry.state != "locked"))
+			var picture := Art.slot(entry.asset, 150, entry.state != "locked")
+			if entry.state == "mastered": Art.mastered_finish(picture)
+			binder_art.add_child(picture)
 			binder_detail.text = Model.inspect(entry, catalogue)
 
 ## The grid is rebuilt on every choice; keyboard focus follows the chosen control.
@@ -244,17 +272,30 @@ func _refresh_trophies() -> void:
 	for slot in Model.trophies(career, graph):
 		var box := VBoxContainer.new()
 		box.name = "Trophy_" + slot.id.replace(".", "_")
-		box.custom_minimum_size = Vector2(200, 0)
+		box.custom_minimum_size = Vector2(316, 0)
 		box.add_theme_constant_override("separation", 6)
+		var shelf_style := Art.panel_style(Color("1c2d32"), Color("77684c"), 2)
+		box.draw.connect(func(): box.draw_style_box(shelf_style, Rect2(Vector2.ZERO, box.size)))
+		box.resized.connect(func(): box.queue_redraw())
+		var top_space := Control.new()
+		top_space.custom_minimum_size.y = 12
+		box.add_child(top_space)
 		var art_holder := CenterContainer.new()
 		art_holder.add_child(Art.slot(slot.asset, 120, slot.earned))
 		box.add_child(art_holder)
 		var title := _label(box, "Name")
 		title.text = slot.name + ("" if slot.earned else " (not yet)")
 		title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		var detail := _label(box, "Detail", 18)
+		title.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		title.custom_minimum_size.x = 292
+		var detail := _label(box, "Detail", 20)
 		detail.text = slot.detail
 		detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		detail.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		detail.custom_minimum_size.x = 292
+		var bottom_space := Control.new()
+		bottom_space.custom_minimum_size.y = 12
+		box.add_child(bottom_space)
 		trophy_grid.add_child(box)
 
 func _refresh_goals() -> void:
@@ -269,6 +310,7 @@ func _refresh_goals() -> void:
 		var track := Button.new()
 		track.name = "Track"
 		track.custom_minimum_size = Vector2(170, 56)
+		Art.button_style(track)
 		track.text = "Done" if goal.done else ("Following" if goal.tracked else "Follow")
 		track.disabled = goal.done
 		track.toggle_mode = true
