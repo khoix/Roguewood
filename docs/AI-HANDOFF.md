@@ -34,7 +34,7 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - E16 core DONE: `b01fb4d` on `claude/roguewood-build`; full local matrix (J01–J11 headless and rendered) and CI 40616441249 PASS; see handoffs/E16.md. E16-ART is READY for Codex.
 - Integration: the owner merged PR #11 (Codex Wave 1, E16 core, E17-D01, the test fix) into main (`492f9f4`). Codex Wave 2 (`fcdb494`: E16-ART, E19-A08…A12) is reviewed and merged into `claude/roguewood-build`, along with main.
 - Wave 2 MERGED to main by PR #13 (`1d44302`).
-- **Wave 3 closing** (see "Wave 3 closed"): Codex E17-D02-ART and E19-A13…A15; Claude E18-C02 and E17-D03. The owner merges `claude/roguewood-build` into main after the CI of the "Wave 3 closed" commit. Wave 4 claims are recorded; Wave 4 pushes to `claude/roguewood-build` wait for that merge.
+- **Wave 3 CLOSED** (see "Wave 3 closed"): Codex E17-D02-ART and E19-A13…A15; Claude E18-C02 and E17-D03. The owner merges `claude/roguewood-build` into main after the CI of the "Wave 3 closed" commit. Wave 4 claims are recorded; Wave 4 pushes to `claude/roguewood-build` wait for that merge.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
@@ -214,7 +214,7 @@ Pushes for Wave 4 wait until the owner merges Wave 3. Codex starts from `claude/
   - Codex's diff against `fede206` changes only 24 identity paths and six artwork flags in content/catalogue.json, 24 identity paths in E17-D02.json, and add-only qa.py and workflow entries (the upload folders are inside `path`; `if-no-files-found: warn` stays last). The one source change, EquipmentArtStrip's icon fallback for Charms without an in-play texture, is presentation only.
   - Conflict: Codex worked from the Wave 2 base, before E18-C02 landed Glass Cutter. The batch keeps Glass Cutter under `landed`; its four identity paths moved onto its catalogue entry.
   - Glass Cutter's native check: J19A14N (headless and rendered) now buys it from a real offer and shows it in the inventory and binder; captures inspected. Its `artwork` flag is set, so seven landed D02 Charms have final identity art.
-- **Validation:** in progress (full local CI command list on the merged tree, then CI on this branch).
+- **Validation:** the full CI command list (110 commands: doctor, unit, content, integration, physics, smoke, export, experiment, slice, every journey headless and rendered, including J03C02 and the five new D02 art checks) PASS locally on the merged tree with Glass Cutter's flag set; the J03C02 injected failure exits 1. CI runs on this commit.
 - **Merge:** `claude/roguewood-build` into main after the CI of the "Wave 3 closed" commit.
 
 ## Wave 3 claims (coordinator: Claude, 2026-10-28)
