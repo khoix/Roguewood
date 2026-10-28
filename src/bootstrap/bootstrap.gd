@@ -8,6 +8,7 @@ const Contracts = preload("res://src/contracts/contracts.gd")
 const FrameBuilder = preload("res://src/rules/frame_builder.gd")
 const ContentSet = preload("res://src/rules/content_set.gd")
 const UnlockGraph = preload("res://src/career/unlock_graph.gd")
+const Clubhouse = preload("res://src/clubhouse/clubhouse.gd")
 var session: Dictionary = {}
 var screen := "menu"
 var heading: Label
@@ -30,6 +31,8 @@ var career: Dictionary = {}
 var career_graph: Dictionary = {}
 var career_line: Label
 var league_sets: Array = [] # content set behind each League choice
+## The Clubhouse (E16): the home screen; its League Board holds the panel below.
+var clubhouse: Clubhouse
 ## E10 saves: user://saves, or --save-dir=<path> for tests.
 var store: RefCounted
 var continue_button: Button
@@ -41,12 +44,13 @@ var content: Dictionary = {}
 func _ready() -> void:
 	get_window().size_changed.connect(_viewport_layout)
 	_viewport_layout()
+	clubhouse = Clubhouse.new()
+	add_child(clubhouse)
 	panel = VBoxContainer.new()
-	panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	panel.position = Vector2(-230, -190)
-	panel.custom_minimum_size = Vector2(460, 380)
-	panel.add_theme_constant_override("separation", 24)
-	add_child(panel)
+	panel.name = "LeaguePanel"
+	panel.custom_minimum_size = Vector2(460, 0)
+	panel.add_theme_constant_override("separation", 20)
+	clubhouse.adopt_board(panel)
 	heading = Label.new()
 	heading.text = "Roguewood"
 	heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -97,6 +101,8 @@ func _ready() -> void:
 		if arg.begins_with("--save-dir="): save_dir = arg.trim_prefix("--save-dir=")
 	store = SaveStore.create(save_dir)
 	_load_career()
+	clubhouse.graph = career_graph
+	clubhouse.career_changed.connect(_save_career)
 	session_bar = HBoxContainer.new()
 	session_bar.name = "SessionBar"
 	session_bar.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
@@ -126,6 +132,20 @@ func _button(parent: Node, label: String, node_name: String, width: float) -> Bu
 
 func _start_session() -> void:
 	_begin_attempt(1)
+
+## The board's Career summary and followed goals.
+func _refresh_career_line() -> void:
+	career_line.text = CareerProfile.summary(career, career_graph.get("objectives", []))
+	var goals: Array = CareerProfile.goals(career, career_graph.get("objectives", []), 0) # attempt-scoped goals start over
+	if not goals.is_empty():
+		career_line.text += "\nGoals: " + " · ".join(goals.map(func(g): return "%s %d/%d" % [g.name, mini(g.progress, g.threshold), g.threshold]))
+
+## Saves the Career after a Clubhouse change (tracked goals).
+func _save_career() -> void:
+	_refresh_career_line()
+	var errors: Array[String] = store.write("career", CareerProfile.normalized(career))
+	if not errors.is_empty():
+		push_warning("Career not saved: " + str(errors))
 
 func _load_career() -> void:
 	var read: Dictionary = store.read("career")
@@ -168,7 +188,7 @@ func _begin_attempt(attempt: int, saved: Dictionary = {}) -> void:
 	screen = "session"
 	details.text = "%s · %d Division%s" % [content.get("name", "House League"), content.divisions.size(), "" if content.divisions.size() == 1 else "s"]
 	if content.id == "campaign": details.text += " · Seed %d" % int(session.seed)
-	panel.hide()
+	clubhouse.hide()
 	_clear_lab()
 	# Throw lab (E04–E09); the lane draws beneath the session controls.
 	lab = ThrowLab.new()
@@ -204,12 +224,11 @@ func _show_menu() -> void:
 	session = {}
 	details.text = "The lanes are waiting."
 	_clear_lab()
-	career_line.text = CareerProfile.summary(career, career_graph.get("objectives", []))
-	var goals: Array = CareerProfile.goals(career, career_graph.get("objectives", []), 0) # attempt-scoped goals start over
-	if not goals.is_empty():
-		career_line.text += "\nGoals: " + " · ".join(goals.map(func(g): return "%s %d/%d" % [g.name, mini(g.progress, g.threshold), g.threshold]))
+	_refresh_career_line()
 	# League access from the unlock graph: a locked League is shown but cannot be entered.
 	enter.disabled = false
+	var played := int(career.records.get(career_graph.get("league_of_set", {}).get(league_sets[league.selected], ""), {}).get("attempts", 0)) > 0
+	enter.text = "Try Again" if played else "Enter League" # design §16 button words
 	for i in league.item_count:
 		var reason := UnlockGraph.league_access(career_graph, career, career_graph.get("league_of_set", {}).get(league_sets[i], ""))
 		league.set_item_disabled(i, not reason.is_empty())
@@ -223,7 +242,9 @@ func _show_menu() -> void:
 	var notes: Array = [save_notice, saved.get("notice", "")].filter(func(n): return not n.is_empty())
 	notice.text = "\n".join(notes)
 	save_notice = ""
-	panel.show()
+	clubhouse.career = career
+	clubhouse.show()
+	clubhouse.show_tab("board")
 	session_bar.hide()
 	(continue_button if saved.ok else enter).grab_focus()
 

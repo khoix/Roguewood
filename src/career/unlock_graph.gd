@@ -21,6 +21,7 @@ extends RefCounted
 ## Pure data: no scene, file writes or Career state.
 const METRICS := {"strikes": ["career", "attempt"], "spares": ["career", "attempt"], "curved_strikes": ["career", "attempt"], "pin_materials": ["attempt"]}
 const KINDS := ["boss", "championship", "mastery"]
+const COSMETIC_MILESTONES := ["first_clears", "championships", "mastery"]
 
 ## The registry file, or {} if unreadable (build() then reports it).
 static func read(path: String) -> Dictionary:
@@ -34,7 +35,8 @@ static func read(path: String) -> Dictionary:
 ## pins}} from the League's content set. Returns {errors, gates, leagues,
 ## objectives, league_of_set, items_by_gate, availability}.
 static func build(registry: Dictionary, catalogue: Dictionary, sources: Dictionary) -> Dictionary:
-	var graph := {"errors": [], "gates": {}, "leagues": {}, "objectives": [], "league_of_set": {}, "items_by_gate": {}, "availability": {}, "counters": {}}
+	var graph := {"errors": [], "gates": {}, "leagues": {}, "objectives": [], "league_of_set": {}, "items_by_gate": {}, "availability": {}, "counters": {},
+		"rivals": {}, "cosmetics": []}
 	var errors: Array = graph.errors
 	if int(registry.get("schema_version", 0)) != 1:
 		errors.append("unlock registry needs schema_version 1")
@@ -86,6 +88,16 @@ static func build(registry: Dictionary, catalogue: Dictionary, sources: Dictiona
 			errors.append(objective.id + ": needs gates (at least one) and prerequisites")
 			continue
 		graph.objectives.append(objective)
+	# Club cosmetics (E16, design §16): milestone decorations with no gameplay effect.
+	for cosmetic in registry.get("cosmetics", []):
+		if not cosmetic is Dictionary or not claim.call(cosmetic.get("id"), "deco.", "cosmetic"):
+			continue
+		var needs: Variant = cosmetic.get("requires")
+		if not needs is Dictionary or needs.size() != 1 or needs.keys()[0] not in COSMETIC_MILESTONES or not (needs.values()[0] is float or needs.values()[0] is int) or int(needs.values()[0]) < 1:
+			errors.append("%s: requires one milestone count from %s" % [cosmetic.id, str(COSMETIC_MILESTONES)])
+		if not cosmetic.get("name") is String or String(cosmetic.name).is_empty():
+			errors.append(cosmetic.id + ": needs a name")
+		graph.cosmetics.append(cosmetic)
 	var counters: Variant = registry.get("counters", {})
 	graph.counters = counters if counters is Dictionary else {}
 	if not errors.is_empty():
@@ -108,6 +120,8 @@ static func build(registry: Dictionary, catalogue: Dictionary, sources: Dictiona
 		for gate in league.championship.gates:
 			award.call(gate, "championship", league_id)
 		for rival in sources.get(league_id, {}).get("rivals", []):
+			# Names for the Clubhouse (E16); provisional encounter fixtures get no plaque.
+			graph.rivals[rival.id] = {"name": rival.get("name", rival.id), "league": league_id, "plaque": not league.get("provisional_rivals", false)}
 			for gate in rival.get("first_clear", {}).get("unlocks", []):
 				award.call(gate, "boss", "%s:%s" % [league_id, rival.id])
 	for objective in graph.objectives:

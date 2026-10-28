@@ -9,7 +9,9 @@
       "content_set": "slice",
       "access": [],
       "championship": {
-        "gates": ["gate.house_champion"],
+        "gates": [
+          "gate.house_champion"
+        ],
         "text": "House League champion trophy for the Clubhouse shelf."
       }
     },
@@ -19,19 +21,50 @@
       "content_set": "campaign",
       "access": [],
       "championship": {
-        "gates": ["gate.house_campaign_champion"],
+        "gates": [
+          "gate.house_campaign_champion"
+        ],
         "text": "House Campaign champion trophy for the Clubhouse shelf."
-      }
+      },
+      "provisional_rivals": true
     }
   ],
   "gates": [
-    {"id": "gate.surveyor_cleared", "kind": "boss", "name": "The Surveyor cleared"},
-    {"id": "gate.custodian_cleared", "kind": "boss", "name": "The Custodian cleared"},
-    {"id": "gate.house_champion", "kind": "championship", "name": "House League champion"},
-    {"id": "gate.house_campaign_champion", "kind": "championship", "name": "House Campaign champion"},
-    {"id": "gate.mastery_spare_hand", "kind": "mastery", "name": "Spare Hand"},
-    {"id": "gate.mastery_true_curve", "kind": "mastery", "name": "True Curve"},
-    {"id": "gate.mastery_mixed_rack", "kind": "mastery", "name": "Mixed Rack"}
+    {
+      "id": "gate.surveyor_cleared",
+      "kind": "boss",
+      "name": "The Surveyor cleared"
+    },
+    {
+      "id": "gate.custodian_cleared",
+      "kind": "boss",
+      "name": "The Custodian cleared"
+    },
+    {
+      "id": "gate.house_champion",
+      "kind": "championship",
+      "name": "House League champion"
+    },
+    {
+      "id": "gate.house_campaign_champion",
+      "kind": "championship",
+      "name": "House Campaign champion"
+    },
+    {
+      "id": "gate.mastery_spare_hand",
+      "kind": "mastery",
+      "name": "Spare Hand"
+    },
+    {
+      "id": "gate.mastery_true_curve",
+      "kind": "mastery",
+      "name": "True Curve"
+    },
+    {
+      "id": "gate.mastery_mixed_rack",
+      "kind": "mastery",
+      "name": "Mixed Rack"
+    }
   ],
   "objectives": [
     {
@@ -42,7 +75,9 @@
       "threshold": 10,
       "scope": "career",
       "prerequisites": [],
-      "gates": ["gate.mastery_spare_hand"],
+      "gates": [
+        "gate.mastery_spare_hand"
+      ],
       "reward": "Spare Hand ribbon for the trophy shelf."
     },
     {
@@ -53,7 +88,9 @@
       "threshold": 3,
       "scope": "attempt",
       "prerequisites": [],
-      "gates": ["gate.mastery_true_curve"],
+      "gates": [
+        "gate.mastery_true_curve"
+      ],
       "reward": "True Curve ribbon for the trophy shelf."
     },
     {
@@ -64,12 +101,50 @@
       "threshold": 3,
       "scope": "attempt",
       "prerequisites": [],
-      "gates": ["gate.mastery_mixed_rack"],
+      "gates": [
+        "gate.mastery_mixed_rack"
+      ],
       "reward": "Mixed Rack ribbon for the trophy shelf."
     }
   ],
   "counters": {
-    "boss_rule.dead_straight": ["straight", "strike", "power", "precision", "retrigger"],
-    "boss_rule.clean_sweep": ["strike", "spare", "clearing"]
-  }
+    "boss_rule.dead_straight": [
+      "straight",
+      "strike",
+      "power",
+      "precision",
+      "retrigger"
+    ],
+    "boss_rule.clean_sweep": [
+      "strike",
+      "spare",
+      "clearing"
+    ]
+  },
+  "cosmetics": [
+    {
+      "id": "deco.club_sign",
+      "name": "Restored club sign",
+      "text": "The sign over the door lights up again.",
+      "requires": {
+        "first_clears": 1
+      }
+    },
+    {
+      "id": "deco.lane_trim",
+      "name": "Brass lane trim",
+      "text": "Polished trim along the lanes.",
+      "requires": {
+        "mastery": 1
+      }
+    },
+    {
+      "id": "deco.trophy_case",
+      "name": "Trophy case",
+      "text": "A glass case for your League titles.",
+      "requires": {
+        "championships": 1
+      }
+    }
+  ]
 }

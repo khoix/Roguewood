@@ -223,3 +223,19 @@ career_no_duplicate, career_practice and career_menu to `artifacts/e15/rendered`
 J09 also asserts that the campaign title is banked once, across its restarts and
 Endless. The schema 2 golden Career is `tests/fixtures/saves/v2/career.json`
 (`tools/make_save_fixture.gd -- --out=<dir> --career-v2`).
+
+## E16 Clubhouse and J11
+
+The menu is now the Clubhouse, with four tabs:
+- **League Board:** League and kit choice, Continue or Enter (Try Again once played), records, titles, followed goals and the latest unlocks.
+- **Binder:** every collectible as Locked, Available, Discovered or Mastered; inspect a card for what unlocks it and its history.
+- **Trophies:** titles, mastery ribbons, rival plaques and club decorations.
+- **Goals:** follow up to three.
+
+Art comes by asset ID from `assets/clubhouse/<id>.png`; until E16-ART delivers it, marked placeholders name each ID. The data comes from `src/clubhouse/clubhouse_model.gd` (unit-tested in `clubhouse_test`).
+
+`python3 tools/qa.py e2e --journey J11` runs two real engine processes on the production slice:
+1. Inspect Locked and Available cards, follow a goal, then win the House League on the J06 path. Mastered cards, unlocks and the shelf appear.
+2. After a restart, Try Again: buy a new Charm, lose, and see it Discovered with every reward kept. Then return to play.
+
+`--rendered` saves clubhouse_locked, clubhouse_goals, clubhouse_mastered, clubhouse_trophies, clubhouse_discovered and clubhouse_return to `artifacts/e16/rendered`.

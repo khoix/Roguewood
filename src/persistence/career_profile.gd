@@ -19,6 +19,8 @@ extends RefCounted
 ##                  best_total, best_frame, practice_best_frame, wins}
 ##   items          item id -> {first_attempt, attempts, league_wins, last_attempt,
 ##                  last_win}: discovered items and their history
+##   tracked        up to three objective ids the player follows (E16; optional,
+##                  added by normalized(); empty means the first three open goals)
 ##
 ## Every award is banked the moment it is earned, before the attempt snapshot
 ## records the step that earned it, and every update is idempotent: a gate is held
@@ -32,7 +34,7 @@ const COUNTED := ["strikes", "spares", "curved_strikes"]
 
 static func fresh() -> Dictionary:
 	return {"first_clears": {}, "unlocked": [], "awards": {}, "intros_seen": {}, "attempts": 0, "championships": {},
-		"mastery": {}, "totals": {}, "tally": {}, "records": {}, "items": {}}
+		"mastery": {}, "totals": {}, "tally": {}, "records": {}, "items": {}, "tracked": []}
 
 ## Fills missing keys (and drops unknown ones) so older in-memory records fit.
 static func normalized(data: Dictionary) -> Dictionary:
@@ -56,7 +58,7 @@ static func validate(data: Variant) -> Array[String]:
 		errors.append("not a record")
 		return errors
 	for key in fresh():
-		if not data.has(key):
+		if not data.has(key) and key != "tracked": # tracked arrived within schema 2 (E16)
 			errors.append("missing " + key)
 	return errors
 
@@ -221,10 +223,16 @@ static func collection_state(career: Dictionary, item: Dictionary) -> String:
 static func gates_from(career: Dictionary, uid: int) -> Array:
 	return career.unlocked.filter(func(g): return int(career.awards.get(g, {}).get("career_attempt", -1)) == uid)
 
-## Up to three goals not yet complete, with progress, for results and the menu.
-static func goals(career: Dictionary, objectives: Array, uid: int, limit: int = 3) -> Array:
+const TRACK_LIMIT := 3
+
+## Up to three goals not yet complete, with progress, for results and the menu:
+## the tracked ones first (E16), then the first open ones.
+static func goals(career: Dictionary, objectives: Array, uid: int, limit: int = TRACK_LIMIT) -> Array:
 	var out: Array = []
-	for objective in objectives:
+	var ordered: Array = objectives.filter(func(o): return o.id in career.get("tracked", []) and not career.mastery.has(o.id))
+	if ordered.is_empty():
+		ordered = objectives
+	for objective in ordered:
 		if career.mastery.has(objective.id) or not objective.prerequisites.all(func(g): return g in career.unlocked):
 			continue
 		out.append({"id": objective.id, "name": objective.name, "text": objective.text, "progress": progress(career, objective, uid), "threshold": int(objective.threshold)})
@@ -240,3 +248,21 @@ static func summary(career: Dictionary, objectives: Array) -> String:
 	return "Career: %d rival%s cleared · %d championship%s · %d/%d mastery goals · %d attempt%s" % [career.first_clears.size(),
 		"" if career.first_clears.size() == 1 else "s", titles, "" if titles == 1 else "s", career.mastery.size(), objectives.size(),
 		int(career.attempts), "" if int(career.attempts) == 1 else "s"]
+
+## Tracks or untracks an objective (E16): at most TRACK_LIMIT, open goals only.
+## Returns "" or why it was refused.
+static func toggle_tracked(career: Dictionary, objective_id: String, objectives: Array) -> String:
+	if not career.has("tracked"):
+		career.tracked = []
+	if objective_id in career.tracked:
+		career.tracked.erase(objective_id)
+		return ""
+	if objectives.filter(func(o): return o.id == objective_id).is_empty():
+		return "unknown goal"
+	if career.mastery.has(objective_id):
+		return "already complete"
+	career.tracked = career.tracked.filter(func(id): return not career.mastery.has(id))
+	if career.tracked.size() >= TRACK_LIMIT:
+		return "You can follow %d goals at once; stop following one first." % TRACK_LIMIT
+	career.tracked.append(objective_id)
+	return ""
