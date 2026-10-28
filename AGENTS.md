@@ -15,7 +15,7 @@ per milestone. Existing milestone branches remain historical delivery references
 
 ## Multi-agent coordination
 
-- Art ownership (owner directive, 2026-10-28): Codex handles every remaining art component; Claude handles code, data and integration. Split milestones and the hand-off protocol are in docs/AI-HANDOFF.md, "Art ownership".
+- Ownership (owner directive, 2026-10-28): Codex handles every remaining art component plus E22 and E26 whole; Claude handles the content, rules, UI and release lanes. Lanes, split milestones, before/after hand-offs and Codex's parallel batches are in docs/AI-HANDOFF.md, "Ownership, lanes and hand-offs".
 
 - One coordinator owns docs/AI-HANDOFF.md, integration order, and shared contract changes. Workers own scoped task files and docs/handoffs/<task-id>.md only.
 - Coordinator commits/pushes a claim before dispatch: owner, reviewer, dependencies, explicit item scope, exclusive paths, base SHA, and branch.
