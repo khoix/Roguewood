@@ -15,7 +15,7 @@ per milestone. Existing milestone branches remain historical delivery references
 
 ## Multi-agent coordination
 
-- Ownership (owner directive, 2026-10-28): Codex handles every remaining art component plus E22 and E26 whole; Claude handles the content, rules, UI and release lanes. Lanes, split milestones, before/after hand-offs and Codex's parallel batches are in docs/AI-HANDOFF.md, "Ownership, lanes and hand-offs".
+- Ownership (owner directive, 2026-10-28; re-planned the same day): Codex handles every art component (briefs, identity art, effects, audio, rivals, League themes) plus the asset audit; Claude handles content, rules, League configuration and integration, UI, platforms (E26) and release. The plan to release, by phase and wave, is docs/ROADMAP.md; lanes, split milestones and hand-offs are in docs/AI-HANDOFF.md, "Ownership, lanes and hand-offs".
 
 - Waves (owner directive, 2026-10-28): each wave is a fixed set of claims. The single merge path to main is `claude/roguewood-build`, merged after its "Wave N closed" commit passes CI. Codex pushes `codex/roguewood-build` for integration and opens no PRs to main. See docs/AI-HANDOFF.md, "Waves and merges".
 - One coordinator owns docs/AI-HANDOFF.md, integration order, and shared contract changes. Workers own scoped task files and docs/handoffs/<task-id>.md only.
