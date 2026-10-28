@@ -32,7 +32,8 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - E15 DONE (owner policy: completed implementation and verification; not yet merged to main): on `claude/roguewood-build` (implementation `2cdedb1` plus the result-line follow-up; base main `fd1d466`). Career schema 2 with a v1 migration and a golden v2 file; the unlock registry and validated graph (IDs, kinds, sources, loops, reachability, self-unlocks, starting counters); immediate idempotent banking of first clears, titles, mastery, records and discoveries; attempt pool snapshots; the practice policy; the menu summary and League access; J10 across three real processes. See decisions/010-career-and-unlock-graph.md and handoffs/E15.md.
 - Integration: the owner merged `claude/roguewood-build` at `06abb88` (E15 and the ownership plan) into main by PR #10 (`a65ed24`).
 - E16 core DONE: `b01fb4d` on `claude/roguewood-build`; full local matrix (J01–J11 headless and rendered) and CI 40616441249 PASS; see handoffs/E16.md. E16-ART is READY for Codex.
-- Active (Wave 2): Codex on E16-ART and E19-A08…A12 (D01 art). Wave 1 is complete and integrated (`be3b3e6`; see "Wave 1 result"). E17-D01 and its briefs are DONE. E17-D02 (12 Charms) is DONE (handoffs/E17-D02.md); E17-D02-ART is READY for Codex, to follow Wave 2. Next for Claude: E18-C01 (the seven expressible D02 Charms, Medium) or E17-D03, the owner's choice.
+- Integration: the owner merged PR #11 (Codex Wave 1, E16 core, E17-D01, the test fix) into main (`492f9f4`). Codex Wave 2 (`fcdb494`: E16-ART, E19-A08…A12) is reviewed and merged into `claude/roguewood-build`, along with main.
+- Active (Wave 3): Claude on E18-C01; Codex on E17-D02-ART (twelve Charm briefs, READY). E17-D01 and its briefs are DONE. E17-D02 (12 Charms) is DONE (handoffs/E17-D02.md); E17-D02-ART is READY for Codex, to follow Wave 2. Next for Claude: E18-C01 (the seven expressible D02 Charms, Medium) or E17-D03, the owner's choice.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
@@ -62,10 +63,10 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E13 — Vertical-slice integration | DONE (device play session blocked) | Claude | claude/roguewood-build (not yet merged) | 98cc2aa (with 5aac9d2, aea54e0); CI 40524506207 PASS; ADR 008; E13 handoff |
 | E14 — Seeded eight-Division progression | DONE | Codex | codex/roguewood-build | 71b2bd2; local unit/content/integration/physics, J01/J06/J07 and native J09 headless/rendered PASS; handoffs/E14.md |
 | E15 — Career persistence and unlock graph | DONE | Claude | claude/roguewood-build (not yet merged) | 2cdedb1 (+ 8c19905); local suites and J01–J10 headless/rendered PASS; CI 40577363221 and 40581437392 PASS; ADR 010; E15 handoff |
-| E16 — Clubhouse and collection UI | Core DONE · E16-ART CLAIMED (Codex, Wave 2) | Claude core · Codex E16-ART | claude/roguewood-build · codex/roguewood-build | Core b01fb4d; CI 40616441249 PASS; J11; handoffs/E16.md (Art hand-off) |
+| E16 — Clubhouse and collection UI | DONE (core and E16-ART) | Claude core · Codex E16-ART | claude/roguewood-build · codex/roguewood-build | Core b01fb4d; CI 40616441249 PASS; J11; handoffs/E16.md (Art hand-off) |
 | E17 — Catalogue and unlock authoring batches | IN_PROGRESS (D01, D01-ART, D02 DONE; D02-ART READY for Codex) | Claude definitions · Codex visual briefs | claude/roguewood-build · codex/roguewood-build | Split per batch; see Ownership |
 | E18 — Content mechanics batches | NOT_STARTED | Claude | claude/roguewood-build | Per E17 batch |
-| E19 — Final item artwork batches | IN_PROGRESS (A01–A07 DONE; A08–A12 CLAIMED) | Codex | codex/roguewood-build | Wave 1 integrated in `be3b3e6`; Wave 2 claim |
+| E19 — Final item artwork batches | IN_PROGRESS (A01–A12 DONE) | Codex | codex/roguewood-build | E13-S01 and E17-D01 identities; D02 art after its briefs |
 | E20 — Ability effects and audio batches | IN_PROGRESS (V01–V07 DONE) | Codex | codex/roguewood-build | E13-S01's 23 abilities; D01 effects wait for E18 |
 | E21 — Rival presentation batches | IN_PROGRESS (R01, R02 DONE) | Codex | codex/roguewood-build | Later rivals after E17 defines them |
 | E22 — League theme integration batches | NOT_STARTED | Codex (whole: art and integration) | codex/roguewood-build | Per League; needs E16 core and the League's content |
@@ -167,6 +168,20 @@ Claude's next step: E16 core (it unblocks E16-ART and E22), then E17-D01 onward.
   - The two Clubhouse test assertions it changed now check real art where the placeholder used to be; accepted.
   - Merged into `claude/roguewood-build` as `be3b3e6`, and every CI workflow command was re-run locally (recorded under Validation).
 - **Open PR #11** (`codex/roguewood-build` → main, mergeable) carries all of this plus Claude's E16 core, E17-D01 and the test fix. It is the owner's merge.
+
+## Wave 2 result (integrated by the coordinator, 2026-10-28)
+- **Codex delivered** (`fcdb494`, handoffs/WAVE2-CODEX.md):
+  - E16-ART: ten trophy, ribbon, plaque and decoration PNGs, the Clubhouse look, explicit binder states and a static E12 foil for Mastered. **E16 is DONE.**
+  - E19-A08…A12: identity art for the 11 D01 definitions. Their asset paths are in E17-D01.json; flags stay false until E18 lands each item and checks it in-game. D01 in-play assets are cosmetic scenes to attach to E18's real bodies; they never change collision, mass or score.
+- **Coordinator review:**
+  - Diff against `8322457`: E17-D01.json changes only the 52 asset paths.
+  - The clubhouse_test edit moves the missing-art fixture off `trophy.house`, which is now real art; accepted.
+  - No rules, catalogue, Career, bootstrap or clubhouse_model changes. qa.py and workflow edits are add-only.
+- **Re-run on the merged tree** (identical to Codex's head): unit, content, integration, J01, J03, J05, J11, J11ART (headless and rendered), J19A08 and J19A12 — PASS.
+
+## Wave 3 claims (coordinator: Claude, 2026-10-28)
+- **Codex: E17-D02-ART** (Medium). Briefs in `docs/art/briefs/E17-D02.md` for the 12 Charms in `content/catalogue/batches/E17-D02.json`, using `design.asset_ids`. Flag look-alikes: Banana Ball / Hook Artist, Plumb Line / House Favorite, Hot Streak / Turkey Club, Pin Counter / Flat Bonus. Then E19 art for these 12 (A13–A15, four Charms each) is READY; it may follow in the same session with paths in E17-D02.json only.
+- **Claude: E18-C01** (Medium). Land the seven expressible D02 Charms (pin_counter, hot_streak, last_stand, tip_jar, banana_ball, plumb_line, glass_cutter) into content/catalogue.json with mechanics, tests and in-game evidence. Glass Cutter depends on Glass Pin (D01, which needs a new primitive), so it stays in its batch until Glass lands; C01 lands six.
 
 ## Wave 2 claims (coordinator: Claude, 2026-10-28)
 **Codex** (on `codex/roguewood-build`, from its own head; merge `origin/claude/roguewood-build` first):
