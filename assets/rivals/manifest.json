@@ -1,0 +1,46 @@
+{
+  "rival.surveyor": {
+    "source": "res://assets/rivals/surveyor.png",
+    "rule": "boss_rule.dead_straight",
+    "reward": "charm.encore",
+    "lane": "alignment",
+    "regions": [
+      [
+        0,
+        0,
+        512,
+        512
+      ],
+      [
+        512,
+        0,
+        512,
+        512
+      ],
+      [
+        1024,
+        0,
+        512,
+        512
+      ],
+      [
+        0,
+        512,
+        534,
+        512
+      ],
+      [
+        534,
+        512,
+        490,
+        512
+      ],
+      [
+        1024,
+        512,
+        512,
+        512
+      ]
+    ]
+  }
+}

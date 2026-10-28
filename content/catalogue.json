@@ -1216,8 +1216,8 @@
         "card": "res://assets/items/rules/dead_straight-card.tres",
         "in_play": "res://assets/items/rules/dead_straight-card.tres",
         "rarity_treatment": "res://assets/items/rules/dead_straight-frame.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/dead_straight.tres",
+        "sound": "res://assets/audio/dead_straight.wav",
         "reduced_motion": "res://assets/items/rules/dead_straight-card.tres"
       },
       "completeness": {
@@ -1225,7 +1225,7 @@
         "mechanics": true,
         "automated_validation": true,
         "artwork": true,
-        "effects_audio": false,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }

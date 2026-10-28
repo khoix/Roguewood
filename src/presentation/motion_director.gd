@@ -3,6 +3,8 @@ extends Control
 const ItemAssets = preload("res://src/presentation/item_assets.gd")
 var lab: Control
 var equipment_art: HBoxContainer
+var sound: Node
+var abilities: Node
 var rival: TextureRect
 var reaction: Label
 var reaction_state := 0
@@ -24,6 +26,9 @@ func _ready() -> void:
 	name = "MotionDirector"
 	set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	mouse_filter=MOUSE_FILTER_IGNORE
+	sound = preload("res://src/presentation/presentation_audio.gd").new()
+	sound.lab = lab
+	add_child(sound)
 	equipment_art = preload("res://src/presentation/equipment_art_strip.gd").new()
 	equipment_art.lab = lab
 	add_child(equipment_art)
@@ -41,10 +46,13 @@ func _ready() -> void:
 	add_child(reaction)
 	set_reaction(0,_line("entrance"))
 	lab.frame_scored.connect(_scored)
+	abilities = preload("res://src/presentation/ability_director.gd").new()
+	abilities.lab = lab
+	add_child(abilities)
 
 ## Only rivals with an original portrait appear here (E13): The Custodian's atlas.
 ## Other rivals (The Surveyor) wait for their E21 art and keep the HUD bubble only.
-const PORTRAITS := ["rival.lab_custodian", "rival.custodian"]
+const PORTRAITS := ["rival.lab_custodian"]
 
 ## The Division's rival (previewed before the boss match; practice shows the first
 ## Division's), or {}.
@@ -77,6 +85,8 @@ func _process(delta: float) -> void:
 	# The HUD already previews the Division's boss. Resolve artwork from its stable
 	# rule ID without parsing labels or changing any active rule/target.
 	var boss := _rival()
+	if lab.division.is_boss():
+		preload("res://src/presentation/rival_lane_art.gd").dress(lab.lane, boss.get("id", ""))
 	var badge_art := ItemAssets.slot(String(boss.get("rule", "")), "in_play") as Texture2D
 	if lab.hud.badge.icon != badge_art:
 		lab.hud.badge.icon = badge_art

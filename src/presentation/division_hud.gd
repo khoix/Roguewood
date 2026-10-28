@@ -3,7 +3,9 @@ extends Control
 ## an inspectable rule/boss badge, a rival reaction bubble that never takes input,
 ## a skippable rival introduction, and the attempt result with Retry and Clubhouse.
 ## A view only: the lab and the pure DivisionRun own every rule and number.
-## Developmental portrait (a drawn badge); final rival art and animation are E21.
+## E21 portraits resolve exact authored rival IDs; lab badges remain developmental.
+const RivalArt = preload("res://src/presentation/rival_art.gd")
+const ItemArt = preload("res://src/presentation/item_assets.gd")
 signal intro_done
 signal endless_pressed
 signal retry_pressed
@@ -31,6 +33,10 @@ var result_body: Label
 var endless_button: Button
 var retry_button: Button
 var menu_button: Button
+var result_portrait: Portrait
+var intro_reward: TextureRect
+var result_reward: TextureRect
+var current_rival: Dictionary = {}
 var reduced_motion := false
 var intro_remaining := 0.0
 
@@ -39,7 +45,16 @@ class Portrait extends Control:
 	var color := Color(0.6, 0.8, 1.0)
 	var initials := ""
 	var mood := "entrance"
+	var texture: Texture2D
+	var still := false
+	var age := 0.0
+	func _process(delta: float) -> void:
+		age += delta
+		if texture != null and visible: queue_redraw()
 	func _draw() -> void:
+		if texture != null:
+			draw_texture_rect(texture, Rect2(Vector2(0, 0 if still else roundf(sin(age * 1.8))), size), false)
+			return
 		var r: float = minf(size.x, size.y) * 0.5
 		var c := size * 0.5
 		draw_circle(c, r, color.darkened(0.55))
@@ -107,6 +122,7 @@ func _ready() -> void:
 	reaction_portrait = Portrait.new()
 	reaction_portrait.custom_minimum_size = Vector2(72, 72)
 	reaction_portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	reaction_portrait.texture_filter = TEXTURE_FILTER_NEAREST
 	reaction_row.add_child(reaction_portrait)
 	reaction_text = Label.new()
 	reaction_text.name = "ReactionText"
@@ -121,11 +137,19 @@ func _ready() -> void:
 	intro_portrait.custom_minimum_size = Vector2(180, 180)
 	intro_portrait.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	intro_box.add_child(intro_portrait)
+	intro_portrait.texture_filter = TEXTURE_FILTER_NEAREST
+	intro_reward = _reward(intro_box)
 	intro_title = _label(intro_box, "IntroTitle", 34)
 	intro_body = _label(intro_box, "IntroBody", 22)
 	intro_button = _button(intro_box, "IntroBegin", "Begin", func(): _finish_intro())
 	result = _sheet("AttemptResult")
 	var result_box: VBoxContainer = result.get_child(0)
+	result_portrait = Portrait.new()
+	result_portrait.custom_minimum_size = Vector2(96,96)
+	result_portrait.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	result_portrait.texture_filter = TEXTURE_FILTER_NEAREST
+	result_box.add_child(result_portrait)
+	result_reward = _reward(result_box)
 	result_title = _label(result_box, "ResultTitle", 36)
 	var result_scroll := ScrollContainer.new()
 	result_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -211,15 +235,24 @@ func hide_reaction() -> void:
 	reaction.hide()
 
 func _portrait(portrait: Portrait, rival: Dictionary, mood: String) -> void:
+	current_rival = rival
+	portrait.texture = RivalArt.portrait(rival.get("id", ""), mood)
 	portrait.color = Color.from_string(rival.get("color", "#9fd8ff"), Color(0.6, 0.8, 1.0))
 	portrait.initials = rival.get("initials", "")
 	portrait.mood = mood
+	portrait.still = reduced_motion
+	portrait.age = 0
 	portrait.queue_redraw()
 
 ## The rival's entrance. Skippable at once; it advances on its own after a few
 ## seconds (shorter once the rival has been met). Reduced motion: no fade.
 func show_intro(rival: Dictionary, target: int, rule_summary: String, reward: String, seen_before: bool) -> void:
 	_portrait(intro_portrait, rival, "entrance")
+	intro_reward.texture = ItemArt.slot(RivalArt.entry(rival.get("id", "")).get("reward", ""), "icon")
+	intro_reward.visible = intro_reward.texture != null
+	intro_button.icon = ItemArt.slot(rival.get("rule", ""), "icon")
+	intro_button.expand_icon = true
+	intro_button.add_theme_constant_override("icon_max_width",32)
 	intro_title.text = "Boss: %s" % rival.name
 	var body := "Posted target %d in two frames.\n%s\nFirst clear: %s" % [target, rule_summary, reward]
 	if not seen_before:
@@ -234,6 +267,14 @@ func show_intro(rival: Dictionary, target: int, rule_summary: String, reward: St
 	intro_button.grab_focus()
 
 func _process(delta: float) -> void:
+	var compact := size.x > size.y
+	intro_portrait.custom_minimum_size = Vector2(72,72) if compact else Vector2(180,180)
+	intro.get_child(0).add_theme_constant_override("separation", 4 if compact else 12)
+	intro_body.add_theme_font_size_override("font_size", 16 if compact else 22)
+	intro_title.add_theme_font_size_override("font_size", 24 if compact else 34)
+	result_portrait.custom_minimum_size = Vector2(48,48) if compact else Vector2(96,96)
+	result.get_child(0).add_theme_constant_override("separation",4 if compact else 12)
+	for portrait in [intro_portrait, reaction_portrait, result_portrait]: portrait.still = reduced_motion
 	if intro.visible:
 		intro_remaining -= delta
 		if intro_remaining <= 0.0:
@@ -246,6 +287,10 @@ func _finish_intro() -> void:
 	intro_done.emit()
 
 func show_result(title: String, body: String, won: bool, retry_label: String = "Retry Division") -> void:
+	_portrait(result_portrait, current_rival, "defeated" if won else "victorious")
+	result_portrait.visible = result_portrait.texture != null
+	result_reward.texture = ItemArt.slot(RivalArt.entry(current_rival.get("id", "")).get("reward", ""), "icon")
+	result_reward.visible = won and result_reward.texture != null
 	result_title.text = title
 	result_body.text = body
 	retry_button.text = "New Attempt" if won else retry_label
@@ -259,3 +304,15 @@ func hide_result() -> void:
 ## Controls that take touches (the lab ignores throws over them).
 func blocking_controls() -> Array:
 	return [bar, rule_panel, intro, result]
+
+func _reward(parent: Node) -> TextureRect:
+	var icon := TextureRect.new()
+	icon.name = "RewardIdentity"
+	icon.custom_minimum_size = Vector2(40,40)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture_filter = TEXTURE_FILTER_NEAREST
+	icon.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(icon)
+	return icon

@@ -4,6 +4,7 @@ extends PanelContainer
 ## time at 1×/2×/4× (Skip shows everything). It only replays ScoreLog steps copied
 ## from the resolver, so nothing here can change the banked score.
 ## Developmental look; final presentation, VFX and audio are E12/E20.
+signal step_revealed(step: Dictionary, index: int, skipped: bool)
 signal finished
 signal speed_changed(speed: int)
 const Lane = preload("res://src/simulation/lane_spec.gd")
@@ -29,21 +30,26 @@ var skip_button: Button
 var _roll_of: Dictionary = {}
 var _standing: Array = []
 var _timer := 0.0
+var _skipping := false
 
 func _ready() -> void:
 	name = "ScorePanel"
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.04, 0.03, 0.08, 0.9)
+	style.bg_color = Color(0.04, 0.03, 0.08, 0.98)
 	style.set_corner_radius_all(12)
 	style.set_content_margin_all(16)
 	add_theme_stylebox_override("panel", style)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 8)
 	add_child(box)
+	var header_row := HBoxContainer.new()
+	header_row.custom_minimum_size.y = 64
+	box.add_child(header_row)
 	header = Label.new()
 	header.name = "ScoreHeader"
 	header.add_theme_font_size_override("font_size", 30)
-	box.add_child(header)
+	header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header_row.add_child(header)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 16)
 	box.add_child(row)
@@ -115,6 +121,7 @@ func _reveal() -> void:
 		_finish()
 		return
 	var step: Dictionary = steps[shown]
+	step_revealed.emit(step, shown, _skipping)
 	var line := Label.new()
 	line.text = "%s  %s" % [step.symbol, step.text] if not step.symbol.is_empty() else step.text
 	line.add_theme_font_size_override("font_size", 22)
@@ -146,8 +153,10 @@ func _scroll_to_end() -> void:
 		log_scroll.scroll_vertical = int(log_scroll.get_v_scroll_bar().max_value)
 
 func skip() -> void:
+	_skipping = true
 	while playing:
 		_reveal()
+	_skipping = false
 
 func _finish() -> void:
 	if not playing:
