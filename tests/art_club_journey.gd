@@ -7,8 +7,12 @@ func _capture(label: String) -> void:
 	for id in CLUB_IDS:
 		_check(club.Art.has_art(id), "final Clubhouse resource " + id)
 	if club.current_tab == "binder":
+		# Delivered art only: items whose catalogue artwork flag is set (coordinator scope fix for E18-C01's new Charms).
+		var delivered := {}
+		for item in scene.career_graph.catalogue.items:
+			if item.completeness.artwork: delivered["Binder_" + item.id.replace(".", "_")] = true
 		for card in club.binder_grid.get_children():
-			_check(card.icon != null, "binder identity " + card.name)
+			if delivered.has(String(card.name)): _check(card.icon != null, "binder identity " + card.name)
 			_check(card.text.contains("Locked") or card.text.contains("Available") or card.text.contains("Discovered") or card.text.contains("Mastered"), "state remains explicit without color")
 		if label == "clubhouse_mastered":
 			var art = club.binder_art.get_child(0)

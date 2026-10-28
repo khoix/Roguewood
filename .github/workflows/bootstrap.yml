@@ -58,6 +58,8 @@ jobs:
           xvfb-run -a python3 tools/qa.py e2e --journey J09 --rendered
           python3 tools/qa.py e2e --journey J10
           xvfb-run -a python3 tools/qa.py e2e --journey J10 --rendered
+          python3 tools/qa.py e2e --journey J03C01
+          xvfb-run -a python3 tools/qa.py e2e --journey J03C01 --rendered
           python3 tools/qa.py e2e --journey J11
           xvfb-run -a python3 tools/qa.py e2e --journey J11 --rendered
           python3 tools/qa.py e2e --journey J08
@@ -185,10 +187,11 @@ jobs:
             artifacts/e20-v02/
             artifacts/e20-v01/
             artifacts/e16/
-          if-no-files-found: warn
+            artifacts/e18-c01/
             artifacts/e16-art/
             artifacts/e19-a08/
             artifacts/e19-a09/
             artifacts/e19-a10/
             artifacts/e19-a11/
             artifacts/e19-a12/
+          if-no-files-found: warn

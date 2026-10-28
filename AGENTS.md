@@ -17,6 +17,7 @@ per milestone. Existing milestone branches remain historical delivery references
 
 - Ownership (owner directive, 2026-10-28): Codex handles every remaining art component plus E22 and E26 whole; Claude handles the content, rules, UI and release lanes. Lanes, split milestones, before/after hand-offs and Codex's parallel batches are in docs/AI-HANDOFF.md, "Ownership, lanes and hand-offs".
 
+- Waves (owner directive, 2026-10-28): each wave is a fixed set of claims. The single merge path to main is `claude/roguewood-build`, merged after its "Wave N closed" commit passes CI. Codex pushes `codex/roguewood-build` for integration and opens no PRs to main. See docs/AI-HANDOFF.md, "Waves and merges".
 - One coordinator owns docs/AI-HANDOFF.md, integration order, and shared contract changes. Workers own scoped task files and docs/handoffs/<task-id>.md only.
 - Coordinator commits/pushes a claim before dispatch: owner, reviewer, dependencies, explicit item scope, exclusive paths, base SHA, and branch.
 - E01 establishes <agent_name>/roguewood-build without inventing an agent name. Keep that integration branch across sessions. Worker branches/worktrees derive from a recorded integration SHA; resume their exact names later.

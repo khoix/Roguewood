@@ -8,7 +8,9 @@ extends RefCounted
 ##
 ## Batches never enter content/catalogue.json, a shop pool, the binder or a save;
 ## E18 moves each item into the catalogue when its mechanics land (completeness
-## mechanics then becomes true). validate() checks every batch against the shipped
+## mechanics then becomes true) and keeps its design block in the batch under
+## `landed: [{id, landed_in, design}]`, so the trigger text, presentation needs and
+## asset IDs stay with the batch while the item itself lives only in the catalogue. validate() checks every batch against the shipped
 ## catalogue and the prospective unlock graph, so an authored unlock that would be
 ## unreachable, circular or self-unlocking is refused now, not after art is made.
 const Contracts = preload("res://src/contracts/contracts.gd")
@@ -60,8 +62,12 @@ static func validate(batches: Array, catalogue: Dictionary, graph_errors: Array 
 		if data.get("batch") != label.get_basename() or not RegEx.create_from_string("^E17-D\\d\\d$").search(String(data.get("batch", ""))):
 			errors.append(label + ": batch id must be E17-Dxx and match the file name")
 		var definitions: Array = data.get("definitions", [])
-		if definitions.is_empty() or definitions.size() > BATCH_LIMIT:
+		var landed: Array = data.get("landed", [])
+		if definitions.size() + landed.size() == 0 or definitions.size() + landed.size() > BATCH_LIMIT:
 			errors.append("%s: 1 to %d definitions" % [label, BATCH_LIMIT])
+		for entry in landed:
+			if not entry is Dictionary or not shipped.has(entry.get("id")) or not RegEx.create_from_string("^E18-C\\d\\d$").search(str(entry.get("landed_in", ""))) or not entry.get("design") is Dictionary:
+				errors.append("%s: a landed entry names a catalogue item, its E18-Cxx batch and its design: %s" % [label, str(entry.get("id") if entry is Dictionary else entry)])
 		for definition in definitions:
 			errors.append_array(_definition(definition, shipped, signatures, label))
 	# Schema, IDs, prefixes, triggers and incompatibilities as one prospective catalogue.
@@ -145,6 +151,16 @@ static func counts(catalogue: Dictionary, batches: Array) -> Dictionary:
 	return out
 
 ## New effect primitives the batches need, with the items needing each (for E18).
+## Design blocks by item ID, for authored and landed definitions alike.
+static func designs(batches: Array) -> Dictionary:
+	var out := {}
+	for batch in batches:
+		for definition in batch.data.get("definitions", []):
+			out[definition.item.id] = definition.design
+		for entry in batch.data.get("landed", []):
+			out[entry.id] = entry.design
+	return out
+
 static func primitives(batches: Array) -> Dictionary:
 	var out := {}
 	for batch in batches:

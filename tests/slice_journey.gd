@@ -20,7 +20,9 @@ const STRIKE := [0.1, 0.0, 0.7]
 const LEAVE := [-0.4, 0.0, 0.6]
 const GUTTER := [0.8, 2.0, 0.6]
 ## Charms the journey buys when offered and affordable, best first.
-const WANTED := ["charm.flat_bonus", "charm.finisher", "charm.house_favorite", "charm.turkey_club", "charm.last_chance", "charm.spare_change", "charm.patient_investor"]
+## E18-C01's Pin Counter, Plumb Line and Hot Streak suit the journey's straight strikes.
+const WANTED := ["charm.flat_bonus", "charm.finisher", "charm.pin_counter", "charm.plumb_line", "charm.hot_streak", "charm.house_favorite", "charm.turkey_club",
+	"charm.last_chance", "charm.spare_change", "charm.patient_investor"]
 var failures: Array[String] = []
 var artifact_dir := ""
 var scene: Control
