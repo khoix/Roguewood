@@ -1,0 +1,9 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+[ext_resource type="Script" path="res://src/presentation/ability_style.gd" id="1"]
+[resource]
+script = ExtResource("1")
+item_id = "charm.pin_counter"
+shape = "tally"
+ink = Color(0.9098039215686274, 0.8470588235294118, 0.6666666666666666, 1)
+duration = 0.55
+priority = 2

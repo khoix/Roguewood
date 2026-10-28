@@ -46,6 +46,9 @@ func _ready() -> void:
 	add_child(reaction)
 	set_reaction(0,_line("entrance"))
 	lab.frame_scored.connect(_scored)
+	var glass := preload("res://src/presentation/glass_presentation.gd").new()
+	glass.lab = lab
+	add_child(glass)
 	abilities = preload("res://src/presentation/ability_director.gd").new()
 	abilities.lab = lab
 	add_child(abilities)
