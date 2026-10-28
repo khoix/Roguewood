@@ -112,3 +112,11 @@ func cue(id: String, stream: AudioStream, priority: int = 1) -> void:
 
 func _process(_delta: float) -> void:
 	if not lab.settings_panel.visible: panel.hide()
+
+func _exit_tree() -> void:
+	# Release active mixer references before SceneTree teardown, including Dummy
+	# audio under fixed-fps journeys that can finish before a sound's wall time.
+	for voice in voices:
+		if is_instance_valid(voice):
+			voice.stop()
+			voice.stream = null
