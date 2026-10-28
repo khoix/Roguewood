@@ -95,3 +95,5 @@ static reduced slots use the same identities. Charms verified in actual shop and
 binder; rule badges verified by stable rule ID through both complete slice
 encounters. Artwork true, effects/audio separate. No external material or
 exclusive-rights/clearance claim; phone readability stays E26.
+
+| E19-A07 kit.house | Original generated pixel illustration; no external reference | `assets/items/sources/e19-a07.png`; unchanged transparent source, AtlasTexture views | `docs/art/briefs/E19-A07-prompt.txt` | SHA-256 `62c3b4e3f5439fe9ec4d37ae425e3b7231f208a860cf03eb095a4ca40499f6a5` | Native binder/equipment/reduced and 192/48px contact inspected |

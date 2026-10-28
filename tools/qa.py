@@ -58,6 +58,8 @@ JOURNEYS["J08A06"] = ("res://tests/item_art_journey.gd", "ROGUEWOOD_ITEM_ART_OK"
                        ("equipped", "reduced", "scored", "landscape"), 600, ["--fixed-fps", "60"])
 JOURNEYS["J08A06R"] = ("res://tests/rule_art_journey.gd", "ROGUEWOOD_J06_STAGE1_OK", "artifacts/e19-a06/rules",
                        ("slice_preview", "slice_dead_straight", "slice_clean_sweep", "slice_won"), 900, ["--fixed-fps", "60"])
+JOURNEYS["J08A07"] = ("res://tests/item_art_journey.gd", "ROGUEWOOD_ITEM_ART_OK", "artifacts/e19-a07/native",
+                       ("equipped", "reduced", "scored", "landscape", "kit_house_binder"), 600, ["--fixed-fps", "60"])
 # Content set per journey (E13, ADR 008): mechanism journeys keep the lab fixtures;
 # the shell journey and J06 stage 1 play the production slice (the game's default).
 CONTENT = {"J09": "slice", "J02": "lab", "J03": "lab", "J04": "lab", "J05": "lab", "J07": "lab", "J08": "lab"}

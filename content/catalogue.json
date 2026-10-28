@@ -1298,19 +1298,19 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
+        "icon": "res://assets/items/kits/house-card.tres",
+        "card": "res://assets/items/kits/house-card.tres",
+        "in_play": "res://assets/items/kits/house-card.tres",
+        "rarity_treatment": "res://assets/items/kits/house-frame.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/kits/house-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
+        "artwork": true,
         "effects_audio": false,
         "unlock_assigned": true,
         "integrated": false

@@ -66,6 +66,10 @@ func _run() -> void:
 		if id.begins_with("charm."):
 			var panel: Node = lab.motion.equipment_art.get_node_or_null(id.replace(".", "_"))
 			_check(panel != null and panel.get_node("Body/Identity").texture == Assets.slot(id, "in_play"), "equipped charm identity: " + id)
+	for id in ids:
+		if String(id).begins_with("kit."):
+			var marker: Node = lab.motion.equipment_art.get_node_or_null(String(id).replace(".", "_"))
+			_check(marker != null and marker.get_node("Body/Identity").texture == Assets.slot(id, "in_play"), "actual starting-kit marker")
 	for position in lab.lane.pins:
 		var id: String = lab.run.rack[position].item_id
 		_check(lab.lane.pins[position].get_meta("art_item_id", "") == id, "actual physical pin identity")

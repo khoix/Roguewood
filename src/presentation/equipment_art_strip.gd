@@ -13,6 +13,8 @@ func _process(_delta: float) -> void:
 	if lab.run == null: return
 	visible = lab.state in ["aim", "holding", "rolling", "result", "frame_done"] and not lab.settings_panel.visible and not lab.score_panel.visible and not lab.hud.reaction.visible
 	var ids: Array = lab.run.charms.map(func(entry): return String(entry.item_id))
+	var kit_id: String = lab.content.get("kit", {}).get("id", "")
+	if Assets.slot(kit_id, "in_play") is Texture2D: ids.push_front(kit_id)
 	var signature := str(ids)
 	if signature != _signature:
 		_signature = signature

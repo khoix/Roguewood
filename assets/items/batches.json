@@ -34,5 +34,8 @@
     "charm.standing_order",
     "boss_rule.dead_straight",
     "boss_rule.clean_sweep"
+  ],
+  "E19-A07": [
+    "kit.house"
   ]
 }

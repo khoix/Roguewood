@@ -24,7 +24,7 @@ func _capture() -> void:
 	for i in ids.size():
 		var id: String = ids[i]
 		var panel := PanelContainer.new()
-		panel.position = Vector2(16 + i * 316, 20)
+		panel.position = Vector2(490 if ids.size() == 1 else 16 + i * 316, 20)
 		panel.size = Vector2(300, 680)
 		panel.add_theme_stylebox_override("panel", Assets.slot(id, "rarity_treatment"))
 		canvas.add_child(panel)
