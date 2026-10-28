@@ -201,3 +201,12 @@ in its preview; reduced motion retains the static unshaded identity.
 | E19-A15 `charm.back_row` | `assets/items/d02/source.charm.back_row.png`; `assets/items/d02/source.charm.back_row.txt` | `d1d6a0a4a5da05000dd387207e9bc27f9fb098ad7e35feb15c214e799e0e872f` | 192px card / 48px color, gray and silhouette; authored only; native check after E18 |
 | E19-A15 `charm.underdog` | `assets/items/d02/source.charm.underdog.png`; `assets/items/d02/source.charm.underdog.txt` | `5e299864fe901c59ac6d44e519b439f16344e8e22007e1df82e6c08cff4346d7` | 192px card / 48px color, gray and silhouette; authored only; native check after E18 |
 | E19-A15 `charm.crown_jewel` | `assets/items/d02/source.charm.crown_jewel.png`; `assets/items/d02/source.charm.crown_jewel.txt` | `880d6b479cf49b2baa75e9296bfed431b1ce620e2d151d2f1537c80bcc84de88` | 192px card / 48px color, gray and silhouette; authored only; native check after E18 |
+
+## Wave 4 — Glass native integration
+
+E19-A16 reuses `source.pin.glass.png` and the five D01 identity resources
+recorded above; no new or modified source image. `in_play.pin.glass` now attaches
+under the actual pin body. The read-only saved break-row observer restores Wood
+at the same body/slot. Native shop, inventory summary, binder, real Glass rack,
+post-break and restored next-rack views: `artifacts/e19-a16/native/`. Diagnostic
+close views use the same live bodies with a test-only camera move.

@@ -162,6 +162,10 @@ jobs:
             python3 tools/qa.py e2e --journey "$batch"
             xvfb-run -a python3 tools/qa.py e2e --journey "$batch" --rendered
           done
+      - name: Wave 4 Glass Pin identity
+        run: |
+          python3 tools/qa.py e2e --journey J19A16
+          xvfb-run -a python3 tools/qa.py e2e --journey J19A16 --rendered
       - name: Preserve journey diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -206,4 +210,5 @@ jobs:
             artifacts/e19-a13/
             artifacts/e19-a14/
             artifacts/e19-a15/
+            artifacts/e19-a16/
           if-no-files-found: warn

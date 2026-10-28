@@ -14,6 +14,8 @@ ROOT = Path(__file__).resolve().parents[1]
 VERSION = (ROOT / ".godot-version").read_text().strip()
 # journey -> script, success marker, artifact directory, rendered captures, timeout, extra engine flags
 JOURNEYS = {
+    "J19A16": ("res://tests/glass_art_journey.gd", "ROGUEWOOD_GLASS_ART_OK", "artifacts/e19-a16/native",
+        ("glass_shop", "glass_inventory", "glass_rack", "glass_rack_detail", "glass_reduced", "glass_landscape", "glass_break", "glass_break_detail", "glass_binder", "glass_restored", "glass_next_rack"), 900, ["--fixed-fps", "60"]),
     "J03C02": ("res://tests/glass_c02_journey.gd", "ROGUEWOOD_J03C02_OK", "artifacts/e18-c02", ("c02_breaks", "c02_reloaded", "c02_second"), 600, ["--fixed-fps", "60"]),
     "J03C01": ("res://tests/charm_c01_journey.gd", "ROGUEWOOD_J03C01_OK", "artifacts/e18-c01", ("c01_strike", "c01_streak", "c01_spare", "c01_open"), 600, ["--fixed-fps", "60"]),
     "J11": ("res://tests/clubhouse_journey.gd", "ROGUEWOOD_J11_OK", "artifacts/e16",
