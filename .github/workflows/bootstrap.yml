@@ -188,10 +188,10 @@ jobs:
             artifacts/e20-v01/
             artifacts/e16/
             artifacts/e18-c01/
-          if-no-files-found: warn
             artifacts/e16-art/
             artifacts/e19-a08/
             artifacts/e19-a09/
             artifacts/e19-a10/
             artifacts/e19-a11/
             artifacts/e19-a12/
+          if-no-files-found: warn
