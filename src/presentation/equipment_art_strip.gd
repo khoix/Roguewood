@@ -23,6 +23,10 @@ func _process(_delta: float) -> void:
 			child.queue_free()
 		for id in ids:
 			var texture := Assets.slot(id, "in_play") as Texture2D
+			# Authored Charm contracts have an icon, not a separate in-play slot.
+			# Reuse that identity in the hand-free inventory without inventing an ID.
+			if texture == null and String(id).begins_with("charm."):
+				texture = Assets.slot(id, "icon") as Texture2D
 			if texture == null: continue
 			var panel := PanelContainer.new()
 			panel.name = id.replace(".", "_")

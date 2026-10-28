@@ -40,13 +40,13 @@
         ],
         "incompatibilities": [],
         "assets": {
-          "icon": "",
-          "card": "",
+          "icon": "res://assets/items/d02/icon.charm.glass_cutter.tres",
+          "card": "res://assets/items/d02/card.charm.glass_cutter.tres",
           "in_play": "",
-          "rarity_treatment": "",
+          "rarity_treatment": "res://assets/items/d02/rarity_treatment.charm.glass_cutter.tres",
           "activation": "",
           "sound": "",
-          "reduced_motion": ""
+          "reduced_motion": "res://assets/items/d02/reduced_motion.charm.glass_cutter.tres"
         },
         "completeness": {
           "authored": true,
@@ -103,13 +103,13 @@
         ],
         "incompatibilities": [],
         "assets": {
-          "icon": "",
-          "card": "",
+          "icon": "res://assets/items/d02/icon.charm.split_specialist.tres",
+          "card": "res://assets/items/d02/card.charm.split_specialist.tres",
           "in_play": "",
-          "rarity_treatment": "",
+          "rarity_treatment": "res://assets/items/d02/rarity_treatment.charm.split_specialist.tres",
           "activation": "",
           "sound": "",
-          "reduced_motion": ""
+          "reduced_motion": "res://assets/items/d02/reduced_motion.charm.split_specialist.tres"
         },
         "completeness": {
           "authored": true,
@@ -166,13 +166,13 @@
         ],
         "incompatibilities": [],
         "assets": {
-          "icon": "",
-          "card": "",
+          "icon": "res://assets/items/d02/icon.charm.sweet_spot.tres",
+          "card": "res://assets/items/d02/card.charm.sweet_spot.tres",
           "in_play": "",
-          "rarity_treatment": "",
+          "rarity_treatment": "res://assets/items/d02/rarity_treatment.charm.sweet_spot.tres",
           "activation": "",
           "sound": "",
-          "reduced_motion": ""
+          "reduced_motion": "res://assets/items/d02/reduced_motion.charm.sweet_spot.tres"
         },
         "completeness": {
           "authored": true,
@@ -229,13 +229,13 @@
         ],
         "incompatibilities": [],
         "assets": {
-          "icon": "",
-          "card": "",
+          "icon": "res://assets/items/d02/icon.charm.back_row.tres",
+          "card": "res://assets/items/d02/card.charm.back_row.tres",
           "in_play": "",
-          "rarity_treatment": "",
+          "rarity_treatment": "res://assets/items/d02/rarity_treatment.charm.back_row.tres",
           "activation": "",
           "sound": "",
-          "reduced_motion": ""
+          "reduced_motion": "res://assets/items/d02/reduced_motion.charm.back_row.tres"
         },
         "completeness": {
           "authored": true,
@@ -291,13 +291,13 @@
         ],
         "incompatibilities": [],
         "assets": {
-          "icon": "",
-          "card": "",
+          "icon": "res://assets/items/d02/icon.charm.underdog.tres",
+          "card": "res://assets/items/d02/card.charm.underdog.tres",
           "in_play": "",
-          "rarity_treatment": "",
+          "rarity_treatment": "res://assets/items/d02/rarity_treatment.charm.underdog.tres",
           "activation": "",
           "sound": "",
-          "reduced_motion": ""
+          "reduced_motion": "res://assets/items/d02/reduced_motion.charm.underdog.tres"
         },
         "completeness": {
           "authored": true,
@@ -356,13 +356,13 @@
         ],
         "incompatibilities": [],
         "assets": {
-          "icon": "",
-          "card": "",
+          "icon": "res://assets/items/d02/icon.charm.crown_jewel.tres",
+          "card": "res://assets/items/d02/card.charm.crown_jewel.tres",
           "in_play": "",
-          "rarity_treatment": "",
+          "rarity_treatment": "res://assets/items/d02/rarity_treatment.charm.crown_jewel.tres",
           "activation": "",
           "sound": "",
-          "reduced_motion": ""
+          "reduced_motion": "res://assets/items/d02/reduced_motion.charm.crown_jewel.tres"
         },
         "completeness": {
           "authored": true,

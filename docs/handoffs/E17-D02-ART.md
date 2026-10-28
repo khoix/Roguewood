@@ -10,3 +10,7 @@ Secondary overlaps are also listed. No rules, asset flags or catalogue entries
 changed by the brief. E19-A13–A15 are READY, four Charms each in original D02 order.
 The six landed entries require native shop/inventory/binder evidence before flags;
 the authored six receive paths only. E20 activation/audio is outside Wave 3.
+
+Subsequent production is complete in E19-A13, E19-A14 and E19-A15; see their
+handoffs and WAVE3-CODEX.md for assets, flags and native evidence. The Banana Ball
+comparison was refined against Hook Artist's actual narrow handled-hook artwork.

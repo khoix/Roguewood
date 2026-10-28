@@ -1351,19 +1351,19 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d02/icon.charm.pin_counter.tres",
+        "card": "res://assets/items/d02/card.charm.pin_counter.tres",
         "in_play": "",
-        "rarity_treatment": "",
+        "rarity_treatment": "res://assets/items/d02/rarity_treatment.charm.pin_counter.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/d02/reduced_motion.charm.pin_counter.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
+        "artwork": true,
         "effects_audio": false,
         "unlock_assigned": true,
         "integrated": false
@@ -1409,19 +1409,19 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d02/icon.charm.hot_streak.tres",
+        "card": "res://assets/items/d02/card.charm.hot_streak.tres",
         "in_play": "",
-        "rarity_treatment": "",
+        "rarity_treatment": "res://assets/items/d02/rarity_treatment.charm.hot_streak.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/d02/reduced_motion.charm.hot_streak.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
+        "artwork": true,
         "effects_audio": false,
         "unlock_assigned": true,
         "integrated": false
@@ -1462,19 +1462,19 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d02/icon.charm.last_stand.tres",
+        "card": "res://assets/items/d02/card.charm.last_stand.tres",
         "in_play": "",
-        "rarity_treatment": "",
+        "rarity_treatment": "res://assets/items/d02/rarity_treatment.charm.last_stand.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/d02/reduced_motion.charm.last_stand.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
+        "artwork": true,
         "effects_audio": false,
         "unlock_assigned": true,
         "integrated": false
@@ -1518,19 +1518,19 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d02/icon.charm.tip_jar.tres",
+        "card": "res://assets/items/d02/card.charm.tip_jar.tres",
         "in_play": "",
-        "rarity_treatment": "",
+        "rarity_treatment": "res://assets/items/d02/rarity_treatment.charm.tip_jar.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/d02/reduced_motion.charm.tip_jar.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
+        "artwork": true,
         "effects_audio": false,
         "unlock_assigned": true,
         "integrated": false
@@ -1578,19 +1578,19 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d02/icon.charm.banana_ball.tres",
+        "card": "res://assets/items/d02/card.charm.banana_ball.tres",
         "in_play": "",
-        "rarity_treatment": "",
+        "rarity_treatment": "res://assets/items/d02/rarity_treatment.charm.banana_ball.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/d02/reduced_motion.charm.banana_ball.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
+        "artwork": true,
         "effects_audio": false,
         "unlock_assigned": true,
         "integrated": false
@@ -1633,19 +1633,19 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d02/icon.charm.plumb_line.tres",
+        "card": "res://assets/items/d02/card.charm.plumb_line.tres",
         "in_play": "",
-        "rarity_treatment": "",
+        "rarity_treatment": "res://assets/items/d02/rarity_treatment.charm.plumb_line.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/d02/reduced_motion.charm.plumb_line.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
+        "artwork": true,
         "effects_audio": false,
         "unlock_assigned": true,
         "integrated": false

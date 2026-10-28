@@ -177,3 +177,27 @@ original repository code. No E20 activation or audio is delivered by these batch
 | E19-A10 `ball.spark` | `assets/items/d01/source.ball.spark.png`; `assets/items/d01/source.ball.spark.txt` | `23e740ca7934e99db172a7a4ca3894cc53b613025e980d3aaf392c8b902b982a` | 192px card / 48px icon, gray/silhouette comparison, static identity model where defined; native integration waits E18 |
 | E19-A11 `ball.ghost` | `assets/items/d01/source.ball.ghost.png`; `assets/items/d01/source.ball.ghost.txt` | `a34aba1c6504563d03fac57b072afba6cdef3ca76ecd8c5241e02e212292884a` | 192px card / 48px icon, gray/silhouette comparison, static identity model where defined; native integration waits E18 |
 | E19-A12 `ball.splitter` | `assets/items/d01/source.ball.splitter.png`; `assets/items/d01/source.ball.splitter.txt` | `32e11ba1bd51e951a4eb48bd710ece7f0f22a838d3969b753c91981c1b749a33` | 192px card / 48px icon, gray/silhouette comparison, static identity model where defined; native integration waits E18 |
+
+## Wave 3 — original D02 Charm identities
+
+Generated from the written briefs without external image references. PNG sources
+are unchanged originals; adjacent text files preserve exact generation prompts.
+Runtime AtlasTexture regions provide transparent-margin cropping. No image
+resampling or editing was used. Four identity resources per Charm; activation
+and sound remain future E20 work. Crown Jewel reuses the E12 full-card Epic foil
+in its preview; reduced motion retains the static unshaded identity.
+
+| Batch / item | Source and prompt | Source SHA-256 | Checks |
+|---|---|---|---|
+| E19-A13 `charm.pin_counter` | `assets/items/d02/source.charm.pin_counter.png`; `assets/items/d02/source.charm.pin_counter.txt` | `822792f26e48b6570cb482c5b77efae1f22a20a78ad6bb3fe254a95eb06fb244` | 192px card / 48px color, gray and silhouette; native shop/inventory/binder |
+| E19-A13 `charm.hot_streak` | `assets/items/d02/source.charm.hot_streak.png`; `assets/items/d02/source.charm.hot_streak.txt` | `9ef239f44d73a79bc5ee74eb2b0a7bc25a31d0388016a16960ca3d79a768e261` | 192px card / 48px color, gray and silhouette; native shop/inventory/binder |
+| E19-A13 `charm.last_stand` | `assets/items/d02/source.charm.last_stand.png`; `assets/items/d02/source.charm.last_stand.txt` | `3c10e878ac12b3687aa2b1c148941cf59c8e6bc37e58ee1c5dc2f7fb2ed5ece2` | 192px card / 48px color, gray and silhouette; native shop/inventory/binder |
+| E19-A13 `charm.tip_jar` | `assets/items/d02/source.charm.tip_jar.png`; `assets/items/d02/source.charm.tip_jar.txt` | `9b444d6a86d206313ec3d576539b3746f79c0b78a5f70c9b15378a4b501ae488` | 192px card / 48px color, gray and silhouette; native shop/inventory/binder |
+| E19-A14 `charm.banana_ball` | `assets/items/d02/source.charm.banana_ball.png`; `assets/items/d02/source.charm.banana_ball.txt` | `da28143f0a7a884a7ff3b985587ce0be33e7c9aaf6d57fc8727886f89fd735f5` | 192px card / 48px color, gray and silhouette; native shop/inventory/binder |
+| E19-A14 `charm.plumb_line` | `assets/items/d02/source.charm.plumb_line.png`; `assets/items/d02/source.charm.plumb_line.txt` | `6d26c47ac0ce8465f347c21d0c93ed621f456a36d0490339779e6ca306292783` | 192px card / 48px color, gray and silhouette; native shop/inventory/binder |
+| E19-A14 `charm.glass_cutter` | `assets/items/d02/source.charm.glass_cutter.png`; `assets/items/d02/source.charm.glass_cutter.txt` | `ab5c61cf53b09f4082dd81b99e6da7e2978e13a7c847d76eee2ef82d2794cd67` | 192px card / 48px color, gray and silhouette; authored only; native check after E18 |
+| E19-A14 `charm.split_specialist` | `assets/items/d02/source.charm.split_specialist.png`; `assets/items/d02/source.charm.split_specialist.txt` | `9c8471b2533a04c538ba862ebfd4e528ba66be0080fd35638e93e1e652dedd1c` | 192px card / 48px color, gray and silhouette; authored only; native check after E18 |
+| E19-A15 `charm.sweet_spot` | `assets/items/d02/source.charm.sweet_spot.png`; `assets/items/d02/source.charm.sweet_spot.txt` | `d2bbe7e2a29c772ff1d783f58d532a214a149f79e4efa46c56ee62c97592ef58` | 192px card / 48px color, gray and silhouette; authored only; native check after E18 |
+| E19-A15 `charm.back_row` | `assets/items/d02/source.charm.back_row.png`; `assets/items/d02/source.charm.back_row.txt` | `d1d6a0a4a5da05000dd387207e9bc27f9fb098ad7e35feb15c214e799e0e872f` | 192px card / 48px color, gray and silhouette; authored only; native check after E18 |
+| E19-A15 `charm.underdog` | `assets/items/d02/source.charm.underdog.png`; `assets/items/d02/source.charm.underdog.txt` | `5e299864fe901c59ac6d44e519b439f16344e8e22007e1df82e6c08cff4346d7` | 192px card / 48px color, gray and silhouette; authored only; native check after E18 |
+| E19-A15 `charm.crown_jewel` | `assets/items/d02/source.charm.crown_jewel.png`; `assets/items/d02/source.charm.crown_jewel.txt` | `880d6b479cf49b2baa75e9296bfed431b1ce620e2d151d2f1537c80bcc84de88` | 192px card / 48px color, gray and silhouette; authored only; native check after E18 |
