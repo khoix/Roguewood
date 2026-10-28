@@ -15,6 +15,8 @@ per milestone. Existing milestone branches remain historical delivery references
 
 ## Multi-agent coordination
 
+- Art ownership (owner directive, 2026-10-28): Codex handles every remaining art component; Claude handles code, data and integration. Split milestones and the hand-off protocol are in docs/AI-HANDOFF.md, "Art ownership".
+
 - One coordinator owns docs/AI-HANDOFF.md, integration order, and shared contract changes. Workers own scoped task files and docs/handoffs/<task-id>.md only.
 - Coordinator commits/pushes a claim before dispatch: owner, reviewer, dependencies, explicit item scope, exclusive paths, base SHA, and branch.
 - E01 establishes <agent_name>/roguewood-build without inventing an agent name. Keep that integration branch across sessions. Worker branches/worktrees derive from a recorded integration SHA; resume their exact names later.

@@ -60,20 +60,53 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E13 — Vertical-slice integration | DONE (device play session blocked) | Claude | claude/roguewood-build (not yet merged) | 98cc2aa (with 5aac9d2, aea54e0); CI 40524506207 PASS; ADR 008; E13 handoff |
 | E14 — Seeded eight-Division progression | DONE | Codex | codex/roguewood-build | 71b2bd2; local unit/content/integration/physics, J01/J06/J07 and native J09 headless/rendered PASS; handoffs/E14.md |
 | E15 — Career persistence and unlock graph | DONE | Claude | claude/roguewood-build (not yet merged) | 2cdedb1 (+ 8c19905); local suites and J01–J10 headless/rendered PASS; CI 40577363221 and 40581437392 PASS; ADR 010; E15 handoff |
-| E16 — Clubhouse and collection UI | NOT_STARTED | unassigned | — | See dependency graph |
-| E17 — Catalogue and unlock authoring batches | NOT_STARTED | unassigned | — | See dependency graph |
+| E16 — Clubhouse and collection UI | NOT_STARTED (READY) | Claude core · Codex E16-ART | claude/roguewood-build · codex/roguewood-build | Split; see Art ownership |
+| E17 — Catalogue and unlock authoring batches | NOT_STARTED (READY) | Claude definitions · Codex visual briefs | claude/roguewood-build · codex/roguewood-build | Split per batch; see Art ownership |
 | E18 — Content mechanics batches | NOT_STARTED | unassigned | — | See dependency graph |
-| E19 — Final item artwork batches | NOT_STARTED | unassigned | — | See dependency graph |
-| E20 — Ability effects and audio batches | NOT_STARTED | unassigned | — | See dependency graph |
-| E21 — Rival presentation batches | NOT_STARTED | unassigned | — | See dependency graph |
-| E22 — League theme integration batches | NOT_STARTED | unassigned | — | See dependency graph |
+| E19 — Final item artwork batches | NOT_STARTED | Codex | codex/roguewood-build | Art; waits for each E17 batch's briefs |
+| E20 — Ability effects and audio batches | NOT_STARTED | Codex | codex/roguewood-build | Art; waits for E18 and E19 per batch |
+| E21 — Rival presentation batches | NOT_STARTED | Codex | codex/roguewood-build | Art; waits for each rival's E17/E18 definition |
+| E22 — League theme integration batches | NOT_STARTED | Claude integration · Codex theme art | claude/roguewood-build · codex/roguewood-build | Split per League; see Art ownership |
 | E23 — Starting kits, mastery, difficulty, and endless | NOT_STARTED | unassigned | — | See dependency graph |
 | E24 — Economy and procedural balance study | NOT_STARTED | unassigned | — | See dependency graph |
-| E25 — Onboarding and accessibility completion | NOT_STARTED | unassigned | — | See dependency graph |
+| E25 — Onboarding and accessibility completion | NOT_STARTED | Claude core · Codex E25-ART | claude/roguewood-build · codex/roguewood-build | Split; see Art ownership |
 | E26 — Platform packaging and performance | NOT_STARTED | unassigned | — | See dependency graph |
-| E27 — Content and asset completeness audit | NOT_STARTED | unassigned | — | See dependency graph |
+| E27 — Content and asset completeness audit | NOT_STARTED | Claude content audit · Codex asset audit | claude/roguewood-build · codex/roguewood-build | Split; see Art ownership |
 | E28 — Cross-system release candidate | NOT_STARTED | unassigned | — | See dependency graph |
 | E29 — Delivery and final handoff | NOT_STARTED | unassigned | — | See dependency graph |
+
+## Art ownership (owner directive, 2026-10-28)
+
+**Codex owns every remaining art component.** That means artwork, illustration, iconography, portraits, environment art, VFX, animation, audio, trophy and cosmetic art, visual briefs and visual review. Claude owns the rules, data, UI logic, persistence, tests and integration code. Claude never produces final art, and Codex never changes scoring, economy or Career logic.
+
+**Whole milestones for Codex:** E19 (item artwork), E20 (ability effects and audio) and E21 (rival presentation).
+- E20's activation hooks and priorities are presentation code that Codex owns.
+- They must not change any score, which J08/J12 check.
+- A rule hook Codex needs that does not exist is requested from Claude through this checkpoint, not added on its own.
+
+**Split milestones.** Each has two parts with separate states. The family is DONE only when both parts are DONE. The code part always goes first and defines the contract the art part fills:
+
+| Milestone | Claude part | Codex part (`<id>-ART`) |
+|---|---|---|
+| E16 | League board, binder states, tracked goals, records, unlock results, navigation, J11, placeholder visuals | Trophy, medal and club-decoration art; binder card presentation reusing the E12 card and foil; phone-readability visual pass |
+| E17 (per batch `E17-Dxx`) | Definitions, triggers, prices, pools, compatibility, unlocks, asset IDs | The batch's visual briefs (the art direction E19 works from) |
+| E22 (per League `E22-Lxx`) | Theme rules, lane pools, weights, access and branch unlocks, champion, starter counters | Theme environment, lane and audio identity, as art batches finished before that League's integration session |
+| E25 | Playable tutorial, alternate controls, safe areas, touch cancellation, J14 | Readable symbol set, reduced-effects visual versions, visual review of tutorial screens |
+| E27 | Count, ID, unlock and integration audit | Asset audit: weakest-asset review, placeholders, licences, provenance |
+
+E26 has no planned art part. If a platform child finds an asset-performance problem (atlas size, effect budget), that fix is a Codex child.
+
+**Hand-off protocol for a split milestone:**
+1. **When Claude starts the code part,** its claim lists the art part's scope:
+   - the stable asset IDs and their slots (icon, card, in_play, activation, sound, reduced_motion, trophy and so on);
+   - where Codex drops files: `assets/` and `docs/art/ASSET-LEDGER.md`, Codex-exclusive;
+   - which journey and capture shows each slot.
+2. **While Claude works,** every visual slot gets a clearly marked placeholder, wired by asset ID. The art part then needs no code edit, and the item's `completeness.artwork`/`effects_audio` flags stay false.
+3. **When Claude finishes,** its handoff ends with an "Art hand-off" checklist. It lists the IDs and slots, the placeholder files, and the capture names to compare. The coordinator then marks `<id>-ART` READY for Codex in this ledger.
+4. **When Codex finishes `<id>-ART`,** it replaces the placeholders and sets the art flags. It records its evidence (contact sheets, rendered captures, provenance) in its own handoff, and re-runs the journeys named in step 1. A code change the art reveals as necessary goes back to Claude as a scoped follow-up, not a Codex edit to rules.
+5. Codex's work on whole milestones and on `-ART` parts stays on `codex/roguewood-build`. Claude's work stays on `claude/roguewood-build`. Neither edits the other's exclusive paths without a recorded claim.
+
+**Order:** Claude starts E17-D01 (or E16 core). Each delivered E17 batch makes its visual briefs, then that batch's E19 art, ready for Codex. E21 rivals become ready as their rules are defined. E16-ART becomes ready when the E16 core hand-off lands.
 
 ## Active claims and ownership
 
