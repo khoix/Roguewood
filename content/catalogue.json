@@ -1762,6 +1762,340 @@
         "unlock_assigned": true,
         "integrated": false
       }
+    },
+    {
+      "id": "pin.crown",
+      "name": "Crown Pin",
+      "category": "pin",
+      "rarity": "rare",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "championship",
+        "prerequisites": [
+          "gate.house_champion"
+        ]
+      },
+      "earliest_division": 2,
+      "purchase_price": 9,
+      "resale_price": 4,
+      "effects": [
+        {
+          "op": "add_value",
+          "amount": 40,
+          "trigger": "fallen",
+          "scope": "frame",
+          "condition": {
+            "last_fallen": "self"
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 2,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Zero Value unless it is the last pin to fall; rewards precise picking.",
+      "synergy_tags": [
+        "precision",
+        "positional",
+        "crown"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "res://assets/items/d01/icon.pin.crown.tres",
+        "card": "res://assets/items/d01/card.pin.crown.tres",
+        "in_play": "res://assets/items/d01/in_play.pin.crown.tscn",
+        "rarity_treatment": "res://assets/items/d01/rarity_treatment.pin.crown.tres",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": "res://assets/items/d01/reduced_motion.pin.crown.tres"
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.split_specialist",
+      "name": "Split Specialist",
+      "category": "charm",
+      "rarity": "rare",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "championship",
+        "prerequisites": [
+          "gate.house_champion"
+        ]
+      },
+      "earliest_division": 2,
+      "purchase_price": 8,
+      "resale_price": 4,
+      "effects": [
+        {
+          "op": "multiply_mult",
+          "amount": 3,
+          "trigger": "charm",
+          "scope": "frame",
+          "condition": {
+            "category": [
+              "spare"
+            ],
+            "leave_min": 4
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Pays only for hard conversions; easy spares and every strike get nothing.",
+      "synergy_tags": [
+        "spare",
+        "split",
+        "precision"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "res://assets/items/d02/icon.charm.split_specialist.tres",
+        "card": "res://assets/items/d02/card.charm.split_specialist.tres",
+        "in_play": "",
+        "rarity_treatment": "res://assets/items/d02/rarity_treatment.charm.split_specialist.tres",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": "res://assets/items/d02/reduced_motion.charm.split_specialist.tres"
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.sweet_spot",
+      "name": "Sweet Spot",
+      "category": "charm",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 6,
+      "resale_price": 3,
+      "effects": [
+        {
+          "op": "add_mult",
+          "amount": 3,
+          "trigger": "charm",
+          "scope": "frame",
+          "per": "accurate"
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Rewards aim, not pins: a sloppy release on a strike still earns nothing.",
+      "synergy_tags": [
+        "precision",
+        "accuracy",
+        "mult"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "res://assets/items/d02/icon.charm.sweet_spot.tres",
+        "card": "res://assets/items/d02/card.charm.sweet_spot.tres",
+        "in_play": "",
+        "rarity_treatment": "res://assets/items/d02/rarity_treatment.charm.sweet_spot.tres",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": "res://assets/items/d02/reduced_motion.charm.sweet_spot.tres"
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.back_row",
+      "name": "Back Row",
+      "category": "charm",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 5,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "add_value",
+          "amount": 6,
+          "trigger": "charm",
+          "scope": "frame",
+          "per": "fallen_at:7,8,9,10"
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Ignores the front of the rack; a pocket hit that leaves the corners gets little.",
+      "synergy_tags": [
+        "positional",
+        "backrow",
+        "value"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "res://assets/items/d02/icon.charm.back_row.tres",
+        "card": "res://assets/items/d02/card.charm.back_row.tres",
+        "in_play": "",
+        "rarity_treatment": "res://assets/items/d02/rarity_treatment.charm.back_row.tres",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": "res://assets/items/d02/reduced_motion.charm.back_row.tres"
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.underdog",
+      "name": "Underdog",
+      "category": "charm",
+      "rarity": "rare",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 8,
+      "resale_price": 4,
+      "effects": [
+        {
+          "op": "multiply_mult",
+          "amount": 2,
+          "trigger": "charm",
+          "scope": "frame",
+          "condition": {
+            "behind": true
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Only works when behind: a strong first frame switches it off for the match.",
+      "synergy_tags": [
+        "comeback",
+        "mult"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "res://assets/items/d02/icon.charm.underdog.tres",
+        "card": "res://assets/items/d02/card.charm.underdog.tres",
+        "in_play": "",
+        "rarity_treatment": "res://assets/items/d02/rarity_treatment.charm.underdog.tres",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": "res://assets/items/d02/reduced_motion.charm.underdog.tres"
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.crown_jewel",
+      "name": "Crown Jewel",
+      "category": "charm",
+      "rarity": "epic",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "championship",
+        "prerequisites": [
+          "gate.house_champion"
+        ]
+      },
+      "earliest_division": 3,
+      "purchase_price": 11,
+      "resale_price": 5,
+      "effects": [
+        {
+          "op": "multiply_mult",
+          "amount": 2,
+          "trigger": "charm",
+          "scope": "frame",
+          "condition": {
+            "last_fallen": "pin.crown"
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Needs a Crown pin to fall last; otherwise an expensive empty slot.",
+      "synergy_tags": [
+        "crown",
+        "precision",
+        "positional"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "res://assets/items/d02/icon.charm.crown_jewel.tres",
+        "card": "res://assets/items/d02/card.charm.crown_jewel.tres",
+        "in_play": "",
+        "rarity_treatment": "res://assets/items/d02/rarity_treatment.charm.crown_jewel.tres",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": "res://assets/items/d02/reduced_motion.charm.crown_jewel.tres"
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
     }
   ]
 }

@@ -16,13 +16,15 @@ static func run() -> Array[String]:
 	_expect(batches.size() >= 1 and batches[0].data.batch == "E17-D01", "batch E17-D01 is present", failures)
 	_expect(_errors(batches, catalogue).is_empty(), "the shipped batches validate: %s" % str(_errors(batches, catalogue)), failures)
 	var d01: Array = batches[0].data.definitions
-	_expect(d01.size() == 10 and batches[0].data.landed.size() == 1 and d01.all(func(d): return d.item.completeness.mechanics == false), "D01: ten authored, Glass Pin landed by E18-C02", failures)
+	_expect(d01.size() == 9 and batches[0].data.landed.map(func(l): return l.id) == ["pin.glass", "pin.crown"] and d01.all(func(d): return d.item.completeness.mechanics == false),
+		"D01: nine authored; Glass Pin landed by E18-C02, Crown Pin by E18-C03", failures)
 	var counts := Authored.counts(catalogue, batches)
 	_expect(counts.ball == {"implemented": 4, "authored": 4, "target": 24} and counts.consumable.authored == 3, "counts per category against the targets", failures)
-	_expect(Authored.primitives(batches).has("physics.split_ball") and Authored.primitives(batches)["condition.last_fallen"] == ["pin.crown", "charm.crown_jewel"],
-		"the E18 primitive list groups items needing the same primitive", failures)
+	_expect(Authored.primitives(batches).has("physics.split_ball") and not Authored.primitives(batches).has("condition.last_fallen"),
+		"the E18 primitive list holds only primitives still to build", failures)
 	var d02: Array = batches[1].data.definitions if batches.size() > 1 else []
-	_expect(d02.size() == 5 and batches[1].data.landed.size() == 7 and d02.all(func(d): return d.item.category == "charm"), "D02: five Charms authored, seven landed (C01 six, C02 Glass Cutter)", failures)
+	_expect(d02.is_empty() and batches[1].data.landed.size() == 12 and batches[1].data.landed.filter(func(l): return l.landed_in == "E18-C03").size() == 5,
+		"D02: all twelve Charms landed (C01 six, C02 Glass Cutter, C03 five)", failures)
 	_expect(Authored.designs(batches).has("charm.pin_counter") and Authored.designs(batches)["charm.pin_counter"].asset_ids.card == "card.charm.pin_counter",
 		"a landed item keeps its design block and asset IDs in the batch", failures)
 	_refuses(func(b): b[1].data.landed[0].id = "charm.nowhere", catalogue, "a landed entry names a catalogue item", "a landed entry for an item not in the catalogue", failures)

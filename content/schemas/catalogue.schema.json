@@ -172,6 +172,18 @@
                       "type": "integer",
                       "minimum": 1,
                       "maximum": 100
+                    },
+                    "leave_min": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 10
+                    },
+                    "behind": {
+                      "type": "boolean"
+                    },
+                    "last_fallen": {
+                      "type": "string",
+                      "pattern": "^(self|pin\\.[a-z][a-z0-9_]*)$"
                     }
                   },
                   "required": [],
@@ -179,7 +191,7 @@
                 },
                 "per": {
                   "type": "string",
-                  "pattern": "^(growth|retriggers|fallen|standing)(:[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*)?$"
+                  "pattern": "^((growth|retriggers|accurate)|(fallen|standing)(:[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*)?|fallen_at:([1-9]|10)(,([1-9]|10))*)$"
                 },
                 "into": {
                   "type": "string",

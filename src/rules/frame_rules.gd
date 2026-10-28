@@ -18,6 +18,17 @@ extends RefCounted
 ##   id) and an integer percent `amount` (1..100): deferred like a payout, so it
 ##   never touches the score, is never retriggered, and only reports the chance;
 ##   the run inventory rolls it on the attempt's effects stream after banking.
+##
+## E18-C03 adds, all optional:
+## - roll `last_fallen`: the pin that roll knocked down last (highest knockdown
+##   sequence; 0 if none). The frame's last fallen pin is the last roll's that felled any;
+## - context `match_score` and `match_target`: the match before this frame (target 0 in
+##   Practice, which has none);
+## - conditions `leave_min` (the first roll left at least n standing), `behind` (the match
+##   score is below half its target; never in Practice) and `last_fallen` ("self": the
+##   owner pin fell last; a pin item id: the pin that fell last is that item);
+## - per `accurate` (rolls graded sweet or perfect) and `fallen_at:7,8,9,10` (fallen pins
+##   at the listed positions).
 const SCOPES = ["roll", "frame", "match", "run"]
 const OPS = ["add_value", "add_mult", "multiply_mult", "payout", "grow_value"]
 const V2_OPS = ["retrigger", "transform"]
@@ -25,7 +36,8 @@ const GRADES = {"miss": 0, "clean": 0, "sweet": 1, "perfect": 2}
 const MAX_SAFE_SCORE = 9007199254740991.0
 const MAX_RETRIGGERS := 8
 const HOUSE := "ball.house"
-const CONDITIONS := ["category", "match_frame", "standing_count", "curved", "all_house", "streak_min"]
+const CONDITIONS := ["category", "match_frame", "standing_count", "curved", "all_house", "streak_min", "leave_min", "behind", "last_fallen"]
+const PER_KINDS := ["growth", "retriggers", "fallen", "standing", "accurate", "fallen_at"]
 const DEFERRED := ["payout", "grow_value", "transform"]
 
 static func resolve(frame: Dictionary) -> Dictionary:
@@ -48,12 +60,21 @@ static func resolve(frame: Dictionary) -> Dictionary:
 	elif fallen.size() == 10:
 		category = "spare"
 	var context: Dictionary = frame.get("context", {})
+	var last_fallen := 0
+	for roll in rolls:
+		if int(roll.get("last_fallen", 0)) > 0:
+			last_fallen = int(roll.last_fallen)
+	var match_target := int(context.get("match_target", 0))
 	var facts := {"category": category, "match_frame": int(context.get("match_frame", 1)), "standing_count": 10 - fallen.size(),
 		"curved": rolls.any(func(r): return bool(r.get("curved", false))), "all_house": rolls.all(func(r): return r.ball_id == HOUSE),
-		"streak": int(context.get("strike_streak", 0)) + 1 if category == "strike" else 0, "retriggers": 0, "fallen": {}, "standing": {}}
+		"streak": int(context.get("strike_streak", 0)) + 1 if category == "strike" else 0, "retriggers": 0, "fallen": {}, "standing": {},
+		"leave": 10 - rolls[0].fallen_positions.size(), "behind": match_target > 0 and int(context.get("match_score", 0)) * 2 < match_target,
+		"last_fallen": last_fallen, "last_item": "", "accurate": rolls.filter(func(r): return GRADES[r.accuracy] > 0).size(), "fallen_at": fallen}
 	for pin in pins:
 		var bucket: Dictionary = facts.fallen if fallen.has(int(pin.position)) else facts.standing
 		bucket[pin.item_id] = int(bucket.get(pin.item_id, 0)) + 1
+		if int(pin.position) == last_fallen:
+			facts.last_item = pin.item_id
 	var bases: Dictionary = {"open": [0.0, 1.0], "spare": [20.0, 2.0], "strike": [40.0, 4.0]}
 	var state: Dictionary = {"value": bases[category][0], "mult": bases[category][1], "events": [], "future": [], "facts": facts}
 	state.events.append({"phase": "category", "category": category, "pin_value": state.value, "mult": state.mult})
@@ -62,7 +83,7 @@ static func resolve(frame: Dictionary) -> Dictionary:
 	for roll in rolls:
 		var target := int(roll.get("first_direct", 0))
 		for effect in roll.effects:
-			if effect.op == "retrigger" and target > 0 and fallen.get(target, 0) == int(roll.roll_index) and _holds(effect, facts):
+			if effect.op == "retrigger" and target > 0 and fallen.get(target, 0) == int(roll.roll_index) and _holds(effect, facts, roll):
 				for i in int(effect.amount):
 					granted[target] = granted.get(target, []) + ["roll:%d" % roll.roll_index]
 	for pin in pins:
@@ -101,10 +122,12 @@ static func resolve(frame: Dictionary) -> Dictionary:
 		state.events.append(effect.duplicate(true))
 	return {"ok": true, "schema_version": int(frame.schema_version), "category": category, "pin_value": state.value,
 		"mult": state.mult, "score": score, "events": state.events, "future_effects": state.future,
-		"strike_streak": facts.streak, "retriggers": facts.retriggers}
+		"strike_streak": facts.streak, "retriggers": facts.retriggers,
+		"facts": {"leave": facts.leave, "last_fallen": facts.last_fallen, "accurate": facts.accurate, "behind": facts.behind,
+			"match_score": int(context.get("match_score", 0)), "match_target": match_target}}
 
 ## Every condition key must hold for this frame.
-static func _holds(effect: Dictionary, facts: Dictionary) -> bool:
+static func _holds(effect: Dictionary, facts: Dictionary, owner: Dictionary = {}) -> bool:
 	var condition: Dictionary = effect.get("condition", {})
 	for key in condition:
 		var wanted: Variant = condition[key]
@@ -119,6 +142,13 @@ static func _holds(effect: Dictionary, facts: Dictionary) -> bool:
 				if bool(facts[key]) != bool(wanted): return false
 			"streak_min":
 				if facts.streak < int(wanted): return false
+			"leave_min":
+				if facts.leave < int(wanted): return false
+			"behind":
+				if facts.behind != bool(wanted): return false
+			"last_fallen":
+				var last: int = facts.last_fallen
+				if last == 0 or (int(owner.get("position", 0)) != last if wanted == "self" else facts.last_item != wanted): return false
 	return true
 
 ## The count a `per` effect scales by, from this frame's facts or its owner.
@@ -128,6 +158,9 @@ static func _count(per: String, owner: Dictionary, facts: Dictionary) -> int:
 	match kind:
 		"growth": return int(owner.get("growth", 0))
 		"retriggers": return int(facts.retriggers)
+		"accurate": return int(facts.accurate)
+		"fallen_at":
+			return Array(per.get_slice(":", 1).split(",")).filter(func(p): return facts.fallen_at.has(int(p))).size()
 		"fallen", "standing":
 			var bucket: Dictionary = facts[kind]
 			if not item_id.is_empty():
@@ -147,7 +180,7 @@ static func _apply_effects(state: Dictionary, owner: Dictionary, trigger: String
 		var op: String = effect.op
 		if repeat > 0 and op in DEFERRED:
 			continue
-		if not _holds(effect, state.facts):
+		if not _holds(effect, state.facts, owner):
 			continue
 		var amount: float = effect.amount
 		var event: Dictionary = {"phase": trigger, "source": source, "op": op,
@@ -194,7 +227,10 @@ static func validate(frame: Dictionary) -> Array[String]:
 		if not context is Dictionary:
 			errors.append("frame.context must be an object")
 		else:
-			_unknown_keys(context, ["match_frame", "strike_streak"], errors)
+			_unknown_keys(context, ["match_frame", "strike_streak", "match_score", "match_target"], errors)
+			for key in ["match_score", "match_target"]:
+				if not _integer_between(context.get(key, 0), 0, 1000000000000):
+					errors.append("context.%s must be a whole score" % key)
 			if not _integer_between(context.get("match_frame", 1), 1, 8):
 				errors.append("context.match_frame must be 1..8")
 			if not _integer_between(context.get("strike_streak", 0), 0, 100000):
@@ -231,11 +267,12 @@ static func validate(frame: Dictionary) -> Array[String]:
 		if not roll is Dictionary:
 			errors.append("roll must be an object")
 			continue
-		_unknown_keys(roll, ["roll_index", "ball_id", "fallen_positions", "accuracy", "effects"] + (["first_direct", "curved"] if v2 else []), errors)
-		if not _integer_between(roll.get("first_direct", 0), 0, 10):
-			errors.append("first_direct must be 0..10")
-		elif int(roll.get("first_direct", 0)) > 0 and roll.get("fallen_positions") is Array and int(roll.first_direct) not in roll.fallen_positions.map(func(p): return int(p)):
-			errors.append("first_direct must be a pin that fell that roll")
+		_unknown_keys(roll, ["roll_index", "ball_id", "fallen_positions", "accuracy", "effects"] + (["first_direct", "curved", "last_fallen"] if v2 else []), errors)
+		for key in ["first_direct", "last_fallen"]:
+			if not _integer_between(roll.get(key, 0), 0, 10):
+				errors.append("%s must be 0..10" % key)
+			elif int(roll.get(key, 0)) > 0 and roll.get("fallen_positions") is Array and int(roll[key]) not in roll.fallen_positions.map(func(p): return int(p)):
+				errors.append("%s must be a pin that fell that roll" % key)
 		if roll.has("curved") and typeof(roll.curved) != TYPE_BOOL:
 			errors.append("curved must be a boolean")
 		if not _integer_between(roll.get("roll_index"), 1, 2):
@@ -305,16 +342,18 @@ static func _validate_owner(owner: Dictionary, id_key: String, prefix: String, t
 				var c: Dictionary = effect.condition
 				if c.has("category") and (not c.category is Array or c.category.is_empty() or not c.category.all(func(k): return k in ["open", "spare", "strike"])):
 					errors.append("condition.category lists frame categories")
-				for key in ["match_frame", "standing_count", "streak_min"]:
-					if c.has(key) and not _integer_between(c[key], 0 if key == "standing_count" else 1, 10 if key == "standing_count" else 100):
+				for key in ["match_frame", "standing_count", "streak_min", "leave_min"]:
+					if c.has(key) and not _integer_between(c[key], 0 if key == "standing_count" else 1, 10 if key in ["standing_count", "leave_min"] else 100):
 						errors.append("condition.%s out of range" % key)
-				for key in ["curved", "all_house"]:
+				if c.has("last_fallen") and not (c.last_fallen is String and c.last_fallen == "self" and prefix == "pin.") and not _valid_id(c.last_fallen, "pin."):
+					errors.append("condition.last_fallen is \"self\" on a pin (it fell last) or a pin item id")
+				for key in ["curved", "all_house", "behind"]:
 					if c.has(key) and typeof(c[key]) != TYPE_BOOL:
 						errors.append("condition.%s must be a boolean" % key)
 		if effect.has("per"):
 			var per: Variant = effect.per
 			var kind: String = String(per).get_slice(":", 0) if per is String else ""
-			if kind not in ["growth", "retriggers", "fallen", "standing"] or (String(per).contains(":") and not _valid_id(String(per).get_slice(":", 1), "")):
+			if kind not in PER_KINDS or not _valid_per(String(per)):
 				errors.append("unsupported per count")
 			elif effect.get("op") in ["multiply_mult", "payout"]:
 				errors.append("only additions and growth scale per count")
@@ -328,6 +367,19 @@ static func _validate_owner(owner: Dictionary, id_key: String, prefix: String, t
 			errors.append("multiply_mult amount must be positive")
 		if effect.get("trigger") == "after_bank" and not effect.get("op") in DEFERRED:
 			errors.append("after_bank only permits deferred mutations")
+
+## A per count's suffix: an item id for fallen/standing, positions for fallen_at, none otherwise.
+static func _valid_per(per: String) -> bool:
+	var kind := per.get_slice(":", 0)
+	var suffix := per.trim_prefix(kind + ":") if per.contains(":") else ""
+	match kind:
+		"fallen", "standing": return suffix.is_empty() or _valid_id(suffix, "")
+		"fallen_at":
+			var positions := Array(suffix.split(",")).map(func(p): return int(p) if String(p).is_valid_int() else 0)
+			var unique := {}
+			for p in positions: unique[p] = true
+			return not suffix.is_empty() and positions.all(func(p): return p >= 1 and p <= 10) and unique.size() == positions.size()
+	return suffix.is_empty()
 
 static func _number(value: Variant) -> bool:
 	return (value is int or value is float) and is_finite(float(value))
