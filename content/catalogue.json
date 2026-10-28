@@ -626,8 +626,8 @@
         "card": "res://assets/items/charms/finisher-card.tres",
         "in_play": "res://assets/items/charms/finisher-card.tres",
         "rarity_treatment": "res://assets/items/charms/finisher-frame.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/charm_finisher.tres",
+        "sound": "res://assets/audio/charm_finisher.wav",
         "reduced_motion": "res://assets/items/charms/finisher-card.tres"
       },
       "completeness": {
@@ -635,7 +635,7 @@
         "mechanics": true,
         "automated_validation": true,
         "artwork": true,
-        "effects_audio": false,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -953,8 +953,8 @@
         "card": "res://assets/items/charms/turkey_club-card.tres",
         "in_play": "res://assets/items/charms/turkey_club-card.tres",
         "rarity_treatment": "res://assets/items/charms/turkey_club-frame.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/charm_turkey_club.tres",
+        "sound": "res://assets/audio/charm_turkey_club.wav",
         "reduced_motion": "res://assets/items/charms/turkey_club-card.tres"
       },
       "completeness": {
@@ -962,7 +962,7 @@
         "mechanics": true,
         "automated_validation": true,
         "artwork": true,
-        "effects_audio": false,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -1065,8 +1065,8 @@
         "card": "res://assets/items/charms/last_chance-card.tres",
         "in_play": "res://assets/items/charms/last_chance-card.tres",
         "rarity_treatment": "res://assets/items/charms/last_chance-frame.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/charm_last_chance.tres",
+        "sound": "res://assets/audio/charm_last_chance.wav",
         "reduced_motion": "res://assets/items/charms/last_chance-card.tres"
       },
       "completeness": {
@@ -1074,7 +1074,7 @@
         "mechanics": true,
         "automated_validation": true,
         "artwork": true,
-        "effects_audio": false,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
