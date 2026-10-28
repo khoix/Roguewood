@@ -35,14 +35,20 @@ static func content_hashes(catalogue_path: String, division_path: String) -> Dic
 		"division": FileAccess.get_file_as_string(division_path).sha256_text()}
 
 ## parts: {attempt, seed, phase, lab (LAB_KEYS), run, shop, division (League or
-## Division run), equipment}. content_set names the ContentSet ("lab" by default).
+## Division run), equipment, career_attempt (optional)}. content_set names the ContentSet ("lab" by default).
 static func build(parts: Dictionary, content: Dictionary, content_set: String = "lab") -> Dictionary:
 	var lab := {}
 	for key in LAB_KEYS:
 		lab[key] = parts.lab.get(key)
-	return {"attempt": int(parts.attempt), "seed": int(parts.seed), "phase": parts.phase, "content": content.duplicate(),
+	var out := {"attempt": int(parts.attempt), "seed": int(parts.seed), "phase": parts.phase, "content": content.duplicate(),
 		"content_set": content_set, "lab": lab, "run": parts.run.to_dict(), "shop": parts.shop.to_dict(),
 		"division": league_dict(parts.division.to_dict()), "equipment": parts.equipment.to_dict()}
+	# E15 (ADR 010): the Career's uid for this attempt, so a resumed attempt counts
+	# its frames and awards against the same Career entry. Additive; absent in
+	# older snapshots (they are given a new uid on resume).
+	if int(parts.get("career_attempt", 0)) > 0:
+		out["career_attempt"] = int(parts.career_attempt)
+	return out
 
 ## A League dict from either a League's or a single Division run's to_dict().
 static func league_dict(data: Dictionary) -> Dictionary:

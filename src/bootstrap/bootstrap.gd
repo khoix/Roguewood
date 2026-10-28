@@ -7,6 +7,7 @@ const CareerProfile = preload("res://src/persistence/career_profile.gd")
 const Contracts = preload("res://src/contracts/contracts.gd")
 const FrameBuilder = preload("res://src/rules/frame_builder.gd")
 const ContentSet = preload("res://src/rules/content_set.gd")
+const UnlockGraph = preload("res://src/career/unlock_graph.gd")
 var session: Dictionary = {}
 var screen := "menu"
 var heading: Label
@@ -22,9 +23,13 @@ var options: Button
 var lab: ThrowLab
 ## Throw settings shared by every session this run (persistence is E25).
 var throw_settings: Dictionary = {}
-## Career record (E09), saved apart from attempts since E10 (career.json); E15 adds
-## the unlock graph. Restart and retry keep it.
+## Career record (E09), saved apart from attempts since E10 (career.json); E15
+## (ADR 010) adds the validated unlock graph, records and mastery. Restart and
+## retry keep it.
 var career: Dictionary = {}
+var career_graph: Dictionary = {}
+var career_line: Label
+var league_sets: Array = [] # content set behind each League choice
 ## E10 saves: user://saves, or --save-dir=<path> for tests.
 var store: RefCounted
 var continue_button: Button
@@ -54,11 +59,22 @@ func _ready() -> void:
 	content = ContentSet.load_set(ContentSet.requested())
 	if not content.errors.is_empty():
 		push_error("Content set %s invalid: %s" % [content.id, str(content.errors)])
+	career_graph = ContentSet.career_graph(content.unlocks)
+	if not career_graph.errors.is_empty():
+		push_error("Unlock graph invalid: %s" % str(career_graph.errors))
+	career_line = Label.new()
+	career_line.name = "CareerSummary"
+	career_line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	career_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	career_line.custom_minimum_size = Vector2(460, 0)
+	panel.add_child(career_line)
 	league = OptionButton.new()
 	league.name = "LeagueChoice"
 	league.add_item(content.get("name", "House League"))
+	league_sets = [content.id]
 	if content.id == "slice":
 		league.add_item("House Campaign · 8 Divisions (provisional)")
+		league_sets.append("campaign")
 		league.item_selected.connect(func(index):
 			content = ContentSet.load_set("campaign" if index == 1 else "slice")
 			_show_menu())
@@ -116,6 +132,9 @@ func _load_career() -> void:
 	career = CareerProfile.normalized(read.payload) if read.ok else CareerProfile.fresh()
 	if not read.notice.is_empty():
 		save_notice = read.notice
+	var unknown: Array = CareerProfile.unknown_ids(career, career_graph)
+	if not unknown.is_empty():
+		save_notice = ("%s\n" % save_notice if not save_notice.is_empty() else "") + "Your Career holds %d unlock(s) this version does not use; they are kept." % unknown.size()
 
 ## The saved attempt, if it can be resumed: {ok, payload, notice}.
 func _saved_attempt() -> Dictionary:
@@ -158,6 +177,7 @@ func _begin_attempt(attempt: int, saved: Dictionary = {}) -> void:
 	lab.content = content
 	lab.equipment_seed = session.seed
 	lab.career = career
+	lab.career_graph = career_graph
 	lab.attempt = attempt
 	lab.save_store = store
 	lab.restore_from = saved
@@ -184,6 +204,18 @@ func _show_menu() -> void:
 	session = {}
 	details.text = "The lanes are waiting."
 	_clear_lab()
+	career_line.text = CareerProfile.summary(career, career_graph.get("objectives", []))
+	var goals: Array = CareerProfile.goals(career, career_graph.get("objectives", []), 0) # attempt-scoped goals start over
+	if not goals.is_empty():
+		career_line.text += "\nGoals: " + " · ".join(goals.map(func(g): return "%s %d/%d" % [g.name, mini(g.progress, g.threshold), g.threshold]))
+	# League access from the unlock graph: a locked League is shown but cannot be entered.
+	enter.disabled = false
+	for i in league.item_count:
+		var reason := UnlockGraph.league_access(career_graph, career, career_graph.get("league_of_set", {}).get(league_sets[i], ""))
+		league.set_item_disabled(i, not reason.is_empty())
+		if i == league.selected and not reason.is_empty():
+			details.text = reason
+			enter.disabled = true
 	var saved := _saved_attempt()
 	continue_button.visible = saved.ok
 	if saved.ok:

@@ -66,7 +66,7 @@ func _ready() -> void:
 	equipment.item_selected.connect(func(index): _store("equipment", "direct" if index == 1 else "deck"))
 	box.add_child(equipment)
 	# E09: practice drops the Division's targets (applies to an attempt not yet thrown).
-	practice = _toggle(box, "PracticeMode", "Practice (no targets)", "practice")
+	practice = _toggle(box, "PracticeMode", "Practice (no targets; no unlocks)", "practice")
 	close = Button.new()
 	close.name = "CloseSettings"
 	close.text = "Done"

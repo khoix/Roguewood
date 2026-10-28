@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "batch": "fixture",
+  "note": "Lab fixture registry for mechanism journeys; not production content.",
+  "leagues": [
+    {
+      "id": "league.lab",
+      "name": "House League",
+      "content_set": "lab",
+      "access": [],
+      "championship": {"gates": [], "text": "Lab Division cleared."}
+    }
+  ],
+  "gates": [
+    {"id": "gate.lab_rival", "kind": "boss", "name": "Lab Custodian cleared"}
+  ],
+  "objectives": [],
+  "counters": {
+    "boss_rule.lab_clean_sweep": ["value", "mult"]
+  }
+}

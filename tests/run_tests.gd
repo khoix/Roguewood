@@ -15,9 +15,16 @@ func _initialize() -> void:
 		for set_id in ["slice", "lab"]:
 			for e in load("res://src/rules/content_set.gd").load_set(set_id).errors:
 				failures.append("%s: %s" % [set_id, e])
+		# The Career unlock graphs (E15, ADR 010): production and lab fixtures.
+		var content_set = load("res://src/rules/content_set.gd")
+		for registry in [content_set.UNLOCKS, content_set.LAB_UNLOCKS]:
+			var graph: Dictionary = content_set.career_graph(registry)
+			for e in graph.errors:
+				failures.append("%s: %s" % [registry, e])
+			print("Unlock graph %s: %d gates, %d objectives, availability %s" % [registry, graph.gates.size(), graph.objectives.size(), str(graph.availability)])
 	elif mode == "unit":
 		failures = ContractTests.run()
-		for path in ["res://tests/rules_test.gd", "res://tests/simulation_test.gd", "res://tests/input_test.gd", "res://tests/scoring_test.gd", "res://tests/deck_test.gd", "res://tests/economy_test.gd", "res://tests/division_test.gd", "res://tests/save_test.gd", "res://tests/slice_test.gd", "res://tests/campaign_generator_test.gd", "res://tests/campaign_integration_test.gd"]:
+		for path in ["res://tests/rules_test.gd", "res://tests/simulation_test.gd", "res://tests/input_test.gd", "res://tests/scoring_test.gd", "res://tests/deck_test.gd", "res://tests/economy_test.gd", "res://tests/division_test.gd", "res://tests/save_test.gd", "res://tests/slice_test.gd", "res://tests/campaign_generator_test.gd", "res://tests/campaign_integration_test.gd", "res://tests/career_test.gd"]:
 			var suite = load(path)
 			if suite == null:
 				failures.append("Missing tests: " + path)

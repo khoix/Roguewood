@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "batch": "E15",
+  "note": "Provisional mastery thresholds and reward texts (ADR 010). Championship and mastery gates award trophies only until a catalogue batch (E17) assigns items to them.",
+  "leagues": [
+    {
+      "id": "league.house",
+      "name": "House League",
+      "content_set": "slice",
+      "access": [],
+      "championship": {
+        "gates": ["gate.house_champion"],
+        "text": "House League champion trophy for the Clubhouse shelf."
+      }
+    },
+    {
+      "id": "league.house_campaign",
+      "name": "House Campaign",
+      "content_set": "campaign",
+      "access": [],
+      "championship": {
+        "gates": ["gate.house_campaign_champion"],
+        "text": "House Campaign champion trophy for the Clubhouse shelf."
+      }
+    }
+  ],
+  "gates": [
+    {"id": "gate.surveyor_cleared", "kind": "boss", "name": "The Surveyor cleared"},
+    {"id": "gate.custodian_cleared", "kind": "boss", "name": "The Custodian cleared"},
+    {"id": "gate.house_champion", "kind": "championship", "name": "House League champion"},
+    {"id": "gate.house_campaign_champion", "kind": "championship", "name": "House Campaign champion"},
+    {"id": "gate.mastery_spare_hand", "kind": "mastery", "name": "Spare Hand"},
+    {"id": "gate.mastery_true_curve", "kind": "mastery", "name": "True Curve"},
+    {"id": "gate.mastery_mixed_rack", "kind": "mastery", "name": "Mixed Rack"}
+  ],
+  "objectives": [
+    {
+      "id": "mastery.spare_hand",
+      "name": "Spare Hand",
+      "text": "Convert 10 spares across your Career.",
+      "metric": "spares",
+      "threshold": 10,
+      "scope": "career",
+      "prerequisites": [],
+      "gates": ["gate.mastery_spare_hand"],
+      "reward": "Spare Hand ribbon for the trophy shelf."
+    },
+    {
+      "id": "mastery.true_curve",
+      "name": "True Curve",
+      "text": "Strike with a curved roll three times in one attempt.",
+      "metric": "curved_strikes",
+      "threshold": 3,
+      "scope": "attempt",
+      "prerequisites": [],
+      "gates": ["gate.mastery_true_curve"],
+      "reward": "True Curve ribbon for the trophy shelf."
+    },
+    {
+      "id": "mastery.mixed_rack",
+      "name": "Mixed Rack",
+      "text": "Knock down pins of three different materials in one attempt.",
+      "metric": "pin_materials",
+      "threshold": 3,
+      "scope": "attempt",
+      "prerequisites": [],
+      "gates": ["gate.mastery_mixed_rack"],
+      "reward": "Mixed Rack ribbon for the trophy shelf."
+    }
+  ],
+  "counters": {
+    "boss_rule.dead_straight": ["straight", "strike", "power", "precision", "retrigger"],
+    "boss_rule.clean_sweep": ["strike", "spare", "clearing"]
+  }
+}
