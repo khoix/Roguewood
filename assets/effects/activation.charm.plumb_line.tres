@@ -1,0 +1,9 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+[ext_resource type="Script" path="res://src/presentation/ability_style.gd" id="1"]
+[resource]
+script = ExtResource("1")
+item_id = "charm.plumb_line"
+shape = "plumb"
+ink = Color(0.7450980392156863, 0.8588235294117647, 0.8431372549019608, 1)
+duration = 0.55
+priority = 2

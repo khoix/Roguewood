@@ -79,9 +79,9 @@ func _back_to_clubhouse() -> void:
 func _stage_one_clubhouse() -> void:
 	var club = scene.clubhouse
 	await _tab("binder", true)
-	_check(club.binder_counts.text == "3 Locked · 28 Available · 0 Discovered · 0 Mastered", "a fresh binder: %s" % club.binder_counts.text)
+	_check(club.binder_counts.text == "6 Locked · 31 Available · 0 Discovered · 0 Mastered", "a fresh binder: %s" % club.binder_counts.text)
 	await _focus_accept(club.filter_button("charm"))
-	_check(club.category == "charm" and club.binder_grid.get_child_count() == 19, "the Charms filter shows the nineteen Charms")
+	_check(club.category == "charm" and club.binder_grid.get_child_count() == 24, "the Charms filter shows the twenty-four Charms")
 	var encore := await _card("charm.encore")
 	_check(encore.state == "locked" and club.selected_item == "charm.encore" and club.binder_detail.text.contains("Unlock: Beat The Surveyor (House League)")
 		and club.binder_art.get_child(0) is TextureRect and club.binder_art.get_child(0).texture == load(encore.asset), "inspecting Encore: Locked, the rival that unlocks it, actual catalogue artwork")

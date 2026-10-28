@@ -120,7 +120,8 @@ static func _attempt(name: String, seed_value: int, content: Dictionary, unlocke
 				rack = rack.filter(func(p): return p not in fallen)
 				if rack.is_empty() or roll_index == 2:
 					break
-			var built := Builder.build(run.loadout(), catalogue, reports, {}, {"match_frame": match_frame, "strike_streak": run.strike_streak})
+			var built := Builder.build(run.loadout(), catalogue, reports, {}, {"match_frame": match_frame, "strike_streak": run.strike_streak,
+				"match_score": league.match_score, "match_target": league.target()})
 			var result := Rules.resolve(built.frame)
 			if not result.ok:
 				push_error("slice sim frame refused: %s" % str(result.errors))

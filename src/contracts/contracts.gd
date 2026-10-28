@@ -180,9 +180,17 @@ static func _catalogue(items: Array, version: int, errors: Array[String]) -> voi
 					errors.append(item.id + ": transforms into unknown pin " + str(into))
 			elif effect.has("into"):
 				errors.append(item.id + ": only a transform names an into pin")
-			if effect.has("per") and String(effect.per).contains(":") and not ids.has(String(effect.per).get_slice(":", 1)) and not items.any(func(i): return i.id == String(effect.per).get_slice(":", 1)):
+			if effect.has("per") and String(effect.per).contains(":") and not String(effect.per).begins_with("fallen_at:") and not ids.has(String(effect.per).get_slice(":", 1)) and not items.any(func(i): return i.id == String(effect.per).get_slice(":", 1)):
 				errors.append(item.id + ": scales by unknown item " + String(effect.per).get_slice(":", 1))
 			if effect.has("condition") and effect.trigger in ["after_bank", "match_end"]: errors.append(item.id + ": deferred effects are unconditional")
+			var last: Variant = effect.get("condition", {}).get("last_fallen")
+			if last != null and ((last == "self" and item.category != "pin") or (last != "self" and not items.any(func(i): return i.id == last and i.category == "pin"))):
+				errors.append(item.id + ": last_fallen is \"self\" on a pin or names a catalogue pin")
+			if effect.has("per") and String(effect.per).begins_with("fallen_at:"):
+				var at := Array(String(effect.per).trim_prefix("fallen_at:").split(","))
+				var unique := {}
+				for p in at: unique[p] = true
+				if unique.size() != at.size(): errors.append(item.id + ": fallen_at lists each position once")
 		if item.completeness.artwork:
 			for key in ["icon", "card", "rarity_treatment"]:
 				if item.assets[key].is_empty(): errors.append(item.id + ": artwork marked complete without " + key)

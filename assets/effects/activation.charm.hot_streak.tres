@@ -1,0 +1,9 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+[ext_resource type="Script" path="res://src/presentation/ability_style.gd" id="1"]
+[resource]
+script = ExtResource("1")
+item_id = "charm.hot_streak"
+shape = "flame_tally"
+ink = Color(0.8980392156862745, 0.7137254901960784, 0.396078431372549, 1)
+duration = 0.55
+priority = 3

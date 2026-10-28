@@ -2,7 +2,7 @@
   "schema_version": 1,
   "batch": "E17-D01",
   "status": "authored",
-  "note": "Authored definitions only; mechanics are E18-C work, briefs and art are Codex's. Nothing here is in content/catalogue.json or any shop pool until E18 moves it there.",
+  "note": "Authored definitions only; mechanics are E18-C work, briefs and art are Codex's. Nothing here is in content/catalogue.json or any shop pool until E18 moves it there. E18-C02 landed Glass Pin and E18-C03 Crown Pin; their design blocks stay under `landed`.",
   "definitions": [
     {
       "item": {
@@ -412,72 +412,6 @@
     },
     {
       "item": {
-        "id": "pin.crown",
-        "name": "Crown Pin",
-        "category": "pin",
-        "rarity": "rare",
-        "pool_weight": 1,
-        "unlock": {
-          "kind": "championship",
-          "prerequisites": [
-            "gate.house_champion"
-          ]
-        },
-        "earliest_division": 2,
-        "purchase_price": 9,
-        "resale_price": 4,
-        "effects": [],
-        "limits": {
-          "max_owned": 2,
-          "charges": 0,
-          "exhaustion": "none"
-        },
-        "downside": "Zero Value unless it is the last pin to fall; rewards precise picking.",
-        "synergy_tags": [
-          "precision",
-          "positional",
-          "crown"
-        ],
-        "incompatibilities": [],
-        "assets": {
-          "icon": "res://assets/items/d01/icon.pin.crown.tres",
-          "card": "res://assets/items/d01/card.pin.crown.tres",
-          "in_play": "res://assets/items/d01/in_play.pin.crown.tscn",
-          "rarity_treatment": "res://assets/items/d01/rarity_treatment.pin.crown.tres",
-          "activation": "",
-          "sound": "",
-          "reduced_motion": "res://assets/items/d01/reduced_motion.pin.crown.tres"
-        },
-        "completeness": {
-          "authored": true,
-          "mechanics": false,
-          "automated_validation": false,
-          "artwork": false,
-          "effects_audio": false,
-          "unlock_assigned": true,
-          "integrated": false
-        }
-      },
-      "design": {
-        "trigger": "+40 Value only if it is the last distinct pin to fall in the frame, by resolution order; otherwise it adds nothing, not even base Value. Up to two in a rack (only one can be last).",
-        "primitives": [
-          "condition.last_fallen"
-        ],
-        "pool": "Unlocked by the first House League title; then the Equipment slot from Division 2.",
-        "presentation_needs": "Crowned silhouette. During resolution, show whether it fell last (the +40) or did not (a clear 0).",
-        "asset_ids": {
-          "icon": "icon.pin.crown",
-          "card": "card.pin.crown",
-          "in_play": "in_play.pin.crown",
-          "rarity_treatment": "rarity_treatment.pin.crown",
-          "activation": "activation.pin.crown",
-          "sound": "sound.pin.crown",
-          "reduced_motion": "reduced_motion.pin.crown"
-        }
-      }
-    },
-    {
-      "item": {
         "id": "consumable.nudge",
         "name": "Nudge",
         "category": "consumable",
@@ -685,6 +619,27 @@
           "activation": "activation.pin.glass",
           "sound": "sound.pin.glass",
           "reduced_motion": "reduced_motion.pin.glass"
+        }
+      }
+    },
+    {
+      "id": "pin.crown",
+      "landed_in": "E18-C03",
+      "design": {
+        "trigger": "+40 Value only if it is the last distinct pin to fall in the frame, by resolution order; otherwise it adds nothing, not even base Value. Up to two in a rack (only one can be last).",
+        "primitives": [
+          "condition.last_fallen"
+        ],
+        "pool": "Unlocked by the first House League title; then the Equipment slot from Division 2.",
+        "presentation_needs": "Crowned silhouette. During resolution, show whether it fell last (the +40) or did not (a clear 0).",
+        "asset_ids": {
+          "icon": "icon.pin.crown",
+          "card": "card.pin.crown",
+          "in_play": "in_play.pin.crown",
+          "rarity_treatment": "rarity_treatment.pin.crown",
+          "activation": "activation.pin.crown",
+          "sound": "sound.pin.crown",
+          "reduced_motion": "reduced_motion.pin.crown"
         }
       }
     }

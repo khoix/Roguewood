@@ -722,6 +722,12 @@ func _advance() -> void:
 	else:
 		_score_frame()
 
+## The frame's rule context before it banks: its place in the match, the strike streak
+## and the match score against its target (0 in Practice, which has none).
+func frame_context() -> Dictionary:
+	return {"match_frame": match_frame, "strike_streak": run.strike_streak, "match_score": division.match_score,
+		"match_target": 0 if division.practice else division.target()}
+
 ## Scores the completed frame from its roll reports and plays the explanation.
 func _score_frame() -> void:
 	var extras := {}
@@ -729,7 +735,7 @@ func _score_frame() -> void:
 		var played: Array = ([frame_mods[roll]] if frame_mods.has(roll) else []) + frame_tactics.get(roll, [])
 		if not played.is_empty():
 			extras[roll] = played
-	var built := FrameBuilder.build(run.loadout(), _catalogue, frame_reports, extras, {"match_frame": match_frame, "strike_streak": run.strike_streak})
+	var built := FrameBuilder.build(run.loadout(), _catalogue, frame_reports, extras, frame_context())
 	var result := Rules.resolve(built.frame) if built.ok else {"ok": false, "errors": built.errors}
 	if not result.ok:
 		push_error("Frame could not be scored: " + str(result.errors))

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+[ext_resource type="Script" path="res://src/presentation/ability_style.gd" id="1"]
+[resource]
+script = ExtResource("1")
+item_id = "charm.tip_jar"
+shape = "jar_drop"
+ink = Color(0.8901960784313725, 0.7803921568627451, 0.5372549019607843, 1)
+duration = 0.55
+priority = 3

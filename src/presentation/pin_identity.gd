@@ -3,10 +3,28 @@ extends RefCounted
 const Assets = preload("res://src/presentation/item_assets.gd")
 
 static func dress(pin: RigidBody3D, item_id: String) -> bool:
-	var material := Assets.slot(item_id, "in_play") as Material
+	if pin.get_meta("art_item_id", "") == item_id: return true
+	var resource := Assets.slot(item_id, "in_play")
+	if resource == null: return false
+	var previous := pin.get_node_or_null("CatalogueIdentity")
+	if previous != null:
+		pin.remove_child(previous)
+		previous.queue_free()
+	if resource is PackedScene:
+		# Replace only the development mesh, preserving the actual rigid body and
+		# every collision child. D01 scenes use the same base origin and pin profile.
+		for child in pin.get_children():
+			if child is MeshInstance3D: child.hide()
+		var identity: Node3D = resource.instantiate()
+		identity.name = "CatalogueIdentity"
+		pin.add_child(identity)
+		pin.set_meta("art_item_id", item_id)
+		return true
+	var material := resource as Material
 	if material == null: return false
 	for child in pin.get_children():
 		if child is MeshInstance3D:
+			child.show()
 			child.material_override = material
 			pin.set_meta("art_item_id", item_id)
 			break
