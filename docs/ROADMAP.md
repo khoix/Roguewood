@@ -81,7 +81,7 @@ Estimated sessions: Claude about 75, Codex about 97. At 3 and 4 sessions per wav
 |---|---|---|
 | **5** (open) | E18-C04: land Chalk Grip, Spin Wax, Coin Slot, Echo Charge, Brass Cap, Gilt Leaf, Lantern, Keystone (Medium). E17-L01: House League spec (8 Divisions, 4 rivals, champion, lane pool, kit, unlocks) and the 20-rival roster (High). | AV-C03: native checks, artwork flags, effects and sound for Crown Pin, Split Specialist, Sweet Spot, Back Row, Underdog, Crown Jewel (2 sessions, High). E17-D04-ART briefs (Medium). |
 | **6** | E18-C05: House Rules plus the new House rule, and lane conditions as catalogue items (High). E18-C06: tactical-card primitives, landing Nudge, Reserve Call, Rule Waiver (High). E18-C07: shop-upgrade system and 6 upgrades (High). | AV-C04: the 8 modifications (3 sessions). E22-L01-ART: House theme for 8 Divisions (High). |
-| **7** | DC-H1 to DC-H3: 18 House items (Medium ×3). | E21-R03, R04: House's new rivals with their rule badges. AV-C06: the 3 tactical cards. AV-C07: the 6 upgrades (2 sessions). |
+| **7** | DC-H1 to DC-H3: 18 House items (3 sessions, Medium). | E21-R03, R04: House's new rivals with their rule badges. AV-C06: the 3 tactical cards. AV-C07: the 6 upgrades (2 sessions). |
 | **8** | DC-H4: the last 5 House items. E22-L01: House League integration and its full-League journey (High). | AV-H1, AV-H2: the first 12 House items (4 sessions). |
 | 9 (Phase 2 starts) | E17-L02: Neon spec; Neon rules and lanes. | AV-H3, AV-H4: the last 11 House items. |
 
