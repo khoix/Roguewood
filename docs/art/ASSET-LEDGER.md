@@ -133,3 +133,15 @@ exclusive-rights/clearance claim; phone readability stays E26.
 | E20-V06 charm.spare_change | Original halves vector recipe + metal PCM; existing final identity illustration | `assets/effects/charm_spare_change.tres`, `assets/audio/charm_spare_change.wav` | `tools/author_effect_batch.py E20-V06`; config in batches.json | Audio SHA-256 `3730087cbee373c660ec3da016596d4ae7e69ee5602b17ae49800de04a697b11` | Native activation, reduced, skip/mute; 64px contact |
 
 | E20-V06 charm.house_favorite | Original gable vector recipe + wood PCM; existing final identity illustration | `assets/effects/charm_house_favorite.tres`, `assets/audio/charm_house_favorite.wav` | `tools/author_effect_batch.py E20-V06`; config in batches.json | Audio SHA-256 `8d5627b0976018db1ef186551b2c86cedb8b902fec6435bce831109908eaf34e` | Native activation, reduced, skip/mute; 64px contact |
+
+| E20-V07 ball.hook | Original hook vector recipe + rubber PCM; existing final identity illustration | `assets/effects/ball_hook.tres`, `assets/audio/ball_hook.wav` | `tools/author_effect_batch.py E20-V07`; config in batches.json | Audio SHA-256 `aa7cf92c4883ccd0c9f758c291bb6dfa7953487ca5f2141783ce1d12e5fcdc03` | Native activation, reduced, skip/mute; 64px contact |
+
+| E20-V07 charm.hook_artist | Original nib vector recipe + paper PCM; existing final identity illustration | `assets/effects/charm_hook_artist.tres`, `assets/audio/charm_hook_artist.wav` | `tools/author_effect_batch.py E20-V07`; config in batches.json | Audio SHA-256 `640284671c7734a4de728d76729d2156857863bf202e861f644b5db87583195b` | Native activation, reduced, skip/mute; 64px contact |
+
+| E20-V07 ball.hammer | Original impact vector recipe + wood PCM; existing final identity illustration | `assets/effects/ball_hammer.tres`, `assets/audio/ball_hammer.wav` | `tools/author_effect_batch.py E20-V07`; config in batches.json | Audio SHA-256 `e4fe22e2c05b2e6d550e66273481371eeca4984a7126ee2fcc18cf0894c859c2` | Native activation, reduced, skip/mute; 64px contact |
+
+| E20-V07 pin.rubber | Original elastic vector recipe + rubber PCM; existing final identity illustration | `assets/effects/pin_rubber.tres`, `assets/audio/pin_rubber.wav` | `tools/author_effect_batch.py E20-V07`; config in batches.json | Audio SHA-256 `2a490e5ac6d7d67d909ed57a743185a7d03a62e2eb74469b3d9972633c77dc6b` | Native activation, reduced, skip/mute; 64px contact |
+
+| E20-V07 pin.wood | Original chips vector recipe + wood PCM; existing final identity illustration | `assets/effects/pin_wood.tres`, `assets/audio/pin_wood.wav` | `tools/author_effect_batch.py E20-V07`; config in batches.json | Audio SHA-256 `c7c78abe48d57bd4999f49c52af777d36fd1130f91272e759834208ced29f1ef` | Native activation, reduced, skip/mute; 64px contact |
+
+| E20-V07 pin.ruby | Original facets vector recipe + metal PCM; existing final identity illustration | `assets/effects/pin_ruby.tres`, `assets/audio/pin_ruby.wav` | `tools/author_effect_batch.py E20-V07`; config in batches.json | Audio SHA-256 `ccac514f9361c734b2d119c6fbfff8794ab069e0063a34ac20b1f80be9c6d4e5` | Native activation, reduced, skip/mute; 64px contact |

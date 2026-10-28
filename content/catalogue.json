@@ -75,8 +75,8 @@
         "card": "res://assets/items/balls/hook-card.tres",
         "in_play": "res://assets/items/balls/hook-material.tres",
         "rarity_treatment": "res://assets/items/balls/hook-frame.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/ball_hook.tres",
+        "sound": "res://assets/audio/ball_hook.wav",
         "reduced_motion": "res://assets/items/balls/hook-card.tres"
       },
       "completeness": {
@@ -84,7 +84,7 @@
         "mechanics": true,
         "automated_validation": true,
         "artwork": true,
-        "effects_audio": false,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       },
@@ -122,8 +122,8 @@
         "card": "res://assets/items/balls/hammer-card.tres",
         "in_play": "res://assets/items/balls/hammer-material.tres",
         "rarity_treatment": "res://assets/items/balls/hammer-frame.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/ball_hammer.tres",
+        "sound": "res://assets/audio/ball_hammer.wav",
         "reduced_motion": "res://assets/items/balls/hammer-card.tres"
       },
       "completeness": {
@@ -131,7 +131,7 @@
         "mechanics": true,
         "automated_validation": true,
         "artwork": true,
-        "effects_audio": false,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       },
@@ -226,8 +226,8 @@
         "card": "res://assets/items/pins/wood-card.tres",
         "in_play": "res://assets/items/pins/wood-material.tres",
         "rarity_treatment": "res://assets/items/pins/wood-frame.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/pin_wood.tres",
+        "sound": "res://assets/audio/pin_wood.wav",
         "reduced_motion": "res://assets/items/pins/wood-card.tres"
       },
       "completeness": {
@@ -235,7 +235,7 @@
         "mechanics": true,
         "automated_validation": true,
         "artwork": true,
-        "effects_audio": false,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -284,8 +284,8 @@
         "card": "res://assets/items/pins/ruby-card.tres",
         "in_play": "res://assets/items/pins/ruby-material.tres",
         "rarity_treatment": "res://assets/items/pins/ruby-frame.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/pin_ruby.tres",
+        "sound": "res://assets/audio/pin_ruby.wav",
         "reduced_motion": "res://assets/items/pins/ruby-card.tres"
       },
       "completeness": {
@@ -293,7 +293,7 @@
         "mechanics": true,
         "automated_validation": true,
         "artwork": true,
-        "effects_audio": false,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -516,8 +516,8 @@
         "card": "res://assets/items/pins/rubber-card.tres",
         "in_play": "res://assets/items/pins/rubber-material.tres",
         "rarity_treatment": "res://assets/items/pins/rubber-frame.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/pin_rubber.tres",
+        "sound": "res://assets/audio/pin_rubber.wav",
         "reduced_motion": "res://assets/items/pins/rubber-card.tres"
       },
       "completeness": {
@@ -525,7 +525,7 @@
         "mechanics": true,
         "automated_validation": true,
         "artwork": true,
-        "effects_audio": false,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       },
@@ -793,8 +793,8 @@
         "card": "res://assets/items/charms/hook_artist-card.tres",
         "in_play": "res://assets/items/charms/hook_artist-card.tres",
         "rarity_treatment": "res://assets/items/charms/hook_artist-frame.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/charm_hook_artist.tres",
+        "sound": "res://assets/audio/charm_hook_artist.wav",
         "reduced_motion": "res://assets/items/charms/hook_artist-card.tres"
       },
       "completeness": {
@@ -802,7 +802,7 @@
         "mechanics": true,
         "automated_validation": true,
         "artwork": true,
-        "effects_audio": false,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }

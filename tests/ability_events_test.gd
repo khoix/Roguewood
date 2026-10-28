@@ -38,6 +38,11 @@ static func run() -> Array[String]:
 		if _ids(spare).count(id) != 1: failures.append("actual flat bonus " + id)
 	var other_ball := Slice._score(catalogue,Slice._loadout({},bonuses),Slice._strike("ball.hammer"))
 	if "charm.spare_change" in _ids(other_ball) or "charm.house_favorite" in _ids(other_ball): failures.append("spare/House cues are conditional")
+	var curved := Slice._score(catalogue,Slice._loadout({4:"pin.ruby",7:"pin.rubber"},["charm.hook_artist"]),Slice._strike("ball.hook",0.25))
+	for id in ["pin.wood","pin.ruby","pin.rubber","charm.hook_artist"]:
+		if id not in _ids(curved): failures.append("real fallen/curved event projects " + id)
+	var straight := Slice._score(catalogue,Slice._loadout({},["charm.hook_artist"]),Slice._strike("ball.hook",0.0))
+	if "charm.hook_artist" in _ids(straight): failures.append("straight Hook throw does not invent Hook Artist activation")
 	return failures
 static func _ids(result: Dictionary) -> Array:
 	var keys := {}

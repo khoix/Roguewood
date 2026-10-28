@@ -13,7 +13,7 @@ func _run() -> void:
 	wanted = rows.map(func(row): return row[0])
 	root.size = PORTRAIT
 	scene = load("res://src/bootstrap/bootstrap.tscn").instantiate()
-	if batch == "E20-V05": scene.throw_settings = {"practice":true}
+	if batch in ["E20-V05","E20-V07"]: scene.throw_settings = {"practice":true}
 	root.add_child(scene)
 	await process_frame
 	await _focus_accept(scene.enter)
@@ -28,10 +28,19 @@ func _run() -> void:
 		for position in [1,3]: _check(lab.run.place("pin.gold",0,"rack:%d" % position).is_empty(),"fixture Gold")
 	if batch == "E20-V04": _check(lab.run.place("pin.anchor",0,"rack:8").is_empty(),"fixture Anchor")
 	if batch == "E20-V05": lab.run.strike_streak = 2 # declared prior-streak fixture
+	if batch == "E20-V07":
+		_check(lab.run.place("pin.ruby",0,"rack:4").is_empty(),"fixture Ruby")
+		_check(lab.run.place("pin.rubber",0,"rack:7").is_empty(),"fixture Rubber")
 	lab._new_roll(false)
 	await _aim()
 	if batch == "E20-V01": _check(await _arm("ball.echo"),"actual Echo card arms")
-	if batch == "E20-V04":
+	if batch == "E20-V07":
+		_check(await _arm("ball.hook"),"actual Hook card arms")
+		await _throw(STRIKE,0.25)
+		if lab.history[-1].roll_result.fallen_positions.size() < 10:
+			await _focus_accept(lab.next_rack)
+			await _throw([0.0,0.0,0.6])
+	elif batch == "E20-V04":
 		var first := await _throw([-0.1,0.0,0.7],0.25)
 		_check(first.knockdown_log.standing == [8],"real nine-pin leave is the Anchor")
 		await _focus_accept(lab.next_rack)
@@ -49,6 +58,22 @@ func _run() -> void:
 		await _throw(STRIKE)
 		scored = await _scored()
 		_check(scored.banked == 4480 and lab.match_frame == 2,"real second frame activates Last Chance")
+	if batch == "E20-V07":
+		_check(lab.motion.abilities.history.any(func(e): return e.id == "ball.hook" and e.event == "committed_curve"),"actual committed Hook curve")
+		await _focus_accept(lab.next_rack)
+		var armed := await _arm("ball.hammer")
+		for i in 6:
+			if armed: break
+			await _focus_accept(lab.card_hand.cycle_button)
+			armed = await _arm("ball.hammer")
+		_check(armed,"actual Hammer card arms")
+		await _throw(STRIKE)
+		if lab.history[-1].roll_result.fallen_positions.size() < 10:
+			await _focus_accept(lab.next_rack)
+			await _throw([0.0,0.0,0.6])
+		scored = await _scored()
+		_check(lab.motion.abilities.history.any(func(e): return e.id == "ball.hammer" and e.event == "physical_impact"),"actual Hammer contact cue")
+		_check(lab.motion.abilities.history.any(func(e): return e.id == "pin.rubber" and e.event == "physical_contact"),"actual Rubber contact cue")
 	if batch == "E20-V06": _check(scored.result.category == "spare" and scored.banked == 2160,"real all-House spare: 180 Value times 12 Mult")
 	if batch == "E20-V04": _check(scored.result.category == "open" and scored.banked == scored.result.score,"one real standing Anchor frame banks unchanged")
 	if batch == "E20-V01": _check(scored.result.retriggers == 1 and scored.banked == 1050,"real Echo and Encore bank 1050")
@@ -106,3 +131,18 @@ func _scored() -> Dictionary:
 		await process_frame
 	_check(false,"scoring completes")
 	return lab.scored_frames[-1]
+
+func _wait_for(predicate: Callable, label: String, frames: int = 240) -> bool:
+	for i in frames:
+		if lab != null and lab.state == "rolling":
+			for marker in lab.motion.abilities.world_glyphs:
+				if marker.style == null or marker.age > marker.style.duration: continue
+				var id: String = marker.style.item_id
+				if id in wanted and not captures.has(id):
+					captures[id] = true
+					await _capture(id.replace(".","_")+"_activation")
+		if predicate.call(): return true
+		await process_frame
+	if predicate.call(): return true
+	_check(false,"Timeout: " + label)
+	return false

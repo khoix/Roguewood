@@ -44,7 +44,11 @@ func _ready() -> void:
 	style.bg_color = Color("101820")
 	style.set_content_margin_all(24)
 	panel.add_theme_stylebox_override("panel",style)
-	lab.settings_panel.add_child(panel)
+	lab.add_child(panel)
+	panel.offset_left = 24
+	panel.offset_right = -24
+	panel.offset_top = 96
+	panel.offset_bottom = -24
 	var box := VBoxContainer.new()
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
 	box.add_theme_constant_override("separation",16)
@@ -105,3 +109,6 @@ func cue(id: String, stream: AudioStream, priority: int = 1) -> void:
 	voices[index].play()
 	played += 1
 	max_active = maxi(max_active, voices.filter(func(v): return v.playing).size())
+
+func _process(_delta: float) -> void:
+	if not lab.settings_panel.visible: panel.hide()

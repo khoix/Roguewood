@@ -76,6 +76,10 @@ JOURNEYS["J12V05"] = ("res://tests/ability_journey.gd", "ROGUEWOOD_ABILITY_OK", 
                        ("charm_finisher_activation", "charm_turkey_club_activation", "charm_last_chance_activation", "resolved", "reduced", "landscape"), 900, ["--fixed-fps", "60"])
 JOURNEYS["J12V06"] = ("res://tests/ability_journey.gd", "ROGUEWOOD_ABILITY_OK", "artifacts/e20-v06/native",
                        ("charm_flat_bonus_activation", "charm_spare_change_activation", "charm_house_favorite_activation", "resolved", "reduced", "landscape"), 900, ["--fixed-fps", "60"])
+JOURNEYS["J12V07"] = ("res://tests/ability_journey.gd", "ROGUEWOOD_ABILITY_OK", "artifacts/e20-v07/native",
+                       ("ball_hook_activation", "charm_hook_artist_activation", "ball_hammer_activation", "pin_rubber_activation", "pin_wood_activation", "pin_ruby_activation", "resolved", "reduced", "landscape"), 1200, ["--fixed-fps", "60"])
+JOURNEYS["J12"] = ("res://tests/dense_ability_journey.gd", "ROGUEWOOD_DENSE_ABILITY_OK", "artifacts/e20-dense/native",
+                    ("dense", "controls", "reduced", "landscape", "settlement"), 1200, ["--fixed-fps", "60"])
 # Content set per journey (E13, ADR 008): mechanism journeys keep the lab fixtures;
 # the shell journey and J06 stage 1 play the production slice (the game's default).
 CONTENT = {"J09": "slice", "J02": "lab", "J03": "lab", "J04": "lab", "J05": "lab", "J07": "lab", "J08": "lab"}

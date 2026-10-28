@@ -8,6 +8,12 @@ var history: Array = []
 var _boss := ""
 var _projected := {}
 var _settlement := -1
+var world_glyphs: Array[Control] = []
+var _lane_id := 0
+var _fallen := 0
+var _hook := false
+var _hammer := false
+var _rubber := {}
 var shop_glyph: Control
 var growth_label: Label
 var growth_row: HBoxContainer
@@ -33,8 +39,14 @@ func _ready() -> void:
 	growth_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	growth_row.add_child(growth_label)
 	growth_row.hide()
+	for i in 4:
+		var marker: Control = preload("res://src/presentation/ability_glyph.gd").new()
+		marker.size = Vector2(64,64)
+		lab.motion.add_child(marker)
+		world_glyphs.append(marker)
 	lab.score_panel.step_revealed.connect(_step)
 func _process(_delta: float) -> void:
+	_physical()
 	glyph.enabled = lab.motion.sound.enabled
 	intro_glyph.enabled = lab.motion.sound.enabled
 	shop_glyph.enabled = lab.motion.sound.enabled
@@ -72,3 +84,52 @@ func _step(step: Dictionary, index: int, skipped: bool) -> void:
 		if _projected.has(activation.key): continue
 		_projected[activation.key] = true
 		cue(activation.id,activation.phase,skipped)
+
+func _physical() -> void:
+	for marker in world_glyphs:
+		marker.enabled = lab.motion.sound.enabled
+		marker.visible = lab.state == "rolling" and not lab.settings_panel.visible
+	if lab.lane == null: return
+	if lab.lane.get_instance_id() != _lane_id:
+		_lane_id = lab.lane.get_instance_id()
+		_fallen = 0
+		_hook = false
+		_hammer = false
+		_rubber.clear()
+	if lab.state != "rolling": return
+	var launch: Dictionary = lab.lane.launch
+	var ball_id: String = launch.get("ball_id","")
+	if ball_id == "ball.hook" and not _hook and preload("res://src/simulation/lane_spec.gd").is_curved(float(launch.get("spin",0))):
+		_hook = true
+		_world_cue(ball_id,"committed_curve",lab.screen_point(lab.lane.ball_position()))
+	for position in lab.lane.pins:
+		var pin: RigidBody3D = lab.lane.pins[position]
+		if lab.run.rack[position].item_id == "pin.rubber" and not _rubber.has(position) and pin.linear_velocity.length() > 0.1:
+			if pin.get_colliding_bodies().any(func(body): return body is RigidBody3D):
+				_rubber[position] = true
+				_world_cue("pin.rubber","physical_contact",lab.screen_point(pin.global_position))
+	var sequence: Array = lab.lane.tracker.sequence
+	for i in range(_fallen,sequence.size()):
+		var position: int = sequence[i]
+		var id: String = lab.run.rack[position].item_id
+		var point: Vector2 = lab.screen_point(lab.lane.pins[position].global_position)
+		if ball_id == "ball.hammer" and not _hammer:
+			_hammer = true
+			_world_cue(ball_id,"physical_impact",point)
+		if id in ["pin.wood","pin.ruby"]: _world_cue(id,"physical_knockdown",point)
+	_fallen = sequence.size()
+func _world_cue(id: String, event: String, point: Vector2) -> void:
+	var recipe := Assets.slot(id,"activation")
+	if recipe == null: return
+	cue(id,event,false)
+	var selected: Control
+	for marker in world_glyphs:
+		if marker.style == null or marker.age > marker.style.duration:
+			selected = marker
+			break
+	if selected == null:
+		for marker in world_glyphs:
+			if marker.style.priority < recipe.priority: selected = marker; break
+	if selected == null: return
+	selected.position = (point-Vector2(32,32)).clamp(Vector2.ZERO,lab.size-Vector2(64,64))
+	selected.show_cue(recipe,lab.settings.reduced_motion or lab.settings.reduced_flash,Assets.slot(id,"icon"))

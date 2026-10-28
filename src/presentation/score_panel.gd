@@ -65,6 +65,7 @@ func _ready() -> void:
 	counters.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	row.add_child(counters)
 	log_scroll = ScrollContainer.new()
+	log_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	log_scroll.custom_minimum_size = Vector2(0, 150)
 	log_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	box.add_child(log_scroll)
@@ -124,6 +125,8 @@ func _reveal() -> void:
 	step_revealed.emit(step, shown, _skipping)
 	var line := Label.new()
 	line.text = "%s  %s" % [step.symbol, step.text] if not step.symbol.is_empty() else step.text
+	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	line.add_theme_font_size_override("font_size", 22)
 	if step.symbol == "×":
 		line.add_theme_color_override("font_color", Color(1.0, 0.45, 0.45))

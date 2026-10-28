@@ -105,3 +105,29 @@ func _draw() -> void:
 			draw_polyline(PackedVector2Array([c+Vector2(-27,-17),c+Vector2(0,-29+3*t),c+Vector2(27,-17)]),ink,3)
 			draw_line(c+Vector2(16,-22),c+Vector2(16,-29),ink,4)
 			draw_line(c+Vector2(-25,24),c+Vector2(25,24),ink,3)
+		"hook":
+			draw_arc(c,26,PI*0.2,PI*(1.1+0.5*t),24,ink,3)
+			draw_line(c+Vector2(-25,-8),c+Vector2(-18,-5),ink,3)
+		"nib":
+			draw_polyline(PackedVector2Array([c+Vector2(-26,24),c+Vector2(-23,-16),c+Vector2(-12,-27),c+Vector2(8,-27)]),ink,3)
+			draw_colored_polygon(PackedVector2Array([c+Vector2(10,-27),c+Vector2(20,-23),c+Vector2(11,-18)]),ink)
+		"impact":
+			for j in 4:
+				var angle := j*PI*0.5+PI*0.25
+				var dir := Vector2(cos(angle),sin(angle))
+				var tangent := Vector2(-dir.y,dir.x)*5
+				draw_colored_polygon(PackedVector2Array([c+dir*(20+7*(1-t)),c+dir*30+tangent,c+dir*30-tangent]),ink)
+		"elastic":
+			var bend := sin(t*PI)*9
+			draw_polyline(PackedVector2Array([c+Vector2(-28,20),c+Vector2(-24,-12-bend),c+Vector2(0,-25),c+Vector2(24,-12-bend),c+Vector2(28,20)]),ink,3)
+		"chips":
+			for j in 4:
+				var x := -24+j*16
+				var y := 18+t*10-(j%2)*5
+				draw_line(c+Vector2(x,y),c+Vector2(x+5,y+3),ink,3)
+		"facets":
+			for j in 4:
+				var angle := j*PI*0.5
+				var at := c+Vector2(cos(angle),sin(angle))*26
+				var r := 3.0+2.0*sin(t*PI+j*0.7)
+				draw_polyline(PackedVector2Array([at+Vector2(0,-r),at+Vector2(r,0),at+Vector2(0,r),at+Vector2(-r,0),at+Vector2(0,-r)]),ink,2)
