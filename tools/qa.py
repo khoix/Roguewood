@@ -7,6 +7,10 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+# Captured evidence is output, never a Godot resource. Avoid reimporting every
+# journey screenshot before each subsequent check (and on resumed workspaces).
+(ROOT / "artifacts").mkdir(exist_ok=True)
+(ROOT / "artifacts/.gdignore").touch()
 VERSION = (ROOT / ".godot-version").read_text().strip()
 # journey -> script, success marker, artifact directory, rendered captures, timeout, extra engine flags
 JOURNEYS = {
@@ -34,6 +38,48 @@ JOURNEYS = {
             ("continue_menu", "resumed_hand", "resumed_roll", "resumed_frame", "resumed_shop", "resumed_reroll",
              "resumed_roll2", "career_kept", "fallback", "no_save"), 300, ["--fixed-fps", "60"]),
 }
+# Wave 1 presentation extension; production slice content (separate from lab J08).
+JOURNEYS["J08A01"] = ("res://tests/ball_art_journey.gd", "ROGUEWOOD_BALL_ART_OK", "artifacts/e19-a01/native",
+                       ("ball_inspect", "ball_aim", "ball_scored", "ball_reduced"), 300, ["--fixed-fps", "60"])
+# A01 completion evidence: actual offer artwork and House binder slot.
+JOURNEYS["J08A01"] = (*JOURNEYS["J08A01"][:3], JOURNEYS["J08A01"][3] + ("ball_shop", "ball_house"), *JOURNEYS["J08A01"][4:])
+JOURNEYS["J08A02"] = ("res://tests/pin_art_journey.gd", "ROGUEWOOD_PIN_ART_OK", "artifacts/e19-a02/native",
+                       ("pin_rack", "pin_reduced", "pin_fallen", "pin_ruby_shop", "pin_gold_shop", "pin_anchor_shop",
+                        "pin_wood_binder", "pin_ruby_binder", "pin_gold_binder", "pin_anchor_binder"), 300, ["--fixed-fps", "60"])
+JOURNEYS["J08A02"] = (*JOURNEYS["J08A02"][:3], JOURNEYS["J08A02"][3] + ("pin_rack_detail", "pin_impact_detail"), *JOURNEYS["J08A02"][4:])
+# Wave 1 item identity batches share the real purchase/placement/binder journey.
+JOURNEYS["J08A03"] = ("res://tests/item_art_journey.gd", "ROGUEWOOD_ITEM_ART_OK", "artifacts/e19-a03/native",
+                       ("equipped", "reduced", "scored", "landscape", "rack_detail"), 600, ["--fixed-fps", "60"])
+JOURNEYS["J08A04"] = ("res://tests/item_art_journey.gd", "ROGUEWOOD_ITEM_ART_OK", "artifacts/e19-a04/native",
+                       ("equipped", "reduced", "scored", "landscape"), 600, ["--fixed-fps", "60"])
+JOURNEYS["J08A05"] = ("res://tests/item_art_journey.gd", "ROGUEWOOD_ITEM_ART_OK", "artifacts/e19-a05/native",
+                       ("equipped", "reduced", "scored", "landscape"), 600, ["--fixed-fps", "60"])
+JOURNEYS["J08A06"] = ("res://tests/item_art_journey.gd", "ROGUEWOOD_ITEM_ART_OK", "artifacts/e19-a06/native",
+                       ("equipped", "reduced", "scored", "landscape"), 600, ["--fixed-fps", "60"])
+JOURNEYS["J08A06R"] = ("res://tests/rule_art_journey.gd", "ROGUEWOOD_J06_STAGE1_OK", "artifacts/e19-a06/rules",
+                       ("slice_preview", "slice_dead_straight", "slice_clean_sweep", "slice_won"), 900, ["--fixed-fps", "60"])
+JOURNEYS["J08A07"] = ("res://tests/item_art_journey.gd", "ROGUEWOOD_ITEM_ART_OK", "artifacts/e19-a07/native",
+                       ("equipped", "reduced", "scored", "landscape", "kit_house_binder"), 600, ["--fixed-fps", "60"])
+JOURNEYS["J12R01"] = ("res://tests/rival_art_journey.gd", "ROGUEWOOD_J06_STAGE1_OK", "artifacts/e21-r01/native",
+                       ("slice_dead_straight", "slice_clean_sweep", "slice_won"), 1200, ["--fixed-fps", "60"])
+JOURNEYS["J12R02"] = ("res://tests/rival_art_journey.gd", "ROGUEWOOD_J06_STAGE1_OK", "artifacts/e21-r02/native",
+                       ("rival_custodian_intro", "slice_dead_straight", "slice_clean_sweep", "slice_won"), 1200, ["--fixed-fps", "60"])
+JOURNEYS["J12V01"] = ("res://tests/ability_journey.gd", "ROGUEWOOD_ABILITY_OK", "artifacts/e20-v01/native",
+                       ("ball_echo_activation", "charm_encore_activation", "resolved", "reduced", "landscape"), 900, ["--fixed-fps", "60"])
+JOURNEYS["J12V02"] = ("res://tests/ability_journey.gd", "ROGUEWOOD_ABILITY_OK", "artifacts/e20-v02/native",
+                       ("pin_grower_activation", "charm_patient_investor_activation", "resolved", "reduced", "landscape"), 900, ["--fixed-fps", "60"])
+JOURNEYS["J12V03"] = ("res://tests/ability_journey.gd", "ROGUEWOOD_ABILITY_OK", "artifacts/e20-v03/native",
+                       ("pin_gold_activation", "charm_gold_rush_activation", "resolved", "reduced", "landscape"), 900, ["--fixed-fps", "60"])
+JOURNEYS["J12V04"] = ("res://tests/ability_journey.gd", "ROGUEWOOD_ABILITY_OK", "artifacts/e20-v04/native",
+                       ("pin_anchor_activation", "charm_standing_order_activation", "charm_lone_survivor_activation", "resolved", "reduced", "landscape"), 900, ["--fixed-fps", "60"])
+JOURNEYS["J12V05"] = ("res://tests/ability_journey.gd", "ROGUEWOOD_ABILITY_OK", "artifacts/e20-v05/native",
+                       ("charm_finisher_activation", "charm_turkey_club_activation", "charm_last_chance_activation", "resolved", "reduced", "landscape"), 900, ["--fixed-fps", "60"])
+JOURNEYS["J12V06"] = ("res://tests/ability_journey.gd", "ROGUEWOOD_ABILITY_OK", "artifacts/e20-v06/native",
+                       ("charm_flat_bonus_activation", "charm_spare_change_activation", "charm_house_favorite_activation", "resolved", "reduced", "landscape"), 900, ["--fixed-fps", "60"])
+JOURNEYS["J12V07"] = ("res://tests/ability_journey.gd", "ROGUEWOOD_ABILITY_OK", "artifacts/e20-v07/native",
+                       ("ball_hook_activation", "charm_hook_artist_activation", "ball_hammer_activation", "pin_rubber_activation", "pin_wood_activation", "pin_ruby_activation", "resolved", "reduced", "landscape"), 1200, ["--fixed-fps", "60"])
+JOURNEYS["J12"] = ("res://tests/dense_ability_journey.gd", "ROGUEWOOD_DENSE_ABILITY_OK", "artifacts/e20-dense/native",
+                    ("dense", "controls", "reduced", "landscape", "settlement"), 1200, ["--fixed-fps", "60"])
 # Content set per journey (E13, ADR 008): mechanism journeys keep the lab fixtures;
 # the shell journey and J06 stage 1 play the production slice (the game's default).
 CONTENT = {"J09": "slice", "J02": "lab", "J03": "lab", "J04": "lab", "J05": "lab", "J07": "lab", "J08": "lab"}

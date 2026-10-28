@@ -38,8 +38,8 @@ static func _fresh(graph: Dictionary, failures: Array[String]) -> void:
 	var counts := Model.binder_counts(binder)
 	_expect(binder.size() == 23 and counts.locked == 2 and counts.available == 21 and counts.discovered == 0, "a fresh binder: 2 Locked, 21 Available (boss rules excluded)", failures)
 	var encore := _entry(binder, "charm.encore")
-	_expect(encore.state == "locked" and encore.requirement == "Beat The Surveyor (House League)" and encore.asset == "card.charm.encore",
-		"Encore names the rival that unlocks it and its card asset ID", failures)
+	_expect(encore.state == "locked" and encore.requirement == "Beat The Surveyor (House League)" and encore.asset == _entry(graph.catalogue.items, "charm.encore").assets.card and Art.has_art(encore.asset),
+		"Encore names its unlocking rival and resolves its catalogue card artwork", failures)
 	_expect(Model.inspect(encore, graph.catalogue).contains("Unlock: Beat The Surveyor (House League). It then joins the pool from your next attempt."),
 		"inspecting a locked card explains the unlock and the next-attempt rule", failures)
 	var shelf := Model.trophies(career, graph)

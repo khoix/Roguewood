@@ -4,6 +4,7 @@ extends PanelContainer
 ## explicit replacements) with Cancel. A view only: the lab and the pure Shop and
 ## RunInventory own every rule and number. Touch, mouse and keyboard/gamepad focus
 ## all work. Developmental look; card art and foil are E12/E19.
+const ItemAssets = preload("res://src/presentation/item_assets.gd")
 signal offer_pressed(index: int)
 signal reroll_pressed
 signal remove_pressed
@@ -145,6 +146,12 @@ func show_view(view: Dictionary) -> void:
 	for i in offer_buttons.size():
 		var offer: Dictionary = view.offers[i]
 		var button: Button = offer_buttons[i]
+		button.icon = ItemAssets.slot(str(offer.get("item_id", "")), "icon") as Texture2D
+		button.expand_icon = true
+		button.texture_filter = TEXTURE_FILTER_NEAREST
+		button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		button.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
+		button.add_theme_constant_override("icon_max_width", 32)
 		button.text = offer.text
 		button.disabled = offer.state != "buy" or choice_sheet.visible
 		button.modulate = {"buy": Color.WHITE, "poor": Color(1.0, 0.75, 0.75), "blocked": Color(0.8, 0.8, 0.8), "sold": Color(0.6, 0.6, 0.6), "empty": Color(0.5, 0.5, 0.5)}[offer.state]
