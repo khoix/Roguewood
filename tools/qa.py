@@ -10,6 +10,8 @@ ROOT = Path(__file__).resolve().parents[1]
 VERSION = (ROOT / ".godot-version").read_text().strip()
 # journey -> script, success marker, artifact directory, rendered captures, timeout, extra engine flags
 JOURNEYS = {
+    "J10": ("res://tests/career_journey.gd", "ROGUEWOOD_J10_OK", "artifacts/e15",
+            ("career_fresh", "career_unlocked", "career_spare", "career_lost", "career_no_duplicate", "career_practice", "career_menu"), 900, ["--fixed-fps", "60"]),
     "J09": ("res://tests/campaign_journey.gd", "ROGUEWOOD_J09_OK", "artifacts/e14", ("campaign_shop", "campaign_won", "campaign_endless", "campaign_lost"), 1500, ["--fixed-fps", "60"]),
     "J08": ("res://tests/motion_journey.gd", "ROGUEWOOD_J08_OK", "artifacts/e12",
             ("aim", "foil", "reveal", "rolling", "impact", "scoring", "reaction", "returned"), 900, ["--fixed-fps", "60"]),
@@ -38,7 +40,7 @@ CONTENT = {"J09": "slice", "J02": "lab", "J03": "lab", "J04": "lab", "J05": "lab
 STAGE_RUNS = {"J06": [("res://tests/slice_journey.gd", "slice"), ("res://tests/division_journey.gd", "lab")]}
 # Journeys that restart the game: each stage is a separate engine process sharing
 # one save directory; stage k prints ROGUEWOOD_<journey>_STAGE<k>_OK.
-STAGES = {"J09": 3, "J07": 10}
+STAGES = {"J09": 3, "J07": 10, "J10": 3}
 
 
 def engine():

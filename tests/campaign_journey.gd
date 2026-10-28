@@ -46,9 +46,17 @@ func _run() -> void:
 		await _wait_for(func(): return lab.state == "division_over", "championship result")
 		_check(lab.division.outcome == "won" and lab.division.results.size() == 24, "24 native matches win championship")
 		_check(lab.hud.endless_button.visible, "endless choice available")
+		# E15: the championship is banked in the Career at once, with its title gate.
+		var title: Dictionary = scene.career.championships.get("league.house_campaign", {})
+		_check(int(title.get("wins", 0)) == 1 and "gate.house_campaign_champion" in scene.career.unlocked
+			and lab.hud.result_body.text.contains("Champion: first House Campaign title"), "the first campaign title is banked and announced")
+		var saved: Dictionary = scene.store.read("career")
+		_check(saved.ok and int(saved.payload.championships["league.house_campaign"].wins) == 1, "the title is on disk before the result")
 		await _capture("campaign_won")
 	else:
 		_check(lab.state == "division_over" and lab.hud.endless_button.visible, "championship choice survives restart")
+		_check(int(scene.career.championships["league.house_campaign"].wins) == 1 and scene.career.unlocked.count("gate.house_campaign_champion") == 1,
+			"the restored result does not count the title again")
 		await _focus_accept(lab.hud.endless_button)
 		await _wait_for(func(): return lab.state == "shop", "endless preparation")
 		_check(lab.division.specs.size() == 9, "one endless Division added")
@@ -63,6 +71,8 @@ func _run() -> void:
 		await _focus_accept(lab.next_rack)
 		await _wait_for(func(): return lab.state == "division_over", "loss result")
 		_check(lab.division.outcome == "lost" and not lab.hud.endless_button.visible, "loss ends endless")
+		_check(int(scene.career.championships["league.house_campaign"].wins) == 1 and "gate.house_campaign_champion" in scene.career.unlocked,
+			"losing in Endless keeps the title")
 		await _capture("campaign_lost")
 	if "--inject-failure" in OS.get_cmdline_user_args(): _check(false, "Injected diagnostic failure")
 	if failures.is_empty(): print("ROGUEWOOD_J09_OK" if stage == 3 else "ROGUEWOOD_J09_STAGE%d_OK" % stage)

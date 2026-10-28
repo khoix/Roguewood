@@ -5,6 +5,8 @@ extends SceneTree
 ## Version 1 files are frozen: every later schema version must keep loading them
 ## through its migrations. Regenerate only to add a new version's fixtures.
 ## Usage: godot --headless --script res://tools/make_save_fixture.gd -- --out=<dir>
+## E15 adds the frozen schema 2 Career (tests/fixtures/saves/v2/career.json):
+##   ... -- --out=<dir> --career-v2
 const Store = preload("res://src/persistence/save_store.gd")
 const Snapshot = preload("res://src/persistence/attempt_snapshot.gd")
 const Career = preload("res://src/persistence/career_profile.gd")
@@ -23,6 +25,9 @@ func _init() -> void:
 	var out := ""
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--out="): out = arg.trim_prefix("--out=")
+	if "--career-v2" in OS.get_cmdline_user_args():
+		_career_v2(out)
+		return
 	var parts := golden_parts()
 	var store = Store.create(out)
 	store.clear("attempt")
@@ -75,3 +80,25 @@ static func golden_parts() -> Dictionary:
 		"kept_last_frame": "", "equipment_model": "deck", "settlement": settlement, "last_scored": null,
 		"pending": {"launch": second.launch, "input": {"source": "assist"}}, "result": null}
 	return {"attempt": 1, "seed": 1, "phase": "committed", "lab": lab, "run": run, "shop": shop, "division": division, "equipment": deck}
+
+## Career v2 (E15, ADR 010): two lab attempts, the rival's first clear, one spare
+## counted, a lab title won with Wood pins owned.
+func _career_v2(out: String) -> void:
+	var store = Store.create(out)
+	store.clear("career")
+	var career := Career.fresh()
+	var spec: Dictionary = Contracts.read_json(DIVISION)
+	Career.begin_attempt(career)
+	var uid := Career.begin_attempt(career)
+	Career.record_items(career, ["pin.wood", "ball.lab_value"], uid)
+	Career.bank_frame(career, uid, 1, {"spares": 1, "strikes": 0, "curved_strikes": 0, "materials": ["pin.wood"]},
+		{"league": "league.lab", "practice": false, "division": 1, "total": 240, "frame_score": 240}, [])
+	Career.record_first_clear(career, spec.rivals[0], 2, uid)
+	career.intros_seen[spec.rivals[0].id] = true
+	Career.record_championship(career, {"id": "league.lab", "championship": {"gates": []}}, uid, ["pin.wood"])
+	var errors: Array[String] = store.write("career", career)
+	for suffix in [".bak", ".tmp"]:
+		DirAccess.remove_absolute(store.path("career", suffix))
+	print("errors=%s" % str(errors))
+	print("ROGUEWOOD_FIXTURE_OK" if errors.is_empty() else "ROGUEWOOD_FIXTURE_FAILED")
+	quit(0 if errors.is_empty() else 1)

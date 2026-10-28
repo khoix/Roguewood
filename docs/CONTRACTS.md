@@ -128,6 +128,10 @@ Saves live in one directory: `user://saves`, or the shell's `--save-dir=`.
 
 **Career payload (schema 1)** is `{first_clears: {rival_id: {attempt}}, unlocked: [gate ids], intros_seen: {rival_id: true}}`. `CareerProfile.record_first_clear` is idempotent.
 
+**Career payload (schema 2, E15, ADR 010)** adds `awards` (gate → {source, career_attempt}), `attempts` (the uid counter), `championships` (league → {wins, first_attempt, last_attempt}), `mastery` (objective → {career_attempt}), `totals` (metric → count), `tally` ({uid, frame, practice, counts, materials}), `records` (league → {attempts, practice_attempts, best_division, best_total, best_frame, practice_best_frame, wins}) and `items` (item → {first_attempt, attempts, league_wins, last_attempt, last_win}); `first_clears` entries gain `career_attempt`. v1 migrates by adding the keys. Attempt snapshots may carry `career_attempt` (additive within attempt schema 2).
+
+**Unlock registry (schema 1)**, `content/career/unlocks.json`: `{leagues: [{id, name, content_set, access: [gates], championship: {gates, text}}], gates: [{id, kind (boss|championship|mastery), name}], objectives: [{id, name, text, metric (strikes|spares|curved_strikes|pin_materials), threshold, scope (career|attempt), prerequisites, gates, reward}], counters: {boss rule → [synergy tags]}}`. `UnlockGraph.build` validates it with the catalogue and the Leagues' rivals.
+
 `tests/fixtures/saves/v1` holds the frozen golden saves that every later version must load.
 
 ## E13 content contract v2 and the slice (ADR 008)

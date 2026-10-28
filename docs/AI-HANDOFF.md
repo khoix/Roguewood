@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-10-27. Agent work: E01–E13 DONE (owner merge is approval; see AGENTS.md). E10 and E13 are complete on `claude/roguewood-build` (not yet merged); E12 merged to main by PR #8. E14 DONE (Codex, implementation 71b2bd2 on `codex/roguewood-build`; not yet merged to main). Provisional decisions: E07 equipment model (waits for the blocked E13 device play session), E08 prices, E09/E13 targets and E13 item numbers (E24). Device gates: E05 real-phone trials, phone readability and the E13 play session (E26).
+Updated: 2026-10-27. Agent work: E01–E13 DONE (owner merge is approval; see AGENTS.md). E10 and E13 are complete on `claude/roguewood-build` (not yet merged); E12 merged to main by PR #8. E14 DONE (Codex, implementation 71b2bd2; merged to main by PR #9, `fd1d466`, which also carried E10 and E13). E15 DONE (Claude, `claude/roguewood-build`; not yet merged to main). Provisional decisions: E07 equipment model (waits for the blocked E13 device play session), E08 prices, E09/E13 targets and E13 item numbers (E24). Device gates: E05 real-phone trials, phone readability and the E13 play session (E26).
 
 ## Read first
 
@@ -29,7 +29,8 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - E09 DONE: accepted by the owner through the PR #7 merge (main `1132fca`), no review comments. Implementation `fcea7f3b36f40077628c5a33bab89c819baaa1b7` on `claude/roguewood-build` (E09 commit `c427fad` plus the J05 scroll fix). The opener, feature and boss with fixed targets, The Custodian's Clean Sweep, previews before every shop, the skippable introduction, non-blocking reactions, win/loss/retry and the in-memory first-clear record pass locally (unit with mutation checks, J01–J06 headless and rendered); CI 40451844709 PASS (run on `90b9270`, which adds only the checkpoint; artifact `journeys` 12711515136); J06 output identical to local. Targets are provisional (decisions/006-division-loop-and-rival.md). See handoffs/E09.md.
 - E10 DONE (owner policy: completed implementation and verification; not yet merged to main): implementation `8e4edd5fa99651f5b5d91cde5fb5c8ab1ab0bb6d` on `claude/roguewood-build`. Checksummed atomic saves with backup and quarantine, versioned attempt snapshots at every committed step, committed-throw re-simulation, no double banking, purchases or rerolls by reload, a separate idempotent Career file, Continue and save notices, golden v1 saves, and J07 across ten real process restarts all pass locally; CI 40460928513 PASS on `8e4edd5` (artifact `journeys` 12715071786; J07's ten stages ran in both modes with values identical to local). See decisions/007-attempt-saves-and-recovery.md and handoffs/E10.md.
 - E13 DONE (owner policy: completed implementation and verification; not yet merged to main): on `claude/roguewood-build` (implementation `98cc2aa`, building on `5aac9d2` and `aea54e0`; CI 40524506207 PASS, artifact `journeys` 12744012079; see handoffs/E13.md). Catalogue/frame contract v2, production batch E13-S01, the two-Division House League with The Surveyor and The Custodian, content sets, attempt saves v2, J06 across both Divisions, and the seeded strategy simulation. The real-device play session is BLOCKED (docs/playtests/E13-slice-playtest.md). See decisions/008-vertical-slice.md.
-- Active: none. E14 DONE; E15 is next (High), not started.
+- E15 DONE (owner policy: completed implementation and verification; not yet merged to main): on `claude/roguewood-build` (implementation `2cdedb1` plus the result-line follow-up; base main `fd1d466`). Career schema 2 with a v1 migration and a golden v2 file; the unlock registry and validated graph (IDs, kinds, sources, loops, reachability, self-unlocks, starting counters); immediate idempotent banking of first clears, titles, mastery, records and discoveries; attempt pool snapshots; the practice policy; the menu summary and League access; J10 across three real processes. See decisions/010-career-and-unlock-graph.md and handoffs/E15.md.
+- Active (Wave 1): Claude E16 core; Codex E19-A01…A07, E20-V01…V07, E21-R01/R02. See "Wave 1 claims". Next for Claude: E17-D01.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
@@ -58,25 +59,159 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E12 — Representative motion and visual review | DONE | Codex | main (PR #8) | Implementation 90f5690; handoff 046d109; CI 40444945503 + 40444945245 PASS; merged by PR #8 (main 9225f7c) |
 | E13 — Vertical-slice integration | DONE (device play session blocked) | Claude | claude/roguewood-build (not yet merged) | 98cc2aa (with 5aac9d2, aea54e0); CI 40524506207 PASS; ADR 008; E13 handoff |
 | E14 — Seeded eight-Division progression | DONE | Codex | codex/roguewood-build | 71b2bd2; local unit/content/integration/physics, J01/J06/J07 and native J09 headless/rendered PASS; handoffs/E14.md |
-| E15 — Career persistence and unlock graph | NOT_STARTED | unassigned | — | See dependency graph |
-| E16 — Clubhouse and collection UI | NOT_STARTED | unassigned | — | See dependency graph |
-| E17 — Catalogue and unlock authoring batches | NOT_STARTED | unassigned | — | See dependency graph |
-| E18 — Content mechanics batches | NOT_STARTED | unassigned | — | See dependency graph |
-| E19 — Final item artwork batches | NOT_STARTED | unassigned | — | See dependency graph |
-| E20 — Ability effects and audio batches | NOT_STARTED | unassigned | — | See dependency graph |
-| E21 — Rival presentation batches | NOT_STARTED | unassigned | — | See dependency graph |
-| E22 — League theme integration batches | NOT_STARTED | unassigned | — | See dependency graph |
-| E23 — Starting kits, mastery, difficulty, and endless | NOT_STARTED | unassigned | — | See dependency graph |
-| E24 — Economy and procedural balance study | NOT_STARTED | unassigned | — | See dependency graph |
-| E25 — Onboarding and accessibility completion | NOT_STARTED | unassigned | — | See dependency graph |
-| E26 — Platform packaging and performance | NOT_STARTED | unassigned | — | See dependency graph |
-| E27 — Content and asset completeness audit | NOT_STARTED | unassigned | — | See dependency graph |
-| E28 — Cross-system release candidate | NOT_STARTED | unassigned | — | See dependency graph |
-| E29 — Delivery and final handoff | NOT_STARTED | unassigned | — | See dependency graph |
+| E15 — Career persistence and unlock graph | DONE | Claude | claude/roguewood-build (not yet merged) | 2cdedb1 (+ 8c19905); local suites and J01–J10 headless/rendered PASS; CI 40577363221 and 40581437392 PASS; ADR 010; E15 handoff |
+| E16 — Clubhouse and collection UI | IN_PROGRESS (core) | Claude core · Codex E16-ART | claude/roguewood-build · codex/roguewood-build | Wave 1 claim; E16-ART after the core hand-off |
+| E17 — Catalogue and unlock authoring batches | NOT_STARTED (READY) | Claude definitions · Codex visual briefs | claude/roguewood-build · codex/roguewood-build | Split per batch; see Ownership |
+| E18 — Content mechanics batches | NOT_STARTED | Claude | claude/roguewood-build | Per E17 batch |
+| E19 — Final item artwork batches | CLAIMED for Codex (A01–A07) | Codex | codex/roguewood-build | Wave 1 claim; later batches wait for E17 briefs |
+| E20 — Ability effects and audio batches | CLAIMED for Codex (V01–V07) | Codex | codex/roguewood-build | Wave 1 claim; each after its E19 art |
+| E21 — Rival presentation batches | CLAIMED for Codex (R01, R02) | Codex | codex/roguewood-build | Wave 1 claim; later rivals after E17 |
+| E22 — League theme integration batches | NOT_STARTED | Codex (whole: art and integration) | codex/roguewood-build | Per League; needs E16 core and the League's content |
+| E23 — Starting kits, mastery, difficulty, and endless | NOT_STARTED | Claude | claude/roguewood-build | See Ownership |
+| E24 — Economy and procedural balance study | NOT_STARTED | Claude | claude/roguewood-build | See Ownership |
+| E25 — Onboarding and accessibility completion | NOT_STARTED | Claude core · Codex E25-ART | claude/roguewood-build · codex/roguewood-build | Split; see Ownership |
+| E26 — Platform packaging and performance | NOT_STARTED (BLOCKED: hardware) | Codex | codex/roguewood-build | Claude assists on E10 save/suspend defects |
+| E27 — Content and asset completeness audit | NOT_STARTED | Claude content audit · Codex asset audit | claude/roguewood-build · codex/roguewood-build | Split; see Ownership |
+| E28 — Cross-system release candidate | NOT_STARTED | Claude (coordinator) | claude/roguewood-build | See Ownership |
+| E29 — Delivery and final handoff | NOT_STARTED | Claude (coordinator) | claude/roguewood-build | See Ownership |
+
+## Ownership, lanes and hand-offs (owner directive, 2026-10-28)
+
+### Art rule
+**Codex owns every remaining art component.** That means artwork, illustration, iconography, portraits, environment art, VFX, animation, audio, trophy and cosmetic art, visual briefs and visual review. Claude owns the rules, data, UI logic, persistence, tests and integration code for the milestones in its lane.
+- Codex never changes scoring, economy or Career rules.
+- Claude never produces final art.
+- A rule hook Codex needs that does not exist is requested from Claude through this checkpoint.
+
+### Lanes (grouped by the code each agent already owns, to avoid re-learning and hand-offs)
+| Lane | Milestones in order | Why the same agent |
+|---|---|---|
+| **Claude: content and rules** | E17 definitions → E18 → E23 → E24 | Item definitions are implemented in Claude's frame and effect rules (E06, E13); unlocks go through E15's graph; kits, objectives and medals extend E13 and E15; balance tunes E08's economy with E13's simulation. One agent writes, implements and tunes each item. |
+| **Claude: menus and player UI** | E16 core → E25 core | Both read E15 Career data and E05 input and assist; E25's tutorial and settings live in the menus E16 rebuilds. |
+| **Codex: presentation** | E17 visual briefs → E19 → E20; E21; E22 (whole); E26 | Codex's E12 card and motion system carries E19/E20. E21 rivals and E22 themes sit on Codex's E14 generator and lane conditions. Phone performance risk is mostly art budgets, and Codex built the E01 export pipeline. |
+| **Claude: release** | E27 content audit → E28 → E29 | The coordinator integrates and diagnoses across systems; most journeys (J02–J07, J10) are Claude's. |
+
+- **E22 whole goes to Codex**, with theme art and integration in the same session per League. Codex edits unlock data in `content/career/unlocks.json`; `qa.py content` refuses unreachable, circular or self-unlocking entries.
+- **E26 goes to Codex,** which brings Claude in for device suspend/resume or save-location defects (E10 code).
+
+### Split milestones (two parts, separate states; the family is DONE only when both are)
+| Milestone | Claude part | Codex part (`<id>-ART`) |
+|---|---|---|
+| E16 | League board, binder states, goals, records, unlock results, navigation, J11, placeholders | Trophy, medal and club-decoration art; binder card look (E12 card and foil); phone-readability pass |
+| E17 (per batch `E17-Dxx`) | Definitions, triggers, prices, pools, compatibility, unlocks, asset IDs | The batch's visual briefs |
+| E25 | Tutorial, alternate controls, safe areas, touch cancellation, settings persistence, J14 | Readable symbol set, reduced-effects visuals, tutorial visual review |
+| E27 | Count, ID, unlock and integration audit | Weakest-asset review, placeholders, licences, provenance |
+
+### Hand-off protocol (every split part and every cross-lane dependency)
+1. **Before:** the starting agent's claim names its inputs (milestones or batches and their SHAs) and, for a split, the art part's scope:
+   - asset IDs and slots (icon, card, in_play, activation, sound, reduced_motion, trophy…);
+   - Codex's drop paths: `assets/` and `docs/art/ASSET-LEDGER.md`, Codex-exclusive;
+   - the journeys and capture names showing each slot.
+2. **During:** Claude wires every visual slot to a marked placeholder by asset ID, so art needs no code edit. Art completeness flags stay false until Codex sets them.
+3. **After:** the finishing agent's handoff ends with a "Hand-off" checklist: what is now ready, for whom, the IDs, and the captures to compare. The coordinator then marks the dependent part READY here.
+4. Codex finishing art re-runs the named journeys and records contact sheets, captures and provenance. Code the art reveals as necessary returns to Claude as a scoped follow-up.
+5. Claude works on `claude/roguewood-build`, Codex on `codex/roguewood-build`. Neither edits the other's exclusive paths without a recorded claim. Each starts from current `main` after the owner's merges.
+
+### Hand-offs before and after each remaining milestone
+| Milestone (owner) | Needs before starting | Hands off when done |
+|---|---|---|
+| E16 core (Claude) | E15 (done) | E16-ART READY for Codex (trophy, decoration and binder IDs); League board for E22 |
+| E16-ART (Codex) | E16 core hand-off | E16 DONE; Clubhouse visuals for E22/E25 |
+| E17-Dxx (Claude) | E15 graph (done); previous batch | Its visual-brief part READY for Codex; definitions READY for E18-Cxx |
+| E17-Dxx briefs (Codex) | That batch's definitions | E19-Axx READY for the batch; E21-Rxx READY for any rival it defines |
+| E18-Cxx (Claude) | Its E17 batch | E20-Vxx READY once the matching E19 art exists; mechanics flags for E22/E23 |
+| E19-Axx (Codex) | Its briefs (or, for E13-S01, briefs written in the batch) | E20-Vxx READY with E18; art flags for E27 |
+| E20-Vxx (Codex) | Its E18 mechanics and E19 art | Effects and audio flags; dense-effect cases for E24/E26 |
+| E21-Rxx (Codex) | The rival's rule implemented (E13 or E18) and defined (E17) | Rival identity for E22; J06/J12 checks |
+| E22-Lxx (Codex, whole) | E16 core; the League's E17/E18 content, E19/E20 art and E21 rivals | A playable themed League; branch unlocks for E23; League for E24 |
+| E23 (Claude) | E15, E17, E18, E22 | Kits, medals and endless for E24/E25 |
+| E24 (Claude) | E18, E20, E21, E22, E23 | Tuned data; exploit fixtures for E28 |
+| E25 core (Claude) | E13, E16, E22 | E25-ART READY (symbol and reduced-effects IDs); J14 for E26 |
+| E25-ART (Codex) | E25 core hand-off | E25 DONE |
+| E26-Pxx (Codex) | E20, E21, E22, E25; hardware and toolchains (BLOCKED today) | Installed-build evidence for E28 |
+| E27 (Claude audit + Codex asset audit) | E17–E23 | Audit report for E28 |
+| E28 → E29 (Claude) | E24–E27; then E28 | Release candidate; then delivery |
+
+### What Codex can do in parallel now (no Claude dependency)
+Production batch E13-S01 is fully authored and implemented, so its presentation work is READY today. Briefs are written inside each art batch, because that batch predates E17. These batches are allocated:
+- **E19-A01** balls: house, hook, hammer, echo.
+- **E19-A02** pins: wood, ruby, gold, anchor.
+- **E19-A03** pins grower, rubber; Charms flat_bonus, finisher.
+- **E19-A04** Charms: spare_change, lone_survivor, hook_artist, house_favorite.
+- **E19-A05** Charms: gold_rush, turkey_club, patient_investor, last_chance.
+- **E19-A06** Charms encore, standing_order; rule badges dead_straight, clean_sweep.
+- **E19-A07** kit.house.
+- **E20-V01…** the E13-S01 abilities (Echo retrigger, growth, strike streak and so on), each batch after its E19 art.
+- **E21-R01** The Surveyor; **E21-R02** The Custodian. These are the slice rivals, whose rules are final. The campaign's provisional encounter IDs are not art targets.
+
+Further parallel work as Claude's lane delivers:
+- E16-ART after E16 core.
+- Each E17 batch's briefs, then its E19-A and E21-R work.
+- E22 Leagues once E16 core and the League's content exist.
+
+Claude's next step: E16 core (it unblocks E16-ART and E22), then E17-D01 onward. Codex has the E13-S01 batches above in the meantime.
+
+## Wave 1 claims (coordinator: Claude, 2026-10-28)
+
+Base for both agents: `claude/roguewood-build` at the commit containing this claim (main `fd1d466` plus E15 and the ownership plan). Codex first merges `origin/claude/roguewood-build` into `codex/roguewood-build` with a merge commit; no rebase or force-push. Each agent then works only on its own branch and paths.
+
+**Claude: E16 core (Medium), IN_PROGRESS on `claude/roguewood-build`.**
+- Scope: League board, binder (Locked, Available, Discovered and Mastered), trophy shelf, three tracked goals, records, unlock results, direct resume and retry, J11.
+- Every visual slot gets a marked placeholder wired by asset ID. The trophy, medal, decoration and binder asset IDs are recorded in its hand-off for E16-ART.
+- Exclusive paths:
+  - src/clubhouse/, src/bootstrap/bootstrap.gd;
+  - src/persistence/career_profile.gd, src/career/, content/career/;
+  - tests/clubhouse_*.gd, docs/handoffs/E16.md.
+- Add-only edits: tools/qa.py (the J11 entry), the CI workflow (J11 lines), run_tests.gd.
+- Claude does not edit any Codex path below during Wave 1. A presentation change E16 needs in a Codex file is requested here instead.
+
+**Codex: Wave 1 presentation for production batch E13-S01, on `codex/roguewood-build`.**
+- **E19-A01…A07 item art**, each set covering the card illustration, icon, in-play look, rarity treatment and reduced-motion variant. Each batch first writes its own visual briefs (E13-S01 predates E17):
+  - A01 balls: house, hook, hammer, echo;
+  - A02 pins: wood, ruby, gold, anchor;
+  - A03 pins grower, rubber; Charms flat_bonus, finisher;
+  - A04 Charms: spare_change, lone_survivor, hook_artist, house_favorite;
+  - A05 Charms: gold_rush, turkey_club, patient_investor, last_chance;
+  - A06 Charms encore, standing_order; rule badges dead_straight, clean_sweep;
+  - A07 kit.house.
+- **E20-V01…V07 ability effects and audio**, each after its items' E19 art:
+  - V01 retrigger: Echo Ball, Encore;
+  - V02 growth: Grower, Patient Investor;
+  - V03 gold: Gold pin payout, Gold Rush;
+  - V04 standing: Anchor, Standing Order, Lone Survivor;
+  - V05 conditional multipliers: Finisher, Turkey Club, Last Chance;
+  - V06 flat bonuses: Flat Bonus, Spare Change, House Favorite;
+  - V07 roll feel: Hook Ball curve with Hook Artist, Hammer impact, Rubber bounce, and Wood and Ruby knockdowns (split it if it does not fit one session).
+- **E21-R01 The Surveyor and E21-R02 The Custodian:**
+  - portrait states, intro, lane treatment, rule badge, reactions, defeat and reward identity;
+  - the Dead Straight and Clean Sweep rule effects.
+  - The campaign's provisional encounter IDs are not art targets.
+- Exclusive paths:
+  - assets/ (new subfolders such as assets/items/, assets/rivals/, assets/effects/, assets/audio/), docs/art/;
+  - src/presentation/: card_hand.gd, card_inspector.gd, shop_panel.gd, score_panel.gd, division_hud.gd, rival_reactions.gd, motion_director.gd, live_dressing.gd, lane_dressing.gd, and new presentation files (an asset loader);
+  - its own tests and journeys (J08 extensions, J12), docs/handoffs/E19-A0x.md, E20-V0x.md, E21-R0x.md (one file per batch).
+- Restricted edits:
+  - content/catalogue.json: only the `assets` slots and the `completeness.artwork` and `completeness.effects_audio` flags of the 25 E13-S01 entries. Nothing else; Claude appends E17 items at the end of the file.
+  - Rival art references go in an assets-side manifest keyed by rival ID, not in League or profile specs.
+  - tools/qa.py, the CI workflow and run_tests.gd: add-only (J12 and its lines).
+- Off-limits:
+  - src/rules/, src/simulation/, src/persistence/, src/career/, src/procedural/, throw_lab.gd scoring and flow, and content specs other than the fields above.
+  - No animation or effect may change a score, a result or saved state. J03 (560/240/70), J05 (21060), J06 and the physics digest `75d1a3c0…` must stay identical.
+  - A needed rule or flow hook is requested here.
+- **Before each batch:** list the IDs and slots, the source and provenance plan, and the journeys and captures that show them.
+- **After each batch:**
+  - contact sheet at actual size, in-play and reduced-motion captures, provenance rows in ASSET-LEDGER.md;
+  - the affected journeys re-run headless and rendered;
+  - completeness flags set only for slots delivered at final quality.
+  - Push, then report the branch SHA and the batch IDs to the coordinator.
 
 ## Active claims and ownership
 
-No active Claude claim (E13 complete). E14 claim is complete on `codex/roguewood-build`; no active Codex claim.
+No active claim. E15 (Claude) is complete on `claude/roguewood-build`; E14 (Codex) is complete and merged.
+
+E15 → E16/E17 coordination:
+- E16 reads `career.records`, `championships`, `items` (`CareerProfile.collection_state`: Locked/Available/Discovered/Mastered) and `CareerProfile.goals`; the menu's `CareerSummary` label is a placeholder for the Clubhouse.
+- E17 assigns items to `gate.house_champion`, `gate.house_campaign_champion` and the three `gate.mastery_*` gates (or adds gates and objectives in content/career/unlocks.json); `qa.py content` refuses unreachable, circular or self-unlocking assignments and prints availability against the §16 targets.
 
 E13 → E14 coordination:
 - `src/rules/league_run.gd` (LeagueRun) chains DivisionRun-format specs and is ready for generated schedules; a Division with `championship: true` may bring back a boss already met (the validator mismatch Codex's probe reported is fixed). Distinct bosses may share a rule.
@@ -112,6 +247,7 @@ Content registry: content/catalogue.json holds batch E13-S01 (catalogue v2); E02
 - E08 PASS (local): unit (economy_test: payout, interest, sale and reroll tables; no buy/sell profit; slots, placements, replacement and cancel; modifications; removal; shop eligibility, rarity renormalization, rerolls and the affordability guarantee across seeds; currency scopes; JSON round trips; a 60-run fuzz), mutation checks, every earlier suite with the physics digest unchanged and J03 at 560/240/70, J01–J05 headless and rendered (J05 match-2 score 21060 identical), diagnostics, and J05 injected failure exiting 1. CI 40442532881 PASS (run on `38d9c75`, which adds only the checkpoint; artifact `journeys` 12706493183); J04 and J05 output identical to local.
 - E09 PASS (local): unit (division_test: spec validation and refusals, match flow with early wins, exact targets, losses, boss win, practice, Clean Sweep, reaction precedence and cooldown, JSON round trips), mutation checks, every earlier suite with the physics digest unchanged, J03 at 560/240/70 and J05 at 21060, J01–J06 headless and rendered (J06 lines identical in both modes), diagnostics, and J06 injected failure exiting 1. CI 40451844709 PASS (run on `90b9270`, which adds only the checkpoint; artifact `journeys` 12711515136); J06 output identical to local.
 - E10 PASS (local): unit (save_test: atomic replace and backup, four corruption kinds with quarantine and fallback, version and migration rules, snapshot round trips for both equipment models with identical rerolls and draws, removed-item and phase refusals, golden v1 saves, Career idempotence and separation), mutation checks, every earlier suite with the physics digest unchanged, J03 at 560/240/70, J05 at 21060, J06 identical in both modes, J01–J07 headless and rendered (with per-journey save directories), diagnostics, and J07 injected failure exiting 1. CI 40460928513 PASS on `8e4edd5` (artifact `journeys` 12715071786; J07's ten stages ran in both modes with values identical to local).
+- E15 PASS (local, `2cdedb1`): doctor, unit (career_test with mutation checks), content (both unlock graphs), integration, physics (digest unchanged), smoke, export, experiment, slice, J01–J10 headless and rendered, diagnostics, and J10 injected failure exiting 1; unit, J06, J09 and J10 re-run after the result-line follow-up. CI PASS: 40577363221 on `2cdedb1` and 40581437392 on `8c19905` (J01–J10 both modes; artifact `journeys`).
 - E13 PASS (local and CI 40524506207 on `98cc2aa`): unit (slice_test: every slice item against hand-computed scores, catalogue and frame v2 refusals, League continuation and championship repeats, Dead Straight, physics profiles, content sets, slice saves, item texts; condition and retrigger mutations caught), content for both sets, every earlier suite with the physics digest unchanged, J03 at 560/240/70, J05 at 21060, J01–J08 headless and rendered (J06 stage 1 plays both slice Divisions, identical in both modes), diagnostics, J06 injected failure exiting 1, and the 400-run strategy simulation (ADR 008). The device play session is BLOCKED.
 - Native iOS/Android/Windows, physical device feel (E05 trials NOT RUN), visual review and balance: NOT VALIDATED. E04/E05 throw thresholds and physics tuning are provisional (ADR 002/003).
 
