@@ -1,0 +1,482 @@
+{
+  "schema_version": 1,
+  "id": "league.house",
+  "name": "House League",
+  "batch": "E17-L01",
+  "status": "authored",
+  "note": "House League spec (E17-L01): eight Divisions replacing the slice's two and the campaign's provisional encounters at integration (E22-L01). Targets are provisional until E24; Divisions 1 and 2 keep the slice's targets. The two new rivals' first-clear items are chosen in the House item batches (Wave 7); their gates are named here.",
+  "access": [],
+  "lanes": [
+    "lane_condition.house_oil",
+    "lane_condition.dry_backend"
+  ],
+  "kits": [
+    {
+      "id": "kit.house",
+      "unlock": "initial"
+    },
+    {
+      "id": "kit.tournament",
+      "unlock": "gate.house_champion",
+      "pins": [
+        "pin.wood",
+        "pin.wood",
+        "pin.wood",
+        "pin.wood",
+        "pin.wood",
+        "pin.wood",
+        "pin.wood",
+        "pin.wood",
+        "pin.wood",
+        "pin.wood"
+      ],
+      "deck": [
+        "ball.hook",
+        "ball.hook",
+        "ball.echo",
+        "ball.echo"
+      ],
+      "money": 10
+    }
+  ],
+  "championship": {
+    "gates": [
+      "gate.house_champion"
+    ],
+    "opens": "league.royal"
+  },
+  "divisions": [
+    {
+      "schema_version": 1,
+      "division": 1,
+      "name": "House League · Division 1",
+      "frames_per_match": 2,
+      "matches": [
+        {
+          "id": "match.house_d1_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 300
+        },
+        {
+          "id": "match.house_d1_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 500
+        },
+        {
+          "id": "match.house_d1_boss",
+          "kind": "boss",
+          "name": "Boss",
+          "target": 800,
+          "rival": "rival.surveyor",
+          "lanes": [
+            "lane_condition.house_oil"
+          ]
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.surveyor",
+          "name": "The Surveyor",
+          "initials": "TS",
+          "rule": "boss_rule.dead_straight",
+          "intro": "Every line measured, every angle true. The Surveyor allows no charged spin: each ball rolls exactly where it is aimed, so placement and straight-line equipment win this lane.",
+          "first_clear": {
+            "unlocks": [
+              "gate.surveyor_cleared"
+            ],
+            "text": "Encore joins the shop pool from your next attempt."
+          },
+          "reactions": {
+            "entrance": "Plumb, level, true. Show me a straight line.",
+            "confident": "Off by a board. I measured it.",
+            "impressed": "A true line. Precisely as charted.",
+            "threatened": "Your figures are… converging on mine.",
+            "defeated": "The survey is complete. You hold the line.",
+            "victorious": "Out of true. Recalibrate and return."
+          }
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "division": 2,
+      "name": "House League · Division 2",
+      "frames_per_match": 2,
+      "matches": [
+        {
+          "id": "match.house_d2_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 1100
+        },
+        {
+          "id": "match.house_d2_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 1600
+        },
+        {
+          "id": "match.house_d2_boss",
+          "kind": "boss",
+          "name": "Boss",
+          "target": 2400,
+          "rival": "rival.custodian",
+          "lanes": [
+            "lane_condition.house_oil",
+            "lane_condition.dry_backend"
+          ]
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.custodian",
+          "name": "The Custodian",
+          "initials": "TC",
+          "rule": "boss_rule.clean_sweep",
+          "intro": "Every lane spotless, every frame finished. The Custodian banks only clean work: strikes and spares. Leave a pin standing and the frame is swept away.",
+          "first_clear": {
+            "unlocks": [
+              "gate.custodian_cleared"
+            ],
+            "text": "Standing Order joins the shop pool from your next attempt."
+          },
+          "reactions": {
+            "entrance": "Mind the corners. I only count what's cleared.",
+            "confident": "Untidy. That one goes in the bin.",
+            "impressed": "Hm. A clean strike. Noted.",
+            "threatened": "You're closing in… don't leave a mess now.",
+            "defeated": "Spotless. I concede the lane.",
+            "victorious": "Swept away. Come back with a cleaner game."
+          }
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "division": 3,
+      "name": "House League · Division 3",
+      "frames_per_match": 2,
+      "matches": [
+        {
+          "id": "match.house_d3_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 2300
+        },
+        {
+          "id": "match.house_d3_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 3300
+        },
+        {
+          "id": "match.house_d3_boss",
+          "kind": "boss",
+          "name": "Boss",
+          "target": 5000,
+          "rival": "rival.proprietor",
+          "lanes": [
+            "lane_condition.house_oil",
+            "lane_condition.dry_backend"
+          ]
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.proprietor",
+          "name": "The Proprietor",
+          "initials": "TP",
+          "rule": "boss_rule.house_rules",
+          "intro": "The Proprietor owns every board of this alley and the House Ball that rolls on it. In this match you throw the House Ball only; tactical cards are allowed, so your rack, Charms and aim have to carry the score.",
+          "first_clear": {
+            "unlocks": [
+              "gate.proprietor_cleared"
+            ],
+            "text": "A House item joins the shop pool from your next attempt."
+          },
+          "reactions": {
+            "entrance": "House rules, friend. House Ball, house odds.",
+            "confident": "Nothing beats the house.",
+            "impressed": "Huh. You make the house look good.",
+            "threatened": "Now hold on, that's my lane…",
+            "defeated": "The house… concedes. Have a drink on me.",
+            "victorious": "The house always wins. Come again."
+          }
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "division": 4,
+      "name": "House League · Division 4",
+      "frames_per_match": 2,
+      "matches": [
+        {
+          "id": "match.house_d4_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 4000
+        },
+        {
+          "id": "match.house_d4_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 5800
+        },
+        {
+          "id": "match.house_d4_boss",
+          "kind": "boss",
+          "name": "Boss",
+          "target": 9000,
+          "rival": "rival.old_lou",
+          "lanes": [
+            "lane_condition.dry_backend"
+          ]
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.old_lou",
+          "name": "Old Lou",
+          "initials": "OL",
+          "rule": "boss_rule.house_pins",
+          "intro": "Forty years on these lanes and Old Lou still racks the pins himself. In his match every pin plays as plain Wood: materials switch off, so your Charms, balls and modifications have to make the score.",
+          "first_clear": {
+            "unlocks": [
+              "gate.old_lou_cleared"
+            ],
+            "text": "A House item joins the shop pool from your next attempt."
+          },
+          "reactions": {
+            "entrance": "Wood's wood, kid. Let's see your arm.",
+            "confident": "Fancy pins won't save you here.",
+            "impressed": "Now that's bowling.",
+            "threatened": "Well, I'll be. Slow down, kid.",
+            "defeated": "Forty years… and you beat me clean.",
+            "victorious": "Come back when you've got more than fancy pins."
+          }
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "division": 5,
+      "name": "House League · Division 5",
+      "frames_per_match": 2,
+      "matches": [
+        {
+          "id": "match.house_d5_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 6800
+        },
+        {
+          "id": "match.house_d5_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 9800
+        },
+        {
+          "id": "match.house_d5_boss",
+          "kind": "boss",
+          "name": "Boss",
+          "target": 15000,
+          "rival": "rival.surveyor",
+          "lanes": [
+            "lane_condition.house_oil"
+          ]
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.surveyor",
+          "name": "The Surveyor",
+          "initials": "TS",
+          "rule": "boss_rule.dead_straight",
+          "intro": "Every line measured, every angle true. The Surveyor allows no charged spin: each ball rolls exactly where it is aimed, so placement and straight-line equipment win this lane.",
+          "first_clear": {
+            "unlocks": [
+              "gate.surveyor_cleared"
+            ],
+            "text": "Encore joins the shop pool from your next attempt."
+          },
+          "reactions": {
+            "entrance": "Plumb, level, true. Show me a straight line.",
+            "confident": "Off by a board. I measured it.",
+            "impressed": "A true line. Precisely as charted.",
+            "threatened": "Your figures are… converging on mine.",
+            "defeated": "The survey is complete. You hold the line.",
+            "victorious": "Out of true. Recalibrate and return."
+          }
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "division": 6,
+      "name": "House League · Division 6",
+      "frames_per_match": 2,
+      "matches": [
+        {
+          "id": "match.house_d6_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 11000
+        },
+        {
+          "id": "match.house_d6_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 15500
+        },
+        {
+          "id": "match.house_d6_boss",
+          "kind": "boss",
+          "name": "Boss",
+          "target": 24000,
+          "rival": "rival.proprietor",
+          "lanes": [
+            "lane_condition.house_oil",
+            "lane_condition.dry_backend"
+          ]
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.proprietor",
+          "name": "The Proprietor",
+          "initials": "TP",
+          "rule": "boss_rule.house_rules",
+          "intro": "The Proprietor owns every board of this alley and the House Ball that rolls on it. In this match you throw the House Ball only; tactical cards are allowed, so your rack, Charms and aim have to carry the score.",
+          "first_clear": {
+            "unlocks": [
+              "gate.proprietor_cleared"
+            ],
+            "text": "A House item joins the shop pool from your next attempt."
+          },
+          "reactions": {
+            "entrance": "House rules, friend. House Ball, house odds.",
+            "confident": "Nothing beats the house.",
+            "impressed": "Huh. You make the house look good.",
+            "threatened": "Now hold on, that's my lane…",
+            "defeated": "The house… concedes. Have a drink on me.",
+            "victorious": "The house always wins. Come again."
+          }
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "division": 7,
+      "name": "House League · Division 7",
+      "frames_per_match": 2,
+      "matches": [
+        {
+          "id": "match.house_d7_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 17000
+        },
+        {
+          "id": "match.house_d7_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 25000
+        },
+        {
+          "id": "match.house_d7_boss",
+          "kind": "boss",
+          "name": "Boss",
+          "target": 38000,
+          "rival": "rival.old_lou",
+          "lanes": [
+            "lane_condition.dry_backend"
+          ]
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.old_lou",
+          "name": "Old Lou",
+          "initials": "OL",
+          "rule": "boss_rule.house_pins",
+          "intro": "Forty years on these lanes and Old Lou still racks the pins himself. In his match every pin plays as plain Wood: materials switch off, so your Charms, balls and modifications have to make the score.",
+          "first_clear": {
+            "unlocks": [
+              "gate.old_lou_cleared"
+            ],
+            "text": "A House item joins the shop pool from your next attempt."
+          },
+          "reactions": {
+            "entrance": "Wood's wood, kid. Let's see your arm.",
+            "confident": "Fancy pins won't save you here.",
+            "impressed": "Now that's bowling.",
+            "threatened": "Well, I'll be. Slow down, kid.",
+            "defeated": "Forty years… and you beat me clean.",
+            "victorious": "Come back when you've got more than fancy pins."
+          }
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "division": 8,
+      "name": "House League · Division 8",
+      "frames_per_match": 2,
+      "matches": [
+        {
+          "id": "match.house_d8_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 27000
+        },
+        {
+          "id": "match.house_d8_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 39000
+        },
+        {
+          "id": "match.house_d8_boss",
+          "kind": "boss",
+          "name": "Championship",
+          "target": 60000,
+          "rival": "rival.custodian_champion",
+          "lanes": [
+            "lane_condition.house_oil",
+            "lane_condition.dry_backend"
+          ]
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.custodian_champion",
+          "name": "The Custodian, House Champion",
+          "initials": "TC",
+          "rule": "boss_rule.clean_sweep",
+          "extra_rules": [
+            "boss_rule.house_rules"
+          ],
+          "of": "rival.custodian",
+          "intro": "The Custodian defends the House title with the Proprietor's blessing: only strikes and spares bank, and you throw the House Ball only. Every frame must be clean, with no special ball to fall back on.",
+          "first_clear": {
+            "unlocks": [
+              "gate.house_champion"
+            ],
+            "text": "House League champion: the Royal League opens and the Tournament Kit is available from your next attempt."
+          },
+          "reactions": {
+            "entrance": "Mind the corners. I only count what's cleared.",
+            "confident": "Untidy. That one goes in the bin.",
+            "impressed": "Hm. A clean strike. Noted.",
+            "threatened": "You're closing in… don't leave a mess now.",
+            "defeated": "Spotless. I concede the lane.",
+            "victorious": "Swept away. Come back with a cleaner game."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -160,6 +160,51 @@
     "boss_rule.dull_pins": [
       "mult",
       "strike"
+    ],
+    "boss_rule.house_pins": [
+      "mult",
+      "strike",
+      "retrigger"
+    ],
+    "boss_rule.strobe": [
+      "straight",
+      "power",
+      "value"
+    ],
+    "boss_rule.rust": [
+      "baseline",
+      "mult",
+      "value"
+    ],
+    "boss_rule.court_order": [
+      "precision",
+      "positional",
+      "accuracy"
+    ],
+    "boss_rule.silence": [
+      "value",
+      "mult",
+      "straight"
+    ],
+    "boss_rule.fading": [
+      "spare",
+      "standing",
+      "open"
+    ],
+    "boss_rule.brittle_rack": [
+      "baseline",
+      "economy",
+      "value"
+    ],
+    "boss_rule.blast_doors": [
+      "power",
+      "precision",
+      "accuracy"
+    ],
+    "boss_rule.pressure_gauge": [
+      "mult",
+      "strike",
+      "growth"
     ]
   },
   "cosmetics": [

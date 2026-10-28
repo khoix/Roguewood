@@ -35,7 +35,7 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - Integration: the owner merged PR #11 (Codex Wave 1, E16 core, E17-D01, the test fix) into main (`492f9f4`). Codex Wave 2 (`fcdb494`: E16-ART, E19-A08…A12) is reviewed and merged into `claude/roguewood-build`, along with main.
 - Wave 2 MERGED to main by PR #13 (`1d44302`).
 - Wave 3 MERGED to main by PR #14 (`3a7e938`; CI 40736417912 PASS on `afe5852`): Codex E17-D02-ART and E19-A13…A15; Claude E18-C02 and E17-D03.
-- Wave 4 MERGED to main by PR #15 (CI 40760480791 PASS on `e72051b`): Claude E18-C03 and E17-D04; Codex E17-D03-ART, E19-A16 and E20-V08. **Wave 5 is open** (see "Wave 5 claims"): Codex starts from this branch with docs/prompts/codex-wave5.md; Claude starts E18-C04 (Medium), then E17-L01 (High).
+- Wave 4 MERGED to main by PR #15 (CI 40760480791 PASS on `e72051b`): Claude E18-C03 and E17-D04; Codex E17-D03-ART, E19-A16 and E20-V08. **Wave 5 is open** (see "Wave 5 claims"): Codex starts from this branch with docs/prompts/codex-wave5.md; Wave 5 progress: E18-C04 DONE (eight modifications; handoffs/E18-C04.md); E17-L01 DONE (House spec, 20-rival roster, E17-D05; handoffs/E17-L01.md). Claude's Wave 5 claims are complete; the wave closes when Codex's delivery is integrated.
 - **Roadmap (2026-10-28):** docs/ROADMAP.md maps every remaining milestone to phases (one per League group) and waves, with ownership, the content split per League and the owner's decisions. Waves 5–8 complete the House League.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
@@ -67,8 +67,8 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E14 — Seeded eight-Division progression | DONE | Codex | codex/roguewood-build | 71b2bd2; local unit/content/integration/physics, J01/J06/J07 and native J09 headless/rendered PASS; handoffs/E14.md |
 | E15 — Career persistence and unlock graph | DONE | Claude | main (PR #10) | 2cdedb1 (+ 8c19905); local suites and J01–J10 headless/rendered PASS; CI 40577363221 and 40581437392 PASS; ADR 010; E15 handoff |
 | E16 — Clubhouse and collection UI | DONE (core and E16-ART) | Claude core · Codex E16-ART | claude/roguewood-build · codex/roguewood-build | Core b01fb4d; CI 40616441249 PASS; J11; handoffs/E16.md (Art hand-off) |
-| E17 — Catalogue and unlock authoring batches | IN_PROGRESS (D01–D04 DONE; D01-ART, D02-ART, D03-ART DONE; D04-ART in Wave 5) | Claude definitions · Codex visual briefs | claude/roguewood-build · codex/roguewood-build | Split per batch; see Ownership |
-| E18 — Content mechanics batches | IN_PROGRESS (C01–C03 DONE) | Claude | claude/roguewood-build | C01: six D02 Charms; C02: transform primitive, Glass Pin and Glass Cutter; C03: five primitives, Crown Pin and the last five D02 Charms; handoffs/E18-C0x.md |
+| E17 — Catalogue and unlock authoring batches | IN_PROGRESS (D01–D05 and L01 DONE; D01-ART, D02-ART, D03-ART DONE; D04-ART in Wave 5) | Claude definitions · Codex visual briefs | claude/roguewood-build · codex/roguewood-build | Split per batch; see Ownership |
+| E18 — Content mechanics batches | IN_PROGRESS (C01–C04 DONE) | Claude | claude/roguewood-build | C01: six D02 Charms; C02: transform primitive, Glass Pin and Glass Cutter; C03: five primitives, Crown Pin and the last five D02 Charms; handoffs/E18-C0x.md |
 | E19 — Final item artwork batches | IN_PROGRESS (A01–A16 DONE) | Codex | codex/roguewood-build | E13-S01, E17-D01 and E17-D02 identities; artwork set on the seven C01/C02 Charms and Glass Pin; C03 flags (A17) and D03 identities (A18) in Wave 5 |
 | E20 — Ability effects and audio batches | IN_PROGRESS (V01–V08 DONE) | Codex | codex/roguewood-build | E13-S01's 23 abilities; V08: the eight C01/C02 items; C03's six in Wave 5 (V09) |
 | E21 — Rival presentation batches | IN_PROGRESS (R01, R02 DONE) | Codex | codex/roguewood-build | Later rivals after E17 defines them |
