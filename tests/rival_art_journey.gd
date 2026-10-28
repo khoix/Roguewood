@@ -10,6 +10,12 @@ func _focus_accept(control: Control) -> void:
 			_check(lab.hud.intro_portrait.texture == RivalArt.portrait(id,"entrance"),"actual intro portrait " + id)
 			_check(lab.hud.intro_reward.texture == Assets.slot(RivalArt.entry(id).reward,"icon"),"actual first-clear reward identity")
 			await _capture(id.replace(".","_")+"_intro")
+			root.size = Vector2i(800,450)
+			for i in 12: await process_frame
+			_check(lab.hud.intro.size.y + 1 >= lab.hud.intro.get_child(0).get_combined_minimum_size().y,"landscape intro fits")
+			await _capture(id.replace(".","_")+"_landscape")
+			root.size = PORTRAIT
+			for i in 12: await process_frame
 	await super._focus_accept(control)
 func _capture(label: String) -> void:
 	for i in 12: await process_frame

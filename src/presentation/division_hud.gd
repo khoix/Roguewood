@@ -268,7 +268,9 @@ func show_intro(rival: Dictionary, target: int, rule_summary: String, reward: St
 
 func _process(delta: float) -> void:
 	var compact := size.x > size.y
-	intro_portrait.custom_minimum_size = Vector2(72,72) if compact else Vector2(180,180)
+	intro_portrait.custom_minimum_size = Vector2(48,48) if compact else Vector2(180,180)
+	intro_reward.visible = intro_reward.texture != null and not compact
+	intro_button.custom_minimum_size.y = 52 if compact else 72
 	intro.get_child(0).add_theme_constant_override("separation", 4 if compact else 12)
 	intro_body.add_theme_font_size_override("font_size", 16 if compact else 22)
 	intro_title.add_theme_font_size_override("font_size", 24 if compact else 34)

@@ -87,6 +87,9 @@ jobs:
           python3 tools/qa.py e2e --journey J12R01
           xvfb-run -a python3 tools/qa.py e2e --journey J12R01 --rendered
           xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_rival_art.gd -- --rival=rival.surveyor
+          python3 tools/qa.py e2e --journey J12R02
+          xvfb-run -a python3 tools/qa.py e2e --journey J12R02 --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_rival_art.gd -- --rival=rival.custodian
           python3 tools/qa.py experiment
           python3 tools/qa.py slice
       - name: Preserve Wave 1 art evidence after an earlier failure
@@ -140,5 +143,6 @@ jobs:
             artifacts/e19-a06/
             artifacts/e19-a07/
             artifacts/e21-r01/
+            artifacts/e21-r02/
             artifacts/e16/
           if-no-files-found: warn

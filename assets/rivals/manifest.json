@@ -42,5 +42,11 @@
         512
       ]
     ]
+  },
+  "rival.custodian": {
+    "source": "res://assets/rivals/custodian.png",
+    "rule": "boss_rule.clean_sweep",
+    "reward": "charm.standing_order",
+    "lane": "polish"
   }
 }

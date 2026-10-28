@@ -100,3 +100,6 @@ exclusive-rights/clearance claim; phone readability stays E26.
 
 | E21-R01 rival.surveyor | Original generated six-state atlas, no external reference | `assets/rivals/surveyor.png`; runtime regions, source unchanged | `docs/art/briefs/E21-R01-prompt.txt` | SHA-256 `a367e49bd6772a5a3cfde7508269251001ec08bc5466a2e675cb26b852ea9d64` | 180/72px contact and native intro/reaction |
 | E21-R01 Dead Straight | Original procedural ruler/wood snap and lock glyph | `assets/audio/dead_straight.wav`, `assets/effects/dead_straight.tres` | `tools/author_foley.py dead_straight wood 1270 0.23`; no samples | Peak ≤0.48; four-voice bounded mix | Native mute/zero-volume/effect controls; desktop only |
+
+| E21-R02 rival.custodian | Original project-owned E12 reference, new six-state generated atlas with correction pass | `assets/rivals/custodian.png`; unchanged source | `docs/art/briefs/E21-R02-prompt.txt` | SHA-256 `89ba126e185923c47a873ec01a7cff12bbe349cdc31da414aadfe135b449f8d4` | 180/72px and real intro/reaction/result, portrait/landscape inspected |
+| E21-R02 Clean Sweep | Original brushed cloth PCM and diagonal sweep glyph | `assets/audio/clean_sweep.wav`, `assets/effects/clean_sweep.tres` | `tools/author_foley.py clean_sweep cloth 600 0.4`; no samples | Peak ≤0.48 | Actual open-frame rule-bank cue, shared sound controls |

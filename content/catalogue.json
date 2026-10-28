@@ -1259,8 +1259,8 @@
         "card": "res://assets/items/rules/clean_sweep-card.tres",
         "in_play": "res://assets/items/rules/clean_sweep-card.tres",
         "rarity_treatment": "res://assets/items/rules/clean_sweep-frame.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/clean_sweep.tres",
+        "sound": "res://assets/audio/clean_sweep.wav",
         "reduced_motion": "res://assets/items/rules/clean_sweep-card.tres"
       },
       "completeness": {
@@ -1268,7 +1268,7 @@
         "mechanics": true,
         "automated_validation": true,
         "artwork": true,
-        "effects_audio": false,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
