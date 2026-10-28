@@ -56,3 +56,16 @@ was introduced. Physical-phone readability remains E26.
 - Native shop purchase/placement, mixed physical rack, equipped strip, binder and
   reduced captures inspected. Four artwork flags true; effects/audio false.
   Shared E13 unit assertion remains a separately logged integration limitation.
+
+## Wave 1 / E19-A04
+
+Original unchanged RGBA 1254×1254 source `assets/items/sources/e19-a04.png`,
+built-in generation without external references; exact prompt retained in
+briefs/E19-A04-source-prompt.txt. SHA256
+`c023a60703e6345ad69a6ff307f18207b7c0996bb6b0c8a5ca1066da115395e4`.
+No exclusive-rights or legal-clearance claim. Four original AtlasTexture identities
+(split coin, lone-pin arch, hooked nib, clubhouse) serve card/icon/in-play/static
+reduced slots. Source pixels remain unchanged; row split y=600 retains complete
+loops. Frames use authored Common and Rare structures plus explicit rarity text.
+Native actual purchase/equipped/binder and 48px contact reviewed. Four artwork
+flags true; ability/audio work stays in E20. No third-party asset introduced.

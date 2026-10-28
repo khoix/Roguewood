@@ -678,19 +678,19 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
+        "icon": "res://assets/items/charms/spare_change-card.tres",
+        "card": "res://assets/items/charms/spare_change-card.tres",
+        "in_play": "res://assets/items/charms/spare_change-card.tres",
+        "rarity_treatment": "res://assets/items/charms/spare_change-frame.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/charms/spare_change-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
+        "artwork": true,
         "effects_audio": false,
         "unlock_assigned": true,
         "integrated": false
@@ -735,19 +735,19 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
+        "icon": "res://assets/items/charms/lone_survivor-card.tres",
+        "card": "res://assets/items/charms/lone_survivor-card.tres",
+        "in_play": "res://assets/items/charms/lone_survivor-card.tres",
+        "rarity_treatment": "res://assets/items/charms/lone_survivor-frame.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/charms/lone_survivor-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
+        "artwork": true,
         "effects_audio": false,
         "unlock_assigned": true,
         "integrated": false
@@ -789,19 +789,19 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
+        "icon": "res://assets/items/charms/hook_artist-card.tres",
+        "card": "res://assets/items/charms/hook_artist-card.tres",
+        "in_play": "res://assets/items/charms/hook_artist-card.tres",
+        "rarity_treatment": "res://assets/items/charms/hook_artist-frame.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/charms/hook_artist-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
+        "artwork": true,
         "effects_audio": false,
         "unlock_assigned": true,
         "integrated": false
@@ -843,19 +843,19 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
+        "icon": "res://assets/items/charms/house_favorite-card.tres",
+        "card": "res://assets/items/charms/house_favorite-card.tres",
+        "in_play": "res://assets/items/charms/house_favorite-card.tres",
+        "rarity_treatment": "res://assets/items/charms/house_favorite-frame.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/charms/house_favorite-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
+        "artwork": true,
         "effects_audio": false,
         "unlock_assigned": true,
         "integrated": false
