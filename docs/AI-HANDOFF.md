@@ -34,7 +34,7 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - E16 core DONE: `b01fb4d` on `claude/roguewood-build`; full local matrix (J01–J11 headless and rendered) and CI 40616441249 PASS; see handoffs/E16.md. E16-ART is READY for Codex.
 - Integration: the owner merged PR #11 (Codex Wave 1, E16 core, E17-D01, the test fix) into main (`492f9f4`). Codex Wave 2 (`fcdb494`: E16-ART, E19-A08…A12) is reviewed and merged into `claude/roguewood-build`, along with main.
 - Wave 2 MERGED to main by PR #13 (`1d44302`).
-- **Wave 3 CLOSED** (see "Wave 3 closed"): Codex E17-D02-ART and E19-A13…A15; Claude E18-C02 and E17-D03. The owner merges `claude/roguewood-build` into main after the CI of the "Wave 3 closed" commit. Wave 4 claims are recorded; Wave 4 pushes to `claude/roguewood-build` wait for that merge.
+- Wave 3 MERGED to main by PR #14 (`3a7e938`; CI 40736417912 PASS on `afe5852`): Codex E17-D02-ART and E19-A13…A15; Claude E18-C02 and E17-D03. **Wave 4 is open** (see "Wave 4 claims"): Codex starts from this branch with docs/prompts/codex-wave4.md; Claude starts E18-C03 (High).
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
@@ -197,7 +197,7 @@ Claude's next step: E16 core (it unblocks E16-ART and E22), then E17-D01 onward.
 - **Merge:** `claude/roguewood-build` into main after the CI of the "Wave 2 closed" commit. It supersedes Codex's PR #12, which lacks the CI fix and Claude's Wave 2 work.
 
 ## Wave 4 claims (coordinator: Claude, 2026-10-28)
-Pushes for Wave 4 wait until the owner merges Wave 3. Codex starts from `claude/roguewood-build` at the "Wave 3 closed" commit (merge it with a merge commit).
+Wave 3 is merged (PR #14). Codex merges `origin/claude/roguewood-build` (with a merge commit) before starting.
 - **Codex** (prompt: docs/prompts/codex-wave4.md):
   - E17-D03-ART (Medium): briefs in `docs/art/briefs/E17-D03.md` for the nine boss rules in `content/catalogue/batches/E17-D03.json`, from `design.asset_ids`, `counterplay` and `presentation_needs`. A boss rule is shown on the rival's preview and the HUD boss chip, so the brief covers the 48px chip and the preview card. Flag look-alikes: Oil Slick / Narrow Lane, Mult Cap / Dull Pins, Frugal House / House Rules, and each against Dead Straight and Clean Sweep.
   - E19-A16 (Medium): Glass Pin. Attach `in_play.pin.glass` to the real pin body as a cosmetic scene (no collision, mass or score change), check it natively in the rack, shop, inventory and binder, including a cracked-to-Wood frame from J03C02, then set its `artwork` flag in content/catalogue.json.
@@ -215,7 +215,7 @@ Pushes for Wave 4 wait until the owner merges Wave 3. Codex starts from `claude/
   - Conflict: Codex worked from the Wave 2 base, before E18-C02 landed Glass Cutter. The batch keeps Glass Cutter under `landed`; its four identity paths moved onto its catalogue entry.
   - Glass Cutter's native check: J19A14N (headless and rendered) now buys it from a real offer and shows it in the inventory and binder; captures inspected. Its `artwork` flag is set, so seven landed D02 Charms have final identity art.
 - **Validation:** the full CI command list (110 commands: doctor, unit, content, integration, physics, smoke, export, experiment, slice, every journey headless and rendered, including J03C02 and the five new D02 art checks) PASS locally on the merged tree with Glass Cutter's flag set; the J03C02 injected failure exits 1. CI runs on this commit.
-- **Merge:** `claude/roguewood-build` into main after the CI of the "Wave 3 closed" commit.
+- **Merge:** MERGED to main by PR #14 (`3a7e938`) after CI 40736417912 PASS on `afe5852`.
 
 ## Wave 3 claims (coordinator: Claude, 2026-10-28)
 - **Codex:**
