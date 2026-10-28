@@ -107,7 +107,7 @@ func inspect(card: Dictionary, origin: Control, reduce: bool) -> void:
 	title.text = card.title
 	detail.text = "%s · %s\n%s" % [card.kind.capitalize(),card.get("rarity","common").capitalize(),card.detail]
 	show()
-	var initial := 1 if _item_texture and card.get("rarity", "common") == "uncommon" else 0
+	var initial := ["common", "uncommon", "rare", "epic", "legendary"].find(card.get("rarity", "common")) if _item_texture else 0
 	finish.select(initial)
 	_finish_selected(initial)
 	close_button.grab_focus()

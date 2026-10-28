@@ -45,7 +45,7 @@ void fragment() {
             if (coin < 0.021) color *= 1.2;
         }
         color = mix(color,dark,grooves);
-    } else {
+    } else if (identity == 3) {
         color = vec3(0.025,0.14,0.18); metal = 0.25; rough = 0.29;
         float neck_y = p.y - abs(p.x)*0.7;
         color = mix(color,ivory,max(band(neck_y,0.248,0.260),band(neck_y,0.282,0.294)));
@@ -58,6 +58,31 @@ void fragment() {
             if (p.y < 0.007 || p.y > 0.046) color = brass;
             if (abs(p.y-0.026) < 0.005 && abs(sin(atan(p.z,p.x)*4.0)) < 0.22) color = brass;
         }
+    } else if (identity == 4) {
+        color = ivory;
+        float rings = max(band(p.y,0.247,0.262),band(p.y,0.278,0.293));
+        color = mix(color,vec3(0.025,0.22,0.13),rings);
+        if (p.y < 0.035) color = vec3(0.30,0.13,0.055);
+        if (front > 0.5 && p.y > 0.04 && p.y < 0.22) {
+            float trellis = abs(sin((p.y+p.x)*65.0)*sin((p.y-p.x)*65.0));
+            if (p.y < 0.13 && trellis < 0.15) { color = brass; metal = 0.55; }
+            vec2 a = vec2((p.x+0.018)*0.8-(p.y-0.16)*0.6,(p.x+0.018)*0.6+(p.y-0.16)*0.8);
+            vec2 b = vec2((p.x-0.020)*0.8-(p.y-0.10)*0.6,(p.x-0.020)*0.6+(p.y-0.10)*0.8);
+            float leaf = min(length(a/vec2(0.018,0.046)),length(b/vec2(0.018,0.043)));
+            if (leaf < 1.15) color = brass;
+            if (leaf < 0.95) color = mix(vec3(0.02,0.15,0.08),vec3(0.13,0.47,0.25),step(0.0,a.x));
+            if (p.x > 0.03 && p.x < 0.040 && p.y > 0.14) {
+                color = brass;
+                if (fract(p.y*110.0) < 0.3 && p.x < 0.037) color *= 0.35;
+            }
+        }
+    } else if (identity == 5) {
+        color = vec3(0.15,0.10,0.24); metal = 0.02; rough = 0.78;
+        float zigzag = p.y - abs(sin(atan(p.z,p.x)*3.0))*0.015;
+        color = mix(color,ivory,band(zigzag,0.25,0.267));
+        float ribs = max(band(p.y,0.073,0.090),max(band(p.y,0.109,0.126),band(p.y,0.145,0.162)));
+        color = mix(color,vec3(0.055,0.07,0.10),ribs);
+        if (p.y < 0.035) color = mix(vec3(0.025,0.035,0.05),vec3(0.15,0.17,0.20),step(0.1,sin(atan(p.z,p.x)*14.0)));
     }
     ALBEDO = color * (0.94 + 0.10*grain);
     METALLIC = metal;

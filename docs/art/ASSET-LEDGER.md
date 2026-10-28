@@ -42,3 +42,17 @@ material, mixed-rack impact, reduced-effects and binder checks. No effects/audio
 flag is changed. The full unit suite has a separate historical E13 assertion
 conflict (see A02 handoff); it is not reported as passing. No third-party asset
 was introduced. Physical-phone readability remains E26.
+
+## Wave 1 / E19-A03
+
+- `assets/items/sources/e19-a03.png`: original built-in generation, followed by
+  a spacing-only edit of that output; exact prompts in briefs/E19-A03-source-prompt.txt.
+  Unchanged RGBA source; SHA256 `90ed4c2a2d1edd84e10088c3411965632b7549d210e610451816a57cda24fd50`.
+  No external reference, brand asset or exclusive-rights claim.
+- Grower/Rubber card AtlasTexture views and Flat Bonus/Finisher charm views reuse
+  that source for icons and static reduced slots. Charm in-play slots appear in
+  the read-only equipped strip; pin in-play slots use original local shaders and
+  Rubber's three authored visual rib meshes. Frames are original E11-family styles.
+- Native shop purchase/placement, mixed physical rack, equipped strip, binder and
+  reduced captures inspected. Four artwork flags true; effects/audio false.
+  Shared E13 unit assertion remains a separately logged integration limitation.

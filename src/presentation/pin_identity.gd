@@ -29,4 +29,20 @@ static func dress(pin: RigidBody3D, item_id: String) -> bool:
 		accent.mesh = mesh
 		accent.material_override = material
 		pin.add_child(accent)
+	elif item_id == "pin.rubber":
+		for ring in [[0.081, 0.058], [0.117, 0.063], [0.153, 0.059]]:
+			var rib := TorusMesh.new()
+			rib.inner_radius = ring[1] - 0.010
+			rib.outer_radius = ring[1] + 0.003
+			rib.rings = 24
+			rib.ring_segments = 8
+			var accent := MeshInstance3D.new()
+			accent.name = "RubberRib"
+			accent.mesh = rib
+			accent.position.y = ring[0]
+			var rubber := StandardMaterial3D.new()
+			rubber.albedo_color = Color("18232d")
+			rubber.roughness = 0.85
+			accent.material_override = rubber
+			pin.add_child(accent, true)
 	return true

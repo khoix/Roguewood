@@ -461,19 +461,19 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
+        "icon": "res://assets/items/pins/grower-card.tres",
+        "card": "res://assets/items/pins/grower-card.tres",
+        "in_play": "res://assets/items/pins/grower-material.tres",
+        "rarity_treatment": "res://assets/items/pins/grower-frame.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/pins/grower-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
+        "artwork": true,
         "effects_audio": false,
         "unlock_assigned": true,
         "integrated": false
@@ -512,19 +512,19 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
+        "icon": "res://assets/items/pins/rubber-card.tres",
+        "card": "res://assets/items/pins/rubber-card.tres",
+        "in_play": "res://assets/items/pins/rubber-material.tres",
+        "rarity_treatment": "res://assets/items/pins/rubber-frame.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/pins/rubber-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
+        "artwork": true,
         "effects_audio": false,
         "unlock_assigned": true,
         "integrated": false
@@ -566,19 +566,19 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
+        "icon": "res://assets/items/charms/flat_bonus-card.tres",
+        "card": "res://assets/items/charms/flat_bonus-card.tres",
+        "in_play": "res://assets/items/charms/flat_bonus-card.tres",
+        "rarity_treatment": "res://assets/items/charms/flat_bonus-frame.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/charms/flat_bonus-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
+        "artwork": true,
         "effects_audio": false,
         "unlock_assigned": true,
         "integrated": false
@@ -622,19 +622,19 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
+        "icon": "res://assets/items/charms/finisher-card.tres",
+        "card": "res://assets/items/charms/finisher-card.tres",
+        "in_play": "res://assets/items/charms/finisher-card.tres",
+        "rarity_treatment": "res://assets/items/charms/finisher-frame.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/charms/finisher-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
+        "artwork": true,
         "effects_audio": false,
         "unlock_assigned": true,
         "integrated": false

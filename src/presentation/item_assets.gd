@@ -21,7 +21,8 @@ static func slot(item_id: String, name: String) -> Resource:
 
 static func rarity_mark(item_id: String) -> String:
 	_ensure()
-	return "Ⅱ Uncommon" if _items.get(item_id, {}).get("rarity", "common") == "uncommon" else "■ Common"
+	var rarity: String = _items.get(item_id, {}).get("rarity", "common")
+	return {"common": "■ Common", "uncommon": "Ⅱ Uncommon", "rare": "◆ Rare", "epic": "✦ Epic", "legendary": "♛ Legendary"}.get(rarity, rarity.capitalize())
 
 static func dress_ball(body: Node3D, item_id: String) -> void:
 	if not is_instance_valid(body) or body.get_meta("art_item_id", "") == item_id: return

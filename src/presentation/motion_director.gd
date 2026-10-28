@@ -2,6 +2,7 @@ extends Control
 ## Observes the real lab; never writes physics, equipment, frame reports or scores.
 const ItemAssets = preload("res://src/presentation/item_assets.gd")
 var lab: Control
+var equipment_art: HBoxContainer
 var rival: TextureRect
 var reaction: Label
 var reaction_state := 0
@@ -23,6 +24,9 @@ func _ready() -> void:
 	name = "MotionDirector"
 	set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	mouse_filter=MOUSE_FILTER_IGNORE
+	equipment_art = preload("res://src/presentation/equipment_art_strip.gd").new()
+	equipment_art.lab = lab
+	add_child(equipment_art)
 	rival=TextureRect.new()
 	rival.expand_mode=TextureRect.EXPAND_IGNORE_SIZE
 	rival.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED
