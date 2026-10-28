@@ -122,10 +122,29 @@ static func _catalogue_counts(catalogue: Dictionary, failures: Array[String]) ->
 	var by := {}
 	for entry in catalogue.items:
 		by[entry.category] = by.get(entry.category, []) + [entry.id]
-		_expect(entry.completeness.authored and entry.completeness.mechanics and not entry.completeness.artwork and not entry.completeness.effects_audio
-			and not entry.completeness.integrated, "%s: completeness is honest (no art or effects yet)" % entry.id, failures)
+		# Each flag stands on its own (E16 coordination; art arrives through E19/E20).
+		_expect(entry.completeness.authored and entry.completeness.mechanics and not entry.completeness.integrated,
+			"%s: authored and implemented, not yet integrated" % entry.id, failures)
+		_expect(_art_flags_backed(entry), "%s: art/effects flags are backed by existing assets" % entry.id, failures)
 	_expect(by.ball.size() == 4 and by.pin.size() == 6 and by.charm.size() == 12 and by.boss_rule.size() == 2 and by.kit.size() == 1,
 		"batch E13-S01: four balls, six pins, twelve Charms, two boss rules, one kit", failures)
+
+## A set artwork flag needs its card, icon, rarity treatment and reduced-motion
+## slots (plus in_play for balls and pins); a set effects_audio flag needs the
+## activation and sound slots. Every named slot must resolve to an existing resource.
+static func _art_flags_backed(entry: Dictionary) -> bool:
+	var slots: Array = []
+	if entry.completeness.artwork:
+		slots.append_array(["icon", "card", "rarity_treatment", "reduced_motion"])
+		if entry.category in ["ball", "pin"]:
+			slots.append("in_play")
+	if entry.completeness.effects_audio:
+		slots.append_array(["activation", "sound"])
+	for slot in slots:
+		var path: String = entry.assets.get(slot, "")
+		if path.is_empty() or not ResourceLoader.exists(path):
+			return false
+	return true
 
 static func _frame_scores(catalogue: Dictionary, failures: Array[String]) -> void:
 	var r := _score(catalogue, _loadout(), _strike())
