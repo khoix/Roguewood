@@ -4,6 +4,7 @@ extends PanelContainer
 ## lab tells it and reports presses; the lab and the rules models own every
 ## decision. Buttons work by touch, mouse and keyboard/gamepad focus.
 ## Developmental look; card art and foil are E12/E19.
+const ItemAssets = preload("res://src/presentation/item_assets.gd")
 signal card_pressed(uid: String)
 signal cycle_pressed
 signal inspect_requested(card: Dictionary, origin: Control)
@@ -71,6 +72,8 @@ func show_cards(cards: Array, marks: Dictionary, header: String, cycle_supported
 			buttons[uid].queue_free()
 			buttons.erase(uid)
 	for card in cards:
+		card = card.duplicate()
+		card["item_id"] = ItemAssets.identify(card)
 		card_data[card.uid] = card
 		var button: Button = buttons.get(card.uid)
 		if button == null:
@@ -99,9 +102,21 @@ func show_cards(cards: Array, marks: Dictionary, header: String, cycle_supported
 			cards_row.add_child(button)
 			buttons[card.uid] = button
 		cards_row.move_child(button, wanted.find(card.uid))
+		var icon := ItemAssets.slot(card.item_id, "icon") as Texture2D
+		if icon:
+			button.icon = icon
+			button.texture_filter = TEXTURE_FILTER_NEAREST
+			button.add_theme_constant_override("icon_max_width", 40)
+			button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			button.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
+			button.custom_minimum_size.y = 128
+			button.tooltip_text = "%s · BALL · %s\n%s" % [card.title, ItemAssets.rarity_mark(card.item_id), card.detail]
+			button.add_theme_stylebox_override("normal", ItemAssets.slot(card.item_id, "rarity_treatment"))
 		var mark: String = marks.get(card.uid, "")
 		var tag: String = {"ball": "▶ ARMED", "tactical": "▶ TACTIC", "keep": "★ KEEP"}.get(mark, "")
 		button.text = "%s\n%s%s" % [card.title, card.detail, ("\n" + tag) if not tag.is_empty() else ""]
+		if icon:
+			button.text = "%s\n%s\n%s%s" % [card.title, card.detail, ItemAssets.rarity_mark(card.item_id), ("\n" + tag) if not tag.is_empty() else ""]
 		button.modulate = Color(1.0, 0.9, 0.45) if not mark.is_empty() else (Color(0.75, 0.9, 1.0) if card.kind == "tactical" else Color.WHITE)
 		button.disabled = not enabled
 	inspect_button.disabled = not enabled

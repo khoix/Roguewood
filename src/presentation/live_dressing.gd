@@ -1,6 +1,7 @@
 extends "res://src/presentation/lane_dressing.gd"
 ## E11 materials on real E04 bodies. Meshes only: never alter collision or mass.
 const ArtShader = preload("res://assets/art_direction/material.gdshader")
+const PinIdentity = preload("res://src/presentation/pin_identity.gd")
 
 func surface(kind: int, color: Color) -> ShaderMaterial:
 	var mat := ShaderMaterial.new()
@@ -37,14 +38,14 @@ func dress_static(body: StaticBody3D, dimensions: Vector3, role: String) -> void
 			light_mat.emission=Color("377d83")
 			_mesh_child(body,rail,light_mat,Lane.world(side*0.77,10,0.06)-body.position)
 
-## Slice pin materials (E13): finish and colour per catalogue pin, so a Ruby or
-## Anchor reads as itself on the lane. Developmental: final pin art is E19.
-const PIN_FINISHES := {"pin.wood": [2, "f4e6cd"], "pin.ruby": [4, "b8323f"], "pin.gold": [3, "e7bc70"],
-	"pin.anchor": [4, "17363d"], "pin.grower": [2, "95d9cb"], "pin.rubber": [4, "8976cf"]}
+## Remaining E13 developmental finishes. Catalogue identities take precedence;
+## A02 supplies Wood/Ruby/Gold/Anchor; Grower/Rubber are the next art batch.
+const PIN_FINISHES := {"pin.grower": [2, "95d9cb"], "pin.rubber": [4, "8976cf"]}
 
 func dress_pin(pin: RigidBody3D) -> void:
 	super.dress_pin(pin)
 	var item_id := String(pin.get_meta("item_id", ""))
+	if PinIdentity.dress(pin, item_id): return
 	if PIN_FINISHES.has(item_id):
 		for child in pin.get_children():
 			if child is MeshInstance3D:

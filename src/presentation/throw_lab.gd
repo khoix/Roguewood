@@ -380,7 +380,7 @@ func _refresh_hand() -> void:
 			detail += "\n%d left" % option.uses
 		elif equipment.MODEL == "deck" and not run.card_mod(option.uid).is_empty():
 			detail += "\n+ " + _names.get(run.card_mod(option.uid), "")
-		cards.append({"uid": option.uid, "title": item.get("name", option.item_id), "detail": detail, "kind": option.kind, "rarity": item.get("rarity","common"), "art_index": 3 if option.kind == "tactical" else 2})
+		cards.append({"uid": option.uid, "item_id": option.item_id, "title": item.get("name", option.item_id), "detail": detail, "kind": option.kind, "rarity": item.get("rarity","common"), "art_index": 3 if option.kind == "tactical" else 2})
 	var marks := {}
 	if not armed_ball.is_empty(): marks[armed_ball] = "ball"
 	if not armed_tactical.is_empty(): marks[armed_tactical] = "tactical"
@@ -1226,7 +1226,7 @@ func _refresh_shop() -> void:
 	for offer in shop.offers:
 		var slot_name: String = Shop.SLOT_NAMES[offer.slot]
 		if offer.item_id.is_empty():
-			offers.append({"text": "%s\nNothing available" % slot_name, "state": "empty"})
+			offers.append({"text": "%s\nNothing available" % slot_name, "state": "empty", "item_id": ""})
 			continue
 		var item: Dictionary = run.item(offer.item_id)
 		var text := "%s · %s\n%s\n%s\n$%d" % [slot_name, item.rarity, item.name, _effect_text(item), offer.price]
@@ -1241,7 +1241,7 @@ func _refresh_shop() -> void:
 				var short := {"insufficient funds": "can't afford", "owned limit": "owned max", "incompatible with owned items": "incompatible",
 					"nothing to modify": "no target", "no place for it": "no slot"}
 				text += "  (%s)" % short.get(plan.reason, plan.reason)
-		offers.append({"text": text, "state": offer_state})
+		offers.append({"text": text, "state": offer_state, "item_id": offer.item_id}) # item_id: presentation art (Codex Wave 1 request)
 	var pins: Array = []
 	for position in range(1, 11):
 		var pin: Dictionary = run.rack[position]

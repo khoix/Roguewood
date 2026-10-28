@@ -132,6 +132,11 @@ Saves live in one directory: `user://saves`, or the shell's `--save-dir=`.
 
 **Unlock registry (schema 1)**, `content/career/unlocks.json`: `{leagues: [{id, name, content_set, access: [gates], championship: {gates, text}}], gates: [{id, kind (boss|championship|mastery), name}], objectives: [{id, name, text, metric (strikes|spares|curved_strikes|pin_materials), threshold, scope (career|attempt), prerequisites, gates, reward}], counters: {boss rule → [synergy tags]}}`. `UnlockGraph.build` validates it with the catalogue and the Leagues' rivals.
 
+**E16 additions:**
+- **Registry:** `cosmetics: [{id: "deco.*", name, text, requires: {first_clears|championships|mastery: n}}]`. A League may set `provisional_rivals: true` (no plaques).
+- **Career:** an optional `tracked: [objective ids]` (at most three) within schema 2.
+- **Clubhouse asset IDs:** `trophy.<league suffix>`, `ribbon.<objective suffix>`, `plaque.<rival suffix>`, `deco.*`, and `card.<item id>`, unless the catalogue's `assets.card` names a `res://` path. Files go in `assets/clubhouse/<asset id>.png`.
+
 `tests/fixtures/saves/v1` holds the frozen golden saves that every later version must load.
 
 ## E13 content contract v2 and the slice (ADR 008)
@@ -159,3 +164,11 @@ A v1 catalogue using any of these is refused.
 ## Commands and evidence
 
 `python3 tools/qa.py unit` exercises invalid data, JSON round-trips, pure scoring, lane geometry, knockdown bookkeeping and gesture recognition. `physics` runs launch fixtures through real Jolt worlds (see DEVELOPMENT.md). `content` lints the actual production registry. `integration` hydrates a frame from catalogue and launch/result fixtures and verifies its score and serialized events. These are headless contract tests, **not gameplay E2E**. E03 supplies real input-driven E2E. All commands use the pinned Godot engine and fail on engine script errors or a missing completion marker.
+
+## E17 authored batch (schema 1)
+
+`content/catalogue/batches/E17-Dxx.json` is `{schema_version: 1, batch, status, note, definitions: [{item, design}]}`:
+- `item` is a catalogue v2 item with completeness `authored: true`, `unlock_assigned: true`, `mechanics: false` and `integrated: false`.
+- `design` is `{trigger, primitives: ["area.name"], pool, presentation_needs, asset_ids: {slot: "<slot>.<item id>"}}`. Balls and pins have seven slots; other categories have no `in_play` slot.
+
+Rules: rarity price bands (common $3–5, uncommon $5–7, rare $7–10, epic $10–14; legendary pool weight 0), resale is half the price rounded down, and no two definitions in a category may share effects, physics and primitives.

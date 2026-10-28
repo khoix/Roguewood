@@ -1,0 +1,9 @@
+{
+ "E20-V01": [["ball.echo","echo","metal",920,0.30,"b5a1ed",2],["charm.encore","tickets","paper",740,0.23,"edcd92",2]],
+ "E20-V02": [["pin.grower","growth","wood",620,0.30,"94c98b",2],["charm.patient_investor","hourglass","metal",680,0.36,"c4b5e8",2]],
+ "E20-V03": [["pin.gold","coin","metal",1380,0.26,"edc36b",1],["charm.gold_rush","coins","metal",1040,0.36,"edc36b",2]],
+ "E20-V04": [["pin.anchor","brace","metal",190,0.28,"a4c1c6",2],["charm.standing_order","tabs","paper",520,0.24,"c9d8cf",2],["charm.lone_survivor","isolate","metal",470,0.38,"b9cad1",3]],
+ "E20-V05": [["charm.finisher","flag","cloth",600,0.24,"efdfbb",3],["charm.turkey_club","feathers","wood",840,0.34,"e1aa6b",3],["charm.last_chance","clock","metal",1560,0.30,"dba49a",3]],
+ "E20-V06": [["charm.flat_bonus","pips","wood",990,0.20,"d6c397",1],["charm.spare_change","halves","metal",1190,0.28,"dbc58e",2],["charm.house_favorite","gable","wood",410,0.26,"e5b083",2]],
+ "E20-V07": [["ball.hook","hook","rubber",170,0.28,"8bced2",1],["charm.hook_artist","nib","paper",810,0.25,"94d4d0",2],["ball.hammer","impact","wood",135,0.30,"d0ad74",2],["pin.rubber","elastic","rubber",240,0.28,"c0a7dd",1],["pin.wood","chips","wood",730,0.19,"e7cf9e",1],["pin.ruby","facets","metal",1860,0.28,"e5a4b5",2]]
+}

@@ -30,7 +30,9 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - E10 DONE (owner policy: completed implementation and verification; not yet merged to main): implementation `8e4edd5fa99651f5b5d91cde5fb5c8ab1ab0bb6d` on `claude/roguewood-build`. Checksummed atomic saves with backup and quarantine, versioned attempt snapshots at every committed step, committed-throw re-simulation, no double banking, purchases or rerolls by reload, a separate idempotent Career file, Continue and save notices, golden v1 saves, and J07 across ten real process restarts all pass locally; CI 40460928513 PASS on `8e4edd5` (artifact `journeys` 12715071786; J07's ten stages ran in both modes with values identical to local). See decisions/007-attempt-saves-and-recovery.md and handoffs/E10.md.
 - E13 DONE (owner policy: completed implementation and verification; not yet merged to main): on `claude/roguewood-build` (implementation `98cc2aa`, building on `5aac9d2` and `aea54e0`; CI 40524506207 PASS, artifact `journeys` 12744012079; see handoffs/E13.md). Catalogue/frame contract v2, production batch E13-S01, the two-Division House League with The Surveyor and The Custodian, content sets, attempt saves v2, J06 across both Divisions, and the seeded strategy simulation. The real-device play session is BLOCKED (docs/playtests/E13-slice-playtest.md). See decisions/008-vertical-slice.md.
 - E15 DONE (owner policy: completed implementation and verification; not yet merged to main): on `claude/roguewood-build` (implementation `2cdedb1` plus the result-line follow-up; base main `fd1d466`). Career schema 2 with a v1 migration and a golden v2 file; the unlock registry and validated graph (IDs, kinds, sources, loops, reachability, self-unlocks, starting counters); immediate idempotent banking of first clears, titles, mastery, records and discoveries; attempt pool snapshots; the practice policy; the menu summary and League access; J10 across three real processes. See decisions/010-career-and-unlock-graph.md and handoffs/E15.md.
-- Active (Wave 1): Claude E16 core; Codex E19-A01…A07, E20-V01…V07, E21-R01/R02. See "Wave 1 claims". Next for Claude: E17-D01.
+- Integration: the owner merged `claude/roguewood-build` at `06abb88` (E15 and the ownership plan) into main by PR #10 (`a65ed24`).
+- E16 core DONE: `b01fb4d` on `claude/roguewood-build`; full local matrix (J01–J11 headless and rendered) and CI 40616441249 PASS; see handoffs/E16.md. E16-ART is READY for Codex.
+- Active (Wave 1): Codex on E19-A01 (IN_PROGRESS, checkpoint `96ba030`); E19-A02…A07, E20-V01…V07, E21-R01/R02 and E16-ART are queued for Codex. E17-D01 definitions DONE (`8cfcf44`, CI 40620488616 PASS; handoffs/E17-D01.md). Next for Claude: E17-D02 or E18-C01, the owner's choice. Codex: E17-D01-ART is READY after Wave 1.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
@@ -60,8 +62,8 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E13 — Vertical-slice integration | DONE (device play session blocked) | Claude | claude/roguewood-build (not yet merged) | 98cc2aa (with 5aac9d2, aea54e0); CI 40524506207 PASS; ADR 008; E13 handoff |
 | E14 — Seeded eight-Division progression | DONE | Codex | codex/roguewood-build | 71b2bd2; local unit/content/integration/physics, J01/J06/J07 and native J09 headless/rendered PASS; handoffs/E14.md |
 | E15 — Career persistence and unlock graph | DONE | Claude | claude/roguewood-build (not yet merged) | 2cdedb1 (+ 8c19905); local suites and J01–J10 headless/rendered PASS; CI 40577363221 and 40581437392 PASS; ADR 010; E15 handoff |
-| E16 — Clubhouse and collection UI | IN_PROGRESS (core) | Claude core · Codex E16-ART | claude/roguewood-build · codex/roguewood-build | Wave 1 claim; E16-ART after the core hand-off |
-| E17 — Catalogue and unlock authoring batches | NOT_STARTED (READY) | Claude definitions · Codex visual briefs | claude/roguewood-build · codex/roguewood-build | Split per batch; see Ownership |
+| E16 — Clubhouse and collection UI | Core DONE · E16-ART READY | Claude core · Codex E16-ART | claude/roguewood-build · codex/roguewood-build | Core b01fb4d; CI 40616441249 PASS; J11; handoffs/E16.md (Art hand-off) |
+| E17 — Catalogue and unlock authoring batches | IN_PROGRESS (D01 DONE; D01-ART READY for Codex) | Claude definitions · Codex visual briefs | claude/roguewood-build · codex/roguewood-build | Split per batch; see Ownership |
 | E18 — Content mechanics batches | NOT_STARTED | Claude | claude/roguewood-build | Per E17 batch |
 | E19 — Final item artwork batches | CLAIMED for Codex (A01–A07) | Codex | codex/roguewood-build | Wave 1 claim; later batches wait for E17 briefs |
 | E20 — Ability effects and audio batches | CLAIMED for Codex (V01–V07) | Codex | codex/roguewood-build | Wave 1 claim; each after its E19 art |
@@ -205,6 +207,28 @@ Base for both agents: `claude/roguewood-build` at the commit containing this cla
   - completeness flags set only for slots delivered at final quality.
   - Push, then report the branch SHA and the batch IDs to the coordinator.
 
+### E17-D01 claim (Claude, 2026-10-28)
+- **Branch** `claude/roguewood-build`, base `c611dea`. Medium.
+- **Scope:** 11 definitions from the design's starter tables (§7, §8, §10) not yet authored:
+  - balls Spark, Ghost, Splitter, Gold;
+  - pins Glass, Echo, Fuse, Crown;
+  - tactical cards Nudge, Reserve Call, Rule Waiver.
+  Each has exact triggers, tradeoffs, prices, pools, compatibility, unlocks and asset IDs.
+- **Decision:** authored definitions live in a content manifest, `content/catalogue/batches/E17-Dxx.json`, not in `content/catalogue.json`. So nothing unimplemented reaches a shop, the binder or a save. E18 moves each item into the catalogue when its mechanics land.
+- **Exclusive paths:** content/catalogue/batches/, src/content/, tests/authored_test.gd, docs/handoffs/E17-D01.md.
+- **Shared edits:**
+  - content_set.gd: a prospective graph including the batches;
+  - run_tests.gd: content mode;
+  - clubhouse_model.gd: the `shop_upgrade` category name.
+- **After:** the batch's visual briefs become READY for Codex (`E17-D01-ART`), and its definitions READY for E18-C01.
+
+- **E17-D01 delivered:** 11 definitions in `content/catalogue/batches/E17-D01.json`, validated against the catalogue and the prospective unlock graph by `qa.py content`. **E17-D01-ART is READY for Codex:** visual briefs into `docs/art/briefs/E17-D01.md` from each definition's presentation needs and asset IDs, flagging any pair that does not read as distinct. **E18-C01 is READY for Claude:** eleven new primitives, listed in the handoff.
+
+### Wave 1 coordination log
+- 2026-10-28, Codex request (A01/A02, `tests/slice_test.gd`): the blanket "no art or effects yet" assertion is replaced. **Done by the coordinator** on `claude/roguewood-build`, in the commit adding this entry. Every E13-S01 item must be authored and implemented and not integrated. A set `artwork` flag needs existing icon, card, rarity_treatment and reduced_motion resources, plus in_play for balls and pins. A set `effects_audio` flag needs existing activation and sound resources. Counts and scoring assertions are unchanged. Verified: `qa.py unit` PASS here, and on Codex's `f26ab50` (A01 and A02 final flags) with this test; a broken Ruby card path is caught. Codex merges `origin/claude/roguewood-build` to pick it up.
+- 2026-10-28, Codex request (E19-A01): add `item_id` to the hand-card view and the shop-offer view in throw_lab.gd. **Done by the coordinator** on `claude/roguewood-build`, in the commit that adds this entry. `_refresh_hand` cards carry `item_id`; `_refresh_shop` offers carry `item_id` ("" for empty slots). Purely additive: J04, J05, J06 and unit re-run PASS. Codex merges `origin/claude/roguewood-build` to pick it up, then resumes A01 shop binding.
+- 2026-10-28, **E16-ART READY for Codex.** The scope, asset IDs, drop path and captures are in handoffs/E16.md, "Art hand-off". On hand-off, `src/clubhouse/clubhouse.gd` and `src/clubhouse/clubhouse_art.gd` become Codex-exclusive presentation paths. `clubhouse_model.gd`, Career code and the registry stay Claude's. J11's node names must be kept.
+
 ## Active claims and ownership
 
 No active claim. E15 (Claude) is complete on `claude/roguewood-build`; E14 (Codex) is complete and merged.
@@ -225,6 +249,8 @@ Standing user preferences:
 - At the end of every session, share newly produced screenshots with the user (as files in chat). Never commit screenshots or other rendered captures to the repository; CI's uploaded artifact is their durable copy.
 
 ## Batch queue and content completeness
+
+Batch E17-D01 (E17, authored, not implemented): ball.spark, ball.ghost, ball.splitter, ball.gold; pin.glass, pin.echo, pin.fuse, pin.crown; consumable.nudge, consumable.reserve_call, consumable.rule_waiver. Flags: authored and unlock_assigned true; everything else false. Not in the catalogue or any pool until E18. Authored (not implemented) counts: balls 4, pins 4, tactical 3.
 
 Batch E13-S01 (E13, delivered): 25 production definitions in content/catalogue.json — balls house, hook, hammer, echo; pins wood, ruby, gold, anchor, grower, rubber; Charms flat_bonus, finisher, spare_change, lone_survivor, hook_artist, house_favorite, gold_rush, turkey_club, patient_investor, last_chance, encore, standing_order; boss rules dead_straight, clean_sweep; kit house. Flags: authored, mechanics, automated_validation, unlock_assigned true; artwork, effects_audio, integrated false. Production counts against release targets: balls 4/24, pins 6/32, Charms 12/100, boss rules 2/20, kits 1/10; modifications, consumables, upgrades and lane conditions 0. No further batches allocated. Coordinator allocates E17-Dxx / E18-Cxx / E19-Axx / E20-Vxx / E21-Rxx / E22-Lxx / E26-Pxx with explicit scopes. Expected content totals: 24 balls, 32 pins, 16 ball modifications, 16 pin modifications, 100 Charms, 24 consumables, 16 shop upgrades, 12 lane conditions, 20 boss rules, 10 kits; six League specs separate.
 
@@ -247,6 +273,7 @@ Content registry: content/catalogue.json holds batch E13-S01 (catalogue v2); E02
 - E08 PASS (local): unit (economy_test: payout, interest, sale and reroll tables; no buy/sell profit; slots, placements, replacement and cancel; modifications; removal; shop eligibility, rarity renormalization, rerolls and the affordability guarantee across seeds; currency scopes; JSON round trips; a 60-run fuzz), mutation checks, every earlier suite with the physics digest unchanged and J03 at 560/240/70, J01–J05 headless and rendered (J05 match-2 score 21060 identical), diagnostics, and J05 injected failure exiting 1. CI 40442532881 PASS (run on `38d9c75`, which adds only the checkpoint; artifact `journeys` 12706493183); J04 and J05 output identical to local.
 - E09 PASS (local): unit (division_test: spec validation and refusals, match flow with early wins, exact targets, losses, boss win, practice, Clean Sweep, reaction precedence and cooldown, JSON round trips), mutation checks, every earlier suite with the physics digest unchanged, J03 at 560/240/70 and J05 at 21060, J01–J06 headless and rendered (J06 lines identical in both modes), diagnostics, and J06 injected failure exiting 1. CI 40451844709 PASS (run on `90b9270`, which adds only the checkpoint; artifact `journeys` 12711515136); J06 output identical to local.
 - E10 PASS (local): unit (save_test: atomic replace and backup, four corruption kinds with quarantine and fallback, version and migration rules, snapshot round trips for both equipment models with identical rerolls and draws, removed-item and phase refusals, golden v1 saves, Career idempotence and separation), mutation checks, every earlier suite with the physics digest unchanged, J03 at 560/240/70, J05 at 21060, J06 identical in both modes, J01–J07 headless and rendered (with per-journey save directories), diagnostics, and J07 injected failure exiting 1. CI 40460928513 PASS on `8e4edd5` (artifact `journeys` 12715071786; J07's ten stages ran in both modes with values identical to local).
+- E16 core PASS (local and CI 40616441249 on `b01fb4d`): doctor, unit (clubhouse_test), content, integration, physics (digest unchanged), smoke, export, experiment, slice, J01–J11 headless and rendered, diagnostics, and J11 injected failure exiting 1.
 - E15 PASS (local, `2cdedb1`): doctor, unit (career_test with mutation checks), content (both unlock graphs), integration, physics (digest unchanged), smoke, export, experiment, slice, J01–J10 headless and rendered, diagnostics, and J10 injected failure exiting 1; unit, J06, J09 and J10 re-run after the result-line follow-up. CI PASS: 40577363221 on `2cdedb1` and 40581437392 on `8c19905` (J01–J10 both modes; artifact `journeys`).
 - E13 PASS (local and CI 40524506207 on `98cc2aa`): unit (slice_test: every slice item against hand-computed scores, catalogue and frame v2 refusals, League continuation and championship repeats, Dead Straight, physics profiles, content sets, slice saves, item texts; condition and retrigger mutations caught), content for both sets, every earlier suite with the physics digest unchanged, J03 at 560/240/70, J05 at 21060, J01–J08 headless and rendered (J06 stage 1 plays both slice Divisions, identical in both modes), diagnostics, J06 injected failure exiting 1, and the 400-run strategy simulation (ADR 008). The device play session is BLOCKED.
 - Native iOS/Android/Windows, physical device feel (E05 trials NOT RUN), visual review and balance: NOT VALIDATED. E04/E05 throw thresholds and physics tuning are provisional (ADR 002/003).
@@ -270,3 +297,16 @@ The owner's completion policy in AGENTS.md supersedes historical REVIEW wording 
 
 ## E14 integration claim
 Codex owns E14 on codex/roguewood-build, integrating completed E13 b6c95ab. Shared LeagueRun, content selection, throw flow, persistence, HUD, lane condition application and J09/CI are now claimed for E14. Generator v2 at a104b36 is retained. E14 implementation and verification are complete at 71b2bd2. Native J09 passes in three processes headless and rendered, including menu selection, 24 matches, saves and endless/loss. No pending owner action. E15 next, High.
+
+### Codex Wave 1 presentation contract request (E19-A01)
+
+The presentation loader is now using production assets for the four ball IDs.
+Please add `item_id: option.item_id` to `_refresh_hand`'s card view and
+`item_id: offer.item_id` to `_refresh_shop`'s offer view (empty string for empty
+slots) in throw_lab.gd. No rules or behavior change is needed. Current cards have
+only UID/title and shop offers have only formatted text/state. Card presentation
+has a temporary exact unique-title lookup; shop art will not parse formatted text.
+Codex has not edited the restricted throw flow. Resume A01 shop binding after this
+additive contract lands; keep artwork completeness false until that evidence and
+remaining actual-size refinements are complete. This is a technical handoff, not
+an owner-review wait.

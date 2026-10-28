@@ -1,0 +1,9 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+[ext_resource type="Script" path="res://src/presentation/ability_style.gd" id="1"]
+[resource]
+script = ExtResource("1")
+item_id = "charm.spare_change"
+shape = "halves"
+ink = Color(0.8588235294117647, 0.7725490196078432, 0.5568627450980392, 1)
+duration = 0.55
+priority = 2

@@ -27,19 +27,19 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
+        "icon": "res://assets/items/balls/house-card.tres",
+        "card": "res://assets/items/balls/house-card.tres",
+        "in_play": "res://assets/items/balls/house-material.tres",
+        "rarity_treatment": "res://assets/items/balls/house-frame.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/balls/house-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
+        "artwork": true,
         "effects_audio": false,
         "unlock_assigned": true,
         "integrated": false
@@ -71,20 +71,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "icon": "res://assets/items/balls/hook-card.tres",
+        "card": "res://assets/items/balls/hook-card.tres",
+        "in_play": "res://assets/items/balls/hook-material.tres",
+        "rarity_treatment": "res://assets/items/balls/hook-frame.tres",
+        "activation": "res://assets/effects/ball_hook.tres",
+        "sound": "res://assets/audio/ball_hook.wav",
+        "reduced_motion": "res://assets/items/balls/hook-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       },
@@ -118,20 +118,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "icon": "res://assets/items/balls/hammer-card.tres",
+        "card": "res://assets/items/balls/hammer-card.tres",
+        "in_play": "res://assets/items/balls/hammer-material.tres",
+        "rarity_treatment": "res://assets/items/balls/hammer-frame.tres",
+        "activation": "res://assets/effects/ball_hammer.tres",
+        "sound": "res://assets/audio/ball_hammer.wav",
+        "reduced_motion": "res://assets/items/balls/hammer-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       },
@@ -172,20 +172,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "icon": "res://assets/items/balls/echo-card.tres",
+        "card": "res://assets/items/balls/echo-card.tres",
+        "in_play": "res://assets/items/balls/echo-material.tres",
+        "rarity_treatment": "res://assets/items/balls/echo-frame.tres",
+        "activation": "res://assets/effects/ball_echo.tres",
+        "sound": "res://assets/audio/ball_echo.wav",
+        "reduced_motion": "res://assets/items/balls/echo-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -222,20 +222,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "icon": "res://assets/items/pins/wood-card.tres",
+        "card": "res://assets/items/pins/wood-card.tres",
+        "in_play": "res://assets/items/pins/wood-material.tres",
+        "rarity_treatment": "res://assets/items/pins/wood-frame.tres",
+        "activation": "res://assets/effects/pin_wood.tres",
+        "sound": "res://assets/audio/pin_wood.wav",
+        "reduced_motion": "res://assets/items/pins/wood-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -280,20 +280,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "icon": "res://assets/items/pins/ruby-card.tres",
+        "card": "res://assets/items/pins/ruby-card.tres",
+        "in_play": "res://assets/items/pins/ruby-material.tres",
+        "rarity_treatment": "res://assets/items/pins/ruby-frame.tres",
+        "activation": "res://assets/effects/pin_ruby.tres",
+        "sound": "res://assets/audio/pin_ruby.wav",
+        "reduced_motion": "res://assets/items/pins/ruby-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -337,20 +337,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "icon": "res://assets/items/pins/gold-card.tres",
+        "card": "res://assets/items/pins/gold-card.tres",
+        "in_play": "res://assets/items/pins/gold-material.tres",
+        "rarity_treatment": "res://assets/items/pins/gold-frame.tres",
+        "activation": "res://assets/effects/pin_gold.tres",
+        "sound": "res://assets/audio/pin_gold.wav",
+        "reduced_motion": "res://assets/items/pins/gold-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -394,20 +394,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "icon": "res://assets/items/pins/anchor-card.tres",
+        "card": "res://assets/items/pins/anchor-card.tres",
+        "in_play": "res://assets/items/pins/anchor-material.tres",
+        "rarity_treatment": "res://assets/items/pins/anchor-frame.tres",
+        "activation": "res://assets/effects/pin_anchor.tres",
+        "sound": "res://assets/audio/pin_anchor.wav",
+        "reduced_motion": "res://assets/items/pins/anchor-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       },
@@ -461,20 +461,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "icon": "res://assets/items/pins/grower-card.tres",
+        "card": "res://assets/items/pins/grower-card.tres",
+        "in_play": "res://assets/items/pins/grower-material.tres",
+        "rarity_treatment": "res://assets/items/pins/grower-frame.tres",
+        "activation": "res://assets/effects/pin_grower.tres",
+        "sound": "res://assets/audio/pin_grower.wav",
+        "reduced_motion": "res://assets/items/pins/grower-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -512,20 +512,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "icon": "res://assets/items/pins/rubber-card.tres",
+        "card": "res://assets/items/pins/rubber-card.tres",
+        "in_play": "res://assets/items/pins/rubber-material.tres",
+        "rarity_treatment": "res://assets/items/pins/rubber-frame.tres",
+        "activation": "res://assets/effects/pin_rubber.tres",
+        "sound": "res://assets/audio/pin_rubber.wav",
+        "reduced_motion": "res://assets/items/pins/rubber-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       },
@@ -566,20 +566,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "icon": "res://assets/items/charms/flat_bonus-card.tres",
+        "card": "res://assets/items/charms/flat_bonus-card.tres",
+        "in_play": "res://assets/items/charms/flat_bonus-card.tres",
+        "rarity_treatment": "res://assets/items/charms/flat_bonus-frame.tres",
+        "activation": "res://assets/effects/charm_flat_bonus.tres",
+        "sound": "res://assets/audio/charm_flat_bonus.wav",
+        "reduced_motion": "res://assets/items/charms/flat_bonus-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -622,20 +622,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "icon": "res://assets/items/charms/finisher-card.tres",
+        "card": "res://assets/items/charms/finisher-card.tres",
+        "in_play": "res://assets/items/charms/finisher-card.tres",
+        "rarity_treatment": "res://assets/items/charms/finisher-frame.tres",
+        "activation": "res://assets/effects/charm_finisher.tres",
+        "sound": "res://assets/audio/charm_finisher.wav",
+        "reduced_motion": "res://assets/items/charms/finisher-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -678,20 +678,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "icon": "res://assets/items/charms/spare_change-card.tres",
+        "card": "res://assets/items/charms/spare_change-card.tres",
+        "in_play": "res://assets/items/charms/spare_change-card.tres",
+        "rarity_treatment": "res://assets/items/charms/spare_change-frame.tres",
+        "activation": "res://assets/effects/charm_spare_change.tres",
+        "sound": "res://assets/audio/charm_spare_change.wav",
+        "reduced_motion": "res://assets/items/charms/spare_change-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -735,20 +735,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "icon": "res://assets/items/charms/lone_survivor-card.tres",
+        "card": "res://assets/items/charms/lone_survivor-card.tres",
+        "in_play": "res://assets/items/charms/lone_survivor-card.tres",
+        "rarity_treatment": "res://assets/items/charms/lone_survivor-frame.tres",
+        "activation": "res://assets/effects/charm_lone_survivor.tres",
+        "sound": "res://assets/audio/charm_lone_survivor.wav",
+        "reduced_motion": "res://assets/items/charms/lone_survivor-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -789,20 +789,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "icon": "res://assets/items/charms/hook_artist-card.tres",
+        "card": "res://assets/items/charms/hook_artist-card.tres",
+        "in_play": "res://assets/items/charms/hook_artist-card.tres",
+        "rarity_treatment": "res://assets/items/charms/hook_artist-frame.tres",
+        "activation": "res://assets/effects/charm_hook_artist.tres",
+        "sound": "res://assets/audio/charm_hook_artist.wav",
+        "reduced_motion": "res://assets/items/charms/hook_artist-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -843,20 +843,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "icon": "res://assets/items/charms/house_favorite-card.tres",
+        "card": "res://assets/items/charms/house_favorite-card.tres",
+        "in_play": "res://assets/items/charms/house_favorite-card.tres",
+        "rarity_treatment": "res://assets/items/charms/house_favorite-frame.tres",
+        "activation": "res://assets/effects/charm_house_favorite.tres",
+        "sound": "res://assets/audio/charm_house_favorite.wav",
+        "reduced_motion": "res://assets/items/charms/house_favorite-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -895,20 +895,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "icon": "res://assets/items/charms/gold_rush-card.tres",
+        "card": "res://assets/items/charms/gold_rush-card.tres",
+        "in_play": "res://assets/items/charms/gold_rush-card.tres",
+        "rarity_treatment": "res://assets/items/charms/gold_rush-frame.tres",
+        "activation": "res://assets/effects/charm_gold_rush.tres",
+        "sound": "res://assets/audio/charm_gold_rush.wav",
+        "reduced_motion": "res://assets/items/charms/gold_rush-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -949,20 +949,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "icon": "res://assets/items/charms/turkey_club-card.tres",
+        "card": "res://assets/items/charms/turkey_club-card.tres",
+        "in_play": "res://assets/items/charms/turkey_club-card.tres",
+        "rarity_treatment": "res://assets/items/charms/turkey_club-frame.tres",
+        "activation": "res://assets/effects/charm_turkey_club.tres",
+        "sound": "res://assets/audio/charm_turkey_club.wav",
+        "reduced_motion": "res://assets/items/charms/turkey_club-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -1007,20 +1007,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "icon": "res://assets/items/charms/patient_investor-card.tres",
+        "card": "res://assets/items/charms/patient_investor-card.tres",
+        "in_play": "res://assets/items/charms/patient_investor-card.tres",
+        "rarity_treatment": "res://assets/items/charms/patient_investor-frame.tres",
+        "activation": "res://assets/effects/charm_patient_investor.tres",
+        "sound": "res://assets/audio/charm_patient_investor.wav",
+        "reduced_motion": "res://assets/items/charms/patient_investor-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -1061,20 +1061,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "icon": "res://assets/items/charms/last_chance-card.tres",
+        "card": "res://assets/items/charms/last_chance-card.tres",
+        "in_play": "res://assets/items/charms/last_chance-card.tres",
+        "rarity_treatment": "res://assets/items/charms/last_chance-frame.tres",
+        "activation": "res://assets/effects/charm_last_chance.tres",
+        "sound": "res://assets/audio/charm_last_chance.wav",
+        "reduced_motion": "res://assets/items/charms/last_chance-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -1115,20 +1115,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "icon": "res://assets/items/charms/encore-card.tres",
+        "card": "res://assets/items/charms/encore-card.tres",
+        "in_play": "res://assets/items/charms/encore-card.tres",
+        "rarity_treatment": "res://assets/items/charms/encore-frame.tres",
+        "activation": "res://assets/effects/charm_encore.tres",
+        "sound": "res://assets/audio/charm_encore.wav",
+        "reduced_motion": "res://assets/items/charms/encore-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -1169,20 +1169,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "icon": "res://assets/items/charms/standing_order-card.tres",
+        "card": "res://assets/items/charms/standing_order-card.tres",
+        "in_play": "res://assets/items/charms/standing_order-card.tres",
+        "rarity_treatment": "res://assets/items/charms/standing_order-frame.tres",
+        "activation": "res://assets/effects/charm_standing_order.tres",
+        "sound": "res://assets/audio/charm_standing_order.wav",
+        "reduced_motion": "res://assets/items/charms/standing_order-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -1212,20 +1212,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "icon": "res://assets/items/rules/dead_straight-card.tres",
+        "card": "res://assets/items/rules/dead_straight-card.tres",
+        "in_play": "res://assets/items/rules/dead_straight-card.tres",
+        "rarity_treatment": "res://assets/items/rules/dead_straight-frame.tres",
+        "activation": "res://assets/effects/dead_straight.tres",
+        "sound": "res://assets/audio/dead_straight.wav",
+        "reduced_motion": "res://assets/items/rules/dead_straight-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -1255,20 +1255,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "icon": "res://assets/items/rules/clean_sweep-card.tres",
+        "card": "res://assets/items/rules/clean_sweep-card.tres",
+        "in_play": "res://assets/items/rules/clean_sweep-card.tres",
+        "rarity_treatment": "res://assets/items/rules/clean_sweep-frame.tres",
+        "activation": "res://assets/effects/clean_sweep.tres",
+        "sound": "res://assets/audio/clean_sweep.wav",
+        "reduced_motion": "res://assets/items/rules/clean_sweep-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -1298,19 +1298,19 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
+        "icon": "res://assets/items/kits/house-card.tres",
+        "card": "res://assets/items/kits/house-card.tres",
+        "in_play": "res://assets/items/kits/house-card.tres",
+        "rarity_treatment": "res://assets/items/kits/house-frame.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/kits/house-card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
+        "artwork": true,
         "effects_audio": false,
         "unlock_assigned": true,
         "integrated": false

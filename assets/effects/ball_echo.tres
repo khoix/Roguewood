@@ -1,0 +1,9 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+[ext_resource type="Script" path="res://src/presentation/ability_style.gd" id="1"]
+[resource]
+script = ExtResource("1")
+item_id = "ball.echo"
+shape = "echo"
+ink = Color(0.7098039215686275, 0.6313725490196078, 0.9294117647058824, 1)
+duration = 0.55
+priority = 2

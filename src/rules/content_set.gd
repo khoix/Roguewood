@@ -123,8 +123,9 @@ static func graph_source(content: Dictionary) -> Dictionary:
 	return {"rivals": rivals, "bosses": bosses, "kit": content.kit}
 
 ## The validated Career graph for a registry: every League it names is loaded through
-## its content set. {errors, ...} as UnlockGraph.build, plus league_of_set.
-static func career_graph(registry_path: String = UNLOCKS) -> Dictionary:
+## its content set. {errors, ...} as UnlockGraph.build, plus league_of_set. extra_items
+## (E17's authored batches) builds the prospective graph; the shell never passes any.
+static func career_graph(registry_path: String = UNLOCKS, extra_items: Array = []) -> Dictionary:
 	var registry := UnlockGraph.read(registry_path)
 	var sources := {}
 	var catalogue := {}
@@ -142,6 +143,9 @@ static func career_graph(registry_path: String = UNLOCKS) -> Dictionary:
 		sources[league.get("id", "")] = graph_source(content)
 	if registry.is_empty():
 		errors.append("unlock registry unreadable: " + registry_path)
+	if not extra_items.is_empty():
+		catalogue = catalogue.duplicate(true)
+		catalogue.items.append_array(extra_items)
 	var graph := UnlockGraph.build(registry, catalogue, sources)
 	graph.errors = errors + graph.errors
 	graph["catalogue"] = catalogue

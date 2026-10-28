@@ -1,5 +1,8 @@
 extends Control
 ## Inspection never plays cards or changes their rarity. Finish samples are visual only.
+const ItemAssets = preload("res://src/presentation/item_assets.gd")
+var _item_texture: Texture2D
+var _default_frame: StyleBox
 signal closed
 const FINISHES = ["Common — matte", "Uncommon — metal", "Rare — border foil", "Epic — full foil", "Legendary — crown reveal"]
 const COLORS = [Color("c4b69b"),Color("bb935b"),Color("75cbd1"),Color("c691d9"),Color("e9b768")]
@@ -35,6 +38,7 @@ func _ready() -> void:
 	style.border_color = Color("e7bc70")
 	style.set_border_width_all(3)
 	style.set_content_margin_all(18)
+	_default_frame = style
 	panel.add_theme_stylebox_override("panel",style)
 	add_child(panel)
 	var box := VBoxContainer.new()
@@ -93,6 +97,9 @@ static func illustration(index: int) -> AtlasTexture:
 	return atlas
 
 func inspect(card: Dictionary, origin: Control, reduce: bool) -> void:
+	_item_texture = ItemAssets.slot(ItemAssets.identify(card), "reduced_motion" if reduce else "card") as Texture2D
+	var frame := ItemAssets.slot(ItemAssets.identify(card), "rarity_treatment") as StyleBox
+	panel.add_theme_stylebox_override("panel", frame if frame else _default_frame)
 	_origin = origin
 	reduced = reduce
 	selected_uid = card.uid
@@ -100,13 +107,14 @@ func inspect(card: Dictionary, origin: Control, reduce: bool) -> void:
 	title.text = card.title
 	detail.text = "%s · %s\n%s" % [card.kind.capitalize(),card.get("rarity","common").capitalize(),card.detail]
 	show()
-	finish.select(0)
-	_finish_selected(0)
+	var initial := ["common", "uncommon", "rare", "epic", "legendary"].find(card.get("rarity", "common")) if _item_texture else 0
+	finish.select(initial)
+	_finish_selected(initial)
 	close_button.grab_focus()
 
 func _finish_selected(index: int) -> void:
 	skip_reveal()
-	art.texture = illustration(4 if index == 4 else _base_index)
+	art.texture = _item_texture if _item_texture else illustration(4 if index == 4 else _base_index)
 	foil.set_shader_parameter("strength",[0.0,0.15,0.65,0.8,0.9][index])
 	foil.set_shader_parameter("border_only",index <= 2)
 	foil.set_shader_parameter("tilt",Vector2.ZERO)

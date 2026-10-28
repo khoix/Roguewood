@@ -1,0 +1,740 @@
+{
+  "schema_version": 1,
+  "batch": "E17-D01",
+  "status": "authored",
+  "note": "Authored definitions only; mechanics are E18-C work, briefs and art are Codex's. Nothing here is in content/catalogue.json or any shop pool until E18 moves it there.",
+  "definitions": [
+    {
+      "item": {
+        "id": "ball.spark",
+        "name": "Spark Ball",
+        "category": "ball",
+        "rarity": "uncommon",
+        "pool_weight": 1,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 6,
+        "resale_price": 3,
+        "effects": [],
+        "limits": {
+          "max_owned": 2,
+          "charges": 0,
+          "exhaustion": "cycle"
+        },
+        "downside": "Its burst scatters pins you meant to leave standing, which spoils Anchor and Lone Survivor setups.",
+        "synergy_tags": [
+          "scatter",
+          "strike",
+          "physics"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "On the ball's first direct contact with a standing pin in its roll, every other standing pin whose centre lies within 0.35 m of that pin receives one horizontal impulse of 0.9 N·s directed away from it. Once per roll. Pins it moves count for this roll through the existing impulse attribution, one credit per pin. Radius and impulse are provisional (E24).",
+        "primitives": [
+          "physics.impact_burst"
+        ],
+        "pool": "Shop Equipment slot; initial pool from Division 1.",
+        "presentation_needs": "While armed, show the 0.35 m burst radius on the pin deck. The burst reads as a ring that does not hide pins; reduced motion shows a static ring.",
+        "asset_ids": {
+          "icon": "icon.ball.spark",
+          "card": "card.ball.spark",
+          "in_play": "in_play.ball.spark",
+          "rarity_treatment": "rarity_treatment.ball.spark",
+          "activation": "activation.ball.spark",
+          "sound": "sound.ball.spark",
+          "reduced_motion": "reduced_motion.ball.spark"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "ball.ghost",
+        "name": "Ghost Ball",
+        "category": "ball",
+        "rarity": "rare",
+        "pool_weight": 1,
+        "unlock": {
+          "kind": "mastery",
+          "prerequisites": [
+            "gate.mastery_true_curve"
+          ]
+        },
+        "earliest_division": 2,
+        "purchase_price": 8,
+        "resale_price": 4,
+        "effects": [],
+        "limits": {
+          "max_owned": 2,
+          "charges": 0,
+          "exhaustion": "cycle"
+        },
+        "downside": "Gives up the front hit: the first pin it meets is passed through, so ordinary pocket entries lose their carry.",
+        "synergy_tags": [
+          "precision",
+          "phase",
+          "backrow"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "The first standing pin the ball touches in its roll is passed through: no contact force either way, and the ball does not knock it down (it may still fall from other pins). When that contact ends the ball is solid for the rest of the roll. Once per roll.",
+        "primitives": [
+          "physics.phase_first_contact"
+        ],
+        "pool": "Unlocked by the True Curve mastery goal; then the Equipment slot from Division 2.",
+        "presentation_needs": "Readable as translucent until its first contact and solid after it, without relying on colour; the passed pin flickers once.",
+        "asset_ids": {
+          "icon": "icon.ball.ghost",
+          "card": "card.ball.ghost",
+          "in_play": "in_play.ball.ghost",
+          "rarity_treatment": "rarity_treatment.ball.ghost",
+          "activation": "activation.ball.ghost",
+          "sound": "sound.ball.ghost",
+          "reduced_motion": "reduced_motion.ball.ghost"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "ball.splitter",
+        "name": "Splitter Ball",
+        "category": "ball",
+        "rarity": "epic",
+        "pool_weight": 1,
+        "unlock": {
+          "kind": "championship",
+          "prerequisites": [
+            "gate.house_campaign_champion"
+          ]
+        },
+        "earliest_division": 3,
+        "purchase_price": 11,
+        "resale_price": 5,
+        "effects": [],
+        "limits": {
+          "max_owned": 2,
+          "charges": 0,
+          "exhaustion": "cycle"
+        },
+        "downside": "Less predictable coverage, and each half hits softer, so deep pocket strikes become rarer.",
+        "synergy_tags": [
+          "coverage",
+          "spare",
+          "physics"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "When the ball crosses the arrows line (4.57 m past the foul line) it splits into two balls, each 0.55× the original mass, diverging ±4° from its heading and keeping its spin. Both halves are the same roll: each pin either knocks down is credited once to that roll. A ball already in a gutter before the line does not split. Split point, mass and angle are provisional (E24).",
+        "primitives": [
+          "physics.split_ball"
+        ],
+        "pool": "Unlocked by the first House Campaign title; then the Equipment slot from Division 3.",
+        "presentation_needs": "Show the split line (the arrows) while armed. The split is a clear two-way break; reduced motion keeps both halves without trails.",
+        "asset_ids": {
+          "icon": "icon.ball.splitter",
+          "card": "card.ball.splitter",
+          "in_play": "in_play.ball.splitter",
+          "rarity_treatment": "rarity_treatment.ball.splitter",
+          "activation": "activation.ball.splitter",
+          "sound": "sound.ball.splitter",
+          "reduced_motion": "reduced_motion.ball.splitter"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "ball.gold",
+        "name": "Gold Ball",
+        "category": "ball",
+        "rarity": "common",
+        "pool_weight": 1,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 4,
+        "resale_price": 2,
+        "effects": [],
+        "limits": {
+          "max_owned": 2,
+          "charges": 0,
+          "exhaustion": "cycle"
+        },
+        "downside": "Lighter (0.85× mass): weaker collisions and fewer strikes.",
+        "synergy_tags": [
+          "economy",
+          "gold"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        },
+        "physics": {
+          "mass_scale": 0.85
+        }
+      },
+      "design": {
+        "trigger": "After the roll resolves, pay $1 for every three distinct pins knocked down in that roll by any cause, at most $3 per roll. Paid with the frame's income after banking; currency is never retriggered.",
+        "primitives": [
+          "economy.payout_per_unique_capped"
+        ],
+        "pool": "Shop Equipment slot; initial pool from Division 1.",
+        "presentation_needs": "A coin tally of pins in threes during resolution; the $ amount appears beside the frame income.",
+        "asset_ids": {
+          "icon": "icon.ball.gold",
+          "card": "card.ball.gold",
+          "in_play": "in_play.ball.gold",
+          "rarity_treatment": "rarity_treatment.ball.gold",
+          "activation": "activation.ball.gold",
+          "sound": "sound.ball.gold",
+          "reduced_motion": "reduced_motion.ball.gold"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "pin.glass",
+        "name": "Glass Pin",
+        "category": "pin",
+        "rarity": "uncommon",
+        "pool_weight": 1,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 6,
+        "resale_price": 3,
+        "effects": [
+          {
+            "op": "add_value",
+            "amount": 30,
+            "trigger": "fallen",
+            "scope": "frame"
+          }
+        ],
+        "limits": {
+          "max_owned": 12,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Maintenance risk: one fall in five turns it into a Wood pin.",
+        "synergy_tags": [
+          "value",
+          "fragile",
+          "glass"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "+30 Value when knocked down. After the frame banks, each Glass pin that fell in that frame has a 20% chance to become a Wood pin in the same rack position. The roll uses the attempt's effects stream, and the change is saved. The rack never loses a slot. The chance is provisional (E24).",
+        "primitives": [
+          "pin.break_chance"
+        ],
+        "pool": "Shop Equipment slot; initial pool from Division 1.",
+        "presentation_needs": "Clearly glass in silhouette and marking (not only colour). The crack-to-Wood change is announced after banking and is visible in the rack diagram.",
+        "asset_ids": {
+          "icon": "icon.pin.glass",
+          "card": "card.pin.glass",
+          "in_play": "in_play.pin.glass",
+          "rarity_treatment": "rarity_treatment.pin.glass",
+          "activation": "activation.pin.glass",
+          "sound": "sound.pin.glass",
+          "reduced_motion": "reduced_motion.pin.glass"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "pin.echo",
+        "name": "Echo Pin",
+        "category": "pin",
+        "rarity": "rare",
+        "pool_weight": 1,
+        "unlock": {
+          "kind": "mastery",
+          "prerequisites": [
+            "gate.mastery_mixed_rack"
+          ]
+        },
+        "earliest_division": 2,
+        "purchase_price": 8,
+        "resale_price": 4,
+        "effects": [
+          {
+            "op": "add_value",
+            "amount": 10,
+            "trigger": "fallen",
+            "scope": "frame"
+          }
+        ],
+        "limits": {
+          "max_owned": 4,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Rack-order puzzle: worth only its +10 if it falls first or right after a plain pin.",
+        "synergy_tags": [
+          "echo",
+          "rack_order",
+          "retrigger"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "+10 Value when knocked down; then repeats the basic Value and Mult effects (add_value, add_mult) of the pin that fell immediately before it in this frame's resolution order. It never copies retriggers, payouts, growth or breakage, and copies nothing when it falls first. Up to four in a rack.",
+        "primitives": [
+          "pin.copy_previous"
+        ],
+        "pool": "Unlocked by the Mixed Rack mastery goal; then the Equipment slot from Division 2.",
+        "presentation_needs": "The score log and the flat rack diagram must show which pin it echoed; an arrow from the copied pin is enough.",
+        "asset_ids": {
+          "icon": "icon.pin.echo",
+          "card": "card.pin.echo",
+          "in_play": "in_play.pin.echo",
+          "rarity_treatment": "rarity_treatment.pin.echo",
+          "activation": "activation.pin.echo",
+          "sound": "sound.pin.echo",
+          "reduced_motion": "reduced_motion.pin.echo"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "pin.fuse",
+        "name": "Fuse Pin",
+        "category": "pin",
+        "rarity": "uncommon",
+        "pool_weight": 1,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 5,
+        "resale_price": 2,
+        "effects": [
+          {
+            "op": "add_value",
+            "amount": 10,
+            "trigger": "fallen",
+            "scope": "frame"
+          }
+        ],
+        "limits": {
+          "max_owned": 12,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Chain reactions knock down pins you meant to keep standing.",
+        "synergy_tags": [
+          "chain",
+          "scatter",
+          "physics"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "+10 Value when knocked down. The first time any Fuse pin falls in a frame, each standing pin within 0.3 m of it receives a 0.6 N·s horizontal impulse directed away from it. Once per frame across all Fuse pins. Pins it moves count for the roll that toppled the Fuse. Radius and impulse are provisional (E24).",
+        "primitives": [
+          "physics.pin_burst"
+        ],
+        "pool": "Shop Equipment slot; initial pool from Division 1.",
+        "presentation_needs": "A fuse mark readable in silhouette. One short local burst; reduced motion shows a static ring.",
+        "asset_ids": {
+          "icon": "icon.pin.fuse",
+          "card": "card.pin.fuse",
+          "in_play": "in_play.pin.fuse",
+          "rarity_treatment": "rarity_treatment.pin.fuse",
+          "activation": "activation.pin.fuse",
+          "sound": "sound.pin.fuse",
+          "reduced_motion": "reduced_motion.pin.fuse"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "pin.crown",
+        "name": "Crown Pin",
+        "category": "pin",
+        "rarity": "rare",
+        "pool_weight": 1,
+        "unlock": {
+          "kind": "championship",
+          "prerequisites": [
+            "gate.house_champion"
+          ]
+        },
+        "earliest_division": 2,
+        "purchase_price": 9,
+        "resale_price": 4,
+        "effects": [],
+        "limits": {
+          "max_owned": 2,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Zero Value unless it is the last pin to fall; rewards precise picking.",
+        "synergy_tags": [
+          "precision",
+          "positional",
+          "crown"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "+40 Value only if it is the last distinct pin to fall in the frame, by resolution order; otherwise it adds nothing, not even base Value. Up to two in a rack (only one can be last).",
+        "primitives": [
+          "condition.last_fallen"
+        ],
+        "pool": "Unlocked by the first House League title; then the Equipment slot from Division 2.",
+        "presentation_needs": "Crowned silhouette. During resolution, show whether it fell last (the +40) or did not (a clear 0).",
+        "asset_ids": {
+          "icon": "icon.pin.crown",
+          "card": "card.pin.crown",
+          "in_play": "in_play.pin.crown",
+          "rarity_treatment": "rarity_treatment.pin.crown",
+          "activation": "activation.pin.crown",
+          "sound": "sound.pin.crown",
+          "reduced_motion": "reduced_motion.pin.crown"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "consumable.nudge",
+        "name": "Nudge",
+        "category": "consumable",
+        "rarity": "common",
+        "pool_weight": 1,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 3,
+        "resale_price": 1,
+        "effects": [],
+        "limits": {
+          "max_owned": 2,
+          "charges": 1,
+          "exhaustion": "consume"
+        },
+        "downside": "One use per run, only before roll 2, and only into a spot whose pin has fallen.",
+        "synergy_tags": [
+          "tactical",
+          "spare",
+          "positional"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "Play before roll 2: choose one standing pin and move it to an adjacent rack spot whose pin has fallen, then throw. The moved pin keeps its material and modification. Exhausted for the run.",
+        "primitives": [
+          "tactical.relocate_pin"
+        ],
+        "pool": "Shop Tactical slot; initial pool from Division 1.",
+        "presentation_needs": "A chooser on the flat rack diagram with adjacent empty spots highlighted; the move is shown on the lane before the throw.",
+        "asset_ids": {
+          "icon": "icon.consumable.nudge",
+          "card": "card.consumable.nudge",
+          "rarity_treatment": "rarity_treatment.consumable.nudge",
+          "activation": "activation.consumable.nudge",
+          "sound": "sound.consumable.nudge",
+          "reduced_motion": "reduced_motion.consumable.nudge"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "consumable.reserve_call",
+        "name": "Reserve Call",
+        "category": "consumable",
+        "rarity": "common",
+        "pool_weight": 1,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 4,
+        "resale_price": 2,
+        "effects": [],
+        "limits": {
+          "max_owned": 2,
+          "charges": 1,
+          "exhaustion": "consume"
+        },
+        "downside": "Needs a pin in reserve, and lasts one frame.",
+        "synergy_tags": [
+          "tactical",
+          "rack",
+          "reserve"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "Play at the start of a frame, before roll 1: swap one reserve pin into a chosen rack position for this frame only. The displaced pin waits in that reserve slot and both return to their places after the frame. Exhausted for the run.",
+        "primitives": [
+          "tactical.reserve_swap"
+        ],
+        "pool": "Shop Tactical slot; initial pool from Division 1.",
+        "presentation_needs": "The swap shows on the rack diagram and the lane, with a clear 'this frame only' marker.",
+        "asset_ids": {
+          "icon": "icon.consumable.reserve_call",
+          "card": "card.consumable.reserve_call",
+          "rarity_treatment": "rarity_treatment.consumable.reserve_call",
+          "activation": "activation.consumable.reserve_call",
+          "sound": "sound.consumable.reserve_call",
+          "reduced_motion": "reduced_motion.consumable.reserve_call"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "consumable.rule_waiver",
+        "name": "Rule Waiver",
+        "category": "consumable",
+        "rarity": "uncommon",
+        "pool_weight": 1,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 5,
+        "resale_price": 2,
+        "effects": [],
+        "limits": {
+          "max_owned": 2,
+          "charges": 1,
+          "exhaustion": "consume"
+        },
+        "downside": "Only in boss matches, only for one frame, and exhausted after use.",
+        "synergy_tags": [
+          "tactical",
+          "counter",
+          "boss"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "Play before a throw in a boss match: the rival's rule does not apply for the rest of the current frame. Dead Straight allows charged spin; Clean Sweep banks that frame as scored even if it is open. Exhausted for the run.",
+        "primitives": [
+          "tactical.waive_rule"
+        ],
+        "pool": "Shop Tactical slot; initial pool from Division 1.",
+        "presentation_needs": "The rule badge visibly waived for the frame; the rival may react, but never blocks input.",
+        "asset_ids": {
+          "icon": "icon.consumable.rule_waiver",
+          "card": "card.consumable.rule_waiver",
+          "rarity_treatment": "rarity_treatment.consumable.rule_waiver",
+          "activation": "activation.consumable.rule_waiver",
+          "sound": "sound.consumable.rule_waiver",
+          "reduced_motion": "reduced_motion.consumable.rule_waiver"
+        }
+      }
+    }
+  ]
+}

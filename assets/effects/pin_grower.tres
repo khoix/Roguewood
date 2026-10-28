@@ -1,0 +1,9 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+[ext_resource type="Script" path="res://src/presentation/ability_style.gd" id="1"]
+[resource]
+script = ExtResource("1")
+item_id = "pin.grower"
+shape = "growth"
+ink = Color(0.5803921568627451, 0.788235294117647, 0.5450980392156862, 1)
+duration = 0.55
+priority = 2

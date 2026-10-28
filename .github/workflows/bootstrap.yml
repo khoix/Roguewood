@@ -35,7 +35,7 @@ jobs:
           python3 tools/qa.py physics
           python3 tools/qa.py smoke
           python3 tools/qa.py export
-      - name: Native J01-J10 headless and rendered
+      - name: Native J01-J11 headless and rendered
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y xvfb xauth libgl1-mesa-dri
@@ -58,9 +58,91 @@ jobs:
           xvfb-run -a python3 tools/qa.py e2e --journey J09 --rendered
           python3 tools/qa.py e2e --journey J10
           xvfb-run -a python3 tools/qa.py e2e --journey J10 --rendered
+          python3 tools/qa.py e2e --journey J11
+          xvfb-run -a python3 tools/qa.py e2e --journey J11 --rendered
           python3 tools/qa.py e2e --journey J08
+          python3 tools/qa.py e2e --journey J08A01
+          xvfb-run -a python3 tools/qa.py e2e --journey J08A01 --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_ball_art.gd
+          python3 tools/qa.py e2e --journey J08A02
+          xvfb-run -a python3 tools/qa.py e2e --journey J08A02 --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_pin_art.gd
+          python3 tools/qa.py e2e --journey J08A03
+          xvfb-run -a python3 tools/qa.py e2e --journey J08A03 --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_item_art.gd -- --batch=E19-A03
+          python3 tools/qa.py e2e --journey J08A04
+          xvfb-run -a python3 tools/qa.py e2e --journey J08A04 --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_item_art.gd -- --batch=E19-A04
+          python3 tools/qa.py e2e --journey J08A05
+          xvfb-run -a python3 tools/qa.py e2e --journey J08A05 --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_item_art.gd -- --batch=E19-A05
+          python3 tools/qa.py e2e --journey J08A06
+          xvfb-run -a python3 tools/qa.py e2e --journey J08A06 --rendered
+          python3 tools/qa.py e2e --journey J08A06R
+          xvfb-run -a python3 tools/qa.py e2e --journey J08A06R --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_item_art.gd -- --batch=E19-A06
+          python3 tools/qa.py e2e --journey J08A07
+          xvfb-run -a python3 tools/qa.py e2e --journey J08A07 --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_item_art.gd -- --batch=E19-A07
+          python3 tools/qa.py e2e --journey J12R01
+          xvfb-run -a python3 tools/qa.py e2e --journey J12R01 --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_rival_art.gd -- --rival=rival.surveyor
+          python3 tools/qa.py e2e --journey J12R02
+          xvfb-run -a python3 tools/qa.py e2e --journey J12R02 --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_rival_art.gd -- --rival=rival.custodian
+          python3 tools/qa.py e2e --journey J12V01
+          xvfb-run -a python3 tools/qa.py e2e --journey J12V01 --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_effect_art.gd -- --batch=E20-V01
+          python3 tools/qa.py e2e --journey J12V02
+          xvfb-run -a python3 tools/qa.py e2e --journey J12V02 --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_effect_art.gd -- --batch=E20-V02
+          python3 tools/qa.py e2e --journey J12V03
+          xvfb-run -a python3 tools/qa.py e2e --journey J12V03 --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_effect_art.gd -- --batch=E20-V03
+          python3 tools/qa.py e2e --journey J12V04
+          xvfb-run -a python3 tools/qa.py e2e --journey J12V04 --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_effect_art.gd -- --batch=E20-V04
+          python3 tools/qa.py e2e --journey J12V05
+          xvfb-run -a python3 tools/qa.py e2e --journey J12V05 --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_effect_art.gd -- --batch=E20-V05
+          python3 tools/qa.py e2e --journey J12V06
+          xvfb-run -a python3 tools/qa.py e2e --journey J12V06 --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_effect_art.gd -- --batch=E20-V06
+          python3 tools/qa.py e2e --journey J12V07
+          xvfb-run -a python3 tools/qa.py e2e --journey J12V07 --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_effect_art.gd -- --batch=E20-V07
+          python3 tools/qa.py e2e --journey J12
+          xvfb-run -a python3 tools/qa.py e2e --journey J12 --rendered
           python3 tools/qa.py experiment
           python3 tools/qa.py slice
+      - name: Preserve Wave 1 art evidence after an earlier failure
+        if: failure() && env.GODOT_BIN != ''
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y xvfb xauth libgl1-mesa-dri
+          python3 tools/qa.py e2e --journey J08A01
+          xvfb-run -a python3 tools/qa.py e2e --journey J08A01 --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_ball_art.gd
+          python3 tools/qa.py e2e --journey J08A02
+          xvfb-run -a python3 tools/qa.py e2e --journey J08A02 --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_pin_art.gd
+          python3 tools/qa.py e2e --journey J08A03
+          xvfb-run -a python3 tools/qa.py e2e --journey J08A03 --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_item_art.gd -- --batch=E19-A03
+          python3 tools/qa.py e2e --journey J08A04
+          xvfb-run -a python3 tools/qa.py e2e --journey J08A04 --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_item_art.gd -- --batch=E19-A04
+          python3 tools/qa.py e2e --journey J08A05
+          xvfb-run -a python3 tools/qa.py e2e --journey J08A05 --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_item_art.gd -- --batch=E19-A05
+          python3 tools/qa.py e2e --journey J08A06
+          xvfb-run -a python3 tools/qa.py e2e --journey J08A06 --rendered
+          python3 tools/qa.py e2e --journey J08A06R
+          xvfb-run -a python3 tools/qa.py e2e --journey J08A06R --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_item_art.gd -- --batch=E19-A06
+          python3 tools/qa.py e2e --journey J08A07
+          xvfb-run -a python3 tools/qa.py e2e --journey J08A07 --rendered
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_item_art.gd -- --batch=E19-A07
       - name: Preserve journey diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -76,4 +158,22 @@ jobs:
             artifacts/e13/
             artifacts/e14/
             artifacts/e15/
+            artifacts/e19-a01/
+            artifacts/e19-a02/
+            artifacts/e19-a03/
+            artifacts/e19-a04/
+            artifacts/e19-a05/
+            artifacts/e19-a06/
+            artifacts/e19-a07/
+            artifacts/e21-r01/
+            artifacts/e21-r02/
+            artifacts/e20-v07/
+            artifacts/e20-dense/
+            artifacts/e20-v06/
+            artifacts/e20-v05/
+            artifacts/e20-v04/
+            artifacts/e20-v03/
+            artifacts/e20-v02/
+            artifacts/e20-v01/
+            artifacts/e16/
           if-no-files-found: warn
