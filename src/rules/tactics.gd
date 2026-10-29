@@ -18,6 +18,14 @@ const ADJACENT := Lane.PIN_SPACING * 1.05
 static func kind(item_id: String) -> String:
 	return KINDS.get(item_id, "")
 
+## What the card does, for cards and shop offers ("" for other items).
+static func describe(item_id: String) -> String:
+	match kind(item_id):
+		"relocate_pin": return "Before roll 2: move a standing pin to an adjacent empty spot"
+		"reserve_swap": return "Before roll 1: a reserve pin plays at a rack position this frame"
+		"waive_rule": return "Boss match: the rival's rules are off for this frame"
+	return ""
+
 ## Why a tactic cannot be played now ("" when it can). at: {roll_index, thrown (rolls
 ## thrown this frame), boss, rules, rack, run, actions}.
 static func blocked(item_id: String, at: Dictionary) -> String:

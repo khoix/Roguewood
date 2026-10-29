@@ -2843,6 +2843,276 @@
         "unlock_assigned": true,
         "integrated": false
       }
+    },
+    {
+      "id": "shop_upgrade.punch_card",
+      "name": "Punch Card",
+      "category": "shop_upgrade",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 4,
+      "resale_price": 2,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Only the first reroll of a visit, and it never lowers the price of anything you buy. Kept for the attempt; cannot be sold.",
+      "synergy_tags": [
+        "shop",
+        "reroll",
+        "selection"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "shop_upgrade.pin_caddy",
+      "name": "Pin Caddy",
+      "category": "shop_upgrade",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 4,
+      "resale_price": 2,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Reserve pins do not score unless racked, so the slot only pays off with pin swaps or Reserve Call. Kept for the attempt; cannot be sold.",
+      "synergy_tags": [
+        "capacity",
+        "reserve",
+        "rack"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "shop_upgrade.clearance_tag",
+      "name": "Clearance Tag",
+      "category": "shop_upgrade",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 2,
+      "purchase_price": 6,
+      "resale_price": 3,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Saves $1 per purchase; it needs several purchases before it has paid for itself. Kept for the attempt; cannot be sold.",
+      "synergy_tags": [
+        "economy",
+        "discount",
+        "shop"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "shop_upgrade.savings_book",
+      "name": "Savings Book",
+      "category": "shop_upgrade",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 2,
+      "purchase_price": 6,
+      "resale_price": 3,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Only pays when you hold $20 or more at the end of a match, which competes with buying now. Kept for the attempt; cannot be sold.",
+      "synergy_tags": [
+        "economy",
+        "interest",
+        "saving"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "shop_upgrade.extra_shelf",
+      "name": "Extra Shelf",
+      "category": "shop_upgrade",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 2,
+      "purchase_price": 7,
+      "resale_price": 3,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "More choice, not cheaper choice: the extra offer costs full price and rerolls cost the same. Kept for the attempt; cannot be sold.",
+      "synergy_tags": [
+        "selection",
+        "shop",
+        "capacity"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "shop_upgrade.spotlight_sign",
+      "name": "Spotlight Sign",
+      "category": "shop_upgrade",
+      "rarity": "rare",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 3,
+      "purchase_price": 8,
+      "resale_price": 4,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Rarer offers usually cost more, and common staples appear less often. Kept for the attempt; cannot be sold.",
+      "synergy_tags": [
+        "selection",
+        "rarity",
+        "shop"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
     }
   ]
 }

@@ -58,6 +58,7 @@ const Streams = preload("res://src/procedural/random_streams.gd")
 const League = preload("res://src/rules/league_run.gd")
 const ItemPhysics = preload("res://src/simulation/item_physics.gd")
 const Tactics = preload("res://src/rules/tactics.gd")
+const Upgrades = preload("res://src/rules/upgrades.gd")
 const TacticSheet = preload("res://src/presentation/tactic_sheet.gd")
 const NEAR_VICTORY := 0.75 # share of the target that makes a rival nervous
 const HOUSE := "ball.house"
@@ -1363,6 +1364,7 @@ func _ref_label(ref: String) -> String:
 		"rack": return "Rack %s %s" % [parts[1], text]
 		"reserve": return "Reserve %s %s" % [parts[1], text]
 		"charm": return "Charm %s %s" % [parts[1], text]
+		"upgrade": return "Upgrade " + text
 	return "Card " + text
 
 func _placement_label(option: Dictionary) -> String:
@@ -1385,7 +1387,8 @@ func _refresh_shop() -> void:
 	if shop_panel == null or state != "shop":
 		return
 	var offers: Array = []
-	for offer in shop.offers:
+	for index in shop.offers.size():
+		var offer: Dictionary = shop.offers[index]
 		var slot_name: String = Shop.SLOT_NAMES[offer.slot]
 		if offer.item_id.is_empty():
 			offers.append({"text": "%s\nNothing available" % slot_name, "state": "empty", "item_id": ""})
@@ -1397,7 +1400,7 @@ func _refresh_shop() -> void:
 			offer_state = "sold"
 			text += "  SOLD"
 		else:
-			var plan: Dictionary = shop.plan(offer.slot, run)
+			var plan: Dictionary = shop.plan(index, run)
 			if not plan.ok:
 				offer_state = "poor" if plan.reason == "insufficient funds" else "blocked"
 				var short := {"insufficient funds": "can't afford", "owned limit": "owned max", "incompatible with owned items": "incompatible",
@@ -1411,6 +1414,8 @@ func _refresh_shop() -> void:
 	var rack_text := "Rack: " + ", ".join(pins)
 	var reserves: Array = run.reserves.map(func(e): return "empty" if e == null else _names.get(e.item_id, ""))
 	rack_text += "\nReserves: " + ", ".join(reserves) + " · Charms %d/%d · Deck %d/%d" % [run.charms.size(), RunInventory.CHARM_SLOTS, run.cards.size(), RunInventory.DECK_CAP]
+	if not run.upgrades.is_empty():
+		rack_text += "\nUpgrades (kept for the attempt): " + Upgrades.summary(run, _names)
 	var charm_moves: Array = []
 	for i in range(1, run.charms.size()):
 		charm_moves.append({"slot": i + 1, "label": "◀ Move %s before %s" % [_names.get(run.charms[i].item_id, ""), _names.get(run.charms[i - 1].item_id, "")]})
@@ -1420,8 +1425,10 @@ func _refresh_shop() -> void:
 			sellables.append({"ref": owned.ref, "label": "Sell %s +$%d" % [_ref_label(owned.ref), run.sale_value(owned.ref)]})
 	var summary := "Match %d paid: payout $%d · interest $%d (on $%d held) · item income $%d" % [settlement.match, settlement.payout,
 		settlement.interest, settlement.balance_before, settlement.item_income]
+	if Upgrades.owned(run, "interest_cap"):
+		summary += " · Savings Book: interest cap $%d" % (Economy.INTEREST_CAP + Upgrades.INTEREST_BONUS)
 	shop_panel.show_view({"title": "Pro Shop", "summary": summary, "preview": _next_match_preview(), "money": run.money, "offers": offers,
-		"reroll_cost": shop.reroll_cost(), "can_reroll": run.money >= shop.reroll_cost(),
+		"reroll_cost": shop.reroll_cost(run), "can_reroll": run.money >= shop.reroll_cost(run),
 		"removal_price": Economy.REMOVAL_PRICE, "can_remove": run.money >= Economy.REMOVAL_PRICE and not run.cards.is_empty(),
 		"rack": rack_text, "charm_moves": charm_moves, "sellables": sellables,
 		"charm_order": "" if run.charms.is_empty() else "Charm order (left to right): " + ", ".join(run.charms.map(func(e): return _names.get(e.item_id, e.item_id))), "message": shop_message, "columns": 5 if size.x > size.y else 3})

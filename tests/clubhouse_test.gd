@@ -36,7 +36,7 @@ static func _fresh(graph: Dictionary, failures: Array[String]) -> void:
 		"a fresh board: both Leagues open, nothing played", failures)
 	var binder := Model.binder(career, graph, graph.catalogue)
 	var counts := Model.binder_counts(binder)
-	_expect(binder.size() == 48 and counts.locked == 9 and counts.available == 39 and counts.discovered == 0, "a fresh binder: 9 Locked, 39 Available (boss rules excluded)", failures)
+	_expect(binder.size() == 54 and counts.locked == 9 and counts.available == 45 and counts.discovered == 0, "a fresh binder: 9 Locked, 45 Available (boss rules excluded)", failures)
 	var encore := _entry(binder, "charm.encore")
 	_expect(encore.state == "locked" and encore.requirement == "Beat The Surveyor (House League)" and encore.asset == _entry(graph.catalogue.items, "charm.encore").assets.card and Art.has_art(encore.asset),
 		"Encore names its unlocking rival and resolves its catalogue card artwork", failures)

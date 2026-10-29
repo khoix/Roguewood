@@ -240,7 +240,7 @@ static func _shop(name: String, strategy: Dictionary, run, shop, policy: RandomN
 				stats.bought[offer.item_id] = int(stats.bought.get(offer.item_id, 0)) + 1
 				bought = true
 				progress = true
-		if strategy.get("random", false) or bought or run.money < shop.reroll_cost() + 4:
+		if strategy.get("random", false) or bought or run.money < shop.reroll_cost(run) + 4:
 			break
 		shop.reroll(run)
 	_order_charms(run)

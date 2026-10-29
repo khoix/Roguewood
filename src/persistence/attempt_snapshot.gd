@@ -108,7 +108,7 @@ static func validate(payload: Dictionary, catalogue: Dictionary, content_set: St
 static func referenced_items(payload: Dictionary) -> Array:
 	var ids := {}
 	var run: Dictionary = payload.get("run", {})
-	for entry in run.get("rack", {}).values() + run.get("reserves", []) + run.get("charms", []) + run.get("cards", {}).values():
+	for entry in run.get("rack", {}).values() + run.get("reserves", []) + run.get("charms", []) + run.get("cards", {}).values() + run.get("upgrades", []):
 		if entry is Dictionary:
 			ids[entry.item_id] = true
 			if not String(entry.get("mod", "")).is_empty():
