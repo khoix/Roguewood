@@ -274,3 +274,42 @@ Paths: `assets/effects/activation.<item-id>.tres` and
 `assets/audio/sound.<item-id>.wav`. Native/64px evidence: `artifacts/av-c03-b/`.
 Reduced motion/flash freezes the same grade, position or threshold construction.
 Native text and resolver counts remain authoritative.
+
+## Wave 6 — AV-C04-A identity, overlays, effects and sound
+
+Brass Cap, Gilt Leaf and Keystone: original AI-generated pixel-art illustrations
+from OpenAI image generation, 2026-10-29. The original RGBA PNG is retained
+unchanged at `assets/items/d04/source.AV-C04-A.png`; its exact request is
+`source.AV-C04-A.txt` in the same folder. No external sample, brand or reference
+image was supplied. Generated work carries no claim of exclusive rights.
+
+Source SHA-256: `0f7a0a7e6aa85a7166b57ade656e035702c79cf733f0ff20d0c326710ffe5c37`.
+
+`tools/author_c04_art.py AV-C04-A` binds the six declared D04 IDs per item:
+icon, card, rarity treatment, activation, sound and reduced motion. AtlasTexture
+regions measure opaque object bounds, ignoring near-invisible alpha specks;
+they do not edit or resample the PNG. No invented in-play design slot. Badge
+views reuse the icon. Cosmetic meshes in `assets/items/d04/overlay.gd` are
+original code-authored geometry: a small dome (side plate on Crown), partial
+torn leaf, and a trapezoid plate with rivets. The leaf/stone patches sample
+their exact declared icon views on tiny unshaded alpha-cut quads, retaining
+material detail in the dark lane without adding lights or recolouring the host. No collision shapes or host edits.
+
+Original vector cues: dome/+Mult, torn edge/after-bank coin, counted trapezoid
+and actual fallen-slot outlines in the rack diagram.
+All amounts, counts, repeated sources and phases come from resolver events.
+Original deterministic synthesized mono 22050 Hz, 16-bit PCM; no recordings or
+samples. Native audio-start assertions and four-voice limits are verified by
+JAVC04A; this is not a physical-device listening claim.
+
+| Item | Recipe / synthesis | WAV SHA-256 |
+|---|---|---|
+| `pin_mod.brass_cap` | `cap_tick`; metal, 1060 Hz, 0.19 s; priority 2; peak 0.48 | `793f50650cc4882b353b488f160630633a8346aa5debea46be3a4bdf95993cd4` |
+| `pin_mod.gilt_leaf` | `leaf_coin`; soft paper plus one 1180 Hz coin tick at 70 ms, 0.25 s; priority 2; peak 0.48 | `047942914b8cede99fe0090baa418445384be9fcfb6a910fc37861a53566d137` |
+| `pin_mod.keystone` | `key_count`; wood, 420 Hz, 0.28 s; priority 3; peak 0.48 | `56a408d3cc96fcd093e32a1237149c68d78adbd3c97948c8daf8859204493ecd` |
+
+Identity resources: `assets/items/d04/<design-asset-id>.tres`. Recipes:
+`assets/effects/activation.<item-id>.tres`; sounds:
+`assets/audio/sound.<item-id>.wav`. Native and 32/64/192px, grayscale/silhouette,
+normal/reduced captures: `artifacts/av-c04-a/` (ignored, never committed).
+See `docs/handoffs/AV-C04-A.md` for the verification record and scope.

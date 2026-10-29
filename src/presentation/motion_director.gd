@@ -5,6 +5,7 @@ var lab: Control
 var equipment_art: HBoxContainer
 var sound: Node
 var abilities: Node
+var modifications: Node
 var rival: TextureRect
 var reaction: Label
 var reaction_state := 0
@@ -49,6 +50,9 @@ func _ready() -> void:
 	var glass := preload("res://src/presentation/glass_presentation.gd").new()
 	glass.lab = lab
 	add_child(glass)
+	modifications = preload("res://src/presentation/modification_art.gd").new()
+	modifications.lab = lab
+	add_child(modifications)
 	abilities = preload("res://src/presentation/ability_director.gd").new()
 	abilities.lab = lab
 	add_child(abilities)

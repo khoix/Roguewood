@@ -2353,20 +2353,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d04/icon.pin_mod.brass_cap.tres",
+        "card": "res://assets/items/d04/card.pin_mod.brass_cap.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d04/rarity_treatment.pin_mod.brass_cap.tres",
+        "activation": "res://assets/effects/activation.pin_mod.brass_cap.tres",
+        "sound": "res://assets/audio/sound.pin_mod.brass_cap.wav",
+        "reduced_motion": "res://assets/items/d04/reduced_motion.pin_mod.brass_cap.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -2406,20 +2406,20 @@
         "pin.gold"
       ],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d04/icon.pin_mod.gilt_leaf.tres",
+        "card": "res://assets/items/d04/card.pin_mod.gilt_leaf.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d04/rarity_treatment.pin_mod.gilt_leaf.tres",
+        "activation": "res://assets/effects/activation.pin_mod.gilt_leaf.tres",
+        "sound": "res://assets/audio/sound.pin_mod.gilt_leaf.wav",
+        "reduced_motion": "res://assets/items/d04/reduced_motion.pin_mod.gilt_leaf.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -2513,20 +2513,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d04/icon.pin_mod.keystone.tres",
+        "card": "res://assets/items/d04/card.pin_mod.keystone.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d04/rarity_treatment.pin_mod.keystone.tres",
+        "activation": "res://assets/effects/activation.pin_mod.keystone.tres",
+        "sound": "res://assets/audio/sound.pin_mod.keystone.wav",
+        "reduced_motion": "res://assets/items/d04/reduced_motion.pin_mod.keystone.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }

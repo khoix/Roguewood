@@ -101,7 +101,12 @@ func _step(step: Dictionary, index: int, skipped: bool) -> void:
 		return
 	if not row.has("event"): return
 	var event: Dictionary = row.event
-	for activation in preload("res://src/presentation/ability_events.gd").project(scored.frame,event,scored.result.get("facts",{})):
+	var snapshot: Dictionary = lab.motion.modifications.snapshots.get(int(scored.get("frame_number",lab.frame_number)),{})
+	Assets._ensure()
+	var mod_events = preload("res://src/presentation/modification_events.gd")
+	var owners: Dictionary = mod_events.owners(scored.frame,Assets._items,snapshot)
+	var activations: Array = mod_events.combine(scored.frame,event,owners,scored.result.get("facts",{}))
+	for activation in activations:
 		if _projected.has(activation.key): continue
 		_projected[activation.key] = true
 		cue(activation.id,activation.phase,skipped,activation)
@@ -158,7 +163,7 @@ func _world_cue(id: String, event: String, point: Vector2) -> void:
 ## Highlight actual counted slots without replacing the rack's roll colours,
 ## position labels or standing outlines. The resolver-owned count stays on the cue.
 func counted_rack_positions() -> Array:
-	if not glyph.enabled or glyph.style == null or glyph.style.item_id != "charm.back_row" or glyph.age >= glyph.style.duration: return []
+	if not glyph.enabled or glyph.style == null or glyph.style.item_id not in ["charm.back_row","pin_mod.keystone"] or glyph.age >= glyph.style.duration: return []
 	return glyph.details.get("positions",[]).duplicate()
 func _draw_counted_rack() -> void:
 	var view: Control = lab.score_panel.rack_view

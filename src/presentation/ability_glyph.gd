@@ -26,6 +26,7 @@ func _draw() -> void:
 	var t: float = 0.5 if still else clampf(age / style.duration,0,1)
 	var ink: Color = style.ink
 	if identity: draw_texture_rect(identity,Rect2(c - Vector2(18,18),Vector2(36,36)),false)
+	if _draw_c04(c,t,ink): return
 	if _draw_c03(c,t,ink): return
 	if _draw_v08(c,t,ink): return
 	match style.shape:
@@ -259,4 +260,31 @@ func _draw_c03(c: Vector2, t: float, ink: Color) -> bool:
 	var font := get_theme_default_font()
 	var width := font.get_string_size(caption,HORIZONTAL_ALIGNMENT_LEFT,-1,10).x
 	draw_string(font,c+Vector2(-width*0.5,31),caption,HORIZONTAL_ALIGNMENT_LEFT,-1,10,Color("f1e4c6"))
+	return true
+
+func _draw_c04(c:Vector2,t:float,ink:Color) -> bool:
+	var caption := ""
+	match style.shape:
+		"cap_tick":
+			draw_arc(c+Vector2(0,-15),24,PI,TAU,24,ink,2)
+			draw_line(c+Vector2(-25,-15),c+Vector2(25,-15),ink,3)
+			var y := 0.0 if still else -4.0*sin(t*PI)
+			draw_line(c+Vector2(23,3+y),c+Vector2(23,13+y),ink,2)
+			draw_line(c+Vector2(18,8+y),c+Vector2(28,8+y),ink,2)
+			caption = "+%d Mult" % int(details.get("amount",0))
+		"leaf_coin":
+			var x := 21.0 if still else 16.0+9.0*ease(t,0.5)
+			draw_circle(c+Vector2(x,-22),7,ink)
+			draw_line(c+Vector2(x,-27),c+Vector2(x,-17),Color("614526"),2)
+			draw_polyline(PackedVector2Array([c+Vector2(-26,-20),c+Vector2(-22,-9),c+Vector2(-28,0),c+Vector2(-20,13)]),ink,2)
+			caption = "$%d · bank" % int(details.get("amount",0))
+		"key_count":
+			draw_polyline(PackedVector2Array([c+Vector2(-27,-24),c+Vector2(27,-24),c+Vector2(19,21),c+Vector2(-19,21),c+Vector2(-27,-24)]),ink,2)
+			for j in mini(10,int(details.get("count",0))):
+				draw_circle(c+Vector2(-22+(j%5)*11,-29+(j/5)*5),1.5,ink)
+			caption = "%d down · +%d" % [int(details.get("count",0)),int(details.get("amount",0))]
+		_:return false
+	var font:=get_theme_default_font()
+	var width:=font.get_string_size(caption,HORIZONTAL_ALIGNMENT_LEFT,-1,10).x
+	draw_string(font,c+Vector2(-width*.5,31),caption,HORIZONTAL_ALIGNMENT_LEFT,-1,10,Color("f1e4c6"))
 	return true

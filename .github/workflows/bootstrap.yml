@@ -188,6 +188,12 @@ jobs:
             python3 tools/qa.py e2e --journey "$journey"
             xvfb-run -a python3 tools/qa.py e2e --journey "$journey" --rendered
           done
+      - name: Wave 6 modification art first three items
+        run: |
+          for journey in JAVC04A JAVC04AC; do
+            python3 tools/qa.py e2e --journey "$journey"
+            xvfb-run -a python3 tools/qa.py e2e --journey "$journey" --rendered
+          done
       - name: Preserve journey diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -238,4 +244,5 @@ jobs:
             artifacts/e20-v08/
             artifacts/av-c03-a/
             artifacts/av-c03-b/
+            artifacts/av-c04-a/
           if-no-files-found: warn

@@ -14,6 +14,9 @@ ROOT = Path(__file__).resolve().parents[1]
 VERSION = (ROOT / ".godot-version").read_text().strip()
 # journey -> script, success marker, artifact directory, rendered captures, timeout, extra engine flags
 JOURNEYS = {
+    "JAVC04AC": ("res://tests/av_c04_contact.gd", "ROGUEWOOD_AV_C04_CONTACT_OK", "artifacts/av-c04-a/contact", ("contact",), 180, ["--fixed-fps", "60"]),
+    "JAVC04A": ("res://tests/av_c04_a_journey.gd", "ROGUEWOOD_AV_C03_OK AV-C04-A", "artifacts/av-c04-a/native",
+        ("pin_mod_brass_cap_shop", "pin_mod_gilt_leaf_shop", "pin_mod_keystone_shop", "owned_shop", "inventory", "pin_mod_brass_cap_host_detail", "pin_mod_gilt_leaf_host_detail", "pin_mod_keystone_host_detail", "pin_mod_brass_cap_binder", "pin_mod_gilt_leaf_binder", "pin_mod_keystone_binder", "host_overlays", "pin_mod_brass_cap_activation", "pin_mod_gilt_leaf_activation", "pin_mod_keystone_activation", "stage1_reduced", "stage1_landscape"), 900, ["--fixed-fps", "60"]),
     "JAVC03BC": ("res://tests/av_c03_contact.gd", "ROGUEWOOD_AV_C03_CONTACT_OK", "artifacts/av-c03-b/contact", ("contact",), 180, ["--fixed-fps", "60"]),
     "JAVC03B": ("res://tests/av_c03_b_journey.gd", "ROGUEWOOD_AV_C03_OK", "artifacts/av-c03-b/native",
         ("charm_sweet_spot_shop", "charm_back_row_shop", "charm_underdog_shop", "inventory", "charm_sweet_spot_binder", "charm_back_row_binder", "charm_underdog_binder", "charm_sweet_spot_activation", "charm_back_row_activation", "charm_underdog_activation", "back_row_partial", "stage1_reduced", "stage1_landscape"), 900, ["--fixed-fps", "60"]),
