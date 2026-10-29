@@ -24,7 +24,8 @@ func run():
    for variant in 3:
     var glyph:Control=preload("res://src/presentation/ability_glyph.gd").new();glyph.size_flags_horizontal=Control.SIZE_SHRINK_CENTER;box.add_child(glyph)
     var context:={"count":2,"amount":6,"last_fallen":8,"position":8,"leave":4,"grades":["sweet","perfect"],"positions":[7,9],"match_score":100,"match_target":500,"behind":true}
-    if variant==2 and id=="pin.crown":context["zero"]=true;context.position=6
+    context.amount={"pin.crown":40,"charm.crown_jewel":2,"charm.split_specialist":3,"charm.sweet_spot":6,"charm.back_row":12,"charm.underdog":2}[id]
+    if variant==2 and id=="pin.crown":context["zero"]=true;context.position=6;context.amount=0
     glyph.show_cue(Assets.slot(id,"activation"),variant>0,Assets.slot(id,"icon"),context)
     glyph.set_process(false);glyph.age=.25
     var caption:=Label.new();caption.text=["64px animated cue","64px reduced/static","Quiet zero" if id=="pin.crown" else "Reduced flash"][variant];caption.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER;box.add_child(caption)
