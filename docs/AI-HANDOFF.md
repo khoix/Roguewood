@@ -36,7 +36,7 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - Wave 2 MERGED to main by PR #13 (`1d44302`).
 - Wave 3 MERGED to main by PR #14 (`3a7e938`; CI 40736417912 PASS on `afe5852`): Codex E17-D02-ART and E19-A13…A15; Claude E18-C02 and E17-D03.
 - Wave 4 MERGED to main by PR #15 (CI 40760480791 PASS on `e72051b`): Claude E18-C03 and E17-D04; Codex E17-D03-ART, E19-A16 and E20-V08. 
-- **Wave 5 closing** (see "Wave 5 closed"): Claude E18-C04 and E17-L01; Codex AV-C03 and E17-D04-ART. The owner merges `claude/roguewood-build` into main after the CI of the "Wave 5 closed" commit. Wave 6 claims are recorded; Wave 6 pushes wait for that merge.
+- **Wave 5 CLOSED** (see "Wave 5 closed"): Claude E18-C04 and E17-L01; Codex AV-C03 and E17-D04-ART. The owner merges `claude/roguewood-build` into main after the CI of the "Wave 5 closed" commit. Wave 6 claims are recorded; Wave 6 pushes wait for that merge.
 - **Roadmap (2026-10-28):** docs/ROADMAP.md maps every remaining milestone to phases (one per League group) and waves, with ownership, the content split per League and the owner's decisions. Waves 5–8 complete the House League.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
@@ -196,7 +196,7 @@ Pushes for Wave 6 wait until the owner merges Wave 5. Codex merges `origin/claud
   - Claude: E18-C04 (`aa1be20`) and E17-L01 with E17-D05 (`2299a3a`).
   - Codex: AV-C03 (`53ae250`, `e6246bc`) and E17-D04-ART (`b15371d`; handoffs/WAVE5-CODEX.md, AV-C03-A.md, AV-C03-B.md, E17-D04-ART.md), merged by the coordinator without conflicts (`cf784af`).
 - **Coordinator review:** Codex's diff against `2299a3a` changes exactly six artwork flags, six effects_audio flags and twelve activation and sound paths in content/catalogue.json. Its source changes are presentation only (glyphs and score rows read resolver events and facts). qa.py, run_tests.gd and the workflow are add-only; upload folders stay inside `path`. Batch files are unchanged.
-- **Validation:** in progress (full local CI command list on the merged tree, then CI on this branch).
+- **Validation:** the full CI command list (128 commands, every journey headless and rendered, including J03C04 and JAVC03A/B with their contact checks) PASS locally on the merged tree; the J03C04 injected failure exits 1. CI runs on this commit.
 - **Merge:** `claude/roguewood-build` into main after the CI of the "Wave 5 closed" commit.
 
 ## Wave 5 claims (coordinator: Claude, 2026-10-28; revised the same day with docs/ROADMAP.md)
