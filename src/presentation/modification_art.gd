@@ -28,6 +28,9 @@ func _process(_delta:float) -> void:
  for position in lab.lane.pins:
   var entry:Dictionary=lab.run.rack.get(position,{})
   dress(lab.lane.pins[position],entry.get("mod",""),entry.get("item_id",""))
+  var overlay=lab.lane.pins[position].get_node_or_null("ModificationOverlay")
+  if overlay!=null and overlay.item_id=="pin_mod.lantern":
+   overlay.set_lit(lab.lane.tracker==null or position not in lab.lane.tracker.sequence)
  var mod:String=lab.frame_mods.get(lab.roll_index,"") if lab.state in ["rolling","result","scoring","frame_done"] else lab.run.card_mod(lab.armed_ball)
  var host:String=lab.lane.launch.get("ball_id","ball.house") if lab.state in ["rolling","result","scoring","frame_done"] else lab.armed_ball_id()
  dress(lab.lane.ball,mod,host)

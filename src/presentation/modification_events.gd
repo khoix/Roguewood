@@ -33,11 +33,12 @@ static func project(frame:Dictionary,event:Dictionary,owners_by_source:Dictionar
   if id.begins_with("pin_mod.") or id.begins_with("ball_mod."):
    out.append({"id":id,"key":"%s:%s:%s:%d"%[id,source,event.phase,int(event.get("repeat",0))],"phase":event.phase,
     "count":int(event.get("count",1)),"amount":float(event.get("amount",0)),"position":int(source.get_slice(":",1)),"source":source})
-   if id=="pin_mod.keystone":
+   if id in ["pin_mod.keystone","pin_mod.lantern"]:
     var positions:Array=[]
     for roll in frame.get("rolls",[]):
      for position in roll.fallen_positions:
       if position not in positions:positions.append(position)
+    if id=="pin_mod.lantern":positions=range(1,11).filter(func(p):return p not in positions)
     positions.sort();out[-1]["positions"]=positions
  if int(event.get("repeat",0))>0:
   var cause:String=event.get("cause","")
@@ -46,10 +47,12 @@ static func project(frame:Dictionary,event:Dictionary,owners_by_source:Dictionar
    var cause_ids:Array=owners_by_source.get(cause,[])
    for i in mini(cause_ids.size(),roll.effects.size()):
     if cause_ids[i]=="ball_mod.echo_charge" and roll.effects[i].op=="retrigger":
-     out.append({"id":"ball_mod.echo_charge","key":"charge:%s:%s:%d"%[cause,source,int(event.repeat)],"phase":"retrigger","position":int(source.get_slice(":",1)),"count":int(event.repeat),"amount":1})
+     out.append({"id":"ball_mod.echo_charge","key":"charge:%s:%s:%d"%[cause,source,int(event.repeat)],"phase":"retrigger","position":int(source.get_slice(":",1)),"count":1,"repeat":int(event.repeat),"amount":1,"roll":int(roll.roll_index),"positions":[int(source.get_slice(":",1))]})
  return out
 static func combine(frame:Dictionary,event:Dictionary,owners_by_source:Dictionary,facts:Dictionary={}) -> Array:
- var out:=project(frame,event,owners_by_source)
+ var projected:=project(frame,event,owners_by_source)
+ var charges:=projected.filter(func(c):return c.id=="ball_mod.echo_charge")
+ var out:=projected.filter(func(c):return c.id!="ball_mod.echo_charge")
  var source_ids:Array=owners_by_source.get(event.get("source",""),[])
  var index:=int(event.get("effect_index",-1))
  var attached:=index>=0 and index<source_ids.size() and (String(source_ids[index]).begins_with("pin_mod.") or String(source_ids[index]).begins_with("ball_mod."))
@@ -57,4 +60,7 @@ static func combine(frame:Dictionary,event:Dictionary,owners_by_source:Dictionar
   # A modification's effect is not its host's effect. A retrigger's cause is
   # independent: Echo must still read when a Crown's only paid row is its mod.
   if not attached or cue.phase=="retrigger":out.append(cue)
+ # The causal attachment gets the last visible slot, just as Echo Ball does.
+ # Keep the host event/audio, then identify what caused its actual repeat.
+ out.append_array(charges)
  return out

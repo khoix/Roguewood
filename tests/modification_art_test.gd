@@ -57,6 +57,7 @@ static func run() -> Array[String]:
  for event in Rules.resolve(quiet.frame).events:
   if not Events.project(quiet.frame,event,Events.owners(quiet.frame,items,{"pin_mods":open_loadout.pin_mods})).is_empty():failures.append("standing mods remain silent")
  _ball_cases(catalogue,items,failures)
+ _charge_and_lantern(catalogue,items,failures)
  return failures
 
 static func _ball_cases(catalogue:Dictionary,items:Dictionary,failures:Array[String]) -> void:
@@ -82,3 +83,47 @@ static func _ball_cases(catalogue:Dictionary,items:Dictionary,failures:Array[Str
   if cues.size()!=case.count:failures.append("ball modification active/quiet count "+case.id)
   if case.id=="ball_mod.spin_wax" and case.count==1 and (cues.is_empty() or cues[0].source!="roll:2"):failures.append("Wax uses actual equipped roll even when another roll curved")
   if case.id=="ball_mod.coin_slot" and case.count==1 and (cues.is_empty() or cues[0].phase!="after_bank" or cues[0].amount!=2):failures.append("Coin Slot pays once after bank despite host retrigger")
+
+static func _charge_and_lantern(catalogue:Dictionary,items:Dictionary,failures:Array[String]) -> void:
+ for host in ["pin.wood","pin.ruby","pin.gold","pin.crown"]:
+  for intrinsic in [0,1,8]:
+   var built:=Builder.build(Slice._loadout({1:host}),catalogue,Slice._strike("ball.hammer"),{1:["ball_mod.echo_charge"]})
+   built.frame.pins[0].retriggers=intrinsic
+   var snapshot:={"roll_mods":{1:"ball_mod.echo_charge"}}
+   var owners:=Events.owners(built.frame,items,snapshot)
+   var result:=Rules.resolve(built.frame);var seen:={};var cues:=[]
+   var before:=JSON.stringify([built.frame,result,snapshot])
+   for event in result.events:
+    for cue in Events.combine(built.frame,event,owners,result.facts):
+     if cue.id=="ball_mod.echo_charge" and not seen.has(cue.key):seen[cue.key]=true;cues.append(cue)
+   var expected:=0 if host=="pin.crown" or intrinsic==8 else 1
+   if cues.size()!=expected:failures.append("Charge only actual repeated scoring, respects cap and zero Crown: %s/%d"%[host,intrinsic])
+   for cue in cues:
+    if cue.count!=1 or cue.repeat!=intrinsic+1 or cue.position!=1 or cue.roll!=1 or cue.positions!=[1]:failures.append("Charge exact source/repeat/link, ordinal is not repeat count")
+   if JSON.stringify([built.frame,result,snapshot])!=before:failures.append("Charge projection mutated inputs")
+   if host=="pin.gold" and result.future_effects.size()!=1:failures.append("Charge never repeats Gold income")
+ # A Crown whose only paid repeated effect is its modification still names Charge.
+ var loaded:=Slice._loadout({1:"pin.crown"});loaded.pin_mods={1:"pin_mod.keystone"}
+ var mixed:=Builder.build(loaded,catalogue,Slice._strike("ball.hammer"),{1:["ball_mod.echo_charge"]})
+ var mixed_owners:=Events.owners(mixed.frame,items,{"pin_mods":loaded.pin_mods,"roll_mods":{1:"ball_mod.echo_charge"}})
+ var charge_rows:=0
+ for event in Rules.resolve(mixed.frame).events:
+  for cue in Events.combine(mixed.frame,event,mixed_owners):
+   if cue.id=="ball_mod.echo_charge":charge_rows+=1
+ if charge_rows!=1:failures.append("Charge retains its cause on a modification-only repeated pin row")
+ var no_contact:=Builder.build(Slice._loadout(),catalogue,Slice._open([],[]),{1:["ball_mod.echo_charge"]})
+ for event in Rules.resolve(no_contact.frame).events:
+  if Events.project(no_contact.frame,event,Events.owners(no_contact.frame,items,{"roll_mods":{1:"ball_mod.echo_charge"}})).any(func(c):return c.id=="ball_mod.echo_charge"):failures.append("Charge invented contact on gutter")
+ for fallen in [[],[1,2,3],[1,6,10],range(1,11)]:
+  var rack:=Slice._loadout();rack.pin_mods={6:"pin_mod.lantern"}
+  var built:=Builder.build(rack,catalogue,Slice._open(fallen,[]))
+  if fallen.size()==10:built=Builder.build(rack,catalogue,Slice._strike())
+  var owners:=Events.owners(built.frame,items,{"pin_mods":rack.pin_mods})
+  var lanterns:=[]
+  for event in Rules.resolve(built.frame).events:
+   for cue in Events.project(built.frame,event,owners):
+    if cue.id=="pin_mod.lantern":lanterns.append(cue)
+  if lanterns.size()!=(0 if 6 in fallen else 1):failures.append("Lantern only standing host")
+  for cue in lanterns:
+   var standing:=range(1,11).filter(func(p):return p not in fallen)
+   if cue.positions!=standing or cue.count!=standing.size() or cue.amount!=standing.size() or cue.phase!="standing":failures.append("Lantern exact standing positions/count/Mult")

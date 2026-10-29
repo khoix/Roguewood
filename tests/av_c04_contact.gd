@@ -5,7 +5,7 @@ func _initialize():call_deferred("run")
 func run():
  for arg in OS.get_cmdline_user_args():
   if arg.begins_with("--artifact-dir="):destination=arg.trim_prefix("--artifact-dir=")
- var batch:="AV-C04-B" if "av-c04-b" in destination else "AV-C04-A"
+ var batch:="AV-C04-C" if "av-c04-c" in destination else ("AV-C04-B" if "av-c04-b" in destination else "AV-C04-A")
  var rows:Array=JSON.parse_string(FileAccess.get_file_as_string("res://assets/effects/batches.json"))[batch]
  var failures:=[];var shapes:={}
  for row in rows:
@@ -14,9 +14,9 @@ func run():
   else:shapes[recipe.shape]=true
   for slot in ["icon","card","rarity_treatment","reduced_motion"]:
    if Assets.slot(row[0],slot)==null:failures.append("missing "+slot)
- if shapes.size()!=3:failures.append("three distinct constructions")
+ if shapes.size()!=rows.size():failures.append("each item has a distinct construction")
  if DisplayServer.get_name()!="headless" and failures.is_empty():
-  root.size=Vector2i(1080,880);root.content_scale_size=root.size
+  root.size=Vector2i(1080,1080 if batch=="AV-C04-C" else 880);root.content_scale_size=root.size
   var bg:=ColorRect.new();bg.color=Color("101820");bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT);root.add_child(bg)
   for i in rows.size():
    var id:String=rows[i][0]
@@ -35,10 +35,20 @@ func run():
    _label(box,"Colour / grayscale / silhouette")
    for reduced in [false,true]:
     var glyph:Control=preload("res://src/presentation/ability_glyph.gd").new();glyph.size_flags_horizontal=Control.SIZE_SHRINK_CENTER;box.add_child(glyph)
-    glyph.show_cue(Assets.slot(id,"activation"),reduced,Assets.slot(id,"icon"),{"count":10,"amount":{"pin_mod.keystone":40,"ball_mod.chalk_grip":2,"ball_mod.spin_wax":4,"ball_mod.coin_slot":2}.get(id,1)})
+    glyph.show_cue(Assets.slot(id,"activation"),reduced,Assets.slot(id,"icon"),{"count":7 if id=="pin_mod.lantern" else 10,"position":3,"amount":{"pin_mod.keystone":40,"ball_mod.chalk_grip":2,"ball_mod.spin_wax":4,"ball_mod.coin_slot":2,"pin_mod.lantern":7}.get(id,1)})
     glyph.set_process(false);glyph.age=.25
     _label(box,"Static reduced cue" if reduced else "Animated cue sample")
    _label(box,"Illustrative values; native checks separate")
+  if batch=="AV-C04-C":
+   var compare:=VBoxContainer.new();compare.position=Vector2(724,20);compare.custom_minimum_size=Vector2(332,900);bg.add_child(compare)
+   _label(compare,"Distinct from these existing identities")
+   for other in ["ball.echo","charm.hot_streak","charm.patient_investor"]:
+    _label(compare,Assets._items[other].name);_image(compare,other,128)
+   _label(compare,"Echo = whole orb; Charge = open clasp")
+   _label(compare,"Lantern = handled frame, single wick")
+   _label(compare,"Extinguished host state · no flame")
+   var unlit:=_image(compare,"pin_mod.lantern",128)
+   unlit.texture=load("res://assets/items/d04/state.pin_mod.lantern.unlit.tres")
   for i in 12:await process_frame
   await RenderingServer.frame_post_draw
   if root.get_texture().get_image().save_png(destination.path_join("contact.png"))!=OK:failures.append("contact capture")

@@ -14,6 +14,9 @@ ROOT = Path(__file__).resolve().parents[1]
 VERSION = (ROOT / ".godot-version").read_text().strip()
 # journey -> script, success marker, artifact directory, rendered captures, timeout, extra engine flags
 JOURNEYS = {
+    "JAVC04CC": ("res://tests/av_c04_contact.gd", "ROGUEWOOD_AV_C04_CONTACT_OK", "artifacts/av-c04-c/contact", ("contact",), 180, ["--fixed-fps", "60"]),
+    "JAVC04C": ("res://tests/av_c04_c_journey.gd", "ROGUEWOOD_AV_C03_OK AV-C04-C", "artifacts/av-c04-c/native",
+        ("ball_mod_echo_charge_shop", "pin_mod_lantern_shop", "owned_shop", "inventory", "ball_mod_echo_charge_inspector", "ball_mod_echo_charge_binder", "pin_mod_lantern_binder", "ball_mod_echo_charge_host_detail", "charge_hook_shop", "charge_hook_host_detail", "pin_mod_lantern_host_detail", "ball_mod_echo_charge_activation", "pin_mod_lantern_activation", "lantern_unlit", "lantern_reduced", "charge_rolling", "charge_hook_rolling", "stage1_reduced", "stage1_landscape"), 900, ["--fixed-fps", "60"]),
     "JAVC04BC": ("res://tests/av_c04_contact.gd", "ROGUEWOOD_AV_C04_CONTACT_OK", "artifacts/av-c04-b/contact", ("contact",), 180, ["--fixed-fps", "60"]),
     "JAVC04B": ("res://tests/av_c04_b_journey.gd", "ROGUEWOOD_AV_C03_OK AV-C04-B", "artifacts/av-c04-b/native",
         ("ball_mod_chalk_grip_shop", "ball_mod_spin_wax_shop", "ball_mod_coin_slot_shop", "owned_shop", "inventory", "ball_mod_chalk_grip_binder", "ball_mod_spin_wax_binder", "ball_mod_coin_slot_binder", "ball_mod_chalk_grip_inspector", "ball_mod_spin_wax_inspector", "ball_mod_coin_slot_inspector", "ball_mod_chalk_grip_host_detail", "ball_mod_spin_wax_host_detail", "ball_mod_coin_slot_host_detail", "ball_mod_chalk_grip_rolling", "ball_mod_spin_wax_rolling", "ball_mod_coin_slot_rolling", "ball_mod_chalk_grip_activation", "ball_mod_spin_wax_activation", "ball_mod_coin_slot_activation", "wax_trail", "stage1_reduced", "stage1_landscape"), 900, ["--fixed-fps", "60"]),

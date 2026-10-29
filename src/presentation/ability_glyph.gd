@@ -265,6 +265,18 @@ func _draw_c03(c: Vector2, t: float, ink: Color) -> bool:
 func _draw_c04(c:Vector2,t:float,ink:Color) -> bool:
 	var caption := ""
 	match style.shape:
+		"charge_link":
+			for radius in [18,24]:
+				var spread:=0.0 if still else 4.0*t
+				draw_arc(c+Vector2(0,-5),float(radius)+spread,PI*.35,TAU,32,ink,2)
+			draw_line(c+Vector2(20,16),c+Vector2(27,22),ink,2)
+			caption="pin %d · repeat"%int(details.get("position",0))
+		"lantern_count":
+			draw_rect(Rect2(c+Vector2(-25,-24),Vector2(50,46)),ink,false,2)
+			draw_arc(c+Vector2(0,-24),7,PI,TAU,12,ink,2)
+			for j in mini(10,int(details.get("count",0))):
+				draw_circle(c+Vector2(-22+j*5,-31),1.5,ink)
+			caption="%d stand · +%d"%[int(details.get("count",0)),int(details.get("amount",0))]
 		"chalk_pair":
 			for i in 5:
 				var drift:=0.0 if still else 4.0*sin(t*PI)

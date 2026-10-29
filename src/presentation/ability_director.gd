@@ -163,7 +163,7 @@ func _world_cue(id: String, event: String, point: Vector2) -> void:
 ## Highlight actual counted slots without replacing the rack's roll colours,
 ## position labels or standing outlines. The resolver-owned count stays on the cue.
 func counted_rack_positions() -> Array:
-	if not glyph.enabled or glyph.style == null or glyph.style.item_id not in ["charm.back_row","pin_mod.keystone"] or glyph.age >= glyph.style.duration: return []
+	if not glyph.enabled or glyph.style == null or glyph.style.item_id not in ["charm.back_row","pin_mod.keystone","pin_mod.lantern","ball_mod.echo_charge"] or glyph.age >= glyph.style.duration: return []
 	return glyph.details.get("positions",[]).duplicate()
 func _draw_counted_rack() -> void:
 	var view: Control = lab.score_panel.rack_view

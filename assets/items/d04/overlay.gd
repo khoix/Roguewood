@@ -2,6 +2,9 @@ extends Node3D
 ## Small original cosmetic attachment; never owns a collider or touches the host.
 var item_id := ""
 var host_id := ""
+var lit := true
+var flame: MeshInstance3D
+var unlit_frame: MeshInstance3D
 const BRASS := Color("bd934f")
 func _ready() -> void:
  name="ModificationOverlay"
@@ -34,16 +37,30 @@ func _ready() -> void:
    var patch:=_decal(item_id,0,0,Vector2(.026,.050))
    patch.position=_ball_surface(.055,-.025)
    patch.quaternion=Quaternion(Vector3.BACK,patch.position.normalized())
+  "ball_mod.echo_charge":
+   var patch:=_decal(item_id,0,0,Vector2(.055,.055))
+   patch.position=_ball_surface(-.046,.035)
+   patch.quaternion=Quaternion(Vector3.BACK,patch.position.normalized())
+  "pin_mod.lantern":
+   # Matched authored states retain the brass detail when the wick goes out.
+   # Each PNG is unchanged; only an AtlasTexture view is sampled on the host.
+   flame=_decal(item_id,.254,.052,Vector2(.047,.076));flame.position.x=.034
+   unlit_frame=_decal(item_id,.254,.052,Vector2(.047,.076),load("res://assets/items/d04/state.pin_mod.lantern.unlit.tres"));unlit_frame.position.x=.034
+   set_lit(true)
+func set_lit(value:bool) -> void:
+ lit=value
+ if is_instance_valid(flame):flame.visible=lit
+ if is_instance_valid(unlit_frame):unlit_frame.visible=not lit
 func _ball_surface(x:float,y:float) -> Vector3:
  var radius:float=preload("res://src/simulation/lane_spec.gd").BALL_RADIUS+.0015
  return Vector3(x,y,sqrt(maxf(.001,radius*radius-x*x-y*y)))
 func _stroke(a:Vector3,b:Vector3,color:Color) -> void:
  var mesh:=CylinderMesh.new();mesh.top_radius=.0012;mesh.bottom_radius=.0012;mesh.height=a.distance_to(b)
  var node:=MeshInstance3D.new();node.mesh=mesh;node.position=(a+b)*.5;node.quaternion=Quaternion(Vector3.UP,(b-a).normalized());node.material_override=_mat(color);add_child(node)
-func _decal(id:String,y:float,z:float,extent:Vector2) -> MeshInstance3D:
+func _decal(id:String,y:float,z:float,extent:Vector2,artwork:AtlasTexture=null) -> MeshInstance3D:
  # Sample the unchanged source through its declared icon atlas view. This tiny
  # host patch adds no in_play contract, collider, full-body recolour or lighting.
- var view:=preload("res://src/presentation/item_assets.gd").slot(id,"icon") as AtlasTexture
+ var view:=artwork if artwork!=null else preload("res://src/presentation/item_assets.gd").slot(id,"icon") as AtlasTexture
  var material:=ShaderMaterial.new();var shader:=Shader.new()
  shader.code="shader_type spatial; render_mode unshaded,cull_disabled; uniform sampler2D source_art:source_color,filter_nearest; uniform vec4 region; void fragment(){vec4 ink=texture(source_art,region.xy+UV*region.zw); ALBEDO=ink.rgb; ALPHA=ink.a; ALPHA_SCISSOR_THRESHOLD=0.12;}"
  material.shader=shader;material.set_shader_parameter("source_art",view.atlas)

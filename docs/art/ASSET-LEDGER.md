@@ -346,3 +346,44 @@ Resources: `assets/items/d04/<design-asset-id>.tres`,
 `assets/effects/activation.<item-id>.tres`, `assets/audio/sound.<item-id>.wav`.
 Native/inspector/host and contact evidence: `artifacts/av-c04-b/` (ignored).
 Handoff: `docs/handoffs/AV-C04-B.md`.
+
+## Wave 6 — AV-C04-C identity, overlays, effects and sound
+
+Echo Charge and Lantern: original OpenAI-generated pixel-art source, 2026-10-29.
+Original RGBA PNG retained unchanged at `assets/items/d04/source.AV-C04-C.png`,
+with exact prompt in `source.AV-C04-C.txt`. No external reference image, sample,
+recording, brand or exclusive-rights claim. Source SHA-256:
+`d4940fa3230e8f9960b5ddc44911d1b733f87582266aa8927812520b7d22cee3`.
+
+`tools/author_c04_art.py AV-C04-C` binds the twelve exact D04 IDs without PNG
+edits/resampling. Open silver/sea-glass double clasp versus the whole Echo Ball;
+handled rectangular lantern versus Hot Streak's free flames or Investor's
+hourglass. 32/64/192px grayscale/silhouette comparisons live in JAVC04CC.
+Echo's cosmetic host patch samples its exact icon region on a small surface-aligned
+quad. Lantern uses matched lit/unlit AtlasTexture quads, switched by the actual
+knockdown tracker. Its unlit source is an OpenAI image edit of that same source,
+retained unchanged as `source.AV-C04-C-unlit.png` with prompt beside it. The
+helper `state.pin_mod.lantern.unlit.tres` is an internal state view, not a new
+catalogue/design slot. Both states preserve the illustrated patina and handle. Unlit source SHA-256:
+`9078569783e2d91f8b6cb06efc5138dad63a5f9657be1cbd9187d1c483ef4a2f`.
+Neither attachment changes host materials, collision, mass, input or scores.
+
+Original vector cues: open paired rings and the actual repeated pin's rack link;
+handled count frame with the actual standing slots outlined. A granted repeat
+without a scoring event has no invented success cue. Repeats preserve original
+host cues and deferred income; ordinal repeat indices are not displayed as extra
+Charge uses. Reduced motion/flash holds the same slot/count information static.
+
+Original deterministic mono 22050 Hz, 16-bit PCM, peak 0.48, no recordings or
+borrowed samples. Charge has two glass/metal resonances, the second delayed 95 ms
+at 0.55 gain; Lantern has a short dry wick crackle without a looping hiss.
+
+| Item | Recipe / synthesis | WAV SHA-256 |
+|---|---|---|
+| `ball_mod.echo_charge` | `charge_link`; glass 880 Hz, 0.38 s; priority 3 | `fba26fc618a642b69c2eb42988f9a8c838ed37dbd6ab096c443dd7809ae25850` |
+| `pin_mod.lantern` | `lantern_count`; paper 420 Hz, 0.30 s; priority 2 | `cb5b2d45fe4d6bb913d248ba2a80726f876ad16249d0c12d342c0fbd3984895f` |
+
+Resources: `assets/items/d04/<design-asset-id>.tres`,
+`assets/effects/activation.<item-id>.tres`, `assets/audio/sound.<item-id>.wav`.
+Native/contact evidence is ignored under `artifacts/av-c04-c/`; verification and
+current completion status are in `docs/handoffs/AV-C04-C.md`.

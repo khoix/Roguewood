@@ -9,16 +9,20 @@ Resumed on 2026-10-29 from usage checkpoint `6adfde3`, on
   Brass Cap, Gilt Leaf, Keystone. All six IDs each, host badges/overlays, effects,
   sound and flags. Unit/content, physics and 28 regression commands passed;
   final native captures inspected. See AV-C04-A.md. Remote SHA/clean tree verified.
-- **AV-C04-B DONE**, completion in this commit: Chalk Grip, Spin Wax, Coin Slot.
+- **AV-C04-B DONE**, pushed `792e24b`: Chalk Grip, Spin Wax, Coin Slot.
   Full native journey headless/rendered and contacts passed, actual captures
   inspected; eighteen paths and six completion flags. Unit/content, A, J03C04
   and J11ART regressions passed. See AV-C04-B.md for exact logs and limitations.
-- **AV-C04-C NOT STARTED**: Echo Charge, Lantern (High).
+- **AV-C04-C DONE**, completion in this commit: Echo Charge and Lantern.
+  Twelve exact slots plus an internal unlit Lantern state, both flags after final
+  native checks. Hammer/Hook via legal sale/repurchase; actual repeat/standing
+  links and static states. Unit/content/physics, fourteen headless and five
+  affected rendered regressions pass. See AV-C04-C.md. AV-C04 is complete.
 - **E22-L01-ART NOT STARTED**: House theme for eight Divisions, Championship,
   House Oil/Dry Backend lane visuals, music (High). Preview/inspector/contact only;
   author asset-ID/drop-path handoff for Claude's Wave 8 integration.
 
-Start AV-C04-C (High), then House theme (High). B is fully verified. No Wave 7 art, other League themes, E26 or Claude-owned mechanics.
+Start E22-L01-ART House theme (High). All three AV-C04 batches are complete. No Wave 7 art, other League themes, E26 or Claude-owned mechanics.
 Only assigned catalogue asset/art/effects fields; no batch flags or League spec
 edits. qa.py, run_tests and workflow are add-only; keep upload paths inside the
 existing list and preserve the 90-minute timeout. No PR to main; coordinator

@@ -10,7 +10,10 @@ BATCHES={'AV-C04-A':[
  'AV-C04-B':[
  ('ball_mod.chalk_grip','chalk_pair','paper',650,.18,'e6dfc7',2),
  ('ball_mod.spin_wax','wax_curve','swish',980,.24,'e6ca86',2),
- ('ball_mod.coin_slot','slot_coin','metal',1360,.23,'d5ae59',2)]}
+ ('ball_mod.coin_slot','slot_coin','metal',1360,.23,'d5ae59',2)],
+ 'AV-C04-C':[
+ ('ball_mod.echo_charge','charge_link','glass',880,.38,'95d9cb',3),
+ ('pin_mod.lantern','lantern_count','paper',420,.30,'e7bc70',2)]}
 name=sys.argv[1];rows=BATCHES[name]
 p=ROOT/'content/catalogue.json';data=json.loads(p.read_text());items={i['id']:i for i in data['items']}
 designs={d['id']:d['design']['asset_ids'] for d in json.loads((ROOT/'content/catalogue/batches/E17-D04.json').read_text())['landed']}
@@ -83,6 +86,8 @@ priority = {priority}
    with wave.open(str(audio),'wb') as stream:
     stream.setparams((1,2,rate,0,'NONE','not compressed'));stream.writeframes(struct.pack('<'+'h'*len(pcm),*pcm))
   item['assets']['sound']='res://assets/audio/'+ids['sound']+'.wav'
+if name=='AV-C04-C':
+ (D/'state.pin_mod.lantern.unlit.tres').write_text((D/'icon.pin_mod.lantern.tres').read_text().replace('source.AV-C04-C.png','source.AV-C04-C-unlit.png'))
 p.write_text(json.dumps(data,indent=2,ensure_ascii=False)+'\n')
 p=ROOT/'assets/effects/batches.json';data=json.loads(p.read_text());data[name]=rows
 p.write_text('{\n'+',\n'.join(' '+json.dumps(k)+': '+json.dumps(v,separators=(',',':')) for k,v in data.items())+'\n}\n')

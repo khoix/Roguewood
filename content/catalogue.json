@@ -2302,20 +2302,20 @@
         "ball.echo"
       ],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d04/icon.ball_mod.echo_charge.tres",
+        "card": "res://assets/items/d04/card.ball_mod.echo_charge.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d04/rarity_treatment.ball_mod.echo_charge.tres",
+        "activation": "res://assets/effects/activation.ball_mod.echo_charge.tres",
+        "sound": "res://assets/audio/sound.ball_mod.echo_charge.wav",
+        "reduced_motion": "res://assets/items/d04/reduced_motion.ball_mod.echo_charge.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -2458,20 +2458,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d04/icon.pin_mod.lantern.tres",
+        "card": "res://assets/items/d04/card.pin_mod.lantern.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d04/rarity_treatment.pin_mod.lantern.tres",
+        "activation": "res://assets/effects/activation.pin_mod.lantern.tres",
+        "sound": "res://assets/audio/sound.pin_mod.lantern.wav",
+        "reduced_motion": "res://assets/items/d04/reduced_motion.pin_mod.lantern.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }

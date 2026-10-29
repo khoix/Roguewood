@@ -10,5 +10,6 @@
  "AV-C03-A": [["pin.crown","crown_last","metal",1180,0.3,"e9c179",3],["charm.crown_jewel","jewel_last","glass",1660,0.34,"d1b6e8",3],["charm.split_specialist","split_leave","metal",640,0.26,"b8d6d0",2]],
  "AV-C03-B": [["charm.sweet_spot","grade_pair","glass",1490,0.24,"a9d8d0",2],["charm.back_row","back_four","wood",530,0.26,"d8c498",2],["charm.underdog","half_target","metal",470,0.3,"c7c6df",3]],
  "AV-C04-A": [["pin_mod.brass_cap","cap_tick","metal",1060,0.19,"ddc087",2],["pin_mod.gilt_leaf","leaf_coin","paper",1180,0.25,"e3c56f",2],["pin_mod.keystone","key_count","wood",420,0.28,"bcb5a2",3]],
- "AV-C04-B": [["ball_mod.chalk_grip","chalk_pair","paper",650,0.18,"e6dfc7",2],["ball_mod.spin_wax","wax_curve","swish",980,0.24,"e6ca86",2],["ball_mod.coin_slot","slot_coin","metal",1360,0.23,"d5ae59",2]]
+ "AV-C04-B": [["ball_mod.chalk_grip","chalk_pair","paper",650,0.18,"e6dfc7",2],["ball_mod.spin_wax","wax_curve","swish",980,0.24,"e6ca86",2],["ball_mod.coin_slot","slot_coin","metal",1360,0.23,"d5ae59",2]],
+ "AV-C04-C": [["ball_mod.echo_charge","charge_link","glass",880,0.38,"95d9cb",3],["pin_mod.lantern","lantern_count","paper",420,0.3,"e7bc70",2]]
 }
