@@ -2135,13 +2135,13 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d04/icon.ball_mod.chalk_grip.tres",
+        "card": "res://assets/items/d04/card.ball_mod.chalk_grip.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d04/rarity_treatment.ball_mod.chalk_grip.tres",
+        "activation": "res://assets/effects/activation.ball_mod.chalk_grip.tres",
+        "sound": "res://assets/audio/sound.ball_mod.chalk_grip.wav",
+        "reduced_motion": "res://assets/items/d04/reduced_motion.ball_mod.chalk_grip.tres"
       },
       "completeness": {
         "authored": true,
@@ -2191,13 +2191,13 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d04/icon.ball_mod.spin_wax.tres",
+        "card": "res://assets/items/d04/card.ball_mod.spin_wax.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d04/rarity_treatment.ball_mod.spin_wax.tres",
+        "activation": "res://assets/effects/activation.ball_mod.spin_wax.tres",
+        "sound": "res://assets/audio/sound.ball_mod.spin_wax.wav",
+        "reduced_motion": "res://assets/items/d04/reduced_motion.ball_mod.spin_wax.tres"
       },
       "completeness": {
         "authored": true,
@@ -2247,13 +2247,13 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d04/icon.ball_mod.coin_slot.tres",
+        "card": "res://assets/items/d04/card.ball_mod.coin_slot.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d04/rarity_treatment.ball_mod.coin_slot.tres",
+        "activation": "res://assets/effects/activation.ball_mod.coin_slot.tres",
+        "sound": "res://assets/audio/sound.ball_mod.coin_slot.wav",
+        "reduced_motion": "res://assets/items/d04/reduced_motion.ball_mod.coin_slot.tres"
       },
       "completeness": {
         "authored": true,

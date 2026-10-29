@@ -56,4 +56,29 @@ static func run() -> Array[String]:
  var quiet:=Builder.build(open_loadout,catalogue,Slice._open([],[]))
  for event in Rules.resolve(quiet.frame).events:
   if not Events.project(quiet.frame,event,Events.owners(quiet.frame,items,{"pin_mods":open_loadout.pin_mods})).is_empty():failures.append("standing mods remain silent")
+ _ball_cases(catalogue,items,failures)
  return failures
+
+static func _ball_cases(catalogue:Dictionary,items:Dictionary,failures:Array[String]) -> void:
+ var cases:=[
+  {"id":"ball_mod.chalk_grip","reports":Slice._spare([1,2,3]),"mods":{1:"ball_mod.chalk_grip",2:"ball_mod.chalk_grip"},"count":2},
+  {"id":"ball_mod.chalk_grip","reports":Slice._strike(),"mods":{1:"ball_mod.chalk_grip"},"count":0},
+  {"id":"ball_mod.spin_wax","reports":[Slice._rep(1,[1,2,3],Slice.ALL,"ball.hook",.3),Slice._rep(2,[4,5,6,7,8,9,10],[4,5,6,7,8,9,10])],"mods":{2:"ball_mod.spin_wax"},"count":1},
+  {"id":"ball_mod.spin_wax","reports":Slice._spare([1,2,3]),"mods":{1:"ball_mod.spin_wax",2:"ball_mod.spin_wax"},"count":0},
+  {"id":"ball_mod.coin_slot","reports":Slice._strike("ball.echo"),"mods":{1:"ball_mod.coin_slot"},"count":1},
+  {"id":"ball_mod.coin_slot","reports":Slice._spare([1,2,3]),"mods":{1:"ball_mod.coin_slot",2:"ball_mod.coin_slot"},"count":0}]
+ for case in cases:
+  var extras:={}
+  for roll in case.mods:extras[roll]=[case.mods[roll]]
+  var built:=Builder.build(Slice._loadout(),catalogue,case.reports,extras)
+  var owners:=Events.owners(built.frame,items,{"roll_mods":case.mods})
+  for roll in case.mods:
+   var source:="roll:%d"%roll
+   if owners[source]!=built.owners[source]:failures.append("exact ball modification ownership")
+  var cues:=[];var seen:={}
+  for event in Rules.resolve(built.frame).events:
+   for cue in Events.combine(built.frame,event,owners):
+    if cue.id==case.id and not seen.has(cue.key):seen[cue.key]=true;cues.append(cue)
+  if cues.size()!=case.count:failures.append("ball modification active/quiet count "+case.id)
+  if case.id=="ball_mod.spin_wax" and case.count==1 and (cues.is_empty() or cues[0].source!="roll:2"):failures.append("Wax uses actual equipped roll even when another roll curved")
+  if case.id=="ball_mod.coin_slot" and case.count==1 and (cues.is_empty() or cues[0].phase!="after_bank" or cues[0].amount!=2):failures.append("Coin Slot pays once after bank despite host retrigger")

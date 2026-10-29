@@ -5,7 +5,8 @@ func _initialize():call_deferred("run")
 func run():
  for arg in OS.get_cmdline_user_args():
   if arg.begins_with("--artifact-dir="):destination=arg.trim_prefix("--artifact-dir=")
- var rows:Array=JSON.parse_string(FileAccess.get_file_as_string("res://assets/effects/batches.json"))["AV-C04-A"]
+ var batch:="AV-C04-B" if "av-c04-b" in destination else "AV-C04-A"
+ var rows:Array=JSON.parse_string(FileAccess.get_file_as_string("res://assets/effects/batches.json"))[batch]
  var failures:=[];var shapes:={}
  for row in rows:
   var recipe=Assets.slot(row[0],"activation")
@@ -34,7 +35,7 @@ func run():
    _label(box,"Colour / grayscale / silhouette")
    for reduced in [false,true]:
     var glyph:Control=preload("res://src/presentation/ability_glyph.gd").new();glyph.size_flags_horizontal=Control.SIZE_SHRINK_CENTER;box.add_child(glyph)
-    glyph.show_cue(Assets.slot(id,"activation"),reduced,Assets.slot(id,"icon"),{"count":10,"amount":40 if id=="pin_mod.keystone" else 1})
+    glyph.show_cue(Assets.slot(id,"activation"),reduced,Assets.slot(id,"icon"),{"count":10,"amount":{"pin_mod.keystone":40,"ball_mod.chalk_grip":2,"ball_mod.spin_wax":4,"ball_mod.coin_slot":2}.get(id,1)})
     glyph.set_process(false);glyph.age=.25
     _label(box,"Static reduced cue" if reduced else "Animated cue sample")
    _label(box,"Illustrative values; native checks separate")

@@ -6,7 +6,11 @@ ROOT=Path(__file__).resolve().parents[1];D=ROOT/'assets/items/d04'
 BATCHES={'AV-C04-A':[
  ('pin_mod.brass_cap','cap_tick','metal',1060,.19,'ddc087',2),
  ('pin_mod.gilt_leaf','leaf_coin','paper',1180,.25,'e3c56f',2),
- ('pin_mod.keystone','key_count','wood',420,.28,'bcb5a2',3)]}
+ ('pin_mod.keystone','key_count','wood',420,.28,'bcb5a2',3)],
+ 'AV-C04-B':[
+ ('ball_mod.chalk_grip','chalk_pair','paper',650,.18,'e6dfc7',2),
+ ('ball_mod.spin_wax','wax_curve','swish',980,.24,'e6ca86',2),
+ ('ball_mod.coin_slot','slot_coin','metal',1360,.23,'d5ae59',2)]}
 name=sys.argv[1];rows=BATCHES[name]
 p=ROOT/'content/catalogue.json';data=json.loads(p.read_text());items={i['id']:i for i in data['items']}
 designs={d['id']:d['design']['asset_ids'] for d in json.loads((ROOT/'content/catalogue/batches/E17-D04.json').read_text())['landed']}
@@ -16,7 +20,8 @@ with Image.open(source) as im:
  width,height=im.size;alpha=im.getchannel('A').point(lambda value: 255 if value>16 else 0)
  for index,row in enumerate(rows):
   id,shape,material,pitch,seconds,color,priority=row;item=items[id];ids=designs[id]
-  left=index*width//len(rows);right=(index+1)*width//len(rows)
+  bounds=[0,600,1180,width] if name=='AV-C04-B' else [i*width//len(rows) for i in range(len(rows)+1)]
+  left,right=bounds[index:index+2]
   # Ignore near-invisible alpha specks when measuring the view.
   # Atlas view only: the source PNG is never edited or resampled.
   x,y,r,b=alpha.crop((left,0,right,height)).getbbox();x+=left;r+=left

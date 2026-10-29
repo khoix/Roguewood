@@ -313,3 +313,36 @@ Identity resources: `assets/items/d04/<design-asset-id>.tres`. Recipes:
 `assets/audio/sound.<item-id>.wav`. Native and 32/64/192px, grayscale/silhouette,
 normal/reduced captures: `artifacts/av-c04-a/` (ignored, never committed).
 See `docs/handoffs/AV-C04-A.md` for the verification record and scope.
+
+## Wave 6 — AV-C04-B identity, overlays, effects and sound
+
+Chalk Grip, Spin Wax and Coin Slot: original OpenAI-generated pixel-art source,
+2026-10-29. Original PNG retained unchanged at
+`assets/items/d04/source.AV-C04-B.png`; exact prompt beside it as
+`source.AV-C04-B.txt`. No external reference image, recording, logo or sample.
+No exclusive-rights claim. Source SHA-256: `2b0e8a6b267c8a3ed5b0bb788a3ae56f471e726dd240f32841c87681f8fc44ed`.
+
+`tools/author_c04_art.py AV-C04-B` measures opaque bounds in the three object
+regions and authors the exact six D04 IDs per item, without editing/resampling
+the PNG. Host badges reuse the icon; no in_play ID is invented. Original small
+3D marks: seven chalk flecks in a broken crescent, two segmented wax strokes,
+a tiny surface-aligned slot patch sampling the declared icon atlas. Base host
+material, holes, emblem, silhouette and collision are untouched. The committed
+curved Wax roll adds a narrow segmented secondary accent beside the existing
+trail; straight, reduced-motion/flash or disabled effects suppress that accent.
+
+Original vector cues: spare chalk flecks/+2, paired curve ticks/+4, slot/coin/$2
+after bank. Counts/conditions/awards are resolver-owned. Original deterministic
+mono 22050 Hz, 16-bit PCM: dry chalk scrape, rubbed-wax sweep with a late tick,
+single metal coin clink. Peak 0.48; no recordings or borrowed samples.
+
+| Item | Recipe / synthesis | WAV SHA-256 |
+|---|---|---|
+| `ball_mod.chalk_grip` | `chalk_pair`; paper, 650 Hz, 0.18 s; priority 2 | `0d25f981c003f8a0c3c271fe9ba2b7e324a87da872f4a378f9575b7d275cad12` |
+| `ball_mod.spin_wax` | `wax_curve`; swish, 980 Hz, 0.24 s; priority 2 | `65fd16d30f3a9fdeca5f94d14411db582f3b655582e70b535e7f839b0a985b87` |
+| `ball_mod.coin_slot` | `slot_coin`; metal, 1360 Hz, 0.23 s; priority 2 | `bf631c46a48f1c366132b1126144f4dcacdbcabd71a9820ceb3f5d61e6873638` |
+
+Resources: `assets/items/d04/<design-asset-id>.tres`,
+`assets/effects/activation.<item-id>.tres`, `assets/audio/sound.<item-id>.wav`.
+Native/inspector/host and contact evidence: `artifacts/av-c04-b/` (ignored).
+Handoff: `docs/handoffs/AV-C04-B.md`.

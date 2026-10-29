@@ -265,6 +265,20 @@ func _draw_c03(c: Vector2, t: float, ink: Color) -> bool:
 func _draw_c04(c:Vector2,t:float,ink:Color) -> bool:
 	var caption := ""
 	match style.shape:
+		"chalk_pair":
+			for i in 5:
+				var drift:=0.0 if still else 4.0*sin(t*PI)
+				draw_rect(Rect2(c+Vector2(-24+i*11,-25-drift*(i%2)),Vector2(3,3)),ink)
+			caption="+%d · spare"%int(details.get("amount",0))
+		"wax_curve":
+			for offset in [-5,3]:draw_arc(c+Vector2(offset,-2),27,PI*1.08,PI*1.82,16,ink,2)
+			caption="+%d · curved"%int(details.get("amount",0))
+		"slot_coin":
+			draw_rect(Rect2(c+Vector2(-26,-25),Vector2(52,6)),ink,false,2)
+			var fall:=10.0 if still else 3.0+12.0*ease(t,.5)
+			draw_circle(c+Vector2(23,-19+fall),6,ink)
+			draw_line(c+Vector2(23,-23+fall),c+Vector2(23,-15+fall),Color("614526"),2)
+			caption="$%d · bank"%int(details.get("amount",0))
 		"cap_tick":
 			draw_arc(c+Vector2(0,-15),24,PI,TAU,24,ink,2)
 			draw_line(c+Vector2(-25,-15),c+Vector2(25,-15),ink,3)
