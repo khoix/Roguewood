@@ -196,7 +196,8 @@ Wave 5 is merged (PR #16). Codex merges `origin/claude/roguewood-build` (the "Wa
   - E18-C05 (`70b5389`, handoffs/E18-C05.md): House Rules, House Pins, House Oil, Dry Backend, and two-rule champions; J03C05 on the `house_c05` fixture League.
   - E18-C06 (`5d22fd6`, handoffs/E18-C06.md): Nudge, Reserve Call and Rule Waiver, played before the throw through a chooser; J03C06. The waiver lasts the rest of the frame, as the item's authored text says (the claim said one roll).
   - E18-C07 (`a8123f5`, handoffs/E18-C07.md): the License offer (one per Division) and six House upgrades (E17-D06, written and landed together); J03C07.
-- **Shop stream:** production's tactical slot was empty until C06, and C07 adds the License draw. Slice shops therefore offer different items than before, and journeys that buy opportunistically see different builds. J06 passes on the C07 head; the full matrix result is recorded below.
+- **Shop stream:** production's tactical slot was empty until C06, and C07 adds the License draw. Slice shops therefore offer different items than before, and journeys that buy opportunistically see different builds. J06 passes on the C07 head.
+- **Validation:** the full CI command list (134 commands, every journey headless and rendered, including J03C05–J03C07, J06, J07, J09–J11, physics, slice and export) PASS locally on `dbf7d16`; the J03C06 injected failure exits 1.
 - **Codex:** AV-C04 and E22-L01-ART pending (docs/prompts/codex-wave6.md).
 
 ## Wave 5 closed (coordinator, 2026-10-29)
