@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-10-29. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–4 are merged (PRs #11, #13, #14, #15); Wave 5 is open. The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
+Updated: 2026-10-29. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–5 are merged (PRs #11, #13, #14, #15, #16); Wave 6 is open. The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
 
 ## Read first
 
@@ -36,7 +36,7 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - Wave 2 MERGED to main by PR #13 (`1d44302`).
 - Wave 3 MERGED to main by PR #14 (`3a7e938`; CI 40736417912 PASS on `afe5852`): Codex E17-D02-ART and E19-A13…A15; Claude E18-C02 and E17-D03.
 - Wave 4 MERGED to main by PR #15 (CI 40760480791 PASS on `e72051b`): Claude E18-C03 and E17-D04; Codex E17-D03-ART, E19-A16 and E20-V08. 
-- Wave 5 MERGED to main by PR #16 (CI PASS on `bebb702`, which also raised the CI job limit to 90 minutes): Claude E18-C04 and E17-L01; Codex AV-C03 and E17-D04-ART. **Wave 6 is open** (see "Wave 6 claims"): Codex starts from this branch with docs/prompts/codex-wave6.md; Claude starts E18-C05 (High).
+- Wave 5 MERGED to main by PR #16 (CI PASS on `bebb702`, which also raised the CI job limit to 90 minutes): Claude E18-C04 and E17-L01; Codex AV-C03 and E17-D04-ART. **Wave 6 is open** (see "Wave 6 claims"): Codex starts from this branch with docs/prompts/codex-wave6.md. Claude's three claims (E18-C05, C06, C07) are DONE; Wave 6 closes when Codex's Wave 6 is integrated (see "Wave 6 progress").
 - **Roadmap (2026-10-28):** docs/ROADMAP.md maps every remaining milestone to phases (one per League group) and waves, with ownership, the content split per League and the owner's decisions. Waves 5–8 complete the House League.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
@@ -68,8 +68,8 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E14 — Seeded eight-Division progression | DONE | Codex | codex/roguewood-build | 71b2bd2; local unit/content/integration/physics, J01/J06/J07 and native J09 headless/rendered PASS; handoffs/E14.md |
 | E15 — Career persistence and unlock graph | DONE | Claude | main (PR #10) | 2cdedb1 (+ 8c19905); local suites and J01–J10 headless/rendered PASS; CI 40577363221 and 40581437392 PASS; ADR 010; E15 handoff |
 | E16 — Clubhouse and collection UI | DONE (core and E16-ART) | Claude core · Codex E16-ART | claude/roguewood-build · codex/roguewood-build | Core b01fb4d; CI 40616441249 PASS; J11; handoffs/E16.md (Art hand-off) |
-| E17 — Catalogue and unlock authoring batches | IN_PROGRESS (D01–D05 and L01 DONE; D01-ART to D04-ART DONE) | Claude definitions · Codex visual briefs | claude/roguewood-build · codex/roguewood-build | Split per batch; see Ownership |
-| E18 — Content mechanics batches | IN_PROGRESS (C01–C04 DONE) | Claude | claude/roguewood-build | C01: six D02 Charms; C02: transform primitive, Glass Pin and Glass Cutter; C03: five primitives, Crown Pin and the last five D02 Charms; handoffs/E18-C0x.md |
+| E17 — Catalogue and unlock authoring batches | IN_PROGRESS (D01–D06 and L01 DONE; D01-ART to D04-ART DONE) | Claude definitions · Codex visual briefs | claude/roguewood-build · codex/roguewood-build | Split per batch; see Ownership |
+| E18 — Content mechanics batches | IN_PROGRESS (C01–C07 DONE) | Claude | claude/roguewood-build | C01: six D02 Charms; C02: transform primitive, Glass Pin and Glass Cutter; C03: five primitives, Crown Pin and the last five D02 Charms; C04: eight modifications; C05: House rules, lanes, two-rule champions; C06: tactical primitives and three cards; C07: shop upgrades and six House upgrades; handoffs/E18-C0x.md |
 | E19 — Final item artwork batches | IN_PROGRESS (A01–A16 and AV-C03 DONE) | Codex | codex/roguewood-build | E13-S01, E17-D01 and E17-D02 identities; artwork set on the seven C01/C02 Charms and Glass Pin; C03 flags (A17) and D03 identities (A18) in Wave 5 |
 | E20 — Ability effects and audio batches | IN_PROGRESS (V01–V08 and AV-C03 DONE) | Codex | codex/roguewood-build | E13-S01's 23 abilities; V08: the eight C01/C02 items; C03's six in Wave 5 (V09) |
 | E21 — Rival presentation batches | IN_PROGRESS (R01, R02 DONE) | Codex | codex/roguewood-build | Later rivals after E17 defines them |
@@ -190,6 +190,14 @@ Wave 5 is merged (PR #16). Codex merges `origin/claude/roguewood-build` (the "Wa
   - E18-C05 (High): land House Rules, House Pins, House Oil and Dry Backend, and two-rule champions in rival_rules.gd (the House champion's Clean Sweep plus House Rules).
   - E18-C06 (High): tactical-card primitives (relocate a pin, swap with a reserve, waive a rule for one roll), landing Nudge, Reserve Call and Rule Waiver.
   - E18-C07 (High): the shop-upgrade system (Pro Shop licences that last the attempt) with its first six upgrades, written and landed together.
+
+## Wave 6 progress (coordinator)
+- **Claude, all DONE** on `claude/roguewood-build`:
+  - E18-C05 (`70b5389`, handoffs/E18-C05.md): House Rules, House Pins, House Oil, Dry Backend, and two-rule champions; J03C05 on the `house_c05` fixture League.
+  - E18-C06 (`5d22fd6`, handoffs/E18-C06.md): Nudge, Reserve Call and Rule Waiver, played before the throw through a chooser; J03C06. The waiver lasts the rest of the frame, as the item's authored text says (the claim said one roll).
+  - E18-C07 (`a8123f5`, handoffs/E18-C07.md): the License offer (one per Division) and six House upgrades (E17-D06, written and landed together); J03C07.
+- **Shop stream:** production's tactical slot was empty until C06, and C07 adds the License draw. Slice shops therefore offer different items than before, and journeys that buy opportunistically see different builds. J06 passes on the C07 head; the full matrix result is recorded below.
+- **Codex:** AV-C04 and E22-L01-ART pending (docs/prompts/codex-wave6.md).
 
 ## Wave 5 closed (coordinator, 2026-10-29)
 - **Contents** (all on `claude/roguewood-build` at the "Wave 5 closed" commit):
