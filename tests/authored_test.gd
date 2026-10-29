@@ -18,10 +18,11 @@ static func run() -> Array[String]:
 	_expect(batches.size() >= 1 and batches[0].data.batch == "E17-D01", "batch E17-D01 is present", failures)
 	_expect(_errors(batches, catalogue).is_empty(), "the shipped batches validate: %s" % str(_errors(batches, catalogue)), failures)
 	var d01: Array = batches[0].data.definitions
-	_expect(d01.size() == 9 and batches[0].data.landed.map(func(l): return l.id) == ["pin.glass", "pin.crown"] and d01.all(func(d): return d.item.completeness.mechanics == false),
-		"D01: nine authored; Glass Pin landed by E18-C02, Crown Pin by E18-C03", failures)
+	_expect(d01.size() == 6 and batches[0].data.landed.map(func(l): return l.id) == ["pin.glass", "pin.crown", "consumable.nudge", "consumable.reserve_call", "consumable.rule_waiver"]
+		and d01.all(func(d): return d.item.completeness.mechanics == false),
+		"D01: six authored; Glass Pin landed by E18-C02, Crown Pin by E18-C03, the three tactical cards by E18-C06", failures)
 	var counts := Authored.counts(catalogue, batches)
-	_expect(counts.ball == {"implemented": 4, "authored": 4, "target": 24} and counts.consumable.authored == 3, "counts per category against the targets", failures)
+	_expect(counts.ball == {"implemented": 4, "authored": 4, "target": 24} and counts.consumable == {"implemented": 3, "authored": 0, "target": 24}, "counts per category against the targets", failures)
 	_expect(Authored.primitives(batches).has("physics.split_ball") and not Authored.primitives(batches).has("condition.last_fallen"),
 		"the E18 primitive list holds only primitives still to build", failures)
 	var d02: Array = batches[1].data.definitions if batches.size() > 1 else []

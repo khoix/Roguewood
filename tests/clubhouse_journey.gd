@@ -79,7 +79,7 @@ func _back_to_clubhouse() -> void:
 func _stage_one_clubhouse() -> void:
 	var club = scene.clubhouse
 	await _tab("binder", true)
-	_check(club.binder_counts.text == "9 Locked · 36 Available · 0 Discovered · 0 Mastered", "a fresh binder: %s" % club.binder_counts.text)
+	_check(club.binder_counts.text == "9 Locked · 39 Available · 0 Discovered · 0 Mastered", "a fresh binder: %s" % club.binder_counts.text)
 	await _focus_accept(club.filter_button("charm"))
 	_check(club.category == "charm" and club.binder_grid.get_child_count() == 24, "the Charms filter shows the twenty-four Charms")
 	var encore := await _card("charm.encore")

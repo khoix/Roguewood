@@ -2708,6 +2708,141 @@
         "unlock_assigned": true,
         "integrated": false
       }
+    },
+    {
+      "id": "consumable.nudge",
+      "name": "Nudge",
+      "category": "consumable",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 3,
+      "resale_price": 1,
+      "effects": [],
+      "limits": {
+        "max_owned": 2,
+        "charges": 1,
+        "exhaustion": "consume"
+      },
+      "downside": "One use per run, only before roll 2, and only into a spot whose pin has fallen.",
+      "synergy_tags": [
+        "tactical",
+        "spare",
+        "positional"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "res://assets/items/d01/icon.consumable.nudge.tres",
+        "card": "res://assets/items/d01/card.consumable.nudge.tres",
+        "in_play": "",
+        "rarity_treatment": "res://assets/items/d01/rarity_treatment.consumable.nudge.tres",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": "res://assets/items/d01/reduced_motion.consumable.nudge.tres"
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "consumable.reserve_call",
+      "name": "Reserve Call",
+      "category": "consumable",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 4,
+      "resale_price": 2,
+      "effects": [],
+      "limits": {
+        "max_owned": 2,
+        "charges": 1,
+        "exhaustion": "consume"
+      },
+      "downside": "Needs a pin in reserve, and lasts one frame.",
+      "synergy_tags": [
+        "tactical",
+        "rack",
+        "reserve"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "res://assets/items/d01/icon.consumable.reserve_call.tres",
+        "card": "res://assets/items/d01/card.consumable.reserve_call.tres",
+        "in_play": "",
+        "rarity_treatment": "res://assets/items/d01/rarity_treatment.consumable.reserve_call.tres",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": "res://assets/items/d01/reduced_motion.consumable.reserve_call.tres"
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "consumable.rule_waiver",
+      "name": "Rule Waiver",
+      "category": "consumable",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 5,
+      "resale_price": 2,
+      "effects": [],
+      "limits": {
+        "max_owned": 2,
+        "charges": 1,
+        "exhaustion": "consume"
+      },
+      "downside": "Only in boss matches, only for one frame, and exhausted after use.",
+      "synergy_tags": [
+        "tactical",
+        "counter",
+        "boss"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "res://assets/items/d01/icon.consumable.rule_waiver.tres",
+        "card": "res://assets/items/d01/card.consumable.rule_waiver.tres",
+        "in_play": "",
+        "rarity_treatment": "res://assets/items/d01/rarity_treatment.consumable.rule_waiver.tres",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": "res://assets/items/d01/reduced_motion.consumable.rule_waiver.tres"
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
     }
   ]
 }
