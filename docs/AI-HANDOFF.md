@@ -36,7 +36,7 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - Wave 2 MERGED to main by PR #13 (`1d44302`).
 - Wave 3 MERGED to main by PR #14 (`3a7e938`; CI 40736417912 PASS on `afe5852`): Codex E17-D02-ART and E19-A13…A15; Claude E18-C02 and E17-D03.
 - Wave 4 MERGED to main by PR #15 (CI 40760480791 PASS on `e72051b`): Claude E18-C03 and E17-D04; Codex E17-D03-ART, E19-A16 and E20-V08. 
-- **Wave 5 CLOSED** (see "Wave 5 closed"): Claude E18-C04 and E17-L01; Codex AV-C03 and E17-D04-ART. The owner merges `claude/roguewood-build` into main after the CI of the "Wave 5 closed" commit. Wave 6 claims are recorded; Wave 6 pushes wait for that merge.
+- Wave 5 MERGED to main by PR #16 (CI PASS on `bebb702`, which also raised the CI job limit to 90 minutes): Claude E18-C04 and E17-L01; Codex AV-C03 and E17-D04-ART. **Wave 6 is open** (see "Wave 6 claims"): Codex starts from this branch with docs/prompts/codex-wave6.md; Claude starts E18-C05 (High).
 - **Roadmap (2026-10-28):** docs/ROADMAP.md maps every remaining milestone to phases (one per League group) and waves, with ownership, the content split per League and the owner's decisions. Waves 5–8 complete the House League.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
@@ -182,7 +182,7 @@ The E13-S01 presentation batches (E19-A01…A07, E20-V01…V07, E21-R01/R02) wer
 - **Merge:** `claude/roguewood-build` into main after the CI of the "Wave 2 closed" commit. It supersedes Codex's PR #12, which lacks the CI fix and Claude's Wave 2 work.
 
 ## Wave 6 claims (coordinator: Claude, 2026-10-29)
-Pushes for Wave 6 wait until the owner merges Wave 5. Codex merges `origin/claude/roguewood-build` (the "Wave 5 closed" commit) with a merge commit before starting (prompt: docs/prompts/codex-wave6.md). Phase 1, House League.
+Wave 5 is merged (PR #16). Codex merges `origin/claude/roguewood-build` (the "Wave 5 closed" commit) with a merge commit before starting (prompt: docs/prompts/codex-wave6.md). Phase 1, House League.
 - **Codex:**
   - AV-C04 (3 sessions, Medium; High for Echo Charge): from the E17-D04 briefs, identity art, effects, sound, native checks and both flags for the eight landed modifications (Chalk Grip, Spin Wax, Coin Slot, Echo Charge, Brass Cap, Gilt Leaf, Lantern, Keystone). Badges and overlays never hide the host. J03C04 attaches all eight on known hosts.
   - E22-L01-ART (High): the House theme for eight Divisions from content/leagues/house.json: Division progression in the environment and signage, the Championship match, the two lane conditions (House Oil, Dry Backend) as lane visuals, and the League's music identity. Assets bind by ID; the integration (E22-L01, Wave 8) wires them.
@@ -197,7 +197,7 @@ Pushes for Wave 6 wait until the owner merges Wave 5. Codex merges `origin/claud
   - Codex: AV-C03 (`53ae250`, `e6246bc`) and E17-D04-ART (`b15371d`; handoffs/WAVE5-CODEX.md, AV-C03-A.md, AV-C03-B.md, E17-D04-ART.md), merged by the coordinator without conflicts (`cf784af`).
 - **Coordinator review:** Codex's diff against `2299a3a` changes exactly six artwork flags, six effects_audio flags and twelve activation and sound paths in content/catalogue.json. Its source changes are presentation only (glyphs and score rows read resolver events and facts). qa.py, run_tests.gd and the workflow are add-only; upload folders stay inside `path`. Batch files are unchanged.
 - **Validation:** the full CI command list (128 commands, every journey headless and rendered, including J03C04 and JAVC03A/B with their contact checks) PASS locally on the merged tree; the J03C04 injected failure exits 1. CI runs on this commit.
-- **Merge:** `claude/roguewood-build` into main after the CI of the "Wave 5 closed" commit.
+- **Merge:** MERGED to main by PR #16 after CI passed on `bebb702` (the CI job limit raised from 45 to 90 minutes; the first PR run of `0cce297` hit the old limit).
 
 ## Wave 5 claims (coordinator: Claude, 2026-10-28; revised the same day with docs/ROADMAP.md)
 Wave 4 is merged (PR #15). Codex merges `origin/claude/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave5.md). Wave 5 opens Phase 1 (House League complete).
