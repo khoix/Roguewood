@@ -35,4 +35,27 @@ static func run() -> Array[String]:
   if split.size()!=1 or split[0].leave!=4:failures.append("Split leave from resolver facts")
   if not Rows.at({"frame":frame,"result":result},steps.size()).is_empty():failures.append("post-bank extra row must not fabricate an event")
   if JSON.stringify([frame,result,steps])!=before:failures.append("presentation mutated scoring data")
+ _batch_b(catalogue,failures)
  return failures
+
+static func _batch_b(catalogue:Dictionary,failures:Array[String]) -> void:
+ var ids:=["charm.sweet_spot","charm.back_row","charm.underdog"]
+ for grades in [["clean","miss"],["sweet","clean"],["sweet","perfect"]]:
+  for context in [{"match_score":149,"match_target":300},{"match_score":150,"match_target":300},{"match_score":151,"match_target":300},{"match_score":0,"match_target":0}]:
+   var reports:=Slice._open([7,9],[])
+   for i in reports.size():reports[i].roll_result.accuracy=grades[i]
+   var result:=Slice._score(catalogue,Slice._loadout({},ids),reports,context)
+   var before:=JSON.stringify(result)
+   var cues:=[]
+   for event in result.events:cues.append_array(Events.project(result.frame,event,result.facts))
+   var sweet:Array=cues.filter(func(e):return e.id==ids[0])
+   var count:int=grades.filter(func(g):return g in ["sweet","perfect"]).size()
+   if sweet.size()!=(1 if count>0 else 0):failures.append("Sweet Spot eligibility")
+   elif count>0 and (sweet[0].count!=count or sweet[0].accurate!=count or sweet[0].grades!=grades or sweet[0].amount!=3*count):failures.append("Sweet Spot actual grades and count")
+   var back:Array=cues.filter(func(e):return e.id==ids[1])
+   if back.size()!=1 or back[0].count!=2 or back[0].positions!=[7,9]:failures.append("Back Row highlights only fallen slots 7 and 9")
+   var under:Array=cues.filter(func(e):return e.id==ids[2])
+   var behind:bool=context.match_target>0 and context.match_score*2<context.match_target
+   if under.size()!=(1 if behind else 0):failures.append("Underdog half-target/Practice boundary")
+   elif behind and (under[0].match_score!=context.match_score or under[0].match_target!=context.match_target or not under[0].behind):failures.append("Underdog authoritative comparison")
+   if JSON.stringify(result)!=before:failures.append("C03-B projection mutated resolver")

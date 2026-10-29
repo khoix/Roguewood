@@ -225,6 +225,36 @@ func _draw_c03(c: Vector2, t: float, ink: Color) -> bool:
 			draw_polyline(PackedVector2Array([c+Vector2(-25-close,-12),c+Vector2(-25-close,19),c+Vector2(-16,19)]),ink,2)
 			draw_polyline(PackedVector2Array([c+Vector2(25+close,-12),c+Vector2(25+close,19),c+Vector2(16,19)]),ink,2)
 			caption = "leave %d · ×3" % leave
+		"grade_pair":
+			var grades: Array = details.get("grades",[])
+			for j in grades.size():
+				var at := c+Vector2(-15+j*30,-23)
+				var graded: bool = grades[j] in ["sweet","perfect"]
+				var color: Color = ink if graded else Color("899199")
+				var progress := 1.0 if still else clampf(t*2-j*0.35,0,1)
+				draw_arc(at,8,-PI*0.5,-PI*0.5+TAU*progress,20,color,2)
+				if grades[j]=="perfect": draw_arc(at,11,0,TAU,20,color,1)
+				var letter: String = {"sweet":"S","perfect":"P","clean":"C","miss":"–"}.get(grades[j],"?")
+				draw_string(get_theme_default_font(),at+Vector2(-3,3),letter,HORIZONTAL_ALIGNMENT_LEFT,-1,9,color)
+			caption = "%d grades · +%d" % [int(details.get("count",0)),int(details.get("amount",0))]
+		"back_four":
+			for j in 4:
+				var at := c+Vector2(-24+j*16,-25)
+				var color: Color = ink if (j+7) in details.get("positions",[]) else Color("657078")
+				draw_circle(at,2,color)
+				draw_line(at+Vector2(0,3),at+Vector2(0,10),color,3)
+				draw_string(get_theme_default_font(),c+Vector2(-27+j*16,22),str(j+7),HORIZONTAL_ALIGNMENT_LEFT,-1,9,color)
+			draw_line(c+Vector2(-28,-13),c+Vector2(28,-13),ink,2)
+			caption = "%d back · +%d" % [int(details.get("count",0)),int(details.get("amount",0))]
+		"half_target":
+			var score := float(details.get("match_score",0))
+			var half := float(details.get("match_target",0))*0.5
+			var fraction := clampf(score/maxf(half,1),0,1)
+			draw_rect(Rect2(c+Vector2(-27,-28),Vector2(54,7)),ink,false,1)
+			draw_rect(Rect2(c+Vector2(-26,-27),Vector2(52*fraction*(1.0 if still else ease(t,0.5)),5)),ink)
+			draw_line(c+Vector2(27,-31),c+Vector2(27,-17),ink,2)
+			draw_string(get_theme_default_font(),c+Vector2(17,18),"×2",HORIZONTAL_ALIGNMENT_LEFT,-1,10,ink)
+			caption = "%d < %s" % [int(score),String.num(half,1)]
 		_: return false
 	var font := get_theme_default_font()
 	var width := font.get_string_size(caption,HORIZONTAL_ALIGNMENT_LEFT,-1,10).x

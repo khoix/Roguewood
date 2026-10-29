@@ -37,6 +37,16 @@ static func project(frame: Dictionary, event: Dictionary, facts: Dictionary = {}
 			out[-1]["last_fallen"] = int(facts.get("last_fallen",0))
 			out[-1]["leave"] = int(facts.get("leave",0))
 			out[-1]["position"] = int(source.get_slice(":",1)) if id == "pin.crown" else int(facts.get("last_fallen",0))
+		if id == "charm.sweet_spot":
+			out[-1]["grades"] = frame.get("rolls",[]).map(func(r): return r.accuracy)
+			out[-1]["accurate"] = int(facts.get("accurate",0))
+		elif id == "charm.back_row":
+			var positions: Array = []
+			for position in [7,8,9,10]:
+				if frame.get("rolls",[]).any(func(r): return position in r.fallen_positions): positions.append(position)
+			out[-1]["positions"] = positions
+		elif id == "charm.underdog":
+			for fact in ["match_score","match_target","behind"]: out[-1][fact] = facts.get(fact,0)
 	if repeat > 0:
 		var cause: String = event.get("cause", "")
 		var origin := owner(frame,cause)

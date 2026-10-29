@@ -14,6 +14,9 @@ ROOT = Path(__file__).resolve().parents[1]
 VERSION = (ROOT / ".godot-version").read_text().strip()
 # journey -> script, success marker, artifact directory, rendered captures, timeout, extra engine flags
 JOURNEYS = {
+    "JAVC03BC": ("res://tests/av_c03_contact.gd", "ROGUEWOOD_AV_C03_CONTACT_OK", "artifacts/av-c03-b/contact", ("contact",), 180, ["--fixed-fps", "60"]),
+    "JAVC03B": ("res://tests/av_c03_b_journey.gd", "ROGUEWOOD_AV_C03_OK", "artifacts/av-c03-b/native",
+        ("charm_sweet_spot_shop", "charm_back_row_shop", "charm_underdog_shop", "inventory", "charm_sweet_spot_binder", "charm_back_row_binder", "charm_underdog_binder", "charm_sweet_spot_activation", "charm_back_row_activation", "charm_underdog_activation", "back_row_partial", "stage1_reduced", "stage1_landscape"), 900, ["--fixed-fps", "60"]),
     "JAVC03AC": ("res://tests/av_c03_contact.gd", "ROGUEWOOD_AV_C03_CONTACT_OK", "artifacts/av-c03-a/contact", ("contact",), 180, ["--fixed-fps", "60"]),
     "JAVC03A": ("res://tests/av_c03_a_journey.gd", "ROGUEWOOD_AV_C03_OK", "artifacts/av-c03-a/native",
         ("pin_crown_shop", "charm_crown_jewel_shop", "charm_split_specialist_shop", "inventory", "pin_crown_binder", "charm_crown_jewel_binder", "charm_split_specialist_binder", "crown_rack_detail", "pin_crown_activation", "pin_crown_zero_activation", "charm_crown_jewel_activation", "charm_split_specialist_activation", "stage1_reduced", "stage1_landscape"), 900, ["--fixed-fps", "60"]),

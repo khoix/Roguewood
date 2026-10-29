@@ -3,6 +3,11 @@ from pathlib import Path
 import json, subprocess, sys
 ROOT=Path(__file__).resolve().parents[1]
 BATCHES={
+ 'AV-C03-B':[
+  ('charm.sweet_spot','grade_pair','glass',1490,.24,'a9d8d0',2),
+  ('charm.back_row','back_four','wood',530,.26,'d8c498',2),
+  ('charm.underdog','half_target','metal',470,.30,'c7c6df',3),
+ ],
  'AV-C03-A':[
   ('pin.crown','crown_last','metal',1180,.30,'e9c179',3),
   ('charm.crown_jewel','jewel_last','glass',1660,.34,'d1b6e8',3),

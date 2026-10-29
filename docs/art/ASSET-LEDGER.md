@@ -253,3 +253,24 @@ and reduced-flash cues retain values and construction without animated movement.
 Paths: `assets/effects/activation.<item-id>.tres` and
 `assets/audio/sound.<item-id>.wav`. Native evidence: `artifacts/av-c03-a/`;
 see `docs/handoffs/AV-C03-A.md` for purchase, binder, live rack and active/quiet checks.
+
+## Wave 5 — AV-C03-B original effects and retained identities
+
+Sweet Spot, Back Row and Underdog retain their original D02 identity resources.
+Exact landed activation/sound IDs are authored by `tools/author_c03_effects.py
+AV-C03-B`; glyph construction is in ability_glyph.gd. Native Back Row rack outlines
+are cosmetic drawings from actual counted positions. No identity image edits.
+Original deterministic mono 22050 Hz, 16-bit PCM; no samples or recordings. Sweet
+Spot has a short glass-ring accent, Back Row a dry wood tap, Underdog a quiet
+two-hit rising metal latch (0/55 ms, gains 0.65/1, second pitch ×1.045). Peak 0.48.
+
+| Item | Recipe / sound synthesis | WAV SHA-256 |
+|---|---|---|
+| `charm.sweet_spot` | `grade_pair`; glass, 1490 Hz, 0.24 s; #a9d8d0; priority 2 | `99ffa00db94c6168c9942039653fef15f833589ae1a823a699f26b4f7856e604` |
+| `charm.back_row` | `back_four`; wood, 530 Hz, 0.26 s; #d8c498; priority 2 | `57a1e8278ccfc734c8cfad1945633e74016175873beb970de4ba5188cb5b8bc9` |
+| `charm.underdog` | `half_target`; metal, 470 Hz, 0.30 s; #c7c6df; priority 3 | `f4bcce135836cc1ebc4dae472eedef5c76e5eae1a05613362af948a4e1c831d0` |
+
+Paths: `assets/effects/activation.<item-id>.tres` and
+`assets/audio/sound.<item-id>.wav`. Native/64px evidence: `artifacts/av-c03-b/`.
+Reduced motion/flash freezes the same grade, position or threshold construction.
+Native text and resolver counts remain authoritative.
