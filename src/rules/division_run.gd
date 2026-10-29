@@ -38,9 +38,9 @@ static func validate_spec(data: Variant, catalogue: Dictionary) -> Array[String]
 	var rivals := {}
 	for rival in data.get("rivals", []):
 		rivals[rival.get("id", "")] = rival
-		var rule := _item(catalogue, rival.get("rule", ""))
-		if rule.get("category", "") != "boss_rule":
-			errors.append("rival %s needs a catalogue boss_rule" % rival.get("id", "?"))
+		for rule_id in [rival.get("rule", "")] + rival.get("extra_rules", []):
+			if _item(catalogue, rule_id).get("category", "") != "boss_rule":
+				errors.append("rival %s needs a catalogue boss_rule: %s" % [rival.get("id", "?"), rule_id])
 		for key in ["name", "intro", "reactions", "first_clear"]:
 			if not rival.has(key):
 				errors.append("rival %s is missing %s" % [rival.get("id", "?"), key])
@@ -93,10 +93,11 @@ func boss() -> Dictionary:
 			return m
 	return {}
 
-## Boss rules in force for the current match.
+## Boss rules in force for the current match: the rival's rule, then any extra rules
+## a League champion carries (E18-C05).
 func rules() -> Array:
 	var r := rival()
-	return [r.rule] if not r.is_empty() else []
+	return ([r.rule] + r.get("extra_rules", [])) if not r.is_empty() else []
 
 func frames_left() -> int:
 	return frames_per_match() - frames_played

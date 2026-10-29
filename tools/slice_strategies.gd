@@ -120,7 +120,7 @@ static func _attempt(name: String, seed_value: int, content: Dictionary, unlocke
 				rack = rack.filter(func(p): return p not in fallen)
 				if rack.is_empty() or roll_index == 2:
 					break
-			var built := Builder.build(run.loadout(), catalogue, reports, {}, {"match_frame": match_frame, "strike_streak": run.strike_streak,
+			var built := Builder.build(RivalRules.frame_loadout(league.rules(), run.loadout()), catalogue, reports, {}, {"match_frame": match_frame, "strike_streak": run.strike_streak,
 				"match_score": league.match_score, "match_target": league.target()})
 			var result := Rules.resolve(built.frame)
 			if not result.ok:
@@ -159,10 +159,11 @@ static func _attempt(name: String, seed_value: int, content: Dictionary, unlocke
 static func _pick_ball(strategy: Dictionary, deck, policy: RandomNumberGenerator, rules: Array) -> Dictionary:
 	var balls: Array = deck.options().filter(func(o): return o.kind == "ball")
 	if strategy.get("random", false):
+		balls = balls.filter(func(o): return RivalRules.ball_allowed(rules, o.item_id))
 		if balls.is_empty() or policy.randf() < 0.3:
 			return {"uid": "", "item_id": "ball.house"}
 		return balls[policy.randi_range(0, balls.size() - 1)]
-	var order: Array = strategy.balls.duplicate()
+	var order: Array = strategy.balls.duplicate().filter(func(b): return RivalRules.ball_allowed(rules, b))
 	if RivalRules.spin_disabled(rules):
 		order.erase("ball.hook") # a Hook Ball cannot hook under Dead Straight
 	for wanted in order:

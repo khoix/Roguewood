@@ -93,15 +93,16 @@ static func _expressible(catalogue: Dictionary, batches: Array, failures: Array[
 ## initially available catalogue already satisfies (no rule without an answer).
 static func _boss_rules(catalogue: Dictionary, batches: Array, failures: Array[String]) -> void:
 	var d03: Array = batches.filter(func(b): return b.data.batch == "E17-D03")
-	_expect(d03.size() == 1 and d03[0].data.definitions.size() == 9 and d03[0].data.definitions.all(func(d): return d.item.category == "boss_rule" and d.design.counterplay.length() > 20),
-		"D03: nine boss rules, each naming its counterplay", failures)
+	var d03_designs: Array = d03[0].data.definitions.map(func(d): return d.design) + d03[0].data.landed.map(func(l): return l.design) if d03.size() == 1 else []
+	_expect(d03.size() == 1 and d03_designs.size() == 9 and d03[0].data.definitions.all(func(d): return d.item.category == "boss_rule") and d03_designs.all(func(d): return d.counterplay.length() > 20),
+		"D03: nine boss rules (House Rules landed by E18-C05), each naming its counterplay", failures)
 	if d03.is_empty():
 		return
 	var counters: Dictionary = preload("res://src/career/unlock_graph.gd").read(ContentSet.UNLOCKS).counters
-	for d in d03[0].data.definitions:
-		var tags: Array = counters.get(d.item.id, [])
+	for id in d03[0].data.definitions.map(func(d): return d.item.id) + d03[0].data.landed.map(func(l): return l.id):
+		var tags: Array = counters.get(id, [])
 		var answer: bool = catalogue.items.any(func(i): return i.unlock.kind == "initial" and float(i.pool_weight) > 0 and i.synergy_tags.any(func(t): return t in tags))
-		_expect(not tags.is_empty() and answer, "%s has counter tags met by an initially available item" % d.item.id, failures)
+		_expect(not tags.is_empty() and answer, "%s has counter tags met by an initially available item" % id, failures)
 	var index := batches.find(d03[0])
 	_refuses(func(b): b[index].data.definitions[0].item.purchase_price = 4, catalogue, "is never sold", "a priced boss rule", failures)
 	_refuses(func(b): b[index].data.definitions[0].design.counterplay = "", catalogue, "names its counterplay", "a boss rule without counterplay", failures)

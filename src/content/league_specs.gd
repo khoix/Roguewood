@@ -97,8 +97,7 @@ static func validate_spec(spec: Variant, roster_data: Dictionary, catalogue: Dic
 	if divisions.size() != DIVISIONS:
 		errors.append("%s: a League has %d Divisions (found %d)" % [label, DIVISIONS, divisions.size()])
 	var met := {}
-	var last_boss := 0
-	var last_opener := 0
+	var last_target := 0
 	for i in divisions.size():
 		var division: Dictionary = divisions[i]
 		var where := "%s Division %d" % [label, i + 1]
@@ -109,12 +108,10 @@ static func validate_spec(spec: Variant, roster_data: Dictionary, catalogue: Dic
 		var matches: Array = division.get("matches", [])
 		if matches.size() != 3:
 			continue
-		var opener := int(matches[0].get("target", 0))
 		var boss: Dictionary = matches[2]
-		if int(boss.get("target", 0)) <= last_boss or opener <= last_opener:
-			errors.append(where + ": opener and boss targets rise from Division to Division")
-		last_boss = int(boss.get("target", 0))
-		last_opener = opener
+		if int(matches[0].get("target", 0)) <= last_target:
+			errors.append(where + ": every match target rises across the League (LeagueRun)")
+		last_target = int(boss.get("target", 0))
 		var lanes: Array = boss.get("lanes", [])
 		if lanes.is_empty() or not lanes.all(func(l): return l in pool):
 			errors.append(where + ": the boss lists at least one lane from the League's pool")

@@ -305,6 +305,10 @@ func _owned_ids() -> Array:
 				ids.append(id)
 	return ids
 
+## A rival's rules: its own, then any extra rules a League champion carries.
+func _rival_rules(rival: Dictionary) -> Array:
+	return [rival.get("rule", "")] + rival.get("extra_rules", [])
+
 func _league_key() -> String:
 	return league_entry.get("id", "league." + String(content.get("id", "lab")))
 
@@ -360,7 +364,10 @@ func _on_card(uid: String) -> void:
 		if errors.is_empty():
 			_checkpoint("aim") # the draw is spent; a reload cannot fish again
 	elif Deck.kind(_item_of(uid)) == "ball":
-		armed_ball = "" if armed_ball == uid else uid
+		if armed_ball != uid and not RivalRules.ball_allowed(division.rules(), _item_of(uid)):
+			last_cancel = "house_rules"
+		else:
+			armed_ball = "" if armed_ball == uid else uid
 	else:
 		armed_tactical = "" if armed_tactical == uid else uid
 	_update_status()
@@ -735,7 +742,8 @@ func _score_frame() -> void:
 		var played: Array = ([frame_mods[roll]] if frame_mods.has(roll) else []) + frame_tactics.get(roll, [])
 		if not played.is_empty():
 			extras[roll] = played
-	var built := FrameBuilder.build(run.loadout(), _catalogue, frame_reports, extras, frame_context())
+	# House Pins scores every racked pin as plain Wood (RivalRules.frame_loadout).
+	var built := FrameBuilder.build(RivalRules.frame_loadout(division.rules(), run.loadout()), _catalogue, frame_reports, extras, frame_context())
 	var result := Rules.resolve(built.frame) if built.ok else {"ok": false, "errors": built.errors}
 	if not result.ok:
 		push_error("Frame could not be scored: " + str(result.errors))
@@ -888,7 +896,7 @@ func _show_intro() -> void:
 	_save_career()
 	state = "intro"
 	_checkpoint("intro")
-	hud.show_intro(rival, division.target(), RivalRules.summary(rival.rule), rival.first_clear.text, seen)
+	hud.show_intro(rival, division.target(), RivalRules.summaries(_rival_rules(rival)), rival.first_clear.text, seen)
 	_update_status()
 
 func _on_intro_done() -> void:
@@ -1190,10 +1198,10 @@ func _next_match_preview() -> String:
 	var text := "Next: %s%s — target %d in two frames." % [where, next.match.name, int(next.match.target)]
 	var rival: Dictionary = next.rival
 	if not rival.is_empty():
-		text += "\n%s: %s\nFirst clear: %s" % [rival.name, RivalRules.summary(rival.rule),
+		text += "\n%s: %s\nFirst clear: %s" % [rival.name, RivalRules.summaries(_rival_rules(rival)),
 			rival.first_clear.text if not career.first_clears.has(rival.id) else "already cleared"]
 	else:
-		text += "\nBoss later: %s (%s)." % [next.boss_rival.name, RivalRules.summary(next.boss_rival.rule).trim_suffix(".")]
+		text += "\nBoss later: %s (%s)." % [next.boss_rival.name, RivalRules.summaries(_rival_rules(next.boss_rival)).trim_suffix(".")]
 	if content.id == "campaign":
 		text += "\nLane: " + _lane_text(next.match.get("lane_condition", ""))
 		text += "\nDivision boss target %d · %s" % [int(next.boss.target), _lane_text(next.boss.get("lane_condition", ""))]
@@ -1372,7 +1380,11 @@ func _update_status() -> void:
 				status.text = lead + "\nHold the ball · circle to spin · flick up. Tap the lane to move the target."
 			if spin_disabled():
 				status.text += "\nDead Straight: spin is disabled — every throw rolls straight."
-			if not last_cancel.is_empty():
+			if not RivalRules.ball_allowed(division.rules(), "ball.hook"):
+				status.text += "\nHouse Rules: only the House Ball may be thrown; tactical cards are allowed."
+			if last_cancel == "house_rules":
+				status.text += "\nHouse Rules: that ball cannot be thrown here."
+			elif not last_cancel.is_empty():
 				status.text += "\nNo throw (%s) — nothing used." % last_cancel.replace("_", " ")
 		"holding":
 			status.text = lead + "\nCircle to spin, flick up to release. Let go without a flick to cancel."
@@ -1412,10 +1424,11 @@ func _refresh_hud() -> void:
 		var reward: String = rival.first_clear.text if not career.first_clears.has(rival.id) else "already cleared"
 		if division.is_boss():
 			view.text = "%s · %s" % [rival.name, view.text]
-			view.badge = "Rule: %s ⓘ" % _names.get(rival.rule, rival.rule)
+			var rule_names: Array = _rival_rules(rival).map(func(r): return _names.get(r, r))
+			view.badge = ("Rules: %s ⓘ" if rule_names.size() > 1 else "Rule: %s ⓘ") % " + ".join(rule_names)
 		else:
 			view.badge = "Boss: %s ⓘ" % rival.name
-		view.rule_text = "%s — target %d in two frames.\n%s\nFirst clear: %s" % [rival.name, int(boss.target), RivalRules.summary(rival.rule), reward]
+		view.rule_text = "%s — target %d in two frames.\n%s\nFirst clear: %s" % [rival.name, int(boss.target), RivalRules.summaries(_rival_rules(rival)), reward]
 	hud.show_match(view)
 	if state in ["shop", "division_over"] or not division.is_boss() or reactions.visible_at(_clock_usec).is_empty():
 		hud.hide_reaction()

@@ -84,7 +84,7 @@ static func validate(data: Variant, catalogue: Dictionary) -> Array[String]:
 			if rivals.has(r.get("id", "")) and not championship:
 				errors.append("boss repeated within the attempt: %s" % r.get("id", ""))
 			rivals[r.get("id", "")] = true
-			errors.append_array(RivalRules.unknown([r.get("rule", "")]))
+			errors.append_array(RivalRules.unknown([r.get("rule", "")] + r.get("extra_rules", [])))
 	return errors
 
 func division_number() -> int:
