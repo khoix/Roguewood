@@ -1,0 +1,9 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+[ext_resource type="Script" path="res://src/presentation/ability_style.gd" id="1"]
+[resource]
+script = ExtResource("1")
+item_id = "charm.crown_jewel"
+shape = "jewel_last"
+ink = Color(0.8196078431372549, 0.7137254901960784, 0.9098039215686274, 1)
+duration = 0.55
+priority = 3

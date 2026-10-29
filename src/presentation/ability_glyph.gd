@@ -26,6 +26,7 @@ func _draw() -> void:
 	var t: float = 0.5 if still else clampf(age / style.duration,0,1)
 	var ink: Color = style.ink
 	if identity: draw_texture_rect(identity,Rect2(c - Vector2(18,18),Vector2(36,36)),false)
+	if _draw_c03(c,t,ink): return
 	if _draw_v08(c,t,ink): return
 	match style.shape:
 		"lock":
@@ -191,6 +192,69 @@ func _draw_v08(c: Vector2, t: float, ink: Color) -> bool:
 				draw_polyline(PackedVector2Array([c+Vector2(x,-25),c+Vector2(x-side*5,-12),c+Vector2(x+side*2,-4),c+Vector2(x-side*4,10)]),ink,2)
 			draw_line(c+Vector2(-16,20),c+Vector2(16,20),Color("c39548"),3)
 			caption = "%d → Wood" % int(details.get("position",0))
+		_: return false
+	var font := get_theme_default_font()
+	var width := font.get_string_size(caption,HORIZONTAL_ALIGNMENT_LEFT,-1,10).x
+	draw_string(font,c+Vector2(-width*0.5,31),caption,HORIZONTAL_ALIGNMENT_LEFT,-1,10,Color("f1e4c6"))
+	return true
+
+func _draw_c03(c: Vector2, t: float, ink: Color) -> bool:
+	var caption := ""
+	match style.shape:
+		"crown_last", "jewel_last":
+			var zero: bool = details.get("zero",false)
+			var color := Color("899199") if zero else ink
+			var y := -20.0 if still or zero else -27.0 + 7.0*ease(t,0.5)
+			draw_polyline(PackedVector2Array([c+Vector2(-24,y+5),c+Vector2(-27,y-7),c+Vector2(-16,y-2),c+Vector2(0,y-12),c+Vector2(16,y-2),c+Vector2(27,y-7),c+Vector2(24,y+5),c+Vector2(-24,y+5)]),color,2)
+			if zero:
+				draw_line(c+Vector2(-25,-13),c+Vector2(25,-13),color,2)
+				caption = "%d: 0" % int(details.get("position",0))
+			else:
+				draw_line(c+Vector2(-22,21),c+Vector2(22,21),color,3)
+				caption = "%d last · %s" % [int(details.get("last_fallen",0)),"+40" if style.shape=="crown_last" else "×2"]
+				if style.shape=="jewel_last":
+					for x in [-24,24]:
+						draw_polyline(PackedVector2Array([c+Vector2(x,0),c+Vector2(x+4,6),c+Vector2(x,12),c+Vector2(x-4,6),c+Vector2(x,0)]),color,2)
+		"split_leave":
+			var leave := clampi(int(details.get("leave",0)),0,10)
+			for j in leave:
+				var x := -25.0+j*50.0/maxi(1,leave-1)
+				draw_circle(c+Vector2(x,-25),2.2,ink)
+				draw_line(c+Vector2(x,-22),c+Vector2(x,-17),ink,2)
+			var close := 0.0 if still else 3.0*(1-ease(t,0.5))
+			draw_polyline(PackedVector2Array([c+Vector2(-25-close,-12),c+Vector2(-25-close,19),c+Vector2(-16,19)]),ink,2)
+			draw_polyline(PackedVector2Array([c+Vector2(25+close,-12),c+Vector2(25+close,19),c+Vector2(16,19)]),ink,2)
+			caption = "leave %d · ×3" % leave
+		"grade_pair":
+			var grades: Array = details.get("grades",[])
+			for j in grades.size():
+				var at := c+Vector2(-15+j*30,-23)
+				var graded: bool = grades[j] in ["sweet","perfect"]
+				var color: Color = ink if graded else Color("899199")
+				var progress := 1.0 if still else clampf(t*2-j*0.35,0,1)
+				draw_arc(at,8,-PI*0.5,-PI*0.5+TAU*progress,20,color,2)
+				if grades[j]=="perfect": draw_arc(at,11,0,TAU,20,color,1)
+				var letter: String = {"sweet":"S","perfect":"P","clean":"C","miss":"–"}.get(grades[j],"?")
+				draw_string(get_theme_default_font(),at+Vector2(-3,3),letter,HORIZONTAL_ALIGNMENT_LEFT,-1,9,color)
+			caption = "%d grades · +%d" % [int(details.get("count",0)),int(details.get("amount",0))]
+		"back_four":
+			for j in 4:
+				var at := c+Vector2(-24+j*16,-25)
+				var color: Color = ink if (j+7) in details.get("positions",[]) else Color("657078")
+				draw_circle(at,2,color)
+				draw_line(at+Vector2(0,3),at+Vector2(0,10),color,3)
+				draw_string(get_theme_default_font(),c+Vector2(-27+j*16,22),str(j+7),HORIZONTAL_ALIGNMENT_LEFT,-1,9,color)
+			draw_line(c+Vector2(-28,-13),c+Vector2(28,-13),ink,2)
+			caption = "%d back · +%d" % [int(details.get("count",0)),int(details.get("amount",0))]
+		"half_target":
+			var score := float(details.get("match_score",0))
+			var half := float(details.get("match_target",0))*0.5
+			var fraction := clampf(score/maxf(half,1),0,1)
+			draw_rect(Rect2(c+Vector2(-27,-28),Vector2(54,7)),ink,false,1)
+			draw_rect(Rect2(c+Vector2(-26,-27),Vector2(52*fraction*(1.0 if still else ease(t,0.5)),5)),ink)
+			draw_line(c+Vector2(27,-31),c+Vector2(27,-17),ink,2)
+			draw_string(get_theme_default_font(),c+Vector2(17,18),"×2",HORIZONTAL_ALIGNMENT_LEFT,-1,10,ink)
+			caption = "%d < %s" % [int(score),String.num(half,1)]
 		_: return false
 	var font := get_theme_default_font()
 	var width := font.get_string_size(caption,HORIZONTAL_ALIGNMENT_LEFT,-1,10).x

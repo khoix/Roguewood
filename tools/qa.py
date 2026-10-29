@@ -14,12 +14,19 @@ ROOT = Path(__file__).resolve().parents[1]
 VERSION = (ROOT / ".godot-version").read_text().strip()
 # journey -> script, success marker, artifact directory, rendered captures, timeout, extra engine flags
 JOURNEYS = {
+    "JAVC03BC": ("res://tests/av_c03_contact.gd", "ROGUEWOOD_AV_C03_CONTACT_OK", "artifacts/av-c03-b/contact", ("contact",), 180, ["--fixed-fps", "60"]),
+    "JAVC03B": ("res://tests/av_c03_b_journey.gd", "ROGUEWOOD_AV_C03_OK", "artifacts/av-c03-b/native",
+        ("charm_sweet_spot_shop", "charm_back_row_shop", "charm_underdog_shop", "inventory", "charm_sweet_spot_binder", "charm_back_row_binder", "charm_underdog_binder", "charm_sweet_spot_activation", "charm_back_row_activation", "charm_underdog_activation", "back_row_partial", "stage1_reduced", "stage1_landscape"), 900, ["--fixed-fps", "60"]),
+    "JAVC03AC": ("res://tests/av_c03_contact.gd", "ROGUEWOOD_AV_C03_CONTACT_OK", "artifacts/av-c03-a/contact", ("contact",), 180, ["--fixed-fps", "60"]),
+    "JAVC03A": ("res://tests/av_c03_a_journey.gd", "ROGUEWOOD_AV_C03_OK", "artifacts/av-c03-a/native",
+        ("pin_crown_shop", "charm_crown_jewel_shop", "charm_split_specialist_shop", "inventory", "pin_crown_binder", "charm_crown_jewel_binder", "charm_split_specialist_binder", "crown_rack_detail", "pin_crown_activation", "pin_crown_zero_activation", "charm_crown_jewel_activation", "charm_split_specialist_activation", "stage1_reduced", "stage1_landscape"), 900, ["--fixed-fps", "60"]),
     "J12V08C": ("res://tests/ability_v08_contact.gd", "ROGUEWOOD_V08_CONTACT_OK", "artifacts/e20-v08/contact", ("contact",), 180, ["--fixed-fps", "60"]),
     "J12V08": ("res://tests/ability_v08_journey.gd", "ROGUEWOOD_V08_OK", "artifacts/e20-v08/native",
         ("charm_pin_counter_activation", "charm_hot_streak_activation", "charm_last_stand_activation", "charm_tip_jar_activation", "charm_banana_ball_activation", "charm_plumb_line_activation", "charm_glass_cutter_activation", "pin_glass_activation", "glass_ordered_breaks", "stage3_fast", "stage1_reduced", "stage2_reduced", "stage3_reduced", "stage1_landscape", "stage2_landscape", "stage3_landscape"), 900, ["--fixed-fps", "60"]),
     "J19A16": ("res://tests/glass_art_journey.gd", "ROGUEWOOD_GLASS_ART_OK", "artifacts/e19-a16/native",
         ("glass_shop", "glass_inventory", "glass_rack", "glass_rack_detail", "glass_reduced", "glass_landscape", "glass_break", "glass_break_detail", "glass_binder", "glass_restored", "glass_next_rack"), 900, ["--fixed-fps", "60"]),
     "J03C02": ("res://tests/glass_c02_journey.gd", "ROGUEWOOD_J03C02_OK", "artifacts/e18-c02", ("c02_breaks", "c02_reloaded", "c02_second"), 600, ["--fixed-fps", "60"]),
+    "J03C04": ("res://tests/mods_c04_journey.gd", "ROGUEWOOD_J03C04_OK", "artifacts/e18-c04", ("c04_shop", "c04_strike", "c04_open"), 900, ["--fixed-fps", "60"]),
     "J03C03": ("res://tests/crown_c03_journey.gd", "ROGUEWOOD_J03C03_OK", "artifacts/e18-c03", ("c03_split", "c03_strike"), 600, ["--fixed-fps", "60"]),
     "J03C01": ("res://tests/charm_c01_journey.gd", "ROGUEWOOD_J03C01_OK", "artifacts/e18-c01", ("c01_strike", "c01_streak", "c01_spare", "c01_open"), 600, ["--fixed-fps", "60"]),
     "J11": ("res://tests/clubhouse_journey.gd", "ROGUEWOOD_J11_OK", "artifacts/e16",

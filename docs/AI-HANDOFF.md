@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-10-27. Agent work: E01–E13 DONE (owner merge is approval; see AGENTS.md). E10 and E13 are complete on `claude/roguewood-build` (not yet merged); E12 merged to main by PR #8. E14 DONE (Codex, implementation 71b2bd2; merged to main by PR #9, `fd1d466`, which also carried E10 and E13). E15 DONE (Claude, `claude/roguewood-build`; not yet merged to main). Provisional decisions: E07 equipment model (waits for the blocked E13 device play session), E08 prices, E09/E13 targets and E13 item numbers (E24). Device gates: E05 real-phone trials, phone readability and the E13 play session (E26).
+Updated: 2026-10-29. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–4 are merged (PRs #11, #13, #14, #15); Wave 5 is open. The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
 
 ## Read first
 
@@ -34,7 +34,10 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - E16 core DONE: `b01fb4d` on `claude/roguewood-build`; full local matrix (J01–J11 headless and rendered) and CI 40616441249 PASS; see handoffs/E16.md. E16-ART is READY for Codex.
 - Integration: the owner merged PR #11 (Codex Wave 1, E16 core, E17-D01, the test fix) into main (`492f9f4`). Codex Wave 2 (`fcdb494`: E16-ART, E19-A08…A12) is reviewed and merged into `claude/roguewood-build`, along with main.
 - Wave 2 MERGED to main by PR #13 (`1d44302`).
-- Wave 3 MERGED to main by PR #14 (`3a7e938`; CI 40736417912 PASS on `afe5852`): Codex E17-D02-ART and E19-A13…A15; Claude E18-C02 and E17-D03. - **Wave 4 CLOSED** (see "Wave 4 closed"): Claude E18-C03 and E17-D04; Codex E17-D03-ART, E19-A16 and E20-V08. The owner merges `claude/roguewood-build` into main after the CI of the "Wave 4 closed" commit. Wave 5 claims are recorded; Wave 5 pushes wait for that merge.
+- Wave 3 MERGED to main by PR #14 (`3a7e938`; CI 40736417912 PASS on `afe5852`): Codex E17-D02-ART and E19-A13…A15; Claude E18-C02 and E17-D03.
+- Wave 4 MERGED to main by PR #15 (CI 40760480791 PASS on `e72051b`): Claude E18-C03 and E17-D04; Codex E17-D03-ART, E19-A16 and E20-V08. 
+- **Wave 5 CLOSED** (see "Wave 5 closed"): Claude E18-C04 and E17-L01; Codex AV-C03 and E17-D04-ART. The owner merges `claude/roguewood-build` into main after the CI of the "Wave 5 closed" commit. Wave 6 claims are recorded; Wave 6 pushes wait for that merge.
+- **Roadmap (2026-10-28):** docs/ROADMAP.md maps every remaining milestone to phases (one per League group) and waves, with ownership, the content split per League and the owner's decisions. Waves 5–8 complete the House League.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
 ## Decisions and invariants
@@ -58,23 +61,23 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E07 — Deck draw and cycle experiment | DONE (decision provisional) | Claude | main (PR #5) | bec3341; owner merge; CI 40435623701 PASS (run on `e1c8f9b`, which adds only the checkpoint; artifact `journeys` 12704037055); J04 and experiment output identical to local; ADR 004 provisional; E07 handoff |
 | E08 — Shop and match economy | DONE (prices provisional) | Claude | main (PR #6) | 7b57919; owner merge; CI 40442532881 PASS; ADR 005 provisional; E08 handoff |
 | E09 — Single Division loop and rival | DONE (targets provisional) | Claude | main (PR #7) | fcea7f3; CI 40451844709 PASS; ADR 006 provisional; E09 handoff |
-| E10 — Attempt saves and recovery | DONE | Claude | claude/roguewood-build (not yet merged) | 8e4edd5; CI 40460928513 PASS; ADR 007; E10 handoff |
+| E10 — Attempt saves and recovery | DONE | Claude | main (PR #9) | 8e4edd5; CI 40460928513 PASS; ADR 007; E10 handoff |
 | E11 — Art bible and representative still scene | DONE | Codex | main (PR #4) | 2882483; E11 CI 40428621822 PASS; owner approval by merge (confirmed 2026-10-27) |
 | E12 — Representative motion and visual review | DONE | Codex | main (PR #8) | Implementation 90f5690; handoff 046d109; CI 40444945503 + 40444945245 PASS; merged by PR #8 (main 9225f7c) |
-| E13 — Vertical-slice integration | DONE (device play session blocked) | Claude | claude/roguewood-build (not yet merged) | 98cc2aa (with 5aac9d2, aea54e0); CI 40524506207 PASS; ADR 008; E13 handoff |
+| E13 — Vertical-slice integration | DONE (device play session blocked) | Claude | main (PR #9) | 98cc2aa (with 5aac9d2, aea54e0); CI 40524506207 PASS; ADR 008; E13 handoff |
 | E14 — Seeded eight-Division progression | DONE | Codex | codex/roguewood-build | 71b2bd2; local unit/content/integration/physics, J01/J06/J07 and native J09 headless/rendered PASS; handoffs/E14.md |
-| E15 — Career persistence and unlock graph | DONE | Claude | claude/roguewood-build (not yet merged) | 2cdedb1 (+ 8c19905); local suites and J01–J10 headless/rendered PASS; CI 40577363221 and 40581437392 PASS; ADR 010; E15 handoff |
+| E15 — Career persistence and unlock graph | DONE | Claude | main (PR #10) | 2cdedb1 (+ 8c19905); local suites and J01–J10 headless/rendered PASS; CI 40577363221 and 40581437392 PASS; ADR 010; E15 handoff |
 | E16 — Clubhouse and collection UI | DONE (core and E16-ART) | Claude core · Codex E16-ART | claude/roguewood-build · codex/roguewood-build | Core b01fb4d; CI 40616441249 PASS; J11; handoffs/E16.md (Art hand-off) |
-| E17 — Catalogue and unlock authoring batches | IN_PROGRESS (D01–D04 DONE; D01-ART, D02-ART, D03-ART DONE; D04-ART in Wave 5) | Claude definitions · Codex visual briefs | claude/roguewood-build · codex/roguewood-build | Split per batch; see Ownership |
-| E18 — Content mechanics batches | IN_PROGRESS (C01–C03 DONE) | Claude | claude/roguewood-build | C01: six D02 Charms; C02: transform primitive, Glass Pin and Glass Cutter; C03: five primitives, Crown Pin and the last five D02 Charms; handoffs/E18-C0x.md |
-| E19 — Final item artwork batches | IN_PROGRESS (A01–A16 DONE) | Codex | codex/roguewood-build | E13-S01, E17-D01 and E17-D02 identities; artwork set on the seven C01/C02 Charms and Glass Pin; C03 flags (A17) and D03 identities (A18) in Wave 5 |
-| E20 — Ability effects and audio batches | IN_PROGRESS (V01–V08 DONE) | Codex | codex/roguewood-build | E13-S01's 23 abilities; V08: the eight C01/C02 items; C03's six in Wave 5 (V09) |
+| E17 — Catalogue and unlock authoring batches | IN_PROGRESS (D01–D05 and L01 DONE; D01-ART to D04-ART DONE) | Claude definitions · Codex visual briefs | claude/roguewood-build · codex/roguewood-build | Split per batch; see Ownership |
+| E18 — Content mechanics batches | IN_PROGRESS (C01–C04 DONE) | Claude | claude/roguewood-build | C01: six D02 Charms; C02: transform primitive, Glass Pin and Glass Cutter; C03: five primitives, Crown Pin and the last five D02 Charms; handoffs/E18-C0x.md |
+| E19 — Final item artwork batches | IN_PROGRESS (A01–A16 and AV-C03 DONE) | Codex | codex/roguewood-build | E13-S01, E17-D01 and E17-D02 identities; artwork set on the seven C01/C02 Charms and Glass Pin; C03 flags (A17) and D03 identities (A18) in Wave 5 |
+| E20 — Ability effects and audio batches | IN_PROGRESS (V01–V08 and AV-C03 DONE) | Codex | codex/roguewood-build | E13-S01's 23 abilities; V08: the eight C01/C02 items; C03's six in Wave 5 (V09) |
 | E21 — Rival presentation batches | IN_PROGRESS (R01, R02 DONE) | Codex | codex/roguewood-build | Later rivals after E17 defines them |
-| E22 — League theme integration batches | NOT_STARTED | Codex (whole: art and integration) | codex/roguewood-build | Per League; needs E16 core and the League's content |
-| E23 — Starting kits, mastery, difficulty, and endless | NOT_STARTED | Claude | claude/roguewood-build | See Ownership |
+| E22 — League theme integration batches | NOT_STARTED | Claude configuration and integration · Codex theme art | claude/roguewood-build · codex/roguewood-build | One League per roadmap step (docs/ROADMAP.md); L01 House in Waves 6–8 |
+| E23 — Starting kits, mastery, difficulty, and endless | NOT_STARTED | Claude · Codex E23-ART | claude/roguewood-build · codex/roguewood-build | Kits per League bundle; tiers, medals and endless in Phase 4 |
 | E24 — Economy and procedural balance study | NOT_STARTED | Claude | claude/roguewood-build | See Ownership |
 | E25 — Onboarding and accessibility completion | NOT_STARTED | Claude core · Codex E25-ART | claude/roguewood-build · codex/roguewood-build | Split; see Ownership |
-| E26 — Platform packaging and performance | NOT_STARTED (BLOCKED: hardware) | Codex | codex/roguewood-build | Claude assists on E10 save/suspend defects |
+| E26 — Platform packaging and performance | NOT_STARTED (BLOCKED: hardware) | Claude · Codex art-budget fixes | claude/roguewood-build | Phase 5; needs phones and toolchains (owner decision in docs/ROADMAP.md) |
 | E27 — Content and asset completeness audit | NOT_STARTED | Claude content audit · Codex asset audit | claude/roguewood-build · codex/roguewood-build | Split; see Ownership |
 | E28 — Cross-system release candidate | NOT_STARTED | Claude (coordinator) | claude/roguewood-build | See Ownership |
 | E29 — Delivery and final handoff | NOT_STARTED | Claude (coordinator) | claude/roguewood-build | See Ownership |
@@ -94,22 +97,23 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 - Claude never produces final art.
 - A rule hook Codex needs that does not exist is requested from Claude through this checkpoint.
 
-### Lanes (grouped by the code each agent already owns, to avoid re-learning and hand-offs)
-| Lane | Milestones in order | Why the same agent |
+### Lanes (revised 2026-10-28; the plan to release is docs/ROADMAP.md)
+| Lane | Milestones | Why the same agent |
 |---|---|---|
-| **Claude: content and rules** | E17 definitions → E18 → E23 → E24 | Item definitions are implemented in Claude's frame and effect rules (E06, E13); unlocks go through E15's graph; kits, objectives and medals extend E13 and E15; balance tunes E08's economy with E13's simulation. One agent writes, implements and tunes each item. |
-| **Claude: menus and player UI** | E16 core → E25 core | Both read E15 Career data and E05 input and assist; E25's tutorial and settings live in the menus E16 rebuilds. |
-| **Codex: presentation** | E17 visual briefs → E19 → E20; E21; E22 (whole); E26 | Codex's E12 card and motion system carries E19/E20. E21 rivals and E22 themes sit on Codex's E14 generator and lane conditions. Phone performance risk is mostly art budgets, and Codex built the E01 export pipeline. |
-| **Claude: release** | E27 content audit → E28 → E29 | The coordinator integrates and diagnoses across systems; most journeys (J02–J07, J10) are Claude's. |
+| **Claude: Leagues, content and rules** | E17 (League specs, rival roster, definitions) and E18 (mechanics), written and landed together per League bundle; E22 League configuration and integration; E23; E24 | One agent writes, implements, integrates and tunes each League's rules and items in its own rules code. |
+| **Claude: menus, platforms and release** | E25 core; E26 platform packaging and device evidence; E27 content audit; E28; E29 | The coordinator owns cross-system integration; E26's blockers are export, save and suspend code Claude maintains. |
+| **Codex: all art** | E19 + E20 as one AV session per 3 landed items (brief, identity art, effects, sound, native check, flags); E21 rivals with their rule badges; E22-Lxx-ART League themes; E23-ART; E25-ART; E27 asset audit; art-budget fixes from E26/E28 | Codex owns the card, motion, effect and audio systems; one session per item set removes repeated native checks. |
 
-- **E22 whole goes to Codex**, with theme art and integration in the same session per League. Codex edits unlock data in `content/career/unlocks.json`; `qa.py content` refuses unreachable, circular or self-unlocking entries.
-- **E26 goes to Codex,** which brings Claude in for device suspend/resume or save-location defects (E10 code).
+- **Changed from the first plan** (coordinator, 2026-10-28, at the owner's request to re-plan): E22's configuration and integration and all of E26 move from Codex to Claude, because Codex's art and effects already made its lane about twice Claude's. Codex keeps every art component, including each League's theme art.
+- **Boss-rule art** is made in the rival's E21 session (its rule badge), not as a separate E19 batch.
 
 ### Split milestones (two parts, separate states; the family is DONE only when both are)
 | Milestone | Claude part | Codex part (`<id>-ART`) |
 |---|---|---|
-| E16 | League board, binder states, goals, records, unlock results, navigation, J11, placeholders | Trophy, medal and club-decoration art; binder card look (E12 card and foil); phone-readability pass |
-| E17 (per batch `E17-Dxx`) | Definitions, triggers, prices, pools, compatibility, unlocks, asset IDs | The batch's visual briefs |
+| E16 | DONE | DONE |
+| E17/E18 (per League bundle) | League spec, rival roster, definitions and mechanics | Briefs inside each AV session (E17-D04-ART is the last standalone brief batch) |
+| E22 (per League `E22-Lxx`) | Configuration: 8 Divisions, rivals, lane pool, weights, kit, branch unlock, full-League journey | Theme: environment, signage, lane-condition visuals, music identity |
+| E23 | Kits, difficulty tiers, medals, endless | Kit, medal and cosmetic art |
 | E25 | Tutorial, alternate controls, safe areas, touch cancellation, settings persistence, J14 | Readable symbol set, reduced-effects visuals, tutorial visual review |
 | E27 | Count, ID, unlock and integration audit | Weakest-asset review, placeholders, licences, provenance |
 
@@ -124,43 +128,24 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 5. Claude works on `claude/roguewood-build`, Codex on `codex/roguewood-build`. Neither edits the other's exclusive paths without a recorded claim. Each starts from current `main` after the owner's merges.
 
 ### Hand-offs before and after each remaining milestone
-| Milestone (owner) | Needs before starting | Hands off when done |
+| Work (owner) | Needs before starting | Hands off when done |
 |---|---|---|
-| E16 core (Claude) | E15 (done) | E16-ART READY for Codex (trophy, decoration and binder IDs); League board for E22 |
-| E16-ART (Codex) | E16 core hand-off | E16 DONE; Clubhouse visuals for E22/E25 |
-| E17-Dxx (Claude) | E15 graph (done); previous batch | Its visual-brief part READY for Codex; definitions READY for E18-Cxx |
-| E17-Dxx briefs (Codex) | That batch's definitions | E19-Axx READY for the batch; E21-Rxx READY for any rival it defines |
-| E18-Cxx (Claude) | Its E17 batch | E20-Vxx READY once the matching E19 art exists; mechanics flags for E22/E23 |
-| E19-Axx (Codex) | Its briefs (or, for E13-S01, briefs written in the batch) | E20-Vxx READY with E18; art flags for E27 |
-| E20-Vxx (Codex) | Its E18 mechanics and E19 art | Effects and audio flags; dense-effect cases for E24/E26 |
-| E21-Rxx (Codex) | The rival's rule implemented (E13 or E18) and defined (E17) | Rival identity for E22; J06/J12 checks |
-| E22-Lxx (Codex, whole) | E16 core; the League's E17/E18 content, E19/E20 art and E21 rivals | A playable themed League; branch unlocks for E23; League for E24 |
-| E23 (Claude) | E15, E17, E18, E22 | Kits, medals and endless for E24/E25 |
-| E24 (Claude) | E18, E20, E21, E22, E23 | Tuned data; exploit fixtures for E28 |
-| E25 core (Claude) | E13, E16, E22 | E25-ART READY (symbol and reduced-effects IDs); J14 for E26 |
-| E25-ART (Codex) | E25 core hand-off | E25 DONE |
-| E26-Pxx (Codex) | E20, E21, E22, E25; hardware and toolchains (BLOCKED today) | Installed-build evidence for E28 |
-| E27 (Claude audit + Codex asset audit) | E17–E23 | Audit report for E28 |
-| E28 → E29 (Claude) | E24–E27; then E28 | Release candidate; then delivery |
+| E17-Lxx League spec (Claude) | The previous League's spec | Rival identities READY for E21; theme brief READY for E22-Lxx-ART; the bundle's item list for E18 |
+| E18 primitive session (Claude) | Its League spec | The items that use it, for the next item batch |
+| E18 item batch (Claude) | Its primitives | AV batch READY for Codex (item IDs, asset IDs, journeys and captures) |
+| AV batch (Codex) | Its items landed | Artwork and effects flags; items count as finished content |
+| E21-Rxx (Codex) | The rival's rule landed and its identity in the League spec | Rival presentation for the League integration |
+| E22-Lxx-ART (Codex) | Its League spec | Theme assets by ID for the League integration |
+| E22-Lxx integration (Claude) | Its spec, rules and items; Codex's theme and rivals bind by ID and can follow | A playable League; the next League's branch unlock |
+| E23 (Claude) / E23-ART (Codex) | Six Leagues | Kits, medals and endless for E24 and E25 |
+| E24 (Claude) | E18–E23 | Tuned data; exploit fixtures for E28 |
+| E25 core (Claude) / E25-ART (Codex) | E16, E22 | J14 for E26 |
+| E26-Pxx (Claude) | E25; hardware and toolchains (BLOCKED today) | Installed-build evidence for E28 |
+| E27 (both) | E17–E23 | Audit report for E28 |
+| E28 → E29 (Claude) | E24–E27 | Release candidate; then delivery |
 
-### What Codex can do in parallel now (no Claude dependency)
-Production batch E13-S01 is fully authored and implemented, so its presentation work is READY today. Briefs are written inside each art batch, because that batch predates E17. These batches are allocated:
-- **E19-A01** balls: house, hook, hammer, echo.
-- **E19-A02** pins: wood, ruby, gold, anchor.
-- **E19-A03** pins grower, rubber; Charms flat_bonus, finisher.
-- **E19-A04** Charms: spare_change, lone_survivor, hook_artist, house_favorite.
-- **E19-A05** Charms: gold_rush, turkey_club, patient_investor, last_chance.
-- **E19-A06** Charms encore, standing_order; rule badges dead_straight, clean_sweep.
-- **E19-A07** kit.house.
-- **E20-V01…** the E13-S01 abilities (Echo retrigger, growth, strike streak and so on), each batch after its E19 art.
-- **E21-R01** The Surveyor; **E21-R02** The Custodian. These are the slice rivals, whose rules are final. The campaign's provisional encounter IDs are not art targets.
-
-Further parallel work as Claude's lane delivers:
-- E16-ART after E16 core.
-- Each E17 batch's briefs, then its E19-A and E21-R work.
-- E22 Leagues once E16 core and the League's content exist.
-
-Claude's next step: E16 core (it unblocks E16-ART and E22), then E17-D01 onward. Codex has the E13-S01 batches above in the meantime.
+### Earlier parallel batches (historical)
+The E13-S01 presentation batches (E19-A01…A07, E20-V01…V07, E21-R01/R02) were Codex's Wave 1 work and are DONE.
 
 ## Wave 1 result (integrated by the coordinator, 2026-10-28)
 - **Codex delivered:**
@@ -196,16 +181,33 @@ Claude's next step: E16 core (it unblocks E16-ART and E22), then E17-D01 onward.
   - CI 40699664160 PASS on `973ba00`. Every later Wave 2 commit is documentation.
 - **Merge:** `claude/roguewood-build` into main after the CI of the "Wave 2 closed" commit. It supersedes Codex's PR #12, which lacks the CI fix and Claude's Wave 2 work.
 
-## Wave 5 claims (coordinator: Claude, 2026-10-28)
-Pushes for Wave 5 wait until the owner merges Wave 4. Codex merges `origin/claude/roguewood-build` (the "Wave 4 closed" commit) with a merge commit before starting (prompt: docs/prompts/codex-wave5.md).
+## Wave 6 claims (coordinator: Claude, 2026-10-29)
+Pushes for Wave 6 wait until the owner merges Wave 5. Codex merges `origin/claude/roguewood-build` (the "Wave 5 closed" commit) with a merge commit before starting (prompt: docs/prompts/codex-wave6.md). Phase 1, House League.
 - **Codex:**
-  - E17-D04-ART (Medium): briefs in `docs/art/briefs/E17-D04.md` for the twelve modifications in `content/catalogue/batches/E17-D04.json`. A modification is a badge on the host card and an overlay on the host in play that never hides the host's identity. Flag look-alikes: Echo Charge / Echo Ball, Lead Core / Hammer Ball, Gilt Leaf / Gold Pin, Lead Weight / Anchor Pin, Spearhead / Crown Pin.
-  - E19-A17 (Medium): native checks and `artwork` flags for the six C03 items (Crown Pin's D01 in-play scene on the real body; the five Charms' Wave 3 identities), as A14 and A16 did.
-  - E20-V09 (High): activation and sound for the six C03 items. Crown Pin's cue distinguishes +40 (fell last) from the explained 0; Crown Jewel shares it. Split Specialist shows the first-roll leave, Underdog the score-versus-half-target check, Back Row highlights the back row, Sweet Spot the counted grades.
-  - E19-A18 (Medium): identity art for the nine D03 boss rules from the E17-D03 briefs; paths in E17-D03.json only (they are not playable until E18 builds their rules).
+  - AV-C04 (3 sessions, Medium; High for Echo Charge): from the E17-D04 briefs, identity art, effects, sound, native checks and both flags for the eight landed modifications (Chalk Grip, Spin Wax, Coin Slot, Echo Charge, Brass Cap, Gilt Leaf, Lantern, Keystone). Badges and overlays never hide the host. J03C04 attaches all eight on known hosts.
+  - E22-L01-ART (High): the House theme for eight Divisions from content/leagues/house.json: Division progression in the environment and signage, the Championship match, the two lane conditions (House Oil, Dry Backend) as lane visuals, and the League's music identity. Assets bind by ID; the integration (E22-L01, Wave 8) wires them.
 - **Claude:**
-  - E18-C04 (Medium): land the nine expressible D04 modifications (Chalk Grip, Spin Wax, Coin Slot, Echo Charge, Brass Cap, Gilt Leaf, Lantern, Keystone, Lead Weight's +15 with its mass deferred to C05), with shop, attachment and native evidence.
-  - Then E18-C05 (High): physics.mod_mass_scale (Lead Core, Lead Weight), physics.gutter_rebound (Bumper Guard) and condition.first_fallen (Spearhead).
+  - E18-C05 (High): land House Rules, House Pins, House Oil and Dry Backend, and two-rule champions in rival_rules.gd (the House champion's Clean Sweep plus House Rules).
+  - E18-C06 (High): tactical-card primitives (relocate a pin, swap with a reserve, waive a rule for one roll), landing Nudge, Reserve Call and Rule Waiver.
+  - E18-C07 (High): the shop-upgrade system (Pro Shop licences that last the attempt) with its first six upgrades, written and landed together.
+
+## Wave 5 closed (coordinator, 2026-10-29)
+- **Contents** (all on `claude/roguewood-build` at the "Wave 5 closed" commit):
+  - Claude: E18-C04 (`aa1be20`) and E17-L01 with E17-D05 (`2299a3a`).
+  - Codex: AV-C03 (`53ae250`, `e6246bc`) and E17-D04-ART (`b15371d`; handoffs/WAVE5-CODEX.md, AV-C03-A.md, AV-C03-B.md, E17-D04-ART.md), merged by the coordinator without conflicts (`cf784af`).
+- **Coordinator review:** Codex's diff against `2299a3a` changes exactly six artwork flags, six effects_audio flags and twelve activation and sound paths in content/catalogue.json. Its source changes are presentation only (glyphs and score rows read resolver events and facts). qa.py, run_tests.gd and the workflow are add-only; upload folders stay inside `path`. Batch files are unchanged.
+- **Validation:** the full CI command list (128 commands, every journey headless and rendered, including J03C04 and JAVC03A/B with their contact checks) PASS locally on the merged tree; the J03C04 injected failure exits 1. CI runs on this commit.
+- **Merge:** `claude/roguewood-build` into main after the CI of the "Wave 5 closed" commit.
+
+## Wave 5 claims (coordinator: Claude, 2026-10-28; revised the same day with docs/ROADMAP.md)
+Wave 4 is merged (PR #15). Codex merges `origin/claude/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave5.md). Wave 5 opens Phase 1 (House League complete).
+- **Codex:**
+  - AV-C03 (High, 2 sessions; replaces E19-A17 and E20-V09): native checks, `artwork` flags, activation, sound and `effects_audio` flags for Crown Pin, Split Specialist, Sweet Spot, Back Row, Underdog and Crown Jewel. Crown Pin's cue distinguishes +40 (fell last) from the explained 0, and Crown Jewel shares it; Split Specialist shows the first-roll leave, Underdog the score-versus-half-target check, Back Row the back row and Sweet Spot the counted grades.
+  - E17-D04-ART (Medium): briefs in `docs/art/briefs/E17-D04.md` for the twelve modifications. They feed AV-C04 in Wave 6. Flag look-alikes: Echo Charge / Echo Ball, Lead Core / Hammer Ball, Gilt Leaf / Gold Pin, Lead Weight / Anchor Pin, Spearhead / Crown Pin.
+  - Dropped: E19-A18. The nine D03 boss rules get their badge art in their rivals' E21 sessions. If Codex already made it, it is kept as rule-badge input.
+- **Claude:**
+  - E18-C04 (Medium): land the eight modifications that need no new primitive (Chalk Grip, Spin Wax, Coin Slot, Echo Charge, Brass Cap, Gilt Leaf, Lantern, Keystone), with shop, attachment and native evidence. Lead Weight, Lead Core, Bumper Guard and Spearhead wait for their primitives in the Neon, Royal and Foundry bundles.
+  - E17-L01 (High): the House League spec (8 Divisions of opener, feature and boss; 4 rivals and a champion; lane pool; second kit; unlock assignments; provisional targets) and the roster of all 20 rivals (name, rule, League, signature), replacing the slice's two Divisions and the campaign's provisional encounters.
 
 ## Wave 4 closed (coordinator, 2026-10-28)
 - **Contents** (all on `claude/roguewood-build` at the "Wave 4 closed" commit):
@@ -213,7 +215,7 @@ Pushes for Wave 5 wait until the owner merges Wave 4. Codex merges `origin/claud
   - Codex: E17-D03-ART (`52c5455`), E19-A16 (`a6fc939`) and E20-V08 (`25f6995`; handoffs/WAVE4-CODEX.md, E17-D03-ART.md, E19-A16.md, E20-V08.md), merged by the coordinator without conflicts.
 - **Coordinator review:** Codex's diff against `0993250` changes exactly one artwork flag (Glass Pin), eight effects_audio flags and their sixteen activation and sound paths in content/catalogue.json. Its source changes are presentation only (Glass dressing on the real pin body, a saved-break observer that never rolls or writes, glyph counts read from resolver events). qa.py, run_tests.gd and the workflow are add-only; upload folders stay inside `path`. Batch files and every authored flag are unchanged.
 - **Validation:** the full CI command list (118 commands, every journey headless and rendered, including J03C03, J19A16, J12V08 and J12V08C) PASS locally on the merged tree; the J03C03 injected failure exits 1. CI 40747075594 PASS on `076a1b1` (Claude's Wave 4); CI runs on this commit.
-- **Merge:** `claude/roguewood-build` into main after the CI of the "Wave 4 closed" commit.
+- **Merge:** MERGED to main by PR #15 after CI 40760480791 PASS on `e72051b`.
 
 ## Wave 4 claims (coordinator: Claude, 2026-10-28)
 Wave 3 is merged (PR #14). Codex merges `origin/claude/roguewood-build` (with a merge commit) before starting.

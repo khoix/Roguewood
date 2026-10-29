@@ -1,0 +1,9 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+[ext_resource type="Script" path="res://src/presentation/ability_style.gd" id="1"]
+[resource]
+script = ExtResource("1")
+item_id = "charm.split_specialist"
+shape = "split_leave"
+ink = Color(0.7215686274509804, 0.8392156862745098, 0.8156862745098039, 1)
+duration = 0.55
+priority = 2

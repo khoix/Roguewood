@@ -1,0 +1,768 @@
+{
+  "schema_version": 1,
+  "batch": "E17-D05",
+  "status": "authored",
+  "note": "E17-L01's definitions: the nine new boss rules that complete the 20 (one per rival in content/leagues/rivals.json), House's second kit and House's two lane conditions (formalising the campaign fixtures). Each rule needs a rule primitive in rival_rules.gd (E18); the House ones land in E18-C05. Nothing here is in content/catalogue.json until E18.",
+  "definitions": [
+    {
+      "item": {
+        "id": "boss_rule.house_pins",
+        "name": "House Pins",
+        "category": "boss_rule",
+        "rarity": "common",
+        "pool_weight": 0,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 0,
+        "resale_price": 0,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Every rack pin plays as plain Wood for the whole boss match.",
+        "synergy_tags": [
+          "baseline",
+          "house",
+          "rack"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "For every frame of the boss match, each racked pin scores as a plain Wood pin (+10 Value when it falls): its own effects are switched off. Modifications on pins, balls, tactical cards and Charms work as normal.",
+        "primitives": [
+          "rule.plain_rack"
+        ],
+        "pool": "Boss rule: never in a shop; used by its rival in the House League spec (docs/ROADMAP.md).",
+        "counterplay": "Score from Charms, balls and modifications instead of pin materials: Flat Bonus, Finisher, Echo Ball, Keystone or Brass Cap.",
+        "presentation_needs": "Pin materials stay visible but dimmed, with a House stamp on each; the rule badge shows a plain pin over a material swatch.",
+        "asset_ids": {
+          "icon": "icon.boss_rule.house_pins",
+          "card": "card.boss_rule.house_pins",
+          "rarity_treatment": "rarity_treatment.boss_rule.house_pins",
+          "activation": "activation.boss_rule.house_pins",
+          "sound": "sound.boss_rule.house_pins",
+          "reduced_motion": "reduced_motion.boss_rule.house_pins"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "boss_rule.strobe",
+        "name": "Strobe",
+        "category": "boss_rule",
+        "rarity": "common",
+        "pool_weight": 0,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 0,
+        "resale_price": 0,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "The target ring's sweet and perfect zones are half their usual size.",
+        "synergy_tags": [
+          "precision",
+          "accuracy",
+          "neon"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "For every roll of the boss match, the target ring's sweet and perfect zones are half their usual radius, so accuracy grades and the Mult they add are harder to earn. Clean and miss grading is unchanged.",
+        "primitives": [
+          "rule.ring_scale"
+        ],
+        "pool": "Boss rule: never in a shop; used by its rival in the Neon League spec (docs/ROADMAP.md).",
+        "counterplay": "Builds that do not lean on accuracy: Value pins, strike Charms, Hammer Ball's power or straight lines with Plumb Line.",
+        "presentation_needs": "A pulsing strobe on the ring that never hides its edge; reduced motion shows a static narrowed ring.",
+        "asset_ids": {
+          "icon": "icon.boss_rule.strobe",
+          "card": "card.boss_rule.strobe",
+          "rarity_treatment": "rarity_treatment.boss_rule.strobe",
+          "activation": "activation.boss_rule.strobe",
+          "sound": "sound.boss_rule.strobe",
+          "reduced_motion": "reduced_motion.boss_rule.strobe"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "boss_rule.rust",
+        "name": "Rust",
+        "category": "boss_rule",
+        "rarity": "common",
+        "pool_weight": 0,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 0,
+        "resale_price": 0,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Every modification is switched off for the boss match.",
+        "synergy_tags": [
+          "modification",
+          "salvage"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "For every frame of the boss match, all attached ball and pin modifications are switched off: their effects and payouts do not apply. The host items work as normal and the modifications return afterwards.",
+        "primitives": [
+          "rule.no_mods"
+        ],
+        "pool": "Boss rule: never in a shop; used by its rival in the Salvage League spec (docs/ROADMAP.md).",
+        "counterplay": "Lean on base materials and Charms: Ruby and Gold pins, Pin Counter, Flat Bonus.",
+        "presentation_needs": "Rust creeps over every modification badge without covering the host; the rule badge shows a rusted bolt.",
+        "asset_ids": {
+          "icon": "icon.boss_rule.rust",
+          "card": "card.boss_rule.rust",
+          "rarity_treatment": "rarity_treatment.boss_rule.rust",
+          "activation": "activation.boss_rule.rust",
+          "sound": "sound.boss_rule.rust",
+          "reduced_motion": "reduced_motion.boss_rule.rust"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "boss_rule.court_order",
+        "name": "Court Order",
+        "category": "boss_rule",
+        "rarity": "common",
+        "pool_weight": 0,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 0,
+        "resale_price": 0,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "The head pin must be the first pin to fall, or the frame's Value is halved.",
+        "synergy_tags": [
+          "positional",
+          "precision",
+          "royal"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "In each frame of the boss match, if the head pin (position 1) is not the first pin knocked down (lowest knockdown sequence of roll 1), the frame's Pin Value is halved before Mult. A strike that takes the head pin first is unaffected.",
+        "primitives": [
+          "rule.first_pin_required"
+        ],
+        "pool": "Boss rule: never in a shop; used by its rival in the Royal League spec (docs/ROADMAP.md).",
+        "counterplay": "Pocket accuracy and straight lines into the head pin: Plumb Line, Sweet Spot, Spearhead, House Favorite.",
+        "presentation_needs": "The head pin wears a crown marker; the rule badge shows a herald's scroll, and the explanation names whether the head pin fell first.",
+        "asset_ids": {
+          "icon": "icon.boss_rule.court_order",
+          "card": "card.boss_rule.court_order",
+          "rarity_treatment": "rarity_treatment.boss_rule.court_order",
+          "activation": "activation.boss_rule.court_order",
+          "sound": "sound.boss_rule.court_order",
+          "reduced_motion": "reduced_motion.boss_rule.court_order"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "boss_rule.silence",
+        "name": "Silence",
+        "category": "boss_rule",
+        "rarity": "common",
+        "pool_weight": 0,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 0,
+        "resale_price": 0,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Retriggers do nothing for the boss match.",
+        "synergy_tags": [
+          "retrigger",
+          "spectral"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "For every frame of the boss match, no effect is repeated: Echo Ball, Echo Charge and any other retrigger apply nothing extra. Each pin and item still applies its own effects once.",
+        "primitives": [
+          "rule.no_retrigger"
+        ],
+        "pool": "Boss rule: never in a shop; used by its rival in the Spectral League spec (docs/ROADMAP.md).",
+        "counterplay": "Builds without retriggers: Value pins, Mult Charms, Back Row, Hot Streak.",
+        "presentation_needs": "Echo rings fade out mid-pulse; the rule badge shows a muted bell.",
+        "asset_ids": {
+          "icon": "icon.boss_rule.silence",
+          "card": "card.boss_rule.silence",
+          "rarity_treatment": "rarity_treatment.boss_rule.silence",
+          "activation": "activation.boss_rule.silence",
+          "sound": "sound.boss_rule.silence",
+          "reduced_motion": "reduced_motion.boss_rule.silence"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "boss_rule.fading",
+        "name": "Fading",
+        "category": "boss_rule",
+        "rarity": "common",
+        "pool_weight": 0,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 0,
+        "resale_price": 0,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Pins knocked down by the first roll score half their Value.",
+        "synergy_tags": [
+          "spare",
+          "spectral"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "In each frame of the boss match, every pin knocked down by roll 1 adds half its usual Value (rounded down); pins knocked down by roll 2 score normally. A strike is all roll 1, so it scores half.",
+        "primitives": [
+          "rule.first_roll_value_scale"
+        ],
+        "pool": "Boss rule: never in a shop; used by its rival in the Spectral League spec (docs/ROADMAP.md).",
+        "counterplay": "Spare and Mult builds: Split Specialist, Spare Change, Chalk Grip, Flat Bonus.",
+        "presentation_needs": "Pins that fall in roll 1 turn translucent in the rack diagram; the rule badge shows a fading pin.",
+        "asset_ids": {
+          "icon": "icon.boss_rule.fading",
+          "card": "card.boss_rule.fading",
+          "rarity_treatment": "rarity_treatment.boss_rule.fading",
+          "activation": "activation.boss_rule.fading",
+          "sound": "sound.boss_rule.fading",
+          "reduced_motion": "reduced_motion.boss_rule.fading"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "boss_rule.brittle_rack",
+        "name": "Brittle Rack",
+        "category": "boss_rule",
+        "rarity": "common",
+        "pool_weight": 0,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 0,
+        "resale_price": 0,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Every fallen pin that is not Wood may crack into Wood after the frame banks.",
+        "synergy_tags": [
+          "fragile",
+          "foundry"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "In each frame of the boss match, after banking, every fallen pin other than Wood has a 10% chance to become a Wood pin in the same rack slot, rolled on the attempt's effects stream like Glass Pin. The change lasts for the rest of the attempt.",
+        "primitives": [
+          "rule.crack_chance"
+        ],
+        "pool": "Boss rule: never in a shop; used by its rival in the Foundry League spec (docs/ROADMAP.md).",
+        "counterplay": "Cheap or Wood pins and value from Charms; save expensive pins for after the boss by moving them to reserve.",
+        "presentation_needs": "A crack cue on each pin that breaks, in the order the explanation names breaks; the rule badge shows a cracked pin.",
+        "asset_ids": {
+          "icon": "icon.boss_rule.brittle_rack",
+          "card": "card.boss_rule.brittle_rack",
+          "rarity_treatment": "rarity_treatment.boss_rule.brittle_rack",
+          "activation": "activation.boss_rule.brittle_rack",
+          "sound": "sound.boss_rule.brittle_rack",
+          "reduced_motion": "reduced_motion.boss_rule.brittle_rack"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "boss_rule.blast_doors",
+        "name": "Blast Doors",
+        "category": "boss_rule",
+        "rarity": "common",
+        "pool_weight": 0,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 0,
+        "resale_price": 0,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Pins knocked down by other pins score no Value.",
+        "synergy_tags": [
+          "power",
+          "precision",
+          "foundry"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "In each frame of the boss match, only pins the ball itself knocked down add Value; pins toppled by other pins (chain knockdowns) add nothing. Mult effects and payouts still apply.",
+        "primitives": [
+          "rule.direct_only"
+        ],
+        "pool": "Boss rule: never in a shop; used by its rival in the Foundry League spec (docs/ROADMAP.md).",
+        "counterplay": "Power and direct hits: Hammer Ball, accurate lines, Mult Charms such as Flat Bonus and Finisher.",
+        "presentation_needs": "Chain knockdowns flash grey in the rack diagram; the rule badge shows blast doors.",
+        "asset_ids": {
+          "icon": "icon.boss_rule.blast_doors",
+          "card": "card.boss_rule.blast_doors",
+          "rarity_treatment": "rarity_treatment.boss_rule.blast_doors",
+          "activation": "activation.boss_rule.blast_doors",
+          "sound": "sound.boss_rule.blast_doors",
+          "reduced_motion": "reduced_motion.boss_rule.blast_doors"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "boss_rule.pressure_gauge",
+        "name": "Pressure Gauge",
+        "category": "boss_rule",
+        "rarity": "common",
+        "pool_weight": 0,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 0,
+        "resale_price": 0,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "A frame that banks less than a fifth of the boss target counts as 0.",
+        "synergy_tags": [
+          "consistency",
+          "foundry"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "In each frame of the boss match, if the frame's bank is less than 20% of the boss target, it adds 0 to the match score. The calculation is still shown in full.",
+        "primitives": [
+          "rule.min_bank"
+        ],
+        "pool": "Boss rule: never in a shop; used by its rival in the Foundry League spec (docs/ROADMAP.md).",
+        "counterplay": "Big, consistent frames: strike Mult (Turkey Club, Hot Streak), growth pins and retriggers.",
+        "presentation_needs": "A pressure dial on the HUD shows the threshold before each frame; the rule badge shows a gauge needle.",
+        "asset_ids": {
+          "icon": "icon.boss_rule.pressure_gauge",
+          "card": "card.boss_rule.pressure_gauge",
+          "rarity_treatment": "rarity_treatment.boss_rule.pressure_gauge",
+          "activation": "activation.boss_rule.pressure_gauge",
+          "sound": "sound.boss_rule.pressure_gauge",
+          "reduced_motion": "reduced_motion.boss_rule.pressure_gauge"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "kit.tournament",
+        "name": "Tournament Kit",
+        "category": "kit",
+        "rarity": "common",
+        "pool_weight": 0,
+        "unlock": {
+          "kind": "championship",
+          "prerequisites": [
+            "gate.house_champion"
+          ]
+        },
+        "earliest_division": 1,
+        "purchase_price": 0,
+        "resale_price": 0,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Four ball cards instead of six, so specials come up less often.",
+        "synergy_tags": [
+          "economy",
+          "baseline"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "Start an attempt with ten Wood pins, a deck of two Hook Balls and two Echo Balls (the House Ball is always available) and $10 instead of $6.",
+        "primitives": [
+          "kit.loadout"
+        ],
+        "pool": "Starting kit: chosen on the League Board; unlocked by the first House League title.",
+        "presentation_needs": "A kit card with a tournament ribbon; the binder shows its loadout.",
+        "asset_ids": {
+          "icon": "icon.kit.tournament",
+          "card": "card.kit.tournament",
+          "rarity_treatment": "rarity_treatment.kit.tournament",
+          "activation": "activation.kit.tournament",
+          "sound": "sound.kit.tournament",
+          "reduced_motion": "reduced_motion.kit.tournament"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "lane_condition.house_oil",
+        "name": "House Oil",
+        "category": "lane_condition",
+        "rarity": "common",
+        "pool_weight": 0,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 0,
+        "resale_price": 0,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "No change: the standard oil pattern.",
+        "synergy_tags": [
+          "baseline",
+          "house"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "The standard House oil pattern: the front and mid lane are oiled and the backend is dry, so a charged spin hooks late. Every other lane condition is described against this one.",
+        "primitives": [
+          "lane.oil_pattern"
+        ],
+        "pool": "Lane condition: never in a shop; listed in a League's lane pool (House League spec).",
+        "presentation_needs": "Lane sheen and HUD label; the shop's next-match preview names it.",
+        "asset_ids": {
+          "icon": "icon.lane_condition.house_oil",
+          "card": "card.lane_condition.house_oil",
+          "rarity_treatment": "rarity_treatment.lane_condition.house_oil",
+          "activation": "activation.lane_condition.house_oil",
+          "sound": "sound.lane_condition.house_oil",
+          "reduced_motion": "reduced_motion.lane_condition.house_oil"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "lane_condition.dry_backend",
+        "name": "Dry Backend",
+        "category": "lane_condition",
+        "rarity": "common",
+        "pool_weight": 0,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 0,
+        "resale_price": 0,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Curved throws hook harder after the oil ends.",
+        "synergy_tags": [
+          "curve",
+          "house"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "The backend's contact friction rises from 0.2 to 0.3 while the oil zones are unchanged, so a charged spin hooks harder and later. Straight throws are unaffected.",
+        "primitives": [
+          "lane.backend_friction"
+        ],
+        "pool": "Lane condition: never in a shop; listed in a League's lane pool (House League spec).",
+        "presentation_needs": "A drier, matte backend texture and HUD label; the aim preview reflects the stronger hook.",
+        "asset_ids": {
+          "icon": "icon.lane_condition.dry_backend",
+          "card": "card.lane_condition.dry_backend",
+          "rarity_treatment": "rarity_treatment.lane_condition.dry_backend",
+          "activation": "activation.lane_condition.dry_backend",
+          "sound": "sound.lane_condition.dry_backend",
+          "reduced_motion": "reduced_motion.lane_condition.dry_backend"
+        }
+      }
+    }
+  ],
+  "landed": []
+}
