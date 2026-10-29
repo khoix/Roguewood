@@ -232,3 +232,45 @@ in J12V08. Static reduced variants retain resolver counts and saved break slots.
 | E20-V08 `charm.plumb_line` | `plumb` / `metal`; 860 Hz parameter, 0.2s | `res://assets/effects/activation.charm.plumb_line.tres`; `res://assets/audio/sound.charm.plumb_line.wav` | `6e1f3bb147563834d30ffab54d9ab28261ded74dd275651220a04d5f46c71d68` |
 | E20-V08 `charm.glass_cutter` | `cutter` / `glass`; 2150 Hz parameter, 0.22s | `res://assets/effects/activation.charm.glass_cutter.tres`; `res://assets/audio/sound.charm.glass_cutter.wav` | `4117d3e29a078c9b9c9d075145bec81b0c0719a417aaebceb8ac3613fb44f050` |
 | E20-V08 `pin.glass` | `crack` / `crack`; 1780 Hz parameter, 0.26s | `res://assets/effects/activation.pin.glass.tres`; `res://assets/audio/sound.pin.glass.wav` | `86a05c8189c47b480a3e6e7daf269a4cee4777ca882cb9af1393ae7de5f5522d` |
+
+## Wave 5 — AV-C03-A original effects and retained identities
+
+Crown Pin retains the original D01 identity; Crown Jewel and Split Specialist retain
+the original D02 identity sets and E12 rarity treatment. No identity image edits.
+`tools/author_c03_effects.py AV-C03-A` authors exact landed design IDs; vector
+construction is in `ability_glyph.gd`. `author_foley.py` synthesizes original mono
+22050 Hz, 16-bit PCM without samples, recordings or third-party material.
+Crown uses brass-like resonance; Jewel uses a short inharmonic glass/gem accent;
+Split uses a lower caliper tap. Crown zero is deliberately silent. Reduced-motion
+and reduced-flash cues retain values and construction without animated movement.
+
+| Item | Recipe / sound synthesis | WAV SHA-256 |
+|---|---|---|
+| `pin.crown` | `crown_last`; metal, 1180 Hz, 0.30 s; #e9c179; priority 3; peak 0.48 | `ac347a7a17551ba27b26c84c44e9035f21579878834151ff9c8c9f8541d88dca` |
+| `charm.crown_jewel` | `jewel_last`; glass, 1660 Hz, 0.34 s; #d1b6e8; priority 3; peak 0.48 | `87bc6d101533ce1a29ea3b3ac79cf24e9bbb6cfc86cfe1ff7115510240e49d32` |
+| `charm.split_specialist` | `split_leave`; metal, 640 Hz, 0.26 s; #b8d6d0; priority 2; peak 0.48 | `81603a66bb95eb7ca6752f97c162c8fa5483af4bfe31de68c78c2dda241f8c8f` |
+
+Paths: `assets/effects/activation.<item-id>.tres` and
+`assets/audio/sound.<item-id>.wav`. Native evidence: `artifacts/av-c03-a/`;
+see `docs/handoffs/AV-C03-A.md` for purchase, binder, live rack and active/quiet checks.
+
+## Wave 5 — AV-C03-B original effects and retained identities
+
+Sweet Spot, Back Row and Underdog retain their original D02 identity resources.
+Exact landed activation/sound IDs are authored by `tools/author_c03_effects.py
+AV-C03-B`; glyph construction is in ability_glyph.gd. Native Back Row rack outlines
+are cosmetic drawings from actual counted positions. No identity image edits.
+Original deterministic mono 22050 Hz, 16-bit PCM; no samples or recordings. Sweet
+Spot has a short glass-ring accent, Back Row a dry wood tap, Underdog a quiet
+two-hit rising metal latch (0/55 ms, gains 0.65/1, second pitch ×1.045). Peak 0.48.
+
+| Item | Recipe / sound synthesis | WAV SHA-256 |
+|---|---|---|
+| `charm.sweet_spot` | `grade_pair`; glass, 1490 Hz, 0.24 s; #a9d8d0; priority 2 | `99ffa00db94c6168c9942039653fef15f833589ae1a823a699f26b4f7856e604` |
+| `charm.back_row` | `back_four`; wood, 530 Hz, 0.26 s; #d8c498; priority 2 | `57a1e8278ccfc734c8cfad1945633e74016175873beb970de4ba5188cb5b8bc9` |
+| `charm.underdog` | `half_target`; metal, 470 Hz, 0.30 s; #c7c6df; priority 3 | `f4bcce135836cc1ebc4dae472eedef5c76e5eae1a05613362af948a4e1c831d0` |
+
+Paths: `assets/effects/activation.<item-id>.tres` and
+`assets/audio/sound.<item-id>.wav`. Native/64px evidence: `artifacts/av-c03-b/`.
+Reduced motion/flash freezes the same grade, position or threshold construction.
+Native text and resolver counts remain authoritative.

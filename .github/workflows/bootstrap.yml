@@ -176,6 +176,18 @@ jobs:
             python3 tools/qa.py e2e --journey "$journey"
             xvfb-run -a python3 tools/qa.py e2e --journey "$journey" --rendered
           done
+      - name: Wave 5 AV-C03 first three items
+        run: |
+          for journey in JAVC03A JAVC03AC; do
+            python3 tools/qa.py e2e --journey "$journey"
+            xvfb-run -a python3 tools/qa.py e2e --journey "$journey" --rendered
+          done
+      - name: Wave 5 AV-C03 second three items
+        run: |
+          for journey in JAVC03B JAVC03BC; do
+            python3 tools/qa.py e2e --journey "$journey"
+            xvfb-run -a python3 tools/qa.py e2e --journey "$journey" --rendered
+          done
       - name: Preserve journey diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -224,4 +236,6 @@ jobs:
             artifacts/e19-a15/
             artifacts/e19-a16/
             artifacts/e20-v08/
+            artifacts/av-c03-a/
+            artifacts/av-c03-b/
           if-no-files-found: warn
