@@ -19,10 +19,11 @@ const PORTRAIT := Vector2i(450, 800)
 const STRIKE := [0.1, 0.0, 0.7]
 const LEAVE := [-0.4, 0.0, 0.6]
 const GUTTER := [0.8, 2.0, 0.6]
-## Charms the journey buys when offered and affordable, best first.
-## E18-C01's Pin Counter, Plumb Line and Hot Streak suit the journey's straight strikes.
+## Charms the journey buys when offered and affordable, best first: Mult Charms its
+## straight House Ball strikes use, so the build's strike alone clears The Custodian's
+## 2400 (Value-only Charms such as Head Pin would fill slots without getting there).
 const WANTED := ["charm.finisher", "charm.flat_bonus", "charm.plumb_line", "charm.pin_counter", "charm.front_line", "charm.house_special", "charm.hot_streak",
-	"charm.turkey_club", "charm.house_favorite", "charm.head_pin", "charm.wood_grain", "charm.last_chance", "charm.spare_change", "charm.patient_investor"]
+	"charm.turkey_club"]
 ## Wallet fixture (logged, as J05 does) at the first shop: content batches keep adding
 ## items to the pool, so the build is bought through real rerolls with a budget that
 ## does not depend on which items the seeded stock happens to show.
