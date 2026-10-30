@@ -427,3 +427,13 @@ nine rooms, exact signs, both lane finishes, portrait/landscape controls, static
 reduced presentation and music. Evidence remains ignored in
 `artifacts/e22-l01-art/`. Integration contract and limits:
 `docs/handoffs/E22-L01-ART.md`. Live House integration belongs to Claude in Wave 8.
+
+## Wave 7 E21-R03/R04 rule-seal checkpoint
+
+Original authored SVG pixel geometry; no external source, generated-image service,
+samples or third-party licence. Portraits are not delivered at this checkpoint.
+
+| Batch / rule | Source | SHA-256 | Presentation |
+|---|---|---|---|
+| E21-R03 / `boss_rule.house_rules` | `assets/rivals/rules/house_rules.svg`; brief `docs/art/briefs/E21-R03.md` | `d17d54d7937712580eaf77241646dfc814872e5bc8ae5cd431e1a17798973396` | 64px authored / 32px nearest; static reduced motion; J03C05 |
+| E21-R04 / `boss_rule.house_pins` | `assets/rivals/rules/house_pins.svg`; brief `docs/art/briefs/E21-R04.md` | `9f9ec48ad51dc3666c9b072bdcd4cfa7c00dd1bab2ca4a5bfc491a0c57f84a29` | 64px authored / 32px nearest; static reduced motion; J03C05 |

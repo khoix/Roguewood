@@ -93,7 +93,10 @@ func _process(delta: float) -> void:
 	var boss := _rival()
 	if lab.division.is_boss():
 		preload("res://src/presentation/rival_lane_art.gd").dress(lab.lane, boss.get("id", ""))
-	var badge_art := ItemAssets.slot(String(boss.get("rule", "")), "in_play") as Texture2D
+	var badge_art := preload("res://src/presentation/rival_art.gd").rule_badge(String(boss.get("rule", "")))
+	var extra_rules: Array = boss.get("extra_rules", [])
+	lab.hud.show_extra_rule_badges([boss.get("rule", "")] + extra_rules if not extra_rules.is_empty() else [])
+	if not extra_rules.is_empty(): badge_art = null
 	if lab.hud.badge.icon != badge_art:
 		lab.hud.badge.icon = badge_art
 		lab.hud.badge.expand_icon = true
