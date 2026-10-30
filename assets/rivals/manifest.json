@@ -48,5 +48,61 @@
     "rule": "boss_rule.clean_sweep",
     "reward": "charm.standing_order",
     "lane": "polish"
+  },
+  "rival.proprietor": {
+    "source": "res://assets/rivals/proprietor.png",
+    "rule": "boss_rule.house_rules",
+    "reward": "",
+    "lane": "keys",
+    "regions": [
+      [
+        0,
+        0,
+        530,
+        512
+      ],
+      [
+        530,
+        0,
+        494,
+        512
+      ],
+      [
+        1024,
+        0,
+        512,
+        512
+      ],
+      [
+        0,
+        512,
+        512,
+        512
+      ],
+      [
+        512,
+        512,
+        512,
+        512
+      ],
+      [
+        1024,
+        512,
+        512,
+        512
+      ]
+    ]
+  },
+  "rival.old_lou": {
+    "source": "res://assets/rivals/old_lou.png",
+    "rule": "boss_rule.house_pins",
+    "reward": "",
+    "lane": "woodgrain"
+  },
+  "rival.custodian_champion": {
+    "source": "res://assets/rivals/custodian.png",
+    "rule": "boss_rule.clean_sweep",
+    "reward": "",
+    "lane": "polish"
   }
 }

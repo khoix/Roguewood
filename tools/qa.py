@@ -14,6 +14,12 @@ ROOT = Path(__file__).resolve().parents[1]
 VERSION = (ROOT / ".godot-version").read_text().strip()
 # journey -> script, success marker, artifact directory, rendered captures, timeout, extra engine flags
 JOURNEYS = {
+    "J21R03": ("res://tests/proprietor_art_journey.gd", "ROGUEWOOD_J21R03_OK", "artifacts/e21-r03/native",
+        ("rival.proprietor_intro", "rival.proprietor_landscape", "proprietor_reduced", "proprietor_reaction", "proprietor_defeated"), 900, ["--fixed-fps", "60"]),
+    "J21R04": ("res://tests/house_rival_art_journey.gd", "ROGUEWOOD_J03C05_OK", "artifacts/e21-r04/native",
+        ("rival.custodian_champion_intro", "rival.custodian_champion_landscape", "rival.old_lou_intro", "rival.old_lou_landscape", "c05_house_rules", "c05_champion", "c05_house_pins", "rival.old_lou_defeated"), 900, ["--fixed-fps", "60"]),
+    "J21RC": ("res://tests/house_rival_contact.gd", "ROGUEWOOD_HOUSE_RIVAL_CONTACT_OK", "artifacts/e21-r03-r04/contact",
+        ("rival.proprietor", "rival.old_lou"), 180, ["--fixed-fps", "60"]),
     "J22L01ART": ("res://tests/house_theme_journey.gd", "ROGUEWOOD_HOUSE_THEME_OK", "artifacts/e22-l01-art",
         tuple("division_%02d" % i for i in range(1,9)) + ("championship", "house_oil", "dry_backend", "reduced", "landscape", "contact"), 180, ["--fixed-fps", "60"]),
     "JAVC04CC": ("res://tests/av_c04_contact.gd", "ROGUEWOOD_AV_C04_CONTACT_OK", "artifacts/av-c04-c/contact", ("contact",), 180, ["--fixed-fps", "60"]),
@@ -115,6 +121,7 @@ JOURNEYS["J12"] = ("res://tests/dense_ability_journey.gd", "ROGUEWOOD_DENSE_ABIL
 # Content set per journey (E13, ADR 008): mechanism journeys keep the lab fixtures;
 # the shell journey and J06 stage 1 play the production slice (the game's default).
 CONTENT = {"J03C05": "house_c05", "J09": "slice", "J02": "lab", "J03": "lab", "J04": "lab", "J05": "lab", "J07": "lab", "J08": "lab"}
+CONTENT.update({"J21R03": "house_c05", "J21R04": "house_c05"})
 # Multi-stage journeys whose stages are different scripts, content and save
 # directories: J06 plays the slice's two Divisions, then the E09 lab Division.
 STAGE_RUNS = {"J06": [("res://tests/slice_journey.gd", "slice"), ("res://tests/division_journey.gd", "lab")]}

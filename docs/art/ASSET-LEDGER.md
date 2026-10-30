@@ -437,3 +437,25 @@ samples or third-party licence. Portraits are not delivered at this checkpoint.
 |---|---|---|---|
 | E21-R03 / `boss_rule.house_rules` | `assets/rivals/rules/house_rules.svg`; brief `docs/art/briefs/E21-R03.md` | `d17d54d7937712580eaf77241646dfc814872e5bc8ae5cd431e1a17798973396` | 64px authored / 32px nearest; static reduced motion; J03C05 |
 | E21-R04 / `boss_rule.house_pins` | `assets/rivals/rules/house_pins.svg`; brief `docs/art/briefs/E21-R04.md` | `9f9ec48ad51dc3666c9b072bdcd4cfa7c00dd1bab2ca4a5bfc491a0c57f84a29` | 64px authored / 32px nearest; static reduced motion; J03C05 |
+
+## Wave 7 E21-R03/R04 character production
+
+Original generated character art, no external references. The Proprietor's first
+source is retained for the correction provenance; corrected source is the runtime
+atlas. Old Lou uses the unchanged generated atlas. Runtime atlas regions preserve
+source pixels. No new House item artwork or reward flags are included.
+
+| Batch / identity | Source and prompt | SHA-256 | Native evidence |
+|---|---|---|---|
+| E21-R03 / `rival.proprietor` | `assets/rivals/proprietor.png`; `docs/art/briefs/E21-R03-prompt.txt` | `f0ff2275234fd3dc0af05e2f3ff4e4dc42af06092ce9aa7d3514f6de046fb77a` | J21RC 180/72px contacts; J21R03 native intro/reaction/defeat; portrait/landscape |
+| E21-R04 / `rival.old_lou` | `assets/rivals/old_lou.png`; `docs/art/briefs/E21-R04-prompt.txt` | `d845c710cb517edff4476fed6bf3d61750d88768fc06a90cb75d8fe2ed8e52a8` | J21RC 180/72px contacts; J21R04 native intro/reaction/defeat; portrait/landscape |
+
+Proprietor first source: `assets/rivals/sources/E21-R03-initial.png`, SHA-256
+`03d27dc4e41730aa8855913a137ea423df02a7195d552abd610eb3f06d15fdb1`. The correction prompt is retained with
+the original prompt. No source image was manually repainted.
+
+Original cosmetic lane geometry: brass key bows/teeth for the Proprietor and
+wood-grain rail inserts/pegs for Old Lou in `rival_lane_art.gd`. All geometry sits
+outside the playing surface and contains no collision bodies. Existing Custodian
+art is reused for the exact `rival.custodian_champion` manifest entry; no campaign
+IDs are aliased. No new audio is claimed by this portrait/rule-badge batch.

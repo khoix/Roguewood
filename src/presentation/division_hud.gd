@@ -254,7 +254,7 @@ func show_intro(rival: Dictionary, target: int, rule_summary: String, reward: St
 	_portrait(intro_portrait, rival, "entrance")
 	intro_reward.texture = ItemArt.slot(RivalArt.entry(rival.get("id", "")).get("reward", ""), "icon")
 	intro_reward.visible = intro_reward.texture != null
-	intro_button.icon = ItemArt.slot(rival.get("rule", ""), "icon")
+	intro_button.icon = RivalArt.rule_badge(rival.get("rule", ""))
 	intro_button.expand_icon = true
 	intro_button.add_theme_constant_override("icon_max_width",32)
 	intro_title.text = "Boss: %s" % rival.name
