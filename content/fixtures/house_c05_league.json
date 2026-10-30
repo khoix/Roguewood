@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "id": "league.house_c05",
+  "name": "House League (E18-C05 fixture)",
+  "batch": "E18-C05",
+  "note": "Test fixture for J03C05 only (--content=house_c05): the House champion (Clean Sweep plus House Rules) on Dry Backend, then Old Lou (House Pins) on House Oil, with the slice's kit and low targets so assist strikes reach both bosses. Not a League players see; E22-L01 wires the real House League.",
+  "kit": {
+    "id": "kit.house",
+    "name": "House Kit",
+    "pins": [
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.wood"
+    ],
+    "deck": [
+      "ball.hook",
+      "ball.hook",
+      "ball.hammer",
+      "ball.hammer",
+      "ball.echo",
+      "ball.echo"
+    ],
+    "money": 6
+  },
+  "divisions": [
+    {
+      "schema_version": 1,
+      "division": 1,
+      "name": "House fixture · Division 1",
+      "frames_per_match": 2,
+      "matches": [
+        {
+          "id": "match.c05_d1_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 300
+        },
+        {
+          "id": "match.c05_d1_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 400
+        },
+        {
+          "id": "match.c05_d1_boss",
+          "kind": "boss",
+          "name": "Championship",
+          "target": 500,
+          "rival": "rival.custodian_champion",
+          "lane_condition": "lane_condition.dry_backend"
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.custodian_champion",
+          "name": "The Custodian, House Champion",
+          "initials": "TC",
+          "rule": "boss_rule.clean_sweep",
+          "extra_rules": [
+            "boss_rule.house_rules"
+          ],
+          "of": "rival.custodian",
+          "intro": "The Custodian defends the House title with the Proprietor's blessing: only strikes and spares bank, and you throw the House Ball only. Every frame must be clean, with no special ball to fall back on.",
+          "first_clear": {
+            "unlocks": [],
+            "text": "Fixture encounter: no reward."
+          },
+          "reactions": {
+            "entrance": "Mind the corners. I only count what's cleared.",
+            "confident": "Untidy. That one goes in the bin.",
+            "impressed": "Hm. A clean strike. Noted.",
+            "threatened": "You're closing in… don't leave a mess now.",
+            "defeated": "Spotless. I concede the lane.",
+            "victorious": "Swept away. Come back with a cleaner game."
+          }
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "division": 2,
+      "name": "House fixture · Division 2",
+      "frames_per_match": 2,
+      "matches": [
+        {
+          "id": "match.c05_d2_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 600
+        },
+        {
+          "id": "match.c05_d2_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 700
+        },
+        {
+          "id": "match.c05_d2_boss",
+          "kind": "boss",
+          "name": "Boss",
+          "target": 800,
+          "rival": "rival.old_lou",
+          "lane_condition": "lane_condition.house_oil"
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.old_lou",
+          "name": "Old Lou",
+          "initials": "OL",
+          "rule": "boss_rule.house_pins",
+          "intro": "Forty years on these lanes and Old Lou still racks the pins himself. In his match every pin plays as plain Wood: materials switch off, so your Charms, balls and modifications have to make the score.",
+          "first_clear": {
+            "unlocks": [],
+            "text": "Fixture encounter: no reward."
+          },
+          "reactions": {
+            "entrance": "Wood's wood, kid. Let's see your arm.",
+            "confident": "Fancy pins won't save you here.",
+            "impressed": "Now that's bowling.",
+            "threatened": "Well, I'll be. Slow down, kid.",
+            "defeated": "Forty years… and you beat me clean.",
+            "victorious": "Come back when you've got more than fancy pins."
+          }
+        }
+      ]
+    }
+  ]
+}

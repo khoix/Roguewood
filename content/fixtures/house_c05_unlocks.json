@@ -1,0 +1,246 @@
+{
+  "schema_version": 1,
+  "batch": "E18-C05 fixture",
+  "note": "Test registry for the house_c05 content set (J03C05 only): the production registry (content/career/unlocks.json) plus the fixture League. qa.py content checks that everything else matches production.",
+  "leagues": [
+    {
+      "id": "league.house",
+      "name": "House League",
+      "content_set": "slice",
+      "access": [],
+      "championship": {
+        "gates": [
+          "gate.house_champion"
+        ],
+        "text": "House League champion trophy for the Clubhouse shelf."
+      }
+    },
+    {
+      "id": "league.house_campaign",
+      "name": "House Campaign",
+      "content_set": "campaign",
+      "access": [],
+      "championship": {
+        "gates": [
+          "gate.house_campaign_champion"
+        ],
+        "text": "House Campaign champion trophy for the Clubhouse shelf."
+      },
+      "provisional_rivals": true
+    },
+    {
+      "id": "league.house_c05",
+      "name": "House League (E18-C05 fixture)",
+      "content_set": "house_c05",
+      "access": [],
+      "championship": {
+        "gates": [],
+        "text": "Fixture League: no title."
+      }
+    }
+  ],
+  "gates": [
+    {
+      "id": "gate.surveyor_cleared",
+      "kind": "boss",
+      "name": "The Surveyor cleared"
+    },
+    {
+      "id": "gate.custodian_cleared",
+      "kind": "boss",
+      "name": "The Custodian cleared"
+    },
+    {
+      "id": "gate.house_champion",
+      "kind": "championship",
+      "name": "House League champion"
+    },
+    {
+      "id": "gate.house_campaign_champion",
+      "kind": "championship",
+      "name": "House Campaign champion"
+    },
+    {
+      "id": "gate.mastery_spare_hand",
+      "kind": "mastery",
+      "name": "Spare Hand"
+    },
+    {
+      "id": "gate.mastery_true_curve",
+      "kind": "mastery",
+      "name": "True Curve"
+    },
+    {
+      "id": "gate.mastery_mixed_rack",
+      "kind": "mastery",
+      "name": "Mixed Rack"
+    }
+  ],
+  "objectives": [
+    {
+      "id": "mastery.spare_hand",
+      "name": "Spare Hand",
+      "text": "Convert 10 spares across your Career.",
+      "metric": "spares",
+      "threshold": 10,
+      "scope": "career",
+      "prerequisites": [],
+      "gates": [
+        "gate.mastery_spare_hand"
+      ],
+      "reward": "Spare Hand ribbon for the trophy shelf."
+    },
+    {
+      "id": "mastery.true_curve",
+      "name": "True Curve",
+      "text": "Strike with a curved roll three times in one attempt.",
+      "metric": "curved_strikes",
+      "threshold": 3,
+      "scope": "attempt",
+      "prerequisites": [],
+      "gates": [
+        "gate.mastery_true_curve"
+      ],
+      "reward": "True Curve ribbon for the trophy shelf; Banana Ball and Spin Wax join the shop pool from your next attempt."
+    },
+    {
+      "id": "mastery.mixed_rack",
+      "name": "Mixed Rack",
+      "text": "Knock down pins of three different materials in one attempt.",
+      "metric": "pin_materials",
+      "threshold": 3,
+      "scope": "attempt",
+      "prerequisites": [],
+      "gates": [
+        "gate.mastery_mixed_rack"
+      ],
+      "reward": "Mixed Rack ribbon for the trophy shelf; Keystone joins the shop pool from your next attempt."
+    }
+  ],
+  "counters": {
+    "boss_rule.dead_straight": [
+      "straight",
+      "strike",
+      "power",
+      "precision",
+      "retrigger"
+    ],
+    "boss_rule.clean_sweep": [
+      "strike",
+      "spare",
+      "clearing"
+    ],
+    "boss_rule.oil_slick": [
+      "straight",
+      "precision",
+      "power"
+    ],
+    "boss_rule.heavy_set": [
+      "power",
+      "spare",
+      "strike"
+    ],
+    "boss_rule.frugal_house": [
+      "mult",
+      "value",
+      "baseline"
+    ],
+    "boss_rule.house_rules": [
+      "straight",
+      "baseline",
+      "house"
+    ],
+    "boss_rule.charm_freeze": [
+      "mult",
+      "value"
+    ],
+    "boss_rule.narrow_lane": [
+      "precision",
+      "straight"
+    ],
+    "boss_rule.one_and_done": [
+      "strike",
+      "standing"
+    ],
+    "boss_rule.mult_cap": [
+      "value",
+      "growth",
+      "glass"
+    ],
+    "boss_rule.dull_pins": [
+      "mult",
+      "strike"
+    ],
+    "boss_rule.house_pins": [
+      "mult",
+      "strike",
+      "retrigger"
+    ],
+    "boss_rule.strobe": [
+      "straight",
+      "power",
+      "value"
+    ],
+    "boss_rule.rust": [
+      "baseline",
+      "mult",
+      "value"
+    ],
+    "boss_rule.court_order": [
+      "precision",
+      "positional",
+      "accuracy"
+    ],
+    "boss_rule.silence": [
+      "value",
+      "mult",
+      "straight"
+    ],
+    "boss_rule.fading": [
+      "spare",
+      "standing",
+      "open"
+    ],
+    "boss_rule.brittle_rack": [
+      "baseline",
+      "economy",
+      "value"
+    ],
+    "boss_rule.blast_doors": [
+      "power",
+      "precision",
+      "accuracy"
+    ],
+    "boss_rule.pressure_gauge": [
+      "mult",
+      "strike",
+      "growth"
+    ]
+  },
+  "cosmetics": [
+    {
+      "id": "deco.club_sign",
+      "name": "Restored club sign",
+      "text": "The sign over the door lights up again.",
+      "requires": {
+        "first_clears": 1
+      }
+    },
+    {
+      "id": "deco.lane_trim",
+      "name": "Brass lane trim",
+      "text": "Polished trim along the lanes.",
+      "requires": {
+        "mastery": 1
+      }
+    },
+    {
+      "id": "deco.trophy_case",
+      "name": "Trophy case",
+      "text": "A glass case for your League titles.",
+      "requires": {
+        "championships": 1
+      }
+    }
+  ]
+}

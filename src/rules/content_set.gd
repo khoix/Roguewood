@@ -20,6 +20,8 @@ const DEFAULT := "slice"
 const SETS := {
 	"slice": {"catalogue": "res://content/catalogue.json", "league": "res://content/slice/league.json", "unlocks": UNLOCKS},
 	"lab": {"catalogue": "res://content/fixtures/lab_catalogue.json", "division": "res://content/fixtures/lab_division.json", "unlocks": LAB_UNLOCKS},
+	# E18-C05 test fixture: the House champion and Old Lou on the production catalogue (J03C05 only).
+	"house_c05": {"catalogue": "res://content/catalogue.json", "league": "res://content/fixtures/house_c05_league.json", "unlocks": "res://content/fixtures/house_c05_unlocks.json"},
 }
 ## Lab starting kit (fixture items, not the production kit): ten Wood pins and a deck
 ## of two copies of three lab ball types plus one tactical card.

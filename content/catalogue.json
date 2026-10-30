@@ -2135,20 +2135,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d04/icon.ball_mod.chalk_grip.tres",
+        "card": "res://assets/items/d04/card.ball_mod.chalk_grip.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d04/rarity_treatment.ball_mod.chalk_grip.tres",
+        "activation": "res://assets/effects/activation.ball_mod.chalk_grip.tres",
+        "sound": "res://assets/audio/sound.ball_mod.chalk_grip.wav",
+        "reduced_motion": "res://assets/items/d04/reduced_motion.ball_mod.chalk_grip.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -2191,20 +2191,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d04/icon.ball_mod.spin_wax.tres",
+        "card": "res://assets/items/d04/card.ball_mod.spin_wax.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d04/rarity_treatment.ball_mod.spin_wax.tres",
+        "activation": "res://assets/effects/activation.ball_mod.spin_wax.tres",
+        "sound": "res://assets/audio/sound.ball_mod.spin_wax.wav",
+        "reduced_motion": "res://assets/items/d04/reduced_motion.ball_mod.spin_wax.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -2247,20 +2247,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d04/icon.ball_mod.coin_slot.tres",
+        "card": "res://assets/items/d04/card.ball_mod.coin_slot.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d04/rarity_treatment.ball_mod.coin_slot.tres",
+        "activation": "res://assets/effects/activation.ball_mod.coin_slot.tres",
+        "sound": "res://assets/audio/sound.ball_mod.coin_slot.wav",
+        "reduced_motion": "res://assets/items/d04/reduced_motion.ball_mod.coin_slot.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -2302,20 +2302,20 @@
         "ball.echo"
       ],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d04/icon.ball_mod.echo_charge.tres",
+        "card": "res://assets/items/d04/card.ball_mod.echo_charge.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d04/rarity_treatment.ball_mod.echo_charge.tres",
+        "activation": "res://assets/effects/activation.ball_mod.echo_charge.tres",
+        "sound": "res://assets/audio/sound.ball_mod.echo_charge.wav",
+        "reduced_motion": "res://assets/items/d04/reduced_motion.ball_mod.echo_charge.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -2353,20 +2353,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d04/icon.pin_mod.brass_cap.tres",
+        "card": "res://assets/items/d04/card.pin_mod.brass_cap.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d04/rarity_treatment.pin_mod.brass_cap.tres",
+        "activation": "res://assets/effects/activation.pin_mod.brass_cap.tres",
+        "sound": "res://assets/audio/sound.pin_mod.brass_cap.wav",
+        "reduced_motion": "res://assets/items/d04/reduced_motion.pin_mod.brass_cap.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -2406,20 +2406,20 @@
         "pin.gold"
       ],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d04/icon.pin_mod.gilt_leaf.tres",
+        "card": "res://assets/items/d04/card.pin_mod.gilt_leaf.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d04/rarity_treatment.pin_mod.gilt_leaf.tres",
+        "activation": "res://assets/effects/activation.pin_mod.gilt_leaf.tres",
+        "sound": "res://assets/audio/sound.pin_mod.gilt_leaf.wav",
+        "reduced_motion": "res://assets/items/d04/reduced_motion.pin_mod.gilt_leaf.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -2458,20 +2458,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d04/icon.pin_mod.lantern.tres",
+        "card": "res://assets/items/d04/card.pin_mod.lantern.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d04/rarity_treatment.pin_mod.lantern.tres",
+        "activation": "res://assets/effects/activation.pin_mod.lantern.tres",
+        "sound": "res://assets/audio/sound.pin_mod.lantern.wav",
+        "reduced_motion": "res://assets/items/d04/reduced_motion.pin_mod.lantern.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -2510,6 +2510,589 @@
         "value",
         "strike",
         "rack"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "res://assets/items/d04/icon.pin_mod.keystone.tres",
+        "card": "res://assets/items/d04/card.pin_mod.keystone.tres",
+        "in_play": "",
+        "rarity_treatment": "res://assets/items/d04/rarity_treatment.pin_mod.keystone.tres",
+        "activation": "res://assets/effects/activation.pin_mod.keystone.tres",
+        "sound": "res://assets/audio/sound.pin_mod.keystone.wav",
+        "reduced_motion": "res://assets/items/d04/reduced_motion.pin_mod.keystone.tres"
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": true,
+        "effects_audio": true,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "boss_rule.house_rules",
+      "name": "House Rules",
+      "category": "boss_rule",
+      "rarity": "common",
+      "pool_weight": 0,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 0,
+      "resale_price": 0,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Only the House Ball may be thrown in the boss match.",
+      "synergy_tags": [
+        "straight",
+        "baseline",
+        "house"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "boss_rule.house_pins",
+      "name": "House Pins",
+      "category": "boss_rule",
+      "rarity": "common",
+      "pool_weight": 0,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 0,
+      "resale_price": 0,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Every rack pin plays as plain Wood for the whole boss match.",
+      "synergy_tags": [
+        "baseline",
+        "house",
+        "rack"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "lane_condition.house_oil",
+      "name": "House Oil",
+      "category": "lane_condition",
+      "rarity": "common",
+      "pool_weight": 0,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 0,
+      "resale_price": 0,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "No change: the standard oil pattern.",
+      "synergy_tags": [
+        "baseline",
+        "house"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "lane_condition.dry_backend",
+      "name": "Dry Backend",
+      "category": "lane_condition",
+      "rarity": "common",
+      "pool_weight": 0,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 0,
+      "resale_price": 0,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Curved throws hook harder after the oil ends.",
+      "synergy_tags": [
+        "curve",
+        "house"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "consumable.nudge",
+      "name": "Nudge",
+      "category": "consumable",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 3,
+      "resale_price": 1,
+      "effects": [],
+      "limits": {
+        "max_owned": 2,
+        "charges": 1,
+        "exhaustion": "consume"
+      },
+      "downside": "One use per run, only before roll 2, and only into a spot whose pin has fallen.",
+      "synergy_tags": [
+        "tactical",
+        "spare",
+        "positional"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "res://assets/items/d01/icon.consumable.nudge.tres",
+        "card": "res://assets/items/d01/card.consumable.nudge.tres",
+        "in_play": "",
+        "rarity_treatment": "res://assets/items/d01/rarity_treatment.consumable.nudge.tres",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": "res://assets/items/d01/reduced_motion.consumable.nudge.tres"
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "consumable.reserve_call",
+      "name": "Reserve Call",
+      "category": "consumable",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 4,
+      "resale_price": 2,
+      "effects": [],
+      "limits": {
+        "max_owned": 2,
+        "charges": 1,
+        "exhaustion": "consume"
+      },
+      "downside": "Needs a pin in reserve, and lasts one frame.",
+      "synergy_tags": [
+        "tactical",
+        "rack",
+        "reserve"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "res://assets/items/d01/icon.consumable.reserve_call.tres",
+        "card": "res://assets/items/d01/card.consumable.reserve_call.tres",
+        "in_play": "",
+        "rarity_treatment": "res://assets/items/d01/rarity_treatment.consumable.reserve_call.tres",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": "res://assets/items/d01/reduced_motion.consumable.reserve_call.tres"
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "consumable.rule_waiver",
+      "name": "Rule Waiver",
+      "category": "consumable",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 5,
+      "resale_price": 2,
+      "effects": [],
+      "limits": {
+        "max_owned": 2,
+        "charges": 1,
+        "exhaustion": "consume"
+      },
+      "downside": "Only in boss matches, only for one frame, and exhausted after use.",
+      "synergy_tags": [
+        "tactical",
+        "counter",
+        "boss"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "res://assets/items/d01/icon.consumable.rule_waiver.tres",
+        "card": "res://assets/items/d01/card.consumable.rule_waiver.tres",
+        "in_play": "",
+        "rarity_treatment": "res://assets/items/d01/rarity_treatment.consumable.rule_waiver.tres",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": "res://assets/items/d01/reduced_motion.consumable.rule_waiver.tres"
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "shop_upgrade.punch_card",
+      "name": "Punch Card",
+      "category": "shop_upgrade",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 4,
+      "resale_price": 2,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Only the first reroll of a visit, and it never lowers the price of anything you buy. Kept for the attempt; cannot be sold.",
+      "synergy_tags": [
+        "shop",
+        "reroll",
+        "selection"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "shop_upgrade.pin_caddy",
+      "name": "Pin Caddy",
+      "category": "shop_upgrade",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 4,
+      "resale_price": 2,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Reserve pins do not score unless racked, so the slot only pays off with pin swaps or Reserve Call. Kept for the attempt; cannot be sold.",
+      "synergy_tags": [
+        "capacity",
+        "reserve",
+        "rack"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "shop_upgrade.clearance_tag",
+      "name": "Clearance Tag",
+      "category": "shop_upgrade",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 2,
+      "purchase_price": 6,
+      "resale_price": 3,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Saves $1 per purchase; it needs several purchases before it has paid for itself. Kept for the attempt; cannot be sold.",
+      "synergy_tags": [
+        "economy",
+        "discount",
+        "shop"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "shop_upgrade.savings_book",
+      "name": "Savings Book",
+      "category": "shop_upgrade",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 2,
+      "purchase_price": 6,
+      "resale_price": 3,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Only pays when you hold $20 or more at the end of a match, which competes with buying now. Kept for the attempt; cannot be sold.",
+      "synergy_tags": [
+        "economy",
+        "interest",
+        "saving"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "shop_upgrade.extra_shelf",
+      "name": "Extra Shelf",
+      "category": "shop_upgrade",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 2,
+      "purchase_price": 7,
+      "resale_price": 3,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "More choice, not cheaper choice: the extra offer costs full price and rerolls cost the same. Kept for the attempt; cannot be sold.",
+      "synergy_tags": [
+        "selection",
+        "shop",
+        "capacity"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "shop_upgrade.spotlight_sign",
+      "name": "Spotlight Sign",
+      "category": "shop_upgrade",
+      "rarity": "rare",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 3,
+      "purchase_price": 8,
+      "resale_price": 4,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Rarer offers usually cost more, and common staples appear less often. Kept for the attempt; cannot be sold.",
+      "synergy_tags": [
+        "selection",
+        "rarity",
+        "shop"
       ],
       "incompatibilities": [],
       "assets": {

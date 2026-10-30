@@ -66,6 +66,12 @@ jobs:
           xvfb-run -a python3 tools/qa.py e2e --journey J03C03 --rendered
           python3 tools/qa.py e2e --journey J03C04
           xvfb-run -a python3 tools/qa.py e2e --journey J03C04 --rendered
+          python3 tools/qa.py e2e --journey J03C05
+          xvfb-run -a python3 tools/qa.py e2e --journey J03C05 --rendered
+          python3 tools/qa.py e2e --journey J03C06
+          xvfb-run -a python3 tools/qa.py e2e --journey J03C06 --rendered
+          python3 tools/qa.py e2e --journey J03C07
+          xvfb-run -a python3 tools/qa.py e2e --journey J03C07 --rendered
           python3 tools/qa.py e2e --journey J11
           xvfb-run -a python3 tools/qa.py e2e --journey J11 --rendered
           python3 tools/qa.py e2e --journey J08
@@ -188,6 +194,28 @@ jobs:
             python3 tools/qa.py e2e --journey "$journey"
             xvfb-run -a python3 tools/qa.py e2e --journey "$journey" --rendered
           done
+      - name: Wave 6 modification art first three items
+        run: |
+          for journey in JAVC04A JAVC04AC; do
+            python3 tools/qa.py e2e --journey "$journey"
+            xvfb-run -a python3 tools/qa.py e2e --journey "$journey" --rendered
+          done
+      - name: Wave 6 modification art second three items
+        run: |
+          for journey in JAVC04B JAVC04BC; do
+            python3 tools/qa.py e2e --journey "$journey"
+            xvfb-run -a python3 tools/qa.py e2e --journey "$journey" --rendered
+          done
+      - name: C04 Echo Charge and Lantern art and effects
+        run: |
+          python3 tools/qa.py e2e --journey JAVC04C
+          xvfb-run -a python3 tools/qa.py e2e --journey JAVC04C --rendered
+          python3 tools/qa.py e2e --journey JAVC04CC
+          xvfb-run -a python3 tools/qa.py e2e --journey JAVC04CC --rendered
+      - name: House League theme asset inspector
+        run: |
+          python3 tools/qa.py e2e --journey J22L01ART
+          xvfb-run -a python3 tools/qa.py e2e --journey J22L01ART --rendered
       - name: Preserve journey diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -225,6 +253,9 @@ jobs:
             artifacts/e18-c02/
             artifacts/e18-c03/
             artifacts/e18-c04/
+            artifacts/e18-c05/
+            artifacts/e18-c06/
+            artifacts/e18-c07/
             artifacts/e16-art/
             artifacts/e19-a08/
             artifacts/e19-a09/
@@ -238,4 +269,8 @@ jobs:
             artifacts/e20-v08/
             artifacts/av-c03-a/
             artifacts/av-c03-b/
+            artifacts/av-c04-a/
+            artifacts/av-c04-b/
+            artifacts/av-c04-c/
+            artifacts/e22-l01-art/
           if-no-files-found: warn

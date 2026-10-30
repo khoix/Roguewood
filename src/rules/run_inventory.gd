@@ -10,8 +10,11 @@ extends RefCounted
 ## growth is the entry's run-persistent counter (a Grower pin's knockdowns, Patient
 ## Investor's completed matches; ADR 008). It travels with the entry and is lost
 ## when the entry is sold. strike_streak counts consecutive strikes across the run.
-## Places are refs: "rack:3", "reserve:1", "charm:2", "card:card-4".
+## Places are refs: "rack:3", "reserve:1", "charm:2", "card:card-4", "upgrade:1".
+## E18-C07: shop upgrades are owned for the rest of the attempt and never sold; Pin
+## Caddy adds a reserve slot (the reserves array's size is the run's capacity).
 const Economy = preload("res://src/rules/economy.gd")
+const Upgrades = preload("res://src/rules/upgrades.gd")
 const SCHEMA_VERSION := 1
 const RACK_SIZE := 10
 const RESERVE_SLOTS := 2
@@ -25,9 +28,10 @@ const SPEND := ["purchase", "reroll", "removal"]
 var money := 0
 var match_number := 1
 var rack: Dictionary = {} # position (int) -> entry
-var reserves: Array = [] # RESERVE_SLOTS entries or null
+var reserves: Array = [] # RESERVE_SLOTS (or more, with Pin Caddy) entries or null
 var charms: Array = [] # ordered entries, at most CHARM_SLOTS
 var cards: Dictionary = {} # uid -> entry
+var upgrades: Array = [] # E18-C07: owned shop upgrades, in purchase order
 var next_card := 1
 var ledger: Array = [] # {match, kind, amount, item_id}
 var strike_streak := 0
@@ -96,11 +100,13 @@ func entries() -> Array:
 	var out: Array = []
 	for position in range(1, RACK_SIZE + 1):
 		out.append({"ref": "rack:%d" % position, "entry": rack[position]})
-	for i in RESERVE_SLOTS:
+	for i in reserves.size():
 		if reserves[i] != null:
 			out.append({"ref": "reserve:%d" % (i + 1), "entry": reserves[i]})
 	for i in charms.size():
 		out.append({"ref": "charm:%d" % (i + 1), "entry": charms[i]})
+	for i in upgrades.size():
+		out.append({"ref": "upgrade:%d" % (i + 1), "entry": upgrades[i]})
 	var uids: Array = cards.keys()
 	uids.sort_custom(func(a, b): return int(a.trim_prefix("card-")) < int(b.trim_prefix("card-")))
 	for uid in uids:
@@ -113,11 +119,14 @@ func entry_at(ref: String) -> Variant:
 		"rack": return rack.get(int(parts[1]))
 		"reserve":
 			var i := int(parts[1]) - 1
-			return reserves[i] if i >= 0 and i < RESERVE_SLOTS else null
+			return reserves[i] if i >= 0 and i < reserves.size() else null
 		"charm":
 			var i := int(parts[1]) - 1
 			return charms[i] if i >= 0 and i < charms.size() else null
 		"card": return cards.get(parts[1])
+		"upgrade":
+			var i := int(parts[1]) - 1
+			return upgrades[i] if i >= 0 and i < upgrades.size() else null
 	return null
 
 ## Copies owned, counting attached modifications.
@@ -135,6 +144,7 @@ static func slot_kind(category: String) -> String:
 		"pin": return "pin"
 		"charm": return "charm"
 		"pin_mod", "ball_mod": return "mod"
+		"shop_upgrade": return "upgrade"
 	return ""
 
 func copy_limit(item_id: String) -> int:
@@ -196,7 +206,7 @@ func placements(item_id: String) -> Array:
 					out.append({"target": ref, "replaces": "", "sale": 0, "moves_to": "reserve:%d" % (free + 1)})
 				else:
 					out.append({"target": ref, "replaces": ref, "sale": sale_value(ref), "moves_to": ""})
-			for i in RESERVE_SLOTS:
+			for i in reserves.size():
 				var ref := "reserve:%d" % (i + 1)
 				if reserves[i] == null:
 					out.append({"target": ref, "replaces": "", "sale": 0, "moves_to": ""})
@@ -205,6 +215,8 @@ func placements(item_id: String) -> Array:
 		"mod":
 			for ref in mod_hosts(item_id):
 				out.append({"target": ref, "replaces": "", "sale": 0, "moves_to": ""})
+		"upgrade":
+			out.append({"target": "upgrade:new", "replaces": "", "sale": 0, "moves_to": ""})
 	return out
 
 ## Sale value of an owned entry, including its modification. The House ball is
@@ -219,8 +231,9 @@ func sale_value(ref: String) -> int:
 	return value
 
 ## Rack pins hold the lineup, so they are replaced or swapped, never sold empty.
+## Shop upgrades are kept for the attempt.
 func can_sell(ref: String) -> bool:
-	return entry_at(ref) != null and not ref.begins_with("rack:")
+	return entry_at(ref) != null and not ref.begins_with("rack:") and not ref.begins_with("upgrade:")
 
 # --- Money -----------------------------------------------------------------
 
@@ -317,7 +330,7 @@ func settle_match(frames_used: int) -> Dictionary:
 	for row in ledger:
 		if row.match == match_number and row.kind == "item_income":
 			earned += int(row.amount)
-	var summary := {"match": match_number, "balance_before": money, "interest": Economy.interest(money),
+	var summary := {"match": match_number, "balance_before": money, "interest": Upgrades.interest(money, self),
 		"payout": Economy.match_payout(frames_used), "item_income": earned, "grown": grow_after_match()}
 	credit(summary.interest, "interest")
 	credit(summary.payout, "payout")
@@ -379,6 +392,11 @@ func place(item_id: String, paid: int, target: String) -> Array[String]:
 			rack[int(parts[1])] = _entry(item_id, paid)
 		"reserve":
 			reserves[int(parts[1]) - 1] = _entry(item_id, paid)
+		"upgrade":
+			upgrades.append(_entry(item_id, paid))
+			if Upgrades.kind(item_id) == "reserve_slot":
+				for _i in Upgrades.RESERVE_BONUS:
+					reserves.append(null)
 	return errors
 
 func sell(ref: String) -> Array[String]:
@@ -482,6 +500,8 @@ func to_dict() -> Dictionary:
 		"next_card": next_card, "ledger": ledger.duplicate(true), "strike_streak": strike_streak}
 	if effects_state > 0:
 		out["effects_state"] = effects_state # additive (E18-C02); absent in older saves
+	if not upgrades.is_empty():
+		out["upgrades"] = upgrades.duplicate(true) # additive (E18-C07)
 	return out
 
 static func from_dict(data: Dictionary, catalogue: Dictionary) -> RefCounted:
@@ -499,6 +519,7 @@ static func from_dict(data: Dictionary, catalogue: Dictionary) -> RefCounted:
 	inventory.ledger = data.ledger.map(func(row): return {"match": int(row.match), "kind": row.kind, "amount": int(row.amount), "item_id": row.item_id})
 	inventory.strike_streak = int(data.get("strike_streak", 0))
 	inventory.effects_state = int(data.get("effects_state", 0))
+	inventory.upgrades = data.get("upgrades", []).map(func(e): return _ints(e))
 	return inventory
 
 static func _ints(entry: Dictionary) -> Dictionary:

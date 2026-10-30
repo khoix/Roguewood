@@ -1,0 +1,9 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+[ext_resource type="Script" path="res://src/presentation/ability_style.gd" id="1"]
+[resource]
+script = ExtResource("1")
+item_id = "pin_mod.lantern"
+shape = "lantern_count"
+ink = Color(0.9058823529411765,0.7372549019607844,0.4392156862745098,1)
+duration = 0.55
+priority = 2

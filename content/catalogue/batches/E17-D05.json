@@ -2,72 +2,8 @@
   "schema_version": 1,
   "batch": "E17-D05",
   "status": "authored",
-  "note": "E17-L01's definitions: the nine new boss rules that complete the 20 (one per rival in content/leagues/rivals.json), House's second kit and House's two lane conditions (formalising the campaign fixtures). Each rule needs a rule primitive in rival_rules.gd (E18); the House ones land in E18-C05. Nothing here is in content/catalogue.json until E18.",
+  "note": "E17-L01's definitions: the nine new boss rules that complete the 20 (one per rival in content/leagues/rivals.json), House's second kit and House's two lane conditions (formalising the campaign fixtures). Each rule needs a rule primitive in rival_rules.gd (E18); the House ones land in E18-C05. Nothing here is in content/catalogue.json until E18. E18-C05 landed boss_rule.house_pins, lane_condition.house_oil, lane_condition.dry_backend.",
   "definitions": [
-    {
-      "item": {
-        "id": "boss_rule.house_pins",
-        "name": "House Pins",
-        "category": "boss_rule",
-        "rarity": "common",
-        "pool_weight": 0,
-        "unlock": {
-          "kind": "initial",
-          "prerequisites": []
-        },
-        "earliest_division": 1,
-        "purchase_price": 0,
-        "resale_price": 0,
-        "effects": [],
-        "limits": {
-          "max_owned": 1,
-          "charges": 0,
-          "exhaustion": "none"
-        },
-        "downside": "Every rack pin plays as plain Wood for the whole boss match.",
-        "synergy_tags": [
-          "baseline",
-          "house",
-          "rack"
-        ],
-        "incompatibilities": [],
-        "assets": {
-          "icon": "",
-          "card": "",
-          "in_play": "",
-          "rarity_treatment": "",
-          "activation": "",
-          "sound": "",
-          "reduced_motion": ""
-        },
-        "completeness": {
-          "authored": true,
-          "mechanics": false,
-          "automated_validation": false,
-          "artwork": false,
-          "effects_audio": false,
-          "unlock_assigned": true,
-          "integrated": false
-        }
-      },
-      "design": {
-        "trigger": "For every frame of the boss match, each racked pin scores as a plain Wood pin (+10 Value when it falls): its own effects are switched off. Modifications on pins, balls, tactical cards and Charms work as normal.",
-        "primitives": [
-          "rule.plain_rack"
-        ],
-        "pool": "Boss rule: never in a shop; used by its rival in the House League spec (docs/ROADMAP.md).",
-        "counterplay": "Score from Charms, balls and modifications instead of pin materials: Flat Bonus, Finisher, Echo Ball, Keystone or Brass Cap.",
-        "presentation_needs": "Pin materials stay visible but dimmed, with a House stamp on each; the rule badge shows a plain pin over a material swatch.",
-        "asset_ids": {
-          "icon": "icon.boss_rule.house_pins",
-          "card": "card.boss_rule.house_pins",
-          "rarity_treatment": "rarity_treatment.boss_rule.house_pins",
-          "activation": "activation.boss_rule.house_pins",
-          "sound": "sound.boss_rule.house_pins",
-          "reduced_motion": "reduced_motion.boss_rule.house_pins"
-        }
-      }
-    },
     {
       "item": {
         "id": "boss_rule.strobe",
@@ -638,52 +574,33 @@
           "reduced_motion": "reduced_motion.kit.tournament"
         }
       }
+    }
+  ],
+  "landed": [
+    {
+      "id": "boss_rule.house_pins",
+      "landed_in": "E18-C05",
+      "design": {
+        "trigger": "For every frame of the boss match, each racked pin scores as a plain Wood pin (+10 Value when it falls): its own effects are switched off. Modifications on pins, balls, tactical cards and Charms work as normal.",
+        "primitives": [
+          "rule.plain_rack"
+        ],
+        "pool": "Boss rule: never in a shop; used by its rival in the House League spec (docs/ROADMAP.md).",
+        "counterplay": "Score from Charms, balls and modifications instead of pin materials: Flat Bonus, Finisher, Echo Ball, Keystone or Brass Cap.",
+        "presentation_needs": "Pin materials stay visible but dimmed, with a House stamp on each; the rule badge shows a plain pin over a material swatch.",
+        "asset_ids": {
+          "icon": "icon.boss_rule.house_pins",
+          "card": "card.boss_rule.house_pins",
+          "rarity_treatment": "rarity_treatment.boss_rule.house_pins",
+          "activation": "activation.boss_rule.house_pins",
+          "sound": "sound.boss_rule.house_pins",
+          "reduced_motion": "reduced_motion.boss_rule.house_pins"
+        }
+      }
     },
     {
-      "item": {
-        "id": "lane_condition.house_oil",
-        "name": "House Oil",
-        "category": "lane_condition",
-        "rarity": "common",
-        "pool_weight": 0,
-        "unlock": {
-          "kind": "initial",
-          "prerequisites": []
-        },
-        "earliest_division": 1,
-        "purchase_price": 0,
-        "resale_price": 0,
-        "effects": [],
-        "limits": {
-          "max_owned": 1,
-          "charges": 0,
-          "exhaustion": "none"
-        },
-        "downside": "No change: the standard oil pattern.",
-        "synergy_tags": [
-          "baseline",
-          "house"
-        ],
-        "incompatibilities": [],
-        "assets": {
-          "icon": "",
-          "card": "",
-          "in_play": "",
-          "rarity_treatment": "",
-          "activation": "",
-          "sound": "",
-          "reduced_motion": ""
-        },
-        "completeness": {
-          "authored": true,
-          "mechanics": false,
-          "automated_validation": false,
-          "artwork": false,
-          "effects_audio": false,
-          "unlock_assigned": true,
-          "integrated": false
-        }
-      },
+      "id": "lane_condition.house_oil",
+      "landed_in": "E18-C05",
       "design": {
         "trigger": "The standard House oil pattern: the front and mid lane are oiled and the backend is dry, so a charged spin hooks late. Every other lane condition is described against this one.",
         "primitives": [
@@ -702,50 +619,8 @@
       }
     },
     {
-      "item": {
-        "id": "lane_condition.dry_backend",
-        "name": "Dry Backend",
-        "category": "lane_condition",
-        "rarity": "common",
-        "pool_weight": 0,
-        "unlock": {
-          "kind": "initial",
-          "prerequisites": []
-        },
-        "earliest_division": 1,
-        "purchase_price": 0,
-        "resale_price": 0,
-        "effects": [],
-        "limits": {
-          "max_owned": 1,
-          "charges": 0,
-          "exhaustion": "none"
-        },
-        "downside": "Curved throws hook harder after the oil ends.",
-        "synergy_tags": [
-          "curve",
-          "house"
-        ],
-        "incompatibilities": [],
-        "assets": {
-          "icon": "",
-          "card": "",
-          "in_play": "",
-          "rarity_treatment": "",
-          "activation": "",
-          "sound": "",
-          "reduced_motion": ""
-        },
-        "completeness": {
-          "authored": true,
-          "mechanics": false,
-          "automated_validation": false,
-          "artwork": false,
-          "effects_audio": false,
-          "unlock_assigned": true,
-          "integrated": false
-        }
-      },
+      "id": "lane_condition.dry_backend",
+      "landed_in": "E18-C05",
       "design": {
         "trigger": "The backend's contact friction rises from 0.2 to 0.3 while the oil zones are unchanged, so a charged spin hooks harder and later. Straight throws are unaffected.",
         "primitives": [
@@ -763,6 +638,5 @@
         }
       }
     }
-  ],
-  "landed": []
+  ]
 }

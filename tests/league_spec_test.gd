@@ -52,7 +52,7 @@ static func _spec_refusals(house: Dictionary, roster: Dictionary, ahead: Diction
 		var errors := Leagues.validate_spec(copy, roster, ahead, "house.json")
 		_expect(errors.any(func(e): return e.contains(text)), "%s is refused (%s): %s" % [label, text, str(errors)], failures)
 	refuses.call(func(h): h.divisions.pop_back(), "a League has 8 Divisions", "seven Divisions")
-	refuses.call(func(h): h.divisions[4].matches[2].target = 100; h.divisions[4].matches[1].target = 90; h.divisions[4].matches[0].target = 80, "targets rise from Division to Division", "a falling boss target")
+	refuses.call(func(h): h.divisions[4].matches[2].target = 100; h.divisions[4].matches[1].target = 90; h.divisions[4].matches[0].target = 80, "rises across the League", "a falling boss target")
 	refuses.call(func(h): h.divisions[0].matches[2].lanes = ["lane_condition.neon_glow"], "from the League's pool", "a lane outside the pool")
 	refuses.call(func(h): h.divisions[7].rivals[0].extra_rules = ["boss_rule.oil_slick"], "extra rules from the same League", "a champion with another League's rule")
 	refuses.call(func(h): h.divisions[2].rivals[0].reactions.erase("defeated"), "needs every reaction", "a missing reaction")
@@ -63,9 +63,9 @@ static func _spec_refusals(house: Dictionary, roster: Dictionary, ahead: Diction
 static func _counters(catalogue: Dictionary, failures: Array[String]) -> void:
 	var counters: Dictionary = Graph.read(ContentSet.UNLOCKS).counters
 	var d05: Array = Authored.load_all().filter(func(b): return b.data.batch == "E17-D05")
-	var rules: Array = d05[0].data.definitions.filter(func(d): return d.item.category == "boss_rule") if not d05.is_empty() else []
-	_expect(rules.size() == 9, "D05 writes nine boss rules", failures)
-	for d in rules:
-		var tags: Array = counters.get(d.item.id, [])
+	var rules: Array = d05[0].data.definitions.filter(func(d): return d.item.category == "boss_rule").map(func(d): return d.item.id) + d05[0].data.landed.filter(func(l): return l.id.begins_with("boss_rule.")).map(func(l): return l.id) if not d05.is_empty() else []
+	_expect(rules.size() == 9, "D05 writes nine boss rules (House Pins landed by E18-C05)", failures)
+	for id in rules:
+		var tags: Array = counters.get(id, [])
 		var answer: bool = catalogue.items.any(func(i): return i.unlock.kind == "initial" and float(i.pool_weight) > 0 and i.synergy_tags.any(func(t): return t in tags))
-		_expect(not tags.is_empty() and answer, "%s has counter tags met by an initially available item" % d.item.id, failures)
+		_expect(not tags.is_empty() and answer, "%s has counter tags met by an initially available item" % id, failures)

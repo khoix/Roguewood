@@ -24,6 +24,7 @@ signal attempt_finished(outcome: String)
 signal retry_requested
 signal menu_requested
 signal checkpoint_written(phase: String)
+signal tactic_played(action: Dictionary)
 const Lane = preload("res://src/simulation/lane_spec.gd")
 const LaneWorld = preload("res://src/simulation/lane_world.gd")
 const Dressing = preload("res://src/presentation/live_dressing.gd")
@@ -56,6 +57,9 @@ const Generator = preload("res://src/procedural/campaign_generator.gd")
 const Streams = preload("res://src/procedural/random_streams.gd")
 const League = preload("res://src/rules/league_run.gd")
 const ItemPhysics = preload("res://src/simulation/item_physics.gd")
+const Tactics = preload("res://src/rules/tactics.gd")
+const Upgrades = preload("res://src/rules/upgrades.gd")
+const TacticSheet = preload("res://src/presentation/tactic_sheet.gd")
 const NEAR_VICTORY := 0.75 # share of the target that makes a rival nervous
 const HOUSE := "ball.house"
 const LANDSCAPE_HAND_WIDTH := 440.0
@@ -116,6 +120,10 @@ var armed_tactical := ""
 var keep_card := ""
 var cycling := false
 var frame_tactics: Dictionary = {} # roll index -> tactical item ids
+var frame_actions: Array = [] # E18-C06: instant tactics played this frame (Tactics actions)
+var tactic_sheet: Control
+var _tactic: Dictionary = {} # the instant tactic being chosen: {uid, item_id, kind, values, ...}
+var _tactic_note := ""
 var match_number := 1
 var match_frame := 1
 var _equipment_model := ""
@@ -283,6 +291,10 @@ func _ready() -> void:
 	add_child(settings_panel)
 	inspector = preload("res://src/presentation/card_inspector.gd").new()
 	add_child(inspector)
+	tactic_sheet = TacticSheet.new()
+	tactic_sheet.chosen.connect(_on_tactic_choice)
+	tactic_sheet.cancelled.connect(_close_tactic)
+	add_child(tactic_sheet)
 	motion = preload("res://src/presentation/motion_director.gd").new()
 	motion.lab = self
 	add_child(motion)
@@ -304,6 +316,10 @@ func _owned_ids() -> Array:
 			if not id.is_empty() and id not in ids:
 				ids.append(id)
 	return ids
+
+## A rival's rules: its own, then any extra rules a League champion carries.
+func _rival_rules(rival: Dictionary) -> Array:
+	return [rival.get("rule", "")] + rival.get("extra_rules", [])
 
 func _league_key() -> String:
 	return league_entry.get("id", "league." + String(content.get("id", "lab")))
@@ -360,9 +376,138 @@ func _on_card(uid: String) -> void:
 		if errors.is_empty():
 			_checkpoint("aim") # the draw is spent; a reload cannot fish again
 	elif Deck.kind(_item_of(uid)) == "ball":
-		armed_ball = "" if armed_ball == uid else uid
+		if armed_ball != uid and not RivalRules.ball_allowed(active_rules(), _item_of(uid)):
+			last_cancel = "house_rules"
+		else:
+			armed_ball = "" if armed_ball == uid else uid
+	elif not Tactics.kind(_item_of(uid)).is_empty():
+		_open_tactic(uid)
+		return
+	elif armed_tactical != uid and roll_index in equipment.tactical_rolls:
+		_refuse_tactic("One tactical card per roll.")
 	else:
 		armed_tactical = "" if armed_tactical == uid else uid
+	_update_status()
+
+## E18-C06: the rules in force this frame (the rival's, unless a Rule Waiver
+## suspended them). Introductions, badges and results still name the rival's rules.
+func active_rules() -> Array:
+	return Tactics.active_rules(division.rules(), frame_actions) if division != null else []
+
+func _refuse_tactic(reason: String) -> void:
+	last_cancel = "tactic"
+	_tactic_note = reason
+	_update_status()
+
+## An instant tactic opens its chooser; nothing is spent until a choice is made.
+func _open_tactic(uid: String) -> void:
+	var item_id := _item_of(uid)
+	var reason := Tactics.blocked(item_id, {"roll_index": roll_index, "thrown": frame_reports.size(), "boss": division.is_boss(),
+		"rules": division.rules(), "rack": rack, "run": run, "actions": frame_actions})
+	if reason.is_empty() and roll_index in equipment.tactical_rolls:
+		reason = "One tactical card per roll."
+	if not reason.is_empty():
+		_refuse_tactic(reason)
+		return
+	_tactic = {"uid": uid, "item_id": item_id, "kind": Tactics.kind(item_id)}
+	state = "tactic"
+	last_cancel = ""
+	_tactic_step()
+
+## The next question for the tactic being chosen.
+func _tactic_step() -> void:
+	var name_at := func(entry): return _names.get(entry.item_id, entry.item_id)
+	var text := ""
+	var labels: Array = []
+	var values: Array = []
+	match _tactic.kind:
+		"relocate_pin":
+			if not _tactic.has("position"):
+				text = "Nudge: which standing pin moves?"
+				for option in Tactics.nudge_options(rack):
+					labels.append("Pin %d · %s" % [option.position, name_at.call(run.rack[option.position])])
+					values.append(option.position)
+			else:
+				text = "Nudge: move pin %d to which empty spot?" % _tactic.position
+				for option in Tactics.nudge_options(rack):
+					if option.position == _tactic.position:
+						for q in option.to:
+							labels.append("Spot %d" % q)
+							values.append(q)
+		"reserve_swap":
+			if not _tactic.has("reserve"):
+				text = "Reserve Call: which reserve pin plays this frame?"
+				for r in Tactics.reserve_options(run):
+					labels.append("%s · reserve %d" % [name_at.call(run.reserves[r - 1]), r])
+					values.append(r)
+			else:
+				text = "Reserve Call: %s replaces which rack pin, this frame only?" % name_at.call(run.reserves[_tactic.reserve - 1])
+				for k in range(1, RunInventory.RACK_SIZE + 1):
+					labels.append("Position %d · %s" % [k, name_at.call(run.rack[k])])
+					values.append(k)
+		"waive_rule":
+			var rules: Array = division.rules().map(func(r): return _names.get(r, r))
+			text = "Rule Waiver: %s will not apply for the rest of this frame." % " + ".join(rules)
+			labels.append("Waive %s" % " + ".join(rules))
+			values.append(true)
+	_tactic.values = values
+	tactic_sheet.open(text, labels)
+	_update_status()
+
+func _on_tactic_choice(index: int) -> void:
+	if state != "tactic" or index < 0 or index >= _tactic.get("values", []).size():
+		return
+	var value = _tactic.values[index]
+	match _tactic.kind:
+		"relocate_pin":
+			if not _tactic.has("position"):
+				_tactic.position = value
+				_tactic_step()
+				return
+			_play_tactic({"position": _tactic.position, "to": value})
+		"reserve_swap":
+			if not _tactic.has("reserve"):
+				_tactic.reserve = value
+				_tactic_step()
+				return
+			_play_tactic({"reserve": _tactic.reserve, "position": value, "called": run.reserves[_tactic.reserve - 1].item_id,
+				"displaced": run.rack[value].item_id, "restored": false})
+		"waive_rule":
+			_play_tactic({"rules": division.rules().duplicate()})
+
+## Spends the card and applies the tactic now, before the throw; saved at once.
+func _play_tactic(fields: Dictionary) -> void:
+	var errors: Array[String] = equipment.play(_tactic.uid, roll_index)
+	if not errors.is_empty():
+		push_error("Tactical card not played: " + str(errors))
+		_close_tactic()
+		return
+	var action := {"kind": _tactic.kind, "item_id": _tactic.item_id, "roll": roll_index}
+	action.merge(fields)
+	match action.kind:
+		"relocate_pin":
+			rack = Tactics.apply_nudge(rack, int(action.position), int(action.to))
+		"reserve_swap":
+			Tactics.swap_reserve(run, int(action.reserve), int(action.position))
+	frame_actions.append(action)
+	frame_tactics[roll_index] = [action.item_id]
+	armed_tactical = "" # one tactical card per roll
+	_tactic = {}
+	tactic_sheet.hide()
+	if action.kind == "waive_rule":
+		state = "aim"
+		_checkpoint("aim")
+		_update_status()
+	else:
+		_new_roll() # the lane rebuilds with the moved or called pin; saved as aim
+	tactic_played.emit(action.duplicate(true))
+
+func _close_tactic() -> void:
+	if state != "tactic":
+		return
+	_tactic = {}
+	tactic_sheet.hide()
+	state = "aim"
 	_update_status()
 
 ## Cycle arms a one-card swap: the next card pressed is discarded and replaced.
@@ -588,7 +733,7 @@ func _release(position: Vector2) -> void:
 		_cancel(flick.reason)
 		return
 	var x := _placed_x(flick.placement, origin)
-	var launch := RivalRules.constrain_launch(division.rules(), Mapper.to_launch(flick, x, "lab-%d" % (_launch_serial + 1), roll_index, target_x, frozen, armed_ball_id()))
+	var launch := RivalRules.constrain_launch(active_rules(), Mapper.to_launch(flick, x, "lab-%d" % (_launch_serial + 1), roll_index, target_x, frozen, armed_ball_id()))
 	_last_input = {"source": _hold_source, "speed": flick.speed, "screen_angle_deg": flick.angle_deg, "turn_deg": flick.turn_deg,
 		"spin": flick.spin, "power": flick.power}
 	_commit(launch, _hold_source)
@@ -598,7 +743,7 @@ func _assist_throw(controls: Dictionary) -> void:
 		return
 	target_x = controls.target_x
 	var frozen := Ring.radius(_clock_usec - _ring_start_usec, settings.reduced_motion)
-	var launch := RivalRules.constrain_launch(division.rules(), Mapper.from_controls(controls, "lab-%d" % (_launch_serial + 1), roll_index, target_x, frozen, armed_ball_id()))
+	var launch := RivalRules.constrain_launch(active_rules(), Mapper.from_controls(controls, "lab-%d" % (_launch_serial + 1), roll_index, target_x, frozen, armed_ball_id()))
 	_last_input = {"source": "assist", "controls": controls.duplicate()}
 	_commit(launch, "assist")
 
@@ -644,7 +789,7 @@ func _resume_commit(pending: Dictionary) -> void:
 
 ## Committed cards are spent exactly once; a cancelled or rejected throw spends none.
 func _play_armed() -> void:
-	_last_input.equipment = {"model": equipment.MODEL, "ball_id": armed_ball_id(), "card": armed_ball, "tactical": null,
+	_last_input.equipment = {"model": equipment.MODEL, "ball_id": armed_ball_id(), "card": armed_ball, "tactical": frame_tactics.get(roll_index, [null])[0],
 		"hand": equipment.options().map(func(o): return o.item_id), "cycled": equipment.MODEL == "deck" and equipment.cycled,
 		"kept": _kept_last_frame, "counts": equipment.counts()}
 	if not armed_ball.is_empty():
@@ -735,7 +880,9 @@ func _score_frame() -> void:
 		var played: Array = ([frame_mods[roll]] if frame_mods.has(roll) else []) + frame_tactics.get(roll, [])
 		if not played.is_empty():
 			extras[roll] = played
-	var built := FrameBuilder.build(run.loadout(), _catalogue, frame_reports, extras, frame_context())
+	# House Pins scores every racked pin as plain Wood (RivalRules.frame_loadout);
+	# a Rule Waiver suspends the rival's rules for the frame (active_rules).
+	var built := FrameBuilder.build(RivalRules.frame_loadout(active_rules(), run.loadout()), _catalogue, frame_reports, extras, frame_context())
 	var result := Rules.resolve(built.frame) if built.ok else {"ok": false, "errors": built.errors}
 	if not result.ok:
 		push_error("Frame could not be scored: " + str(result.errors))
@@ -743,7 +890,9 @@ func _score_frame() -> void:
 		return
 	var steps := ScoreLog.steps(result, built.frame, _names, built.owners)
 	# A rival's rule decides what the match banks; the calculation above stays as resolved.
-	var banked: Dictionary = RivalRules.bank(division.rules(), result)
+	for action in frame_actions: # E18-C06: each tactic played this frame, before the rule lines
+		steps.append({"phase": "rule", "symbol": "◆", "pin": 0, "text": Tactics.text(action, _names), "pin_value": steps[-1].pin_value, "mult": steps[-1].mult, "score": int(result.score)})
+	var banked: Dictionary = RivalRules.bank(active_rules(), result)
 	for note in banked.notes:
 		steps.append({"phase": "rule", "symbol": "✕", "pin": 0, "text": note, "pin_value": steps[-1].pin_value, "mult": steps[-1].mult, "score": banked.score})
 	var income := run.credit_frame(result, built.frame)
@@ -751,6 +900,7 @@ func _score_frame() -> void:
 	for change in run.transformed: # rolled once on the effects stream; saved with the frame below
 		steps.append({"phase": "rule", "symbol": "✕", "pin": int(change.position), "pin_value": steps[-1].pin_value, "mult": steps[-1].mult, "score": banked.score,
 			"text": "%s at %d cracked: now a %s." % [_names.get(change.from, change.from), int(change.position), _names.get(change.into, change.into)]})
+	Tactics.restore_swaps(run, frame_actions) # a Reserve Call lasts one frame; saved with the frame below
 	var outcome: Dictionary = division.record_frame(banked.score)
 	total_score += int(banked.score)
 	# E15: the frame counts toward Career records and mastery once, saved before the
@@ -827,6 +977,7 @@ func _advance_frame() -> void:
 	roll_index = 1
 	frame_reports = []
 	frame_tactics = {}
+	frame_actions = []
 	frame_mods = {}
 	rack = Lane.fresh_rack()
 	next_rack.hide()
@@ -888,7 +1039,7 @@ func _show_intro() -> void:
 	_save_career()
 	state = "intro"
 	_checkpoint("intro")
-	hud.show_intro(rival, division.target(), RivalRules.summary(rival.rule), rival.first_clear.text, seen)
+	hud.show_intro(rival, division.target(), RivalRules.summaries(_rival_rules(rival)), rival.first_clear.text, seen)
 	_update_status()
 
 func _on_intro_done() -> void:
@@ -995,7 +1146,7 @@ func _checkpoint(phase: String) -> void:
 			"score": s.result.score, "income": s.income, "match_over": s.match_over, "match_won": s.match_won, "frame_number": s.frame_number}
 	var lab := {"frame_number": frame_number, "roll_index": roll_index, "match_number": match_number, "match_frame": match_frame,
 		"total_score": total_score, "launch_serial": _launch_serial, "rack": rack, "frame_reports": frame_reports,
-		"frame_tactics": frame_tactics, "frame_mods": frame_mods, "kept_last_frame": _kept_last_frame, "equipment_model": _equipment_model,
+		"frame_tactics": frame_tactics, "frame_actions": frame_actions, "frame_mods": frame_mods, "kept_last_frame": _kept_last_frame, "equipment_model": _equipment_model,
 		"settlement": settlement, "last_scored": last_scored, "pending": pending_launch if phase == "committed" else null,
 		"result": _result_view if phase == "division_over" else null}
 	var payload := Snapshot.build({"attempt": attempt, "seed": equipment_seed, "phase": phase, "lab": lab, "run": run, "shop": shop,
@@ -1038,6 +1189,7 @@ func _restore(payload: Dictionary) -> void:
 	frame_reports = lab.frame_reports
 	history = frame_reports.duplicate()
 	frame_tactics = lab.frame_tactics
+	frame_actions = lab.get("frame_actions", [])
 	frame_mods = lab.frame_mods
 	_kept_last_frame = lab.kept_last_frame
 	_equipment_model = lab.equipment_model
@@ -1190,10 +1342,10 @@ func _next_match_preview() -> String:
 	var text := "Next: %s%s — target %d in two frames." % [where, next.match.name, int(next.match.target)]
 	var rival: Dictionary = next.rival
 	if not rival.is_empty():
-		text += "\n%s: %s\nFirst clear: %s" % [rival.name, RivalRules.summary(rival.rule),
+		text += "\n%s: %s\nFirst clear: %s" % [rival.name, RivalRules.summaries(_rival_rules(rival)),
 			rival.first_clear.text if not career.first_clears.has(rival.id) else "already cleared"]
 	else:
-		text += "\nBoss later: %s (%s)." % [next.boss_rival.name, RivalRules.summary(next.boss_rival.rule).trim_suffix(".")]
+		text += "\nBoss later: %s (%s)." % [next.boss_rival.name, RivalRules.summaries(_rival_rules(next.boss_rival)).trim_suffix(".")]
 	if content.id == "campaign":
 		text += "\nLane: " + _lane_text(next.match.get("lane_condition", ""))
 		text += "\nDivision boss target %d · %s" % [int(next.boss.target), _lane_text(next.boss.get("lane_condition", ""))]
@@ -1212,6 +1364,7 @@ func _ref_label(ref: String) -> String:
 		"rack": return "Rack %s %s" % [parts[1], text]
 		"reserve": return "Reserve %s %s" % [parts[1], text]
 		"charm": return "Charm %s %s" % [parts[1], text]
+		"upgrade": return "Upgrade " + text
 	return "Card " + text
 
 func _placement_label(option: Dictionary) -> String:
@@ -1234,7 +1387,8 @@ func _refresh_shop() -> void:
 	if shop_panel == null or state != "shop":
 		return
 	var offers: Array = []
-	for offer in shop.offers:
+	for index in shop.offers.size():
+		var offer: Dictionary = shop.offers[index]
 		var slot_name: String = Shop.SLOT_NAMES[offer.slot]
 		if offer.item_id.is_empty():
 			offers.append({"text": "%s\nNothing available" % slot_name, "state": "empty", "item_id": ""})
@@ -1246,7 +1400,7 @@ func _refresh_shop() -> void:
 			offer_state = "sold"
 			text += "  SOLD"
 		else:
-			var plan: Dictionary = shop.plan(offer.slot, run)
+			var plan: Dictionary = shop.plan(index, run)
 			if not plan.ok:
 				offer_state = "poor" if plan.reason == "insufficient funds" else "blocked"
 				var short := {"insufficient funds": "can't afford", "owned limit": "owned max", "incompatible with owned items": "incompatible",
@@ -1260,6 +1414,8 @@ func _refresh_shop() -> void:
 	var rack_text := "Rack: " + ", ".join(pins)
 	var reserves: Array = run.reserves.map(func(e): return "empty" if e == null else _names.get(e.item_id, ""))
 	rack_text += "\nReserves: " + ", ".join(reserves) + " · Charms %d/%d · Deck %d/%d" % [run.charms.size(), RunInventory.CHARM_SLOTS, run.cards.size(), RunInventory.DECK_CAP]
+	if not run.upgrades.is_empty():
+		rack_text += "\nUpgrades (kept for the attempt): " + Upgrades.summary(run, _names)
 	var charm_moves: Array = []
 	for i in range(1, run.charms.size()):
 		charm_moves.append({"slot": i + 1, "label": "◀ Move %s before %s" % [_names.get(run.charms[i].item_id, ""), _names.get(run.charms[i - 1].item_id, "")]})
@@ -1269,8 +1425,10 @@ func _refresh_shop() -> void:
 			sellables.append({"ref": owned.ref, "label": "Sell %s +$%d" % [_ref_label(owned.ref), run.sale_value(owned.ref)]})
 	var summary := "Match %d paid: payout $%d · interest $%d (on $%d held) · item income $%d" % [settlement.match, settlement.payout,
 		settlement.interest, settlement.balance_before, settlement.item_income]
+	if Upgrades.owned(run, "interest_cap"):
+		summary += " · Savings Book: interest cap $%d" % (Economy.INTEREST_CAP + Upgrades.INTEREST_BONUS)
 	shop_panel.show_view({"title": "Pro Shop", "summary": summary, "preview": _next_match_preview(), "money": run.money, "offers": offers,
-		"reroll_cost": shop.reroll_cost(), "can_reroll": run.money >= shop.reroll_cost(),
+		"reroll_cost": shop.reroll_cost(run), "can_reroll": run.money >= shop.reroll_cost(run),
 		"removal_price": Economy.REMOVAL_PRICE, "can_remove": run.money >= Economy.REMOVAL_PRICE and not run.cards.is_empty(),
 		"rack": rack_text, "charm_moves": charm_moves, "sellables": sellables,
 		"charm_order": "" if run.charms.is_empty() else "Charm order (left to right): " + ", ".join(run.charms.map(func(e): return _names.get(e.item_id, e.item_id))), "message": shop_message, "columns": 5 if size.x > size.y else 3})
@@ -1336,7 +1494,7 @@ func _on_ball(position: Vector2) -> bool:
 
 ## True while a rule in force (Dead Straight) disables charged spin.
 func spin_disabled() -> bool:
-	return division != null and RivalRules.spin_disabled(division.rules())
+	return division != null and RivalRules.spin_disabled(active_rules())
 
 ## Spin shown by the meter and guide: live gesture charge or the assist setting;
 ## always zero while spin is disabled, because that is what will be committed.
@@ -1372,8 +1530,18 @@ func _update_status() -> void:
 				status.text = lead + "\nHold the ball · circle to spin · flick up. Tap the lane to move the target."
 			if spin_disabled():
 				status.text += "\nDead Straight: spin is disabled — every throw rolls straight."
-			if not last_cancel.is_empty():
+			if not RivalRules.ball_allowed(active_rules(), "ball.hook"):
+				status.text += "\nHouse Rules: only the House Ball may be thrown; tactical cards are allowed."
+			for action in frame_actions:
+				status.text += "\n" + Tactics.text(action, _names)
+			if last_cancel == "house_rules":
+				status.text += "\nHouse Rules: that ball cannot be thrown here."
+			elif last_cancel == "tactic":
+				status.text += "\n" + _tactic_note
+			elif not last_cancel.is_empty():
 				status.text += "\nNo throw (%s) — nothing used." % last_cancel.replace("_", " ")
+		"tactic":
+			status.text = lead + "\nChoose how to play %s, or Cancel." % _names.get(_tactic.get("item_id", ""), "the card")
 		"holding":
 			status.text = lead + "\nCircle to spin, flick up to release. Let go without a flick to cancel."
 		"rolling":
@@ -1412,10 +1580,13 @@ func _refresh_hud() -> void:
 		var reward: String = rival.first_clear.text if not career.first_clears.has(rival.id) else "already cleared"
 		if division.is_boss():
 			view.text = "%s · %s" % [rival.name, view.text]
-			view.badge = "Rule: %s ⓘ" % _names.get(rival.rule, rival.rule)
+			var rule_names: Array = _rival_rules(rival).map(func(r): return _names.get(r, r))
+			view.badge = ("Rules: %s ⓘ" if rule_names.size() > 1 else "Rule: %s ⓘ") % " + ".join(rule_names)
+			if Tactics.waived(frame_actions):
+				view.badge = view.badge.replace(" ⓘ", " — waived this frame ⓘ")
 		else:
 			view.badge = "Boss: %s ⓘ" % rival.name
-		view.rule_text = "%s — target %d in two frames.\n%s\nFirst clear: %s" % [rival.name, int(boss.target), RivalRules.summary(rival.rule), reward]
+		view.rule_text = "%s — target %d in two frames.\n%s\nFirst clear: %s" % [rival.name, int(boss.target), RivalRules.summaries(_rival_rules(rival)), reward]
 	hud.show_match(view)
 	if state in ["shop", "division_over"] or not division.is_boss() or reactions.visible_at(_clock_usec).is_empty():
 		hud.hide_reaction()
