@@ -12,6 +12,7 @@ extends "res://tests/charm_c01_journey.gd"
 ##                 has no boss match).
 ## Every bank equals an independent resolution with the run's loadout and context.
 ## Run with --fixed-fps 60.
+var tag := "J03C08" # log prefix; extending journeys set their own
 const FIRST := ["charm.head_pin", "charm.wood_grain", "charm.opening_act", "charm.open_house", "charm.strike_fund"]
 
 func _run() -> void:
@@ -88,11 +89,11 @@ func _buy(wanted: Array) -> void:
 				await process_frame
 				_check(lab.run.charms.any(func(e): return e.item_id == offer.item_id) and lab.run.money == before - int(offer.price), "bought %s for $%d" % [offer.item_id, offer.price])
 				bought.append(offer.item_id)
-		if bought.size() == wanted.size():
+		if bought.size() == wanted.size() or lab.run.money < lab.shop.reroll_cost(lab.run):
 			break
 		await _tap(lab.shop_panel.reroll_button)
 		await process_frame
-	print("J03C08 bought: %s" % str(bought))
+	print("%s bought: %s" % [tag, str(bought)])
 	_check(bought.size() == wanted.size(), "every wanted Charm was offered and bought (%s)" % str(bought))
 
 ## Throws, then checks the bank and the income against an independent resolution.
@@ -109,7 +110,7 @@ func _house_frame(shots: Array, label: String) -> Dictionary:
 	var built := Builder.build(loadout, lab.content.catalogue, reports, {}, context)
 	var expected := Rules.resolve(built.frame) if built.ok else {"score": -1, "future_effects": []}
 	var payouts: int = expected.future_effects.filter(func(e): return e.op == "payout").reduce(func(n, e): return n + int(e.amount), 0)
-	print("J03C08 %s: category=%s banked=%d expected=%d income=%d expected_income=%d frame=%d" % [label, scored.result.category, scored.banked, expected.score, scored.income, payouts, context.match_frame])
+	print("%s %s: category=%s banked=%d expected=%d income=%d expected_income=%d frame=%d" % [tag, label, scored.result.category, scored.banked, expected.score, scored.income, payouts, context.match_frame])
 	_check(built.ok and scored.banked == expected.score and scored.income == payouts, "%s banks the independent resolution and its income" % label)
 	return scored
 

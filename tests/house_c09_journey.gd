@@ -1,7 +1,8 @@
 extends "res://tests/house_c08_journey.gd"
 ## J03C09 (E18-C09, DC-H2): the six D08 House Charms bought through the real Pro Shop
 ## and scored in real throws on the production slice (real targets, not Practice).
-## Fixture setup (logged, as J05 does): a wallet grant after the opener; offers,
+## Fixture setup (logged, as J05 does): a $2000 wallet grant after the opener (rerolls
+## rise in price within a visit); offers,
 ## rerolls, purchases and the sale are real taps.
 ##   opener shop:  Trophy Case, Corner Pockets, Late Rally, Clean Pickup, House Special;
 ##   feature f1:   an open frame: Late Rally stays silent in frame 1;
@@ -15,6 +16,7 @@ extends "res://tests/house_c08_journey.gd"
 const D08 := ["charm.trophy_case", "charm.corner_pockets", "charm.late_rally", "charm.clean_pickup", "charm.house_special"]
 
 func _run() -> void:
+	tag = "J03C09"
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--artifact-dir="): artifact_dir = arg.trim_prefix("--artifact-dir=")
 	root.size = PORTRAIT
@@ -33,9 +35,9 @@ func _run() -> void:
 	_check(not lab.division.practice, "a real match, not Practice")
 	await _strike_out()
 	await _to_shop("opener")
-	lab.run.credit(200, "fixture: C09 Charm sampling")
+	lab.run.credit(2000, "fixture: C09 Charm sampling")
 	lab._refresh_shop()
-	print("J03C09 fixture: $200 granted after the opener; offers, rerolls and purchases follow")
+	print("J03C09 fixture: $2000 granted after the opener; offers, rerolls and purchases follow")
 	await _buy(D08)
 	await _capture("c09_shop")
 	await _leave_shop()
