@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "batch": "E17-D06",
+  "status": "landed",
+  "note": "House League shop upgrades (docs/ROADMAP.md: 6 of 16), written and landed together by E18-C07. Prices and amounts are provisional (E24).",
+  "definitions": [],
+  "landed": [
+    {
+      "id": "shop_upgrade.punch_card",
+      "landed_in": "E18-C07",
+      "design": {
+        "trigger": "The first reroll in each Pro Shop visit is free; later rerolls follow the usual $2, $3, ... sequence.",
+        "primitives": [
+          "shop.free_first_reroll"
+        ],
+        "pool": "Pro Shop License offer (one per Division, kept through rerolls); initial pool from Division 1.",
+        "presentation_needs": "A punched loyalty card on the reroll button; the button shows 'Reroll free' until used.",
+        "asset_ids": {
+          "icon": "icon.shop_upgrade.punch_card",
+          "card": "card.shop_upgrade.punch_card",
+          "rarity_treatment": "rarity_treatment.shop_upgrade.punch_card",
+          "activation": "activation.shop_upgrade.punch_card",
+          "sound": "sound.shop_upgrade.punch_card",
+          "reduced_motion": "reduced_motion.shop_upgrade.punch_card"
+        }
+      }
+    },
+    {
+      "id": "shop_upgrade.pin_caddy",
+      "landed_in": "E18-C07",
+      "design": {
+        "trigger": "Adds a third reserve slot for pins for the rest of the attempt. Reserves hold pins between matches and feed Reserve Call.",
+        "primitives": [
+          "capacity.reserve_slot"
+        ],
+        "pool": "Pro Shop License offer (one per Division, kept through rerolls); initial pool from Division 1.",
+        "presentation_needs": "A caddy case beside the rack summary with three pockets; the new pocket is visibly added on purchase.",
+        "asset_ids": {
+          "icon": "icon.shop_upgrade.pin_caddy",
+          "card": "card.shop_upgrade.pin_caddy",
+          "rarity_treatment": "rarity_treatment.shop_upgrade.pin_caddy",
+          "activation": "activation.shop_upgrade.pin_caddy",
+          "sound": "sound.shop_upgrade.pin_caddy",
+          "reduced_motion": "reduced_motion.shop_upgrade.pin_caddy"
+        }
+      }
+    },
+    {
+      "id": "shop_upgrade.clearance_tag",
+      "landed_in": "E18-C07",
+      "design": {
+        "trigger": "Every Pro Shop offer, including the License offer, costs $1 less, never below $1. Sale values stay half the price actually paid, so nothing can be resold at a profit.",
+        "primitives": [
+          "shop.offer_discount"
+        ],
+        "pool": "Pro Shop License offer (one per Division, kept through rerolls); initial pool from Division 2.",
+        "presentation_needs": "A red clearance tag on every offer price; the struck-through original price shows beside the new one.",
+        "asset_ids": {
+          "icon": "icon.shop_upgrade.clearance_tag",
+          "card": "card.shop_upgrade.clearance_tag",
+          "rarity_treatment": "rarity_treatment.shop_upgrade.clearance_tag",
+          "activation": "activation.shop_upgrade.clearance_tag",
+          "sound": "sound.shop_upgrade.clearance_tag",
+          "reduced_motion": "reduced_motion.shop_upgrade.clearance_tag"
+        }
+      }
+    },
+    {
+      "id": "shop_upgrade.savings_book",
+      "landed_in": "E18-C07",
+      "design": {
+        "trigger": "Raises the interest cap from $3 to $5: interest still pays $1 per $5 held when a match ends, now up to $5.",
+        "primitives": [
+          "economy.interest_cap"
+        ],
+        "pool": "Pro Shop License offer (one per Division, kept through rerolls); initial pool from Division 2.",
+        "presentation_needs": "A passbook in the settlement line; the interest row shows the raised cap.",
+        "asset_ids": {
+          "icon": "icon.shop_upgrade.savings_book",
+          "card": "card.shop_upgrade.savings_book",
+          "rarity_treatment": "rarity_treatment.shop_upgrade.savings_book",
+          "activation": "activation.shop_upgrade.savings_book",
+          "sound": "sound.shop_upgrade.savings_book",
+          "reduced_motion": "reduced_motion.shop_upgrade.savings_book"
+        }
+      }
+    },
+    {
+      "id": "shop_upgrade.extra_shelf",
+      "landed_in": "E18-C07",
+      "design": {
+        "trigger": "The Pro Shop shows one more offer every visit, drawn from any category it sells (Charm, ball, pin, tactical card or modification), from the next stock onward.",
+        "primitives": [
+          "shop.extra_offer"
+        ],
+        "pool": "Pro Shop License offer (one per Division, kept through rerolls); initial pool from Division 2.",
+        "presentation_needs": "A sixth shelf with its own 'Extra Shelf' label among the offers.",
+        "asset_ids": {
+          "icon": "icon.shop_upgrade.extra_shelf",
+          "card": "card.shop_upgrade.extra_shelf",
+          "rarity_treatment": "rarity_treatment.shop_upgrade.extra_shelf",
+          "activation": "activation.shop_upgrade.extra_shelf",
+          "sound": "sound.shop_upgrade.extra_shelf",
+          "reduced_motion": "reduced_motion.shop_upgrade.extra_shelf"
+        }
+      }
+    },
+    {
+      "id": "shop_upgrade.spotlight_sign",
+      "landed_in": "E18-C07",
+      "design": {
+        "trigger": "Uncommon and rare offers come up more often: rarity odds become common 40%, uncommon 38%, rare 18%, epic 4% (from 55/30/12/3), from the next stock onward.",
+        "primitives": [
+          "shop.rarity_shift"
+        ],
+        "pool": "Pro Shop License offer (one per Division, kept through rerolls); initial pool from Division 3.",
+        "presentation_needs": "A spotlight over the offer grid; rarity frames glow brighter while it is owned.",
+        "asset_ids": {
+          "icon": "icon.shop_upgrade.spotlight_sign",
+          "card": "card.shop_upgrade.spotlight_sign",
+          "rarity_treatment": "rarity_treatment.shop_upgrade.spotlight_sign",
+          "activation": "activation.shop_upgrade.spotlight_sign",
+          "sound": "sound.shop_upgrade.spotlight_sign",
+          "reduced_motion": "reduced_motion.shop_upgrade.spotlight_sign"
+        }
+      }
+    }
+  ]
+}

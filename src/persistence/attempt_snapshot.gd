@@ -40,6 +40,10 @@ static func build(parts: Dictionary, content: Dictionary, content_set: String = 
 	var lab := {}
 	for key in LAB_KEYS:
 		lab[key] = parts.lab.get(key)
+	# E18-C06: instant tactics played this frame. Optional (absent in older saves and
+	# when none were played), so it is not one of the required LAB_KEYS.
+	if not parts.lab.get("frame_actions", []).is_empty():
+		lab["frame_actions"] = parts.lab.frame_actions.duplicate(true)
 	var out := {"attempt": int(parts.attempt), "seed": int(parts.seed), "phase": parts.phase, "content": content.duplicate(),
 		"content_set": content_set, "lab": lab, "run": parts.run.to_dict(), "shop": parts.shop.to_dict(),
 		"division": league_dict(parts.division.to_dict()), "equipment": parts.equipment.to_dict()}
@@ -104,7 +108,7 @@ static func validate(payload: Dictionary, catalogue: Dictionary, content_set: St
 static func referenced_items(payload: Dictionary) -> Array:
 	var ids := {}
 	var run: Dictionary = payload.get("run", {})
-	for entry in run.get("rack", {}).values() + run.get("reserves", []) + run.get("charms", []) + run.get("cards", {}).values():
+	for entry in run.get("rack", {}).values() + run.get("reserves", []) + run.get("charms", []) + run.get("cards", {}).values() + run.get("upgrades", []):
 		if entry is Dictionary:
 			ids[entry.item_id] = true
 			if not String(entry.get("mod", "")).is_empty():
@@ -142,6 +146,7 @@ static func normalized_lab(lab: Dictionary) -> Dictionary:
 		for roll in out[key]:
 			fixed[int(roll)] = out[key][roll]
 		out[key] = fixed
+	out["frame_actions"] = out.get("frame_actions", [])
 	for report in out.frame_reports:
 		_int_launch(report.launch)
 		report.roll_result.roll_index = int(report.roll_result.roll_index)

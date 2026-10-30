@@ -60,13 +60,7 @@ func _ready() -> void:
 	offers_grid.add_theme_constant_override("v_separation", 8)
 	_main.add_child(offers_grid)
 	for i in 5:
-		var button := Button.new()
-		button.name = "Offer_%d" % i
-		button.custom_minimum_size = Vector2(216, 150)
-		button.clip_text = true
-		button.pressed.connect(func(): offer_pressed.emit(i))
-		offers_grid.add_child(button)
-		offer_buttons.append(button)
+		_add_offer_button()
 	var actions := HBoxContainer.new()
 	actions.add_theme_constant_override("separation", 8)
 	_main.add_child(actions)
@@ -108,6 +102,17 @@ func _ready() -> void:
 	cancel_choice = _button(sheet, "CancelChoice", func(): choice_cancelled.emit())
 	cancel_choice.text = "Cancel"
 
+## Offer buttons grow with the offers (E18-C07: Extra Shelf and the License offer).
+func _add_offer_button() -> void:
+	var i := offer_buttons.size()
+	var button := Button.new()
+	button.name = "Offer_%d" % i
+	button.custom_minimum_size = Vector2(216, 150)
+	button.clip_text = true
+	button.pressed.connect(func(): offer_pressed.emit(i))
+	offers_grid.add_child(button)
+	offer_buttons.append(button)
+
 static func _style(color: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = color
@@ -143,7 +148,11 @@ func show_view(view: Dictionary) -> void:
 	if offers_grid.columns != int(view.get("columns", 3)):
 		_scroll.scroll_vertical = 0
 	offers_grid.columns = view.get("columns", 3)
+	while offer_buttons.size() < view.offers.size():
+		_add_offer_button()
 	for i in offer_buttons.size():
+		offer_buttons[i].visible = i < view.offers.size()
+	for i in view.offers.size():
 		var offer: Dictionary = view.offers[i]
 		var button: Button = offer_buttons[i]
 		button.icon = ItemAssets.slot(str(offer.get("item_id", "")), "icon") as Texture2D

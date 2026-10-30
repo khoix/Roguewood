@@ -4,6 +4,8 @@ extends RefCounted
 ## Mult that the resolver recorded, so presentation can never change a score.
 const ADD := "+"
 const TIMES := "×"
+const Tactics = preload("res://src/rules/tactics.gd")
+const Upgrades = preload("res://src/rules/upgrades.gd")
 
 static func grade_name(frame: Dictionary) -> String:
 	var best := "miss"
@@ -143,6 +145,11 @@ static func _owner(source: String, pins: Dictionary, balls: Dictionary, charms: 
 ## on tap"): each effect with its trigger, condition and scaling, then any physics.
 static func item_text(item: Dictionary, names: Dictionary = {}) -> String:
 	var parts: Array = []
+	# Instant tactics (E18-C06) and shop upgrades (E18-C07) have no frame effects:
+	# their rules are their play and their shop effect.
+	var rules: String = Tactics.describe(str(item.get("id", ""))) + Upgrades.describe(str(item.get("id", "")))
+	if not rules.is_empty():
+		parts.append(rules)
 	var when := {"fallen": " when down", "standing": " if standing"}
 	for effect in item.get("effects", []):
 		var amount := _n(effect.amount)

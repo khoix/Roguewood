@@ -4,7 +4,7 @@
   "name": "House League",
   "batch": "E17-L01",
   "status": "authored",
-  "note": "House League spec (E17-L01): eight Divisions replacing the slice's two and the campaign's provisional encounters at integration (E22-L01). Targets are provisional until E24; Divisions 1 and 2 keep the slice's targets. The two new rivals' first-clear items are chosen in the House item batches (Wave 7); their gates are named here.",
+  "note": "House League spec (E17-L01): eight Divisions replacing the slice's two and the campaign's provisional encounters at integration (E22-L01). Targets are provisional until E24; Divisions 1 and 2 keep the slice's targets, and every match target rises across the League (LeagueRun). The two new rivals' first-clear items are chosen in the House item batches (Wave 7); their gates are named here.",
   "access": [],
   "lanes": [
     "lane_condition.house_oil",
@@ -163,13 +163,13 @@
           "id": "match.house_d3_opener",
           "kind": "opener",
           "name": "Opener",
-          "target": 2300
+          "target": 2700
         },
         {
           "id": "match.house_d3_feature",
           "kind": "feature",
           "name": "Feature",
-          "target": 3300
+          "target": 3700
         },
         {
           "id": "match.house_d3_boss",
@@ -217,13 +217,13 @@
           "id": "match.house_d4_opener",
           "kind": "opener",
           "name": "Opener",
-          "target": 4000
+          "target": 5600
         },
         {
           "id": "match.house_d4_feature",
           "kind": "feature",
           "name": "Feature",
-          "target": 5800
+          "target": 7200
         },
         {
           "id": "match.house_d4_boss",
@@ -270,13 +270,13 @@
           "id": "match.house_d5_opener",
           "kind": "opener",
           "name": "Opener",
-          "target": 6800
+          "target": 10000
         },
         {
           "id": "match.house_d5_feature",
           "kind": "feature",
           "name": "Feature",
-          "target": 9800
+          "target": 12500
         },
         {
           "id": "match.house_d5_boss",
@@ -323,13 +323,13 @@
           "id": "match.house_d6_opener",
           "kind": "opener",
           "name": "Opener",
-          "target": 11000
+          "target": 16500
         },
         {
           "id": "match.house_d6_feature",
           "kind": "feature",
           "name": "Feature",
-          "target": 15500
+          "target": 20000
         },
         {
           "id": "match.house_d6_boss",
@@ -377,13 +377,13 @@
           "id": "match.house_d7_opener",
           "kind": "opener",
           "name": "Opener",
-          "target": 17000
+          "target": 26000
         },
         {
           "id": "match.house_d7_feature",
           "kind": "feature",
           "name": "Feature",
-          "target": 25000
+          "target": 31500
         },
         {
           "id": "match.house_d7_boss",
@@ -430,13 +430,13 @@
           "id": "match.house_d8_opener",
           "kind": "opener",
           "name": "Opener",
-          "target": 27000
+          "target": 41000
         },
         {
           "id": "match.house_d8_feature",
           "kind": "feature",
           "name": "Feature",
-          "target": 39000
+          "target": 50000
         },
         {
           "id": "match.house_d8_boss",

@@ -18,10 +18,12 @@ static func run() -> Array[String]:
 	_expect(batches.size() >= 1 and batches[0].data.batch == "E17-D01", "batch E17-D01 is present", failures)
 	_expect(_errors(batches, catalogue).is_empty(), "the shipped batches validate: %s" % str(_errors(batches, catalogue)), failures)
 	var d01: Array = batches[0].data.definitions
-	_expect(d01.size() == 9 and batches[0].data.landed.map(func(l): return l.id) == ["pin.glass", "pin.crown"] and d01.all(func(d): return d.item.completeness.mechanics == false),
-		"D01: nine authored; Glass Pin landed by E18-C02, Crown Pin by E18-C03", failures)
+	_expect(d01.size() == 6 and batches[0].data.landed.map(func(l): return l.id) == ["pin.glass", "pin.crown", "consumable.nudge", "consumable.reserve_call", "consumable.rule_waiver"]
+		and d01.all(func(d): return d.item.completeness.mechanics == false),
+		"D01: six authored; Glass Pin landed by E18-C02, Crown Pin by E18-C03, the three tactical cards by E18-C06", failures)
 	var counts := Authored.counts(catalogue, batches)
-	_expect(counts.ball == {"implemented": 4, "authored": 4, "target": 24} and counts.consumable.authored == 3, "counts per category against the targets", failures)
+	_expect(counts.ball == {"implemented": 6, "authored": 4, "target": 24} and counts.consumable == {"implemented": 3, "authored": 0, "target": 24}
+		and counts.shop_upgrade == {"implemented": 6, "authored": 0, "target": 16}, "counts per category against the targets", failures)
 	_expect(Authored.primitives(batches).has("physics.split_ball") and not Authored.primitives(batches).has("condition.last_fallen"),
 		"the E18 primitive list holds only primitives still to build", failures)
 	var d02: Array = batches[1].data.definitions if batches.size() > 1 else []
@@ -93,15 +95,16 @@ static func _expressible(catalogue: Dictionary, batches: Array, failures: Array[
 ## initially available catalogue already satisfies (no rule without an answer).
 static func _boss_rules(catalogue: Dictionary, batches: Array, failures: Array[String]) -> void:
 	var d03: Array = batches.filter(func(b): return b.data.batch == "E17-D03")
-	_expect(d03.size() == 1 and d03[0].data.definitions.size() == 9 and d03[0].data.definitions.all(func(d): return d.item.category == "boss_rule" and d.design.counterplay.length() > 20),
-		"D03: nine boss rules, each naming its counterplay", failures)
+	var d03_designs: Array = d03[0].data.definitions.map(func(d): return d.design) + d03[0].data.landed.map(func(l): return l.design) if d03.size() == 1 else []
+	_expect(d03.size() == 1 and d03_designs.size() == 9 and d03[0].data.definitions.all(func(d): return d.item.category == "boss_rule") and d03_designs.all(func(d): return d.counterplay.length() > 20),
+		"D03: nine boss rules (House Rules landed by E18-C05), each naming its counterplay", failures)
 	if d03.is_empty():
 		return
 	var counters: Dictionary = preload("res://src/career/unlock_graph.gd").read(ContentSet.UNLOCKS).counters
-	for d in d03[0].data.definitions:
-		var tags: Array = counters.get(d.item.id, [])
+	for id in d03[0].data.definitions.map(func(d): return d.item.id) + d03[0].data.landed.map(func(l): return l.id):
+		var tags: Array = counters.get(id, [])
 		var answer: bool = catalogue.items.any(func(i): return i.unlock.kind == "initial" and float(i.pool_weight) > 0 and i.synergy_tags.any(func(t): return t in tags))
-		_expect(not tags.is_empty() and answer, "%s has counter tags met by an initially available item" % d.item.id, failures)
+		_expect(not tags.is_empty() and answer, "%s has counter tags met by an initially available item" % id, failures)
 	var index := batches.find(d03[0])
 	_refuses(func(b): b[index].data.definitions[0].item.purchase_price = 4, catalogue, "is never sold", "a priced boss rule", failures)
 	_refuses(func(b): b[index].data.definitions[0].design.counterplay = "", catalogue, "names its counterplay", "a boss rule without counterplay", failures)
@@ -149,7 +152,7 @@ static func _modifications(catalogue: Dictionary, batches: Array, failures: Arra
 	_expect(score.call(strike, "", {5: "pin_mod.keystone"}).score == int((b_strike.pin_value + 40) * b_strike.mult)
 		and score.call(open, "", {9: "pin_mod.keystone"}).score == score.call(open).score, "Keystone: +4 Value per pin down when it falls; nothing standing", failures)
 	_expect(score.call(open, "", {2: "pin_mod.lead_weight"}).score == int((score.call(open).pin_value + 15) * score.call(open).mult), "Lead Weight: +15 Value when its pin falls", failures)
-	_refuses(func(b): b[b.size() - 1].data.definitions[3].item.incompatibilities = ["ball.nope"], catalogue, "invalid incompatibility ball.nope", "a modification excluding an unknown host", failures)
+	_refuses(func(b): b[3].data.definitions[3].item.incompatibilities = ["ball.nope"], catalogue, "invalid incompatibility ball.nope", "a modification excluding an unknown host", failures)
 
 static func _errors(batches: Array, catalogue: Dictionary) -> Array[String]:
 	var graph := ContentSet.career_graph(ContentSet.UNLOCKS, Authored.items(batches))

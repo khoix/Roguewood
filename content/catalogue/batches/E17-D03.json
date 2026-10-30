@@ -2,7 +2,7 @@
   "schema_version": 1,
   "batch": "E17-D03",
   "status": "authored",
-  "note": "Boss rules (9). Each needs a rule primitive in rival_rules.gd (E18) and a rival identity (E17 League batches, E21). Counter tags are in content/career/unlocks.json. Nothing here is in content/catalogue.json until E18.",
+  "note": "Boss rules (9). Each needs a rule primitive in rival_rules.gd (E18) and a rival identity (E17 League batches, E21). Counter tags are in content/career/unlocks.json. Nothing here is in content/catalogue.json until E18. E18-C05 landed boss_rule.house_rules.",
   "definitions": [
     {
       "item": {
@@ -193,70 +193,6 @@
           "activation": "activation.boss_rule.frugal_house",
           "sound": "sound.boss_rule.frugal_house",
           "reduced_motion": "reduced_motion.boss_rule.frugal_house"
-        }
-      }
-    },
-    {
-      "item": {
-        "id": "boss_rule.house_rules",
-        "name": "House Rules",
-        "category": "boss_rule",
-        "rarity": "common",
-        "pool_weight": 0,
-        "unlock": {
-          "kind": "initial",
-          "prerequisites": []
-        },
-        "earliest_division": 1,
-        "purchase_price": 0,
-        "resale_price": 0,
-        "effects": [],
-        "limits": {
-          "max_owned": 1,
-          "charges": 0,
-          "exhaustion": "none"
-        },
-        "downside": "Only the House Ball may be thrown in the boss match.",
-        "synergy_tags": [
-          "straight",
-          "baseline",
-          "house"
-        ],
-        "incompatibilities": [],
-        "assets": {
-          "icon": "",
-          "card": "",
-          "in_play": "",
-          "rarity_treatment": "",
-          "activation": "",
-          "sound": "",
-          "reduced_motion": ""
-        },
-        "completeness": {
-          "authored": true,
-          "mechanics": false,
-          "automated_validation": false,
-          "artwork": false,
-          "effects_audio": false,
-          "unlock_assigned": true,
-          "integrated": false
-        }
-      },
-      "design": {
-        "trigger": "During the boss match, special-ball cards cannot be armed or played; every roll uses the House Ball. Tactical cards are still playable, and the hand still draws (cards return at the next match).",
-        "primitives": [
-          "rule.house_only"
-        ],
-        "pool": "Boss rule: never in a shop; assigned to rivals by League specs (E17 League batch, E21).",
-        "counterplay": "House Favorite, straight and precision builds, rack materials and Charms instead of special balls.",
-        "presentation_needs": "Special-ball cards in the hand show a clear locked state (shape, not only dimming); the badge shows the House Ball.",
-        "asset_ids": {
-          "icon": "icon.boss_rule.house_rules",
-          "card": "card.boss_rule.house_rules",
-          "rarity_treatment": "rarity_treatment.boss_rule.house_rules",
-          "activation": "activation.boss_rule.house_rules",
-          "sound": "sound.boss_rule.house_rules",
-          "reduced_motion": "reduced_motion.boss_rule.house_rules"
         }
       }
     },
@@ -577,6 +513,29 @@
           "activation": "activation.boss_rule.dull_pins",
           "sound": "sound.boss_rule.dull_pins",
           "reduced_motion": "reduced_motion.boss_rule.dull_pins"
+        }
+      }
+    }
+  ],
+  "landed": [
+    {
+      "id": "boss_rule.house_rules",
+      "landed_in": "E18-C05",
+      "design": {
+        "trigger": "During the boss match, special-ball cards cannot be armed or played; every roll uses the House Ball. Tactical cards are still playable, and the hand still draws (cards return at the next match).",
+        "primitives": [
+          "rule.house_only"
+        ],
+        "pool": "Boss rule: never in a shop; assigned to rivals by League specs (E17 League batch, E21).",
+        "counterplay": "House Favorite, straight and precision builds, rack materials and Charms instead of special balls.",
+        "presentation_needs": "Special-ball cards in the hand show a clear locked state (shape, not only dimming); the badge shows the House Ball.",
+        "asset_ids": {
+          "icon": "icon.boss_rule.house_rules",
+          "card": "card.boss_rule.house_rules",
+          "rarity_treatment": "rarity_treatment.boss_rule.house_rules",
+          "activation": "activation.boss_rule.house_rules",
+          "sound": "sound.boss_rule.house_rules",
+          "reduced_motion": "reduced_motion.boss_rule.house_rules"
         }
       }
     }

@@ -2530,6 +2530,1609 @@
         "unlock_assigned": true,
         "integrated": false
       }
+    },
+    {
+      "id": "boss_rule.house_rules",
+      "name": "House Rules",
+      "category": "boss_rule",
+      "rarity": "common",
+      "pool_weight": 0,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 0,
+      "resale_price": 0,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Only the House Ball may be thrown in the boss match.",
+      "synergy_tags": [
+        "straight",
+        "baseline",
+        "house"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "boss_rule.house_pins",
+      "name": "House Pins",
+      "category": "boss_rule",
+      "rarity": "common",
+      "pool_weight": 0,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 0,
+      "resale_price": 0,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Every rack pin plays as plain Wood for the whole boss match.",
+      "synergy_tags": [
+        "baseline",
+        "house",
+        "rack"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "lane_condition.house_oil",
+      "name": "House Oil",
+      "category": "lane_condition",
+      "rarity": "common",
+      "pool_weight": 0,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 0,
+      "resale_price": 0,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "No change: the standard oil pattern.",
+      "synergy_tags": [
+        "baseline",
+        "house"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "lane_condition.dry_backend",
+      "name": "Dry Backend",
+      "category": "lane_condition",
+      "rarity": "common",
+      "pool_weight": 0,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 0,
+      "resale_price": 0,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Curved throws hook harder after the oil ends.",
+      "synergy_tags": [
+        "curve",
+        "house"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "consumable.nudge",
+      "name": "Nudge",
+      "category": "consumable",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 3,
+      "resale_price": 1,
+      "effects": [],
+      "limits": {
+        "max_owned": 2,
+        "charges": 1,
+        "exhaustion": "consume"
+      },
+      "downside": "One use per run, only before roll 2, and only into a spot whose pin has fallen.",
+      "synergy_tags": [
+        "tactical",
+        "spare",
+        "positional"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "res://assets/items/d01/icon.consumable.nudge.tres",
+        "card": "res://assets/items/d01/card.consumable.nudge.tres",
+        "in_play": "",
+        "rarity_treatment": "res://assets/items/d01/rarity_treatment.consumable.nudge.tres",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": "res://assets/items/d01/reduced_motion.consumable.nudge.tres"
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "consumable.reserve_call",
+      "name": "Reserve Call",
+      "category": "consumable",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 4,
+      "resale_price": 2,
+      "effects": [],
+      "limits": {
+        "max_owned": 2,
+        "charges": 1,
+        "exhaustion": "consume"
+      },
+      "downside": "Needs a pin in reserve, and lasts one frame.",
+      "synergy_tags": [
+        "tactical",
+        "rack",
+        "reserve"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "res://assets/items/d01/icon.consumable.reserve_call.tres",
+        "card": "res://assets/items/d01/card.consumable.reserve_call.tres",
+        "in_play": "",
+        "rarity_treatment": "res://assets/items/d01/rarity_treatment.consumable.reserve_call.tres",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": "res://assets/items/d01/reduced_motion.consumable.reserve_call.tres"
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "consumable.rule_waiver",
+      "name": "Rule Waiver",
+      "category": "consumable",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 5,
+      "resale_price": 2,
+      "effects": [],
+      "limits": {
+        "max_owned": 2,
+        "charges": 1,
+        "exhaustion": "consume"
+      },
+      "downside": "Only in boss matches, only for one frame, and exhausted after use.",
+      "synergy_tags": [
+        "tactical",
+        "counter",
+        "boss"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "res://assets/items/d01/icon.consumable.rule_waiver.tres",
+        "card": "res://assets/items/d01/card.consumable.rule_waiver.tres",
+        "in_play": "",
+        "rarity_treatment": "res://assets/items/d01/rarity_treatment.consumable.rule_waiver.tres",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": "res://assets/items/d01/reduced_motion.consumable.rule_waiver.tres"
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "shop_upgrade.punch_card",
+      "name": "Punch Card",
+      "category": "shop_upgrade",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 4,
+      "resale_price": 2,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Only the first reroll of a visit, and it never lowers the price of anything you buy. Kept for the attempt; cannot be sold.",
+      "synergy_tags": [
+        "shop",
+        "reroll",
+        "selection"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "shop_upgrade.pin_caddy",
+      "name": "Pin Caddy",
+      "category": "shop_upgrade",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 4,
+      "resale_price": 2,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Reserve pins do not score unless racked, so the slot only pays off with pin swaps or Reserve Call. Kept for the attempt; cannot be sold.",
+      "synergy_tags": [
+        "capacity",
+        "reserve",
+        "rack"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "shop_upgrade.clearance_tag",
+      "name": "Clearance Tag",
+      "category": "shop_upgrade",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 2,
+      "purchase_price": 6,
+      "resale_price": 3,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Saves $1 per purchase; it needs several purchases before it has paid for itself. Kept for the attempt; cannot be sold.",
+      "synergy_tags": [
+        "economy",
+        "discount",
+        "shop"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "shop_upgrade.savings_book",
+      "name": "Savings Book",
+      "category": "shop_upgrade",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 2,
+      "purchase_price": 6,
+      "resale_price": 3,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Only pays when you hold $20 or more at the end of a match, which competes with buying now. Kept for the attempt; cannot be sold.",
+      "synergy_tags": [
+        "economy",
+        "interest",
+        "saving"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "shop_upgrade.extra_shelf",
+      "name": "Extra Shelf",
+      "category": "shop_upgrade",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 2,
+      "purchase_price": 7,
+      "resale_price": 3,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "More choice, not cheaper choice: the extra offer costs full price and rerolls cost the same. Kept for the attempt; cannot be sold.",
+      "synergy_tags": [
+        "selection",
+        "shop",
+        "capacity"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "shop_upgrade.spotlight_sign",
+      "name": "Spotlight Sign",
+      "category": "shop_upgrade",
+      "rarity": "rare",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 3,
+      "purchase_price": 8,
+      "resale_price": 4,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Rarer offers usually cost more, and common staples appear less often. Kept for the attempt; cannot be sold.",
+      "synergy_tags": [
+        "selection",
+        "rarity",
+        "shop"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.head_pin",
+      "name": "Head Pin",
+      "category": "charm",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 3,
+      "resale_price": 1,
+      "effects": [
+        {
+          "op": "add_value",
+          "amount": 30,
+          "trigger": "charm",
+          "scope": "frame",
+          "per": "fallen_at:1"
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Pays only for one pin: a frame that leaves the head pin standing gets nothing.",
+      "synergy_tags": [
+        "positional",
+        "strike",
+        "baseline"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.wood_grain",
+      "name": "Wood Grain",
+      "category": "charm",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 3,
+      "resale_price": 1,
+      "effects": [
+        {
+          "op": "add_value",
+          "amount": 3,
+          "trigger": "charm",
+          "scope": "frame",
+          "per": "fallen:pin.wood"
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Every special pin you rack makes it weaker; it rewards keeping the plain House rack.",
+      "synergy_tags": [
+        "baseline",
+        "house",
+        "value"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.opening_act",
+      "name": "Opening Act",
+      "category": "charm",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 6,
+      "resale_price": 3,
+      "effects": [
+        {
+          "op": "multiply_mult",
+          "amount": 2,
+          "trigger": "charm",
+          "scope": "frame",
+          "condition": {
+            "match_frame": 1
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Does nothing in a match's second frame, where comebacks are decided.",
+      "synergy_tags": [
+        "timing",
+        "mult",
+        "strike"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.open_house",
+      "name": "Open House",
+      "category": "charm",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 4,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "add_mult",
+          "amount": 4,
+          "trigger": "charm",
+          "scope": "frame",
+          "condition": {
+            "category": [
+              "open"
+            ]
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Never helps a strike or a spare, and Clean Sweep banks open frames as 0.",
+      "synergy_tags": [
+        "open",
+        "standing",
+        "mult"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.strike_fund",
+      "name": "Strike Fund",
+      "category": "charm",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 4,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "payout",
+          "amount": 1,
+          "trigger": "charm",
+          "scope": "frame",
+          "condition": {
+            "category": [
+              "strike"
+            ]
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Money only: it adds no points, so it needs the strikes before it pays.",
+      "synergy_tags": [
+        "economy",
+        "strike",
+        "payout"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.holdouts",
+      "name": "Holdouts",
+      "category": "charm",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 3,
+      "resale_price": 1,
+      "effects": [
+        {
+          "op": "add_value",
+          "amount": 8,
+          "trigger": "charm",
+          "scope": "frame",
+          "per": "standing"
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Rewards missing: it adds nothing to a strike or a spare.",
+      "synergy_tags": [
+        "standing",
+        "open",
+        "value"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.trophy_case",
+      "name": "Trophy Case",
+      "category": "charm",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 6,
+      "resale_price": 3,
+      "effects": [
+        {
+          "op": "add_mult",
+          "amount": 1,
+          "trigger": "charm",
+          "scope": "run",
+          "per": "growth"
+        },
+        {
+          "op": "grow_value",
+          "amount": 1,
+          "trigger": "charm",
+          "scope": "run",
+          "condition": {
+            "category": [
+              "strike"
+            ]
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Starts at +0 and grows only with strikes; worth little bought late.",
+      "synergy_tags": [
+        "growth",
+        "strike",
+        "mult"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.corner_pockets",
+      "name": "Corner Pockets",
+      "category": "charm",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 5,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "add_value",
+          "amount": 25,
+          "trigger": "charm",
+          "scope": "frame",
+          "per": "fallen_at:7,10"
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Two pins only, and the corners are the hardest pins to reach.",
+      "synergy_tags": [
+        "positional",
+        "spare",
+        "value"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.late_rally",
+      "name": "Late Rally",
+      "category": "charm",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 6,
+      "resale_price": 3,
+      "effects": [
+        {
+          "op": "add_mult",
+          "amount": 10,
+          "trigger": "charm",
+          "scope": "frame",
+          "condition": {
+            "match_frame": 2,
+            "behind": true
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Needs a bad first frame to pay, and does nothing in Practice, which has no target.",
+      "synergy_tags": [
+        "comeback",
+        "timing",
+        "mult"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.clean_pickup",
+      "name": "Clean Pickup",
+      "category": "charm",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 5,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "multiply_mult",
+          "amount": 1.5,
+          "trigger": "charm",
+          "scope": "frame",
+          "condition": {
+            "category": [
+              "spare"
+            ],
+            "curved": false
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Any curved roll in the frame cancels it, and it never helps a strike.",
+      "synergy_tags": [
+        "spare",
+        "straight",
+        "precision"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.house_special",
+      "name": "House Special",
+      "category": "charm",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 6,
+      "resale_price": 3,
+      "effects": [
+        {
+          "op": "multiply_mult",
+          "amount": 1.5,
+          "trigger": "charm",
+          "scope": "frame",
+          "condition": {
+            "category": [
+              "strike"
+            ],
+            "all_house": true
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Arming any special ball card cancels it for that frame.",
+      "synergy_tags": [
+        "house",
+        "strike",
+        "baseline"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.front_line",
+      "name": "Front Line",
+      "category": "charm",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 4,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "add_mult",
+          "amount": 2,
+          "trigger": "charm",
+          "scope": "frame",
+          "per": "fallen_at:1,2,3"
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Nothing for the back of the rack, where splits are left.",
+      "synergy_tags": [
+        "positional",
+        "strike",
+        "mult"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "ball.spare_ball",
+      "name": "Spare Ball",
+      "category": "ball",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 4,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "add_mult",
+          "amount": 4,
+          "trigger": "ball",
+          "scope": "roll",
+          "condition": {
+            "category": [
+              "spare"
+            ]
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 2,
+        "charges": 0,
+        "exhaustion": "cycle"
+      },
+      "downside": "Hooks half as much as the House Ball, so it is a poor strike ball; nothing on a strike or an open frame.",
+      "synergy_tags": [
+        "spare",
+        "straight",
+        "precision"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      },
+      "physics": {
+        "spin_response": 0.5
+      }
+    },
+    {
+      "id": "ball.workhorse",
+      "name": "Workhorse",
+      "category": "ball",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 5,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "add_value",
+          "amount": 2,
+          "trigger": "ball",
+          "scope": "roll",
+          "per": "fallen"
+        }
+      ],
+      "limits": {
+        "max_owned": 2,
+        "charges": 0,
+        "exhaustion": "cycle"
+      },
+      "downside": "A small, steady bonus with no big payoff; lighter than the Hammer, so it carries less through the rack.",
+      "synergy_tags": [
+        "value",
+        "baseline",
+        "power"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      },
+      "physics": {
+        "mass_scale": 1.15
+      }
+    },
+    {
+      "id": "pin.oak",
+      "name": "Oak Pin",
+      "category": "pin",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 4,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "add_value",
+          "amount": 20,
+          "trigger": "fallen",
+          "scope": "frame"
+        }
+      ],
+      "limits": {
+        "max_owned": 12,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Heavier, so it falls less often and carries less into the pins behind it.",
+      "synergy_tags": [
+        "value",
+        "power",
+        "baseline"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      },
+      "physics": {
+        "mass_scale": 1.3
+      }
+    },
+    {
+      "id": "pin.tin",
+      "name": "Tin Pin",
+      "category": "pin",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 3,
+      "resale_price": 1,
+      "effects": [
+        {
+          "op": "add_value",
+          "amount": 5,
+          "trigger": "fallen",
+          "scope": "frame"
+        },
+        {
+          "op": "payout",
+          "amount": 1,
+          "trigger": "standing",
+          "scope": "frame"
+        }
+      ],
+      "limits": {
+        "max_owned": 12,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Half a Wood Pin's Value when it falls; it pays for the frames you do not clear.",
+      "synergy_tags": [
+        "economy",
+        "standing",
+        "open"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.spare_jar",
+      "name": "Spare Jar",
+      "category": "charm",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 4,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "add_value",
+          "amount": 8,
+          "trigger": "charm",
+          "scope": "run",
+          "per": "growth"
+        },
+        {
+          "op": "grow_value",
+          "amount": 1,
+          "trigger": "charm",
+          "scope": "run",
+          "condition": {
+            "category": [
+              "spare"
+            ]
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Starts at +0 and grows only with spares; worth little bought late.",
+      "synergy_tags": [
+        "growth",
+        "spare",
+        "value"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.consolation_prize",
+      "name": "Consolation Prize",
+      "category": "charm",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 3,
+      "resale_price": 1,
+      "effects": [
+        {
+          "op": "payout",
+          "amount": 1,
+          "trigger": "charm",
+          "scope": "frame",
+          "condition": {
+            "category": [
+              "open"
+            ]
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Money only, and only for the frames you would rather not throw.",
+      "synergy_tags": [
+        "economy",
+        "open",
+        "payout"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
     }
   ]
 }

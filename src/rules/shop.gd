@@ -5,15 +5,24 @@ extends RefCounted
 ## that the run cannot use are removed before sampling and weights renormalized.
 ## Its RNG is a dedicated seeded stream: physics, the deck and animation never
 ## consume it, and its state saves with the run. Every pick is logged.
+## E18-C07: when the content has shop upgrades, a License offer follows the slots.
+## It is drawn once per Division (at that Division's first visit) and kept through
+## rerolls and later visits, sold or not, until the next Division. Owned upgrades
+## add the Extra Shelf slot, discount prices, free the first reroll and shift the
+## rarity odds (Upgrades).
 const Economy = preload("res://src/rules/economy.gd")
+const Upgrades = preload("res://src/rules/upgrades.gd")
 const SCHEMA_VERSION := 1
 const SLOTS := [["charm"], ["charm"], ["ball", "pin"], ["consumable"], ["pin_mod", "ball_mod"]]
-const SLOT_NAMES := ["Charm", "Charm", "Equipment", "Tactical", "Workshop"]
+const EXTRA := 5 # Extra Shelf: any category the slots sell
+const LICENSE := 6
+const EXTRA_CATEGORIES := ["charm", "ball", "pin", "consumable", "pin_mod", "ball_mod"]
+const SLOT_NAMES := ["Charm", "Charm", "Equipment", "Tactical", "Workshop", "Extra Shelf", "License"]
 ## Provisional ordinary-shop rarity weights (percent). Legendary is reward-only.
 const RARITY_WEIGHTS := {"common": 55, "uncommon": 30, "rare": 12, "epic": 3, "legendary": 0}
 const RARITIES := ["common", "uncommon", "rare", "epic", "legendary"]
 
-var offers: Array = [] # {slot, item_id ("" = nothing eligible), price, sold}
+var offers: Array = [] # {slot, item_id ("" = nothing eligible), price, sold}; the License offer also has division
 var visit := 0
 var rerolls := 0 # this visit
 var division := 1
@@ -61,12 +70,13 @@ func open_visit(inventory, at_division: int = 1) -> void:
 	division = at_division
 	_generate(inventory, [])
 
-func reroll_cost() -> int:
-	return Economy.reroll_cost(rerolls)
+## inventory: the run, for Punch Card (the first reroll in a visit is free).
+func reroll_cost(inventory = null) -> int:
+	return Upgrades.reroll_cost(rerolls, inventory)
 
 ## Replaces every offer, avoiding the previous items wherever the pool allows.
 func reroll(inventory) -> Array[String]:
-	var errors: Array[String] = inventory.pay(reroll_cost(), "reroll")
+	var errors: Array[String] = inventory.pay(reroll_cost(inventory), "reroll")
 	if not errors.is_empty():
 		return errors
 	rerolls += 1
@@ -74,19 +84,44 @@ func reroll(inventory) -> Array[String]:
 	return errors
 
 func _generate(inventory, previous: Array) -> void:
+	var license: Array = offers.filter(func(o): return o.slot == LICENSE and int(o.get("division", 0)) == division)
 	offers = []
-	for slot in SLOTS.size():
+	for slot in _slots(inventory):
 		var taken: Array = offers.map(func(o): return o.item_id)
 		var pick := _pick_slot(slot, inventory, taken + previous)
 		if pick.is_empty():
 			pick = _pick_slot(slot, inventory, taken) # the pool allows no visible change
-		offers.append({"slot": slot, "item_id": pick.get("id", ""), "price": int(pick.get("purchase_price", 0)), "sold": false})
+		offers.append({"slot": slot, "item_id": pick.get("id", ""), "price": _price(pick, inventory), "sold": false})
 	_guarantee_affordable(inventory)
+	if _catalogue.get("items", []).any(func(i): return i.category == "shop_upgrade"):
+		offers.append(license[0] if not license.is_empty() else _draw_license(inventory))
+	reprice(inventory)
+
+## The ordinary slots, plus Extra Shelf's.
+func _slots(inventory) -> Array:
+	return range(SLOTS.size()) + ([EXTRA] if Upgrades.owned(inventory, "extra_offer") else [])
+
+func _categories(slot: int) -> Array:
+	return EXTRA_CATEGORIES if slot == EXTRA else (["shop_upgrade"] if slot == LICENSE else SLOTS[slot])
+
+func _price(item: Dictionary, inventory) -> int:
+	return Upgrades.price(int(item.get("purchase_price", 0)), inventory)
+
+## This Division's License offer: one upgrade by rarity and weight, or nothing.
+func _draw_license(inventory) -> Dictionary:
+	var pick := _pick_slot(LICENSE, inventory, [])
+	return {"slot": LICENSE, "item_id": pick.get("id", ""), "price": _price(pick, inventory), "sold": false, "division": division}
+
+## Unsold offers at the run's current prices (a Clearance Tag applies at once).
+func reprice(inventory) -> void:
+	for offer in offers:
+		if not offer.sold and not offer.item_id.is_empty():
+			offer.price = _price(inventory.item(offer.item_id), inventory)
 
 ## Category first, then rarity among those present, then pool weight.
 func _pick_slot(slot: int, inventory, excluded: Array) -> Dictionary:
 	var categories: Array = []
-	for category in SLOTS[slot]:
+	for category in _categories(slot):
 		if not _pool([category], inventory, excluded).is_empty():
 			categories.append(category)
 	var entry := {"visit": visit, "reroll": rerolls, "slot": slot, "category": "", "rarity": "", "eligible": 0, "item_id": ""}
@@ -95,31 +130,31 @@ func _pick_slot(slot: int, inventory, excluded: Array) -> Dictionary:
 		return {}
 	var category: String = categories[_rng.randi_range(0, categories.size() - 1)]
 	var pool := _pool([category], inventory, excluded)
-	var rarity := _roll_rarity(pool)
+	var rarity := _roll_rarity(pool, Upgrades.rarity_weights(RARITY_WEIGHTS, inventory))
 	var choice := _weighted(pool.filter(func(i): return i.rarity == rarity))
 	entry.merge({"category": category, "rarity": rarity, "eligible": pool.size(), "item_id": choice.id}, true)
 	selection_log.append(entry)
 	return choice
 
 ## Rarities with nothing eligible are dropped and the rest renormalized.
-func _roll_rarity(pool: Array) -> String:
+func _roll_rarity(pool: Array, weights: Dictionary = RARITY_WEIGHTS) -> String:
 	var present := {}
 	for item in pool:
 		present[item.rarity] = true
 	var total := 0.0
 	for rarity in RARITIES:
-		if present.has(rarity): total += RARITY_WEIGHTS[rarity]
+		if present.has(rarity): total += weights[rarity]
 	if total <= 0.0:
 		return pool[0].rarity
 	var roll := _rng.randf() * total
 	for rarity in RARITIES:
-		if not present.has(rarity) or RARITY_WEIGHTS[rarity] <= 0:
+		if not present.has(rarity) or weights[rarity] <= 0:
 			continue
-		roll -= RARITY_WEIGHTS[rarity]
+		roll -= weights[rarity]
 		if roll < 0.0:
 			return rarity
 	for rarity in RARITIES:
-		if present.has(rarity) and RARITY_WEIGHTS[rarity] > 0: return rarity
+		if present.has(rarity) and weights[rarity] > 0: return rarity
 	return pool[0].rarity
 
 func _weighted(pool: Array) -> Dictionary:
@@ -141,14 +176,14 @@ func _guarantee_affordable(inventory) -> void:
 	var taken: Array = offers.map(func(o): return o.item_id)
 	var candidates: Array = []
 	for slot in SLOTS.size():
-		var affordable := _pool(SLOTS[slot], inventory, taken).filter(func(i): return int(i.purchase_price) <= inventory.money)
+		var affordable := _pool(SLOTS[slot], inventory, taken).filter(func(i): return _price(i, inventory) <= inventory.money)
 		if not affordable.is_empty():
 			candidates.append([slot, affordable])
 	if candidates.is_empty():
 		return
 	var pick: Array = candidates[_rng.randi_range(0, candidates.size() - 1)]
 	var choice := _weighted(pick[1])
-	offers[pick[0]] = {"slot": pick[0], "item_id": choice.id, "price": int(choice.purchase_price), "sold": false}
+	offers[pick[0]] = {"slot": pick[0], "item_id": choice.id, "price": _price(choice, inventory), "sold": false}
 	selection_log.append({"visit": visit, "reroll": rerolls, "slot": pick[0], "category": choice.category, "rarity": choice.rarity,
 		"eligible": pick[1].size(), "item_id": choice.id, "guarantee": true})
 
@@ -190,6 +225,7 @@ func buy(index: int, target: String, inventory) -> Array[String]:
 		inventory.credit(p.price, "refund", p.item_id)
 		return errors
 	offers[index].sold = true
+	reprice(inventory)
 	return errors
 
 ## Removal service: pay to take a deck card out of the run.
@@ -209,7 +245,10 @@ func to_dict() -> Dictionary:
 
 static func from_dict(data: Dictionary, catalogue: Dictionary) -> RefCounted:
 	var shop = create(catalogue, int(data.seed))
-	shop.offers = data.offers.map(func(o): return {"slot": int(o.slot), "item_id": o.item_id, "price": int(o.price), "sold": bool(o.sold)})
+	shop.offers = data.offers.map(func(o):
+		var offer := {"slot": int(o.slot), "item_id": o.item_id, "price": int(o.price), "sold": bool(o.sold)}
+		if o.has("division"): offer["division"] = int(o.division)
+		return offer)
 	shop.visit = int(data.visit)
 	shop.rerolls = int(data.rerolls)
 	shop.division = int(data.division)

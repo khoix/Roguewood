@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "batch": "E17-D07",
+  "status": "landed",
+  "note": "House League items, batch 1 of 4 (DC-H1): six Charms on existing rule pieces, written and landed together by E18-C08. Amounts and prices are provisional (E24).",
+  "definitions": [],
+  "landed": [
+    {
+      "id": "charm.head_pin",
+      "landed_in": "E18-C08",
+      "design": {
+        "trigger": "+30 Value when the head pin (rack position 1) falls in the frame, whatever its material and whichever roll knocked it down.",
+        "primitives": [],
+        "pool": "Shop Charm slot; initial pool from Division 1.",
+        "presentation_needs": "A crown-less pin silhouette at the apex of the rack diagram; the head pin flashes when it counts.",
+        "asset_ids": {
+          "icon": "icon.charm.head_pin",
+          "card": "card.charm.head_pin",
+          "rarity_treatment": "rarity_treatment.charm.head_pin",
+          "activation": "activation.charm.head_pin",
+          "sound": "sound.charm.head_pin",
+          "reduced_motion": "reduced_motion.charm.head_pin"
+        }
+      }
+    },
+    {
+      "id": "charm.wood_grain",
+      "landed_in": "E18-C08",
+      "design": {
+        "trigger": "+3 Value for each Wood Pin knocked down in the frame (up to +30 with a full Wood rack).",
+        "primitives": [],
+        "pool": "Shop Charm slot; initial pool from Division 1. Old Lou's first-clear reward once E22-L01 declares gate.old_lou_cleared.",
+        "presentation_needs": "A wood-grain plank badge; each Wood Pin down adds a grain line to the count.",
+        "asset_ids": {
+          "icon": "icon.charm.wood_grain",
+          "card": "card.charm.wood_grain",
+          "rarity_treatment": "rarity_treatment.charm.wood_grain",
+          "activation": "activation.charm.wood_grain",
+          "sound": "sound.charm.wood_grain",
+          "reduced_motion": "reduced_motion.charm.wood_grain"
+        }
+      }
+    },
+    {
+      "id": "charm.opening_act",
+      "landed_in": "E18-C08",
+      "design": {
+        "trigger": "×2 Mult in the first frame of every match. The mirror of Last Chance, which doubles the second.",
+        "primitives": [],
+        "pool": "Shop Charm slot; initial pool from Division 1.",
+        "presentation_needs": "A curtain-up marquee; it lights for frame 1 and dims for frame 2.",
+        "asset_ids": {
+          "icon": "icon.charm.opening_act",
+          "card": "card.charm.opening_act",
+          "rarity_treatment": "rarity_treatment.charm.opening_act",
+          "activation": "activation.charm.opening_act",
+          "sound": "sound.charm.opening_act",
+          "reduced_motion": "reduced_motion.charm.opening_act"
+        }
+      }
+    },
+    {
+      "id": "charm.open_house",
+      "landed_in": "E18-C08",
+      "design": {
+        "trigger": "+4 Mult on an open frame (pins still standing after both rolls).",
+        "primitives": [],
+        "pool": "Shop Charm slot; initial pool from Division 1.",
+        "presentation_needs": "An open door with a welcome mat; it swings open when the frame scores as open.",
+        "asset_ids": {
+          "icon": "icon.charm.open_house",
+          "card": "card.charm.open_house",
+          "rarity_treatment": "rarity_treatment.charm.open_house",
+          "activation": "activation.charm.open_house",
+          "sound": "sound.charm.open_house",
+          "reduced_motion": "reduced_motion.charm.open_house"
+        }
+      }
+    },
+    {
+      "id": "charm.strike_fund",
+      "landed_in": "E18-C08",
+      "design": {
+        "trigger": "+$1 after every strike, paid with the frame's income. The strike counterpart of Tip Jar.",
+        "primitives": [],
+        "pool": "Shop Charm slot; initial pool from Division 1.",
+        "presentation_needs": "A coin slot jar with an X on the lid; one coin drops after each strike.",
+        "asset_ids": {
+          "icon": "icon.charm.strike_fund",
+          "card": "card.charm.strike_fund",
+          "rarity_treatment": "rarity_treatment.charm.strike_fund",
+          "activation": "activation.charm.strike_fund",
+          "sound": "sound.charm.strike_fund",
+          "reduced_motion": "reduced_motion.charm.strike_fund"
+        }
+      }
+    },
+    {
+      "id": "charm.holdouts",
+      "landed_in": "E18-C08",
+      "design": {
+        "trigger": "+8 Value for each pin still standing at the end of the frame.",
+        "primitives": [],
+        "pool": "Shop Charm slot; initial pool from Division 1.",
+        "presentation_needs": "Stubborn pins with folded arms; each standing pin adds a figure.",
+        "asset_ids": {
+          "icon": "icon.charm.holdouts",
+          "card": "card.charm.holdouts",
+          "rarity_treatment": "rarity_treatment.charm.holdouts",
+          "activation": "activation.charm.holdouts",
+          "sound": "sound.charm.holdouts",
+          "reduced_motion": "reduced_motion.charm.holdouts"
+        }
+      }
+    }
+  ]
+}

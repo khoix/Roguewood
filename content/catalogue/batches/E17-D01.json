@@ -409,195 +409,6 @@
           "reduced_motion": "reduced_motion.pin.fuse"
         }
       }
-    },
-    {
-      "item": {
-        "id": "consumable.nudge",
-        "name": "Nudge",
-        "category": "consumable",
-        "rarity": "common",
-        "pool_weight": 1,
-        "unlock": {
-          "kind": "initial",
-          "prerequisites": []
-        },
-        "earliest_division": 1,
-        "purchase_price": 3,
-        "resale_price": 1,
-        "effects": [],
-        "limits": {
-          "max_owned": 2,
-          "charges": 1,
-          "exhaustion": "consume"
-        },
-        "downside": "One use per run, only before roll 2, and only into a spot whose pin has fallen.",
-        "synergy_tags": [
-          "tactical",
-          "spare",
-          "positional"
-        ],
-        "incompatibilities": [],
-        "assets": {
-          "icon": "res://assets/items/d01/icon.consumable.nudge.tres",
-          "card": "res://assets/items/d01/card.consumable.nudge.tres",
-          "in_play": "",
-          "rarity_treatment": "res://assets/items/d01/rarity_treatment.consumable.nudge.tres",
-          "activation": "",
-          "sound": "",
-          "reduced_motion": "res://assets/items/d01/reduced_motion.consumable.nudge.tres"
-        },
-        "completeness": {
-          "authored": true,
-          "mechanics": false,
-          "automated_validation": false,
-          "artwork": false,
-          "effects_audio": false,
-          "unlock_assigned": true,
-          "integrated": false
-        }
-      },
-      "design": {
-        "trigger": "Play before roll 2: choose one standing pin and move it to an adjacent rack spot whose pin has fallen, then throw. The moved pin keeps its material and modification. Exhausted for the run.",
-        "primitives": [
-          "tactical.relocate_pin"
-        ],
-        "pool": "Shop Tactical slot; initial pool from Division 1.",
-        "presentation_needs": "A chooser on the flat rack diagram with adjacent empty spots highlighted; the move is shown on the lane before the throw.",
-        "asset_ids": {
-          "icon": "icon.consumable.nudge",
-          "card": "card.consumable.nudge",
-          "rarity_treatment": "rarity_treatment.consumable.nudge",
-          "activation": "activation.consumable.nudge",
-          "sound": "sound.consumable.nudge",
-          "reduced_motion": "reduced_motion.consumable.nudge"
-        }
-      }
-    },
-    {
-      "item": {
-        "id": "consumable.reserve_call",
-        "name": "Reserve Call",
-        "category": "consumable",
-        "rarity": "common",
-        "pool_weight": 1,
-        "unlock": {
-          "kind": "initial",
-          "prerequisites": []
-        },
-        "earliest_division": 1,
-        "purchase_price": 4,
-        "resale_price": 2,
-        "effects": [],
-        "limits": {
-          "max_owned": 2,
-          "charges": 1,
-          "exhaustion": "consume"
-        },
-        "downside": "Needs a pin in reserve, and lasts one frame.",
-        "synergy_tags": [
-          "tactical",
-          "rack",
-          "reserve"
-        ],
-        "incompatibilities": [],
-        "assets": {
-          "icon": "res://assets/items/d01/icon.consumable.reserve_call.tres",
-          "card": "res://assets/items/d01/card.consumable.reserve_call.tres",
-          "in_play": "",
-          "rarity_treatment": "res://assets/items/d01/rarity_treatment.consumable.reserve_call.tres",
-          "activation": "",
-          "sound": "",
-          "reduced_motion": "res://assets/items/d01/reduced_motion.consumable.reserve_call.tres"
-        },
-        "completeness": {
-          "authored": true,
-          "mechanics": false,
-          "automated_validation": false,
-          "artwork": false,
-          "effects_audio": false,
-          "unlock_assigned": true,
-          "integrated": false
-        }
-      },
-      "design": {
-        "trigger": "Play at the start of a frame, before roll 1: swap one reserve pin into a chosen rack position for this frame only. The displaced pin waits in that reserve slot and both return to their places after the frame. Exhausted for the run.",
-        "primitives": [
-          "tactical.reserve_swap"
-        ],
-        "pool": "Shop Tactical slot; initial pool from Division 1.",
-        "presentation_needs": "The swap shows on the rack diagram and the lane, with a clear 'this frame only' marker.",
-        "asset_ids": {
-          "icon": "icon.consumable.reserve_call",
-          "card": "card.consumable.reserve_call",
-          "rarity_treatment": "rarity_treatment.consumable.reserve_call",
-          "activation": "activation.consumable.reserve_call",
-          "sound": "sound.consumable.reserve_call",
-          "reduced_motion": "reduced_motion.consumable.reserve_call"
-        }
-      }
-    },
-    {
-      "item": {
-        "id": "consumable.rule_waiver",
-        "name": "Rule Waiver",
-        "category": "consumable",
-        "rarity": "uncommon",
-        "pool_weight": 1,
-        "unlock": {
-          "kind": "initial",
-          "prerequisites": []
-        },
-        "earliest_division": 1,
-        "purchase_price": 5,
-        "resale_price": 2,
-        "effects": [],
-        "limits": {
-          "max_owned": 2,
-          "charges": 1,
-          "exhaustion": "consume"
-        },
-        "downside": "Only in boss matches, only for one frame, and exhausted after use.",
-        "synergy_tags": [
-          "tactical",
-          "counter",
-          "boss"
-        ],
-        "incompatibilities": [],
-        "assets": {
-          "icon": "res://assets/items/d01/icon.consumable.rule_waiver.tres",
-          "card": "res://assets/items/d01/card.consumable.rule_waiver.tres",
-          "in_play": "",
-          "rarity_treatment": "res://assets/items/d01/rarity_treatment.consumable.rule_waiver.tres",
-          "activation": "",
-          "sound": "",
-          "reduced_motion": "res://assets/items/d01/reduced_motion.consumable.rule_waiver.tres"
-        },
-        "completeness": {
-          "authored": true,
-          "mechanics": false,
-          "automated_validation": false,
-          "artwork": false,
-          "effects_audio": false,
-          "unlock_assigned": true,
-          "integrated": false
-        }
-      },
-      "design": {
-        "trigger": "Play before a throw in a boss match: the rival's rule does not apply for the rest of the current frame. Dead Straight allows charged spin; Clean Sweep banks that frame as scored even if it is open. Exhausted for the run.",
-        "primitives": [
-          "tactical.waive_rule"
-        ],
-        "pool": "Shop Tactical slot; initial pool from Division 1.",
-        "presentation_needs": "The rule badge visibly waived for the frame; the rival may react, but never blocks input.",
-        "asset_ids": {
-          "icon": "icon.consumable.rule_waiver",
-          "card": "card.consumable.rule_waiver",
-          "rarity_treatment": "rarity_treatment.consumable.rule_waiver",
-          "activation": "activation.consumable.rule_waiver",
-          "sound": "sound.consumable.rule_waiver",
-          "reduced_motion": "reduced_motion.consumable.rule_waiver"
-        }
-      }
     }
   ],
   "landed": [
@@ -640,6 +451,66 @@
           "activation": "activation.pin.crown",
           "sound": "sound.pin.crown",
           "reduced_motion": "reduced_motion.pin.crown"
+        }
+      }
+    },
+    {
+      "id": "consumable.nudge",
+      "landed_in": "E18-C06",
+      "design": {
+        "trigger": "Play before roll 2: choose one standing pin and move it to an adjacent rack spot whose pin has fallen, then throw. The moved pin keeps its material and modification. Exhausted for the run.",
+        "primitives": [
+          "tactical.relocate_pin"
+        ],
+        "pool": "Shop Tactical slot; initial pool from Division 1.",
+        "presentation_needs": "A chooser on the flat rack diagram with adjacent empty spots highlighted; the move is shown on the lane before the throw.",
+        "asset_ids": {
+          "icon": "icon.consumable.nudge",
+          "card": "card.consumable.nudge",
+          "rarity_treatment": "rarity_treatment.consumable.nudge",
+          "activation": "activation.consumable.nudge",
+          "sound": "sound.consumable.nudge",
+          "reduced_motion": "reduced_motion.consumable.nudge"
+        }
+      }
+    },
+    {
+      "id": "consumable.reserve_call",
+      "landed_in": "E18-C06",
+      "design": {
+        "trigger": "Play at the start of a frame, before roll 1: swap one reserve pin into a chosen rack position for this frame only. The displaced pin waits in that reserve slot and both return to their places after the frame. Exhausted for the run.",
+        "primitives": [
+          "tactical.reserve_swap"
+        ],
+        "pool": "Shop Tactical slot; initial pool from Division 1.",
+        "presentation_needs": "The swap shows on the rack diagram and the lane, with a clear 'this frame only' marker.",
+        "asset_ids": {
+          "icon": "icon.consumable.reserve_call",
+          "card": "card.consumable.reserve_call",
+          "rarity_treatment": "rarity_treatment.consumable.reserve_call",
+          "activation": "activation.consumable.reserve_call",
+          "sound": "sound.consumable.reserve_call",
+          "reduced_motion": "reduced_motion.consumable.reserve_call"
+        }
+      }
+    },
+    {
+      "id": "consumable.rule_waiver",
+      "landed_in": "E18-C06",
+      "design": {
+        "trigger": "Play before a throw in a boss match: the rival's rule does not apply for the rest of the current frame. Dead Straight allows charged spin; Clean Sweep banks that frame as scored even if it is open. Exhausted for the run.",
+        "primitives": [
+          "tactical.waive_rule"
+        ],
+        "pool": "Shop Tactical slot; initial pool from Division 1.",
+        "presentation_needs": "The rule badge visibly waived for the frame; the rival may react, but never blocks input.",
+        "asset_ids": {
+          "icon": "icon.consumable.rule_waiver",
+          "card": "card.consumable.rule_waiver",
+          "rarity_treatment": "rarity_treatment.consumable.rule_waiver",
+          "activation": "activation.consumable.rule_waiver",
+          "sound": "sound.consumable.rule_waiver",
+          "reduced_motion": "reduced_motion.consumable.rule_waiver"
         }
       }
     }
