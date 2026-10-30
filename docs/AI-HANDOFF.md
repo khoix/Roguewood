@@ -181,6 +181,15 @@ The E13-S01 presentation batches (E19-A01…A07, E20-V01…V07, E21-R01/R02) wer
   - CI 40699664160 PASS on `973ba00`. Every later Wave 2 commit is documentation.
 - **Merge:** `claude/roguewood-build` into main after the CI of the "Wave 2 closed" commit. It supersedes Codex's PR #12, which lacks the CI fix and Claude's Wave 2 work.
 
+## Wave 7 claims (coordinator: Claude, 2026-10-30)
+Opens after the owner merges Wave 6. Codex merges `origin/claude/roguewood-build` (the "Wave 6 closed" commit) with a merge commit before starting (prompt: docs/prompts/codex-wave7.md). Phase 1, House League.
+- **Codex:**
+  - E21-R03 The Proprietor and E21-R04 Old Lou (High, one session): portraits, reactions and introductions on the E21-R01/R02 template, plus rule badges for House Rules and House Pins. The House champion shows Clean Sweep and House Rules together. J03C05 reaches both natively.
+  - AV-C06 (Medium): activation, sound and the E17-D01 presentation needs for Nudge, Reserve Call and Rule Waiver: the rack-diagram chooser, the "this frame only" marker and the waived badge. Hooks are `tactic_played(action)` and TacticSheet. Flags are set after native checks in J03C06.
+  - AV-C07 (Medium, two sessions): briefs (docs/art/briefs/E17-D06.md), identity art with an upgrade category frame, effects, sound and the shop treatments for the six upgrades. Flags are set after native checks in J03C07.
+- **Claude:**
+  - DC-H1, DC-H2, DC-H3 (Medium, three sessions): 18 House items written and landed together in batches of six (E17-D07…D09 with E18-C08…C10). Each batch has unit coverage and a native journey, and is AV-ready for Codex's AV-H1…H4 (Waves 8–9).
+
 ## Wave 6 claims (coordinator: Claude, 2026-10-29)
 Wave 5 is merged (PR #16). Codex merges `origin/claude/roguewood-build` (the "Wave 5 closed" commit) with a merge commit before starting (prompt: docs/prompts/codex-wave6.md). Phase 1, House League.
 - **Codex:**
@@ -198,7 +207,10 @@ Wave 5 is merged (PR #16). Codex merges `origin/claude/roguewood-build` (the "Wa
   - E18-C07 (`a8123f5`, handoffs/E18-C07.md): the License offer (one per Division) and six House upgrades (E17-D06, written and landed together); J03C07.
 - **Shop stream:** production's tactical slot was empty until C06, and C07 adds the License draw. Slice shops therefore offer different items than before, and journeys that buy opportunistically see different builds. J06 passes on the C07 head.
 - **Validation:** the full CI command list (134 commands, every journey headless and rendered, including J03C05–J03C07, J06, J07, J09–J11, physics, slice and export) PASS locally on `dbf7d16`; the J03C06 injected failure exits 1.
-- **Codex:** AV-C04 and E22-L01-ART pending (docs/prompts/codex-wave6.md).
+- **Codex, all DONE** on `codex/roguewood-build` (`ed7f44a`; handoffs/WAVE6-CODEX.md, AV-C04-A/B/C.md, E22-L01-ART.md):
+  - AV-C04: the eight modifications with art, effects, sound and both flags.
+  - E22-L01-ART: the House theme (eight Division environments and signs, the Championship look, the House Oil and Dry Backend lane visuals, music), with 30 bindings for E22-L01.
+- **Integration:** merged by the coordinator without conflicts. Codex's catalogue diff touches only the eight modifications' asset slots and flags. Its source is presentation only (modification art and events, the theme preview, glyph and director hooks). qa.py, run_tests.gd and the workflow are add-only, with upload folders inside `path`.
 
 ## Wave 5 closed (coordinator, 2026-10-29)
 - **Contents** (all on `claude/roguewood-build` at the "Wave 5 closed" commit):
