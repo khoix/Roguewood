@@ -459,3 +459,12 @@ wood-grain rail inserts/pegs for Old Lou in `rival_lane_art.gd`. All geometry si
 outside the playing surface and contains no collision bodies. Existing Custodian
 art is reused for the exact `rival.custodian_champion` manifest entry; no campaign
 IDs are aliased. No new audio is claimed by this portrait/rule-badge batch.
+
+## AV-C06 Nudge chooser checkpoint
+
+Original Godot UI geometry in `src/presentation/tactic_sheet.gd`: ten numbered
+rack spots, filled source choices and outlined legal destination choices. No
+external art, audio or new catalogue asset slots. J03C06 exercises the original
+list and the diagram through real taps; the chooser capture is kept only under
+ignored `artifacts/e18-c06/rendered/c06_nudge_chooser.png`. Activation, sound and
+remaining tactical treatments are not delivered by this checkpoint.

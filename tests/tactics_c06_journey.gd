@@ -147,7 +147,13 @@ func _feature() -> void:
 	var pin: int = options[0].position
 	var spot: int = options[0].to[0]
 	_check(lab.tactic_sheet.prompt.text.contains("move pin %d" % pin) and lab.tactic_sheet.choices.get_child_count() == options[0].to.size(), "then its adjacent fallen spots")
-	await _choose(0)
+	_check(lab.tactic_sheet.rack_diagram.visible and lab.tactic_sheet.rack_diagram.get_child_count() == 10, "Nudge shows the ten rack spots")
+	var enabled: Array = lab.tactic_sheet.rack_diagram.get_children().filter(func(b): return not b.disabled)
+	_check(enabled.map(func(b): return b.get_meta("rack_position")) == options[0].to, "diagram highlights exactly the legal adjacent empty spots")
+	await _capture("c06_nudge_chooser")
+	await _tap(enabled[0])
+	await process_frame
+	await process_frame
 	var moved: Dictionary = lab.rack.standing.filter(func(e): return int(e.position) == pin)[0]
 	var body: Vector3 = lab.lane.pins[pin].global_position
 	_check(lab.state == "aim" and is_equal_approx(moved.x, LaneSpec.spot(spot).x) and absf(body.x - LaneSpec.spot(spot).x) < 0.01 and absf(-body.z - LaneSpec.spot(spot).y) < 0.01,
