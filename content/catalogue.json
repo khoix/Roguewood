@@ -3441,6 +3441,348 @@
         "unlock_assigned": true,
         "integrated": false
       }
+    },
+    {
+      "id": "charm.trophy_case",
+      "name": "Trophy Case",
+      "category": "charm",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 6,
+      "resale_price": 3,
+      "effects": [
+        {
+          "op": "add_mult",
+          "amount": 1,
+          "trigger": "charm",
+          "scope": "run",
+          "per": "growth"
+        },
+        {
+          "op": "grow_value",
+          "amount": 1,
+          "trigger": "charm",
+          "scope": "run",
+          "condition": {
+            "category": [
+              "strike"
+            ]
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Starts at +0 and grows only with strikes; worth little bought late.",
+      "synergy_tags": [
+        "growth",
+        "strike",
+        "mult"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.corner_pockets",
+      "name": "Corner Pockets",
+      "category": "charm",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 5,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "add_value",
+          "amount": 25,
+          "trigger": "charm",
+          "scope": "frame",
+          "per": "fallen_at:7,10"
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Two pins only, and the corners are the hardest pins to reach.",
+      "synergy_tags": [
+        "positional",
+        "spare",
+        "value"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.late_rally",
+      "name": "Late Rally",
+      "category": "charm",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 6,
+      "resale_price": 3,
+      "effects": [
+        {
+          "op": "add_mult",
+          "amount": 10,
+          "trigger": "charm",
+          "scope": "frame",
+          "condition": {
+            "match_frame": 2,
+            "behind": true
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Needs a bad first frame to pay, and does nothing in Practice, which has no target.",
+      "synergy_tags": [
+        "comeback",
+        "timing",
+        "mult"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.clean_pickup",
+      "name": "Clean Pickup",
+      "category": "charm",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 5,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "multiply_mult",
+          "amount": 1.5,
+          "trigger": "charm",
+          "scope": "frame",
+          "condition": {
+            "category": [
+              "spare"
+            ],
+            "curved": false
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Any curved roll in the frame cancels it, and it never helps a strike.",
+      "synergy_tags": [
+        "spare",
+        "straight",
+        "precision"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.house_special",
+      "name": "House Special",
+      "category": "charm",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 6,
+      "resale_price": 3,
+      "effects": [
+        {
+          "op": "multiply_mult",
+          "amount": 1.5,
+          "trigger": "charm",
+          "scope": "frame",
+          "condition": {
+            "category": [
+              "strike"
+            ],
+            "all_house": true
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Arming any special ball card cancels it for that frame.",
+      "synergy_tags": [
+        "house",
+        "strike",
+        "baseline"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.front_line",
+      "name": "Front Line",
+      "category": "charm",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 4,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "add_mult",
+          "amount": 2,
+          "trigger": "charm",
+          "scope": "frame",
+          "per": "fallen_at:1,2,3"
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Nothing for the back of the rack, where splits are left.",
+      "synergy_tags": [
+        "positional",
+        "strike",
+        "mult"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
     }
   ]
 }

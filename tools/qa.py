@@ -41,6 +41,7 @@ JOURNEYS = {
     "J03C06": ("res://tests/tactics_c06_journey.gd", "ROGUEWOOD_J03C06_OK", "artifacts/e18-c06", ("c06_shop", "c06_reserve_call", "c06_nudge", "c06_feature_frame", "c06_rule_waiver", "c06_surveyor"), 900, ["--fixed-fps", "60"]),
     "J03C07": ("res://tests/upgrades_c07_journey.gd", "ROGUEWOOD_J03C07_OK", "artifacts/e18-c07", ("c07_license", "c07_upgrades", "c07_feature_shop", "c07_division_two"), 900, ["--fixed-fps", "60"]),
     "J03C08": ("res://tests/house_c08_journey.gd", "ROGUEWOOD_J03C08_OK", "artifacts/e18-c08", ("c08_shop", "c08_strike", "c08_open", "c08_holdouts"), 900, ["--fixed-fps", "60"]),
+    "J03C09": ("res://tests/house_c09_journey.gd", "ROGUEWOOD_J03C09_OK", "artifacts/e18-c09", ("c09_shop", "c09_rally", "c09_pickup"), 900, ["--fixed-fps", "60"]),
     "J03C04": ("res://tests/mods_c04_journey.gd", "ROGUEWOOD_J03C04_OK", "artifacts/e18-c04", ("c04_shop", "c04_strike", "c04_open"), 900, ["--fixed-fps", "60"]),
     "J03C03": ("res://tests/crown_c03_journey.gd", "ROGUEWOOD_J03C03_OK", "artifacts/e18-c03", ("c03_split", "c03_strike"), 600, ["--fixed-fps", "60"]),
     "J03C01": ("res://tests/charm_c01_journey.gd", "ROGUEWOOD_J03C01_OK", "artifacts/e18-c01", ("c01_strike", "c01_streak", "c01_spare", "c01_open"), 600, ["--fixed-fps", "60"]),

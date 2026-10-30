@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "batch": "E17-D08",
+  "status": "landed",
+  "note": "House League items, batch 2 of 4 (DC-H2): six Charms on existing rule pieces, written and landed together by E18-C09. Amounts and prices are provisional (E24).",
+  "definitions": [],
+  "landed": [
+    {
+      "id": "charm.trophy_case",
+      "landed_in": "E18-C09",
+      "design": {
+        "trigger": "+1 Mult for every strike thrown since it was bought: each strike adds a trophy after the frame banks, so a strike counts from the next frame on. Kept for the attempt; selling it loses its trophies.",
+        "primitives": [],
+        "pool": "Shop Charm slot; initial pool from Division 1.",
+        "presentation_needs": "A glass case that fills with small trophies; the count shows on the card and the new trophy lands after the bank.",
+        "asset_ids": {
+          "icon": "icon.charm.trophy_case",
+          "card": "card.charm.trophy_case",
+          "rarity_treatment": "rarity_treatment.charm.trophy_case",
+          "activation": "activation.charm.trophy_case",
+          "sound": "sound.charm.trophy_case",
+          "reduced_motion": "reduced_motion.charm.trophy_case"
+        }
+      }
+    },
+    {
+      "id": "charm.corner_pockets",
+      "landed_in": "E18-C09",
+      "design": {
+        "trigger": "+25 Value for each corner pin (rack positions 7 and 10) knocked down in the frame, whatever its material.",
+        "primitives": [],
+        "pool": "Shop Charm slot; initial pool from Division 1.",
+        "presentation_needs": "Billiard pockets at the two back corners of the rack diagram; each lit pocket counts.",
+        "asset_ids": {
+          "icon": "icon.charm.corner_pockets",
+          "card": "card.charm.corner_pockets",
+          "rarity_treatment": "rarity_treatment.charm.corner_pockets",
+          "activation": "activation.charm.corner_pockets",
+          "sound": "sound.charm.corner_pockets",
+          "reduced_motion": "reduced_motion.charm.corner_pockets"
+        }
+      }
+    },
+    {
+      "id": "charm.late_rally",
+      "landed_in": "E18-C09",
+      "design": {
+        "trigger": "+10 Mult in a match's second frame when the match score is still under half its target.",
+        "primitives": [],
+        "pool": "Shop Charm slot; initial pool from Division 1.",
+        "presentation_needs": "A scoreboard clock in its last minute; it lights only when behind in frame 2, showing the score against half the target.",
+        "asset_ids": {
+          "icon": "icon.charm.late_rally",
+          "card": "card.charm.late_rally",
+          "rarity_treatment": "rarity_treatment.charm.late_rally",
+          "activation": "activation.charm.late_rally",
+          "sound": "sound.charm.late_rally",
+          "reduced_motion": "reduced_motion.charm.late_rally"
+        }
+      }
+    },
+    {
+      "id": "charm.clean_pickup",
+      "landed_in": "E18-C09",
+      "design": {
+        "trigger": "×1.5 Mult on a spare where no roll curved: the straight shot that picks up what is left.",
+        "primitives": [],
+        "pool": "Shop Charm slot; initial pool from Division 1.",
+        "presentation_needs": "A dustpan sweeping a straight line; it shows the frame's rolls were all straight.",
+        "asset_ids": {
+          "icon": "icon.charm.clean_pickup",
+          "card": "card.charm.clean_pickup",
+          "rarity_treatment": "rarity_treatment.charm.clean_pickup",
+          "activation": "activation.charm.clean_pickup",
+          "sound": "sound.charm.clean_pickup",
+          "reduced_motion": "reduced_motion.charm.clean_pickup"
+        }
+      }
+    },
+    {
+      "id": "charm.house_special",
+      "landed_in": "E18-C09",
+      "design": {
+        "trigger": "×1.5 Mult on a strike thrown with the House Ball.",
+        "primitives": [],
+        "pool": "Shop Charm slot; initial pool from Division 1. The Proprietor's first-clear reward once E22-L01 declares gate.proprietor_cleared.",
+        "presentation_needs": "The House chalkboard special; it shows the House Ball when every roll used it.",
+        "asset_ids": {
+          "icon": "icon.charm.house_special",
+          "card": "card.charm.house_special",
+          "rarity_treatment": "rarity_treatment.charm.house_special",
+          "activation": "activation.charm.house_special",
+          "sound": "sound.charm.house_special",
+          "reduced_motion": "reduced_motion.charm.house_special"
+        }
+      }
+    },
+    {
+      "id": "charm.front_line",
+      "landed_in": "E18-C09",
+      "design": {
+        "trigger": "+2 Mult for each of the front three pins (rack positions 1, 2 and 3) knocked down, up to +6.",
+        "primitives": [],
+        "pool": "Shop Charm slot; initial pool from Division 1.",
+        "presentation_needs": "Three shields at the front of the rack diagram; each falls flat when its pin does.",
+        "asset_ids": {
+          "icon": "icon.charm.front_line",
+          "card": "card.charm.front_line",
+          "rarity_treatment": "rarity_treatment.charm.front_line",
+          "activation": "activation.charm.front_line",
+          "sound": "sound.charm.front_line",
+          "reduced_motion": "reduced_motion.charm.front_line"
+        }
+      }
+    }
+  ]
+}

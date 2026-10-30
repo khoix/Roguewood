@@ -126,8 +126,8 @@ static func _catalogue_counts(catalogue: Dictionary, failures: Array[String]) ->
 		_expect(entry.completeness.authored and entry.completeness.mechanics and not entry.completeness.integrated,
 			"%s: authored and implemented, not yet integrated" % entry.id, failures)
 		_expect(_art_flags_backed(entry), "%s: art/effects flags are backed by existing assets" % entry.id, failures)
-	_expect(by.ball.size() == 4 and by.pin.size() == 6 + 1 + 1 and by.charm.size() == 12 + 6 + 1 + 5 + 6 and by.boss_rule.size() == 2 + 2 and by.kit.size() == 1,
-		"E13-S01 (four balls, six pins, twelve Charms, two boss rules, one kit), E18-C01's six Charms, E18-C02's Glass Pin and Glass Cutter, E18-C03's Crown Pin and five Charms, E18-C05's House Rules and House Pins, E18-C08's six House Charms", failures)
+	_expect(by.ball.size() == 4 and by.pin.size() == 6 + 1 + 1 and by.charm.size() == 12 + 6 + 1 + 5 + 6 + 6 and by.boss_rule.size() == 2 + 2 and by.kit.size() == 1,
+		"E13-S01 (four balls, six pins, twelve Charms, two boss rules, one kit), E18-C01's six Charms, E18-C02's Glass Pin and Glass Cutter, E18-C03's Crown Pin and five Charms, E18-C05's House Rules and House Pins, E18-C08's and C09's twelve House Charms", failures)
 
 ## A set artwork flag needs its card, icon, rarity treatment and reduced-motion
 ## slots (plus in_play for balls and pins); a set effects_audio flag needs the
