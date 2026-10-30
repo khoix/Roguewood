@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-10-29. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–5 are merged (PRs #11, #13, #14, #15, #16); Wave 6 is open. The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
+Updated: 2026-10-29. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–5 are merged (PRs #11, #13, #14, #15, #16); Wave 6 is closed and waiting on its PR. The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
 
 ## Read first
 
@@ -36,7 +36,8 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - Wave 2 MERGED to main by PR #13 (`1d44302`).
 - Wave 3 MERGED to main by PR #14 (`3a7e938`; CI 40736417912 PASS on `afe5852`): Codex E17-D02-ART and E19-A13…A15; Claude E18-C02 and E17-D03.
 - Wave 4 MERGED to main by PR #15 (CI 40760480791 PASS on `e72051b`): Claude E18-C03 and E17-D04; Codex E17-D03-ART, E19-A16 and E20-V08. 
-- Wave 5 MERGED to main by PR #16 (CI PASS on `bebb702`, which also raised the CI job limit to 90 minutes): Claude E18-C04 and E17-L01; Codex AV-C03 and E17-D04-ART. **Wave 6 is open** (see "Wave 6 claims"): Codex starts from this branch with docs/prompts/codex-wave6.md. Claude's three claims (E18-C05, C06, C07) are DONE; Wave 6 closes when Codex's Wave 6 is integrated (see "Wave 6 progress").
+- Wave 5 MERGED to main by PR #16 (CI PASS on `bebb702`, which also raised the CI job limit to 90 minutes): Claude E18-C04 and E17-L01; Codex AV-C03 and E17-D04-ART.
+- Wave 6 CLOSED (see "Wave 6 closed"): Claude E18-C05…C07; Codex AV-C04 and E22-L01-ART. It is waiting on the owner's PR merge; Wave 7 ("Wave 7 claims", docs/prompts/codex-wave7.md) starts after that merge.
 - **Roadmap (2026-10-28):** docs/ROADMAP.md maps every remaining milestone to phases (one per League group) and waves, with ownership, the content split per League and the owner's decisions. Waves 5–8 complete the House League.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
@@ -180,6 +181,13 @@ The E13-S01 presentation batches (E19-A01…A07, E20-V01…V07, E21-R01/R02) wer
   - The full CI command list was re-run locally on the C01 tree: 98/98, and J03C01 injected failure exits 1.
   - CI 40699664160 PASS on `973ba00`. Every later Wave 2 commit is documentation.
 - **Merge:** `claude/roguewood-build` into main after the CI of the "Wave 2 closed" commit. It supersedes Codex's PR #12, which lacks the CI fix and Claude's Wave 2 work.
+
+## Wave 6 closed (coordinator, 2026-10-30)
+- **Contents** (all on `claude/roguewood-build` at the "Wave 6 closed" commit):
+  - Claude: E18-C05 (`70b5389`), E18-C06 (`5d22fd6`), E18-C07 with E17-D06 (`a8123f5`).
+  - Codex: AV-C04 (`e47b7c0`, `792e24b`, `80eb775`) and E22-L01-ART (`ed7f44a`), merged by the coordinator without conflicts.
+- **Validation:** the full CI command list (148 commands, every journey headless and rendered) PASS locally on the merged tree `470d88c`. It includes J03C05–J03C07, JAVC04A/B/C with their contact checks, J22L01ART, J06, J07 and J09–J11. The J03C06 injected failure exits 1. CI runs on this commit.
+- **Merge:** `claude/roguewood-build` into main by PR after this commit's CI passes.
 
 ## Wave 7 claims (coordinator: Claude, 2026-10-30)
 Opens after the owner merges Wave 6. Codex merges `origin/claude/roguewood-build` (the "Wave 6 closed" commit) with a merge commit before starting (prompt: docs/prompts/codex-wave7.md). Phase 1, House League.
