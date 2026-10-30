@@ -14,6 +14,8 @@ ROOT = Path(__file__).resolve().parents[1]
 VERSION = (ROOT / ".godot-version").read_text().strip()
 # journey -> script, success marker, artifact directory, rendered captures, timeout, extra engine flags
 JOURNEYS = {
+    "J22L01ART": ("res://tests/house_theme_journey.gd", "ROGUEWOOD_HOUSE_THEME_OK", "artifacts/e22-l01-art",
+        tuple("division_%02d" % i for i in range(1,9)) + ("championship", "house_oil", "dry_backend", "reduced", "landscape", "contact"), 180, ["--fixed-fps", "60"]),
     "JAVC04CC": ("res://tests/av_c04_contact.gd", "ROGUEWOOD_AV_C04_CONTACT_OK", "artifacts/av-c04-c/contact", ("contact",), 180, ["--fixed-fps", "60"]),
     "JAVC04C": ("res://tests/av_c04_c_journey.gd", "ROGUEWOOD_AV_C03_OK AV-C04-C", "artifacts/av-c04-c/native",
         ("ball_mod_echo_charge_shop", "pin_mod_lantern_shop", "owned_shop", "inventory", "ball_mod_echo_charge_inspector", "ball_mod_echo_charge_binder", "pin_mod_lantern_binder", "ball_mod_echo_charge_host_detail", "charge_hook_shop", "charge_hook_host_detail", "pin_mod_lantern_host_detail", "ball_mod_echo_charge_activation", "pin_mod_lantern_activation", "lantern_unlit", "lantern_reduced", "charge_rolling", "charge_hook_rolling", "stage1_reduced", "stage1_landscape"), 900, ["--fixed-fps", "60"]),

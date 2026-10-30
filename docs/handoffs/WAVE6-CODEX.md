@@ -1,4 +1,4 @@
-# Codex Wave 6 — resumed checkpoint
+# Codex Wave 6 — DONE
 
 Resumed on 2026-10-29 from usage checkpoint `6adfde3`, on
 `codex/roguewood-build`. No owner-review dependency; unfinished work is explicit.
@@ -13,16 +13,24 @@ Resumed on 2026-10-29 from usage checkpoint `6adfde3`, on
   Full native journey headless/rendered and contacts passed, actual captures
   inspected; eighteen paths and six completion flags. Unit/content, A, J03C04
   and J11ART regressions passed. See AV-C04-B.md for exact logs and limitations.
-- **AV-C04-C DONE**, completion in this commit: Echo Charge and Lantern.
+- **AV-C04-C DONE**, pushed `80eb775`: Echo Charge and Lantern.
   Twelve exact slots plus an internal unlit Lantern state, both flags after final
   native checks. Hammer/Hook via legal sale/repurchase; actual repeat/standing
   links and static states. Unit/content/physics, fourteen headless and five
   affected rendered regressions pass. See AV-C04-C.md. AV-C04 is complete.
-- **E22-L01-ART NOT STARTED**: House theme for eight Divisions, Championship,
-  House Oil/Dry Backend lane visuals, music (High). Preview/inspector/contact only;
-  author asset-ID/drop-path handoff for Claude's Wave 8 integration.
+- **E22-L01-ART DONE**, completion in this commit: eight distinct Division
+  environments/signs, a separate Championship, House Oil/Dry Backend materials
+  and an original 16-bar music loop. Thirty stable bindings in the House manifest.
+  Native J22L01ART headless/rendered, unit/content, deterministic regeneration
+  and scope audit PASS; captures inspected. See E22-L01-ART.md for drop paths,
+  integration coordinates, music/condition checks and evidence limits.
 
-Start E22-L01-ART House theme (High). All three AV-C04 batches are complete. No Wave 7 art, other League themes, E26 or Claude-owned mechanics.
+All Codex Wave 6 claims are complete. Stop here; no Wave 7 art, other League
+themes or E26. Claude owns live House integration in Wave 8; this delivered theme
+is verified through the standalone inspector, as assigned. No owner action is
+recorded as an implementation dependency. Next dispatched Wave 7 art: recommend
+High effort. Coordinator updates central claims after integrating this branch.
+
 Only assigned catalogue asset/art/effects fields; no batch flags or League spec
 edits. qa.py, run_tests and workflow are add-only; keep upload paths inside the
 existing list and preserve the 90-minute timeout. No PR to main; coordinator

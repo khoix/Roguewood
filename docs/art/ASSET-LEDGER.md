@@ -387,3 +387,43 @@ Resources: `assets/items/d04/<design-asset-id>.tres`,
 `assets/effects/activation.<item-id>.tres`, `assets/audio/sound.<item-id>.wav`.
 Native/contact evidence is ignored under `artifacts/av-c04-c/`; verification and
 current completion status are in `docs/handoffs/AV-C04-C.md`.
+
+## E22-L01-ART — House League theme (Wave 6)
+
+Original OpenAI-generated environment atlas retained byte-for-byte at
+`assets/leagues/house/source.environment.png`; exact prompt is beside it as
+`source.environment.txt`. Nine 512-pixel-wide architectural bays in a
+1536×1024 source: worn club arch, restored slatted bay, service gallery, vintage
+truss room, star-tile colonnade, brass mezzanine, walnut trophy gallery, grand
+House hall, and a separate Championship double arch. No borrowed art or baked
+lettering. Source SHA-256:
+`573ff51c98fe50e35fd2d64330be8dda18f68298f25d9a9f45bee3a68fe931a7`.
+AtlasTexture views inset two pixels avoid cell bleed; original PNG pixels are
+unchanged. Native ivory/brass signs carry exact Division numbers and Championship.
+
+`assets/leagues/house/manifest.json` maps 30 stable IDs: nine backdrops, nine
+signage resources, nine cosmetic environment scenes, two lane ShaderMaterials
+and one music stream. All resources live under `assets/leagues/house/`.
+`tools/author_house_theme.py` reproduces the bindings and music. Environment and
+lane code is original: nearest-filtered wall art, depth-tested native signs,
+world-meter wood grain, static oil sheen and a matte/scuffed dry backend. Lane
+boundaries come from LaneSpec (12.192 m oil end, 17.288 m deck start). No collision,
+physics, League-state or catalogue-completeness writes.
+
+Original composition `music.league.house.after_hours.wav`: 16 bars at 90 BPM,
+42⅔ seconds, stereo 22050 Hz 16-bit PCM. FM electric piano, original four-phrase
+melody, soft synthesized bass and kick, synthesized brush/hat noise; deterministic
+seed 220601. Circular release tails and short stereo delays preserve the loop
+seam. No samples, recordings or borrowed composition. PCM peak 0.679993,
+RMS 0.134105, absolute DC below 0.000007, seam delta 0.003449 (below the ordinary
+maximum adjacent delta 0.101868). WAV SHA-256:
+`16624aef039e137ef0d1608434aa4d3d07e1364a932d4a0b9a456f503708dc7e`.
+Godot WAV importer forward-loop mode is **2** (importer mode 1 disables looping);
+loaded AudioStreamWAV reports LOOP_FORWARD. Native player controls and wrapping
+are tested; Dummy audio does not establish speaker/headphone listening quality.
+
+Preview: `src/presentation/house_theme_preview.tscn`; native J22L01ART covers all
+nine rooms, exact signs, both lane finishes, portrait/landscape controls, static
+reduced presentation and music. Evidence remains ignored in
+`artifacts/e22-l01-art/`. Integration contract and limits:
+`docs/handoffs/E22-L01-ART.md`. Live House integration belongs to Claude in Wave 8.

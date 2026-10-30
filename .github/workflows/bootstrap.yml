@@ -206,6 +206,10 @@ jobs:
           xvfb-run -a python3 tools/qa.py e2e --journey JAVC04C --rendered
           python3 tools/qa.py e2e --journey JAVC04CC
           xvfb-run -a python3 tools/qa.py e2e --journey JAVC04CC --rendered
+      - name: House League theme asset inspector
+        run: |
+          python3 tools/qa.py e2e --journey J22L01ART
+          xvfb-run -a python3 tools/qa.py e2e --journey J22L01ART --rendered
       - name: Preserve journey diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -259,4 +263,5 @@ jobs:
             artifacts/av-c04-a/
             artifacts/av-c04-b/
             artifacts/av-c04-c/
+            artifacts/e22-l01-art/
           if-no-files-found: warn
