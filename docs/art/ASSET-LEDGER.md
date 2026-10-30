@@ -274,3 +274,156 @@ Paths: `assets/effects/activation.<item-id>.tres` and
 `assets/audio/sound.<item-id>.wav`. Native/64px evidence: `artifacts/av-c03-b/`.
 Reduced motion/flash freezes the same grade, position or threshold construction.
 Native text and resolver counts remain authoritative.
+
+## Wave 6 — AV-C04-A identity, overlays, effects and sound
+
+Brass Cap, Gilt Leaf and Keystone: original AI-generated pixel-art illustrations
+from OpenAI image generation, 2026-10-29. The original RGBA PNG is retained
+unchanged at `assets/items/d04/source.AV-C04-A.png`; its exact request is
+`source.AV-C04-A.txt` in the same folder. No external sample, brand or reference
+image was supplied. Generated work carries no claim of exclusive rights.
+
+Source SHA-256: `0f7a0a7e6aa85a7166b57ade656e035702c79cf733f0ff20d0c326710ffe5c37`.
+
+`tools/author_c04_art.py AV-C04-A` binds the six declared D04 IDs per item:
+icon, card, rarity treatment, activation, sound and reduced motion. AtlasTexture
+regions measure opaque object bounds, ignoring near-invisible alpha specks;
+they do not edit or resample the PNG. No invented in-play design slot. Badge
+views reuse the icon. Cosmetic meshes in `assets/items/d04/overlay.gd` are
+original code-authored geometry: a small dome (side plate on Crown), partial
+torn leaf, and a trapezoid plate with rivets. The leaf/stone patches sample
+their exact declared icon views on tiny unshaded alpha-cut quads, retaining
+material detail in the dark lane without adding lights or recolouring the host. No collision shapes or host edits.
+
+Original vector cues: dome/+Mult, torn edge/after-bank coin, counted trapezoid
+and actual fallen-slot outlines in the rack diagram.
+All amounts, counts, repeated sources and phases come from resolver events.
+Original deterministic synthesized mono 22050 Hz, 16-bit PCM; no recordings or
+samples. Native audio-start assertions and four-voice limits are verified by
+JAVC04A; this is not a physical-device listening claim.
+
+| Item | Recipe / synthesis | WAV SHA-256 |
+|---|---|---|
+| `pin_mod.brass_cap` | `cap_tick`; metal, 1060 Hz, 0.19 s; priority 2; peak 0.48 | `793f50650cc4882b353b488f160630633a8346aa5debea46be3a4bdf95993cd4` |
+| `pin_mod.gilt_leaf` | `leaf_coin`; soft paper plus one 1180 Hz coin tick at 70 ms, 0.25 s; priority 2; peak 0.48 | `047942914b8cede99fe0090baa418445384be9fcfb6a910fc37861a53566d137` |
+| `pin_mod.keystone` | `key_count`; wood, 420 Hz, 0.28 s; priority 3; peak 0.48 | `56a408d3cc96fcd093e32a1237149c68d78adbd3c97948c8daf8859204493ecd` |
+
+Identity resources: `assets/items/d04/<design-asset-id>.tres`. Recipes:
+`assets/effects/activation.<item-id>.tres`; sounds:
+`assets/audio/sound.<item-id>.wav`. Native and 32/64/192px, grayscale/silhouette,
+normal/reduced captures: `artifacts/av-c04-a/` (ignored, never committed).
+See `docs/handoffs/AV-C04-A.md` for the verification record and scope.
+
+## Wave 6 — AV-C04-B identity, overlays, effects and sound
+
+Chalk Grip, Spin Wax and Coin Slot: original OpenAI-generated pixel-art source,
+2026-10-29. Original PNG retained unchanged at
+`assets/items/d04/source.AV-C04-B.png`; exact prompt beside it as
+`source.AV-C04-B.txt`. No external reference image, recording, logo or sample.
+No exclusive-rights claim. Source SHA-256: `2b0e8a6b267c8a3ed5b0bb788a3ae56f471e726dd240f32841c87681f8fc44ed`.
+
+`tools/author_c04_art.py AV-C04-B` measures opaque bounds in the three object
+regions and authors the exact six D04 IDs per item, without editing/resampling
+the PNG. Host badges reuse the icon; no in_play ID is invented. Original small
+3D marks: seven chalk flecks in a broken crescent, two segmented wax strokes,
+a tiny surface-aligned slot patch sampling the declared icon atlas. Base host
+material, holes, emblem, silhouette and collision are untouched. The committed
+curved Wax roll adds a narrow segmented secondary accent beside the existing
+trail; straight, reduced-motion/flash or disabled effects suppress that accent.
+
+Original vector cues: spare chalk flecks/+2, paired curve ticks/+4, slot/coin/$2
+after bank. Counts/conditions/awards are resolver-owned. Original deterministic
+mono 22050 Hz, 16-bit PCM: dry chalk scrape, rubbed-wax sweep with a late tick,
+single metal coin clink. Peak 0.48; no recordings or borrowed samples.
+
+| Item | Recipe / synthesis | WAV SHA-256 |
+|---|---|---|
+| `ball_mod.chalk_grip` | `chalk_pair`; paper, 650 Hz, 0.18 s; priority 2 | `0d25f981c003f8a0c3c271fe9ba2b7e324a87da872f4a378f9575b7d275cad12` |
+| `ball_mod.spin_wax` | `wax_curve`; swish, 980 Hz, 0.24 s; priority 2 | `65fd16d30f3a9fdeca5f94d14411db582f3b655582e70b535e7f839b0a985b87` |
+| `ball_mod.coin_slot` | `slot_coin`; metal, 1360 Hz, 0.23 s; priority 2 | `bf631c46a48f1c366132b1126144f4dcacdbcabd71a9820ceb3f5d61e6873638` |
+
+Resources: `assets/items/d04/<design-asset-id>.tres`,
+`assets/effects/activation.<item-id>.tres`, `assets/audio/sound.<item-id>.wav`.
+Native/inspector/host and contact evidence: `artifacts/av-c04-b/` (ignored).
+Handoff: `docs/handoffs/AV-C04-B.md`.
+
+## Wave 6 — AV-C04-C identity, overlays, effects and sound
+
+Echo Charge and Lantern: original OpenAI-generated pixel-art source, 2026-10-29.
+Original RGBA PNG retained unchanged at `assets/items/d04/source.AV-C04-C.png`,
+with exact prompt in `source.AV-C04-C.txt`. No external reference image, sample,
+recording, brand or exclusive-rights claim. Source SHA-256:
+`d4940fa3230e8f9960b5ddc44911d1b733f87582266aa8927812520b7d22cee3`.
+
+`tools/author_c04_art.py AV-C04-C` binds the twelve exact D04 IDs without PNG
+edits/resampling. Open silver/sea-glass double clasp versus the whole Echo Ball;
+handled rectangular lantern versus Hot Streak's free flames or Investor's
+hourglass. 32/64/192px grayscale/silhouette comparisons live in JAVC04CC.
+Echo's cosmetic host patch samples its exact icon region on a small surface-aligned
+quad. Lantern uses matched lit/unlit AtlasTexture quads, switched by the actual
+knockdown tracker. Its unlit source is an OpenAI image edit of that same source,
+retained unchanged as `source.AV-C04-C-unlit.png` with prompt beside it. The
+helper `state.pin_mod.lantern.unlit.tres` is an internal state view, not a new
+catalogue/design slot. Both states preserve the illustrated patina and handle. Unlit source SHA-256:
+`9078569783e2d91f8b6cb06efc5138dad63a5f9657be1cbd9187d1c483ef4a2f`.
+Neither attachment changes host materials, collision, mass, input or scores.
+
+Original vector cues: open paired rings and the actual repeated pin's rack link;
+handled count frame with the actual standing slots outlined. A granted repeat
+without a scoring event has no invented success cue. Repeats preserve original
+host cues and deferred income; ordinal repeat indices are not displayed as extra
+Charge uses. Reduced motion/flash holds the same slot/count information static.
+
+Original deterministic mono 22050 Hz, 16-bit PCM, peak 0.48, no recordings or
+borrowed samples. Charge has two glass/metal resonances, the second delayed 95 ms
+at 0.55 gain; Lantern has a short dry wick crackle without a looping hiss.
+
+| Item | Recipe / synthesis | WAV SHA-256 |
+|---|---|---|
+| `ball_mod.echo_charge` | `charge_link`; glass 880 Hz, 0.38 s; priority 3 | `fba26fc618a642b69c2eb42988f9a8c838ed37dbd6ab096c443dd7809ae25850` |
+| `pin_mod.lantern` | `lantern_count`; paper 420 Hz, 0.30 s; priority 2 | `cb5b2d45fe4d6bb913d248ba2a80726f876ad16249d0c12d342c0fbd3984895f` |
+
+Resources: `assets/items/d04/<design-asset-id>.tres`,
+`assets/effects/activation.<item-id>.tres`, `assets/audio/sound.<item-id>.wav`.
+Native/contact evidence is ignored under `artifacts/av-c04-c/`; verification and
+current completion status are in `docs/handoffs/AV-C04-C.md`.
+
+## E22-L01-ART — House League theme (Wave 6)
+
+Original OpenAI-generated environment atlas retained byte-for-byte at
+`assets/leagues/house/source.environment.png`; exact prompt is beside it as
+`source.environment.txt`. Nine 512-pixel-wide architectural bays in a
+1536×1024 source: worn club arch, restored slatted bay, service gallery, vintage
+truss room, star-tile colonnade, brass mezzanine, walnut trophy gallery, grand
+House hall, and a separate Championship double arch. No borrowed art or baked
+lettering. Source SHA-256:
+`573ff51c98fe50e35fd2d64330be8dda18f68298f25d9a9f45bee3a68fe931a7`.
+AtlasTexture views inset two pixels avoid cell bleed; original PNG pixels are
+unchanged. Native ivory/brass signs carry exact Division numbers and Championship.
+
+`assets/leagues/house/manifest.json` maps 30 stable IDs: nine backdrops, nine
+signage resources, nine cosmetic environment scenes, two lane ShaderMaterials
+and one music stream. All resources live under `assets/leagues/house/`.
+`tools/author_house_theme.py` reproduces the bindings and music. Environment and
+lane code is original: nearest-filtered wall art, depth-tested native signs,
+world-meter wood grain, static oil sheen and a matte/scuffed dry backend. Lane
+boundaries come from LaneSpec (12.192 m oil end, 17.288 m deck start). No collision,
+physics, League-state or catalogue-completeness writes.
+
+Original composition `music.league.house.after_hours.wav`: 16 bars at 90 BPM,
+42⅔ seconds, stereo 22050 Hz 16-bit PCM. FM electric piano, original four-phrase
+melody, soft synthesized bass and kick, synthesized brush/hat noise; deterministic
+seed 220601. Circular release tails and short stereo delays preserve the loop
+seam. No samples, recordings or borrowed composition. PCM peak 0.679993,
+RMS 0.134105, absolute DC below 0.000007, seam delta 0.003449 (below the ordinary
+maximum adjacent delta 0.101868). WAV SHA-256:
+`16624aef039e137ef0d1608434aa4d3d07e1364a932d4a0b9a456f503708dc7e`.
+Godot WAV importer forward-loop mode is **2** (importer mode 1 disables looping);
+loaded AudioStreamWAV reports LOOP_FORWARD. Native player controls and wrapping
+are tested; Dummy audio does not establish speaker/headphone listening quality.
+
+Preview: `src/presentation/house_theme_preview.tscn`; native J22L01ART covers all
+nine rooms, exact signs, both lane finishes, portrait/landscape controls, static
+reduced presentation and music. Evidence remains ignored in
+`artifacts/e22-l01-art/`. Integration contract and limits:
+`docs/handoffs/E22-L01-ART.md`. Live House integration belongs to Claude in Wave 8.

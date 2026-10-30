@@ -1,0 +1,9 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+[ext_resource type="Script" path="res://assets/leagues/house/signage.gd" id="1"]
+[resource]
+script = ExtResource("1")
+asset_id = "signage.league.house.division_07"
+league_title = "HOUSE"
+subtitle = "DIVISION 07"
+division = 7
+championship = false

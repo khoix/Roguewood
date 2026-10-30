@@ -5,6 +5,7 @@ var lab: Control
 var equipment_art: HBoxContainer
 var sound: Node
 var abilities: Node
+var modifications: Node
 var rival: TextureRect
 var reaction: Label
 var reaction_state := 0
@@ -49,6 +50,9 @@ func _ready() -> void:
 	var glass := preload("res://src/presentation/glass_presentation.gd").new()
 	glass.lab = lab
 	add_child(glass)
+	modifications = preload("res://src/presentation/modification_art.gd").new()
+	modifications.lab = lab
+	add_child(modifications)
 	abilities = preload("res://src/presentation/ability_director.gd").new()
 	abilities.lab = lab
 	add_child(abilities)
@@ -151,9 +155,14 @@ func _draw() -> void:
 	if lab==null or lab.settings.reduced_motion or lab.settings.reduced_flash: return
 	for i in range(1,_trail.size()):
 		draw_line(_trail[i-1],_trail[i],Color(0.37,0.85,0.8,float(i)/_trail.size()*0.45),3,true)
+		if i%2==0 and wax_trail_active():
+			draw_line(_trail[i-1]+Vector2(5,0),_trail[i]+Vector2(5,0),Color(0.95,0.86,0.62,float(i)/_trail.size()*0.55),1,true)
 	if _impact_age<0.22:
 		var t:=_impact_age/0.22
 		draw_arc(_impact,12+t*35,0,TAU,32,Color(0.95,0.78,0.45,(1-t)*0.65),3,true)
+
+func wax_trail_active() -> bool:
+	return lab.state=="rolling" and sound.enabled and lab.frame_mods.get(lab.roll_index,"")=="ball_mod.spin_wax" and preload("res://src/simulation/lane_spec.gd").is_curved(float(lab.lane.launch.get("spin",0))) and not lab.settings.reduced_motion and not lab.settings.reduced_flash
 
 func metrics() -> Dictionary:
 	return {"samples":_samples.size(),"process_ms":_summary(_samples),"physics_ms":_summary(_physics_samples),"draw_calls":_summary(_draw_samples),

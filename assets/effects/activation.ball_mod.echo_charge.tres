@@ -1,0 +1,9 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+[ext_resource type="Script" path="res://src/presentation/ability_style.gd" id="1"]
+[resource]
+script = ExtResource("1")
+item_id = "ball_mod.echo_charge"
+shape = "charge_link"
+ink = Color(0.5843137254901961,0.8509803921568627,0.796078431372549,1)
+duration = 0.55
+priority = 3

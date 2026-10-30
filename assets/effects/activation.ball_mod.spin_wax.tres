@@ -1,0 +1,9 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+[ext_resource type="Script" path="res://src/presentation/ability_style.gd" id="1"]
+[resource]
+script = ExtResource("1")
+item_id = "ball_mod.spin_wax"
+shape = "wax_curve"
+ink = Color(0.9019607843137255,0.792156862745098,0.5254901960784314,1)
+duration = 0.55
+priority = 2

@@ -1,0 +1,7 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+[ext_resource type="Shader" path="res://assets/leagues/house/lane.gdshader" id="1"]
+[resource]
+shader = ExtResource("1")
+shader_parameter/dry_backend = false
+shader_parameter/oil_end_f = 12.192
+shader_parameter/deck_start_f = 17.288

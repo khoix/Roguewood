@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "league_id": "league.house",
+  "source": "res://assets/leagues/house/source.environment.png",
+  "stages": [
+    {
+      "division": 1,
+      "championship": false,
+      "name": "House League \u00b7 Division 1",
+      "environment_id": "environment.league.house.division_01",
+      "signage_id": "signage.league.house.division_01",
+      "backdrop_id": "backdrop.league.house.division_01",
+      "art_intent": "Worn club arch"
+    },
+    {
+      "division": 2,
+      "championship": false,
+      "name": "House League \u00b7 Division 2",
+      "environment_id": "environment.league.house.division_02",
+      "signage_id": "signage.league.house.division_02",
+      "backdrop_id": "backdrop.league.house.division_02",
+      "art_intent": "Restored slatted bay"
+    },
+    {
+      "division": 3,
+      "championship": false,
+      "name": "House League \u00b7 Division 3",
+      "environment_id": "environment.league.house.division_03",
+      "signage_id": "signage.league.house.division_03",
+      "backdrop_id": "backdrop.league.house.division_03",
+      "art_intent": "Service gallery"
+    },
+    {
+      "division": 4,
+      "championship": false,
+      "name": "House League \u00b7 Division 4",
+      "environment_id": "environment.league.house.division_04",
+      "signage_id": "signage.league.house.division_04",
+      "backdrop_id": "backdrop.league.house.division_04",
+      "art_intent": "Vintage truss room"
+    },
+    {
+      "division": 5,
+      "championship": false,
+      "name": "House League \u00b7 Division 5",
+      "environment_id": "environment.league.house.division_05",
+      "signage_id": "signage.league.house.division_05",
+      "backdrop_id": "backdrop.league.house.division_05",
+      "art_intent": "Star-tile colonnade"
+    },
+    {
+      "division": 6,
+      "championship": false,
+      "name": "House League \u00b7 Division 6",
+      "environment_id": "environment.league.house.division_06",
+      "signage_id": "signage.league.house.division_06",
+      "backdrop_id": "backdrop.league.house.division_06",
+      "art_intent": "Brass mezzanine"
+    },
+    {
+      "division": 7,
+      "championship": false,
+      "name": "House League \u00b7 Division 7",
+      "environment_id": "environment.league.house.division_07",
+      "signage_id": "signage.league.house.division_07",
+      "backdrop_id": "backdrop.league.house.division_07",
+      "art_intent": "Walnut trophy gallery"
+    },
+    {
+      "division": 8,
+      "championship": false,
+      "name": "House League \u00b7 Division 8",
+      "environment_id": "environment.league.house.division_08",
+      "signage_id": "signage.league.house.division_08",
+      "backdrop_id": "backdrop.league.house.division_08",
+      "art_intent": "Grand House hall"
+    },
+    {
+      "division": 8,
+      "championship": true,
+      "name": "House Championship",
+      "environment_id": "environment.league.house.championship",
+      "signage_id": "signage.league.house.championship",
+      "backdrop_id": "backdrop.league.house.championship",
+      "art_intent": "Championship double arch"
+    }
+  ],
+  "lanes": [
+    {
+      "condition_id": "lane_condition.house_oil",
+      "visual_id": "lane_visual.lane_condition.house_oil",
+      "name": "House Oil",
+      "oil_end_f": 12.192,
+      "deck_start_f": 17.288
+    },
+    {
+      "condition_id": "lane_condition.dry_backend",
+      "visual_id": "lane_visual.lane_condition.dry_backend",
+      "name": "Dry Backend",
+      "oil_end_f": 12.192,
+      "deck_start_f": 17.288
+    }
+  ],
+  "assets": {
+    "backdrop.league.house.division_01": "res://assets/leagues/house/backdrop.league.house.division_01.tres",
+    "signage.league.house.division_01": "res://assets/leagues/house/signage.league.house.division_01.tres",
+    "environment.league.house.division_01": "res://assets/leagues/house/environment.league.house.division_01.tscn",
+    "backdrop.league.house.division_02": "res://assets/leagues/house/backdrop.league.house.division_02.tres",
+    "signage.league.house.division_02": "res://assets/leagues/house/signage.league.house.division_02.tres",
+    "environment.league.house.division_02": "res://assets/leagues/house/environment.league.house.division_02.tscn",
+    "backdrop.league.house.division_03": "res://assets/leagues/house/backdrop.league.house.division_03.tres",
+    "signage.league.house.division_03": "res://assets/leagues/house/signage.league.house.division_03.tres",
+    "environment.league.house.division_03": "res://assets/leagues/house/environment.league.house.division_03.tscn",
+    "backdrop.league.house.division_04": "res://assets/leagues/house/backdrop.league.house.division_04.tres",
+    "signage.league.house.division_04": "res://assets/leagues/house/signage.league.house.division_04.tres",
+    "environment.league.house.division_04": "res://assets/leagues/house/environment.league.house.division_04.tscn",
+    "backdrop.league.house.division_05": "res://assets/leagues/house/backdrop.league.house.division_05.tres",
+    "signage.league.house.division_05": "res://assets/leagues/house/signage.league.house.division_05.tres",
+    "environment.league.house.division_05": "res://assets/leagues/house/environment.league.house.division_05.tscn",
+    "backdrop.league.house.division_06": "res://assets/leagues/house/backdrop.league.house.division_06.tres",
+    "signage.league.house.division_06": "res://assets/leagues/house/signage.league.house.division_06.tres",
+    "environment.league.house.division_06": "res://assets/leagues/house/environment.league.house.division_06.tscn",
+    "backdrop.league.house.division_07": "res://assets/leagues/house/backdrop.league.house.division_07.tres",
+    "signage.league.house.division_07": "res://assets/leagues/house/signage.league.house.division_07.tres",
+    "environment.league.house.division_07": "res://assets/leagues/house/environment.league.house.division_07.tscn",
+    "backdrop.league.house.division_08": "res://assets/leagues/house/backdrop.league.house.division_08.tres",
+    "signage.league.house.division_08": "res://assets/leagues/house/signage.league.house.division_08.tres",
+    "environment.league.house.division_08": "res://assets/leagues/house/environment.league.house.division_08.tscn",
+    "backdrop.league.house.championship": "res://assets/leagues/house/backdrop.league.house.championship.tres",
+    "signage.league.house.championship": "res://assets/leagues/house/signage.league.house.championship.tres",
+    "environment.league.house.championship": "res://assets/leagues/house/environment.league.house.championship.tscn",
+    "lane_visual.lane_condition.house_oil": "res://assets/leagues/house/lane_visual.lane_condition.house_oil.tres",
+    "lane_visual.lane_condition.dry_backend": "res://assets/leagues/house/lane_visual.lane_condition.dry_backend.tres",
+    "music.league.house.after_hours": "res://assets/leagues/house/music.league.house.after_hours.wav"
+  },
+  "music": {
+    "asset_id": "music.league.house.after_hours",
+    "bpm": 90,
+    "bars": 16,
+    "sample_rate": 22050,
+    "frames": 940800,
+    "seconds": 42.666666666666664,
+    "peak": 0.68,
+    "rms": 0.1341094080399457,
+    "seam_delta": 0.0034626100776618852,
+    "sha256": "16624aef039e137ef0d1608434aa4d3d07e1364a932d4a0b9a456f503708dc7e"
+  }
+}
