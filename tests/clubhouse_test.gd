@@ -36,7 +36,7 @@ static func _fresh(graph: Dictionary, failures: Array[String]) -> void:
 		"a fresh board: both Leagues open, nothing played", failures)
 	var binder := Model.binder(career, graph, graph.catalogue)
 	var counts := Model.binder_counts(binder)
-	_expect(binder.size() == 66 and counts.locked == 9 and counts.available == 57 and counts.discovered == 0, "a fresh binder: 9 Locked, 57 Available (boss rules excluded)", failures)
+	_expect(binder.size() == 72 and counts.locked == 9 and counts.available == 63 and counts.discovered == 0, "a fresh binder: 9 Locked, 63 Available (boss rules excluded)", failures)
 	var encore := _entry(binder, "charm.encore")
 	_expect(encore.state == "locked" and encore.requirement == "Beat The Surveyor (House League)" and encore.asset == _entry(graph.catalogue.items, "charm.encore").assets.card and Art.has_art(encore.asset),
 		"Encore names its unlocking rival and resolves its catalogue card artwork", failures)
@@ -67,7 +67,7 @@ static func _after_play(graph: Dictionary, failures: Array[String]) -> void:
 		"all four states: Mastered (owned in a win), Discovered, Available (unlocked or never owned)", failures)
 	_expect(Model.inspect(_entry(binder, "pin.wood"), graph.catalogue).contains("Owned in 2 attempts; in 1 League win.")
 		and Model.inspect(_entry(binder, "charm.flat_bonus"), graph.catalogue).contains("Win a League with it in your build to master it."), "inspect shows history", failures)
-	_expect(Model.binder(career, graph, graph.catalogue, "pin").all(func(e): return e.category == "pin") and Model.binder(career, graph, graph.catalogue, "pin").size() == 8,
+	_expect(Model.binder(career, graph, graph.catalogue, "pin").all(func(e): return e.category == "pin") and Model.binder(career, graph, graph.catalogue, "pin").size() == 10,
 		"the binder filters by category", failures)
 	var row: Dictionary = Model.board(career, graph)[0]
 	_expect(row.titles == 1 and row.attempts == 1 and row.best_total == 4000 and Model.record_line(row).contains("best Division 2 · best total 4000 · best frame 600 · 1 title"),

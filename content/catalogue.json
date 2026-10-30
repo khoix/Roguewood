@@ -3783,6 +3783,356 @@
         "unlock_assigned": true,
         "integrated": false
       }
+    },
+    {
+      "id": "ball.spare_ball",
+      "name": "Spare Ball",
+      "category": "ball",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 4,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "add_mult",
+          "amount": 4,
+          "trigger": "ball",
+          "scope": "roll",
+          "condition": {
+            "category": [
+              "spare"
+            ]
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 2,
+        "charges": 0,
+        "exhaustion": "cycle"
+      },
+      "downside": "Hooks half as much as the House Ball, so it is a poor strike ball; nothing on a strike or an open frame.",
+      "synergy_tags": [
+        "spare",
+        "straight",
+        "precision"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      },
+      "physics": {
+        "spin_response": 0.5
+      }
+    },
+    {
+      "id": "ball.workhorse",
+      "name": "Workhorse",
+      "category": "ball",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 5,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "add_value",
+          "amount": 2,
+          "trigger": "ball",
+          "scope": "roll",
+          "per": "fallen"
+        }
+      ],
+      "limits": {
+        "max_owned": 2,
+        "charges": 0,
+        "exhaustion": "cycle"
+      },
+      "downside": "A small, steady bonus with no big payoff; lighter than the Hammer, so it carries less through the rack.",
+      "synergy_tags": [
+        "value",
+        "baseline",
+        "power"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      },
+      "physics": {
+        "mass_scale": 1.15
+      }
+    },
+    {
+      "id": "pin.oak",
+      "name": "Oak Pin",
+      "category": "pin",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 4,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "add_value",
+          "amount": 20,
+          "trigger": "fallen",
+          "scope": "frame"
+        }
+      ],
+      "limits": {
+        "max_owned": 12,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Heavier, so it falls less often and carries less into the pins behind it.",
+      "synergy_tags": [
+        "value",
+        "power",
+        "baseline"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      },
+      "physics": {
+        "mass_scale": 1.3
+      }
+    },
+    {
+      "id": "pin.tin",
+      "name": "Tin Pin",
+      "category": "pin",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 3,
+      "resale_price": 1,
+      "effects": [
+        {
+          "op": "add_value",
+          "amount": 5,
+          "trigger": "fallen",
+          "scope": "frame"
+        },
+        {
+          "op": "payout",
+          "amount": 1,
+          "trigger": "standing",
+          "scope": "frame"
+        }
+      ],
+      "limits": {
+        "max_owned": 12,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Half a Wood Pin's Value when it falls; it pays for the frames you do not clear.",
+      "synergy_tags": [
+        "economy",
+        "standing",
+        "open"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.spare_jar",
+      "name": "Spare Jar",
+      "category": "charm",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 4,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "add_value",
+          "amount": 8,
+          "trigger": "charm",
+          "scope": "run",
+          "per": "growth"
+        },
+        {
+          "op": "grow_value",
+          "amount": 1,
+          "trigger": "charm",
+          "scope": "run",
+          "condition": {
+            "category": [
+              "spare"
+            ]
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Starts at +0 and grows only with spares; worth little bought late.",
+      "synergy_tags": [
+        "growth",
+        "spare",
+        "value"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.consolation_prize",
+      "name": "Consolation Prize",
+      "category": "charm",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 3,
+      "resale_price": 1,
+      "effects": [
+        {
+          "op": "payout",
+          "amount": 1,
+          "trigger": "charm",
+          "scope": "frame",
+          "condition": {
+            "category": [
+              "open"
+            ]
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Money only, and only for the frames you would rather not throw.",
+      "synergy_tags": [
+        "economy",
+        "open",
+        "payout"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
     }
   ]
 }
