@@ -10,7 +10,7 @@ extends "res://tests/charm_c01_journey.gd"
 ##                 the third reserve slot (Pin Caddy); the attempt is saved and
 ##                 resumed with its upgrades.
 ##   feature shop: the settlement pays $5 interest (Savings Book); the first reroll is
-##                 free and shows "Reroll $0" (Punch Card); the new stock has a sixth
+##                 free and shows "Reroll free" (Punch Card); the new stock has a sixth
 ##                 Extra Shelf offer before the License (Extra Shelf).
 ##   Division 2:   after The Surveyor, the License offer is redrawn for Division 2 and,
 ##                 with every House upgrade owned, offers nothing.
@@ -76,12 +76,22 @@ func _opener_shop() -> void:
 		and lab.shop.offers[_license_index()].sold and _button(_license_index()).text.contains("SOLD"), "%s bought for $%d with a real tap" % [license.item_id, license.price])
 	_check(not lab.shop_panel.owned_list.get_children().any(func(c): return c is Button and c.name.begins_with("Sell_upgrade")) and lab.shop_panel.rack_label.text.contains("Upgrades (kept for the attempt): "),
 		"an upgrade is listed as kept and offers no sale")
+	if license.item_id in IDS:
+		_check(lab.motion.upgrades.history.back().id == license.item_id and lab.motion.upgrades.history.back().audio, "real License purchase activates art and sound")
 	await _capture("c07_license")
 	var granted: Array = []
 	for id in IDS:
 		if id != license.item_id:
+			# Fixture grants are faster than real purchases; let the bounded mixer drain.
+			var audio_until := Time.get_ticks_msec() + 450
+			while Time.get_ticks_msec() < audio_until: await process_frame
 			lab.run.place(id, 0, "upgrade:new")
 			granted.append(id)
+			if id in IDS:
+				await process_frame
+				await process_frame
+				_check(lab.motion.upgrades.history.back().id == id and lab.motion.upgrades.history.back().audio, "upgrade has a native activation and mixer cue " + id)
+				await _capture(id + "_activation")
 	lab.shop.reprice(lab.run)
 	lab._refresh_shop()
 	print("J03C07 fixture: %s placed through the inventory API" % str(granted))
@@ -123,11 +133,15 @@ func _opener_shop() -> void:
 		and lab.shop.offers[_license_index()].sold and lab.run.money == money, "the resumed shop keeps the six upgrades, the third reserve and the sold License")
 
 func _feature_shop() -> void:
+	await process_frame
+	await process_frame
+	_check(lab.motion.upgrades.history.is_empty(), "restored upgrades do not replay purchase sound")
 	var settlement: Dictionary = lab.settlement
 	var expected := mini(floori(int(settlement.balance_before) / float(Economy.INTEREST_STEP)), Economy.INTEREST_CAP + Upgrades.INTEREST_BONUS)
 	_check(int(settlement.balance_before) >= 25 and int(settlement.interest) == 5 and expected == 5 and lab.shop_panel.summary.text.contains("interest $5")
 		and lab.shop_panel.summary.text.contains("Savings Book"), "Savings Book: $%d held pays $5 interest" % int(settlement.balance_before))
-	_check(lab.shop_panel.reroll_button.text == "Reroll $0", "Punch Card: the first reroll of the visit is free")
+	_check(lab.shop_panel.reroll_button.text == "Reroll free", "Punch Card: the first reroll of the visit is free")
+	await _capture("c07_free_reroll")
 	var money: int = lab.run.money
 	await _tap(lab.shop_panel.reroll_button)
 	await process_frame
@@ -135,6 +149,13 @@ func _feature_shop() -> void:
 	var regular: Array = lab.shop.offers.filter(func(o): return o.slot != Shop.LICENSE)
 	_check(regular.size() == 6 and regular[5].slot == Shop.EXTRA and _button(5).visible and _button(5).text.begins_with("Extra Shelf") and _license_index() == 6 and _button(6).visible,
 		"Extra Shelf: a sixth offer before the License")
+	_check(lab.motion.upgrades.passbook.visible and lab.motion.upgrades.cap_label.text.contains("$5"), "Savings Book passbook and raised cap beside settlement")
+	_check(lab.motion.upgrades.spotlight.visible, "Spotlight Sign above offer grid")
+	_check(_button(5).get_node("ShelfFrame").get_meta("extra_shelf"), "sixth shelf has a distinct shelf lip")
+	for i in lab.shop.offers.size():
+		var offer: Dictionary = lab.shop.offers[i]
+		if not offer.sold and not offer.item_id.is_empty():
+			_check(_button(i).get_node("ShelfFrame").get_meta("spotlit"), "Spotlight brightens unsold rarity frame")
 	await _capture("c07_feature_shop")
 
 func _surveyor() -> void:
@@ -149,6 +170,16 @@ func _surveyor() -> void:
 	await _capture("c07_division_two")
 
 func _capture(label: String) -> void:
+	await process_frame
+	await process_frame
+	if label == "c07_upgrades":
+		_check(lab.motion.upgrades.caddy.get_child_count() == 3 and lab.motion.upgrades.caddy.get_child(2).visible, "caddy shows the added third pocket")
+		for index in lab.shop.offers.size():
+			var offer: Dictionary = lab.shop.offers[index]
+			if offer.sold or offer.item_id.is_empty(): continue
+			var tag: RichTextLabel = _button(index).get_node("ClearancePrice")
+			_check(tag.visible and tag.get_meta("original_price") == lab.run.item(offer.item_id).purchase_price and tag.get_meta("price") == offer.price, "clearance tag pairs original with authoritative discounted price")
+		_check(lab.motion.upgrades.glyph.still == (lab.settings.reduced_motion or lab.settings.reduced_flash), "upgrade activation follows reduced motion")
 	print("J03C07 %s lab=%s money=%d upgrades=%s offers=%s" % [label, lab.state, lab.run.money, str(lab.run.upgrades.map(func(e): return e.item_id)),
 		str(lab.shop.offers.map(func(o): return "%d:%s:$%d%s" % [o.slot, o.item_id, o.price, " sold" if o.sold else ""]))])
 	if artifact_dir.is_empty() or DisplayServer.get_name() == "headless": return

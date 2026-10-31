@@ -22,7 +22,7 @@ static func run() -> Array[String]:
 		and d01.all(func(d): return d.item.completeness.mechanics == false),
 		"D01: six authored; Glass Pin landed by E18-C02, Crown Pin by E18-C03, the three tactical cards by E18-C06", failures)
 	var counts := Authored.counts(catalogue, batches)
-	_expect(counts.ball == {"implemented": 4, "authored": 4, "target": 24} and counts.consumable == {"implemented": 3, "authored": 0, "target": 24}
+	_expect(counts.ball == {"implemented": 6, "authored": 4, "target": 24} and counts.consumable == {"implemented": 3, "authored": 0, "target": 24}
 		and counts.shop_upgrade == {"implemented": 6, "authored": 0, "target": 16}, "counts per category against the targets", failures)
 	_expect(Authored.primitives(batches).has("physics.split_ball") and not Authored.primitives(batches).has("condition.last_fallen"),
 		"the E18 primitive list holds only primitives still to build", failures)

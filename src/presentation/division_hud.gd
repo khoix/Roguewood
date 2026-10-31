@@ -16,6 +16,7 @@ const INTRO_REPEAT_SEC := 2.0
 
 var bar: PanelContainer
 var info: Label
+var extra_rule_badges: HBoxContainer
 var badge: Button
 var rule_panel: PanelContainer
 var rule_text: Label
@@ -97,6 +98,9 @@ func _ready() -> void:
 	badge.custom_minimum_size = Vector2(200, 52)
 	badge.pressed.connect(func(): rule_panel.visible = not rule_panel.visible)
 	row.add_child(badge)
+	extra_rule_badges = HBoxContainer.new()
+	extra_rule_badges.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(extra_rule_badges)
 	rule_panel = PanelContainer.new()
 	rule_panel.name = "RulePanel"
 	rule_panel.add_theme_stylebox_override("panel", _style(Color(0.1, 0.08, 0.16, 0.97)))
@@ -217,7 +221,7 @@ func layout(top: float, bubble_top: float) -> void:
 ## view: {text, badge ("" hides it), rule_text}
 func show_match(view: Dictionary) -> void:
 	info.text = view.text
-	badge.text = view.badge
+	badge.text = view.badge.replace(" + ", " +\n")
 	badge.visible = not view.badge.is_empty()
 	rule_text.text = view.rule_text
 	if badge.visible == false:
@@ -250,7 +254,7 @@ func show_intro(rival: Dictionary, target: int, rule_summary: String, reward: St
 	_portrait(intro_portrait, rival, "entrance")
 	intro_reward.texture = ItemArt.slot(RivalArt.entry(rival.get("id", "")).get("reward", ""), "icon")
 	intro_reward.visible = intro_reward.texture != null
-	intro_button.icon = ItemArt.slot(rival.get("rule", ""), "icon")
+	intro_button.icon = RivalArt.rule_badge(rival.get("rule", ""))
 	intro_button.expand_icon = true
 	intro_button.add_theme_constant_override("icon_max_width",32)
 	intro_title.text = "Boss: %s" % rival.name
@@ -318,3 +322,22 @@ func _reward(parent: Node) -> TextureRect:
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(icon)
 	return icon
+
+## Adjacent, stable rule seals; inspectable text remains on the existing button.
+func show_extra_rule_badges(rules: Array) -> void:
+	extra_rule_badges.visible = badge.visible and not rules.is_empty()
+	if extra_rule_badges.get_meta("rules", []) == rules: return
+	extra_rule_badges.set_meta("rules", rules.duplicate())
+	for child in extra_rule_badges.get_children():
+		extra_rule_badges.remove_child(child)
+		child.queue_free()
+	for rule in rules:
+		var seal := TextureRect.new()
+		seal.texture = RivalArt.rule_badge(rule)
+		seal.custom_minimum_size = Vector2(32, 32)
+		seal.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		seal.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		seal.texture_filter = TEXTURE_FILTER_NEAREST
+		seal.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		seal.set_meta("rule", rule)
+		extra_rule_badges.add_child(seal)
