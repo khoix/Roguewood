@@ -3006,20 +3006,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d06/icon.shop_upgrade.savings_book.tres",
+        "card": "res://assets/items/d06/card.shop_upgrade.savings_book.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d06/rarity_treatment.shop_upgrade.savings_book.tres",
+        "activation": "res://assets/effects/activation.shop_upgrade.savings_book.tres",
+        "sound": "res://assets/audio/sound.shop_upgrade.savings_book.wav",
+        "reduced_motion": "res://assets/items/d06/reduced_motion.shop_upgrade.savings_book.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -3051,20 +3051,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d06/icon.shop_upgrade.extra_shelf.tres",
+        "card": "res://assets/items/d06/card.shop_upgrade.extra_shelf.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d06/rarity_treatment.shop_upgrade.extra_shelf.tres",
+        "activation": "res://assets/effects/activation.shop_upgrade.extra_shelf.tres",
+        "sound": "res://assets/audio/sound.shop_upgrade.extra_shelf.wav",
+        "reduced_motion": "res://assets/items/d06/reduced_motion.shop_upgrade.extra_shelf.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -3096,20 +3096,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d06/icon.shop_upgrade.spotlight_sign.tres",
+        "card": "res://assets/items/d06/card.shop_upgrade.spotlight_sign.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d06/rarity_treatment.shop_upgrade.spotlight_sign.tres",
+        "activation": "res://assets/effects/activation.shop_upgrade.spotlight_sign.tres",
+        "sound": "res://assets/audio/sound.shop_upgrade.spotlight_sign.wav",
+        "reduced_motion": "res://assets/items/d06/reduced_motion.shop_upgrade.spotlight_sign.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }

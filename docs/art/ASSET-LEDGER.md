@@ -518,3 +518,29 @@ shop geometry in `upgrade_art.gd`: punched-card reroll icon/free label; illustra
 caddy with an added third pocket; red tags with struck-through original prices
 beside authoritative current prices. Ownership observation is read-only; restored
 ownership does not replay audio. J03C07 supplies actual native captures and checks.
+
+## AV-C07-B — Savings Book, Extra Shelf, Spotlight Sign
+
+Original generated three-object source, no external references. Exact prompt:
+`docs/art/briefs/AV-C07-B-prompt.txt`. Unchanged source:
+`assets/items/d06/source.AV-C07-B.png`, SHA-256
+`d88ea4a291ca7f9b29065cc45c018a34ee3be01d7cd522d01e740f5e394d8192`.
+Runtime atlas boundaries x=0/744/1490/2172 retain the original pixels. Icon,
+card and static reduced-motion slots use these objects. Original license frames
+retain the brass top rail and clipped opposite corners; uncommon and rare have
+successively stronger edges, supplemented by written/symbolic rarity labels.
+JAVC07BC captures 180px and 48px identities.
+
+Original deterministic PCM foley, no recordings or external samples, peak 0.48:
+- `python3 tools/author_foley.py sound.shop_upgrade.savings_book paper 620 0.30`
+- `python3 tools/author_foley.py sound.shop_upgrade.extra_shelf wood 310 0.34`
+- `python3 tools/author_foley.py sound.shop_upgrade.spotlight_sign metal 1460 0.28`
+
+Matching `assets/effects/activation.shop_upgrade.*.tres` recipes use tabs,
+braces and rings around each identity, static with reduced motion. The existing
+bounded mixer supplies volume/mute; restored ownership remains silent.
+Read-only `upgrade_art.gd` adds a passbook beside settlement, the authoritative
+interest-cap constants, a sixth shelf lip and the existing Extra Shelf label,
+and spotlight identity above brighter rarity borders. No pricing, stock,
+settlement or save logic changes. J03C07 captures each activation and the next
+shop's settlement and stock. No subjective listening or phone gate is claimed.
