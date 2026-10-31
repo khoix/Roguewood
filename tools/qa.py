@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 VERSION = (ROOT / ".godot-version").read_text().strip()
 # journey -> script, success marker, artifact directory, rendered captures, timeout, extra engine flags
 JOURNEYS = {
+    "JAVC07AC": ("res://tests/upgrade_identity_contact.gd", "ROGUEWOOD_UPGRADE_IDENTITY_OK", "artifacts/av-c07-a/contact", ("contact",), 180, ["--fixed-fps", "60"]),
     "J21R03": ("res://tests/proprietor_art_journey.gd", "ROGUEWOOD_J21R03_OK", "artifacts/e21-r03/native",
         ("rival.proprietor_intro", "rival.proprietor_landscape", "proprietor_reduced", "proprietor_reaction", "proprietor_defeated"), 900, ["--fixed-fps", "60"]),
     "J21R04": ("res://tests/house_rival_art_journey.gd", "ROGUEWOOD_J03C05_OK", "artifacts/e21-r04/native",

@@ -2871,13 +2871,13 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d06/icon.shop_upgrade.punch_card.tres",
+        "card": "res://assets/items/d06/card.shop_upgrade.punch_card.tres",
         "in_play": "",
-        "rarity_treatment": "",
+        "rarity_treatment": "res://assets/items/d06/rarity_treatment.shop_upgrade.punch_card.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/d06/reduced_motion.shop_upgrade.punch_card.tres"
       },
       "completeness": {
         "authored": true,
@@ -2916,13 +2916,13 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d06/icon.shop_upgrade.pin_caddy.tres",
+        "card": "res://assets/items/d06/card.shop_upgrade.pin_caddy.tres",
         "in_play": "",
-        "rarity_treatment": "",
+        "rarity_treatment": "res://assets/items/d06/rarity_treatment.shop_upgrade.pin_caddy.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/d06/reduced_motion.shop_upgrade.pin_caddy.tres"
       },
       "completeness": {
         "authored": true,
@@ -2961,13 +2961,13 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d06/icon.shop_upgrade.clearance_tag.tres",
+        "card": "res://assets/items/d06/card.shop_upgrade.clearance_tag.tres",
         "in_play": "",
-        "rarity_treatment": "",
+        "rarity_treatment": "res://assets/items/d06/rarity_treatment.shop_upgrade.clearance_tag.tres",
         "activation": "",
         "sound": "",
-        "reduced_motion": ""
+        "reduced_motion": "res://assets/items/d06/reduced_motion.shop_upgrade.clearance_tag.tres"
       },
       "completeness": {
         "authored": true,

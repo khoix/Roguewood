@@ -76,6 +76,8 @@ jobs:
           xvfb-run -a python3 tools/qa.py e2e --journey J03C05 --rendered
           python3 tools/qa.py e2e --journey J03C06
           xvfb-run -a python3 tools/qa.py e2e --journey J03C06 --rendered
+          python3 tools/qa.py e2e --journey JAVC07AC
+          xvfb-run -a python3 tools/qa.py e2e --journey JAVC07AC --rendered
           python3 tools/qa.py e2e --journey J03C07
           xvfb-run -a python3 tools/qa.py e2e --journey J03C07 --rendered
           python3 tools/qa.py e2e --journey J03C08
@@ -270,6 +272,7 @@ jobs:
             artifacts/e21-r03-r04/
             artifacts/e18-c05/
             artifacts/e18-c06/
+            artifacts/av-c07-a/
             artifacts/e18-c07/
             artifacts/e18-c08/
             artifacts/e18-c09/

@@ -487,3 +487,19 @@ frame-only reserve marker, movement annotation and framed/crossed waived badge.
 The existing E19 D01 icon/card/rarity/reduced-motion identities are reused.
 J03C06 captures each card's native cue and marker, the Nudge chooser, resumed swap,
 and next-frame reset. No subjective audio listening or mobile gate is claimed.
+
+## AV-C07-A upgrade identity checkpoint
+
+Original generated three-object source, no external references. Prompt:
+`docs/art/briefs/AV-C07-A-prompt.txt`; source:
+`assets/items/d06/source.AV-C07-A.png`. SHA-256:
+`c75403ab1a568c09392eb0d25a75694edcf9c2c7181bc86794cf2cf832037a60`.
+Source pixels retained unchanged; runtime atlas boundaries at x=0/744/1490/2172
+separate Punch Card, Pin Caddy and Clearance Tag without image repainting.
+
+Four slots each: icon, card, rarity_treatment, reduced_motion. Original license
+frame geometry uses a brass top rail and opposite clipped corners, with a
+stronger uncommon edge for Clearance Tag. Full-size card and static small views
+share the exact original object identity. JAVC07AC produces 180px/48px contacts.
+No activation/audio or completion flags are claimed in this checkpoint. Named
+shop treatments remain pending. Six-upgrade briefs are in E17-D06.md.
