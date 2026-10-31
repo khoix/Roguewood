@@ -2875,16 +2875,16 @@
         "card": "res://assets/items/d06/card.shop_upgrade.punch_card.tres",
         "in_play": "",
         "rarity_treatment": "res://assets/items/d06/rarity_treatment.shop_upgrade.punch_card.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/activation.shop_upgrade.punch_card.tres",
+        "sound": "res://assets/audio/sound.shop_upgrade.punch_card.wav",
         "reduced_motion": "res://assets/items/d06/reduced_motion.shop_upgrade.punch_card.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -2920,16 +2920,16 @@
         "card": "res://assets/items/d06/card.shop_upgrade.pin_caddy.tres",
         "in_play": "",
         "rarity_treatment": "res://assets/items/d06/rarity_treatment.shop_upgrade.pin_caddy.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/activation.shop_upgrade.pin_caddy.tres",
+        "sound": "res://assets/audio/sound.shop_upgrade.pin_caddy.wav",
         "reduced_motion": "res://assets/items/d06/reduced_motion.shop_upgrade.pin_caddy.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -2965,16 +2965,16 @@
         "card": "res://assets/items/d06/card.shop_upgrade.clearance_tag.tres",
         "in_play": "",
         "rarity_treatment": "res://assets/items/d06/rarity_treatment.shop_upgrade.clearance_tag.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/activation.shop_upgrade.clearance_tag.tres",
+        "sound": "res://assets/audio/sound.shop_upgrade.clearance_tag.wav",
         "reduced_motion": "res://assets/items/d06/reduced_motion.shop_upgrade.clearance_tag.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }

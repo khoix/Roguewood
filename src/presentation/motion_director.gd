@@ -7,6 +7,7 @@ var sound: Node
 var abilities: Node
 var modifications: Node
 var tacticals: Control
+var upgrades: Node
 var rival: TextureRect
 var reaction: Label
 var reaction_state := 0
@@ -60,6 +61,9 @@ func _ready() -> void:
 	tacticals = preload("res://src/presentation/tactical_art.gd").new()
 	tacticals.lab = lab
 	add_child(tacticals)
+	upgrades = preload("res://src/presentation/upgrade_art.gd").new()
+	upgrades.lab = lab
+	add_child(upgrades)
 
 ## Legacy lab fixture only. Production rivals use the E21 manifest and HUD portraits.
 const PORTRAITS := ["rival.lab_custodian"]

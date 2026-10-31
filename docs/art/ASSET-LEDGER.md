@@ -503,3 +503,18 @@ stronger uncommon edge for Clearance Tag. Full-size card and static small views
 share the exact original object identity. JAVC07AC produces 180px/48px contacts.
 No activation/audio or completion flags are claimed in this checkpoint. Named
 shop treatments remain pending. Six-upgrade briefs are in E17-D06.md.
+
+## AV-C07-A upgrade activation and shop treatments
+
+Original procedural PCM, no recordings or external samples; peak 0.48. Reproduce:
+- `python3 tools/author_foley.py sound.shop_upgrade.punch_card paper 850 0.24`
+- `python3 tools/author_foley.py sound.shop_upgrade.pin_caddy wood 420 0.32`
+- `python3 tools/author_foley.py sound.shop_upgrade.clearance_tag metal 1180 0.22`
+
+Recipes: `assets/effects/activation.shop_upgrade.{punch_card,pin_caddy,clearance_tag}.tres`.
+Existing illustrated identities combine with ticket/brace/coin cues, static in
+reduced motion, routed through shared effects/mute/volume controls. Original
+shop geometry in `upgrade_art.gd`: punched-card reroll icon/free label; illustrated
+caddy with an added third pocket; red tags with struck-through original prices
+beside authoritative current prices. Ownership observation is read-only; restored
+ownership does not replay audio. J03C07 supplies actual native captures and checks.
