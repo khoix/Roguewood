@@ -2740,16 +2740,16 @@
         "card": "res://assets/items/d01/card.consumable.nudge.tres",
         "in_play": "",
         "rarity_treatment": "res://assets/items/d01/rarity_treatment.consumable.nudge.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/tactical_nudge.tres",
+        "sound": "res://assets/audio/tactical_nudge.wav",
         "reduced_motion": "res://assets/items/d01/reduced_motion.consumable.nudge.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -2785,16 +2785,16 @@
         "card": "res://assets/items/d01/card.consumable.reserve_call.tres",
         "in_play": "",
         "rarity_treatment": "res://assets/items/d01/rarity_treatment.consumable.reserve_call.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/tactical_reserve_call.tres",
+        "sound": "res://assets/audio/tactical_reserve_call.wav",
         "reduced_motion": "res://assets/items/d01/reduced_motion.consumable.reserve_call.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -2830,16 +2830,16 @@
         "card": "res://assets/items/d01/card.consumable.rule_waiver.tres",
         "in_play": "",
         "rarity_treatment": "res://assets/items/d01/rarity_treatment.consumable.rule_waiver.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/tactical_rule_waiver.tres",
+        "sound": "res://assets/audio/tactical_rule_waiver.wav",
         "reduced_motion": "res://assets/items/d01/reduced_motion.consumable.rule_waiver.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
