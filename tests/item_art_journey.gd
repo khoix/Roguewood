@@ -23,7 +23,7 @@ func _run() -> void:
 	await _throw(STRIKE)
 	await _scored()
 	await _to_shop("item art")
-	lab.run.credit(2500, "fixture: bounded art offer sampling")
+	lab.run.credit(10000, "fixture: bounded art offer sampling") # the House batches grew the pool (Wave 7)
 	# Reward-only identities are tested in the real shop after a fixture unlock;
 	# J06 independently verifies earning both gates and next-attempt availability.
 	for gate in ["gate.surveyor_cleared", "gate.custodian_cleared"]:
@@ -32,7 +32,7 @@ func _run() -> void:
 	var wanted: Array = ids.filter(func(id): return String(id).begins_with("pin.") or String(id).begins_with("charm."))
 	var bought := {}
 	var pin_count := 0
-	for attempt in range(50):
+	for attempt in range(150):
 		for index in lab.shop.offers.size():
 			var offer: Dictionary = lab.shop.offers[index]
 			var id: String = offer.item_id
