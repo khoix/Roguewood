@@ -89,7 +89,7 @@ static func steps(result: Dictionary, frame: Dictionary, names: Dictionary = {},
 				if int(event.get("repeat", 0)) > 0:
 					var by := ""
 					if not String(event.get("cause", "")).is_empty():
-						by = " · " + _owner(event.cause, pins, balls, charms, names)
+						by = " · " + _cause(event.cause, frame, owners, names, _owner(event.cause, pins, balls, charms, names))
 					step.text += " (retrigger %d%s)" % [int(event.repeat), by]
 				if String(event.source).begins_with("pin:"):
 					step.pin = int(String(event.source).trim_prefix("pin:"))
@@ -127,6 +127,22 @@ static func _effect_owner(event: Dictionary, frame: Dictionary, owners: Dictiona
 		if count == k and i < supplied.size():
 			return "%s %d %s" % [parts[0].capitalize(), index, names.get(supplied[i], supplied[i])]
 		count += 1
+	return fallback
+
+## A roll's repeat names the item that owns its retrigger effect: the ball (Echo) or
+## a tactical card played with it (Double Take, E18-C11).
+static func _cause(cause: String, frame: Dictionary, owners: Dictionary, names: Dictionary, fallback: String) -> String:
+	if not cause.begins_with("roll:"):
+		return fallback
+	var index := int(cause.trim_prefix("roll:"))
+	for roll in frame.get("rolls", []):
+		if int(roll.roll_index) != index:
+			continue
+		var effects: Array = roll.get("effects", [])
+		var listed: Array = owners.get(cause, [])
+		for i in effects.size():
+			if effects[i].op == "retrigger" and i < listed.size() and not String(listed[i]).begins_with("ball."):
+				return "Roll %d %s" % [index, names.get(listed[i], listed[i])]
 	return fallback
 
 static func _owner(source: String, pins: Dictionary, balls: Dictionary, charms: Dictionary, names: Dictionary) -> String:

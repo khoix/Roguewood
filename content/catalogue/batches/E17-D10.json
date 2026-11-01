@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "batch": "E17-D10",
+  "status": "landed",
+  "note": "House League items, batch 4 of 4 (DC-H4): three tactical cards played with a throw and two Charms on existing rule pieces, written and landed together by E18-C11; with them the House League has all 40 of its items. Amounts and prices are provisional (E24).",
+  "definitions": [],
+  "landed": [
+    {
+      "id": "consumable.double_take",
+      "landed_in": "E18-C11",
+      "design": {
+        "trigger": "Arm it with a throw: the first pin that throw knocks down directly scores its effects one more time, like an Echo Ball's repeat, with any ball. Exhausted for the run.",
+        "primitives": [],
+        "pool": "Shop Tactical slot; initial pool from Division 1.",
+        "presentation_needs": "A doubled pin outline over the first pin hit; the repeat shows in the explanation as from Double Take.",
+        "asset_ids": {
+          "icon": "icon.consumable.double_take",
+          "card": "card.consumable.double_take",
+          "rarity_treatment": "rarity_treatment.consumable.double_take",
+          "activation": "activation.consumable.double_take",
+          "sound": "sound.consumable.double_take",
+          "reduced_motion": "reduced_motion.consumable.double_take"
+        }
+      }
+    },
+    {
+      "id": "consumable.called_shot",
+      "landed_in": "E18-C11",
+      "design": {
+        "trigger": "Arm it with the first throw of a frame: ×2 Mult if that frame ends as a strike. Exhausted for the run, strike or not.",
+        "primitives": [],
+        "pool": "Shop Tactical slot; initial pool from Division 1.",
+        "presentation_needs": "A pointing hand at the pocket; it lights on a strike and greys out otherwise.",
+        "asset_ids": {
+          "icon": "icon.consumable.called_shot",
+          "card": "card.consumable.called_shot",
+          "rarity_treatment": "rarity_treatment.consumable.called_shot",
+          "activation": "activation.consumable.called_shot",
+          "sound": "sound.consumable.called_shot",
+          "reduced_motion": "reduced_motion.consumable.called_shot"
+        }
+      }
+    },
+    {
+      "id": "consumable.pin_count",
+      "landed_in": "E18-C11",
+      "design": {
+        "trigger": "Arm it with a throw: +5 Value for every pin down in that frame. Exhausted for the run.",
+        "primitives": [],
+        "pool": "Shop Tactical slot; initial pool from Division 1.",
+        "presentation_needs": "A tally card that ticks once per pin down in the frame.",
+        "asset_ids": {
+          "icon": "icon.consumable.pin_count",
+          "card": "card.consumable.pin_count",
+          "rarity_treatment": "rarity_treatment.consumable.pin_count",
+          "activation": "activation.consumable.pin_count",
+          "sound": "sound.consumable.pin_count",
+          "reduced_motion": "reduced_motion.consumable.pin_count"
+        }
+      }
+    },
+    {
+      "id": "charm.cleanup_crew",
+      "landed_in": "E18-C11",
+      "design": {
+        "trigger": "+5 Mult on a spare after a first roll that left at least two pins standing.",
+        "primitives": [],
+        "pool": "Shop Charm slot; initial pool from Division 1.",
+        "presentation_needs": "A broom crew sweeping the leave; it shows the first-roll leave against the 2 it needs.",
+        "asset_ids": {
+          "icon": "icon.charm.cleanup_crew",
+          "card": "card.charm.cleanup_crew",
+          "rarity_treatment": "rarity_treatment.charm.cleanup_crew",
+          "activation": "activation.charm.cleanup_crew",
+          "sound": "sound.charm.cleanup_crew",
+          "reduced_motion": "reduced_motion.charm.cleanup_crew"
+        }
+      }
+    },
+    {
+      "id": "charm.lucky_seven",
+      "landed_in": "E18-C11",
+      "design": {
+        "trigger": "+7 Mult on an open frame that ends with exactly three pins standing (seven down).",
+        "primitives": [],
+        "pool": "Shop Charm slot; initial pool from Division 1.",
+        "presentation_needs": "A lucky 7 die; it lands on 7 only when exactly seven pins are down.",
+        "asset_ids": {
+          "icon": "icon.charm.lucky_seven",
+          "card": "card.charm.lucky_seven",
+          "rarity_treatment": "rarity_treatment.charm.lucky_seven",
+          "activation": "activation.charm.lucky_seven",
+          "sound": "sound.charm.lucky_seven",
+          "reduced_motion": "reduced_motion.charm.lucky_seven"
+        }
+      }
+    }
+  ]
+}
