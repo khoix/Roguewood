@@ -8,6 +8,8 @@ signal cancelled
 var prompt: Label
 var choices: VBoxContainer
 var cancel: Button
+var rack_diagram: Control
+var rack_hint: Label
 
 func _ready() -> void:
 	name = "TacticSheet"
@@ -30,6 +32,12 @@ func _ready() -> void:
 	prompt.add_theme_font_size_override("font_size", 24)
 	prompt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	column.add_child(prompt)
+	rack_hint = Label.new()
+	rack_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	column.add_child(rack_hint)
+	rack_diagram = Control.new()
+	rack_diagram.custom_minimum_size = Vector2(0, 216)
+	column.add_child(rack_diagram)
 	choices = VBoxContainer.new()
 	choices.name = "TacticChoices"
 	choices.add_theme_constant_override("separation", 6)
@@ -44,6 +52,7 @@ func _ready() -> void:
 
 func open(text: String, labels: Array) -> void:
 	prompt.text = text
+	_show_rack(text, labels)
 	for child in choices.get_children():
 		choices.remove_child(child)
 		child.queue_free()
@@ -57,9 +66,43 @@ func open(text: String, labels: Array) -> void:
 		choices.add_child(button)
 	show()
 	var viewport_size := get_viewport_rect().size
-	size = Vector2(minf(560.0, viewport_size.x - 32.0), minf(64.0 * (labels.size() + 2) + 60.0, viewport_size.y - 160.0))
+	size = Vector2(minf(560.0, viewport_size.x - 32.0), minf(64.0 * (labels.size() + 2) + 60.0 + (250.0 if rack_diagram.visible else 0.0), viewport_size.y - 160.0))
 	position = (viewport_size - size) * 0.5
 	(choices.get_child(0) if labels.size() > 0 else cancel).grab_focus()
 
 func button(index: int) -> Button:
 	return choices.get_child(index) if index < choices.get_child_count() else null
+
+## Mirrors the existing choices; the original list and index contract stay intact.
+func _show_rack(text: String, labels: Array) -> void:
+	for child in rack_diagram.get_children():
+		rack_diagram.remove_child(child)
+		child.queue_free()
+	rack_diagram.visible = text.begins_with("Nudge:")
+	rack_hint.visible = rack_diagram.visible
+	if not rack_diagram.visible: return
+	var destinations := text.contains("empty spot")
+	rack_hint.text = "Outlined gold spots are legal empty destinations." if destinations else "Gold pins can move. Tap one here or in the list."
+	var positions := {}
+	for index in labels.size():
+		positions[String(labels[index]).get_slice(" ", 1).to_int()] = index
+	var number := 1
+	for row in 4:
+		for column in row + 1:
+			var spot := Button.new()
+			spot.text = str(number)
+			spot.position = Vector2(230 + (column - row * 0.5) * 58, 160 - row * 50)
+			spot.size = Vector2(46, 46)
+			spot.disabled = not positions.has(number)
+			spot.set_meta("rack_position", number)
+			if positions.has(number):
+				var style := StyleBoxFlat.new()
+				style.bg_color = Color("263d42") if destinations else Color("9c6b31")
+				style.border_color = Color("f2d6a0")
+				style.set_border_width_all(3)
+				style.set_corner_radius_all(23)
+				spot.add_theme_stylebox_override("normal", style)
+				var choice: int = positions[number]
+				spot.pressed.connect(func(): chosen.emit(choice), CONNECT_DEFERRED)
+			rack_diagram.add_child(spot)
+			number += 1

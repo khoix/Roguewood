@@ -134,6 +134,7 @@ func _feature() -> void:
 	lab.trial_log_path = ""
 	_check(lab.run.rack[1].item_id == called_pin and lab.run.reserves[0].item_id == wood.item_id and lab.frame_actions.size() == 1 and not lab.frame_actions[0].restored
 		and _option("consumable.reserve_call").is_empty(), "the resumed frame keeps the called pin, its action and the spent card")
+	_check(lab.motion.tacticals.played.is_empty(), "resume restores the marker without replaying activation or sound")
 	var loadout: Dictionary = lab.run.loadout()
 	var context: Dictionary = lab.frame_context()
 	var before: int = lab.history.size()
@@ -147,7 +148,13 @@ func _feature() -> void:
 	var pin: int = options[0].position
 	var spot: int = options[0].to[0]
 	_check(lab.tactic_sheet.prompt.text.contains("move pin %d" % pin) and lab.tactic_sheet.choices.get_child_count() == options[0].to.size(), "then its adjacent fallen spots")
-	await _choose(0)
+	_check(lab.tactic_sheet.rack_diagram.visible and lab.tactic_sheet.rack_diagram.get_child_count() == 10, "Nudge shows the ten rack spots")
+	var enabled: Array = lab.tactic_sheet.rack_diagram.get_children().filter(func(b): return not b.disabled)
+	_check(enabled.map(func(b): return b.get_meta("rack_position")) == options[0].to, "diagram highlights exactly the legal adjacent empty spots")
+	await _capture("c06_nudge_chooser")
+	await _tap(enabled[0])
+	await process_frame
+	await process_frame
 	var moved: Dictionary = lab.rack.standing.filter(func(e): return int(e.position) == pin)[0]
 	var body: Vector3 = lab.lane.pins[pin].global_position
 	_check(lab.state == "aim" and is_equal_approx(moved.x, LaneSpec.spot(spot).x) and absf(body.x - LaneSpec.spot(spot).x) < 0.01 and absf(-body.z - LaneSpec.spot(spot).y) < 0.01,
@@ -211,6 +218,18 @@ func _second_roll() -> bool:
 	return lab.state == "aim"
 
 func _capture(label: String) -> void:
+	for i in 2: await process_frame
+	if label in ["c06_reserve_call", "c06_nudge", "c06_rule_waiver"]:
+		_check(lab.motion.tacticals.audio_events.back(), "tactical activation reaches the shared audio mixer")
+		_check(lab.motion.tacticals.glyph.still == (lab.settings.reduced_motion or lab.settings.reduced_flash), "tactical reduced motion follows settings")
+	if label == "c06_surveyor":
+		_check(not lab.motion.tacticals.waived and lab.motion.tacticals.marker.text.is_empty(), "tactical frame markers clear on the next frame")
+	if label == "c06_reserve_call":
+		_check(lab.motion.tacticals.marker.text.contains("THIS FRAME ONLY"), "Reserve Call frame marker")
+	if label == "c06_nudge":
+		_check(lab.motion.tacticals.played.has("consumable.nudge") and lab.motion.tacticals.glyph.style != null, "Nudge emits its activation cue")
+	if label == "c06_rule_waiver":
+		_check(lab.motion.tacticals.waived and lab.motion.tacticals.marker.text.contains("THIS FRAME ONLY"), "waiver marks the badge and current frame")
 	print("J03C06 %s lab=%s money=%d actions=%s rules=%s" % [label, lab.state, lab.run.money, str(lab.frame_actions.map(func(a): return a.kind)), str(lab.active_rules())])
 	if artifact_dir.is_empty() or DisplayServer.get_name() == "headless": return
 	await RenderingServer.frame_post_draw

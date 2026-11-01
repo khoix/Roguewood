@@ -47,6 +47,13 @@ func _run() -> void:
 			refused = lab.armed_ball_id() == "ball.house" and lab.status.text.contains("House Rules: that ball cannot be thrown here.")
 			break
 	_check(refused, "arming a ball card is refused under House Rules, with a note")
+	var seals: HBoxContainer = lab.hud.extra_rule_badges
+	_check(seals.visible and seals.get_child_count() == 2, "champion shows two separate rule seals")
+	if seals.get_child_count() == 2:
+		for index in 2:
+			var texture = preload("res://src/presentation/rival_art.gd").rule_badge(lab.division.rules()[index])
+			_check(texture != null and seals.get_child(index).texture == texture, "champion binds nonempty seal " + lab.division.rules()[index])
+		_check(seals.get_global_rect().end.x <= lab.hud.get_viewport_rect().size.x, "both champion seals fit the portrait viewport")
 	await _capture("c05_house_rules")
 	var open := await _rule_frame([LEAVE, GUTTER], "champion open frame")
 	_check(open.result.category == "open" and open.banked == 0 and _logged("Clean Sweep"), "Clean Sweep banks an open frame as 0")
@@ -68,6 +75,7 @@ func _run() -> void:
 	for p in range(1, 11): wood_rack.pins[p] = "pin.wood"
 	var wood := Rules.resolve(Builder.build(wood_rack, lab.content.catalogue, plain.reports, {}, plain.context).frame)
 	_check(plain.banked == wood.score and _logged("House Pins: every pin was scored as plain Wood"), "the Ruby rack banks exactly the Wood resolution (%d), and the explanation says so" % wood.score)
+	_check(lab.hud.badge.icon == preload("res://src/presentation/rival_art.gd").rule_badge("boss_rule.house_pins") and not lab.hud.extra_rule_badges.visible, "Old Lou shows House Pins without stale champion seal")
 	await _capture("c05_house_pins")
 	if "--inject-failure" in OS.get_cmdline_user_args(): _check(false, "Injected diagnostic failure")
 	if failures.is_empty(): print("ROGUEWOOD_J03C05_OK")

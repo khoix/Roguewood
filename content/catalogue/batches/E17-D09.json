@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "batch": "E17-D09",
+  "status": "landed",
+  "note": "House League items, batch 3 of 4 (DC-H3): two balls, two pins and two Charms on existing rule pieces and physics profiles, written and landed together by E18-C10. Amounts, prices and physics scales are provisional (E24).",
+  "definitions": [],
+  "landed": [
+    {
+      "id": "ball.spare_ball",
+      "landed_in": "E18-C10",
+      "design": {
+        "trigger": "A plastic ball that barely hooks (spin response 0.5). +4 Mult for each roll thrown with it in a frame that ends as a spare.",
+        "primitives": [],
+        "pool": "Shop Equipment slot; initial pool from Division 1.",
+        "presentation_needs": "A plain plastic ball with a straight stripe; the stripe stays still in the roll, showing it is not hooking.",
+        "asset_ids": {
+          "icon": "icon.ball.spare_ball",
+          "card": "card.ball.spare_ball",
+          "in_play": "in_play.ball.spare_ball",
+          "rarity_treatment": "rarity_treatment.ball.spare_ball",
+          "activation": "activation.ball.spare_ball",
+          "sound": "sound.ball.spare_ball",
+          "reduced_motion": "reduced_motion.ball.spare_ball"
+        }
+      }
+    },
+    {
+      "id": "ball.workhorse",
+      "landed_in": "E18-C10",
+      "design": {
+        "trigger": "A slightly heavier ball (mass ×1.15). +2 Value for every pin down in the frame, for each roll thrown with it.",
+        "primitives": [],
+        "pool": "Shop Equipment slot; initial pool from Division 1.",
+        "presentation_needs": "A scuffed, dependable league ball; a tally mark for each pin it is credited with.",
+        "asset_ids": {
+          "icon": "icon.ball.workhorse",
+          "card": "card.ball.workhorse",
+          "in_play": "in_play.ball.workhorse",
+          "rarity_treatment": "rarity_treatment.ball.workhorse",
+          "activation": "activation.ball.workhorse",
+          "sound": "sound.ball.workhorse",
+          "reduced_motion": "reduced_motion.ball.workhorse"
+        }
+      }
+    },
+    {
+      "id": "pin.oak",
+      "landed_in": "E18-C10",
+      "design": {
+        "trigger": "A dense hardwood pin (mass ×1.3): +20 Value when it falls, twice a Wood Pin's.",
+        "primitives": [],
+        "pool": "Shop Equipment slot; initial pool from Division 1.",
+        "presentation_needs": "Darker, tighter grain than Wood; it rocks and settles more slowly when hit.",
+        "asset_ids": {
+          "icon": "icon.pin.oak",
+          "card": "card.pin.oak",
+          "in_play": "in_play.pin.oak",
+          "rarity_treatment": "rarity_treatment.pin.oak",
+          "activation": "activation.pin.oak",
+          "sound": "sound.pin.oak",
+          "reduced_motion": "reduced_motion.pin.oak"
+        }
+      }
+    },
+    {
+      "id": "pin.tin",
+      "landed_in": "E18-C10",
+      "design": {
+        "trigger": "+5 Value when it falls, and +$1 when it is still standing at the end of the frame.",
+        "primitives": [],
+        "pool": "Shop Equipment slot; initial pool from Division 1.",
+        "presentation_needs": "A dented tin pin; a coin rattles out of it when it survives the frame.",
+        "asset_ids": {
+          "icon": "icon.pin.tin",
+          "card": "card.pin.tin",
+          "in_play": "in_play.pin.tin",
+          "rarity_treatment": "rarity_treatment.pin.tin",
+          "activation": "activation.pin.tin",
+          "sound": "sound.pin.tin",
+          "reduced_motion": "reduced_motion.pin.tin"
+        }
+      }
+    },
+    {
+      "id": "charm.spare_jar",
+      "landed_in": "E18-C10",
+      "design": {
+        "trigger": "+8 Value for every spare converted since it was bought: each spare drops a pin in the jar after the frame banks, so it counts from the next frame. Selling it empties the jar.",
+        "primitives": [],
+        "pool": "Shop Charm slot; initial pool from Division 1.",
+        "presentation_needs": "A tip jar that fills with small pins; the count shows on the card and the new pin drops in after the bank.",
+        "asset_ids": {
+          "icon": "icon.charm.spare_jar",
+          "card": "card.charm.spare_jar",
+          "rarity_treatment": "rarity_treatment.charm.spare_jar",
+          "activation": "activation.charm.spare_jar",
+          "sound": "sound.charm.spare_jar",
+          "reduced_motion": "reduced_motion.charm.spare_jar"
+        }
+      }
+    },
+    {
+      "id": "charm.consolation_prize",
+      "landed_in": "E18-C10",
+      "design": {
+        "trigger": "+$1 after an open frame, paid with the frame's income. The open-frame counterpart of Tip Jar and Strike Fund.",
+        "primitives": [],
+        "pool": "Shop Charm slot; initial pool from Division 1.",
+        "presentation_needs": "A participation ribbon; it pins itself on after an open frame.",
+        "asset_ids": {
+          "icon": "icon.charm.consolation_prize",
+          "card": "card.charm.consolation_prize",
+          "rarity_treatment": "rarity_treatment.charm.consolation_prize",
+          "activation": "activation.charm.consolation_prize",
+          "sound": "sound.charm.consolation_prize",
+          "reduced_motion": "reduced_motion.charm.consolation_prize"
+        }
+      }
+    }
+  ]
+}

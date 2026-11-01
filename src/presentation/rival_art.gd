@@ -23,3 +23,9 @@ static func portrait(id: String, state: String) -> Texture2D:
 		atlas.filter_clip = true
 		_textures[key] = atlas
 	return _textures[key]
+
+## Rule artwork is independent of portrait identity (champions carry two rules).
+static func rule_badge(rule: String) -> Texture2D:
+	if rule in ["boss_rule.house_rules", "boss_rule.house_pins"]:
+		return load("res://assets/rivals/rules/" + rule.trim_prefix("boss_rule.") + ".svg")
+	return preload("res://src/presentation/item_assets.gd").slot(rule, "in_play") as Texture2D

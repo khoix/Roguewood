@@ -19,10 +19,16 @@ const PORTRAIT := Vector2i(450, 800)
 const STRIKE := [0.1, 0.0, 0.7]
 const LEAVE := [-0.4, 0.0, 0.6]
 const GUTTER := [0.8, 2.0, 0.6]
-## Charms the journey buys when offered and affordable, best first.
-## E18-C01's Pin Counter, Plumb Line and Hot Streak suit the journey's straight strikes.
-const WANTED := ["charm.flat_bonus", "charm.finisher", "charm.pin_counter", "charm.plumb_line", "charm.hot_streak", "charm.house_favorite", "charm.turkey_club",
-	"charm.last_chance", "charm.spare_change", "charm.patient_investor"]
+## Charms the journey buys when offered and affordable, best first: Mult Charms its
+## straight House Ball strikes use, so the build's strike alone clears The Custodian's
+## 2400 (Value-only Charms such as Head Pin would fill slots without getting there).
+const WANTED := ["charm.finisher", "charm.flat_bonus", "charm.plumb_line", "charm.pin_counter", "charm.front_line", "charm.house_special", "charm.hot_streak",
+	"charm.turkey_club"]
+## Wallet fixture (logged, as J05 does) at the first shop: content batches keep adding
+## items to the pool, so the build is bought through real rerolls with a budget that
+## does not depend on which items the seeded stock happens to show.
+const SHOP_BUDGET := 60
+var _budget_granted := false
 var failures: Array[String] = []
 var artifact_dir := ""
 var scene: Control
@@ -204,18 +210,29 @@ func _arm(item_id: String) -> bool:
 			return lab.armed_ball_id() == item_id
 	return false
 
-## Buys wanted Charms that are on offer and affordable, by tapping their offers.
+## Buys wanted Charms that are on offer and affordable, by tapping their offers, and
+## rerolls (real taps) while slots are free and the budget allows.
 func _buy_charms() -> Array:
+	if not _budget_granted:
+		_budget_granted = true
+		lab.run.credit(SHOP_BUDGET, "fixture: journey shop budget")
+		lab._refresh_shop()
+		print("J06 fixture: $%d granted at the first shop; the build is bought through real offers and rerolls" % SHOP_BUDGET)
 	var bought: Array = []
-	for wanted in WANTED:
-		for index in lab.shop.offers.size():
-			var offer: Dictionary = lab.shop.offers[index]
-			if offer.item_id == wanted and not offer.sold and offer.price <= lab.run.money and lab.run.charms.size() < 5:
-				var before: int = lab.run.money
-				await _tap(lab.shop_panel.button_for_offer(index))
-				await process_frame
-				_check(lab.shop.offers[index].sold and lab.run.money == before - offer.price, "bought %s for $%d" % [wanted, offer.price])
-				bought.append(wanted)
+	for visit in 12:
+		for wanted in WANTED:
+			for index in lab.shop.offers.size():
+				var offer: Dictionary = lab.shop.offers[index]
+				if offer.item_id == wanted and not offer.sold and offer.price <= lab.run.money and lab.run.charms.size() < 5:
+					var before: int = lab.run.money
+					await _tap(lab.shop_panel.button_for_offer(index))
+					await process_frame
+					_check(lab.shop.offers[index].sold and lab.run.money == before - offer.price, "bought %s for $%d" % [wanted, offer.price])
+					bought.append(wanted)
+		if lab.run.charms.size() >= 5 or lab.run.money < lab.shop.reroll_cost(lab.run) + 8:
+			break
+		await _tap(lab.shop_panel.reroll_button)
+		await process_frame
 	return bought
 
 func _to_shop(label: String) -> void:
