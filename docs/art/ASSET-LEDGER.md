@@ -544,3 +544,18 @@ interest-cap constants, a sixth shelf lip and the existing Extra Shelf label,
 and spotlight identity above brighter rarity borders. No pricing, stock,
 settlement or save logic changes. J03C07 captures each activation and the next
 shop's settlement and stock. No subjective listening or phone gate is claimed.
+
+## AV-H1-A — identity checkpoint
+
+Original generated art, no external references. Exact prompt:
+`docs/art/briefs/AV-H1-A-prompt.txt`. Source retained unchanged at
+`assets/items/d07/source.AV-H1-A.png`, SHA-256
+`38943301165236b0d3cc073e3a6028bf796c57bbc8509326c1bdebcea94fc1cd`.
+Atlas cells are 724 square at x=0/724/1448. Head Pin's crown-less apex pin,
+Wood Grain's walnut plank and Opening Act's raised curtains share their original
+identity between icon, card and reduced-motion slots. Existing common Plumb Line
+and uncommon Sweet Spot frame geometry is reused for category consistency.
+JAVH1AC produces 180px/48px contacts. J03C08 buys and scores all three natively.
+This checkpoint delivers no activation, sound or counted/conditional treatment;
+artwork and effects_audio remain false. Briefs specify the pending resolver-driven
+requirements. No screenshots or third-party samples are added.
