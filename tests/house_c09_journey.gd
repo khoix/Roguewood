@@ -36,8 +36,10 @@ func _run() -> void:
 	await _strike_out()
 	await _to_shop("opener")
 	lab.run.credit(8000, "fixture: C09 Charm sampling")
+	# House Special is The Proprietor's first-clear reward (E22-L01); this attempt's pool gets its gate.
+	if "gate.proprietor_cleared" not in lab.shop.unlocked: lab.shop.unlocked.append("gate.proprietor_cleared")
 	lab._refresh_shop()
-	print("J03C09 fixture: $8000 granted after the opener; offers, rerolls and purchases follow")
+	print("J03C09 fixture: $8000 granted and gate.proprietor_cleared added to this attempt's pool after the opener; offers, rerolls and purchases follow")
 	await _buy(D08)
 	await _capture("c09_shop")
 	await _leave_shop()

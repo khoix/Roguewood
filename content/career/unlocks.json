@@ -6,7 +6,7 @@
     {
       "id": "league.house",
       "name": "House League",
-      "content_set": "slice",
+      "content_set": "house",
       "access": [],
       "championship": {
         "gates": [
@@ -39,6 +39,21 @@
       "id": "gate.custodian_cleared",
       "kind": "boss",
       "name": "The Custodian cleared"
+    },
+    {
+      "id": "gate.proprietor_cleared",
+      "kind": "boss",
+      "name": "The Proprietor cleared"
+    },
+    {
+      "id": "gate.old_lou_cleared",
+      "kind": "boss",
+      "name": "Old Lou cleared"
+    },
+    {
+      "id": "gate.house_champion_cleared",
+      "kind": "boss",
+      "name": "The House champion cleared"
     },
     {
       "id": "gate.house_champion",

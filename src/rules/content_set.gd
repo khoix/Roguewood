@@ -1,8 +1,12 @@
 extends RefCounted
 ## The content an attempt is played with (E13, ADR 008): a catalogue, a League (one
-## or more Divisions in the DivisionRun format) and a starting kit.
-## - "slice": the production catalogue batch E13-S01 and the two-Division House
-##   League in content/slice/league.json. The game's default.
+## or more Divisions in the DivisionRun format) and its starting kits.
+## - "house" (E22-L01): the production catalogue and the eight-Division House League
+##   of content/leagues/house.json, with its rivals, boss lanes and two kits. The
+##   game's default.
+## - "slice": the production catalogue with E13's two-Division House League in
+##   content/slice/league.json, the vertical slice its journeys play. It has its own
+##   unlock registry (production's with the slice as the House League).
 ## - "lab": the E06–E10 fixture catalogue and single lab Division with the lab kit;
 ##   mechanism journeys and tests keep using it (`--content=lab`).
 ## Saves record their content set and only resume with the same one.
@@ -15,10 +19,12 @@ const CAMPAIGN_PROFILE := "res://content/campaign/profile.json"
 ## Career unlock registries (E15, ADR 010): the production graph spans the slice and
 ## the campaign; the lab fixtures have their own.
 const UNLOCKS := "res://content/career/unlocks.json"
+const SLICE_UNLOCKS := "res://content/fixtures/slice_unlocks.json"
 const LAB_UNLOCKS := "res://content/fixtures/lab_unlocks.json"
-const DEFAULT := "slice"
+const DEFAULT := "house"
 const SETS := {
-	"slice": {"catalogue": "res://content/catalogue.json", "league": "res://content/slice/league.json", "unlocks": UNLOCKS},
+	"house": {"catalogue": "res://content/catalogue.json", "league": "res://content/leagues/house.json", "unlocks": UNLOCKS},
+	"slice": {"catalogue": "res://content/catalogue.json", "league": "res://content/slice/league.json", "unlocks": SLICE_UNLOCKS},
 	"lab": {"catalogue": "res://content/fixtures/lab_catalogue.json", "division": "res://content/fixtures/lab_division.json", "unlocks": LAB_UNLOCKS},
 	# E18-C05 test fixture: the House champion and Old Lou on the production catalogue (J03C05 only).
 	"house_c05": {"catalogue": "res://content/catalogue.json", "league": "res://content/fixtures/house_c05_league.json", "unlocks": "res://content/fixtures/house_c05_unlocks.json"},
@@ -27,6 +33,18 @@ const SETS := {
 ## of two copies of three lab ball types plus one tactical card.
 const LAB_KIT := {"id": "kit.lab", "name": "Lab Kit", "pins": ["pin.wood", "pin.wood", "pin.wood", "pin.wood", "pin.wood", "pin.wood", "pin.wood", "pin.wood", "pin.wood", "pin.wood"],
 	"deck": ["ball.lab_value", "ball.lab_value", "ball.lab_mult", "ball.lab_mult", "ball.lab_coin", "ball.lab_coin", "consumable.lab_focus"], "money": 6}
+
+## A boss with listed `lanes` (a League spec, E17-L01) plays one of them, chosen by
+## Division number so a saved attempt always meets the same lane; openers and
+## features keep the standard House pattern. Matches that name a lane keep it.
+static func assign_lanes(divisions: Array) -> Array:
+	var out: Array = divisions.duplicate(true)
+	for d in out:
+		for m in d.get("matches", []):
+			var lanes: Array = m.get("lanes", [])
+			if not m.has("lane_condition") and not lanes.is_empty():
+				m["lane_condition"] = lanes[(int(d.get("division", 1)) - 1) % lanes.size()]
+	return out
 
 ## The set named on the command line (--content=lab|slice), else the default.
 static func requested() -> String:
@@ -39,7 +57,7 @@ static func requested() -> String:
 ## errors is [] when usable.
 static func load_set(set_id: String, seed_value: int = 1) -> Dictionary:
 	if set_id == "campaign":
-		var out := load_set("slice")
+		var out := load_set("house")
 		var profile: Dictionary = Contracts.read_json(CAMPAIGN_PROFILE)
 		var schedule := Generator.generate(seed_value, profile, out.catalogue)
 		out.errors.append_array(schedule.errors)
@@ -70,10 +88,14 @@ static func load_set(set_id: String, seed_value: int = 1) -> Dictionary:
 	else:
 		league = {"schema_version": 1, "id": "league.lab", "name": "House League", "kit": LAB_KIT, "divisions": [spec]}
 	out.errors.append_array(League.validate(league, out.catalogue))
-	out.divisions = league.get("divisions", [])
-	out.kit = league.get("kit", {})
+	out.divisions = assign_lanes(league.get("divisions", []))
+	# A League lists its kits (E22-L01) or names one; the first is the default.
+	out["kits"] = league.get("kits", [league.get("kit", {})]).filter(func(k): return k.has("pins"))
+	out.kit = out.kits[0] if not out.kits.is_empty() else {}
 	out.name = league.get("name", "")
-	out.errors.append_array(validate_kit(out.kit, out.catalogue))
+	out["league_id"] = league.get("id", "")
+	for kit in out.kits:
+		out.errors.append_array(validate_kit(kit, out.catalogue))
 	# Hashed for save warnings: a changed catalogue or League is reported on load.
 	out.hashes = {"catalogue": FileAccess.get_file_as_string(paths.catalogue).sha256_text(),
 		"division": FileAccess.get_file_as_string(spec_path).sha256_text()}

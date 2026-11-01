@@ -54,9 +54,21 @@ func _initialize() -> void:
 		var fixture_graph: Dictionary = content_set.career_graph("res://content/fixtures/house_c05_unlocks.json")
 		for e in fixture_graph.errors:
 			failures.append("house_c05_unlocks.json: %s" % e)
+		# E22-L01: the slice's registry is production's, with the slice as the House
+		# League and the full League as league.house_full.
+		var slice_fixture: Dictionary = Contracts.read_json(content_set.SLICE_UNLOCKS)
+		for key in live:
+			if key not in ["batch", "note", "leagues"] and slice_fixture.get(key) != live[key]:
+				failures.append("slice_unlocks.json: %s differs from the production registry; regenerate it" % key)
+		var expected: Array = live.leagues.map(func(l): return l.merged({"content_set": "slice"}, true) if l.id == "league.house" else l)
+		expected.append(live.leagues.filter(func(l): return l.id == "league.house")[0].merged({"id": "league.house_full"}, true))
+		if slice_fixture.get("leagues", []) != expected:
+			failures.append("slice_unlocks.json: its Leagues must be production's with the slice as league.house, then league.house_full")
+		for e in content_set.career_graph(content_set.SLICE_UNLOCKS).errors:
+			failures.append("slice_unlocks.json: %s" % e)
 	elif mode == "unit":
 		failures = ContractTests.run()
-		for path in ["res://tests/rules_test.gd", "res://tests/simulation_test.gd", "res://tests/input_test.gd", "res://tests/scoring_test.gd", "res://tests/deck_test.gd", "res://tests/economy_test.gd", "res://tests/division_test.gd", "res://tests/save_test.gd", "res://tests/slice_test.gd", "res://tests/campaign_generator_test.gd", "res://tests/campaign_integration_test.gd", "res://tests/career_test.gd", "res://tests/clubhouse_test.gd", "res://tests/authored_test.gd", "res://tests/mechanics_c02_test.gd", "res://tests/mechanics_c03_test.gd", "res://tests/mechanics_c04_test.gd", "res://tests/league_spec_test.gd", "res://tests/mechanics_c05_test.gd", "res://tests/mechanics_c06_test.gd", "res://tests/mechanics_c07_test.gd", "res://tests/mechanics_c08_test.gd", "res://tests/mechanics_c09_test.gd", "res://tests/mechanics_c10_test.gd", "res://tests/mechanics_c11_test.gd"]:
+		for path in ["res://tests/rules_test.gd", "res://tests/simulation_test.gd", "res://tests/input_test.gd", "res://tests/scoring_test.gd", "res://tests/deck_test.gd", "res://tests/economy_test.gd", "res://tests/division_test.gd", "res://tests/save_test.gd", "res://tests/slice_test.gd", "res://tests/campaign_generator_test.gd", "res://tests/campaign_integration_test.gd", "res://tests/career_test.gd", "res://tests/clubhouse_test.gd", "res://tests/authored_test.gd", "res://tests/mechanics_c02_test.gd", "res://tests/mechanics_c03_test.gd", "res://tests/mechanics_c04_test.gd", "res://tests/league_spec_test.gd", "res://tests/mechanics_c05_test.gd", "res://tests/mechanics_c06_test.gd", "res://tests/mechanics_c07_test.gd", "res://tests/mechanics_c08_test.gd", "res://tests/mechanics_c09_test.gd", "res://tests/mechanics_c10_test.gd", "res://tests/mechanics_c11_test.gd", "res://tests/league_house_test.gd"]:
 			var suite = load(path)
 			if suite == null:
 				failures.append("Missing tests: " + path)

@@ -510,70 +510,6 @@
           "reduced_motion": "reduced_motion.boss_rule.pressure_gauge"
         }
       }
-    },
-    {
-      "item": {
-        "id": "kit.tournament",
-        "name": "Tournament Kit",
-        "category": "kit",
-        "rarity": "common",
-        "pool_weight": 0,
-        "unlock": {
-          "kind": "championship",
-          "prerequisites": [
-            "gate.house_champion"
-          ]
-        },
-        "earliest_division": 1,
-        "purchase_price": 0,
-        "resale_price": 0,
-        "effects": [],
-        "limits": {
-          "max_owned": 1,
-          "charges": 0,
-          "exhaustion": "none"
-        },
-        "downside": "Four ball cards instead of six, so specials come up less often.",
-        "synergy_tags": [
-          "economy",
-          "baseline"
-        ],
-        "incompatibilities": [],
-        "assets": {
-          "icon": "",
-          "card": "",
-          "in_play": "",
-          "rarity_treatment": "",
-          "activation": "",
-          "sound": "",
-          "reduced_motion": ""
-        },
-        "completeness": {
-          "authored": true,
-          "mechanics": false,
-          "automated_validation": false,
-          "artwork": false,
-          "effects_audio": false,
-          "unlock_assigned": true,
-          "integrated": false
-        }
-      },
-      "design": {
-        "trigger": "Start an attempt with ten Wood pins, a deck of two Hook Balls and two Echo Balls (the House Ball is always available) and $10 instead of $6.",
-        "primitives": [
-          "kit.loadout"
-        ],
-        "pool": "Starting kit: chosen on the League Board; unlocked by the first House League title.",
-        "presentation_needs": "A kit card with a tournament ribbon; the binder shows its loadout.",
-        "asset_ids": {
-          "icon": "icon.kit.tournament",
-          "card": "card.kit.tournament",
-          "rarity_treatment": "rarity_treatment.kit.tournament",
-          "activation": "activation.kit.tournament",
-          "sound": "sound.kit.tournament",
-          "reduced_motion": "reduced_motion.kit.tournament"
-        }
-      }
     }
   ],
   "landed": [
@@ -635,6 +571,26 @@
           "activation": "activation.lane_condition.dry_backend",
           "sound": "sound.lane_condition.dry_backend",
           "reduced_motion": "reduced_motion.lane_condition.dry_backend"
+        }
+      }
+    },
+    {
+      "id": "kit.tournament",
+      "landed_in": "E18-C12",
+      "design": {
+        "trigger": "Start an attempt with ten Wood pins, a deck of two Hook Balls and two Echo Balls (the House Ball is always available) and $10 instead of $6.",
+        "primitives": [
+          "kit.loadout"
+        ],
+        "pool": "Starting kit: chosen on the League Board; unlocked by the first House League title.",
+        "presentation_needs": "A kit card with a tournament ribbon; the binder shows its loadout.",
+        "asset_ids": {
+          "icon": "icon.kit.tournament",
+          "card": "card.kit.tournament",
+          "rarity_treatment": "rarity_treatment.kit.tournament",
+          "activation": "activation.kit.tournament",
+          "sound": "sound.kit.tournament",
+          "reduced_motion": "reduced_motion.kit.tournament"
         }
       }
     }

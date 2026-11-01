@@ -36,15 +36,15 @@ static func _fresh(graph: Dictionary, failures: Array[String]) -> void:
 		"a fresh board: both Leagues open, nothing played", failures)
 	var binder := Model.binder(career, graph, graph.catalogue)
 	var counts := Model.binder_counts(binder)
-	_expect(binder.size() == 77 and counts.locked == 9 and counts.available == 68 and counts.discovered == 0, "a fresh binder: 9 Locked, 68 Available (boss rules excluded)", failures)
+	_expect(binder.size() == 78 and counts.locked == 12 and counts.available == 66 and counts.discovered == 0, "a fresh binder: 12 Locked, 66 Available (boss rules excluded)", failures)
 	var encore := _entry(binder, "charm.encore")
 	_expect(encore.state == "locked" and encore.requirement == "Beat The Surveyor (House League)" and encore.asset == _entry(graph.catalogue.items, "charm.encore").assets.card and Art.has_art(encore.asset),
 		"Encore names its unlocking rival and resolves its catalogue card artwork", failures)
 	_expect(Model.inspect(encore, graph.catalogue).contains("Unlock: Beat The Surveyor (House League). It then joins the pool from your next attempt."),
 		"inspecting a locked card explains the unlock and the next-attempt rule", failures)
 	var shelf := Model.trophies(career, graph)
-	_expect(shelf.all(func(t): return not t.earned) and shelf.filter(func(t): return t.kind == "plaque").map(func(t): return t.id) == ["rival.custodian", "rival.surveyor"],
-		"a fresh shelf: nothing earned; plaques only for the slice's rivals, not provisional encounters", failures)
+	_expect(shelf.all(func(t): return not t.earned) and shelf.filter(func(t): return t.kind == "plaque").map(func(t): return t.id) == ["rival.custodian", "rival.custodian_champion", "rival.old_lou", "rival.proprietor", "rival.surveyor"],
+		"a fresh shelf: nothing earned; plaques for the House League's five rivals, not provisional encounters", failures)
 	_expect(shelf.filter(func(t): return t.kind == "trophy").map(func(t): return t.asset) == ["trophy.house", "trophy.house_campaign"]
 		and shelf.filter(func(t): return t.kind == "decoration").size() == 3, "trophy and decoration slots carry stable asset IDs", failures)
 	_expect(Model.latest(career, graph).is_empty(), "no unlocks yet", failures)
@@ -77,7 +77,7 @@ static func _after_play(graph: Dictionary, failures: Array[String]) -> void:
 	_expect(earned == ["league.house", "rival.custodian", "rival.surveyor", "deco.club_sign", "deco.trophy_case"],
 		"titles, plaques and the milestone decorations are earned: %s" % str(earned), failures)
 	var latest := Model.latest(career, graph)
-	_expect(latest.size() == 3 and latest[0].gate == "gate.house_champion" and latest[0].text == "Win the House League: Crown Pin, Split Specialist, Crown Jewel, Echo Charge join the shop pool from your next attempt."
+	_expect(latest.size() == 3 and latest[0].gate == "gate.house_champion" and latest[0].text == "Win the House League: Crown Pin, Split Specialist, Crown Jewel, Echo Charge, Tournament Kit join the shop pool from your next attempt."
 		and latest[2].text == "Beat The Surveyor (House League): Encore joins the shop pool from your next attempt.", "latest unlocks, newest first: %s" % str(latest.map(func(l): return l.text)), failures)
 
 static func _goals(graph: Dictionary, failures: Array[String]) -> void:

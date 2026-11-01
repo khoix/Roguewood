@@ -53,9 +53,18 @@ static func source_text(graph: Dictionary, source: String) -> String:
 static func requirement(graph: Dictionary, item: Dictionary) -> String:
 	var lines: Array = []
 	for gate in item.get("unlock", {}).get("prerequisites", []):
-		var sources: Array = graph.get("gates", {}).get(gate, {}).get("sources", [])
-		lines.append(" or ".join(sources.map(func(s): return source_text(graph, s))))
+		lines.append(_sources_text(graph, gate))
 	return "; ".join(lines)
+
+## A gate's sources, each named once: a rival who recurs in later Divisions (E22-L01)
+## awards the same gate from every Division it bosses.
+static func _sources_text(graph: Dictionary, gate: String) -> String:
+	var texts: Array = []
+	for source in graph.get("gates", {}).get(gate, {}).get("sources", []):
+		var text := source_text(graph, source)
+		if text not in texts:
+			texts.append(text)
+	return " or ".join(texts)
 
 static func board(career: Dictionary, graph: Dictionary) -> Array:
 	var rows: Array = []
@@ -74,7 +83,7 @@ static func _access(career: Dictionary, graph: Dictionary, league_id: String) ->
 	var missing: Array = graph.leagues[league_id].access.filter(func(g): return g not in career.unlocked)
 	if missing.is_empty():
 		return ""
-	return "Locked: " + "; ".join(missing.map(func(g): return " or ".join(graph.gates.get(g, {}).get("sources", []).map(func(s): return source_text(graph, s)))))
+	return "Locked: " + "; ".join(missing.map(func(g): return _sources_text(graph, g)))
 
 ## One line per League for the board.
 static func record_line(row: Dictionary) -> String:

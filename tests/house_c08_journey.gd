@@ -35,8 +35,10 @@ func _run() -> void:
 	_check(lab.division.practice, "Practice is on before the first throw")
 	await _play_out()
 	lab.run.credit(8000, "fixture: C08 Charm sampling")
+	# Wood Grain is Old Lou's first-clear reward (E22-L01); this attempt's pool gets its gate.
+	if "gate.old_lou_cleared" not in lab.shop.unlocked: lab.shop.unlocked.append("gate.old_lou_cleared")
 	lab._refresh_shop()
-	print("J03C08 fixture: $8000 granted after the opener; offers, rerolls and purchases follow")
+	print("J03C08 fixture: $8000 granted and gate.old_lou_cleared added to this attempt's pool after the opener; offers, rerolls and purchases follow")
 	await _buy(FIRST)
 	await _capture("c08_shop")
 	await _leave_shop()

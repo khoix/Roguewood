@@ -17,8 +17,8 @@ static func run() -> Array[String]:
 	var items := {}
 	for item in catalogue.items:
 		items[item.id] = item
-	_expect(IDS.all(func(id): return items.has(id) and items[id].category == "charm" and items[id].completeness.mechanics and items[id].unlock.kind == "initial"),
-		"the six D07 Charms are in the catalogue with mechanics, in the initial pool", failures)
+	_expect(IDS.all(func(id): return items.has(id) and items[id].category == "charm" and items[id].completeness.mechanics and items[id].unlock.kind == ("boss" if id in ["charm.wood_grain", "charm.house_special"] else "initial")),
+		"the six D07 Charms are in the catalogue with mechanics, in the initial pool except a rival's first-clear reward (E22-L01)", failures)
 	_head_pin(catalogue, failures)
 	_wood_grain(catalogue, failures)
 	_opening_act(catalogue, failures)
