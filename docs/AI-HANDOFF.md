@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-10-29. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–6 are merged (PRs #11, #13, #14, #15, #16, #17); Wave 7 is open. The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
+Updated: 2026-10-31. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Wave 7 is merged (PR #18); Wave 8 is open. The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
 
 ## Read first
 
@@ -37,7 +37,8 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - Wave 3 MERGED to main by PR #14 (`3a7e938`; CI 40736417912 PASS on `afe5852`): Codex E17-D02-ART and E19-A13…A15; Claude E18-C02 and E17-D03.
 - Wave 4 MERGED to main by PR #15 (CI 40760480791 PASS on `e72051b`): Claude E18-C03 and E17-D04; Codex E17-D03-ART, E19-A16 and E20-V08. 
 - Wave 5 MERGED to main by PR #16 (CI PASS on `bebb702`, which also raised the CI job limit to 90 minutes): Claude E18-C04 and E17-L01; Codex AV-C03 and E17-D04-ART.
-- Wave 6 MERGED to main by PR #17 (main `1f8a304`; CI PASS on `f5192eb`): Claude E18-C05…C07; Codex AV-C04 and E22-L01-ART. **Wave 7 is open** (see "Wave 7 claims"): Codex starts from this branch with docs/prompts/codex-wave7.md; Claude's DC-H1…H3 are DONE (see "Wave 7 progress").
+- Wave 6 MERGED to main by PR #17 (main `1f8a304`; CI PASS on `f5192eb`): Claude E18-C05…C07; Codex AV-C04 and E22-L01-ART. 
+- Wave 7 MERGED to main by PR #18 (main `48ea9e3`; CI PASS on `ed8173a`): Claude DC-H1…H3 (E18-C08…C10); Codex E21-R03/R04, AV-C06 and AV-C07. **Wave 8 is open** (see "Wave 8 claims"): Codex starts from this branch with docs/prompts/codex-wave8.md; Claude starts DC-H4 and E22-L01 on the owner's go-ahead.
 - **Roadmap (2026-10-28):** docs/ROADMAP.md maps every remaining milestone to phases (one per League group) and waves, with ownership, the content split per League and the owner's decisions. Waves 5–8 complete the House League.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
@@ -189,6 +190,33 @@ The E13-S01 presentation batches (E19-A01…A07, E20-V01…V07, E21-R01/R02) wer
 - **Validation:** the full CI command list (148 commands, every journey headless and rendered) PASS locally on the merged tree `470d88c`. It includes J03C05–J03C07, JAVC04A/B/C with their contact checks, J22L01ART, J06, J07 and J09–J11. The J03C06 injected failure exits 1. CI runs on this commit.
 - **Merge:** MERGED to main by PR #17 after CI passed on `f5192eb`.
 
+## Wave 7 closed (coordinator, 2026-10-31)
+- **Contents** (all on `claude/roguewood-build` at the "Wave 7 closed" commit):
+  - Claude: E18-C08 (`1c7453d`), E18-C09 (`b8c3882`), E18-C10 (`d190cb6`), with E17-D07…D09 (18 House items), and the journey robustness fixes (`f38b60b`, `1a5cbef`, `6ebfecf`).
+  - Codex: E21-R03/R04 (`dc6950f`), AV-C06 (`d4297dc`) and AV-C07 (`34296b2`, `7e151c1`), fast-forwarded by the coordinator.
+- **Validation:** the full CI command list (154 units, every journey headless and rendered) ran locally on the merged tree.
+  - 152 passed. The two failures were J08A05 headless and rendered, because the item art journey's 50 rerolls on $2500 no longer reached every item in the larger pool.
+  - Fixed in `d0a8d46`: up to 150 rerolls on a logged $10000 grant, checks unchanged. With the fix, J08A03…A06 pass headless and J08A05 passes rendered.
+  - The J03C10 injected failure exits 1. CI runs on this commit.
+- **Note for Codex:** tests/item_art_journey.gd (your E19 batches) changed only in that budget.
+- **Merge:** MERGED to main by PR #18 after CI passed on `ed8173a`.
+
+## Wave 8 claims (coordinator: Claude, 2026-10-31)
+Open: Wave 7 is merged (PR #18). Codex merges `origin/claude/roguewood-build` (the "Wave 7 closed" commit) with a merge commit before starting (prompt: docs/prompts/codex-wave8.md). Phase 1, House League.
+- **Codex:**
+  - AV-H1 and AV-H2 (Medium; four sessions of three items each): briefs, identity art, activation, sound and both flags for the twelve E17-D07/D08 House Charms.
+  - J03C08 and J03C09 score them natively.
+- **Claude:**
+  - DC-H4 (Medium; E17-D10 with E18-C11): the last five House items (two Charms and three tactical cards), completing House's 40.
+  - E22-L01 (High): House League integration.
+    - All eight Divisions of content/leagues/house.json become the live House League, replacing the slice's two.
+    - It declares the rival gates and moves Wood Grain and House Special onto Old Lou's and The Proprietor's.
+    - Rivals recur with scaled targets, as the spec allows.
+    - Each boss gets its own lane.
+    - The second kit (Tournament) comes from the championship gate.
+    - The E22-L01-ART theme is wired by its 30 bindings.
+    - A full-League native journey proves it.
+
 ## Wave 7 claims (coordinator: Claude, 2026-10-30)
 Open: Wave 6 is merged (PR #17). Codex merges `origin/claude/roguewood-build` (the "Wave 6 closed" commit) with a merge commit before starting (prompt: docs/prompts/codex-wave7.md). Phase 1, House League.
 - **Codex:**
@@ -219,7 +247,15 @@ Open: Wave 6 is merged (PR #17). Codex merges `origin/claude/roguewood-build` (t
   - J03C08, J03C09 and J03C10 PASS headless and rendered, with injected failures exiting 1;
   - the shop-dependent journeys PASS headless after the fixes: J06, J09, J10, J11, J03C01…C10, JAVC03A/B, JAVC04A/B/C, J12V08 and J19A16.
   - The full matrix runs at "Wave 7 closed".
-- **Codex:** E21-R03/R04, AV-C06 and AV-C07 pending (docs/prompts/codex-wave7.md).
+- **Codex, all DONE** on `codex/roguewood-build` (`7e151c1`; handoffs/WAVE7-CODEX.md, E21-R03.md, E21-R04.md, E21-R03-R04.md, AV-C06.md, AV-C07-A.md, AV-C07-B.md):
+  - E21-R03/R04: The Proprietor and Old Lou, with the House Rules and House Pins badges and the champion's paired badges.
+  - AV-C06: activation and sound for the three tactical cards, the Nudge rack-diagram chooser, and the "this frame only" and waived markers.
+  - AV-C07: identity art, effects, sound and shop treatments for the six upgrades. This includes an upgrade card frame and "Reroll free" on the Punch Card reroll.
+- **Integration:** Codex's branch already contained Claude's head (`f5c5922`), so it was fast-forwarded.
+  - Its catalogue diff touches only the nine items' asset slots and flags.
+  - Its source is presentation only: tactical_art, upgrade_art, tactic_sheet's rack diagram, and the HUD and rival art.
+  - Its edits to J03C05–C07 add presentation checks. The Nudge spot is now tapped on the rack diagram; the choices and their order are unchanged.
+  - qa.py and the workflow are add-only.
 
 ## Wave 6 claims (coordinator: Claude, 2026-10-29)
 Wave 5 is merged (PR #16). Codex merges `origin/claude/roguewood-build` (the "Wave 5 closed" commit) with a merge commit before starting (prompt: docs/prompts/codex-wave6.md). Phase 1, House League.
