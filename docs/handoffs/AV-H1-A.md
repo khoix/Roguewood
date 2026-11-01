@@ -1,6 +1,6 @@
 # AV-H1-A — Head Pin, Wood Grain, Opening Act
 
-State: identity checkpoint; batch NOT complete.
+State: identity and activation/audio resource checkpoint; batch NOT complete.
 Branch: codex/roguewood-build. Wave 7 and coordinator updates through db96dbf
 merged with merge commits. The interrupted merge left stale MERGE_HEAD metadata
 for an ancestor already in HEAD; ancestry was verified before clearing it with
@@ -15,8 +15,9 @@ uncommon frames reuse existing Charm geometry; no upgrade-license frame.
 JAVH1AC adds a 180px/48px identity contact, registered add-only in qa.py and the
 art CI shard with its upload folder. Gameplay journey source is unchanged.
 
-No activation, audio, counted Head Pin/Wood Grain display or conditional
-Opening Act marquee is delivered. Both completion flags remain false. No other
+Activation recipes and procedural sound resources are now bound to all three
+items. Counted Head Pin/Wood Grain displays and the conditional Opening Act
+marquee are not delivered. Per-item native cue assertions remain pending. Both completion flags remain false. No other
 catalogue items or flags changed; no rules, League bindings or gameplay code
 changed. No screenshots committed.
 
@@ -40,7 +41,8 @@ Native captures: artifacts/e18-c08/rendered/c08_shop.png and c08_strike.png.
 
 Fetch origin, merge any newer coordinator changes with a merge commit, then
 complete AV-H1-A before starting AV-H1-B. Reuse these identities and briefs.
-1. Add original activation recipes and sound slots for these three Charms.
+1. Activation recipes and sound slots are delivered. Add per-item assertions
+   against the native ability history, including skipped/muted behavior.
 2. Extend the existing read-only ability presentation adapter: Head Pin lights
    rack position 1 from its resolver event; Wood Grain draws one grain line per
    counted Wood Pin from facts/events; Opening Act lights in match frame 1 and
@@ -53,3 +55,14 @@ complete AV-H1-A before starting AV-H1-B. Reuse these identities and briefs.
    commit/push and verify remote SHA and clean tree.
 Next effort: Medium. AV-H1-B, AV-H2-A and AV-H2-B remain unstarted. Do not touch
 E17-D09/DC-H4 art flags or change E22-L01-ART bindings.
+
+## Resource follow-up
+
+Merged coordinator 44c6dfa (DC-H4) before this follow-up. Its gameplay/content
+changes are upstream work, not Codex edits. Added only the three assigned
+activation/sound resources and their slots; flags unchanged. Validation logs
+for this follow-up are artifacts/av-h1-a/cues-validation. Prior full matrix
+results above belong to the identity checkpoint, not this newer integration.
+Follow-up unit/content and J03C08 headless/rendered PASS. No full regression
+matrix rerun is claimed for this resource-only follow-up. Continue with the
+counted/conditional displays and cue assertions before enabling either flag.

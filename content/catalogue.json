@@ -3153,8 +3153,8 @@
         "card": "res://assets/items/d07/card.charm.head_pin.tres",
         "in_play": "",
         "rarity_treatment": "res://assets/items/d07/rarity_treatment.charm.head_pin.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/activation.charm.head_pin.tres",
+        "sound": "res://assets/audio/sound.charm.head_pin.wav",
         "reduced_motion": "res://assets/items/d07/reduced_motion.charm.head_pin.tres"
       },
       "completeness": {
@@ -3206,8 +3206,8 @@
         "card": "res://assets/items/d07/card.charm.wood_grain.tres",
         "in_play": "",
         "rarity_treatment": "res://assets/items/d07/rarity_treatment.charm.wood_grain.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/activation.charm.wood_grain.tres",
+        "sound": "res://assets/audio/sound.charm.wood_grain.wav",
         "reduced_motion": "res://assets/items/d07/reduced_motion.charm.wood_grain.tres"
       },
       "completeness": {
@@ -3261,8 +3261,8 @@
         "card": "res://assets/items/d07/card.charm.opening_act.tres",
         "in_play": "",
         "rarity_treatment": "res://assets/items/d07/rarity_treatment.charm.opening_act.tres",
-        "activation": "",
-        "sound": "",
+        "activation": "res://assets/effects/activation.charm.opening_act.tres",
+        "sound": "res://assets/audio/sound.charm.opening_act.wav",
         "reduced_motion": "res://assets/items/d07/reduced_motion.charm.opening_act.tres"
       },
       "completeness": {

@@ -559,3 +559,16 @@ JAVH1AC produces 180px/48px contacts. J03C08 buys and scores all three natively.
 This checkpoint delivers no activation, sound or counted/conditional treatment;
 artwork and effects_audio remain false. Briefs specify the pending resolver-driven
 requirements. No screenshots or third-party samples are added.
+
+### AV-H1-A activation/audio resource checkpoint
+
+Original procedural PCM, no recordings or external samples, peak 0.48. Reproduce:
+- `python3 tools/author_foley.py sound.charm.head_pin wood 740 0.22`
+- `python3 tools/author_foley.py sound.charm.wood_grain wood 360 0.30`
+- `python3 tools/author_foley.py sound.charm.opening_act swish 960 0.32`
+
+`activation.charm.{head_pin,wood_grain,opening_act}.tres` use isolate/tabs/brace
+geometry with the existing original identities. Existing ability director and
+bounded mixer consume the slots; reduced motion uses static geometry. This
+checkpoint does not claim the pending counted/conditional presentation needs
+or per-item native cue assertions. Completion flags stay false.
