@@ -208,6 +208,11 @@ Open: Wave 7 is merged (PR #18). Codex merges `origin/claude/roguewood-build` (t
   - J03C08 and J03C09 score them natively.
 - **Claude:**
   - DC-H4 (Medium; E17-D10 with E18-C11): the last five House items (two Charms and three tactical cards), completing House's 40.
+  - CI split (owner-approved, 2026-11-01): the bootstrap job had reached 70 of its 90 minutes, so it becomes two parallel shards, each with the 90-minute limit.
+    - `game`: verify, then the gameplay journeys.
+    - `art`: the art, effects and rival journeys.
+    - Every command is kept. The failure-only "preserve art evidence" step is removed, because a game failure can no longer stop the art journeys.
+    - New art steps carry `if: matrix.shard == 'art'`.
   - E22-L01 (High): House League integration.
     - All eight Divisions of content/leagues/house.json become the live House League, replacing the slice's two.
     - It declares the rival gates and moves Wood Grain and House Special onto Old Lou's and The Proprietor's.
