@@ -76,17 +76,18 @@ func _ready() -> void:
 	league.name = "LeagueChoice"
 	league.add_item(content.get("name", "House League"))
 	league_sets = [content.id]
-	if content.id == "slice":
+	if content.id in ["house", "slice"]:
+		var base: String = content.id
 		league.add_item("House Campaign · 8 Divisions (provisional)")
 		league_sets.append("campaign")
 		league.item_selected.connect(func(index):
-			content = ContentSet.load_set("campaign" if index == 1 else "slice")
+			content = ContentSet.load_set("campaign" if index == 1 else base)
 			_show_menu())
 	panel.add_child(league)
 	kit = OptionButton.new()
 	kit.name = "KitChoice"
-	kit.add_item(content.kit.get("name", "House Kit"))
 	panel.add_child(kit)
+	_refresh_kits()
 	continue_button = _button(panel, "Continue Attempt", "ContinueAttempt", 460)
 	continue_button.pressed.connect(_continue_attempt)
 	enter = _button(panel, "Enter League", "EnterLeague", 460)
@@ -177,6 +178,8 @@ func _continue_attempt() -> void:
 ## A saved payload resumes that attempt instead of starting fresh.
 func _begin_attempt(attempt: int, saved: Dictionary = {}) -> void:
 	if content.id == "campaign": content = ContentSet.load_set("campaign", int(saved.get("seed", attempt)))
+	if saved.is_empty():
+		content.kit = _chosen_kit()
 	session = {"schema_version": 1, "seed": attempt, "attempt": attempt, "league_id": "league.house", "kit_id": content.kit.get("id", "kit.house"),
 		"content": content.id, "division": 1, "match": 1, "frame": 1, "score": 0, "money": int(content.kit.get("money", 6))}
 	if not saved.is_empty():
@@ -235,6 +238,7 @@ func _show_menu() -> void:
 		if i == league.selected and not reason.is_empty():
 			details.text = reason
 			enter.disabled = true
+	_refresh_kits()
 	var saved := _saved_attempt()
 	continue_button.visible = saved.ok
 	if saved.ok:
@@ -247,6 +251,28 @@ func _show_menu() -> void:
 	clubhouse.show_tab("board")
 	session_bar.hide()
 	(continue_button if saved.ok else enter).grab_focus()
+
+## E22-L01: the League's kits; one that waits for a gate (the Tournament Kit, the
+## House title) is listed but disabled until the Career has earned it.
+func _refresh_kits() -> void:
+	var chosen: int = maxi(kit.selected, 0)
+	kit.clear()
+	var kits: Array = content.get("kits", [content.kit])
+	for i in kits.size():
+		var entry: Dictionary = kits[i]
+		var open := _kit_open(entry)
+		kit.add_item(entry.get("name", "House Kit") + ("" if open else " · win the House League title"))
+		kit.set_item_disabled(i, not open)
+	kit.select(chosen if chosen < kits.size() and not kit.is_item_disabled(chosen) else 0)
+
+func _kit_open(entry: Dictionary) -> bool:
+	var unlock: String = str(entry.get("unlock", "initial"))
+	return unlock == "initial" or unlock in career.get("unlocked", [])
+
+func _chosen_kit() -> Dictionary:
+	var kits: Array = content.get("kits", [content.kit])
+	var index: int = kit.selected if kit.selected >= 0 and kit.selected < kits.size() else 0
+	return kits[index] if _kit_open(kits[index]) else kits[0]
 
 func _clear_lab() -> void:
 	if lab:

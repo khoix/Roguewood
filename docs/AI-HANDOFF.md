@@ -38,7 +38,7 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - Wave 4 MERGED to main by PR #15 (CI 40760480791 PASS on `e72051b`): Claude E18-C03 and E17-D04; Codex E17-D03-ART, E19-A16 and E20-V08. 
 - Wave 5 MERGED to main by PR #16 (CI PASS on `bebb702`, which also raised the CI job limit to 90 minutes): Claude E18-C04 and E17-L01; Codex AV-C03 and E17-D04-ART.
 - Wave 6 MERGED to main by PR #17 (main `1f8a304`; CI PASS on `f5192eb`): Claude E18-C05…C07; Codex AV-C04 and E22-L01-ART. 
-- Wave 7 MERGED to main by PR #18 (main `48ea9e3`; CI PASS on `ed8173a`): Claude DC-H1…H3 (E18-C08…C10); Codex E21-R03/R04, AV-C06 and AV-C07. **Wave 8 is open** (see "Wave 8 claims"): Codex starts from this branch with docs/prompts/codex-wave8.md; Claude starts DC-H4 and E22-L01 on the owner's go-ahead.
+- Wave 7 MERGED to main by PR #18 (main `48ea9e3`; CI PASS on `ed8173a`): Claude DC-H1…H3 (E18-C08…C10); Codex E21-R03/R04, AV-C06 and AV-C07. **Wave 8 is open** (see "Wave 8 claims"): Codex starts from this branch with docs/prompts/codex-wave8.md; Claude's DC-H4, E22-L01 and the CI split are DONE (see "Wave 8 progress").
 - **Roadmap (2026-10-28):** docs/ROADMAP.md maps every remaining milestone to phases (one per League group) and waves, with ownership, the content split per League and the owner's decisions. Waves 5–8 complete the House League.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
@@ -189,6 +189,22 @@ The E13-S01 presentation batches (E19-A01…A07, E20-V01…V07, E21-R01/R02) wer
   - Codex: AV-C04 (`e47b7c0`, `792e24b`, `80eb775`) and E22-L01-ART (`ed7f44a`), merged by the coordinator without conflicts.
 - **Validation:** the full CI command list (148 commands, every journey headless and rendered) PASS locally on the merged tree `470d88c`. It includes J03C05–J03C07, JAVC04A/B/C with their contact checks, J22L01ART, J06, J07 and J09–J11. The J03C06 injected failure exits 1. CI runs on this commit.
 - **Merge:** MERGED to main by PR #17 after CI passed on `f5192eb`.
+
+## Wave 8 progress (coordinator)
+- **Claude, all DONE** on `claude/roguewood-build`:
+  - **CI split** (`db96dbf`): the bootstrap job runs as parallel `game` and `art` shards. On `44c6dfa`: game 20 min, art 41 min, both PASS (was one 70-minute job).
+  - **E18-C11** (DC-H4, E17-D10; `44c6dfa`, handoffs/E18-C11.md): Double Take, Called Shot, Pin Count, Cleanup Crew and Lucky Seven. House has all 40 items. J03C11.
+  - **E22-L01** (`b7e14fd`, handoffs/E22-L01.md): the eight-Division House League is the live default (`--content=house`).
+    - Recurring rivals, boss lanes by Division, both kits (the Tournament Kit lands as E18-C12).
+    - The rival rewards on their gates.
+    - Codex's theme bound by manifest id.
+    - The two-Division slice stays (`--content=slice`) with a fixture registry. J22L01 plays the full League to the title.
+- **Validation:**
+  - The full CI command list on the E22-L01 tree: 136 units, every journey headless and rendered (J22L01, J03C08…C11 and the slice journeys included).
+  - All pass after J11's two count expectations were updated: 12 Locked and 66 Available in the slice binder, and one Surveyor source.
+  - J22L01's injected failure exits 1.
+  - The shop-dependent journeys passed on the C11 head before E22-L01.
+- **Codex:** AV-H1 and AV-H2 pending (docs/prompts/codex-wave8.md).
 
 ## Wave 7 closed (coordinator, 2026-10-31)
 - **Contents** (all on `claude/roguewood-build` at the "Wave 7 closed" commit):
