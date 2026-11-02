@@ -580,3 +580,11 @@ resolver event into the existing rack highlight; Wood Grain draws one short
 grain stroke per event count (bounded by the ten-pin rack); Opening Act's 48px
 marquee uses the authoritative match_frame to select lit/dim states. Static
 geometry respects the existing reduced-motion path. No simulation/rule edits.
+
+### AV-H1-A completion evidence
+
+J03C08 now captures original native score cues: position-1 Head Pin highlight,
+ten- and seven-count Wood Grain marks, and Opening Act's lit/dim marquee.
+Assertions compare counts to fallen Wood Pins and test silent skip/mute adapter
+paths without rebanking. The three artwork/effects_audio flags are enabled only
+after successful native headless/rendered verification. Handoff: AV-H1-A.md.

@@ -71,6 +71,17 @@ func _run() -> void:
 	var standing: int = 10 - holdouts.frame.rolls.reduce(func(n, r): return n + r.fallen_positions.size(), 0)
 	_check(holdouts.result.category == "open" and standing > 0 and _logged("Holdouts"), "Holdouts adds Value for %d standing pins" % standing)
 	await _capture("c08_holdouts")
+	var bank_before: int = lab.total_score
+	for id in ["charm.head_pin", "charm.wood_grain", "charm.opening_act"]:
+		var heard: int = lab.motion.sound.played
+		lab.motion.abilities.cue(id,"skip_fixture",true)
+		_check(lab.motion.sound.played == heard, "skipped cue is silent: " + id)
+		lab.motion.sound.muted = true
+		lab.motion.abilities.cue(id,"mute_fixture",false)
+		_check(lab.motion.sound.played == heard, "muted cue is silent: " + id)
+		lab.motion.sound.muted = false
+	_check(lab.total_score == bank_before, "presentation fixtures cannot rebank")
+	_check(art_captures.has("charm.wood_grain_10") and art_captures.has("charm.wood_grain_7"), "full and partial Wood counts captured")
 	if "--inject-failure" in OS.get_cmdline_user_args(): _check(false, "Injected diagnostic failure")
 	if failures.is_empty(): print("ROGUEWOOD_J03C08_OK")
 	quit(0 if failures.is_empty() else 1)
@@ -129,3 +140,31 @@ func _capture(label: String) -> void:
 	var image := root.get_texture().get_image()
 	if image == null or image.is_empty() or image.save_png(artifact_dir.path_join(label + ".png")) != OK:
 		_check(false, "Cannot capture " + label)
+
+# Native cue evidence while the original explanation plays.
+var art_captures := {}
+func _scored() -> Dictionary:
+	for tick in ROLL_FRAMES * 3:
+		if lab.state in ["scoring", "frame_done"]:
+			var glyph: Control = lab.motion.abilities.glyph
+			if glyph.style != null and glyph.age < glyph.style.duration:
+				var id: String = glyph.style.item_id
+				if id in ["charm.head_pin", "charm.wood_grain", "charm.opening_act"]:
+					var count := int(glyph.details.get("count",0))
+					var key := id + "_%d" % count
+					if not art_captures.has(key):
+						art_captures[key] = true
+						_check(glyph.still, "native Charm cue respects reduced motion")
+						if id == "charm.head_pin":
+							_check(lab.motion.abilities.counted_rack_positions() == [1], "Head Pin marks position 1")
+						if id == "charm.wood_grain":
+							var frame: Dictionary = lab.scored_frames[-1].frame
+							var down: Array = []
+							for roll in frame.rolls: down.append_array(roll.fallen_positions)
+							var expected: int = frame.pins.filter(func(p): return p.item_id == "pin.wood" and p.position in down).size()
+							_check(count == expected, "grain count matches fallen Wood Pins")
+						await _capture(key.replace(".","_") + "_cue")
+		if lab.state == "frame_done": return lab.scored_frames[-1]
+		await process_frame
+	_check(false,"native Charm explanation timeout")
+	return lab.scored_frames[-1]

@@ -1,85 +1,49 @@
 # AV-H1-A — Head Pin, Wood Grain, Opening Act
 
-State: identity and activation/audio resource checkpoint; batch NOT complete.
-Branch: codex/roguewood-build. Wave 7 and coordinator updates through db96dbf
-merged with merge commits. The interrupted merge left stale MERGE_HEAD metadata
-for an ancestor already in HEAD; ancestry was verified before clearing it with
-merge --quit and merging the newer coordinator commit. No rebase/force push.
+State: DONE (implementation and local verification).
+Branch: codex/roguewood-build. Coordinator through 0c9d915 (E22-L01) merged
+with merge commits. No rebase or force push. Prior checkpoints: 1d5910a identity,
+036dcf3 activation/audio resources, 78af929 native displays.
 
 ## Delivered
 
-Briefs for the three assigned Charms in docs/art/briefs/E17-D07.md. Original
-transparent identity atlas, exact prompt and provenance/hash in ASSET-LEDGER.
-Each item has icon, card, rarity_treatment and reduced_motion slots. Common and
-uncommon frames reuse existing Charm geometry; no upgrade-license frame.
-JAVH1AC adds a 180px/48px identity contact, registered add-only in qa.py and the
-art CI shard with its upload folder. Gameplay journey source is unchanged.
+All six slots for each assigned Charm: original identity art, existing common/
+uncommon Charm frames, static reduced-motion identity, activation and original
+procedural sound. Prompts, source hash and reproduction commands are recorded
+in docs/art/ASSET-LEDGER.md; briefs in docs/art/briefs/E17-D07.md.
 
-Activation recipes and procedural sound resources are now bound to all three
-items. Counted Head Pin/Wood Grain displays and the conditional Opening Act
-marquee are not delivered. Per-item native cue assertions remain pending. Both completion flags remain false. No other
-catalogue items or flags changed; no rules, League bindings or gameplay code
-changed. No screenshots committed.
+Head Pin projects position 1 from its eligible resolver event into the rack
+highlight. Wood Grain draws one grain mark per resolver count. Opening Act's
+marquee is lit in authoritative match frame 1 and dim in frame 2. Counts never
+come from animation time. Shared mixer, mute/effects controls and reduced-motion
+paths are reused. The three artwork/effects_audio flags are enabled after native
+verification. No other item flags or gameplay/League/theme bindings changed.
 
 ## Verification
 
-Unit, content and physics PASS. Exact physics digest:
+J03C08 additions retain the real purchases and throws and capture each cue while
+its original score explanation plays. Head Pin's highlighted position is checked;
+Wood Grain's count is compared with actual fallen Wood Pins, with ten and seven
+captured. Opening Act is checked lit/dim across frames. Explicit skipped/muted
+presentation fixtures are silent and cannot rebank the score. These fixtures
+exercise the presentation adapter, not synthetic gameplay resolution.
+Final unit/content/physics PASS. Physics digest remains
 75d1a3c0ceb2f8e458f7788de7e938de194633c1720aca1488b68a21eb310c6f.
-JAVH1AC and J03C08 PASS headless and rendered. Contact inspected at 180px/48px;
-native shop capture inspected (Opening Act's sold offer retains its icon).
-The three are bought through the existing native journey, not fixture-granted.
-Catalogue scope/unchanged flags and add-only audits PASS.
 Required headless matrix PASS: J06, J03C01–C10, JAVC03A/B, JAVC04A/B/C,
-J22L01ART, J21R03/R04, J11ART, J12V08, J19A16 and JAVC07AC/BC.
-AV-C06/C07 native coverage is J03C06/C07. J03 remains 560/240/70 and J05
-remains 21060. Logs: artifacts/av-h1-a/validation.
-Desktop llvmpipe evidence only; no mobile validation or subjective audio claim.
-Contact: artifacts/av-h1-a/contact/rendered/contact.png.
-Native captures: artifacts/e18-c08/rendered/c08_shop.png and c08_strike.png.
+J22L01ART, J21R03/R04, J11ART, J12V08, J19A16, JAVC07AC/BC.
+J03 remains 560/240/70; J05 remains 21060. Catalogue scope/add-only audits PASS.
+Headless and rendered J03C08 PASS. Native cue captures and dim marquee inspected.
+The rendered ten-mark cue retains a readable numeric count in the score log.
+Logs: artifacts/av-h1-a/final-validation. Captures: artifacts/e18-c08/rendered,
+including charm_head_pin_1_cue, charm_wood_grain_10_cue,
+charm_wood_grain_7_cue, charm_opening_act_0_cue and c08_open.
+No screenshots committed. Desktop llvmpipe evidence; no phone or subjective
+listening gate claimed. Earlier contact evidence remains under av-h1-a/contact.
 
 ## Resume exactly here
 
-Fetch origin, merge any newer coordinator changes with a merge commit, then
-complete AV-H1-A before starting AV-H1-B. Reuse these identities and briefs.
-1. Activation recipes and sound slots are delivered. Add per-item assertions
-   against the native ability history, including skipped/muted behavior.
-2. Extend the existing read-only ability presentation adapter: Head Pin lights
-   rack position 1 from its resolver event; Wood Grain draws one grain line per
-   counted Wood Pin from facts/events; Opening Act lights in match frame 1 and
-   dims in frame 2 from authoritative context. Respect reduced motion/flash and
-   shared mute/effects settings. Do not infer counts from animation state.
-3. Extend J03C08 add-only for captures and assertions, including positive and
-   negative conditions. Existing native purchases/throws are retained.
-4. Run unit/content and affected checks headless/rendered, inspect captures,
-   then set artwork/effects_audio only for these three items. Update this handoff,
-   commit/push and verify remote SHA and clean tree.
-Next effort: Medium. AV-H1-B, AV-H2-A and AV-H2-B remain unstarted. Do not touch
-E17-D09/DC-H4 art flags or change E22-L01-ART bindings.
-
-## Resource follow-up
-
-Merged coordinator 44c6dfa (DC-H4) before this follow-up. Its gameplay/content
-changes are upstream work, not Codex edits. Added only the three assigned
-activation/sound resources and their slots; flags unchanged. Validation logs
-for this follow-up are artifacts/av-h1-a/cues-validation. Prior full matrix
-results above belong to the identity checkpoint, not this newer integration.
-Follow-up unit/content and J03C08 headless/rendered PASS. No full regression
-matrix rerun is claimed for this resource-only follow-up. Continue with the
-counted/conditional displays and cue assertions before enabling either flag.
-
-## Native display follow-up (supersedes earlier resume steps 2–3)
-
-Merged coordinator 0c9d915, including E22-L01. Added Head Pin's counted rack
-position, Wood Grain's event-count grain strokes and Opening Act's authoritative
-frame-based marquee to existing presentation code. J03C08 has add-only checks
-for all three resolver cues and the two marquee states. Unit/content and J03C08
-headless/rendered PASS; logs: artifacts/av-h1-a/display-validation. The rendered
-strike capture was inspected: the marquee fits beside the score header.
-No full regression matrix on this integration is claimed. Flags remain false.
-
-Resume exactly here now: add per-cue captures/assertions for Head Pin's rack
-highlight and Wood Grain's ten-line strike count and partial count, plus silent
-skipped/muted cues. Inspect those captures and the dim marquee. Run affected
-checks headless/rendered and the required regression matrix on the E22-L01
-integration, then set the three artwork/effects_audio flags and mark AV-H1-A
-DONE. The resources and display implementation are present; do not reauthor them.
+AV-H1-A is delivered by this commit. Next session AV-H1-B (Medium): Open House, Strike Fund,
+Holdouts. Read their landed E17-D07 design blocks, author three briefs/identities,
+effects/audio and native treatments, extend J03C08 add-only and verify before
+setting their flags. AV-H2-A/B remain later Wave 8 work. Never set E17-D09/DC-H4
+flags or change E22-L01-ART asset bindings.
