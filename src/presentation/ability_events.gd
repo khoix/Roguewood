@@ -37,6 +37,8 @@ static func project(frame: Dictionary, event: Dictionary, facts: Dictionary = {}
 			out[-1]["last_fallen"] = int(facts.get("last_fallen",0))
 			out[-1]["leave"] = int(facts.get("leave",0))
 			out[-1]["position"] = int(source.get_slice(":",1)) if id == "pin.crown" else int(facts.get("last_fallen",0))
+		if id == "charm.head_pin":
+			out[-1]["positions"] = [1]
 		if id == "charm.sweet_spot":
 			out[-1]["grades"] = frame.get("rolls",[]).map(func(r): return r.accuracy)
 			out[-1]["accurate"] = int(facts.get("accurate",0))

@@ -572,3 +572,11 @@ geometry with the existing original identities. Existing ability director and
 bounded mixer consume the slots; reduced motion uses static geometry. This
 checkpoint does not claim the pending counted/conditional presentation needs
 or per-item native cue assertions. Completion flags stay false.
+
+### AV-H1-A resolver-driven display checkpoint
+
+Original read-only geometry: Head Pin projects position 1 from its eligible
+resolver event into the existing rack highlight; Wood Grain draws one short
+grain stroke per event count (bounded by the ten-pin rack); Opening Act's 48px
+marquee uses the authoritative match_frame to select lit/dim states. Static
+geometry respects the existing reduced-motion path. No simulation/rule edits.

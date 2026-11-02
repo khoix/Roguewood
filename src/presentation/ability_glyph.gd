@@ -26,6 +26,13 @@ func _draw() -> void:
 	var t: float = 0.5 if still else clampf(age / style.duration,0,1)
 	var ink: Color = style.ink
 	if identity: draw_texture_rect(identity,Rect2(c - Vector2(18,18),Vector2(36,36)),false)
+	if style.item_id == "charm.wood_grain":
+		# Event count, never the elapsed animation, determines the grain marks.
+		var count := clampi(int(details.get("count",0)),0,10)
+		for j in count:
+			var y := -27.0 + j*6
+			draw_polyline(PackedVector2Array([c+Vector2(-28,y),c+Vector2(-23,y-2),c+Vector2(-19,y)]),ink,2)
+		return
 	if _draw_c04(c,t,ink): return
 	if _draw_c03(c,t,ink): return
 	if _draw_v08(c,t,ink): return

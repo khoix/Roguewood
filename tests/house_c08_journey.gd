@@ -46,10 +46,16 @@ func _run() -> void:
 	_check(strike.result.category == "strike" and _logged("Head Pin") and _logged("Wood Grain") and _logged("Opening Act") and not _logged("Open House"),
 		"a first-frame strike: Head Pin, Wood Grain and Opening Act apply; Open House stays silent")
 	_check(strike.income >= 1, "Strike Fund pays $1 with the strike's income ($%d)" % strike.income)
+	await process_frame
+	_check(lab.motion.abilities.marquee_lit, "Opening Act marquee lit in frame 1")
+	for id in ["charm.head_pin","charm.wood_grain","charm.opening_act"]:
+		_check(lab.motion.abilities.history.any(func(e): return e.id == id), "native resolver cue: " + id)
 	await _capture("c08_strike")
 	await _focus_accept(lab.next_rack)
 	var open := await _house_frame([LEAVE, GUTTER], "feature frame 2")
 	_check(open.result.category == "open" and _logged("Open House") and not _logged("Opening Act"), "a second-frame open: Open House applies; Opening Act stays silent")
+	await process_frame
+	_check(not lab.motion.abilities.marquee_lit, "Opening Act marquee dims in frame 2")
 	await _capture("c08_open")
 	await _to_shop("feature")
 	var index: int = lab.run.charms.map(func(e): return e.item_id).find("charm.opening_act")

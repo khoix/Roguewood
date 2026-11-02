@@ -66,3 +66,20 @@ results above belong to the identity checkpoint, not this newer integration.
 Follow-up unit/content and J03C08 headless/rendered PASS. No full regression
 matrix rerun is claimed for this resource-only follow-up. Continue with the
 counted/conditional displays and cue assertions before enabling either flag.
+
+## Native display follow-up (supersedes earlier resume steps 2–3)
+
+Merged coordinator 0c9d915, including E22-L01. Added Head Pin's counted rack
+position, Wood Grain's event-count grain strokes and Opening Act's authoritative
+frame-based marquee to existing presentation code. J03C08 has add-only checks
+for all three resolver cues and the two marquee states. Unit/content and J03C08
+headless/rendered PASS; logs: artifacts/av-h1-a/display-validation. The rendered
+strike capture was inspected: the marquee fits beside the score header.
+No full regression matrix on this integration is claimed. Flags remain false.
+
+Resume exactly here now: add per-cue captures/assertions for Head Pin's rack
+highlight and Wood Grain's ten-line strike count and partial count, plus silent
+skipped/muted cues. Inspect those captures and the dim marquee. Run affected
+checks headless/rendered and the required regression matrix on the E22-L01
+integration, then set the three artwork/effects_audio flags and mark AV-H1-A
+DONE. The resources and display implementation are present; do not reauthor them.

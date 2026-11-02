@@ -2,6 +2,8 @@ extends Node
 ## Read-only bridge from authoritative presentation steps to authored cues.
 const Assets = preload("res://src/presentation/item_assets.gd")
 var lab: Control
+var marquee: TextureRect
+var marquee_lit := false
 var glyph: Control
 var intro_glyph: Control
 var history: Array = []
@@ -20,6 +22,15 @@ var growth_label: Label
 var growth_row: HBoxContainer
 func _ready() -> void:
 	name = "AbilityDirector"
+	marquee = TextureRect.new()
+	marquee.texture = Assets.slot("charm.opening_act","icon")
+	marquee.custom_minimum_size = Vector2(48,48)
+	marquee.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	marquee.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	marquee.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	marquee.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	lab.score_panel.header.get_parent().add_child(marquee)
+	marquee.hide()
 	glyph = preload("res://src/presentation/ability_glyph.gd").new()
 	lab.score_panel.header.get_parent().add_child(glyph)
 	intro_glyph = preload("res://src/presentation/ability_glyph.gd").new()
@@ -48,6 +59,11 @@ func _ready() -> void:
 	lab.score_panel.step_revealed.connect(_step)
 	lab.score_panel.rack_view.draw.connect(_draw_counted_rack)
 func _process(_delta: float) -> void:
+	if lab.run != null:
+		marquee.visible = lab.run.charms.any(func(e): return e.item_id == "charm.opening_act")
+		marquee_lit = int(lab.frame_context().get("match_frame",0)) == 1
+		marquee.modulate = Color.WHITE if marquee_lit else Color(0.3,0.3,0.3,1)
+		marquee.tooltip_text = "Opening Act · frame 1 active" if marquee_lit else "Opening Act · inactive after frame 1"
 	_physical()
 	glyph.enabled = lab.motion.sound.enabled
 	var counted := not counted_rack_positions().is_empty()
@@ -163,7 +179,7 @@ func _world_cue(id: String, event: String, point: Vector2) -> void:
 ## Highlight actual counted slots without replacing the rack's roll colours,
 ## position labels or standing outlines. The resolver-owned count stays on the cue.
 func counted_rack_positions() -> Array:
-	if not glyph.enabled or glyph.style == null or glyph.style.item_id not in ["charm.back_row","pin_mod.keystone","pin_mod.lantern","ball_mod.echo_charge"] or glyph.age >= glyph.style.duration: return []
+	if not glyph.enabled or glyph.style == null or glyph.style.item_id not in ["charm.head_pin","charm.back_row","pin_mod.keystone","pin_mod.lantern","ball_mod.echo_charge"] or glyph.age >= glyph.style.duration: return []
 	return glyph.details.get("positions",[]).duplicate()
 func _draw_counted_rack() -> void:
 	var view: Control = lab.score_panel.rack_view
