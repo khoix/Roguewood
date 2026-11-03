@@ -67,6 +67,8 @@ func _run() -> void:
 	_check(spare.result.category == "spare" and _logged("Clean Pickup") and _logged("Front Line") and _logged("Trophy Case"),
 		"a straight spare: Clean Pickup, Front Line and Trophy Case's trophy apply")
 	await _capture("c09_pickup")
+	for id in ["charm.trophy_case","charm.corner_pockets","charm.late_rally"]:
+		_check(lab.motion.abilities.history.any(func(e): return e.id == id),"H2-A native resolver activation: " + id)
 	if "--inject-failure" in OS.get_cmdline_user_args(): _check(false, "Injected diagnostic failure")
 	if failures.is_empty(): print("ROGUEWOOD_J03C09_OK")
 	quit(0 if failures.is_empty() else 1)
@@ -78,3 +80,21 @@ func _capture(label: String) -> void:
 	var image := root.get_texture().get_image()
 	if image == null or image.is_empty() or image.save_png(artifact_dir.path_join(label + ".png")) != OK:
 		_check(false, "Cannot capture " + label)
+
+# AV-H2-A native resource evidence. Stateful displays remain a separate checkpoint.
+func _scored() -> Dictionary:
+	for tick in ROLL_FRAMES * 3:
+		if lab.state in ["scoring","frame_done"]:
+			var glyph: Control = lab.motion.abilities.glyph
+			if glyph.style != null and glyph.age < glyph.style.duration:
+				var id: String = glyph.style.item_id
+				if id in ["charm.trophy_case","charm.corner_pockets","charm.late_rally"]:
+					var key := id + "_" + str(glyph.details.get("phase",""))
+					if not art_captures.has(key):
+						art_captures[key] = true
+						_check(glyph.still,"H2-A cue follows reduced motion")
+						await _capture(key.replace(".","_") + "_cue")
+		if lab.state == "frame_done": return lab.scored_frames[-1]
+		await process_frame
+	_check(false,"H2-A native explanation timeout")
+	return lab.scored_frames[-1]

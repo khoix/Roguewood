@@ -609,3 +609,24 @@ projection supplies trigger phase/count/amount; no rules are changed. Static
 reduced-motion poses and shared mixer controls reused. J03C08 captures native
 cues and checks open/strike conditions, after-bank income, standing count and
 silent skipped/muted presentation fixtures. No subjective listening claim.
+
+## AV-H2-A — resource checkpoint
+
+Original generated Trophy Case, Corner Pockets and Late Rally identities, no
+external references. Exact prompt: docs/art/briefs/AV-H2-A-prompt.txt.
+Unchanged source: assets/items/d08/source.AV-H2-A.png, SHA-256
+823276bc66584d605aeaa7a4952c4e358f8beda7ff0179e562be36db0f341523.
+Atlas cells: 724px squares at x=0/724/1448. Existing uncommon Opening Act frame
+reused. JAVH2AC captures 180px/48px identity views.
+
+Original deterministic PCM, no recordings or external samples, peak 0.48:
+- `python3 tools/author_foley.py sound.charm.trophy_case metal 1040 0.30`
+- `python3 tools/author_foley.py sound.charm.corner_pockets wood 560 0.22`
+- `python3 tools/author_foley.py sound.charm.late_rally metal 1680 0.26`
+
+Activation resources use existing growth/isolate/clock geometry and the new
+identities. Existing resolver adapter and bounded mixer consume them; reduced
+motion is static. J03C09 records native cue history and captures. This is not a
+claim that the saved trophy-card count, corner-position overlays or conditional
+score/half-target display are finished. Both flags remain false. No subjective
+listening or mobile validation claim; no screenshots committed.
