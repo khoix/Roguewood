@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-11-03. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Wave 8 is closed (see "Wave 8 closed") and awaits the owner's merge. The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
+Updated: 2026-11-03. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
 
 ## Read first
 
@@ -38,7 +38,7 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - Wave 4 MERGED to main by PR #15 (CI 40760480791 PASS on `e72051b`): Claude E18-C03 and E17-D04; Codex E17-D03-ART, E19-A16 and E20-V08. 
 - Wave 5 MERGED to main by PR #16 (CI PASS on `bebb702`, which also raised the CI job limit to 90 minutes): Claude E18-C04 and E17-L01; Codex AV-C03 and E17-D04-ART.
 - Wave 6 MERGED to main by PR #17 (main `1f8a304`; CI PASS on `f5192eb`): Claude E18-C05…C07; Codex AV-C04 and E22-L01-ART. 
-- Wave 7 MERGED to main by PR #18 (main `48ea9e3`; CI PASS on `ed8173a`): Claude DC-H1…H3 (E18-C08…C10); Codex E21-R03/R04, AV-C06 and AV-C07. **Wave 8 is closed** (see "Wave 8 closed"); its PR to main awaits the owner's merge. Wave 9 claims are committed after that merge (planned: docs/ROADMAP.md, including E26-W01 Web export).
+- Wave 7 MERGED to main by PR #18 (main `48ea9e3`; CI PASS on `ed8173a`): Claude DC-H1…H3 (E18-C08…C10); Codex E21-R03/R04, AV-C06 and AV-C07. Wave 8 MERGED to main by PR #19 (main `f444488`; CI PASS on `ee7e9e6`). Wave 9 claims are committed after that merge (planned: docs/ROADMAP.md, including E26-W01 Web export).
 - **Roadmap (2026-10-28):** docs/ROADMAP.md maps every remaining milestone to phases (one per League group) and waves, with ownership, the content split per League and the owner's decisions. Waves 5–8 complete the House League.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
@@ -196,7 +196,7 @@ The E13-S01 presentation batches (E19-A01…A07, E20-V01…V07, E21-R01/R02) wer
   - Codex: AV-H1-A (`c5fd29b`), AV-H1-B (`180f1d9`), AV-H2-A (`96d5e22`), AV-H2-B (`5e7d31f`): identity art, activation, sound and both flags for the twelve E17-D07/D08 Charms, with native cue checks added to J03C08/J03C09 and contact journeys JAVH1AC, JAVH1BC, JAVH2AC, JAVH2BC (art shard). Fast-forwarded by the coordinator; docs/handoffs/WAVE8-CODEX.md indexes them.
 - **Validation:** the full CI command list (144 units, every journey headless and rendered, both shards) PASS locally on the merged tree `ef466a4`. J22L01's injected failure exits 1. CI runs on this commit.
 - **Owner decision (2026-11-03):** Roguewood becomes a web app. E26-W01 (Web export) joins Wave 9; see docs/ROADMAP.md, "Web target".
-- **Merge:** pending the owner's merge of the PR to main.
+- **Merge:** MERGED to main by PR #19 (`f444488`) after CI passed on `ee7e9e6` (game 23 min, art 42 min).
 
 ## Wave 8 progress (coordinator)
 - **Claude, all DONE** on `claude/roguewood-build`:
