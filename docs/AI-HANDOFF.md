@@ -38,7 +38,7 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - Wave 4 MERGED to main by PR #15 (CI 40760480791 PASS on `e72051b`): Claude E18-C03 and E17-D04; Codex E17-D03-ART, E19-A16 and E20-V08. 
 - Wave 5 MERGED to main by PR #16 (CI PASS on `bebb702`, which also raised the CI job limit to 90 minutes): Claude E18-C04 and E17-L01; Codex AV-C03 and E17-D04-ART.
 - Wave 6 MERGED to main by PR #17 (main `1f8a304`; CI PASS on `f5192eb`): Claude E18-C05…C07; Codex AV-C04 and E22-L01-ART. 
-- Wave 7 MERGED to main by PR #18 (main `48ea9e3`; CI PASS on `ed8173a`): Claude DC-H1…H3 (E18-C08…C10); Codex E21-R03/R04, AV-C06 and AV-C07. Wave 8 MERGED to main by PR #19 (main `f444488`; CI PASS on `ee7e9e6`). Wave 9 claims are committed after that merge (planned: docs/ROADMAP.md, including E26-W01 Web export).
+- Wave 7 MERGED to main by PR #18 (main `48ea9e3`; CI PASS on `ed8173a`): Claude DC-H1…H3 (E18-C08…C10); Codex E21-R03/R04, AV-C06 and AV-C07. Wave 8 MERGED to main by PR #19 (main `f444488`; CI PASS on `ee7e9e6`). Wave 9 is planned but not yet claimed (docs/ROADMAP.md): the held-ball throw E05-R1a/R1b and E26-W01 Web export for Claude, AV-H3/H4 for Codex; Neon (E17-L02) moves to Wave 10 (owner, 2026-11-03).
 - **Roadmap (2026-10-28):** docs/ROADMAP.md maps every remaining milestone to phases (one per League group) and waves, with ownership, the content split per League and the owner's decisions. Waves 5–8 complete the House League.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 

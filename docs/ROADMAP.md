@@ -70,15 +70,15 @@ The full release is 270 definitions plus 6 League specs (design §15–§16). Th
 - **Unlocks:** each League spec assigns its items to initial, boss, championship and mastery unlocks. Across all bundles they must meet the design's availability targets (12/24 balls, 16/32 pins and 60/100 Charms available at the start). `qa.py content` checks the graph.
 
 ## Phases
-Estimated sessions: Claude about 75, Codex about 97. At 3 and 4 sessions per wave, that is about **26 waves (Waves 5–30)**. Codex's work on each League trails Claude's by about one wave.
+Estimated sessions: Claude about 75, Codex about 97. At 3 and 4 sessions per wave, that is about **27 waves (Waves 5–31)**, including the Wave 9 throw rework (E05-R1) that moved every later wave back by one. Codex's work on each League trails Claude's by about one wave.
 
 | Phase | Waves (est.) | Claude | Codex | Exit test |
 |---|---|---|---|---|
 | **1. House League complete** | 5–8 (Codex to 9) | 8 modifications; House spec and the 20-rival roster; House rules and lane conditions; tactical-card primitives; shop-upgrade system; 4 item batches; House integration | C03 effects and flags; D04 briefs; AV for every House item; House rivals R03–R04; House theme art | 8-Division House League playable end to end with final art and effects for all its content; full-League journey passes |
-| **2. Neon and Salvage** | 9–15 (Codex to 16) | Per League: spec; rules and lanes; primitives; 5–6 item batches; integration | Per League: AV batches; 3 rivals; theme art | All three starting Leagues playable and winnable with their initial content |
-| **3. Royal, Spectral, Foundry** | 16–26 (Codex to 27) | The same template; branch unlocks (win House → Royal, Neon → Spectral, Salvage → Foundry); remaining D01/D04 primitives (phasing, splitting, mass) | The same template | Six Leagues; every planned definition implemented, illustrated and animated |
-| **4. Progression and onboarding** | 26–27 (Codex 28) | E23: difficulty tiers, medals, endless with large-score handling, remaining kit work; E25 core: tutorial, alternate controls, safe areas, J14 | E25-ART symbols and reduced effects; medal, kit and cosmetic art | J13 and J14 pass; every kit starts legally |
-| **5. Balance and release** | 28–30 | E24 balance (Extra High, 2–3 sessions); E27 content audit; E26 platform builds (one per platform, needs hardware); E28 release candidate; E29 delivery | E27 asset audit; fixes from E26 and E28 | E28's full matrix on the frozen candidate, then delivery |
+| **2. Neon and Salvage** | 10–16 (Codex to 17) | Per League: spec; rules and lanes; primitives; 5–6 item batches; integration | Per League: AV batches; 3 rivals; theme art | All three starting Leagues playable and winnable with their initial content |
+| **3. Royal, Spectral, Foundry** | 17–27 (Codex to 28) | The same template; branch unlocks (win House → Royal, Neon → Spectral, Salvage → Foundry); remaining D01/D04 primitives (phasing, splitting, mass) | The same template | Six Leagues; every planned definition implemented, illustrated and animated |
+| **4. Progression and onboarding** | 27–28 (Codex 29) | E23: difficulty tiers, medals, endless with large-score handling, remaining kit work; E25 core: tutorial, alternate controls, safe areas, J14 | E25-ART symbols and reduced effects; medal, kit and cosmetic art | J13 and J14 pass; every kit starts legally |
+| **5. Balance and release** | 29–31 | E24 balance (Extra High, 2–3 sessions); E27 content audit; E26 platform builds (one per platform, needs hardware); E28 release candidate; E29 delivery | E27 asset audit; fixes from E26 and E28 | E28's full matrix on the frozen candidate, then delivery |
 
 ### Phase 1 waves (concrete)
 | Wave | Claude | Codex |
@@ -87,7 +87,8 @@ Estimated sessions: Claude about 75, Codex about 97. At 3 and 4 sessions per wav
 | **6** | E18-C05: House Rules plus the new House rule, and lane conditions as catalogue items (High). E18-C06: tactical-card primitives, landing Nudge, Reserve Call, Rule Waiver (High). E18-C07: shop-upgrade system and 6 upgrades (High). | AV-C04: the 8 modifications (3 sessions). E22-L01-ART: House theme for 8 Divisions (High). |
 | **7** | DC-H1 to DC-H3: 18 House items (3 sessions, Medium). | E21-R03, R04: House's new rivals with their rule badges. AV-C06: the 3 tactical cards. AV-C07: the 6 upgrades (2 sessions). |
 | **8** | DC-H4: the last 5 House items. E22-L01: House League integration and its full-League journey (High). | AV-H1, AV-H2: the first 12 House items (4 sessions). |
-| 9 (Phase 2 starts) | E17-L02: Neon spec; Neon rules and lanes. E26-W01: Web export (High; owner-approved 2026-11-03). | AV-H3, AV-H4: the last 11 House items. |
+| **9** | E05-R1a and E05-R1b: the held-ball throw (2 sessions, High; owner-approved 2026-11-03). E26-W01: Web export (High; owner-approved 2026-11-03). | AV-H3, AV-H4: the last 11 House items. |
+| 10 (Phase 2 starts) | E17-L02: Neon spec; Neon rules and lanes. | AV-T01: throw charge and sparkle effects and sounds; then Neon rivals (League template wave b). |
 
 ### League template (Phases 2 and 3)
 | Wave | Claude | Codex |
@@ -103,6 +104,17 @@ Estimated sessions: Claude about 75, Codex about 97. At 3 and 4 sessions per wav
 | After Wave 8 | Play the full House League (desktop is enough) and decide the equipment model (ADR 004: deck or direct). | Phase 2 multiplies tactical cards and deck items. Changing the model later means reworking them. |
 | By the end of Phase 2 | Provide phone hardware (and an iOS toolchain if iOS stays a target), or decide that desktop evidence is acceptable for now. | Real-phone feel (E05), readability (E12), the play session (E13) and all of E26 are blocked without it. Finding feel problems before four more Leagues of content is much cheaper. |
 | Phase 5 | Human playtests to corroborate the balance study. | E24 may not present simulation alone as proof of fun. |
+
+### Throw rework: the held ball (owner decision, 2026-11-03)
+The E05 gesture counts path turning abstractly and locks the ball once circling starts, so it reads as drawing a circle rather than handling a ball. The owner approved a held-ball model, built before Neon:
+- **Model:** while held, the ball follows the finger on a spring (slight lag, overshoot, lean). Spin charges from how sharply the ball's path turns, scaled by its speed (brisk circles about 1.5 loops to full, lazy circles slower). Reversing bleeds spin off first. The spin persists while held and fades slowly (starting half-life about 2.5 s), and the ball's visible rotation matches it. The release point sets the start position.
+- **Approved design changes** (they amend design §5 and ADR 003; ADR 011 records them):
+  - The release direction and power come from the held ball's velocity over the last 80–120 ms, so letting go mid-circle flings along that motion, within the existing ±60° forward limit; slow or backward releases still cancel safely.
+  - Below the curve threshold (spin 0.25, where the sparkles start), a throw is exactly straight: no sparkle, no curve.
+- **Feedback:** sparkles, a sound and a vibration at the threshold, stronger at full charge; a lab-only tuning panel for charge rate, fade, spring and thresholds, for tuning on a phone through the web build.
+- **Unchanged:** the launch contract (start_x, angle, power, spin), physics, scoring, saves, the ring, assist controls and reduced motion. Most journeys throw through the assist controls; only the input unit tests, J01/J02, J08 and the slice journey drive gestures.
+- **Claims:** E05-R1a (Claude, High): the input model, unit tests, ADR 011. E05-R1b (Claude, High): lab presentation, vibration and sound hooks, trial-log fields, the tuning panel, J01/J02/J08/slice journeys. AV-T01 (Codex, Medium, Wave 10): charge and sparkle effects in two levels with a reduced-motion version, and the charge and full-charge sounds. A hold-to-spin accessibility option is proposed for E25.
+- **Owner gate:** play it on a phone through the hosted web build (E26-W01), then tune with the panel.
 
 ### Web target (owner decision, 2026-11-03)
 The owner wants Roguewood playable as a web app. It stays a Godot project; a Web export is added rather than a rewrite.

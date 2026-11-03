@@ -192,6 +192,12 @@ Handoff: update docs/handoffs/<task-id>.md with scope, changes, decisions, comma
 Completion: inspect git status/diff; commit intended work; push assigned branch; verify remote SHA and clean working tree. Record evidence SHA without pretending a file can contain its own containing commit hash. If blocked, persist safe work and status honestly. Stop; do not start another execution.
 ```
 
+#### E05-R1 — Held-ball throw (child of E05; owner-approved 2026-11-03)
+Two Claude sessions at High effort in Wave 9, before Neon; Codex art follows as AV-T01. Scope, approved design changes and validation are in docs/ROADMAP.md ("Throw rework: the held ball").
+- **E05-R1a:** held-ball input model replacing the path-turn spin count; unit tests; ADR 011, which amends design §5 and ADR 003 (the release follows the held ball's velocity, and below the curve threshold a throw is straight).
+- **E05-R1b:** lab presentation (spring follow, lean, rotation matching charge, sparkle states, vibration and sound hooks), trial-log fields, a lab-only tuning panel; J01/J02, J08 and the slice journey drive the new gesture with real input events.
+- **Gate:** real-phone feel through the hosted web build (E26-W01); tuned values replace the provisional ones.
+
 ### E06 — Frame scoring and readable resolution
 
 ```text
