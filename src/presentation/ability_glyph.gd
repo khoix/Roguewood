@@ -25,6 +25,7 @@ func _draw() -> void:
 	var c := size * 0.5
 	var t: float = 0.5 if still else clampf(age / style.duration,0,1)
 	var ink: Color = style.ink
+	if _draw_house_final(c,t,ink): return
 	if _draw_house_b(c,t,ink): return
 	if identity: draw_texture_rect(identity,Rect2(c - Vector2(18,18),Vector2(36,36)),false)
 	if style.item_id == "charm.wood_grain":
@@ -362,3 +363,20 @@ func _pin_body() -> StyleBoxFlat:
 	body.bg_color = Color("fff0cf")
 	body.set_corner_radius_all(4)
 	return body
+
+func _draw_house_final(c: Vector2, t: float, ink: Color) -> bool:
+	match style.item_id:
+		"charm.clean_pickup":
+			if identity: draw_texture_rect(identity,Rect2(c+Vector2(-20+8*t,-24),Vector2(40,40)),false)
+			if not details.get("curved",true):
+				for i in mini(int(details.get("roll_count",0)),2):
+					var y := 21+i*6
+					draw_line(c+Vector2(-24,y),c+Vector2(24,y),ink,2)
+					draw_line(c+Vector2(19,y-3),c+Vector2(24,y),ink,2)
+		"charm.house_special":
+			if identity: draw_texture_rect(identity,Rect2(c-Vector2(27,27),Vector2(54,54)),false)
+			if details.get("all_house",false):
+				var ball: Texture2D = preload("res://src/presentation/item_assets.gd").slot("ball.house","icon")
+				if ball: draw_texture_rect(ball,Rect2(c-Vector2(12,10),Vector2(24,24)),false)
+		_: return false
+	return true

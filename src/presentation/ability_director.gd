@@ -179,14 +179,23 @@ func _world_cue(id: String, event: String, point: Vector2) -> void:
 ## Highlight actual counted slots without replacing the rack's roll colours,
 ## position labels or standing outlines. The resolver-owned count stays on the cue.
 func counted_rack_positions() -> Array:
-	if not glyph.enabled or glyph.style == null or glyph.style.item_id not in ["charm.corner_pockets","charm.head_pin","charm.back_row","pin_mod.keystone","pin_mod.lantern","ball_mod.echo_charge"] or glyph.age >= glyph.style.duration: return []
+	if not glyph.enabled or glyph.style == null or glyph.style.item_id not in ["charm.front_line","charm.corner_pockets","charm.head_pin","charm.back_row","pin_mod.keystone","pin_mod.lantern","ball_mod.echo_charge"] or glyph.age >= glyph.style.duration: return []
 	return glyph.details.get("positions",[]).duplicate()
 func _draw_counted_rack() -> void:
 	var view: Control = lab.score_panel.rack_view
 	var lane = preload("res://src/simulation/lane_spec.gd")
-	for position in counted_rack_positions():
+	var counted := counted_rack_positions()
+	var front: bool = glyph.style != null and glyph.style.item_id == "charm.front_line" and not counted.is_empty()
+	for position in ([1,2,3] if front else counted):
 		var at: Vector2 = lane.spot(position)
 		var center := Vector2(view.size.x*0.5+at.x/lane.PIN_SPACING*44.0,view.size.y-44.0-(at.y-lane.HEAD_PIN_F)/lane.ROW_SPACING*36.0)
+		if front:
+			var flat: float = (1.0 if glyph.still else clampf(glyph.age/glyph.style.duration*3,0,1)) if position in counted else 0.0
+			var shape := PackedVector2Array()
+			for point in [Vector2(-19,-19),Vector2(19,-19),Vector2(19,9),Vector2(0,26),Vector2(-19,9),Vector2(-19,-19)]:
+				shape.append(center+Vector2(point.x,point.y*(1-flat*0.8)+flat*22))
+			view.draw_polyline(shape,Color("e8d69c"),2,true)
+			continue
 		if glyph.style.item_id == "charm.corner_pockets":
 			view.draw_arc(center,25,0,TAU,24,Color("102f30"),8,true)
 			view.draw_arc(center,27,0,TAU,24,Color("e8d69c"),2,true)

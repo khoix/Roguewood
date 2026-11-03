@@ -93,6 +93,19 @@ func _run() -> void:
 		var fixture := {"charms":[{"item_id":"charm.corner_pockets"}],"rolls":[{"fallen_positions":positions}]}
 		var cues: Array = projection.project(fixture,{"source":"charm:1","phase":"charm","op":"add_value","amount":25,"count":positions.size()})
 		_check(cues[0].positions == positions,"corner projection zero/one/two positions")
+	for id in ["charm.clean_pickup","charm.house_special","charm.front_line"]:
+		_check(art_captures.has(id),"H2-B native cue captured: " + id)
+		var heard_b: int = lab.motion.sound.played
+		lab.motion.abilities.cue(id,"skip_fixture",true)
+		_check(lab.motion.sound.played == heard_b,"H2-B skip silent")
+		lab.motion.sound.muted = true
+		lab.motion.abilities.cue(id,"mute_fixture",false)
+		_check(lab.motion.sound.played == heard_b,"H2-B mute silent")
+		lab.motion.sound.muted = false
+	for positions in [[],[1],[1,3],[1,2,3]]:
+		var fixture := {"charms":[{"item_id":"charm.front_line"}],"rolls":[{"fallen_positions":positions}]}
+		var cues: Array = projection.project(fixture,{"source":"charm:1","phase":"charm","op":"add_mult","amount":2,"count":positions.size()})
+		_check(cues[0].positions == positions,"front shield projection 0/1/2/3")
 	var bank_before: int = lab.total_score
 	for id in ["charm.trophy_case","charm.corner_pockets","charm.late_rally"]:
 		var heard: int = lab.motion.sound.played
@@ -136,7 +149,26 @@ func _scored() -> Dictionary:
 						if id == "charm.trophy_case" and glyph.details.phase == "after_bank":
 							_check(lab.motion.house_counts.landed,"trophy cue only after growth row")
 						await _capture(key.replace(".","_") + "_cue")
+		await _capture_h2b()
 		if lab.state == "frame_done": return lab.scored_frames[-1]
 		await process_frame
 	_check(false,"H2-A native explanation timeout")
 	return lab.scored_frames[-1]
+
+func _capture_h2b() -> void:
+	if lab.state not in ["scoring","frame_done"]: return
+	var glyph: Control = lab.motion.abilities.glyph
+	if glyph.style == null or glyph.age >= glyph.style.duration: return
+	var id: String = glyph.style.item_id
+	if id not in ["charm.clean_pickup","charm.house_special","charm.front_line"] or art_captures.has(id): return
+	art_captures[id] = true
+	var scored: Dictionary = lab.scored_frames[-1]
+	_check(glyph.still,"H2-B reduced cue is static")
+	if id == "charm.clean_pickup":
+		_check(scored.result.category == "spare" and not glyph.details.curved and glyph.details.roll_count == 2,"dustpan marks two straight rolls")
+	if id == "charm.house_special":
+		_check(scored.result.category == "strike" and glyph.details.all_house and scored.frame.rolls.all(func(r): return r.ball_id == "ball.house"),"chalkboard identifies all-House strike")
+	if id == "charm.front_line":
+		var expected := [1,2,3].filter(func(p): return scored.frame.rolls.any(func(r): return p in r.fallen_positions))
+		_check(lab.motion.abilities.counted_rack_positions() == expected and int(glyph.details.count) == expected.size(),"shields match counted front positions")
+	await _capture(id.replace(".","_")+"_cue")

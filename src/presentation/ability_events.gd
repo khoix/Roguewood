@@ -37,6 +37,12 @@ static func project(frame: Dictionary, event: Dictionary, facts: Dictionary = {}
 			out[-1]["last_fallen"] = int(facts.get("last_fallen",0))
 			out[-1]["leave"] = int(facts.get("leave",0))
 			out[-1]["position"] = int(source.get_slice(":",1)) if id == "pin.crown" else int(facts.get("last_fallen",0))
+		if id == "charm.front_line":
+			out[-1]["positions"] = [1,2,3].filter(func(p): return frame.get("rolls",[]).any(func(r): return p in r.fallen_positions))
+		if id in ["charm.clean_pickup","charm.house_special"]:
+			out[-1]["curved"] = frame.get("rolls",[]).any(func(r): return bool(r.get("curved",false)))
+			out[-1]["all_house"] = frame.get("rolls",[]).all(func(r): return r.ball_id == "ball.house")
+			out[-1]["roll_count"] = frame.get("rolls",[]).size()
 		if id == "charm.corner_pockets":
 			out[-1]["positions"] = [7,10].filter(func(p): return frame.get("rolls",[]).any(func(r): return p in r.fallen_positions))
 		if id == "charm.head_pin":

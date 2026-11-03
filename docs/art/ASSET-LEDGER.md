@@ -642,3 +642,24 @@ ON/off text. Corner Pockets projects counted rack positions and draws dark pocke
 rims around their existing numbered circles. All state is read-only. The new
 cup cue falls into place at the resolver's growth event and is static in reduced
 motion. No rule, economy, persistence or theme-binding changes.
+
+## AV-H2-B — Clean Pickup, House Special, Front Line
+
+Original generated identities without external references. Prompt:
+docs/art/briefs/AV-H2-B-prompt.txt. Unchanged source:
+assets/items/d08/source.AV-H2-B.png, SHA-256
+3d42eb0728679baaf64da5c7c4fbb1d222a3c94942931d47f39cfca111ab0a1b.
+724px atlas cells at x=0/724/1448. Existing uncommon/common Charm frames reused.
+JAVH2BC captures the 180px/48px contact.
+
+Original deterministic PCM, no external samples/recordings, peak 0.48:
+- `python3 tools/author_foley.py sound.charm.clean_pickup swish 580 0.30`
+- `python3 tools/author_foley.py sound.charm.house_special wood 820 0.26`
+- `python3 tools/author_foley.py sound.charm.front_line metal 440 0.30`
+
+Original presentation geometry: straight per-roll dustpan trails; chalkboard
+with exact existing ball.house icon; three native rack shields flattening only
+at counted positions. Conditions/counts come from resolver facts and frame rolls.
+Shared mixer/reduced motion/flash controls reused. J03C09 captures real cues and
+checks straight spare/all-House strike/count positions plus silent skip/mute.
+No subjective audio listening or phone gate claimed. No screenshots committed.

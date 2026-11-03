@@ -3657,20 +3657,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d08/icon.charm.clean_pickup.tres",
+        "card": "res://assets/items/d08/card.charm.clean_pickup.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d08/rarity_treatment.charm.clean_pickup.tres",
+        "activation": "res://assets/effects/activation.charm.clean_pickup.tres",
+        "sound": "res://assets/audio/sound.charm.clean_pickup.wav",
+        "reduced_motion": "res://assets/items/d08/reduced_motion.charm.clean_pickup.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -3717,20 +3717,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d08/icon.charm.house_special.tres",
+        "card": "res://assets/items/d08/card.charm.house_special.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d08/rarity_treatment.charm.house_special.tres",
+        "activation": "res://assets/effects/activation.charm.house_special.tres",
+        "sound": "res://assets/audio/sound.charm.house_special.wav",
+        "reduced_motion": "res://assets/items/d08/reduced_motion.charm.house_special.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -3770,20 +3770,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d08/icon.charm.front_line.tres",
+        "card": "res://assets/items/d08/card.charm.front_line.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d08/rarity_treatment.charm.front_line.tres",
+        "activation": "res://assets/effects/activation.charm.front_line.tres",
+        "sound": "res://assets/audio/sound.charm.front_line.wav",
+        "reduced_motion": "res://assets/items/d08/reduced_motion.charm.front_line.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
