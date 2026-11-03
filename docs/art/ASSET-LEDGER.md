@@ -630,3 +630,15 @@ motion is static. J03C09 records native cue history and captures. This is not a
 claim that the saved trophy-card count, corner-position overlays or conditional
 score/half-target display are finished. Both flags remain false. No subjective
 listening or mobile validation claim; no screenshots committed.
+
+### AV-H2-A stateful cards and rack treatment
+
+Original presentation geometry in house_count_cards.gd and trophy_marks.gd:
+small glass display with bounded cup marks and an explicit saved trophy count;
+pre-bank snapshot during scoring, revealing growth only at its after-bank row;
+separate saved count card in the shop. Restored ownership does not replay growth.
+Late Rally shows pre-bank score / half target with a lit/dim identity and explicit
+ON/off text. Corner Pockets projects counted rack positions and draws dark pocket
+rims around their existing numbered circles. All state is read-only. The new
+cup cue falls into place at the resolver's growth event and is static in reduced
+motion. No rule, economy, persistence or theme-binding changes.

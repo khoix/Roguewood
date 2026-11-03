@@ -34,6 +34,14 @@ func _draw() -> void:
 			var y := -27.0 + j*6
 			draw_polyline(PackedVector2Array([c+Vector2(-28,y),c+Vector2(-23,y-2),c+Vector2(-19,y)]),ink,2)
 		return
+	if style.item_id == "charm.trophy_case" and details.get("phase","") == "after_bank":
+		var at := c+Vector2(0,-28+12*t)
+		draw_colored_polygon(PackedVector2Array([at+Vector2(-6,0),at+Vector2(6,0),at+Vector2(3,7),at+Vector2(-3,7)]),ink)
+		draw_arc(at+Vector2(-6,2),3,0,PI,8,ink,2)
+		draw_arc(at+Vector2(6,2),3,0,PI,8,ink,2)
+		draw_line(at+Vector2(0,7),at+Vector2(0,11),ink,2)
+		draw_line(at+Vector2(-4,12),at+Vector2(4,12),ink,2)
+		return
 	if _draw_c04(c,t,ink): return
 	if _draw_c03(c,t,ink): return
 	if _draw_v08(c,t,ink): return

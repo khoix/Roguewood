@@ -5,6 +5,7 @@ var lab: Control
 var equipment_art: HBoxContainer
 var sound: Node
 var abilities: Node
+var house_counts: Node
 var modifications: Node
 var tacticals: Control
 var upgrades: Node
@@ -64,6 +65,9 @@ func _ready() -> void:
 	upgrades = preload("res://src/presentation/upgrade_art.gd").new()
 	upgrades.lab = lab
 	add_child(upgrades)
+	house_counts = preload("res://src/presentation/house_count_cards.gd").new()
+	house_counts.lab = lab
+	add_child(house_counts)
 
 ## Legacy lab fixture only. Production rivals use the E21 manifest and HUD portraits.
 const PORTRAITS := ["rival.lab_custodian"]

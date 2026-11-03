@@ -45,14 +45,30 @@ func _run() -> void:
 	await _leave_shop()
 	var open := await _house_frame([LEAVE, GUTTER], "feature frame 1")
 	_check(open.result.category == "open" and not _logged("Late Rally") and not open.match_over, "frame 1: Late Rally stays silent; the match goes on")
+	await process_frame
+	_check(not lab.motion.house_counts.rally_lit and lab.motion.house_counts.trophy_count == 0,"frame one stays dim and has no trophy")
+	await _capture("c09_first_frame")
 	await _focus_accept(lab.next_rack)
 	_check(lab.division.match_score * 2 < lab.division.target(), "behind going into frame 2 (%d of %d)" % [lab.division.match_score, lab.division.target()])
 	var strike := await _house_frame([STRIKE], "feature frame 2")
 	_check(strike.result.category == "strike" and _logged("Late Rally") and _logged("House Special") and _logged("Corner Pockets") and strike.match_won,
 		"frame 2: Late Rally, House Special and Corner Pockets apply to a House Ball strike, which wins the feature")
 	_check(int(lab.run.charms.filter(func(e): return e.item_id == "charm.trophy_case")[0].growth) == 1, "Trophy Case earned its first trophy")
+	await process_frame
+	_check(lab.motion.house_counts.trophy_count == 1 and lab.motion.house_counts.landed,"trophy lands after bank")
+	_check(lab.motion.house_counts.rally_lit and lab.motion.house_counts.rally_score == 120 and lab.motion.house_counts.rally_target == 500,"rally retains pre-bank score against half target")
 	await _capture("c09_rally")
 	await _to_shop("feature")
+	await _focus_accept(scene.back)
+	await _wait_for(func(): return scene.screen == "menu" and scene.continue_button.has_focus(),"C09 Continue offered")
+	await _action("ui_accept")
+	await _wait_for(func(): return scene.lab != null and scene.lab.state == "shop","C09 restored shop")
+	lab = scene.lab
+	lab.trial_log_path = ""
+	await process_frame
+	_check(lab.motion.house_counts.shop_text.text.contains("1 trophies"),"saved Trophy Case count restores")
+	_check(not lab.motion.abilities.history.any(func(e): return e.id == "charm.trophy_case"),"restored trophy does not replay growth")
+	await _capture("c09_restored_trophy")
 	var index: int = lab.run.charms.map(func(e): return e.item_id).find("charm.late_rally")
 	await _tap(lab.shop_panel.owned_list.get_node("Sell_charm_%d" % (index + 1)))
 	await process_frame
@@ -66,7 +82,27 @@ func _run() -> void:
 	var spare := await _house_frame([LEAVE, CLEANUP], "Surveyor frame 1")
 	_check(spare.result.category == "spare" and _logged("Clean Pickup") and _logged("Front Line") and _logged("Trophy Case"),
 		"a straight spare: Clean Pickup, Front Line and Trophy Case's trophy apply")
+	await process_frame
+	_check(lab.motion.house_counts.trophy_count == 1 and not lab.motion.house_counts.landed,"spare retains one trophy without new growth")
 	await _capture("c09_pickup")
+	var cards_type = preload("res://src/presentation/house_count_cards.gd")
+	for context in [{"match_frame":1,"match_score":0,"match_target":500},{"match_frame":2,"match_score":250,"match_target":500},{"match_frame":2,"match_score":0,"match_target":0}]:
+		_check(not cards_type.eligible(context),"Late Rally negative boundary/Practice")
+	var projection = preload("res://src/presentation/ability_events.gd")
+	for positions in [[],[7],[7,10]]:
+		var fixture := {"charms":[{"item_id":"charm.corner_pockets"}],"rolls":[{"fallen_positions":positions}]}
+		var cues: Array = projection.project(fixture,{"source":"charm:1","phase":"charm","op":"add_value","amount":25,"count":positions.size()})
+		_check(cues[0].positions == positions,"corner projection zero/one/two positions")
+	var bank_before: int = lab.total_score
+	for id in ["charm.trophy_case","charm.corner_pockets","charm.late_rally"]:
+		var heard: int = lab.motion.sound.played
+		lab.motion.abilities.cue(id,"skip_fixture",true)
+		_check(lab.motion.sound.played == heard,"H2-A skipped cue silent")
+		lab.motion.sound.muted = true
+		lab.motion.abilities.cue(id,"mute_fixture",false)
+		_check(lab.motion.sound.played == heard,"H2-A muted cue silent")
+		lab.motion.sound.muted = false
+	_check(lab.total_score == bank_before,"H2-A presentation does not rebank")
 	for id in ["charm.trophy_case","charm.corner_pockets","charm.late_rally"]:
 		_check(lab.motion.abilities.history.any(func(e): return e.id == id),"H2-A native resolver activation: " + id)
 	if "--inject-failure" in OS.get_cmdline_user_args(): _check(false, "Injected diagnostic failure")
@@ -93,6 +129,12 @@ func _scored() -> Dictionary:
 					if not art_captures.has(key):
 						art_captures[key] = true
 						_check(glyph.still,"H2-A cue follows reduced motion")
+						if id == "charm.corner_pockets":
+							var frame: Dictionary = lab.scored_frames[-1].frame
+							var expected := [7,10].filter(func(p): return frame.rolls.any(func(r): return p in r.fallen_positions))
+							_check(lab.motion.abilities.counted_rack_positions() == expected,"actual counted corner pockets")
+						if id == "charm.trophy_case" and glyph.details.phase == "after_bank":
+							_check(lab.motion.house_counts.landed,"trophy cue only after growth row")
 						await _capture(key.replace(".","_") + "_cue")
 		if lab.state == "frame_done": return lab.scored_frames[-1]
 		await process_frame
