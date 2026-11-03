@@ -87,7 +87,7 @@ Estimated sessions: Claude about 75, Codex about 97. At 3 and 4 sessions per wav
 | **6** | E18-C05: House Rules plus the new House rule, and lane conditions as catalogue items (High). E18-C06: tactical-card primitives, landing Nudge, Reserve Call, Rule Waiver (High). E18-C07: shop-upgrade system and 6 upgrades (High). | AV-C04: the 8 modifications (3 sessions). E22-L01-ART: House theme for 8 Divisions (High). |
 | **7** | DC-H1 to DC-H3: 18 House items (3 sessions, Medium). | E21-R03, R04: House's new rivals with their rule badges. AV-C06: the 3 tactical cards. AV-C07: the 6 upgrades (2 sessions). |
 | **8** | DC-H4: the last 5 House items. E22-L01: House League integration and its full-League journey (High). | AV-H1, AV-H2: the first 12 House items (4 sessions). |
-| 9 (Phase 2 starts) | E17-L02: Neon spec; Neon rules and lanes. | AV-H3, AV-H4: the last 11 House items. |
+| 9 (Phase 2 starts) | E17-L02: Neon spec; Neon rules and lanes. E26-W01: Web export (High; owner-approved 2026-11-03). | AV-H3, AV-H4: the last 11 House items. |
 
 ### League template (Phases 2 and 3)
 | Wave | Claude | Codex |
@@ -103,6 +103,12 @@ Estimated sessions: Claude about 75, Codex about 97. At 3 and 4 sessions per wav
 | After Wave 8 | Play the full House League (desktop is enough) and decide the equipment model (ADR 004: deck or direct). | Phase 2 multiplies tactical cards and deck items. Changing the model later means reworking them. |
 | By the end of Phase 2 | Provide phone hardware (and an iOS toolchain if iOS stays a target), or decide that desktop evidence is acceptable for now. | Real-phone feel (E05), readability (E12), the play session (E13) and all of E26 are blocked without it. Finding feel problems before four more Leagues of content is much cheaper. |
 | Phase 5 | Human playtests to corroborate the balance study. | E24 may not present simulation alone as proof of fun. |
+
+### Web target (owner decision, 2026-11-03)
+The owner wants Roguewood playable as a web app. It stays a Godot project; a Web export is added rather than a rewrite.
+- **E26-W01** (Claude, Wave 9, High): Web export preset and templates in CI; a single-threaded build (no SharedArrayBuffer, so no COOP/COEP headers needed) checked with Jolt; saves in IndexedDB with J07's atomic-write and backup guarantees re-checked; a tap-to-start audio gate; mouse and touch in desktop and phone browsers; load size and frame rate measured; a headless-Chromium browser journey (load, throw, score, save, reload) in CI; a hosted preview.
+- Native physics digests may differ under WebAssembly; a web-specific baseline is allowed, gameplay results are not.
+- Open owner decision: whether web replaces the phone builds as the primary platform or ships alongside them. Until then E26 keeps its phone children and the web build is added to it.
 
 ## Risks to watch
 - **Throughput:** Waves 1–4 held 2 Claude claims each, and between 3 and 17 Codex batch claims. This plan raises Claude to 3 claims per wave; at 2 per wave Claude's lane alone would run to about Wave 40. If a phase runs long, re-plan the wave numbers at its end; batch limits are never raised to compensate.
