@@ -169,6 +169,8 @@ jobs:
           xvfb-run -a python3 tools/qa.py e2e --journey JAVC07BC --rendered
           python3 tools/qa.py e2e --journey JAVH1AC
           xvfb-run -a python3 tools/qa.py e2e --journey JAVH1AC --rendered
+          python3 tools/qa.py e2e --journey JAVH1BC
+          xvfb-run -a python3 tools/qa.py e2e --journey JAVH1BC --rendered
       - name: Wave 2 Clubhouse and authored D01 art previews
         if: matrix.shard == 'art'
         run: |
@@ -283,6 +285,7 @@ jobs:
             artifacts/av-c07-a/
             artifacts/av-c07-b/
             artifacts/av-h1-a/
+            artifacts/av-h1-b/
             artifacts/e18-c07/
             artifacts/e18-c08/
             artifacts/e18-c09/

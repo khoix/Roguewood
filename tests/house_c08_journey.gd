@@ -71,6 +71,15 @@ func _run() -> void:
 	var standing: int = 10 - holdouts.frame.rolls.reduce(func(n, r): return n + r.fallen_positions.size(), 0)
 	_check(holdouts.result.category == "open" and standing > 0 and _logged("Holdouts"), "Holdouts adds Value for %d standing pins" % standing)
 	await _capture("c08_holdouts")
+	for id in ["charm.open_house","charm.strike_fund","charm.holdouts"]:
+		_check(art_captures.has(id), "native cue captured: " + id)
+		var heard_b: int = lab.motion.sound.played
+		lab.motion.abilities.cue(id,"skip_fixture",true)
+		_check(lab.motion.sound.played == heard_b,"B skipped cue silent")
+		lab.motion.sound.muted = true
+		lab.motion.abilities.cue(id,"mute_fixture",false)
+		_check(lab.motion.sound.played == heard_b,"B muted cue silent")
+		lab.motion.sound.muted = false
 	var bank_before: int = lab.total_score
 	for id in ["charm.head_pin", "charm.wood_grain", "charm.opening_act"]:
 		var heard: int = lab.motion.sound.played
@@ -164,7 +173,26 @@ func _scored() -> Dictionary:
 							var expected: int = frame.pins.filter(func(p): return p.item_id == "pin.wood" and p.position in down).size()
 							_check(count == expected, "grain count matches fallen Wood Pins")
 						await _capture(key.replace(".","_") + "_cue")
+		await _capture_house_b_cue()
 		if lab.state == "frame_done": return lab.scored_frames[-1]
 		await process_frame
 	_check(false,"native Charm explanation timeout")
 	return lab.scored_frames[-1]
+
+func _capture_house_b_cue() -> void:
+	if lab.state not in ["scoring","frame_done"]: return
+	var glyph: Control = lab.motion.abilities.glyph
+	if glyph.style == null or glyph.age >= glyph.style.duration: return
+	var id: String = glyph.style.item_id
+	if id not in ["charm.open_house","charm.strike_fund","charm.holdouts"] or art_captures.has(id): return
+	art_captures[id] = true
+	var scored: Dictionary = lab.scored_frames[-1]
+	_check(glyph.still,"B cue is static with reduced motion")
+	if id == "charm.open_house": _check(scored.result.category == "open","door only opens on open frame")
+	if id == "charm.strike_fund":
+		_check(scored.result.category == "strike" and glyph.details.phase == "after_bank" and int(glyph.details.amount) == 1,"one coin on strike income after bank")
+	if id == "charm.holdouts":
+		var fallen: Array = []
+		for roll in scored.frame.rolls: fallen.append_array(roll.fallen_positions)
+		_check(int(glyph.details.count) == 10-fallen.size(),"one folded-arm figure per standing pin")
+	await _capture(id.replace(".","_")+"_cue")

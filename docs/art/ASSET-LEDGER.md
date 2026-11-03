@@ -588,3 +588,24 @@ ten- and seven-count Wood Grain marks, and Opening Act's lit/dim marquee.
 Assertions compare counts to fallen Wood Pins and test silent skip/mute adapter
 paths without rebanking. The three artwork/effects_audio flags are enabled only
 after successful native headless/rendered verification. Handoff: AV-H1-A.md.
+
+## AV-H1-B — Open House, Strike Fund, Holdouts
+
+Original generated identities, no external references. Exact prompt:
+`docs/art/briefs/AV-H1-B-prompt.txt`. Unchanged source:
+`assets/items/d07/source.AV-H1-B.png`, SHA-256
+`6c9ab627a9861fda6b9ee7d966466d79ab759d0cf2fede2974a84444d9d393e8`.
+Three 724px atlas cells at x=0/724/1448. Common Charm frame reused from Head Pin.
+JAVH1BC captures card/icon/static identity at 180px/48px.
+
+Original deterministic PCM, no recordings/external samples, peak 0.48:
+- `python3 tools/author_foley.py sound.charm.open_house wood 510 0.28`
+- `python3 tools/author_foley.py sound.charm.strike_fund metal 1320 0.24`
+- `python3 tools/author_foley.py sound.charm.holdouts wood 290 0.30`
+
+Original glyph geometry: hinged door over identity, one falling coin, and one
+folded-arm pin figure per resolver standing count. Existing ability event
+projection supplies trigger phase/count/amount; no rules are changed. Static
+reduced-motion poses and shared mixer controls reused. J03C08 captures native
+cues and checks open/strike conditions, after-bank income, standing count and
+silent skipped/muted presentation fixtures. No subjective listening claim.

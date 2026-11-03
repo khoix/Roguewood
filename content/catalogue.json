@@ -3316,20 +3316,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d07/icon.charm.open_house.tres",
+        "card": "res://assets/items/d07/card.charm.open_house.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d07/rarity_treatment.charm.open_house.tres",
+        "activation": "res://assets/effects/activation.charm.open_house.tres",
+        "sound": "res://assets/audio/sound.charm.open_house.wav",
+        "reduced_motion": "res://assets/items/d07/reduced_motion.charm.open_house.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -3373,20 +3373,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d07/icon.charm.strike_fund.tres",
+        "card": "res://assets/items/d07/card.charm.strike_fund.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d07/rarity_treatment.charm.strike_fund.tres",
+        "activation": "res://assets/effects/activation.charm.strike_fund.tres",
+        "sound": "res://assets/audio/sound.charm.strike_fund.wav",
+        "reduced_motion": "res://assets/items/d07/reduced_motion.charm.strike_fund.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -3426,20 +3426,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d07/icon.charm.holdouts.tres",
+        "card": "res://assets/items/d07/card.charm.holdouts.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d07/rarity_treatment.charm.holdouts.tres",
+        "activation": "res://assets/effects/activation.charm.holdouts.tres",
+        "sound": "res://assets/audio/sound.charm.holdouts.wav",
+        "reduced_motion": "res://assets/items/d07/reduced_motion.charm.holdouts.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
