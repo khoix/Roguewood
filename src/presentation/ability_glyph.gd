@@ -25,7 +25,24 @@ func _draw() -> void:
 	var c := size * 0.5
 	var t: float = 0.5 if still else clampf(age / style.duration,0,1)
 	var ink: Color = style.ink
+	if _draw_house_final(c,t,ink): return
+	if _draw_house_b(c,t,ink): return
 	if identity: draw_texture_rect(identity,Rect2(c - Vector2(18,18),Vector2(36,36)),false)
+	if style.item_id == "charm.wood_grain":
+		# Event count, never the elapsed animation, determines the grain marks.
+		var count := clampi(int(details.get("count",0)),0,10)
+		for j in count:
+			var y := -27.0 + j*6
+			draw_polyline(PackedVector2Array([c+Vector2(-28,y),c+Vector2(-23,y-2),c+Vector2(-19,y)]),ink,2)
+		return
+	if style.item_id == "charm.trophy_case" and details.get("phase","") == "after_bank":
+		var at := c+Vector2(0,-28+12*t)
+		draw_colored_polygon(PackedVector2Array([at+Vector2(-6,0),at+Vector2(6,0),at+Vector2(3,7),at+Vector2(-3,7)]),ink)
+		draw_arc(at+Vector2(-6,2),3,0,PI,8,ink,2)
+		draw_arc(at+Vector2(6,2),3,0,PI,8,ink,2)
+		draw_line(at+Vector2(0,7),at+Vector2(0,11),ink,2)
+		draw_line(at+Vector2(-4,12),at+Vector2(4,12),ink,2)
+		return
 	if _draw_c04(c,t,ink): return
 	if _draw_c03(c,t,ink): return
 	if _draw_v08(c,t,ink): return
@@ -313,4 +330,53 @@ func _draw_c04(c:Vector2,t:float,ink:Color) -> bool:
 	var font:=get_theme_default_font()
 	var width:=font.get_string_size(caption,HORIZONTAL_ALIGNMENT_LEFT,-1,10).x
 	draw_string(font,c+Vector2(-width*.5,31),caption,HORIZONTAL_ALIGNMENT_LEFT,-1,10,Color("f1e4c6"))
+	return true
+
+func _draw_house_b(c: Vector2, t: float, ink: Color) -> bool:
+	match style.item_id:
+		"charm.open_house":
+			if identity: draw_texture_rect(identity,Rect2(c-Vector2(24,24),Vector2(48,48)),false)
+			# The only moving element is the door, hinged at its left edge.
+			var width := 26.0 * (1.0-t*0.85)
+			draw_colored_polygon(PackedVector2Array([c+Vector2(-17,-18),c+Vector2(-17+width,-18+8*t),c+Vector2(-17+width,20+8*t),c+Vector2(-17,20)]),Color("85532b"))
+			draw_line(c+Vector2(-18,-20),c+Vector2(-18,22),ink,2)
+		"charm.strike_fund":
+			if identity: draw_texture_rect(identity,Rect2(c-Vector2(20,12),Vector2(40,40)),false)
+			var coin := c+Vector2(0,-27+22*t)
+			draw_circle(coin,5,ink)
+			draw_line(coin+Vector2(0,-3),coin+Vector2(0,3),Color("604626"),2)
+		"charm.holdouts":
+			# One complete folded-arm figure per resolver-owned standing count.
+			var count := clampi(int(details.get("count",0)),0,10)
+			for j in count:
+				var columns := mini(count,5)
+				var at := c+Vector2((j%5-(columns-1)*0.5)*12,-14+(j/5)*27)
+				draw_circle(at,3,Color("fff0cf"))
+				draw_style_box(_pin_body(),Rect2(at+Vector2(-4,4),Vector2(8,17)))
+				draw_line(at+Vector2(-3,4),at+Vector2(3,4),Color("b64c3c"),2)
+				draw_line(at+Vector2(-5,10),at+Vector2(4,14),ink,2)
+				draw_line(at+Vector2(5,10),at+Vector2(-4,14),ink,2)
+		_: return false
+	return true
+func _pin_body() -> StyleBoxFlat:
+	var body := StyleBoxFlat.new()
+	body.bg_color = Color("fff0cf")
+	body.set_corner_radius_all(4)
+	return body
+
+func _draw_house_final(c: Vector2, t: float, ink: Color) -> bool:
+	match style.item_id:
+		"charm.clean_pickup":
+			if identity: draw_texture_rect(identity,Rect2(c+Vector2(-20+8*t,-24),Vector2(40,40)),false)
+			if not details.get("curved",true):
+				for i in mini(int(details.get("roll_count",0)),2):
+					var y := 21+i*6
+					draw_line(c+Vector2(-24,y),c+Vector2(24,y),ink,2)
+					draw_line(c+Vector2(19,y-3),c+Vector2(24,y),ink,2)
+		"charm.house_special":
+			if identity: draw_texture_rect(identity,Rect2(c-Vector2(27,27),Vector2(54,54)),false)
+			if details.get("all_house",false):
+				var ball: Texture2D = preload("res://src/presentation/item_assets.gd").slot("ball.house","icon")
+				if ball: draw_texture_rect(ball,Rect2(c-Vector2(12,10),Vector2(24,24)),false)
+		_: return false
 	return true

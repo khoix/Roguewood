@@ -16,6 +16,10 @@ VERSION = (ROOT / ".godot-version").read_text().strip()
 JOURNEYS = {
     "JAVC07AC": ("res://tests/upgrade_identity_contact.gd", "ROGUEWOOD_UPGRADE_IDENTITY_OK", "artifacts/av-c07-a/contact", ("contact",), 180, ["--fixed-fps", "60"]),
     "JAVC07BC": ("res://tests/upgrade_identity_contact_b.gd", "ROGUEWOOD_UPGRADE_IDENTITY_OK", "artifacts/av-c07-b/contact", ("contact",), 180, ["--fixed-fps", "60"]),
+    "JAVH1AC": ("res://tests/house_identity_contact_a.gd", "ROGUEWOOD_HOUSE_IDENTITY_OK", "artifacts/av-h1-a/contact", ("contact",), 180, ["--fixed-fps", "60"]),
+    "JAVH1BC": ("res://tests/house_identity_contact_b.gd", "ROGUEWOOD_HOUSE_IDENTITY_OK", "artifacts/av-h1-b/contact", ("contact",), 180, ["--fixed-fps", "60"]),
+    "JAVH2AC": ("res://tests/house_identity_contact_c.gd", "ROGUEWOOD_HOUSE_IDENTITY_OK", "artifacts/av-h2-a/contact", ("contact",), 180, ["--fixed-fps", "60"]),
+    "JAVH2BC": ("res://tests/house_identity_contact_d.gd", "ROGUEWOOD_HOUSE_IDENTITY_OK", "artifacts/av-h2-b/contact", ("contact",), 180, ["--fixed-fps", "60"]),
     "J21R03": ("res://tests/proprietor_art_journey.gd", "ROGUEWOOD_J21R03_OK", "artifacts/e21-r03/native",
         ("rival.proprietor_intro", "rival.proprietor_landscape", "proprietor_reduced", "proprietor_reaction", "proprietor_defeated"), 900, ["--fixed-fps", "60"]),
     "J21R04": ("res://tests/house_rival_art_journey.gd", "ROGUEWOOD_J03C05_OK", "artifacts/e21-r04/native",
@@ -51,6 +55,8 @@ JOURNEYS = {
     "J03C08": ("res://tests/house_c08_journey.gd", "ROGUEWOOD_J03C08_OK", "artifacts/e18-c08", ("c08_shop", "c08_strike", "c08_open", "c08_holdouts"), 900, ["--fixed-fps", "60"]),
     "J03C09": ("res://tests/house_c09_journey.gd", "ROGUEWOOD_J03C09_OK", "artifacts/e18-c09", ("c09_shop", "c09_rally", "c09_pickup"), 900, ["--fixed-fps", "60"]),
     "J03C10": ("res://tests/house_c10_journey.gd", "ROGUEWOOD_J03C10_OK", "artifacts/e18-c10", ("c10_shop", "c10_strike", "c10_spare", "c10_open", "c10_jar"), 900, ["--fixed-fps", "60"]),
+    "J03C11": ("res://tests/house_c11_journey.gd", "ROGUEWOOD_J03C11_OK", "artifacts/e18-c11", ("c11_shop", "c11_called_shot", "c11_double_take", "c11_spare", "c11_lucky_seven"), 900, ["--fixed-fps", "60"]),
+    "J22L01": ("res://tests/house_league_journey.gd", "ROGUEWOOD_J22L01_OK", "artifacts/e22-l01", ("j22_champion", "j22_title", "j22_tournament"), 1800, ["--fixed-fps", "60"]),
     "J03C04": ("res://tests/mods_c04_journey.gd", "ROGUEWOOD_J03C04_OK", "artifacts/e18-c04", ("c04_shop", "c04_strike", "c04_open"), 900, ["--fixed-fps", "60"]),
     "J03C03": ("res://tests/crown_c03_journey.gd", "ROGUEWOOD_J03C03_OK", "artifacts/e18-c03", ("c03_split", "c03_strike"), 600, ["--fixed-fps", "60"]),
     "J03C01": ("res://tests/charm_c01_journey.gd", "ROGUEWOOD_J03C01_OK", "artifacts/e18-c01", ("c01_strike", "c01_streak", "c01_spare", "c01_open"), 600, ["--fixed-fps", "60"]),
@@ -123,7 +129,7 @@ JOURNEYS["J12"] = ("res://tests/dense_ability_journey.gd", "ROGUEWOOD_DENSE_ABIL
 # Content set per journey (E13, ADR 008): mechanism journeys keep the lab fixtures;
 # the shell journey and J06 stage 1 play the production slice (the game's default).
 CONTENT = {"J03C05": "house_c05", "J09": "slice", "J02": "lab", "J03": "lab", "J04": "lab", "J05": "lab", "J07": "lab", "J08": "lab"}
-CONTENT.update({"J21R03": "house_c05", "J21R04": "house_c05"})
+CONTENT.update({"J21R03": "house_c05", "J21R04": "house_c05", "J22L01": "house"})
 # Multi-stage journeys whose stages are different scripts, content and save
 # directories: J06 plays the slice's two Divisions, then the E09 lab Division.
 STAGE_RUNS = {"J06": [("res://tests/slice_journey.gd", "slice"), ("res://tests/division_journey.gd", "lab")]}

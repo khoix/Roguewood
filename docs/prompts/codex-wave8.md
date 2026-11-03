@@ -33,6 +33,7 @@ Ownership and limits:
   - E22-L01 integrates the House League's eight Divisions and your E22-L01-ART theme.
   - Keep the theme's asset ids and bindings stable.
 - tools/qa.py, the CI workflow and run_tests.gd are add-only. Keep new upload folders inside the existing `path` list, before `if-no-files-found`.
+- CI now runs in two parallel shards (`game` and `art`). Give every new art or effects step `if: matrix.shard == 'art'`, and add new art journeys to the art shard's steps, never to the gameplay step.
 - These must stay identical:
   - the physics digest `75d1a3c0…`;
   - J03 560/240/70 and J05 21060.

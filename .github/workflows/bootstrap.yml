@@ -6,6 +6,14 @@ permissions:
   contents: read
 jobs:
   linux-bootstrap:
+    # Two shards in parallel, each under the 90-minute limit: `game` verifies the
+    # project and runs the gameplay journeys; `art` runs the art, effects and rival
+    # journeys (Codex's E19/E20/E21/AV batches and the League theme inspectors).
+    name: linux-bootstrap (${{ matrix.shard }})
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [game, art]
     runs-on: ubuntu-24.04
     timeout-minutes: 90
     steps:
@@ -27,6 +35,7 @@ jobs:
           cp templates/linux_debug.x86_64 "$HOME/.local/share/godot/export_templates/${VERSION}.stable/"
           echo "GODOT_BIN=$RUNNER_TEMP/godot/Godot_v${VERSION}-stable_linux.x86_64" >> "$GITHUB_ENV"
       - name: Verify editor import, startup, and exported build
+        if: matrix.shard == 'game'
         run: |
           python3 tools/qa.py doctor
           python3 tools/qa.py unit
@@ -35,7 +44,8 @@ jobs:
           python3 tools/qa.py physics
           python3 tools/qa.py smoke
           python3 tools/qa.py export
-      - name: Native J01-J11 headless and rendered
+      - name: Native gameplay journeys headless and rendered
+        if: matrix.shard == 'game'
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y xvfb xauth libgl1-mesa-dri
@@ -66,20 +76,10 @@ jobs:
           xvfb-run -a python3 tools/qa.py e2e --journey J03C03 --rendered
           python3 tools/qa.py e2e --journey J03C04
           xvfb-run -a python3 tools/qa.py e2e --journey J03C04 --rendered
-          python3 tools/qa.py e2e --journey J21RC
-          xvfb-run -a python3 tools/qa.py e2e --journey J21RC --rendered
-          python3 tools/qa.py e2e --journey J21R03
-          xvfb-run -a python3 tools/qa.py e2e --journey J21R03 --rendered
-          python3 tools/qa.py e2e --journey J21R04
-          xvfb-run -a python3 tools/qa.py e2e --journey J21R04 --rendered
           python3 tools/qa.py e2e --journey J03C05
           xvfb-run -a python3 tools/qa.py e2e --journey J03C05 --rendered
           python3 tools/qa.py e2e --journey J03C06
           xvfb-run -a python3 tools/qa.py e2e --journey J03C06 --rendered
-          python3 tools/qa.py e2e --journey JAVC07AC
-          xvfb-run -a python3 tools/qa.py e2e --journey JAVC07AC --rendered
-          python3 tools/qa.py e2e --journey JAVC07BC
-          xvfb-run -a python3 tools/qa.py e2e --journey JAVC07BC --rendered
           python3 tools/qa.py e2e --journey J03C07
           xvfb-run -a python3 tools/qa.py e2e --journey J03C07 --rendered
           python3 tools/qa.py e2e --journey J03C08
@@ -88,8 +88,24 @@ jobs:
           xvfb-run -a python3 tools/qa.py e2e --journey J03C09 --rendered
           python3 tools/qa.py e2e --journey J03C10
           xvfb-run -a python3 tools/qa.py e2e --journey J03C10 --rendered
+          python3 tools/qa.py e2e --journey J03C11
+          xvfb-run -a python3 tools/qa.py e2e --journey J03C11 --rendered
+          python3 tools/qa.py e2e --journey J22L01
+          xvfb-run -a python3 tools/qa.py e2e --journey J22L01 --rendered
           python3 tools/qa.py e2e --journey J11
           xvfb-run -a python3 tools/qa.py e2e --journey J11 --rendered
+          python3 tools/qa.py e2e --journey J12
+          xvfb-run -a python3 tools/qa.py e2e --journey J12 --rendered
+          python3 tools/qa.py experiment
+          python3 tools/qa.py slice
+      - name: Import the project for the art shard
+        if: matrix.shard == 'art'
+        run: python3 tools/qa.py import
+      - name: Art, effects and rival journeys (J08, E19-E21) headless and rendered
+        if: matrix.shard == 'art'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y xvfb xauth libgl1-mesa-dri
           python3 tools/qa.py e2e --journey J08
           python3 tools/qa.py e2e --journey J08A01
           xvfb-run -a python3 tools/qa.py e2e --journey J08A01 --rendered
@@ -141,39 +157,26 @@ jobs:
           python3 tools/qa.py e2e --journey J12V07
           xvfb-run -a python3 tools/qa.py e2e --journey J12V07 --rendered
           xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_effect_art.gd -- --batch=E20-V07
-          python3 tools/qa.py e2e --journey J12
-          xvfb-run -a python3 tools/qa.py e2e --journey J12 --rendered
-          python3 tools/qa.py experiment
-          python3 tools/qa.py slice
-      - name: Preserve Wave 1 art evidence after an earlier failure
-        if: failure() && env.GODOT_BIN != ''
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y xvfb xauth libgl1-mesa-dri
-          python3 tools/qa.py e2e --journey J08A01
-          xvfb-run -a python3 tools/qa.py e2e --journey J08A01 --rendered
-          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_ball_art.gd
-          python3 tools/qa.py e2e --journey J08A02
-          xvfb-run -a python3 tools/qa.py e2e --journey J08A02 --rendered
-          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_pin_art.gd
-          python3 tools/qa.py e2e --journey J08A03
-          xvfb-run -a python3 tools/qa.py e2e --journey J08A03 --rendered
-          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_item_art.gd -- --batch=E19-A03
-          python3 tools/qa.py e2e --journey J08A04
-          xvfb-run -a python3 tools/qa.py e2e --journey J08A04 --rendered
-          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_item_art.gd -- --batch=E19-A04
-          python3 tools/qa.py e2e --journey J08A05
-          xvfb-run -a python3 tools/qa.py e2e --journey J08A05 --rendered
-          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_item_art.gd -- --batch=E19-A05
-          python3 tools/qa.py e2e --journey J08A06
-          xvfb-run -a python3 tools/qa.py e2e --journey J08A06 --rendered
-          python3 tools/qa.py e2e --journey J08A06R
-          xvfb-run -a python3 tools/qa.py e2e --journey J08A06R --rendered
-          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_item_art.gd -- --batch=E19-A06
-          python3 tools/qa.py e2e --journey J08A07
-          xvfb-run -a python3 tools/qa.py e2e --journey J08A07 --rendered
-          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --path . --script tools/capture_item_art.gd -- --batch=E19-A07
+          python3 tools/qa.py e2e --journey J21RC
+          xvfb-run -a python3 tools/qa.py e2e --journey J21RC --rendered
+          python3 tools/qa.py e2e --journey J21R03
+          xvfb-run -a python3 tools/qa.py e2e --journey J21R03 --rendered
+          python3 tools/qa.py e2e --journey J21R04
+          xvfb-run -a python3 tools/qa.py e2e --journey J21R04 --rendered
+          python3 tools/qa.py e2e --journey JAVC07AC
+          xvfb-run -a python3 tools/qa.py e2e --journey JAVC07AC --rendered
+          python3 tools/qa.py e2e --journey JAVC07BC
+          xvfb-run -a python3 tools/qa.py e2e --journey JAVC07BC --rendered
+          python3 tools/qa.py e2e --journey JAVH1AC
+          xvfb-run -a python3 tools/qa.py e2e --journey JAVH1AC --rendered
+          python3 tools/qa.py e2e --journey JAVH1BC
+          xvfb-run -a python3 tools/qa.py e2e --journey JAVH1BC --rendered
+          python3 tools/qa.py e2e --journey JAVH2AC
+          xvfb-run -a python3 tools/qa.py e2e --journey JAVH2AC --rendered
+          python3 tools/qa.py e2e --journey JAVH2BC
+          xvfb-run -a python3 tools/qa.py e2e --journey JAVH2BC --rendered
       - name: Wave 2 Clubhouse and authored D01 art previews
+        if: matrix.shard == 'art'
         run: |
           python3 tools/qa.py e2e --journey J11ART
           xvfb-run -a python3 tools/qa.py e2e --journey J11ART --rendered
@@ -183,52 +186,61 @@ jobs:
             xvfb-run -a python3 tools/qa.py e2e --journey "$batch" --rendered
           done
       - name: Wave 3 D02 Charm artwork
+        if: matrix.shard == 'art'
         run: |
           for batch in J19A13 J19A14 J19A15 J19A13N J19A14N; do
             python3 tools/qa.py e2e --journey "$batch"
             xvfb-run -a python3 tools/qa.py e2e --journey "$batch" --rendered
           done
       - name: Wave 4 Glass Pin identity
+        if: matrix.shard == 'art'
         run: |
           python3 tools/qa.py e2e --journey J19A16
           xvfb-run -a python3 tools/qa.py e2e --journey J19A16 --rendered
       - name: Wave 4 landed ability effects
+        if: matrix.shard == 'art'
         run: |
           for journey in J12V08 J12V08C; do
             python3 tools/qa.py e2e --journey "$journey"
             xvfb-run -a python3 tools/qa.py e2e --journey "$journey" --rendered
           done
       - name: Wave 5 AV-C03 first three items
+        if: matrix.shard == 'art'
         run: |
           for journey in JAVC03A JAVC03AC; do
             python3 tools/qa.py e2e --journey "$journey"
             xvfb-run -a python3 tools/qa.py e2e --journey "$journey" --rendered
           done
       - name: Wave 5 AV-C03 second three items
+        if: matrix.shard == 'art'
         run: |
           for journey in JAVC03B JAVC03BC; do
             python3 tools/qa.py e2e --journey "$journey"
             xvfb-run -a python3 tools/qa.py e2e --journey "$journey" --rendered
           done
       - name: Wave 6 modification art first three items
+        if: matrix.shard == 'art'
         run: |
           for journey in JAVC04A JAVC04AC; do
             python3 tools/qa.py e2e --journey "$journey"
             xvfb-run -a python3 tools/qa.py e2e --journey "$journey" --rendered
           done
       - name: Wave 6 modification art second three items
+        if: matrix.shard == 'art'
         run: |
           for journey in JAVC04B JAVC04BC; do
             python3 tools/qa.py e2e --journey "$journey"
             xvfb-run -a python3 tools/qa.py e2e --journey "$journey" --rendered
           done
       - name: C04 Echo Charge and Lantern art and effects
+        if: matrix.shard == 'art'
         run: |
           python3 tools/qa.py e2e --journey JAVC04C
           xvfb-run -a python3 tools/qa.py e2e --journey JAVC04C --rendered
           python3 tools/qa.py e2e --journey JAVC04CC
           xvfb-run -a python3 tools/qa.py e2e --journey JAVC04CC --rendered
       - name: House League theme asset inspector
+        if: matrix.shard == 'art'
         run: |
           python3 tools/qa.py e2e --journey J22L01ART
           xvfb-run -a python3 tools/qa.py e2e --journey J22L01ART --rendered
@@ -236,7 +248,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: journeys
+          name: journeys-${{ matrix.shard }}
           path: |
             artifacts/e03/
             artifacts/e04/
@@ -276,10 +288,16 @@ jobs:
             artifacts/e18-c06/
             artifacts/av-c07-a/
             artifacts/av-c07-b/
+            artifacts/av-h1-a/
+            artifacts/av-h1-b/
+            artifacts/av-h2-a/
+            artifacts/av-h2-b/
             artifacts/e18-c07/
             artifacts/e18-c08/
             artifacts/e18-c09/
             artifacts/e18-c10/
+            artifacts/e18-c11/
+            artifacts/e22-l01/
             artifacts/e16-art/
             artifacts/e19-a08/
             artifacts/e19-a09/

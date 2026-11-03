@@ -56,7 +56,9 @@ static func create(division_specs: Array, practice_mode: bool = false) -> RefCou
 ## Each Division must be valid on its own, numbered 1..n in order, with targets
 ## that keep rising. No boss (rival) repeats within the attempt (design §15) unless
 ## its Division is explicitly a championship (`championship: true`, E14), which may
-## bring back a rival already met. Distinct rivals may share a rule.
+## bring back a rival already met, or the League sets `rivals_recur` (E22-L01: a
+## themed League's rivals return in later Divisions with higher targets, design
+## §18). Distinct rivals may share a rule.
 static func validate(data: Variant, catalogue: Dictionary) -> Array[String]:
 	var errors: Array[String] = []
 	if not data is Dictionary or int(data.get("schema_version", 0)) != SCHEMA_VERSION:
@@ -67,6 +69,7 @@ static func validate(data: Variant, catalogue: Dictionary) -> Array[String]:
 		errors.append("a League needs at least one Division")
 	var previous := 0
 	var rivals := {}
+	var recur: bool = data.get("rivals_recur", false) == true
 	for i in divisions.size():
 		var d: Variant = divisions[i]
 		for e in Division.validate_spec(d, catalogue):
@@ -81,7 +84,7 @@ static func validate(data: Variant, catalogue: Dictionary) -> Array[String]:
 			previous = int(m.get("target", 0))
 		var championship: bool = d.get("championship", false) == true
 		for r in d.get("rivals", []):
-			if rivals.has(r.get("id", "")) and not championship:
+			if rivals.has(r.get("id", "")) and not championship and not recur:
 				errors.append("boss repeated within the attempt: %s" % r.get("id", ""))
 			rivals[r.get("id", "")] = true
 			errors.append_array(RivalRules.unknown([r.get("rule", "")] + r.get("extra_rules", [])))

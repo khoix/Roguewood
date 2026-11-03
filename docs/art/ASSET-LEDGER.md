@@ -544,3 +544,122 @@ interest-cap constants, a sixth shelf lip and the existing Extra Shelf label,
 and spotlight identity above brighter rarity borders. No pricing, stock,
 settlement or save logic changes. J03C07 captures each activation and the next
 shop's settlement and stock. No subjective listening or phone gate is claimed.
+
+## AV-H1-A — identity checkpoint
+
+Original generated art, no external references. Exact prompt:
+`docs/art/briefs/AV-H1-A-prompt.txt`. Source retained unchanged at
+`assets/items/d07/source.AV-H1-A.png`, SHA-256
+`38943301165236b0d3cc073e3a6028bf796c57bbc8509326c1bdebcea94fc1cd`.
+Atlas cells are 724 square at x=0/724/1448. Head Pin's crown-less apex pin,
+Wood Grain's walnut plank and Opening Act's raised curtains share their original
+identity between icon, card and reduced-motion slots. Existing common Plumb Line
+and uncommon Sweet Spot frame geometry is reused for category consistency.
+JAVH1AC produces 180px/48px contacts. J03C08 buys and scores all three natively.
+This checkpoint delivers no activation, sound or counted/conditional treatment;
+artwork and effects_audio remain false. Briefs specify the pending resolver-driven
+requirements. No screenshots or third-party samples are added.
+
+### AV-H1-A activation/audio resource checkpoint
+
+Original procedural PCM, no recordings or external samples, peak 0.48. Reproduce:
+- `python3 tools/author_foley.py sound.charm.head_pin wood 740 0.22`
+- `python3 tools/author_foley.py sound.charm.wood_grain wood 360 0.30`
+- `python3 tools/author_foley.py sound.charm.opening_act swish 960 0.32`
+
+`activation.charm.{head_pin,wood_grain,opening_act}.tres` use isolate/tabs/brace
+geometry with the existing original identities. Existing ability director and
+bounded mixer consume the slots; reduced motion uses static geometry. This
+checkpoint does not claim the pending counted/conditional presentation needs
+or per-item native cue assertions. Completion flags stay false.
+
+### AV-H1-A resolver-driven display checkpoint
+
+Original read-only geometry: Head Pin projects position 1 from its eligible
+resolver event into the existing rack highlight; Wood Grain draws one short
+grain stroke per event count (bounded by the ten-pin rack); Opening Act's 48px
+marquee uses the authoritative match_frame to select lit/dim states. Static
+geometry respects the existing reduced-motion path. No simulation/rule edits.
+
+### AV-H1-A completion evidence
+
+J03C08 now captures original native score cues: position-1 Head Pin highlight,
+ten- and seven-count Wood Grain marks, and Opening Act's lit/dim marquee.
+Assertions compare counts to fallen Wood Pins and test silent skip/mute adapter
+paths without rebanking. The three artwork/effects_audio flags are enabled only
+after successful native headless/rendered verification. Handoff: AV-H1-A.md.
+
+## AV-H1-B — Open House, Strike Fund, Holdouts
+
+Original generated identities, no external references. Exact prompt:
+`docs/art/briefs/AV-H1-B-prompt.txt`. Unchanged source:
+`assets/items/d07/source.AV-H1-B.png`, SHA-256
+`6c9ab627a9861fda6b9ee7d966466d79ab759d0cf2fede2974a84444d9d393e8`.
+Three 724px atlas cells at x=0/724/1448. Common Charm frame reused from Head Pin.
+JAVH1BC captures card/icon/static identity at 180px/48px.
+
+Original deterministic PCM, no recordings/external samples, peak 0.48:
+- `python3 tools/author_foley.py sound.charm.open_house wood 510 0.28`
+- `python3 tools/author_foley.py sound.charm.strike_fund metal 1320 0.24`
+- `python3 tools/author_foley.py sound.charm.holdouts wood 290 0.30`
+
+Original glyph geometry: hinged door over identity, one falling coin, and one
+folded-arm pin figure per resolver standing count. Existing ability event
+projection supplies trigger phase/count/amount; no rules are changed. Static
+reduced-motion poses and shared mixer controls reused. J03C08 captures native
+cues and checks open/strike conditions, after-bank income, standing count and
+silent skipped/muted presentation fixtures. No subjective listening claim.
+
+## AV-H2-A — resource checkpoint
+
+Original generated Trophy Case, Corner Pockets and Late Rally identities, no
+external references. Exact prompt: docs/art/briefs/AV-H2-A-prompt.txt.
+Unchanged source: assets/items/d08/source.AV-H2-A.png, SHA-256
+823276bc66584d605aeaa7a4952c4e358f8beda7ff0179e562be36db0f341523.
+Atlas cells: 724px squares at x=0/724/1448. Existing uncommon Opening Act frame
+reused. JAVH2AC captures 180px/48px identity views.
+
+Original deterministic PCM, no recordings or external samples, peak 0.48:
+- `python3 tools/author_foley.py sound.charm.trophy_case metal 1040 0.30`
+- `python3 tools/author_foley.py sound.charm.corner_pockets wood 560 0.22`
+- `python3 tools/author_foley.py sound.charm.late_rally metal 1680 0.26`
+
+Activation resources use existing growth/isolate/clock geometry and the new
+identities. Existing resolver adapter and bounded mixer consume them; reduced
+motion is static. J03C09 records native cue history and captures. This is not a
+claim that the saved trophy-card count, corner-position overlays or conditional
+score/half-target display are finished. Both flags remain false. No subjective
+listening or mobile validation claim; no screenshots committed.
+
+### AV-H2-A stateful cards and rack treatment
+
+Original presentation geometry in house_count_cards.gd and trophy_marks.gd:
+small glass display with bounded cup marks and an explicit saved trophy count;
+pre-bank snapshot during scoring, revealing growth only at its after-bank row;
+separate saved count card in the shop. Restored ownership does not replay growth.
+Late Rally shows pre-bank score / half target with a lit/dim identity and explicit
+ON/off text. Corner Pockets projects counted rack positions and draws dark pocket
+rims around their existing numbered circles. All state is read-only. The new
+cup cue falls into place at the resolver's growth event and is static in reduced
+motion. No rule, economy, persistence or theme-binding changes.
+
+## AV-H2-B — Clean Pickup, House Special, Front Line
+
+Original generated identities without external references. Prompt:
+docs/art/briefs/AV-H2-B-prompt.txt. Unchanged source:
+assets/items/d08/source.AV-H2-B.png, SHA-256
+3d42eb0728679baaf64da5c7c4fbb1d222a3c94942931d47f39cfca111ab0a1b.
+724px atlas cells at x=0/724/1448. Existing uncommon/common Charm frames reused.
+JAVH2BC captures the 180px/48px contact.
+
+Original deterministic PCM, no external samples/recordings, peak 0.48:
+- `python3 tools/author_foley.py sound.charm.clean_pickup swish 580 0.30`
+- `python3 tools/author_foley.py sound.charm.house_special wood 820 0.26`
+- `python3 tools/author_foley.py sound.charm.front_line metal 440 0.30`
+
+Original presentation geometry: straight per-roll dustpan trails; chalkboard
+with exact existing ball.house icon; three native rack shields flattening only
+at counted positions. Conditions/counts come from resolver facts and frame rolls.
+Shared mixer/reduced motion/flash controls reused. J03C09 captures real cues and
+checks straight spare/all-House strike/count positions plus silent skip/mute.
+No subjective audio listening or phone gate claimed. No screenshots committed.

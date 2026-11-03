@@ -63,12 +63,18 @@ static func _has(errors: Array, text: String) -> bool:
 static func _shipped_graphs(failures: Array[String]) -> void:
 	var production := ContentSet.career_graph(ContentSet.UNLOCKS)
 	_expect(production.errors.is_empty(), "the production unlock graph validates: %s" % str(production.errors), failures)
-	_expect(production.league_of_set.get("slice") == "league.house" and production.league_of_set.get("campaign") == "league.house_campaign",
-		"the production graph spans the slice and the campaign", failures)
+	_expect(production.league_of_set.get("house") == "league.house" and production.league_of_set.get("campaign") == "league.house_campaign" and not production.league_of_set.has("slice"),
+		"the production graph spans the House League (E22-L01: eight Divisions) and the campaign", failures)
+	var slice := ContentSet.career_graph(ContentSet.SLICE_UNLOCKS)
+	_expect(slice.errors.is_empty() and slice.league_of_set.get("slice") == "league.house" and slice.league_of_set.get("house") == "league.house_full",
+		"the slice's registry keeps the slice as the House League and lists the full League: %s" % str(slice.errors), failures)
+	_expect(production.items_by_gate.get("gate.proprietor_cleared") == ["charm.house_special"] and production.items_by_gate.get("gate.old_lou_cleared") == ["charm.wood_grain"]
+		and production.items_by_gate.get("gate.house_champion", []).has("kit.tournament"),
+		"The Proprietor unlocks House Special, Old Lou Wood Grain, and the House title the Tournament Kit", failures)
 	_expect(production.items_by_gate.get("gate.surveyor_cleared") == ["charm.encore"] and production.items_by_gate.get("gate.custodian_cleared") == ["charm.standing_order"],
 		"the slice's boss gates unlock Encore and Standing Order", failures)
-	_expect(production.objectives.size() == 3 and production.gates.size() == 7, "three mastery objectives and seven gates", failures)
-	_expect(production.availability.charm == {"initial": 33, "locked": 5} and production.availability.pin == {"initial": 9, "locked": 1} and production.availability.ball == {"initial": 6, "locked": 0}, "availability report: 33 Charms initially (fourteen House Charms, E18-C08…C10), 5 locked; 9 pins and Crown; 6 balls", failures)
+	_expect(production.objectives.size() == 3 and production.gates.size() == 10, "three mastery objectives and ten gates", failures)
+	_expect(production.availability.charm == {"initial": 33, "locked": 7} and production.availability.pin == {"initial": 9, "locked": 1} and production.availability.ball == {"initial": 6, "locked": 0}, "availability report: 33 Charms initially, 7 locked (Wood Grain and House Special wait for Old Lou and The Proprietor); 9 pins and Crown; 6 balls", failures)
 	var lab := ContentSet.career_graph(ContentSet.LAB_UNLOCKS)
 	_expect(lab.errors.is_empty() and lab.items_by_gate.get("gate.lab_rival") == ["pin.lab_lead"], "the lab fixture graph validates", failures)
 	_expect(Graph.build(_world().registry, _world().catalogue, _world().sources).errors.is_empty(), "the synthetic world validates", failures)

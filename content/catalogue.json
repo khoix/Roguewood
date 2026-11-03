@@ -3149,20 +3149,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d07/icon.charm.head_pin.tres",
+        "card": "res://assets/items/d07/card.charm.head_pin.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d07/rarity_treatment.charm.head_pin.tres",
+        "activation": "res://assets/effects/activation.charm.head_pin.tres",
+        "sound": "res://assets/audio/sound.charm.head_pin.wav",
+        "reduced_motion": "res://assets/items/d07/reduced_motion.charm.head_pin.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -3174,8 +3174,10 @@
       "rarity": "common",
       "pool_weight": 1,
       "unlock": {
-        "kind": "initial",
-        "prerequisites": []
+        "kind": "boss",
+        "prerequisites": [
+          "gate.old_lou_cleared"
+        ]
       },
       "earliest_division": 1,
       "purchase_price": 3,
@@ -3202,20 +3204,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d07/icon.charm.wood_grain.tres",
+        "card": "res://assets/items/d07/card.charm.wood_grain.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d07/rarity_treatment.charm.wood_grain.tres",
+        "activation": "res://assets/effects/activation.charm.wood_grain.tres",
+        "sound": "res://assets/audio/sound.charm.wood_grain.wav",
+        "reduced_motion": "res://assets/items/d07/reduced_motion.charm.wood_grain.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -3257,20 +3259,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d07/icon.charm.opening_act.tres",
+        "card": "res://assets/items/d07/card.charm.opening_act.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d07/rarity_treatment.charm.opening_act.tres",
+        "activation": "res://assets/effects/activation.charm.opening_act.tres",
+        "sound": "res://assets/audio/sound.charm.opening_act.wav",
+        "reduced_motion": "res://assets/items/d07/reduced_motion.charm.opening_act.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -3314,20 +3316,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d07/icon.charm.open_house.tres",
+        "card": "res://assets/items/d07/card.charm.open_house.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d07/rarity_treatment.charm.open_house.tres",
+        "activation": "res://assets/effects/activation.charm.open_house.tres",
+        "sound": "res://assets/audio/sound.charm.open_house.wav",
+        "reduced_motion": "res://assets/items/d07/reduced_motion.charm.open_house.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -3371,20 +3373,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d07/icon.charm.strike_fund.tres",
+        "card": "res://assets/items/d07/card.charm.strike_fund.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d07/rarity_treatment.charm.strike_fund.tres",
+        "activation": "res://assets/effects/activation.charm.strike_fund.tres",
+        "sound": "res://assets/audio/sound.charm.strike_fund.wav",
+        "reduced_motion": "res://assets/items/d07/reduced_motion.charm.strike_fund.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -3424,20 +3426,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d07/icon.charm.holdouts.tres",
+        "card": "res://assets/items/d07/card.charm.holdouts.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d07/rarity_treatment.charm.holdouts.tres",
+        "activation": "res://assets/effects/activation.charm.holdouts.tres",
+        "sound": "res://assets/audio/sound.charm.holdouts.wav",
+        "reduced_motion": "res://assets/items/d07/reduced_motion.charm.holdouts.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -3488,20 +3490,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d08/icon.charm.trophy_case.tres",
+        "card": "res://assets/items/d08/card.charm.trophy_case.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d08/rarity_treatment.charm.trophy_case.tres",
+        "activation": "res://assets/effects/activation.charm.trophy_case.tres",
+        "sound": "res://assets/audio/sound.charm.trophy_case.wav",
+        "reduced_motion": "res://assets/items/d08/reduced_motion.charm.trophy_case.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -3541,20 +3543,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d08/icon.charm.corner_pockets.tres",
+        "card": "res://assets/items/d08/card.charm.corner_pockets.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d08/rarity_treatment.charm.corner_pockets.tres",
+        "activation": "res://assets/effects/activation.charm.corner_pockets.tres",
+        "sound": "res://assets/audio/sound.charm.corner_pockets.wav",
+        "reduced_motion": "res://assets/items/d08/reduced_motion.charm.corner_pockets.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -3597,20 +3599,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d08/icon.charm.late_rally.tres",
+        "card": "res://assets/items/d08/card.charm.late_rally.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d08/rarity_treatment.charm.late_rally.tres",
+        "activation": "res://assets/effects/activation.charm.late_rally.tres",
+        "sound": "res://assets/audio/sound.charm.late_rally.wav",
+        "reduced_motion": "res://assets/items/d08/reduced_motion.charm.late_rally.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -3655,20 +3657,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d08/icon.charm.clean_pickup.tres",
+        "card": "res://assets/items/d08/card.charm.clean_pickup.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d08/rarity_treatment.charm.clean_pickup.tres",
+        "activation": "res://assets/effects/activation.charm.clean_pickup.tres",
+        "sound": "res://assets/audio/sound.charm.clean_pickup.wav",
+        "reduced_motion": "res://assets/items/d08/reduced_motion.charm.clean_pickup.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -3680,8 +3682,10 @@
       "rarity": "uncommon",
       "pool_weight": 1,
       "unlock": {
-        "kind": "initial",
-        "prerequisites": []
+        "kind": "boss",
+        "prerequisites": [
+          "gate.proprietor_cleared"
+        ]
       },
       "earliest_division": 1,
       "purchase_price": 6,
@@ -3713,20 +3717,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d08/icon.charm.house_special.tres",
+        "card": "res://assets/items/d08/card.charm.house_special.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d08/rarity_treatment.charm.house_special.tres",
+        "activation": "res://assets/effects/activation.charm.house_special.tres",
+        "sound": "res://assets/audio/sound.charm.house_special.wav",
+        "reduced_motion": "res://assets/items/d08/reduced_motion.charm.house_special.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -3766,20 +3770,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
+        "icon": "res://assets/items/d08/icon.charm.front_line.tres",
+        "card": "res://assets/items/d08/card.charm.front_line.tres",
         "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "rarity_treatment": "res://assets/items/d08/rarity_treatment.charm.front_line.tres",
+        "activation": "res://assets/effects/activation.charm.front_line.tres",
+        "sound": "res://assets/audio/sound.charm.front_line.wav",
+        "reduced_motion": "res://assets/items/d08/reduced_motion.charm.front_line.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -4113,6 +4117,330 @@
         "economy",
         "open",
         "payout"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "consumable.double_take",
+      "name": "Double Take",
+      "category": "consumable",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 5,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "retrigger",
+          "amount": 1,
+          "trigger": "ball",
+          "scope": "roll"
+        }
+      ],
+      "limits": {
+        "max_owned": 2,
+        "charges": 1,
+        "exhaustion": "consume"
+      },
+      "downside": "One use per card, only for the first pin the ball hits directly; income and growth are never repeated.",
+      "synergy_tags": [
+        "tactical",
+        "retrigger",
+        "strike"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "consumable.called_shot",
+      "name": "Called Shot",
+      "category": "consumable",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 5,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "multiply_mult",
+          "amount": 2,
+          "trigger": "ball",
+          "scope": "roll",
+          "condition": {
+            "category": [
+              "strike"
+            ]
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 2,
+        "charges": 1,
+        "exhaustion": "consume"
+      },
+      "downside": "Spent whether or not the strike comes; nothing for a spare or an open frame.",
+      "synergy_tags": [
+        "tactical",
+        "strike",
+        "mult"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "consumable.pin_count",
+      "name": "Pin Count",
+      "category": "consumable",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 3,
+      "resale_price": 1,
+      "effects": [
+        {
+          "op": "add_value",
+          "amount": 5,
+          "trigger": "ball",
+          "scope": "roll",
+          "per": "fallen"
+        }
+      ],
+      "limits": {
+        "max_owned": 2,
+        "charges": 1,
+        "exhaustion": "consume"
+      },
+      "downside": "A one-off bonus; worth most on a full frame, little on a weak one.",
+      "synergy_tags": [
+        "tactical",
+        "value",
+        "baseline"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.cleanup_crew",
+      "name": "Cleanup Crew",
+      "category": "charm",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 4,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "add_mult",
+          "amount": 5,
+          "trigger": "charm",
+          "scope": "frame",
+          "condition": {
+            "category": [
+              "spare"
+            ],
+            "leave_min": 2
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Nothing on a one-pin spare, a strike or an open frame; Split Specialist pays more for the hardest leaves.",
+      "synergy_tags": [
+        "spare",
+        "clearing",
+        "mult"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.lucky_seven",
+      "name": "Lucky Seven",
+      "category": "charm",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 3,
+      "resale_price": 1,
+      "effects": [
+        {
+          "op": "add_mult",
+          "amount": 7,
+          "trigger": "charm",
+          "scope": "frame",
+          "condition": {
+            "category": [
+              "open"
+            ],
+            "standing_count": 3
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Exactly seven down or nothing; it never helps a strike or a spare.",
+      "synergy_tags": [
+        "open",
+        "standing",
+        "mult"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "kit.tournament",
+      "name": "Tournament Kit",
+      "category": "kit",
+      "rarity": "common",
+      "pool_weight": 0,
+      "unlock": {
+        "kind": "championship",
+        "prerequisites": [
+          "gate.house_champion"
+        ]
+      },
+      "earliest_division": 1,
+      "purchase_price": 0,
+      "resale_price": 0,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Four ball cards instead of six, so specials come up less often.",
+      "synergy_tags": [
+        "economy",
+        "baseline"
       ],
       "incompatibilities": [],
       "assets": {

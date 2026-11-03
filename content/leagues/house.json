@@ -4,8 +4,9 @@
   "name": "House League",
   "batch": "E17-L01",
   "status": "authored",
-  "note": "House League spec (E17-L01): eight Divisions replacing the slice's two and the campaign's provisional encounters at integration (E22-L01). Targets are provisional until E24; Divisions 1 and 2 keep the slice's targets, and every match target rises across the League (LeagueRun). The two new rivals' first-clear items are chosen in the House item batches (Wave 7); their gates are named here.",
+  "note": "House League spec (E17-L01): eight Divisions replacing the slice's two and the campaign's provisional encounters at integration (E22-L01). Targets are provisional until E24; Divisions 1 and 2 keep the slice's targets, and every match target rises across the League (LeagueRun). The two new rivals' first-clear items are chosen in the House item batches (Wave 7); their gates are named here. E22-L01 makes it the live House League: rivals recur (rivals_recur), each boss plays one of its listed lanes, chosen by Division number (ContentSet.assign_lanes), and the kits carry their loadouts.",
   "access": [],
+  "rivals_recur": true,
   "lanes": [
     "lane_condition.house_oil",
     "lane_condition.dry_backend"
@@ -13,10 +14,33 @@
   "kits": [
     {
       "id": "kit.house",
-      "unlock": "initial"
+      "name": "House Kit",
+      "unlock": "initial",
+      "pins": [
+        "pin.wood",
+        "pin.wood",
+        "pin.wood",
+        "pin.wood",
+        "pin.wood",
+        "pin.wood",
+        "pin.wood",
+        "pin.wood",
+        "pin.wood",
+        "pin.wood"
+      ],
+      "deck": [
+        "ball.hook",
+        "ball.hook",
+        "ball.hammer",
+        "ball.hammer",
+        "ball.echo",
+        "ball.echo"
+      ],
+      "money": 6
     },
     {
       "id": "kit.tournament",
+      "name": "Tournament Kit",
       "unlock": "gate.house_champion",
       "pins": [
         "pin.wood",
@@ -194,7 +218,7 @@
             "unlocks": [
               "gate.proprietor_cleared"
             ],
-            "text": "A House item joins the shop pool from your next attempt."
+            "text": "House Special joins the shop pool from your next attempt."
           },
           "reactions": {
             "entrance": "House rules, friend. House Ball, house odds.",
@@ -247,7 +271,7 @@
             "unlocks": [
               "gate.old_lou_cleared"
             ],
-            "text": "A House item joins the shop pool from your next attempt."
+            "text": "Wood Grain joins the shop pool from your next attempt."
           },
           "reactions": {
             "entrance": "Wood's wood, kid. Let's see your arm.",
@@ -354,7 +378,7 @@
             "unlocks": [
               "gate.proprietor_cleared"
             ],
-            "text": "A House item joins the shop pool from your next attempt."
+            "text": "House Special joins the shop pool from your next attempt."
           },
           "reactions": {
             "entrance": "House rules, friend. House Ball, house odds.",
@@ -407,7 +431,7 @@
             "unlocks": [
               "gate.old_lou_cleared"
             ],
-            "text": "A House item joins the shop pool from your next attempt."
+            "text": "Wood Grain joins the shop pool from your next attempt."
           },
           "reactions": {
             "entrance": "Wood's wood, kid. Let's see your arm.",
@@ -463,9 +487,9 @@
           "intro": "The Custodian defends the House title with the Proprietor's blessing: only strikes and spares bank, and you throw the House Ball only. Every frame must be clean, with no special ball to fall back on.",
           "first_clear": {
             "unlocks": [
-              "gate.house_champion"
+              "gate.house_champion_cleared"
             ],
-            "text": "House League champion: the Royal League opens and the Tournament Kit is available from your next attempt."
+            "text": "The House champion's plaque goes on your shelf; the League title opens the Royal League and the Tournament Kit."
           },
           "reactions": {
             "entrance": "Mind the corners. I only count what's cleared.",

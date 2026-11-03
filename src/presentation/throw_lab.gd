@@ -59,6 +59,7 @@ const League = preload("res://src/rules/league_run.gd")
 const ItemPhysics = preload("res://src/simulation/item_physics.gd")
 const Tactics = preload("res://src/rules/tactics.gd")
 const Upgrades = preload("res://src/rules/upgrades.gd")
+const LeagueTheme = preload("res://src/presentation/league_theme.gd")
 const TacticSheet = preload("res://src/presentation/tactic_sheet.gd")
 const NEAR_VICTORY := 0.75 # share of the target that makes a rival nervous
 const HOUSE := "ball.house"
@@ -124,6 +125,7 @@ var frame_actions: Array = [] # E18-C06: instant tactics played this frame (Tact
 var tactic_sheet: Control
 var _tactic: Dictionary = {} # the instant tactic being chosen: {uid, item_id, kind, values, ...}
 var _tactic_note := ""
+var league_theme: Node # E22-L01: the League's environment, lane surfaces and music (the House League only)
 var match_number := 1
 var match_frame := 1
 var _equipment_model := ""
@@ -223,6 +225,11 @@ func _ready() -> void:
 	if not content.errors.is_empty():
 		push_error("Content set %s invalid: %s" % [content.id, str(content.errors)])
 	_catalogue = content.catalogue
+	if content.get("id", "") == "house":
+		league_theme = LeagueTheme.for_league(content.get("league_id", ""))
+		if league_theme != null:
+			add_child(league_theme)
+			league_theme.play_music()
 	for entry in _catalogue.items:
 		_names[entry.id] = entry.name
 	run = RunInventory.create(_catalogue, content.kit.pins, content.kit.deck, int(content.kit.money))
@@ -598,6 +605,10 @@ func _new_roll(save: bool = true) -> void:
 	_viewport.add_child(lane)
 	lane.lane_condition = division.current().get("lane_condition", "lane.house")
 	lane.setup(rack, _dressing, ItemPhysics.profiles(_catalogue, run.loadout().pins))
+	if league_theme != null:
+		var last: bool = division.division_number() == division.division_count()
+		league_theme.show_stage(_viewport, division.division_number(), last and division.is_boss())
+		league_theme.dress_lane(lane, lane.lane_condition)
 	lane.roll_finished.connect(_on_roll_finished)
 	start_x = assist_panel.values().start_x if settings.assist else 0.0
 	lane.place_ball(start_x)

@@ -35,8 +35,10 @@ func _run() -> void:
 	_check(lab.division.practice, "Practice is on before the first throw")
 	await _play_out()
 	lab.run.credit(8000, "fixture: C08 Charm sampling")
+	# Wood Grain is Old Lou's first-clear reward (E22-L01); this attempt's pool gets its gate.
+	if "gate.old_lou_cleared" not in lab.shop.unlocked: lab.shop.unlocked.append("gate.old_lou_cleared")
 	lab._refresh_shop()
-	print("J03C08 fixture: $8000 granted after the opener; offers, rerolls and purchases follow")
+	print("J03C08 fixture: $8000 granted and gate.old_lou_cleared added to this attempt's pool after the opener; offers, rerolls and purchases follow")
 	await _buy(FIRST)
 	await _capture("c08_shop")
 	await _leave_shop()
@@ -44,10 +46,16 @@ func _run() -> void:
 	_check(strike.result.category == "strike" and _logged("Head Pin") and _logged("Wood Grain") and _logged("Opening Act") and not _logged("Open House"),
 		"a first-frame strike: Head Pin, Wood Grain and Opening Act apply; Open House stays silent")
 	_check(strike.income >= 1, "Strike Fund pays $1 with the strike's income ($%d)" % strike.income)
+	await process_frame
+	_check(lab.motion.abilities.marquee_lit, "Opening Act marquee lit in frame 1")
+	for id in ["charm.head_pin","charm.wood_grain","charm.opening_act"]:
+		_check(lab.motion.abilities.history.any(func(e): return e.id == id), "native resolver cue: " + id)
 	await _capture("c08_strike")
 	await _focus_accept(lab.next_rack)
 	var open := await _house_frame([LEAVE, GUTTER], "feature frame 2")
 	_check(open.result.category == "open" and _logged("Open House") and not _logged("Opening Act"), "a second-frame open: Open House applies; Opening Act stays silent")
+	await process_frame
+	_check(not lab.motion.abilities.marquee_lit, "Opening Act marquee dims in frame 2")
 	await _capture("c08_open")
 	await _to_shop("feature")
 	var index: int = lab.run.charms.map(func(e): return e.item_id).find("charm.opening_act")
@@ -63,6 +71,26 @@ func _run() -> void:
 	var standing: int = 10 - holdouts.frame.rolls.reduce(func(n, r): return n + r.fallen_positions.size(), 0)
 	_check(holdouts.result.category == "open" and standing > 0 and _logged("Holdouts"), "Holdouts adds Value for %d standing pins" % standing)
 	await _capture("c08_holdouts")
+	for id in ["charm.open_house","charm.strike_fund","charm.holdouts"]:
+		_check(art_captures.has(id), "native cue captured: " + id)
+		var heard_b: int = lab.motion.sound.played
+		lab.motion.abilities.cue(id,"skip_fixture",true)
+		_check(lab.motion.sound.played == heard_b,"B skipped cue silent")
+		lab.motion.sound.muted = true
+		lab.motion.abilities.cue(id,"mute_fixture",false)
+		_check(lab.motion.sound.played == heard_b,"B muted cue silent")
+		lab.motion.sound.muted = false
+	var bank_before: int = lab.total_score
+	for id in ["charm.head_pin", "charm.wood_grain", "charm.opening_act"]:
+		var heard: int = lab.motion.sound.played
+		lab.motion.abilities.cue(id,"skip_fixture",true)
+		_check(lab.motion.sound.played == heard, "skipped cue is silent: " + id)
+		lab.motion.sound.muted = true
+		lab.motion.abilities.cue(id,"mute_fixture",false)
+		_check(lab.motion.sound.played == heard, "muted cue is silent: " + id)
+		lab.motion.sound.muted = false
+	_check(lab.total_score == bank_before, "presentation fixtures cannot rebank")
+	_check(art_captures.has("charm.wood_grain_10") and art_captures.has("charm.wood_grain_7"), "full and partial Wood counts captured")
 	if "--inject-failure" in OS.get_cmdline_user_args(): _check(false, "Injected diagnostic failure")
 	if failures.is_empty(): print("ROGUEWOOD_J03C08_OK")
 	quit(0 if failures.is_empty() else 1)
@@ -121,3 +149,50 @@ func _capture(label: String) -> void:
 	var image := root.get_texture().get_image()
 	if image == null or image.is_empty() or image.save_png(artifact_dir.path_join(label + ".png")) != OK:
 		_check(false, "Cannot capture " + label)
+
+# Native cue evidence while the original explanation plays.
+var art_captures := {}
+func _scored() -> Dictionary:
+	for tick in ROLL_FRAMES * 3:
+		if lab.state in ["scoring", "frame_done"]:
+			var glyph: Control = lab.motion.abilities.glyph
+			if glyph.style != null and glyph.age < glyph.style.duration:
+				var id: String = glyph.style.item_id
+				if id in ["charm.head_pin", "charm.wood_grain", "charm.opening_act"]:
+					var count := int(glyph.details.get("count",0))
+					var key := id + "_%d" % count
+					if not art_captures.has(key):
+						art_captures[key] = true
+						_check(glyph.still, "native Charm cue respects reduced motion")
+						if id == "charm.head_pin":
+							_check(lab.motion.abilities.counted_rack_positions() == [1], "Head Pin marks position 1")
+						if id == "charm.wood_grain":
+							var frame: Dictionary = lab.scored_frames[-1].frame
+							var down: Array = []
+							for roll in frame.rolls: down.append_array(roll.fallen_positions)
+							var expected: int = frame.pins.filter(func(p): return p.item_id == "pin.wood" and p.position in down).size()
+							_check(count == expected, "grain count matches fallen Wood Pins")
+						await _capture(key.replace(".","_") + "_cue")
+		await _capture_house_b_cue()
+		if lab.state == "frame_done": return lab.scored_frames[-1]
+		await process_frame
+	_check(false,"native Charm explanation timeout")
+	return lab.scored_frames[-1]
+
+func _capture_house_b_cue() -> void:
+	if lab.state not in ["scoring","frame_done"]: return
+	var glyph: Control = lab.motion.abilities.glyph
+	if glyph.style == null or glyph.age >= glyph.style.duration: return
+	var id: String = glyph.style.item_id
+	if id not in ["charm.open_house","charm.strike_fund","charm.holdouts"] or art_captures.has(id): return
+	art_captures[id] = true
+	var scored: Dictionary = lab.scored_frames[-1]
+	_check(glyph.still,"B cue is static with reduced motion")
+	if id == "charm.open_house": _check(scored.result.category == "open","door only opens on open frame")
+	if id == "charm.strike_fund":
+		_check(scored.result.category == "strike" and glyph.details.phase == "after_bank" and int(glyph.details.amount) == 1,"one coin on strike income after bank")
+	if id == "charm.holdouts":
+		var fallen: Array = []
+		for roll in scored.frame.rolls: fallen.append_array(roll.fallen_positions)
+		_check(int(glyph.details.count) == 10-fallen.size(),"one folded-arm figure per standing pin")
+	await _capture(id.replace(".","_")+"_cue")
