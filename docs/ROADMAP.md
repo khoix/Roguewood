@@ -10,11 +10,11 @@ Coordinator: Claude. Written 2026-10-28, after Wave 4 merged (PR #15). This is t
 
 ## Where we are
 - **Done and on main (E01–E16):** throw, scoring, deck, shop, Division loop, saves, art bible and motion, vertical slice, eight-Division campaign generator, Career and unlocks, Clubhouse.
-- **Content pipeline (E17–E21), in progress (updated in Wave 6):**
+- **Content pipeline (E17–E21), in progress (counts last updated in Wave 6; Waves 7–8 added House's remaining 23 items):**
   - Playable: 60 items. That is 4 balls, 8 pins, 24 Charms, 8 modifications, 3 tactical cards, 6 shop upgrades, 4 boss rules, 2 lane conditions and 1 kit.
   - Written but not yet playable: 27. That is 4 balls, 2 pins, 4 modifications, 16 boss rules and 1 kit.
   - Codex's art and effects counts are in each AV handoff.
-- **League content:** the House spec (8 Divisions) and the roster of all 20 rivals are written; the other five League specs are not. The playable House League still has the slice's 2 Divisions; E22-L01 (Wave 8) brings all 8.
+- **League content:** the House spec (8 Divisions) and the roster of all 20 rivals are written; the other five League specs are not. The House League is playable with all 8 Divisions and all 40 of its items (Wave 8, E22-L01); Codex's art for its last 11 items is AV-H3/H4 (Wave 9).
 - **Not started:** lane conditions beyond House (2 of 12), shop upgrades beyond House (6 of 16; the system exists), kits beyond House.
 
 ## What was wrong with the earlier plan, and what changes
