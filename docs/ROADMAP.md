@@ -127,7 +127,7 @@ The E05 gesture counts path turning abstractly and locks the ball once circling 
 
 ### Web target (owner decision, 2026-11-03)
 The owner wants Roguewood playable as a web app. It stays a Godot project; a Web export is added rather than a rewrite.
-- **E26-W01** (Claude, Wave 9, High): Web export preset and templates in CI; a single-threaded build (no SharedArrayBuffer, so no COOP/COEP headers needed) checked with Jolt; saves in IndexedDB with J07's atomic-write and backup guarantees re-checked; a tap-to-start audio gate; mouse and touch in desktop and phone browsers; load size and frame rate measured; a headless-Chromium browser journey (load, throw, score, save, reload) in CI; a hosted preview.
+- **E26-W01** (Claude, Wave 9, High): Web export preset and templates in CI; a single-threaded build (no SharedArrayBuffer, so no COOP/COEP headers needed) checked with Jolt; saves in IndexedDB with J07's atomic-write and backup guarantees re-checked; a tap-to-start audio gate; mouse and touch in desktop and phone browsers; load size and frame rate measured; a headless-Chromium browser journey (load, throw, score, save, reload) in CI; the build is kept as a CI artifact (`web-build`) that the owner hosts themselves (owner, 2026-11-04: no GitHub Pages).
 - Native physics digests may differ under WebAssembly; a web-specific baseline is allowed, gameplay results are not.
 - Open owner decision: whether web replaces the phone builds as the primary platform or ships alongside them. Until then E26 keeps its phone children and the web build is added to it.
 
