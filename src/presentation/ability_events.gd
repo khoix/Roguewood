@@ -32,6 +32,7 @@ static func project(frame: Dictionary, event: Dictionary, facts: Dictionary = {}
 	elif id == "ball.spare_ball": eligible = phase == "ball" and op == "add_mult" and float(event.get("amount",0)) != 0
 	elif id == "ball.workhorse": eligible = phase == "ball" and op == "add_value" and float(event.get("amount",0)) != 0
 	elif id == "pin.oak": eligible = phase == "fallen" and op == "add_value"
+	elif id == "pin.tin": eligible = (phase == "fallen" and op == "add_value") or (phase == "after_bank" and op == "payout")
 	if eligible:
 		out.append({"id":id,"key":key,"phase":phase,"count":int(event.get("count",0)),
 			"amount":float(event.get("amount",0)),

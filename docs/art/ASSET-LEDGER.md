@@ -732,3 +732,26 @@ No subjective audio listening or phone gate claimed. No screenshots committed.
 - J03C10 normal/reduced captures and JAVH3AC native card/icon/effect contact
   inspected before both flags were set on these three items only. No AV-H3-B,
   E17-D10 or House League bindings changed. Captures remain ignored artifacts.
+
+
+## Wave 9 / AV-H3-B — Tin Pin, Spare Jar, Consolation Prize
+
+- Original built-in image generation, no external image or brand reference:
+  `assets/items/d09/source.AV-H3-B.png`, unchanged 1536×1024 source, SHA256
+  `37e78c9db397c3ba9551068b335fe1c7b4766b917491f79029d8e8c959571b62`.
+  Prompt retained in `briefs/AV-H3-B-source-prompt.txt`. Generated output; no
+  exclusive-copyright claim. Earlier haloed drafts were discarded. The final
+  illustration intentionally has a dark House ground, not transparent cutouts.
+- Atlas regions: Tin (32,32,416,896); empty Spare Jar (492,160,504,736);
+  Consolation Prize (1032,48,480,880). Card/icon/reduced views share these
+  unchanged source regions. Common rarity frames reuse the existing style.
+- Original tin.gdshader adds metal patches, petrol rings, seam and visual-only
+  dents. Original glyphs add surviving-frame coin, earned pin drop and fastened
+  ribbon. Spare Jar live marks/counts read frame snapshots and revealed resolver
+  events; an empty illustration avoids a baked-in count. No House bindings changed.
+- Original sample-free PCM from author_foley.py: `sound.pin.tin metal 950 .42`
+  (three taps at 0/65/140 ms), `sound.charm.spare_jar glass 1250 .34`,
+  `sound.charm.consolation_prize cloth 430 .24`. Mono 22050 Hz, peak 0.48;
+  shared bounded mixer and mute/skip semantics. No licensed samples added.
+- Native evidence: J03C10 and JAVH3BC, headless/rendered. Completion and exact
+  results are in handoffs/AV-H3-B.md; screenshots remain ignored artifacts.

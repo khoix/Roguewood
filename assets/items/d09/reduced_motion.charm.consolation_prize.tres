@@ -1,0 +1,6 @@
+[gd_resource type="AtlasTexture" load_steps=2 format=3]
+[ext_resource type="Texture2D" path="res://assets/items/d09/source.AV-H3-B.png" id="1"]
+[resource]
+atlas = ExtResource("1")
+region = Rect2(1032, 48, 480, 880)
+filter_clip = true

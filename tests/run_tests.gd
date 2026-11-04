@@ -75,6 +75,7 @@ func _initialize() -> void:
 			else:
 				failures.append_array(suite.run())
 		failures.append_array(load("res://tests/house_equipment_art_test.gd").run())
+		failures.append_array(load("res://tests/house_keepsake_art_test.gd").run())
 		failures.append_array(load("res://tests/ability_events_test.gd").run())
 		failures.append_array(load("res://tests/glass_presentation_test.gd").run())
 		failures.append_array(load("res://tests/ability_v08_test.gd").run())
