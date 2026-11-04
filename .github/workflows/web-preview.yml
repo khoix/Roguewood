@@ -1,0 +1,57 @@
+name: Web preview
+# E26-W01: publishes the Web export of main to GitHub Pages for testing, so the game can be
+# played in any desktop or phone browser. One-time owner setup: repository
+# Settings > Pages > Build and deployment > Source: GitHub Actions.
+# To stop using Pages, delete this file (the bootstrap workflow keeps the web-build
+# artifact for self-hosting either way) and set Pages back to "None" in Settings.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: web-preview
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Install pinned Godot and the web template
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION=$(cat .godot-version)
+          BASE="https://github.com/godotengine/godot-builds/releases/download/${VERSION}-stable"
+          mkdir -p "$RUNNER_TEMP/godot"
+          cd "$RUNNER_TEMP/godot"
+          curl --fail --location --retry 3 -O "$BASE/Godot_v${VERSION}-stable_linux.x86_64.zip"
+          curl --fail --location --retry 3 -O "$BASE/Godot_v${VERSION}-stable_export_templates.tpz"
+          sha512sum --check "$GITHUB_WORKSPACE/tools/godot-downloads.sha512"
+          unzip -q "Godot_v${VERSION}-stable_linux.x86_64.zip"
+          unzip -q "Godot_v${VERSION}-stable_export_templates.tpz" "templates/web_nothreads_release.zip"
+          mkdir -p "$HOME/.local/share/godot/export_templates/${VERSION}.stable"
+          cp templates/web_nothreads_release.zip "$HOME/.local/share/godot/export_templates/${VERSION}.stable/"
+          echo "GODOT_BIN=$RUNNER_TEMP/godot/Godot_v${VERSION}-stable_linux.x86_64" >> "$GITHUB_ENV"
+      - name: Export the Web build
+        run: |
+          "$GODOT_BIN" --headless --path . --editor --import
+          mkdir -p build/web
+          "$GODOT_BIN" --headless --path . --export-release Web build/web/index.html
+          ls -la build/web
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
