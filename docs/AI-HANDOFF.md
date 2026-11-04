@@ -213,6 +213,9 @@ Open: Wave 8 is merged (PR #19, main `f444488`). Base: `claude/roguewood-build` 
   - Codex: UI-A2, AV-H4 (E17-D10's five), AV-T01.
 - **Owner:** approve the UI-A1 mockups (gates UI-1), and play the held-ball throw on a phone through the hosted web build.
 
+## Wave 9 progress (coordinator)
+- **E26-W01 DONE** (handoffs/E26-W01.md): Web export, JW01 in the `game` shard, and the GitHub Pages preview workflow (the owner enables Pages once). Findings for R1a: sample gesture times from input events. For W02: the 60 MB pck.
+
 ## Wave 8 closed (coordinator, 2026-11-03)
 - **Contents** (all on `claude/roguewood-build` at the "Wave 8 closed" commit):
   - Claude: the CI split (`db96dbf`), E18-C11 with E17-D10 (`44c6dfa`), E22-L01 (`b7e14fd`). House has all 40 items and its eight-Division League is the live default.

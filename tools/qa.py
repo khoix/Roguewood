@@ -1,5 +1,6 @@
 """Roguewood headless verification; unimplemented suites fail explicitly."""
 import argparse
+import json
 import os
 from pathlib import Path
 import shutil
@@ -187,9 +188,39 @@ def run(args, marker=None, log_path=None, timeout=120):
         raise RuntimeError(f"Missing completion marker: {marker}")
 
 
+def web_journey(exe, inject_failure):
+    import functools, http.server, threading
+    target = ROOT / "build/web/index.html"
+    shutil.rmtree(target.parent, ignore_errors=True)
+    target.parent.mkdir(parents=True)
+    run([exe, "--headless", "--path", str(ROOT), "--export-release", "Web", str(target)], timeout=600)
+    sizes = {f.name: f.stat().st_size for f in sorted(target.parent.iterdir())}
+    mode = "headless-failure" if inject_failure else "headless"
+    artifact_dir = ROOT / "artifacts/e26-w01" / mode
+    shutil.rmtree(artifact_dir, ignore_errors=True)
+    artifact_dir.mkdir(parents=True)
+    (artifact_dir / "sizes.json").write_text(json.dumps(sizes, indent=1))
+    print("Web build sizes (bytes):", json.dumps(sizes))
+
+    class Quiet(http.server.SimpleHTTPRequestHandler):
+        def log_message(self, *args):
+            pass
+    server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), functools.partial(Quiet, directory=str(target.parent)))
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    try:
+        url = "http://127.0.0.1:%d/index.html?qa=1" % server.server_address[1]
+        node = shutil.which("node")
+        if not node:
+            raise RuntimeError("node not found; the web journey needs Node and Playwright")
+        command = [node, str(ROOT / "tests/web/web_journey.mjs"), url, str(artifact_dir)] + (["--inject-failure"] if inject_failure else [])
+        run(command, "ROGUEWOOD_JW01_OK", timeout=600)
+    finally:
+        server.shutdown()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["doctor", "import", "smoke", "export", "unit", "integration", "content", "physics", "shell", "e2e", "experiment", "slice"])
+    parser.add_argument("command", choices=["doctor", "import", "smoke", "export", "unit", "integration", "content", "physics", "shell", "e2e", "experiment", "slice", "web"])
     parser.add_argument("--journey", choices=sorted(JOURNEYS), default="J01")
     parser.add_argument("--rendered", action="store_true", help="Use a real display; on Linux run via xvfb-run")
     parser.add_argument("--inject-failure", action="store_true", help="Exercise J01 failure artifacts")
@@ -274,6 +305,10 @@ def main():
         run([exe, "--headless", "--path", str(ROOT), "--script", "res://tests/shell_smoke.gd"], "ROGUEWOOD_SHELL_OK", ROOT / "artifacts/e03/shell.log")
     elif args.command == "smoke":
         run([exe, "--headless", "--path", str(ROOT), "--", "--bootstrap-smoke"], "ROGUEWOOD_BOOT_OK")
+    elif args.command == "web":
+        # E26-W01: the single-threaded Web export, served locally and played end to end
+        # in headless Chromium (tests/web/web_journey.mjs, JW01).
+        web_journey(exe, args.inject_failure)
     elif args.command == "export":
         target = ROOT / "build/linux/roguewood.x86_64"
         target.parent.mkdir(parents=True, exist_ok=True)

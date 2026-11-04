@@ -3,6 +3,7 @@ extends Control
 const ThrowLab = preload("res://src/presentation/throw_lab.gd")
 const SaveStore = preload("res://src/persistence/save_store.gd")
 const Snapshot = preload("res://src/persistence/attempt_snapshot.gd")
+const WebQA = preload("res://src/platform/web_qa.gd")
 const CareerProfile = preload("res://src/persistence/career_profile.gd")
 const Contracts = preload("res://src/contracts/contracts.gd")
 const FrameBuilder = preload("res://src/rules/frame_builder.gd")
@@ -119,6 +120,12 @@ func _ready() -> void:
 	reset.pressed.connect(_start_session)
 	back.pressed.connect(_show_menu)
 	_show_menu()
+	# E26-W01: browser QA status, only in a Web build opened with ?qa=1.
+	if WebQA.requested():
+		var qa := WebQA.new()
+		qa.name = "WebQA"
+		qa.shell = self
+		add_child(qa)
 	if "--bootstrap-smoke" in OS.get_cmdline_user_args():
 		print("ROGUEWOOD_BOOT_OK")
 		get_tree().quit(0)
