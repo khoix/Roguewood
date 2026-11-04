@@ -1,7 +1,9 @@
 name: Web preview
-# E26-W01: publishes the Web export of main to GitHub Pages, so the game can be
+# E26-W01: publishes the Web export of main to GitHub Pages for testing, so the game can be
 # played in any desktop or phone browser. One-time owner setup: repository
 # Settings > Pages > Build and deployment > Source: GitHub Actions.
+# To stop using Pages, delete this file (the bootstrap workflow keeps the web-build
+# artifact for self-hosting either way) and set Pages back to "None" in Settings.
 on:
   push:
     branches: [main]

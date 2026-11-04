@@ -195,7 +195,7 @@ Open: Wave 8 is merged (PR #19, main `f444488`). Base: `claude/roguewood-build` 
 - **Claude, in this order:**
   1. **E26-W01** (High): Web export.
      - Exclusive paths: export_presets.cfg, project.godot web settings, web-only code under src/platform/, tests/web/, the web steps of tools/qa.py and the CI workflow.
-     - Delivers: a single-threaded Web export (no SharedArrayBuffer), saves in IndexedDB with J07's guarantees re-checked, a tap-to-start audio gate, the page kept from scrolling or zooming during a gesture, a headless-Chromium browser journey (load, throw, score, save, reload) in CI, load size and frame rate measured, and a hosted preview.
+     - Delivers: a single-threaded Web export (no SharedArrayBuffer), saves in IndexedDB with J07's guarantees re-checked, a tap-to-start audio gate, the page kept from scrolling or zooming during a gesture, a headless-Chromium browser journey (load, throw, score, save, reload) in CI, load size and frame rate measured, and the build as a CI artifact for the owner to self-host.
      - If it overruns, it carries into Wave 10 and the rest of the wave closes without it.
   2. **E05-R1a** (High): held-ball input model.
      - Exclusive paths: src/input/, tests/input_test.gd, docs/decisions/011-held-ball-throw.md.
@@ -214,7 +214,7 @@ Open: Wave 8 is merged (PR #19, main `f444488`). Base: `claude/roguewood-build` 
 - **Owner:** approve the UI-A1 mockups (gates UI-1), and play the held-ball throw on a phone through the hosted web build.
 
 ## Wave 9 progress (coordinator)
-- **E26-W01 DONE** (handoffs/E26-W01.md): Web export, JW01 in the `game` shard, and the GitHub Pages preview workflow (the owner enables Pages once). Findings for R1a: sample gesture times from input events. For W02: the 60 MB pck.
+- **E26-W01 DONE** (handoffs/E26-W01.md): Web export, JW01 in the `game` shard, the Web build as the CI artifact `web-build` for self-hosting, and a GitHub Pages test deployment of main (the owner enables Pages once; removable by deleting web-preview.yml). Findings for R1a: sample gesture times from input events. For W02: the 60 MB pck.
 
 ## Wave 8 closed (coordinator, 2026-11-03)
 - **Contents** (all on `claude/roguewood-build` at the "Wave 8 closed" commit):
