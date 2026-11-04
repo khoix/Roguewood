@@ -663,3 +663,19 @@ at counted positions. Conditions/counts come from resolver facts and frame rolls
 Shared mixer/reduced motion/flash controls reused. J03C09 captures real cues and
 checks straight spare/all-House strike/count positions plus silent skip/mute.
 No subjective audio listening or phone gate claimed. No screenshots committed.
+
+## Wave 9 / UI-A1-A — House playing cards
+
+- `assets/ui/cards/build_frames.py` and its fourteen SVG outputs: original
+  Codex-authored geometric vector masters, written for Roguewood. Five distinct
+  material frames, reversible back, Value/Mult/money symbols, five category marks.
+  No external icon, font, texture or brand assets. Reproducible from the script.
+- Existing item card resources are referenced unchanged (House Ball, Ruby Pin,
+  Crown Jewel, Nudge, Spotlight Sign); their original provenance remains in the
+  earlier ledger entries. No catalogue asset slots or completeness flags changed.
+- `src/presentation/ui_a1_preview.*`: standalone composition using live labels
+  and existing illustrations. Engine fallback typography remains provisional;
+  licensed pixel font and panel kit belong to UI-A1-B.
+- Static card material target only: dynamic foil/reveal is UI-A2, game integration
+  UI-1. Native JUIA1 portrait/landscape captures are generated evidence, not source
+  assets, and must never be committed. See `docs/art/ui/UI-A1.md` for dimensions.
