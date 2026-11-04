@@ -38,7 +38,7 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - Wave 4 MERGED to main by PR #15 (CI 40760480791 PASS on `e72051b`): Claude E18-C03 and E17-D04; Codex E17-D03-ART, E19-A16 and E20-V08. 
 - Wave 5 MERGED to main by PR #16 (CI PASS on `bebb702`, which also raised the CI job limit to 90 minutes): Claude E18-C04 and E17-L01; Codex AV-C03 and E17-D04-ART.
 - Wave 6 MERGED to main by PR #17 (main `1f8a304`; CI PASS on `f5192eb`): Claude E18-C05…C07; Codex AV-C04 and E22-L01-ART. 
-- Wave 7 MERGED to main by PR #18 (main `48ea9e3`; CI PASS on `ed8173a`): Claude DC-H1…H3 (E18-C08…C10); Codex E21-R03/R04, AV-C06 and AV-C07. Wave 8 MERGED to main by PR #19 (main `f444488`; CI PASS on `ee7e9e6`). Wave 9 is planned but not yet claimed (docs/ROADMAP.md): Claude E26-W01, then E05-R1a and E05-R1b; Codex UI-A1 and AV-H3. Wave 10: UI-1, UI-2, UI-A2, AV-H4, AV-T01. Neon (E17-L02) starts in Wave 11 (owner, 2026-11-03/04). The equipment model is decided: the deck (ADR 004).
+- Wave 7 MERGED to main by PR #18 (main `48ea9e3`; CI PASS on `ed8173a`): Claude DC-H1…H3 (E18-C08…C10); Codex E21-R03/R04, AV-C06 and AV-C07. Wave 8 MERGED to main by PR #19 (main `f444488`; CI PASS on `ee7e9e6`). **Wave 9 is open** (see "Wave 9 claims"): Claude E26-W01, then E05-R1a and E05-R1b; Codex UI-A1 and AV-H3. Wave 10: UI-1, UI-2, UI-A2, AV-H4, AV-T01. Neon (E17-L02) starts in Wave 11 (owner, 2026-11-03/04). The equipment model is decided: the deck (ADR 004).
 - **Roadmap (2026-10-28):** docs/ROADMAP.md maps every remaining milestone to phases (one per League group) and waves, with ownership, the content split per League and the owner's decisions. Waves 5–8 complete the House League.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
@@ -189,6 +189,29 @@ The E13-S01 presentation batches (E19-A01…A07, E20-V01…V07, E21-R01/R02) wer
   - Codex: AV-C04 (`e47b7c0`, `792e24b`, `80eb775`) and E22-L01-ART (`ed7f44a`), merged by the coordinator without conflicts.
 - **Validation:** the full CI command list (148 commands, every journey headless and rendered) PASS locally on the merged tree `470d88c`. It includes J03C05–J03C07, JAVC04A/B/C with their contact checks, J22L01ART, J06, J07 and J09–J11. The J03C06 injected failure exits 1. CI runs on this commit.
 - **Merge:** MERGED to main by PR #17 after CI passed on `f5192eb`.
+
+## Wave 9 claims (coordinator: Claude, 2026-11-04)
+Open: Wave 8 is merged (PR #19, main `f444488`). Base: `claude/roguewood-build` at the "Wave 9 claims" commit. Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave9.md). Scope: docs/ROADMAP.md, "Throw rework", "Art-forward interface: UI-R1" and "Web target".
+- **Claude, in this order:**
+  1. **E26-W01** (High): Web export.
+     - Exclusive paths: export_presets.cfg, project.godot web settings, web-only code under src/platform/, tests/web/, the web steps of tools/qa.py and the CI workflow.
+     - Delivers: a single-threaded Web export (no SharedArrayBuffer), saves in IndexedDB with J07's guarantees re-checked, a tap-to-start audio gate, the page kept from scrolling or zooming during a gesture, a headless-Chromium browser journey (load, throw, score, save, reload) in CI, load size and frame rate measured, and a hosted preview.
+     - If it overruns, it carries into Wave 10 and the rest of the wave closes without it.
+  2. **E05-R1a** (High): held-ball input model.
+     - Exclusive paths: src/input/, tests/input_test.gd, docs/decisions/011-held-ball-throw.md.
+  3. **E05-R1b** (High): held-ball presentation.
+     - Exclusive paths: throw_lab.gd's hold, input and aim-ball code; tests/throw_journey.gd, motion_journey.gd and slice_journey.gd.
+     - Delivers: the tuning panel, trial-log fields, and vibration and sound hooks with stable cue ids (`throw.charge`, `throw.curve_ready`, `throw.full_charge`) for AV-T01.
+- **Codex:**
+  - **UI-A1** (High, 2 sessions): the interface visual target, for the owner's approval.
+    - Contents: a playing-card face and card back; a frame and border kit for the HUD, shop, score slip and panels (House first); a pixel font; and Value, Mult and $ icons.
+    - Shown in a standalone preview scene, captured at actual size in portrait and landscape by a new art-shard journey.
+    - Paths: assets/ui/, docs/art/ui/, the preview scene and its journey. Existing UI scripts stay untouched; UI-1 (Wave 10) integrates.
+  - **AV-H3** (Medium; High for counted effects; 2 sessions): identity art, activation, sound and both flags for E17-D09's six items: Spare Ball, Workhorse, Oak Pin, Tin Pin, Spare Jar, Consolation Prize. J03C10 plays them.
+- **Wave 10 (not claimed yet):**
+  - Claude: UI-1, UI-2.
+  - Codex: UI-A2, AV-H4 (E17-D10's five), AV-T01.
+- **Owner:** approve the UI-A1 mockups (gates UI-1), and play the held-ball throw on a phone through the hosted web build.
 
 ## Wave 8 closed (coordinator, 2026-11-03)
 - **Contents** (all on `claude/roguewood-build` at the "Wave 8 closed" commit):
