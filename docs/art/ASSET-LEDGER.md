@@ -697,7 +697,9 @@ No subjective audio listening or phone gate claimed. No screenshots committed.
   `https://raw.githubusercontent.com/google/fonts/main/ofl/pixelifysans/PixelifySans%5Bwght%5D.ttf`
   and the same directory's `OFL.txt`. Font SHA256
   `9ba86cd010a4de309d263ceff8e8044092c9db7efda869620cb9ff1c4389e8a5`;
-  licence SHA256 `b66ba46f511a851ab09998b5a5a9fdbb102545a3864cb993095e1745996873a7`.
+  downloaded licence SHA256 `b66ba46f511a851ab09998b5a5a9fdbb102545a3864cb993095e1745996873a7`.
+  Repository licence has LF line endings and trailing whitespace removed, with
+  all licence text preserved; SHA256 `62247d172c6173c3deaa58dc9e5e77d7942977048281a40e68fd766c4168e582`.
 - The new standalone UI composition reuses existing House room/lane/equipment
   resources and Session A illustrations without modifying those sources. Scores
   and shop state are static composition samples; no production UI integration.
