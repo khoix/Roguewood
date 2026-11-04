@@ -157,6 +157,15 @@ for art_batch in range(8, 13):
         f"artifacts/e19-a{art_batch:02}/preview", ("contact", "comparison"), 180, ["--fixed-fps", "60"])
 
 
+# UI-A1-B extends the existing card journey without replacing its captures.
+JOURNEYS["JUIA1"] = (
+    *JOURNEYS["JUIA1"][:3],
+    JOURNEYS["JUIA1"][3] + ("portrait_throw", "portrait_shop", "portrait_kit",
+                           "landscape_throw", "landscape_shop", "landscape_kit"),
+    *JOURNEYS["JUIA1"][4:],
+)
+
+
 def engine():
     executable = os.environ.get("GODOT_BIN") or shutil.which("godot") or shutil.which("godot4")
     if not executable:

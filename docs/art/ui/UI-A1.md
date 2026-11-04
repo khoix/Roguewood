@@ -1,8 +1,8 @@
 # UI-A1 — House interface visual target
 
-Session A supplies the card target. Session B (frame kit, licensed pixel font,
-throw/shop compositions) is still open. This standalone scene does not integrate
-with the hand, shop, HUD or Clubhouse. UI-1/UI-2 remain Wave 10 work.
+UI-A1-A and UI-A1-B supply the card and House frame-kit targets. These standalone
+scenes do not integrate with the hand, shop, HUD or Clubhouse. UI-1/UI-2 remain
+Wave 10 work; owner review of this target precedes that integration.
 
 ## Card contract
 
@@ -27,7 +27,7 @@ short hints are visual samples; integration must bind actual catalogue rules and
 resolver facts. Ruby: +10 Value and +2 Mult when fallen; Crown Jewel: ×2 frame
 Mult only when Crown falls last. Price is a removable shop overlay, never part
 of the permanent face. Frames have no nine-slice contract: preserve their aspect
-ratio. Session B will specify nine-slice panel resources separately.
+ratio. Panel nine-slice resources are specified below.
 
 ## Materials and symbols
 
@@ -51,8 +51,9 @@ Five existing identities are shown: House Ball (common), Ruby Pin (uncommon),
 Crown Jewel (epic), Nudge (common), Spotlight Sign (rare). The separate material
 study applies all five frame types for comparison; its labels explicitly state
 these are not catalogue rarities. There is no Legendary catalogue item yet.
-Typography is the provisional engine fallback in Session A; the licensed pixel
-font is explicitly Session B scope.
+Typography now uses the bundled Pixelify Sans under SIL OFL 1.1. Native
+engine fallback supplies unsupported rarity-seal glyphs; ordinary letters,
+digits and dollar signs are covered by the bundled font.
 
 ## States and motion for integration
 
@@ -81,3 +82,92 @@ native button activation. Captures are under `artifacts/ui-a1/rendered/`:
 `portrait_cards.png`, `portrait_studies.png`, `landscape_cards.png`,
 `landscape_studies.png`. CI runs this only in the art shard and uploads that
 folder. These checks are not physical-phone readability certification.
+
+
+## House frame kit (UI-A1-B)
+
+Five 64×64 SVG masters bind through `assets/ui/house/manifest.json` to
+StyleBoxTexture resources. `build_kit.py` is their original reproducible source.
+Corners remain fixed in native pixels. Horizontal and vertical rails **tile**;
+the center fills with the same quiet material. Never scale a whole panel texture
+into a stretched picture. Use nearest sampling for the native ornament textures.
+
+| Stable kit ID | Resource | Four slice margins | Four content insets | Minimum size |
+|---|---|---|---|---|
+| ui.house.hud | hud.tres | 12 px | 20 px | 40×40 |
+| ui.house.shop | shop.tres | 16 px | 24 px | 48×48 |
+| ui.house.slip | slip.tres | 12 px | 20 px | 40×40 |
+| ui.house.menu | menu.tres | 16 px | 24 px | 48×48 |
+| ui.house.panel | panel.tres | 12 px | 20 px | 40×40 |
+
+Paths in the table are relative to `assets/ui/house/`. These are new UI IDs;
+the existing `assets/leagues/house/manifest.json` is unchanged. Walnut under-rails,
+brass chamfered corners and ivory studs connect the interface to the House room.
+HUD uses dark ink, shop and ordinary panels petrol, menu a walnut-black ground,
+score slips ivory stock with perforation marks. The two original ornaments are
+`corner.svg` (32×32; rotate for the other corners) and `divider.svg` (128×16;
+keep aspect, do not stretch its center diamond).
+
+For compact buttons, duplicate the frame resource and set content insets to
+12 px left/right and 8 px top/bottom; retain the texture slice margins. The
+specimen's actual text is centered, with at least 48 px control height. Normal:
+shop frame; pressed/focus: HUD brass frame. Integration should add the pressed
+translation from Session A, an ARMED tab/sea-glass outline, SOLD stamp, and
+LOCKED hatch/badge. No gameplay state is represented solely by color. The
+preview tabs select scenes; purchase/draw buttons are visual specimens only.
+
+## Typeface and native text
+
+`assets/ui/fonts/PixelifySans.ttf`, Pixelify Sans Project Authors, unmodified
+variable font distributed under SIL Open Font License 1.1; full licence in
+`assets/ui/fonts/OFL.txt`. Source URLs and SHA256 are in the asset ledger.
+Use native text, never texture-scaled lettering. Font sizes: 48 total, 36 target,
+40 shop heading, 32 specimen heading, 24 actions/section headings, 20 navigation
+annotation, 20 card name, 16 rule hint, 14 qualifier/rarity. Keep 14 px only for
+secondary card labels; never reduce a primary action to make it fit. The font
+is an art direction choice, not a claim of physical-phone certification.
+
+Foreground/background anchors: ivory `#f4e6cd` on ink `#101820` or petrol
+`#17363d`; ink and walnut `#573a2e` on ivory stock. Gold and sea-glass accent
+text is on dark grounds. Foil and ornament never cross text regions.
+
+## Compositions and safe regions
+
+Open `src/presentation/ui_a1_composition.tscn`: Throw, Shop, Frame kit tabs.
+The original `ui_a1_preview.tscn` remains the catalogue/material-study inspector.
+Both use the same `populate_card` art factory and font. All sample scores,
+wallets and actions are explicitly static art-preview data, not live game state.
+The House starter has no invented purchase price; it is labelled STARTER.
+
+| View | 720×1280 portrait | 1280×720 landscape |
+|---|---|---|
+| Shared safe region | 24 px side edges, 16 px top, 24 px bottom | same |
+| Preview tabs | y16–64; excluded from production UI | same |
+| Throw HUD | (24,88), 672×124 | (24,88), 420×124 |
+| Lane frame | (24,228), 672×580 | (312,232), 420×464 |
+| Hand | three 210×300 faces at y870 | two 210×300 faces at (766,140), (1000,140) |
+| Score slip | offered as separate frame specimen | (24,232), 264×188 |
+| Shop masthead | (24,88), 672×124 | (24,88), 1232×124 |
+| Shop stock | two 672×430 shelves at y232,686 | one 942×434 shelf at (24,232) |
+| Shop actions | bottom row y1188–1256 | right rail x988–1256 |
+
+The lane uses a cosmetic SubViewport with existing Division 1 House backdrop,
+lane finish, Wood Pins and House Ball; no collision bodies, saves, input model or
+resolver. Native viewport resolution is half the panel interior with nearest
+sampling, independently composed for each orientation. The camera keeps both
+ball and rack visible. This does not implement or validate E05-R1's held-ball
+interaction. No UI overlaps the lane's 12 px inset aiming region.
+
+## Extended evidence and owner review
+
+JUIA1 now captures ten images under `artifacts/ui-a1/rendered/`. Review the four
+card images above, then `portrait_throw.png`, `landscape_throw.png`,
+`portrait_shop.png`, `landscape_shop.png`, `portrait_kit.png`, `landscape_kit.png`.
+The original art-shard CI step uploads all ten; qa.py's capture list was extended
+additively. No screenshot is a committed source asset.
+
+The journey additionally verifies real tab input, font coverage, frame slice and
+content margins, touch heights, text bounds in both compositions, hand/lane
+separation, ball visibility with a safe margin, and byte-identical rendered
+corner pixels across panel sizes and orientations. Native view inspection remains
+necessary: metric checks cannot certify visual quality or phone ergonomics.

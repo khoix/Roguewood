@@ -679,3 +679,28 @@ No subjective audio listening or phone gate claimed. No screenshots committed.
 - Static card material target only: dynamic foil/reveal is UI-A2, game integration
   UI-1. Native JUIA1 portrait/landscape captures are generated evidence, not source
   assets, and must never be committed. See `docs/art/ui/UI-A1.md` for dimensions.
+
+## Wave 9 / UI-A1-B — House frame kit and typography
+
+- `assets/ui/house/{hud,shop,slip,menu,panel}.svg` and matching StyleBoxTexture
+  resources: original Codex-authored nine-slice geometry, E11 House palette,
+  walnut/brass rails, ivory studs, bevels and paper perforation marks. Original
+  `corner.svg` and `divider.svg` ornaments; generated reproducibly by
+  `assets/ui/house/build_kit.py`. No third-party frame or icon assets.
+- New `ui.house.*` bindings in `assets/ui/house/manifest.json`; existing House
+  League asset IDs/bindings untouched. Five fixed-corner, tiled-rail resources.
+- `assets/ui/fonts/PixelifySans.ttf`: unmodified Pixelify Sans variable font,
+  Copyright 2021 The Pixelify Sans Project Authors
+  (https://github.com/eifetx/Pixelify-Sans). SIL Open Font License 1.1 permits
+  redistribution with the licence; full unmodified licence accompanies it as
+  `OFL.txt`. Retrieved 2026-11-04 from
+  `https://raw.githubusercontent.com/google/fonts/main/ofl/pixelifysans/PixelifySans%5Bwght%5D.ttf`
+  and the same directory's `OFL.txt`. Font SHA256
+  `9ba86cd010a4de309d263ceff8e8044092c9db7efda869620cb9ff1c4389e8a5`;
+  licence SHA256 `b66ba46f511a851ab09998b5a5a9fdbb102545a3864cb993095e1745996873a7`.
+- The new standalone UI composition reuses existing House room/lane/equipment
+  resources and Session A illustrations without modifying those sources. Scores
+  and shop state are static composition samples; no production UI integration.
+- JUIA1 produces ten native captures, never committed. Typography and frame
+  target checked at 720×1280 and 1280×720. Physical-phone approval and UI-1/UI-2
+  integration are separate. No catalogue completeness flags changed.
