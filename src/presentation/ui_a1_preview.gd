@@ -26,10 +26,10 @@ func _ready() -> void:
  resized.connect(func():call_deferred("rebuild"))
  rebuild()
 func label_at(parent:Control, text:String, rect:Rect2, pixels:int, ink:Color) -> Label:
- var label:=Label.new();label.text=text;label.position=rect.position;label.size=rect.size
+ var label:=Label.new();label.text=text;label.position=rect.position
  label.add_theme_font_override("font",PIXEL_FONT)
  label.add_theme_font_size_override("font_size",pixels);label.add_theme_color_override("font_color",ink)
- label.vertical_alignment=VERTICAL_ALIGNMENT_CENTER;parent.add_child(label);labels.append(label);return label
+ label.vertical_alignment=VERTICAL_ALIGNMENT_CENTER;parent.add_child(label);label.size=rect.size;labels.append(label);return label
 func image_at(parent:Control, texture:Texture2D, rect:Rect2) -> TextureRect:
  var image:=TextureRect.new();image.texture=texture;image.position=rect.position
  image.expand_mode=TextureRect.EXPAND_IGNORE_SIZE;image.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -64,6 +64,6 @@ func populate_card(card:Control,i:int,material_study:bool=false) -> void:
  label_at(card,item.name,Rect2(Vector2(18,10)*s,Vector2(174,28)*s),20,Color("101820"))
  image_at(card,load(DIR+str(item.id).get_slice(".",0)+".svg"),Rect2(Vector2(17,44)*s,Vector2(26,26)*s))
  image_at(card,load(DIR+SYMBOLS[i]+".svg"),Rect2(Vector2(17,235)*s,Vector2(28,28)*s))
- label_at(card,HINTS[i],Rect2(Vector2(51,230)*s,Vector2(144,22)*s),16,Color("101820"))
- label_at(card,DETAILS[i],Rect2(Vector2(51,251)*s,Vector2(144,20)*s),14,Color("573a2e"))
- label_at(card,SEALS[RARITIES.find(rarity)]+" "+rarity.to_upper(),Rect2(Vector2(18,274)*s,Vector2(180,18)*s),14,Color("101820"))
+ label_at(card,HINTS[i],Rect2(Vector2(51,228)*s,Vector2(144,18)*s),16,Color("101820"))
+ label_at(card,DETAILS[i],Rect2(Vector2(51,248)*s,Vector2(144,16)*s),14,Color("573a2e"))
+ label_at(card,SEALS[RARITIES.find(rarity)]+" "+rarity.to_upper(),Rect2(Vector2(18,268)*s,Vector2(174,18)*s),14,Color("101820")).name="RarityLabel"

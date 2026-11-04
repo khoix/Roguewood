@@ -10,7 +10,7 @@ for rank,(name,c) in enumerate(COLORS.items()):
  <rect x="7" y="7" width="196" height="286" rx="9" fill="#573a2e"/>
  <rect x="10" y="10" width="190" height="280" rx="7" fill="#f4e6cd"/>
  <path d="M14 39H196V224H14Z" fill="#17363d" stroke="#{c}" stroke-width="2"/>
- <path d="M16 223H194M16 273H194" stroke="#bca888" stroke-width="2"/>
+ <path d="M16 223H194M16 266H194" stroke="#bca888" stroke-width="2"/>
  <path d="M18 44H192M18 218H192" stroke="#377d83"/>
  <path d="M11 26V15Q11 11 16 11H29M181 11H195Q199 11 199 16V26M11 274V284Q11 289 16 289H29M181 289H195Q199 289 199 284V274" fill="none" stroke="#{c}" stroke-width="2"/>'''
  # Distinct corner constructions, not color-only rarity: notches, diamonds, glass rays, brass relief.

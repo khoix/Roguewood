@@ -19,8 +19,8 @@ cards must retain name, category and rarity; full rules belong in inspection.
 | Item illustration | (15,41), 180×181, aspect-fit, nearest filtering; 51.7% of face |
 | Category badge | (17,44), 26×26; opaque ink ground |
 | Rule icon | (17,235), 28×28 |
-| Short rule / qualifier | (51,230), 144×22 at 16 px; (51,251), 144×20 at 14 px |
-| Rarity seal and label | (18,274), 180×18 at 14 px |
+| Short rule / qualifier | (51,228), 144×18 at 16 px; (51,248), 144×16 at 14 px |
+| Rarity seal and label | (18,268), 174×18 at 14 px; divider y266 |
 
 Do not bake names, values, prices or rules into the illustration. The preview's
 short hints are visual samples; integration must bind actual catalogue rules and

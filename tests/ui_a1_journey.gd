@@ -34,6 +34,7 @@ func run() -> void:
     check(label.get_minimum_size().y<=label.size.y,"text height: "+label.text)
     check(screen.encloses(label.get_global_rect()),"label fits viewport")
     check(pixels>=14,"native typography minimum")
+    check_rarity_inset(label)
    for art in app.art_windows:
     check(art.get_parent().get_global_rect().encloses(art.get_global_rect()),"art stays inside face")
     check(art.texture!=null,"existing item illustration loaded")
@@ -83,6 +84,7 @@ func compositions() -> void:
      check(face.get_string_size(line,HORIZONTAL_ALIGNMENT_LEFT,-1,pixels).x<=label.size.x,"composition text width: "+line)
     check(label.get_minimum_size().y<=label.size.y,"composition text height: "+label.text)
     check(screen.encloses(label.get_global_rect()),"composition label stays visible: "+label.text)
+    check_rarity_inset(label)
    for art in app.factory.art_windows:check(art.get_parent().get_global_rect().encloses(art.get_global_rect()),"composition card art contained")
    if page==0:
     check(not app.lane_camera.is_position_behind(app.aim_ball.global_position),"ball in front of camera")
@@ -100,3 +102,9 @@ func compositions() -> void:
      else:corner_samples[kind]=corner.get_data()
     var name:String=("portrait" if dimensions.x<dimensions.y else "landscape")+"_"+["throw","shop","kit"][page]
     check(root.get_texture().get_image().save_png(destination.path_join(name+".png"))==OK,"capture "+name)
+
+func check_rarity_inset(label:Label) -> void:
+ if label.name!="RarityLabel":return
+ var card:Control=label.get_parent()
+ var inset:=Vector2(14,14)*card.size/Vector2(210,300)
+ check(Rect2(inset,card.size-2*inset).encloses(label.get_rect()),"rarity text stays inside the frame safe area: "+label.text)
