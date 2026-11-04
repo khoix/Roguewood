@@ -1,6 +1,6 @@
 # ADR 004 — E07 equipment: draw-and-cycle deck vs direct selection
 
-Status: **provisional**, recorded for E07 on 2026-10-27, pending the owner's review. This ADR records an experiment, not a final rule. Design §15 says to test the proposed deck against direct selection and to make the call "through the vertical-slice playtest, not after producing the entire catalogue". That playtest is E13. Until then:
+Status: **decided: the deck.** The owner chose the draw-and-cycle deck on 2026-11-04, after the House League was playable. All Phase 2 items are written for the deck. Removing direct selection from the player's Options (it may stay as a test fixture) is scoped with the next card-UI claim. Originally recorded as provisional for E07 on 2026-10-27, pending the owner's review. This ADR records an experiment, not a final rule. Design §15 says to test the proposed deck against direct selection and to make the call "through the vertical-slice playtest, not after producing the entire catalogue". That playtest is E13. Until then:
 
 - The draw-and-cycle deck stays the **default** (design §2 already names it as the current proposal).
 - Direct selection stays available as a lab option (Options → Equipment), so both can be played side by side.

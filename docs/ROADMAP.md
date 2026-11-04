@@ -101,7 +101,7 @@ Estimated sessions: Claude about 75, Codex about 97. At 3 and 4 sessions per wav
 ## Decisions only the owner can make
 | When | What | Why it matters |
 |---|---|---|
-| After Wave 8 | Play the full House League (desktop is enough) and decide the equipment model (ADR 004: deck or direct). | Phase 2 multiplies tactical cards and deck items. Changing the model later means reworking them. |
+| ~~After Wave 8~~ | **Decided 2026-11-04: the draw-and-cycle deck** (ADR 004). | Phase 2's tactical cards and deck items are written for the deck. |
 | By the end of Phase 2 | Provide phone hardware (and an iOS toolchain if iOS stays a target), or decide that desktop evidence is acceptable for now. | Real-phone feel (E05), readability (E12), the play session (E13) and all of E26 are blocked without it. Finding feel problems before four more Leagues of content is much cheaper. |
 | Phase 5 | Human playtests to corroborate the balance study. | E24 may not present simulation alone as proof of fun. |
 
