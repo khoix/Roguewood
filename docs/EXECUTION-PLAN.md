@@ -192,6 +192,20 @@ Handoff: update docs/handoffs/<task-id>.md with scope, changes, decisions, comma
 Completion: inspect git status/diff; commit intended work; push assigned branch; verify remote SHA and clean working tree. Record evidence SHA without pretending a file can contain its own containing commit hash. If blocked, persist safe work and status honestly. Stop; do not start another execution.
 ```
 
+#### E05-R1 — Held-ball throw (child of E05; owner-approved 2026-11-03)
+Two Claude sessions at High effort in Wave 9, before Neon; Codex art follows as AV-T01. Scope, approved design changes and validation are in docs/ROADMAP.md ("Throw rework: the held ball").
+- **E05-R1a:** held-ball input model replacing the path-turn spin count; unit tests; ADR 011, which amends design §5 and ADR 003 (the release follows the held ball's velocity, and below the curve threshold a throw is straight).
+- **E05-R1b:** lab presentation (spring follow, lean, rotation matching charge, sparkle states, vibration and sound hooks), trial-log fields, a lab-only tuning panel; J01/J02, J08 and the slice journey drive the new gesture with real input events.
+- **Gate:** real-phone feel through the hosted web build (E26-W01); tuned values replace the provisional ones.
+
+#### UI-R1 — Art-forward interface (split milestone; owner-approved 2026-11-04)
+Card faces, frame kit and interface motion, which no earlier milestone owned (design §17). Scope and gates are in docs/ROADMAP.md ("Art-forward interface: UI-R1").
+- **UI-A1** (Codex, Wave 9, High, 2 sessions): the visual target; owner approval gates UI-1.
+- **UI-1** (Claude, Wave 10, High): one card component everywhere, card motion, long-press inspect; direct selection leaves Options.
+- **UI-2** (Claude, Wave 10, High): every screen in the frame kit; icons and numbers instead of text; ordered score chain.
+- **UI-A2** (Codex, Wave 10, Medium–High): foil, rarity and per-League frame treatments.
+- **Validation:** native journeys keep driving the real UI (control names and focus paths may change, behaviour may not); rendered captures at actual size in portrait and landscape; reduced motion keeps the composition.
+
 ### E06 — Frame scoring and readable resolution
 
 ```text
