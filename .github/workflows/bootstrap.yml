@@ -258,6 +258,11 @@ jobs:
         run: |
           python3 tools/qa.py e2e --journey J22L01ART
           xvfb-run -a python3 tools/qa.py e2e --journey J22L01ART --rendered
+      - name: AV-H3-A equipment identities
+        if: matrix.shard == 'art'
+        run: |
+          python3 tools/qa.py e2e --journey JAVH3AC
+          xvfb-run -a python3 tools/qa.py e2e --journey JAVH3AC --rendered
       - name: UI-A1 card visual target
         if: matrix.shard == 'art'
         run: |
@@ -270,6 +275,7 @@ jobs:
           name: journeys-${{ matrix.shard }}
           path: |
             artifacts/e03/
+            artifacts/av-h3-a/
             artifacts/ui-a1/
             artifacts/e26-w01/
             artifacts/e04/

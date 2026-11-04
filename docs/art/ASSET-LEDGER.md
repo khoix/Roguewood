@@ -706,3 +706,29 @@ No subjective audio listening or phone gate claimed. No screenshots committed.
 - JUIA1 produces ten native captures, never committed. Typography and frame
   target checked at 720×1280 and 1280×720. Physical-phone approval and UI-1/UI-2
   integration are separate. No catalogue completeness flags changed.
+
+## Wave 9 / AV-H3-A — Spare Ball, Workhorse, Oak Pin
+
+- `assets/items/d09/source.AV-H3-A.png`: original built-in generation from
+  `briefs/AV-H3-A-source-prompt.txt`, no external image/brand reference. Unchanged
+  RGBA 1536×1024 source (not a game capture), SHA256
+  `27712a8deb269fbf5a427669df1bf47a0cfc5407526bfdabe2a29c5217b32662`.
+  Generated output; no exclusive-copyright or independent legal-clearance claim.
+- Card/icon/static reduced AtlasTexture views: Spare Ball (0,260,540,560),
+  Workhorse (540,260,536,560), Oak Pin (1100,0,436,960). Existing common-frame
+  style copied unchanged; all seven slots per item now bind to real resources.
+- Original `equipment.gdshader`: fixed world-oriented Spare stripe; rotating
+  oxblood scuffs/shield; tighter dark oak grain and walnut bands. `oak.gd` and
+  its scene add only a visual mesh and contact-triggered damped follow-through;
+  no physics writes. Reduced motion/flash suppresses that motion.
+- Original glyph additions: parallel Spare guides, exactly one Workhorse tally
+  per resolver event.count, damped hardwood arc. Native score log remains the
+  numeric authority; counts are never animation-derived.
+- Original sample-free deterministic PCM via the existing author_foley.py:
+  `sound.ball.spare_ball rubber 660 0.24`, `sound.ball.workhorse wood 240 0.32`,
+  `sound.pin.oak wood 170 0.46`. Mono 22050 Hz, peak 0.48; bounded shared mixer,
+  mute and skipped-step semantics retained. Native audio dispatch checked;
+  subjective speaker/headphone listening and phone certification not claimed.
+- J03C10 normal/reduced captures and JAVH3AC native card/icon/effect contact
+  inspected before both flags were set on these three items only. No AV-H3-B,
+  E17-D10 or House League bindings changed. Captures remain ignored artifacts.

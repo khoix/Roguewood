@@ -25,6 +25,7 @@ func _draw() -> void:
 	var c := size * 0.5
 	var t: float = 0.5 if still else clampf(age / style.duration,0,1)
 	var ink: Color = style.ink
+	if _draw_house_equipment(c,t,ink): return
 	if _draw_house_final(c,t,ink): return
 	if _draw_house_b(c,t,ink): return
 	if identity: draw_texture_rect(identity,Rect2(c - Vector2(18,18),Vector2(36,36)),false)
@@ -379,4 +380,23 @@ func _draw_house_final(c: Vector2, t: float, ink: Color) -> bool:
 				var ball: Texture2D = preload("res://src/presentation/item_assets.gd").slot("ball.house","icon")
 				if ball: draw_texture_rect(ball,Rect2(c-Vector2(12,10),Vector2(24,24)),false)
 		_: return false
+	return true
+
+func _draw_house_equipment(c:Vector2,t:float,ink:Color) -> bool:
+	if style.item_id not in ["ball.spare_ball","ball.workhorse","pin.oak"]:return false
+	if identity:
+		var extent:=Vector2(20,44) if style.item_id=="pin.oak" else Vector2(44,44)
+		draw_texture_rect(identity,Rect2(c-Vector2(extent.x*.5,24),extent),false)
+	if style.item_id=="ball.workhorse":
+		# One mark per resolver count, stable at every animation age.
+		for i in clampi(int(details.get("count",0)),0,10):
+			var x:float=-25+(i%5)*11
+			var y:float=16+(i/5)*8
+			draw_line(c+Vector2(x,y),c+Vector2(x+3,y-6),ink,2)
+	elif style.item_id=="ball.spare_ball":
+		draw_line(c+Vector2(-27,-24),c+Vector2(-27,24),ink,3)
+		draw_line(c+Vector2(27,-24),c+Vector2(27,24),ink,3)
+	else:
+		# Damped rings describe a low wooden knock; reduced motion holds the final ring.
+		draw_arc(c+Vector2(0,20),22+(0 if still else 4*sin(t*PI)),0,PI,16,ink,2)
 	return true

@@ -29,6 +29,9 @@ static func project(frame: Dictionary, event: Dictionary, facts: Dictionary = {}
 	elif id == "pin.anchor": eligible = phase == "standing"
 	elif id in ["pin.wood","pin.ruby","pin.rubber"]: eligible = phase == "fallen"
 	elif id == "pin.crown": eligible = phase == "fallen" and op == "add_value" and event.get("condition",{}).get("last_fallen") == "self"
+	elif id == "ball.spare_ball": eligible = phase == "ball" and op == "add_mult" and float(event.get("amount",0)) != 0
+	elif id == "ball.workhorse": eligible = phase == "ball" and op == "add_value" and float(event.get("amount",0)) != 0
+	elif id == "pin.oak": eligible = phase == "fallen" and op == "add_value"
 	if eligible:
 		out.append({"id":id,"key":key,"phase":phase,"count":int(event.get("count",0)),
 			"amount":float(event.get("amount",0)),
@@ -37,6 +40,8 @@ static func project(frame: Dictionary, event: Dictionary, facts: Dictionary = {}
 			out[-1]["last_fallen"] = int(facts.get("last_fallen",0))
 			out[-1]["leave"] = int(facts.get("leave",0))
 			out[-1]["position"] = int(source.get_slice(":",1)) if id == "pin.crown" else int(facts.get("last_fallen",0))
+		if id in ["ball.spare_ball","ball.workhorse"]:
+			out[-1]["roll"] = int(source.get_slice(":",1))
 		if id == "charm.front_line":
 			out[-1]["positions"] = [1,2,3].filter(func(p): return frame.get("rolls",[]).any(func(r): return p in r.fallen_positions))
 		if id in ["charm.clean_pickup","charm.house_special"]:

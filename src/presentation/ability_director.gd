@@ -138,6 +138,10 @@ func _physical() -> void:
 		_hook = false
 		_hammer = false
 		_rubber.clear()
+	for pin in lab.lane.pins.values():
+		var identity=pin.get_node_or_null("CatalogueIdentity")
+		if identity!=null and pin.get_meta("art_item_id","")=="pin.oak":
+			identity.reduced=lab.settings.reduced_motion or lab.settings.reduced_flash
 	if lab.state != "rolling": return
 	var launch: Dictionary = lab.lane.launch
 	var ball_id: String = launch.get("ball_id","")

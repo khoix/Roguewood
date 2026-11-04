@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 VERSION = (ROOT / ".godot-version").read_text().strip()
 # journey -> script, success marker, artifact directory, rendered captures, timeout, extra engine flags
 JOURNEYS = {
+    "JAVH3AC": ("res://tests/house_equipment_contact.gd", "ROGUEWOOD_H3_CONTACT_OK", "artifacts/av-h3-a/contact", ("contact", "motion"), 180, ["--fixed-fps", "60"]),
     "JUIA1": ("res://tests/ui_a1_journey.gd", "ROGUEWOOD_UI_A1_OK", "artifacts/ui-a1", ("portrait_cards", "portrait_studies", "landscape_cards", "landscape_studies"), 180, ["--fixed-fps", "60"]),
     "JAVC07AC": ("res://tests/upgrade_identity_contact.gd", "ROGUEWOOD_UPGRADE_IDENTITY_OK", "artifacts/av-c07-a/contact", ("contact",), 180, ["--fixed-fps", "60"]),
     "JAVC07BC": ("res://tests/upgrade_identity_contact_b.gd", "ROGUEWOOD_UPGRADE_IDENTITY_OK", "artifacts/av-c07-b/contact", ("contact",), 180, ["--fixed-fps", "60"]),
@@ -164,6 +165,12 @@ JOURNEYS["JUIA1"] = (
                            "landscape_throw", "landscape_shop", "landscape_kit"),
     *JOURNEYS["JUIA1"][4:],
 )
+
+
+# AV-H3-A appends native evidence without dropping the original C10 captures.
+JOURNEYS["J03C10"] = (*JOURNEYS["J03C10"][:3], JOURNEYS["J03C10"][3] +
+    ("ball_spare_ball_armed", "ball_workhorse_armed", "ball_spare_ball_cue",
+     "ball_workhorse_cue", "pin_oak_cue", "ball_workhorse_roll", "ball_spare_ball_roll", "oak_rock"), *JOURNEYS["J03C10"][4:])
 
 
 def engine():
