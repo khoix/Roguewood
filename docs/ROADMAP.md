@@ -70,15 +70,15 @@ The full release is 270 definitions plus 6 League specs (design §15–§16). Th
 - **Unlocks:** each League spec assigns its items to initial, boss, championship and mastery unlocks. Across all bundles they must meet the design's availability targets (12/24 balls, 16/32 pins and 60/100 Charms available at the start). `qa.py content` checks the graph.
 
 ## Phases
-Estimated sessions: Claude about 75, Codex about 97. At 3 and 4 sessions per wave, that is about **27 waves (Waves 5–31)**, including the Wave 9 throw rework (E05-R1) that moved every later wave back by one. Codex's work on each League trails Claude's by about one wave.
+Estimated sessions: Claude about 75, Codex about 97. At 3 and 4 sessions per wave, that is about **28 waves (Waves 5–32)**, including the throw rework (E05-R1, Wave 9) and the art-forward interface (UI-R1, Waves 9–10), which together moved every later wave back by two. Codex's work on each League trails Claude's by about one wave.
 
 | Phase | Waves (est.) | Claude | Codex | Exit test |
 |---|---|---|---|---|
 | **1. House League complete** | 5–8 (Codex to 9) | 8 modifications; House spec and the 20-rival roster; House rules and lane conditions; tactical-card primitives; shop-upgrade system; 4 item batches; House integration | C03 effects and flags; D04 briefs; AV for every House item; House rivals R03–R04; House theme art | 8-Division House League playable end to end with final art and effects for all its content; full-League journey passes |
-| **2. Neon and Salvage** | 10–16 (Codex to 17) | Per League: spec; rules and lanes; primitives; 5–6 item batches; integration | Per League: AV batches; 3 rivals; theme art | All three starting Leagues playable and winnable with their initial content |
-| **3. Royal, Spectral, Foundry** | 17–27 (Codex to 28) | The same template; branch unlocks (win House → Royal, Neon → Spectral, Salvage → Foundry); remaining D01/D04 primitives (phasing, splitting, mass) | The same template | Six Leagues; every planned definition implemented, illustrated and animated |
-| **4. Progression and onboarding** | 27–28 (Codex 29) | E23: difficulty tiers, medals, endless with large-score handling, remaining kit work; E25 core: tutorial, alternate controls, safe areas, J14 | E25-ART symbols and reduced effects; medal, kit and cosmetic art | J13 and J14 pass; every kit starts legally |
-| **5. Balance and release** | 29–31 | E24 balance (Extra High, 2–3 sessions); E27 content audit; E26 platform builds (one per platform, needs hardware); E28 release candidate; E29 delivery | E27 asset audit; fixes from E26 and E28 | E28's full matrix on the frozen candidate, then delivery |
+| **2. Neon and Salvage** | 11–17 (Codex to 18) | Per League: spec; rules and lanes; primitives; 5–6 item batches; integration | Per League: AV batches; 3 rivals; theme art | All three starting Leagues playable and winnable with their initial content |
+| **3. Royal, Spectral, Foundry** | 18–28 (Codex to 29) | The same template; branch unlocks (win House → Royal, Neon → Spectral, Salvage → Foundry); remaining D01/D04 primitives (phasing, splitting, mass) | The same template | Six Leagues; every planned definition implemented, illustrated and animated |
+| **4. Progression and onboarding** | 28–29 (Codex 30) | E23: difficulty tiers, medals, endless with large-score handling, remaining kit work; E25 core: tutorial, alternate controls, safe areas, J14 | E25-ART symbols and reduced effects; medal, kit and cosmetic art | J13 and J14 pass; every kit starts legally |
+| **5. Balance and release** | 30–32 | E24 balance (Extra High, 2–3 sessions); E27 content audit; E26 platform builds (one per platform, needs hardware); E28 release candidate; E29 delivery | E27 asset audit; fixes from E26 and E28 | E28's full matrix on the frozen candidate, then delivery |
 
 ### Phase 1 waves (concrete)
 | Wave | Claude | Codex |
@@ -87,8 +87,9 @@ Estimated sessions: Claude about 75, Codex about 97. At 3 and 4 sessions per wav
 | **6** | E18-C05: House Rules plus the new House rule, and lane conditions as catalogue items (High). E18-C06: tactical-card primitives, landing Nudge, Reserve Call, Rule Waiver (High). E18-C07: shop-upgrade system and 6 upgrades (High). | AV-C04: the 8 modifications (3 sessions). E22-L01-ART: House theme for 8 Divisions (High). |
 | **7** | DC-H1 to DC-H3: 18 House items (3 sessions, Medium). | E21-R03, R04: House's new rivals with their rule badges. AV-C06: the 3 tactical cards. AV-C07: the 6 upgrades (2 sessions). |
 | **8** | DC-H4: the last 5 House items. E22-L01: House League integration and its full-League journey (High). | AV-H1, AV-H2: the first 12 House items (4 sessions). |
-| **9** | E05-R1a and E05-R1b: the held-ball throw (2 sessions, High; owner-approved 2026-11-03). E26-W01: Web export (High; owner-approved 2026-11-03). | AV-H3, AV-H4: the last 11 House items. |
-| 10 (Phase 2 starts) | E17-L02: Neon spec; Neon rules and lanes. | AV-T01: throw charge and sparkle effects and sounds; then Neon rivals (League template wave b). |
+| **9** | In this order: E26-W01 Web export (High), then E05-R1a and E05-R1b, the held-ball throw (2 sessions, High). All owner-approved 2026-11-03/04. W01 is the claim that carries into Wave 10 if it overruns. | UI-A1: the interface visual target for the owner's approval (2 sessions, High). AV-H3: House item art (2 sessions, Medium; High for counted effects). |
+| **10** | UI-1: one real card everywhere (High). UI-2: every screen in the frame kit, score-chain choreography (High). | UI-A2: foil, rarity and theme on the card and frames (Medium–High). AV-H4: the last House item art (2 sessions). AV-T01: throw charge and sparkle effects and sounds (Medium). |
+| 11 (Phase 2 starts) | E17-L02: Neon spec; Neon rules and lanes. | Neon rivals and theme (League template wave b). |
 
 ### League template (Phases 2 and 3)
 | Wave | Claude | Codex |
@@ -104,6 +105,14 @@ Estimated sessions: Claude about 75, Codex about 97. At 3 and 4 sessions per wav
 | ~~After Wave 8~~ | **Decided 2026-11-04: the draw-and-cycle deck** (ADR 004). | Phase 2's tactical cards and deck items are written for the deck. |
 | By the end of Phase 2 | Provide phone hardware (and an iOS toolchain if iOS stays a target), or decide that desktop evidence is acceptable for now. | Real-phone feel (E05), readability (E12), the play session (E13) and all of E26 are blocked without it. Finding feel problems before four more Leagues of content is much cheaper. |
 | Phase 5 | Human playtests to corroborate the balance study. | E24 may not present simulation alone as proof of fun. |
+
+### Art-forward interface: UI-R1 (owner decision, 2026-11-04)
+First impression (owner): the game reads as a wall of text with tiny art icons, plain borders and cards that look like boxes. Design §17 already requires premium collectible cards, framing that fits the art, tactile card handling and no generic panels, but no milestone owned the card faces, frame kit or interface motion. UI-R1 is a split milestone (art: Codex; integration and UI: Claude):
+- **UI-A1** (Codex, Wave 9, High, 2 sessions): the visual target at actual size, portrait and landscape: a playing-card face (card proportions and corners, an art window taking most of the face, name banner, rarity frame, category mark, short icon-led rule text), a card back, a frame and border kit for the HUD, shop, score slip and panels (House first), a pixel font, and Value, Mult and $ icons. **Owner approval gates UI-1.**
+- **UI-1** (Claude, Wave 10, High): one card component used in the hand, shop, binder and inspector (frame, art, rarity and foil layers); deal, draw, flip, cycle and discard motion with press and tilt; full rule text moves to long-press inspect; direct selection leaves Options (ADR 004 decided the deck).
+- **UI-2** (Claude, Wave 10, High): HUD, shop, score resolution, menus and Clubhouse in the frame kit; text cut to icons and numbers; the score chain resolves in order.
+- **UI-A2** (Codex, Wave 10, Medium–High): foil and rarity treatments on the card, per-League frame variants, the final icon pass.
+- **Owner review:** UI-A1 mockups before UI-1; screenshots and a phone play-through after UI-2.
 
 ### Throw rework: the held ball (owner decision, 2026-11-03)
 The E05 gesture counts path turning abstractly and locks the ball once circling starts, so it reads as drawing a circle rather than handling a ball. The owner approved a held-ball model, built before Neon:
