@@ -113,6 +113,12 @@ First impression (owner): the game reads as a wall of text with tiny art icons, 
 - **UI-2** (Claude, Wave 10, High): HUD, shop, score resolution, menus and Clubhouse in the frame kit; text cut to icons and numbers; the score chain resolves in order.
 - **UI-A2** (Codex, Wave 10, Medium–High): foil and rarity treatments on the card, per-League frame variants, the final icon pass.
 - **Owner review:** UI-A1 mockups before UI-1; screenshots and a phone play-through after UI-2.
+- **Owner decisions on UI-A1 (2026-11-05):**
+  - **Landscape throw screen:** the lane renders full width. A framed top-bar HUD spans the width (League and Division, score, target, money, Options). Framed panels sit over the empty flanks: the hand on the left (with deck count, Cycle and Inspect); the score slip, rival and rule, and Charm slots on the right. Each panel is about 19% of the width, and never covers the lane corridor; on narrow landscape (4:3) the panels shrink, then fold into the top bar. The shop keeps a three-column grid. (Approved from a coordinator mockup of the real game with the kit overlaid.)
+  - **Hand size:** four cards in landscape, two in portrait (rule text by long-press Inspect).
+  - **Empty flanks:** not wider League environment art. The space gets an ambient backdrop of its own, for example a slow star field for House that matches the night sky in its windows. It must stay behind the panels and lane, respect reduced motion, and vary by League.
+  - **Portrait (phone) approved (2026-11-05):** from a coordinator mockup on the real game. Top to bottom: a two-row top bar (League and Division with Options; score, target and money, with money in its own slot); a strip with the score slip and rival chip side by side; a Charms row; the full-width lane, with the camera raised so the ball sits about two-thirds down; and a hand panel of two cards, with deck counts, Cycle and Inspect at the thumb side (mirrored for left-handed play).
+  - **Wave 10 work:** Codex's UI-A1-C revision (Medium) re-renders the landscape throw and shop to this layout, adds the narrow-landscape case and the backdrop treatment, and updates docs/art/ui/UI-A1.md, before UI-2 builds the screens. UI-1 (the card component) can start in parallel.
 
 ### Throw rework: the held ball (owner decision, 2026-11-03)
 The E05 gesture counts path turning abstractly and locks the ball once circling starts, so it reads as drawing a circle rather than handling a ball. The owner approved a held-ball model, built before Neon:
