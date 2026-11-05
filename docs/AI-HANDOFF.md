@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-11-03. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
+Updated: 2026-11-05. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is closed (see "Wave 9 closed") and awaits the owner's merge. The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
 
 ## Read first
 
@@ -38,7 +38,7 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - Wave 4 MERGED to main by PR #15 (CI 40760480791 PASS on `e72051b`): Claude E18-C03 and E17-D04; Codex E17-D03-ART, E19-A16 and E20-V08. 
 - Wave 5 MERGED to main by PR #16 (CI PASS on `bebb702`, which also raised the CI job limit to 90 minutes): Claude E18-C04 and E17-L01; Codex AV-C03 and E17-D04-ART.
 - Wave 6 MERGED to main by PR #17 (main `1f8a304`; CI PASS on `f5192eb`): Claude E18-C05…C07; Codex AV-C04 and E22-L01-ART. 
-- Wave 7 MERGED to main by PR #18 (main `48ea9e3`; CI PASS on `ed8173a`): Claude DC-H1…H3 (E18-C08…C10); Codex E21-R03/R04, AV-C06 and AV-C07. Wave 8 MERGED to main by PR #19 (main `f444488`; CI PASS on `ee7e9e6`). **Wave 9 is open** (see "Wave 9 claims"): Claude E26-W01, then E05-R1a and E05-R1b; Codex UI-A1 and AV-H3. Wave 10: UI-1, UI-2, UI-A2, AV-H4, AV-T01. Neon (E17-L02) starts in Wave 11 (owner, 2026-11-03/04). The equipment model is decided: the deck (ADR 004).
+- Wave 7 MERGED to main by PR #18 (main `48ea9e3`; CI PASS on `ed8173a`): Claude DC-H1…H3 (E18-C08…C10); Codex E21-R03/R04, AV-C06 and AV-C07. Wave 8 MERGED to main by PR #19 (main `f444488`; CI PASS on `ee7e9e6`). **Wave 9 is closed** (see "Wave 9 closed"); its PR awaits the owner's merge. It held: Claude E26-W01, then E05-R1a and E05-R1b; Codex UI-A1 and AV-H3. Wave 10: UI-1, UI-2, UI-A2, AV-H4, AV-T01. Neon (E17-L02) starts in Wave 11 (owner, 2026-11-03/04). The equipment model is decided: the deck (ADR 004).
 - **Roadmap (2026-10-28):** docs/ROADMAP.md maps every remaining milestone to phases (one per League group) and waves, with ownership, the content split per League and the owner's decisions. Waves 5–8 complete the House League.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
@@ -212,6 +212,17 @@ Open: Wave 8 is merged (PR #19, main `f444488`). Base: `claude/roguewood-build` 
   - Claude: UI-1, UI-2.
   - Codex: UI-A2, AV-H4 (E17-D10's five), AV-T01.
 - **Owner:** approve the UI-A1 mockups (gates UI-1), and play the held-ball throw on a phone through the hosted web build.
+
+## Wave 9 closed (coordinator, 2026-11-05)
+- **Contents** (all on `claude/roguewood-build` at the "Wave 9 closed" commit):
+  - Claude: E26-W01 (`3af873b`, `fa868d0`, `1f1f34d`), E05-R1a (`85ed6ad`) and E05-R1b (`2ef4f2b`).
+  - Codex: UI-A1-A/B (`fdacb63`, `b874f02`, `f4acab7`) and AV-H3-A/B (`0b9f3a4`, `4d0fb91`), fast-forwarded at `9690701`.
+- **Validation:**
+  - The full CI command list (152 units, both shards, every journey headless and rendered, the web journey included) PASS locally on `2ef4f2b`.
+  - The physics digest `75d1a3c0…` is unchanged. J02's injected failure exits 1.
+  - CI runs on this commit.
+- **Owner actions:** approve the UI-A1 mockups (this gates UI-1); turn on GitHub Pages; play the held-ball throw on a phone and tune it (Options → Throw tuning).
+- **Merge:** pending the owner's merge of the PR to main.
 
 ## Wave 9 progress (coordinator)
 - **E26-W01 DONE** (handoffs/E26-W01.md): Web export, JW01 in the `game` shard, the Web build as the CI artifact `web-build` for self-hosting, and a GitHub Pages test deployment of main (the owner enables Pages once; removable by deleting web-preview.yml). Findings for R1a: sample gesture times from input events. For W02: the 60 MB pck.
