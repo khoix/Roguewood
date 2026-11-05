@@ -85,6 +85,11 @@ static func run() -> Array[String]:
 	again.steps(up(8))
 	_expect(again.release() == s, "identical samples give identical results", failures)
 
+	var near := Driver.new(Held.new())
+	near.steps(up(8).map(func(v): return v + Vector2(0.0015, 0.0)))
+	var n := near.release()
+	_expect(n.committed and n.angle_deg == 0.0, "a flick within 2 degrees of straight up throws exactly straight", failures)
+
 	# The ball follows the finger on a spring: it lags, then settles on the finger.
 	var follow := Driver.new(Held.new())
 	follow.steps(side(1, 0.08))

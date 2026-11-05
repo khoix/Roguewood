@@ -5,7 +5,18 @@ extends PanelContainer
 ## dictionary so they survive Restart Session; saving them is E25 work.
 signal changed
 const DEFAULTS := {"handedness": "right", "sensitivity": 1.0, "reduced_motion": false, "large_targets": false, "assist": false, "score_speed": 1,
-	"equipment": "deck", "practice": false, "reduced_flash": false}
+	"equipment": "deck", "practice": false, "reduced_flash": false, "haptics": true, "throw_tuning": {}}
+## E05-R1b: the held-ball constants the tuning page adjusts (ADR 011), as
+## [key, label, min, max, step, format]. Values live in settings.throw_tuning for the
+## session; anything not set uses held_ball.gd's defaults.
+const Held = preload("res://src/input/held_ball.gd")
+const TUNABLE := [
+	["charge_gain", "Charge per radian", 0.04, 0.4, 0.01, "%.2f"],
+	["reference_speed", "Full-rate swing speed", 0.25, 2.0, 0.05, "%.2f"],
+	["half_life", "Spin half-life (s)", 0.5, 10.0, 0.25, "%.2f"],
+	["spring_frequency", "Ball spring (rad/s)", 10.0, 80.0, 1.0, "%.0f"],
+	["spring_damping", "Spring damping", 0.2, 1.5, 0.05, "%.2f"],
+]
 
 var settings: Dictionary = {}
 var handedness: OptionButton
@@ -18,6 +29,12 @@ var equipment: OptionButton
 var practice: CheckButton
 var close: Button
 var _sensitivity_label: Label
+var haptics: CheckButton
+var tuning_button: Button
+var tuning_box: VBoxContainer
+var _main_box: VBoxContainer
+var _tuning_sliders: Dictionary = {}
+var _tuning_labels: Dictionary = {}
 
 static func with_defaults(values: Dictionary) -> Dictionary:
 	for key in DEFAULTS:
@@ -30,6 +47,7 @@ func _ready() -> void:
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 14)
 	add_child(box)
+	_main_box = box
 	var title := Label.new()
 	title.text = "Throw settings"
 	title.add_theme_font_size_override("font_size", 30)
@@ -56,6 +74,13 @@ func _ready() -> void:
 	reduced_flash = _toggle(box, "ReducedFlash", "Reduced flash (no impact accents)", "reduced_flash")
 	large_targets = _toggle(box, "LargeTargets", "Larger touch targets", "large_targets")
 	assist = _toggle(box, "AssistControls", "Assist controls (no gestures)", "assist")
+	haptics = _toggle(box, "Haptics", "Vibration on charge", "haptics")
+	tuning_button = Button.new()
+	tuning_button.name = "ThrowTuning"
+	tuning_button.text = "Throw tuning (test)…"
+	tuning_button.custom_minimum_size = Vector2(320, 56)
+	tuning_button.pressed.connect(func(): _show_tuning(true))
+	box.add_child(tuning_button)
 	# E07 experiment: the proposed deck against direct selection (ADR 004).
 	equipment = OptionButton.new()
 	equipment.name = "EquipmentModel"
@@ -73,7 +98,66 @@ func _ready() -> void:
 	close.custom_minimum_size = Vector2(320, 64)
 	close.pressed.connect(hide)
 	box.add_child(close)
+	_build_tuning()
 	_refresh()
+
+## A second page in the same panel: sliders for the held-ball constants, for
+## tuning the throw on a real phone through the web build.
+func _build_tuning() -> void:
+	tuning_box = VBoxContainer.new()
+	tuning_box.name = "TuningPage"
+	tuning_box.add_theme_constant_override("separation", 6)
+	tuning_box.visible = false
+	add_child(tuning_box)
+	var title := Label.new()
+	title.text = "Throw tuning (test)"
+	title.add_theme_font_size_override("font_size", 30)
+	tuning_box.add_child(title)
+	for row in TUNABLE:
+		var label := Label.new()
+		tuning_box.add_child(label)
+		_tuning_labels[row[0]] = label
+		var slider := HSlider.new()
+		slider.name = "Tune_" + row[0]
+		slider.min_value = row[2]
+		slider.max_value = row[3]
+		slider.step = row[4]
+		slider.custom_minimum_size = Vector2(320, 40)
+		slider.value = _tuned(row[0])
+		slider.value_changed.connect(func(value): _store_tuning(row[0], value))
+		tuning_box.add_child(slider)
+		_tuning_sliders[row[0]] = slider
+	var reset := Button.new()
+	reset.name = "ResetTuning"
+	reset.text = "Reset to defaults"
+	reset.custom_minimum_size = Vector2(320, 52)
+	reset.pressed.connect(func():
+		settings.throw_tuning = {}
+		for key in _tuning_sliders: _tuning_sliders[key].set_value_no_signal(_tuned(key))
+		_refresh()
+		changed.emit())
+	tuning_box.add_child(reset)
+	var back := Button.new()
+	back.name = "CloseTuning"
+	back.text = "Back"
+	back.custom_minimum_size = Vector2(320, 52)
+	back.pressed.connect(func(): _show_tuning(false))
+	tuning_box.add_child(back)
+
+func _show_tuning(on: bool) -> void:
+	_main_box.visible = not on
+	tuning_box.visible = on
+	(_tuning_sliders[TUNABLE[0][0]] if on else tuning_button).grab_focus()
+
+func _tuned(key: String) -> float:
+	return float(settings.get("throw_tuning", {}).get(key, Held.DEFAULTS[key]))
+
+func _store_tuning(key: String, value: float) -> void:
+	var tuning: Dictionary = settings.get("throw_tuning", {}).duplicate()
+	tuning[key] = value
+	settings.throw_tuning = tuning
+	_refresh()
+	changed.emit()
 
 func _toggle(box: Container, node_name: String, text: String, key: String) -> CheckButton:
 	var toggle := CheckButton.new()
@@ -92,3 +176,6 @@ func _store(key: String, value: Variant) -> void:
 
 func _refresh() -> void:
 	_sensitivity_label.text = "Flick sensitivity ×%.2f" % settings.sensitivity
+	for row in TUNABLE:
+		if _tuning_labels.has(row[0]):
+			_tuning_labels[row[0]].text = ("%s: " + row[5]) % [row[1], _tuned(row[0])]

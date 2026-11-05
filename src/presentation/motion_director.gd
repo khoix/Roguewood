@@ -152,7 +152,9 @@ func _process(delta: float) -> void:
 			_trail.append(point)
 			if _trail.size()>10: _trail.pop_front()
 		else: _trail.clear()
-		var fallen: int=lab.lane.tracker.sequence.size()
+		# The tracker exists from the launch's first physics tick; the lab already reads
+		# "rolling" for the frame before it.
+		var fallen: int=lab.lane.tracker.sequence.size() if lab.lane.tracker!=null else 0
 		if fallen>_seen_fallen:
 			impact_count+=fallen-_seen_fallen
 			_seen_fallen=fallen

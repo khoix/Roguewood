@@ -24,6 +24,9 @@ const DEFAULTS := {
 	"spring_damping": 0.75,
 	# The release reads the held ball's velocity over this window.
 	"release_window_usec": 100000,
+	# Flicks within this many degrees of straight up throw exactly straight; the
+	# spring's leftover sideways motion never nudges an intended straight ball.
+	"straight_zone_deg": 2.0,
 	"sensitivity": 1.0,
 }
 const MIN_FLICK_SPEED := 0.8 # shorter sides per second, after sensitivity
@@ -111,6 +114,10 @@ func spin_at(usec: int) -> float:
 func charge() -> float:
 	return spin_at(_usec)
 
+## True once the held spin is at full charge (the stronger sparkle state).
+func full_charge() -> bool:
+	return absf(charge()) >= 0.99
+
 ## True once the held spin will curve the throw (the sparkle state).
 func curve_ready() -> bool:
 	return absf(charge()) >= float(tuning.curve_threshold)
@@ -152,6 +159,8 @@ func release(position: Vector2, usec: int) -> Dictionary:
 	result.velocity = velocity
 	result.speed = velocity.length()
 	result.angle_deg = rad_to_deg(atan2(velocity.x, -velocity.y))
+	if absf(result.angle_deg) < float(tuning.straight_zone_deg):
+		result.angle_deg = 0.0
 	if -travel.y < MIN_FLICK_DISTANCE:
 		result.reason = "short"
 	elif absf(result.angle_deg) > MAX_FLICK_ANGLE_DEG:

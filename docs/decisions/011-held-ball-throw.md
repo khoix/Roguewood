@@ -1,6 +1,6 @@
 # ADR 011 — The held-ball throw (E05-R1)
 
-Status: accepted by the owner on 2026-11-03 (model and both design changes); implemented as a model in E05-R1a on 2026-11-05. The lab switches to it in E05-R1b. All values are **provisional until real-phone trials** and the lab's tuning panel. This ADR replaces the gesture sections of [ADR 003](003-spin-curve-input.md); ADR 003's hook physics, spin sign, target ring and accessibility rules stand. It amends design §5 where noted.
+Status: accepted by the owner on 2026-11-03 (model and both design changes). Implemented as a model in E05-R1a and made live in the lab in E05-R1b, both on 2026-11-05. All values are **provisional until real-phone trials** and the lab's tuning panel. This ADR replaces the gesture sections of [ADR 003](003-spin-curve-input.md); ADR 003's hook physics, spin sign, target ring and accessibility rules stand. It amends design §5 where noted.
 
 ## Why
 The E05 gesture counted how far the finger's path turned (two loops for full spin), ignored how fast the finger moved, and locked the ball in place once circling started. The owner's verdict: it reads as drawing a circle, not as handling a ball. The owner wants the ball to behave like an object the player flings around to build charge for the curve (the familiar hold, spin and fling of mobile ball-throwing games), adapted to a bowling outcome.
@@ -35,6 +35,15 @@ The E05 gesture counted how far the finger's path turned (two loops for full spi
   - The launch contract (start_x, angle, power, spin) is unchanged, so physics, scoring, saves and the assist controls are unaffected.
 - **Tuning:** every constant above lives in `tuning`, so R1b's lab-only panel can adjust a live model. Sensitivity still scales only measured speed.
 
+## In the lab (E05-R1b)
+- **Timing:** samples carry event time in real play. When a journey drives the game (`--script` with `--fixed-fps`), they use the frame clock, which keeps automated gestures deterministic.
+- **Input accumulation stays on**, so the model receives one merged drag sample per frame. Turning it off broke keyboard focus on sliders.
+- **Straight zone:** flicks within 2° of straight up throw exactly straight (`straight_zone_deg`).
+- **Drawing:** the ball is drawn on the spring and lifts as the finger rises. It spins at the live charge and leans into its motion.
+- **Cues:** `throw_cue` fires `throw.charge`, `throw.curve_ready` and `throw.full_charge`, with 25 ms and 45 ms vibrations at the last two (toggle in Options).
+- **Meter and sparkle:** the meter dims below the threshold. The sparkle is a placeholder until AV-T01.
+- **Tuning page:** Options → Throw tuning (test) adjusts the five constants live.
+
 ## Evidence
 `tests/held_ball_test.gd` (in `qa.py unit`) covers:
 - the follow, lag, settle and overshoot of the spring;
@@ -46,6 +55,8 @@ The E05 gesture counted how far the finger's path turned (two loops for full spi
 
 A mutation (`charge_gain` 0) fails four of them.
 
+J02 drives the live gesture end to end (handoffs/E05-R1b.md).
+
 ## Not yet done
-- E05-R1b swaps the lab over: spring drawing, lean, rotation matched to the charge, sparkles, vibration, sound cue ids, trial-log fields and the tuning panel, with J01, J02, J08 and the slice journey driving it.
-- Real-phone feel is the owner's trial through the web build.
+- Real-phone feel is the owner's trial through the web build, using the tuning page.
+- The final sparkle, sound and effects are AV-T01.
