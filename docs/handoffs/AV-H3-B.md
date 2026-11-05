@@ -90,3 +90,7 @@ pushed checkpoint, its resume instructions supersede this paragraph.
 
 Recommended effort for the closing validation session: High. Stop at the Wave 9
 claims; UI-A2, AV-H4 and AV-T01 remain unclaimed Wave 10 work.
+
+Closing validation completed: the full required headless/rendered matrix and
+remote CI passed on `4d0fb91`. See [WAVE9-CODEX.md](WAVE9-CODEX.md) for the
+completion index and current resume instructions.
