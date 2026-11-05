@@ -33,6 +33,7 @@ jobs:
           unzip -q "Godot_v${VERSION}-stable_export_templates.tpz"
           mkdir -p "$HOME/.local/share/godot/export_templates/${VERSION}.stable"
           cp templates/linux_debug.x86_64 "$HOME/.local/share/godot/export_templates/${VERSION}.stable/"
+          cp templates/web_nothreads_release.zip "$HOME/.local/share/godot/export_templates/${VERSION}.stable/"
           echo "GODOT_BIN=$RUNNER_TEMP/godot/Godot_v${VERSION}-stable_linux.x86_64" >> "$GITHUB_ENV"
       - name: Verify editor import, startup, and exported build
         if: matrix.shard == 'game'
@@ -44,6 +45,19 @@ jobs:
           python3 tools/qa.py physics
           python3 tools/qa.py smoke
           python3 tools/qa.py export
+      - name: Web export and browser journey (E26-W01)
+        if: matrix.shard == 'game'
+        run: |
+          (cd tests/web && npm install --no-save --no-package-lock playwright@1.63.0 && npx playwright install --with-deps chromium)
+          python3 tools/qa.py web
+      - name: Keep the Web build for self-hosting (E26-W01)
+        if: matrix.shard == 'game'
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: build/web/
+          if-no-files-found: error
+          retention-days: 30
       - name: Native gameplay journeys headless and rendered
         if: matrix.shard == 'game'
         run: |
@@ -244,6 +258,21 @@ jobs:
         run: |
           python3 tools/qa.py e2e --journey J22L01ART
           xvfb-run -a python3 tools/qa.py e2e --journey J22L01ART --rendered
+      - name: AV-H3-A equipment identities
+        if: matrix.shard == 'art'
+        run: |
+          python3 tools/qa.py e2e --journey JAVH3AC
+          xvfb-run -a python3 tools/qa.py e2e --journey JAVH3AC --rendered
+      - name: AV-H3-B keepsake identities and counted jar
+        if: matrix.shard == 'art'
+        run: |
+          python3 tools/qa.py e2e --journey JAVH3BC
+          xvfb-run -a python3 tools/qa.py e2e --journey JAVH3BC --rendered
+      - name: UI-A1 card visual target
+        if: matrix.shard == 'art'
+        run: |
+          python3 tools/qa.py e2e --journey JUIA1
+          xvfb-run -a python3 tools/qa.py e2e --journey JUIA1 --rendered
       - name: Preserve journey diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -251,6 +280,10 @@ jobs:
           name: journeys-${{ matrix.shard }}
           path: |
             artifacts/e03/
+            artifacts/av-h3-a/
+            artifacts/av-h3-b/
+            artifacts/ui-a1/
+            artifacts/e26-w01/
             artifacts/e04/
             artifacts/e06/
             artifacts/e07/

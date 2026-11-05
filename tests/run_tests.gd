@@ -68,12 +68,14 @@ func _initialize() -> void:
 			failures.append("slice_unlocks.json: %s" % e)
 	elif mode == "unit":
 		failures = ContractTests.run()
-		for path in ["res://tests/rules_test.gd", "res://tests/simulation_test.gd", "res://tests/input_test.gd", "res://tests/scoring_test.gd", "res://tests/deck_test.gd", "res://tests/economy_test.gd", "res://tests/division_test.gd", "res://tests/save_test.gd", "res://tests/slice_test.gd", "res://tests/campaign_generator_test.gd", "res://tests/campaign_integration_test.gd", "res://tests/career_test.gd", "res://tests/clubhouse_test.gd", "res://tests/authored_test.gd", "res://tests/mechanics_c02_test.gd", "res://tests/mechanics_c03_test.gd", "res://tests/mechanics_c04_test.gd", "res://tests/league_spec_test.gd", "res://tests/mechanics_c05_test.gd", "res://tests/mechanics_c06_test.gd", "res://tests/mechanics_c07_test.gd", "res://tests/mechanics_c08_test.gd", "res://tests/mechanics_c09_test.gd", "res://tests/mechanics_c10_test.gd", "res://tests/mechanics_c11_test.gd", "res://tests/league_house_test.gd"]:
+		for path in ["res://tests/rules_test.gd", "res://tests/simulation_test.gd", "res://tests/input_test.gd", "res://tests/held_ball_test.gd", "res://tests/scoring_test.gd", "res://tests/deck_test.gd", "res://tests/economy_test.gd", "res://tests/division_test.gd", "res://tests/save_test.gd", "res://tests/slice_test.gd", "res://tests/campaign_generator_test.gd", "res://tests/campaign_integration_test.gd", "res://tests/career_test.gd", "res://tests/clubhouse_test.gd", "res://tests/authored_test.gd", "res://tests/mechanics_c02_test.gd", "res://tests/mechanics_c03_test.gd", "res://tests/mechanics_c04_test.gd", "res://tests/league_spec_test.gd", "res://tests/mechanics_c05_test.gd", "res://tests/mechanics_c06_test.gd", "res://tests/mechanics_c07_test.gd", "res://tests/mechanics_c08_test.gd", "res://tests/mechanics_c09_test.gd", "res://tests/mechanics_c10_test.gd", "res://tests/mechanics_c11_test.gd", "res://tests/league_house_test.gd"]:
 			var suite = load(path)
 			if suite == null:
 				failures.append("Missing tests: " + path)
 			else:
 				failures.append_array(suite.run())
+		failures.append_array(load("res://tests/house_equipment_art_test.gd").run())
+		failures.append_array(load("res://tests/house_keepsake_art_test.gd").run())
 		failures.append_array(load("res://tests/ability_events_test.gd").run())
 		failures.append_array(load("res://tests/glass_presentation_test.gd").run())
 		failures.append_array(load("res://tests/ability_v08_test.gd").run())

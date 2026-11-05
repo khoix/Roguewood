@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "frames": {
+    "ui.house.hud": {
+      "path": "res://assets/ui/house/hud.tres",
+      "source_px": [
+        64,
+        64
+      ],
+      "slice_px": 12,
+      "content_inset_px": 20,
+      "minimum_px": [
+        40,
+        40
+      ]
+    },
+    "ui.house.shop": {
+      "path": "res://assets/ui/house/shop.tres",
+      "source_px": [
+        64,
+        64
+      ],
+      "slice_px": 16,
+      "content_inset_px": 24,
+      "minimum_px": [
+        48,
+        48
+      ]
+    },
+    "ui.house.slip": {
+      "path": "res://assets/ui/house/slip.tres",
+      "source_px": [
+        64,
+        64
+      ],
+      "slice_px": 12,
+      "content_inset_px": 20,
+      "minimum_px": [
+        40,
+        40
+      ]
+    },
+    "ui.house.menu": {
+      "path": "res://assets/ui/house/menu.tres",
+      "source_px": [
+        64,
+        64
+      ],
+      "slice_px": 16,
+      "content_inset_px": 24,
+      "minimum_px": [
+        48,
+        48
+      ]
+    },
+    "ui.house.panel": {
+      "path": "res://assets/ui/house/panel.tres",
+      "source_px": [
+        64,
+        64
+      ],
+      "slice_px": 12,
+      "content_inset_px": 20,
+      "minimum_px": [
+        40,
+        40
+      ]
+    }
+  },
+  "ornaments": [
+    "res://assets/ui/house/corner.svg",
+    "res://assets/ui/house/divider.svg"
+  ],
+  "font": "res://assets/ui/fonts/PixelifySans.ttf"
+}

@@ -11,6 +11,7 @@ const DASHES := 9
 const GUIDE_COLOR := Color(1.0, 1.0, 1.0, 0.55)
 const CLOCKWISE_COLOR := Color(1.0, 0.55, 0.35)
 const COUNTER_COLOR := Color(0.35, 0.85, 1.0)
+const FULL_COLOR := Color(1.0, 0.85, 0.3)
 const RETICLE_PX := 240.0 # per unit of normalized ring radius, at a 720 px shorter side
 const RETICLE_FLATTEN := 0.45
 
@@ -43,22 +44,41 @@ func _draw() -> void:
 		draw_line(points[dash * 2], points[dash * 2 + 1], GUIDE_COLOR, 4.0, true)
 	if lab.state != "holding":
 		return
-	var center: Vector2 = lab.screen_point(ball)
+	# The meter shows the held charge as it builds; it lights up once the throw
+	# will curve (the sparkle state, E05-R1b) and turns gold at full charge.
+	var center: Vector2 = lab.screen_point(lab.lane.ball_position())
 	var radius: float = lab.ball_touch_radius() * 0.8
-	var color := CLOCKWISE_COLOR if spin > 0.0 else COUNTER_COLOR
+	var charge: float = lab.held_charge()
+	var ready: bool = lab.curve_ready()
+	var color := CLOCKWISE_COLOR if charge > 0.0 else COUNTER_COLOR
+	if lab.full_charge():
+		color = FULL_COLOR
+	elif not ready:
+		color = color.darkened(0.45)
 	draw_arc(center, radius, 0.0, TAU, 48, Color(0, 0, 0, 0.35), 6.0, true)
-	if spin != 0.0:
+	if charge != 0.0:
 		var start := -PI * 0.5
-		var end := start + spin * TAU
+		var end := start + charge * TAU
 		draw_arc(center, radius, minf(start, end), maxf(start, end), 48, color, 8.0, true)
 		var tip := center + Vector2(cos(end), sin(end)) * radius
-		var tangent := Vector2(-sin(end), cos(end)) * signf(spin)
+		var tangent := Vector2(-sin(end), cos(end)) * signf(charge)
 		var normal := Vector2(cos(end), sin(end))
 		draw_colored_polygon(PackedVector2Array([tip + tangent * 16.0, tip - tangent * 4.0 + normal * 10.0, tip - tangent * 4.0 - normal * 10.0]), color)
-	var label := "Straight" if spin == 0.0 else "Spin %s %d%%" % ["↻" if spin > 0.0 else "↺", roundi(absf(spin) * 100.0)]
+	if ready:
+		# Placeholder sparkle until AV-T01: small diamonds orbiting the ball.
+		var count := 8 if lab.full_charge() else 5
+		var turn := 0.0 if lab.settings.reduced_motion else Time.get_ticks_msec() / 1000.0 * signf(charge) * 2.5
+		for i in count:
+			var a := turn + TAU * i / count
+			var p := center + Vector2(cos(a), sin(a)) * radius * 1.25
+			var r := 7.0 if lab.full_charge() else 5.0
+			draw_colored_polygon(PackedVector2Array([p + Vector2(0, -r), p + Vector2(r * 0.6, 0), p + Vector2(0, r), p + Vector2(-r * 0.6, 0)]), color.lightened(0.3))
+	var label := "Swing to charge"
+	if charge != 0.0:
+		label = ("Full %s" if lab.full_charge() else ("Curve %s %d%%" if ready else "Charging %s %d%%")) % (["↻" if charge > 0.0 else "↺"] + ([] if lab.full_charge() else [roundi(absf(charge) * 100.0)]))
 	if lab.spin_disabled():
 		label = "Spin disabled ⊘" # Dead Straight: the committed launch has no spin
 	var font := get_theme_default_font()
 	var width := font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 26).x
 	draw_string_outline(font, center + Vector2(-width * 0.5, -radius - 18.0), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 26, 6, Color.BLACK)
-	draw_string(font, center + Vector2(-width * 0.5, -radius - 18.0), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 26, color if spin != 0.0 else Color.WHITE)
+	draw_string(font, center + Vector2(-width * 0.5, -radius - 18.0), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 26, color if ready else Color.WHITE)

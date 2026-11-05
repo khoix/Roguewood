@@ -9,6 +9,7 @@ const Lane = preload("res://src/simulation/lane_spec.gd")
 const LaneWorld = preload("res://src/simulation/lane_world.gd")
 const Mapper = preload("res://src/input/launch_mapper.gd")
 const Ring = preload("res://src/input/target_ring.gd")
+const Held = preload("res://src/input/held_ball.gd")
 const ROLL_FRAMES := 1800
 const PORTRAIT := Vector2i(450, 800)
 const LANDSCAPE := Vector2i(800, 450)
@@ -17,6 +18,7 @@ var artifact_dir := ""
 var scene: Control
 var lab: Control
 var trials_path := ""
+var cues: Array = [] # E05-R1b throw cues in order: [id, charge]
 
 func _initialize() -> void:
 	call_deferred("_run")
@@ -103,6 +105,7 @@ func _run() -> void:
 	await _accept()
 	await _wait_for(func(): return scene.screen == "session" and scene.lab != null, "session with throw lab")
 	lab = scene.lab
+	lab.throw_cue.connect(func(id, charge): cues.append([id, charge]))
 	# Fixture: keep the device-trial log as evidence instead of in user://.
 	trials_path = artifact_dir.path_join("trials.jsonl") if not artifact_dir.is_empty() else ""
 	if not trials_path.is_empty():
@@ -126,6 +129,7 @@ func _run() -> void:
 	await _gutter_frame()
 	await _replays(frame)
 	await _curves_and_target()
+	await _held_ball()
 	await _mouse_throw()
 	await _assist_throw()
 	await _landscape_throw()
@@ -241,7 +245,9 @@ func _replays(frame: Array) -> void:
 		_check(world.commit(frame[index].launch).is_empty(), "replay launch accepted")
 		await _wait_for(func(): return world.state == "finished", "replay settles", ROLL_FRAMES)
 		for key in ["roll_result", "knockdown_log", "final_state", "rack_after"]:
-			_check(world.report.get(key) == frame[index][key], "replay roll %d identical %s" % [index + 1, key])
+			# Compared as JSON: a replay seeded from a JSON rack reports untouched pins'
+			# positions as floats (7.0) where the live world has ints (7).
+			_check(JSON.stringify(JSON.parse_string(JSON.stringify(world.report.get(key)))) == JSON.stringify(JSON.parse_string(JSON.stringify(frame[index][key]))), "replay roll %d identical %s" % [index + 1, key])
 		viewport.queue_free()
 	print("J02 replay rolls=2 checked")
 
@@ -283,6 +289,8 @@ func _circle_throw(sweep_deg: float, hold_capture: String = "") -> void:
 		await _drag(next, next - at)
 		at = next
 	if not hold_capture.is_empty():
+		_check(lab.curve_ready() and lab.charged_spin() == lab.held_charge(), "after a brisk swing the held ball is curve-ready (sparkle state)")
+		_check(absf(lab.lane.ball_position().x) > 0.05, "the held ball travels with the circling finger (x %.3f m)" % lab.lane.ball_position().x)
 		await _capture(hold_capture)
 	for i in 8:
 		at += Vector2(0, -32)
@@ -314,11 +322,15 @@ func _curves_and_target() -> void:
 	_check(lab.cancels == cancels + 1 and lab.last_cancel == "short", "short flick cancels")
 	for sweep in [450.0, -450.0]:
 		await _ready_to_throw()
+		cues.clear()
 		var label := "curve_right" if sweep > 0.0 else "curve_left"
 		await _circle_throw(sweep, label + "_hold" if sweep > 0.0 else "")
 		_check(lab.state == "rolling", label + " commits")
 		var launch: Dictionary = lab.lane.launch
-		_check(signf(launch.spin) == signf(sweep) and Lane.is_curved(launch.spin) and absf(absf(launch.spin) - 450.0 / 720.0) < 0.05, label + " gesture charges matching spin")
+		_check(signf(launch.spin) == signf(sweep) and Lane.is_curved(launch.spin) and absf(launch.spin) > 0.8 and launch.spin == lab._last_input.charge,
+			"%s: a brisk swing charges matching held spin (%+.2f)" % [label, launch.spin])
+		_check(cues.map(func(c): return c[0]).slice(0, 2) == ["throw.charge", "throw.curve_ready"] and signf(cues[1][1]) == signf(sweep),
+			label + " fires the charge and curve-ready cues in order")
 		_check(absf(launch.direction_x) < 0.01, label + " circle does not steer the flick")
 		_check(absf(launch.target_x - pocket / Lane.LANE_HALF_WIDTH) < 0.01, label + " launch carries the moved target")
 		_check(launch.ring_radius < Ring.RING_MAX and launch.ring_radius >= Ring.RING_MIN, label + " ring contracted while held and froze at release")
@@ -350,6 +362,44 @@ func _mouse_move(canvas: Vector2, relative: Vector2) -> void:
 	await process_frame
 
 ## A desktop mouse drives the same gesture through touch emulation.
+## E05-R1b: a swing too weak to sparkle throws straight; the lab-only tuning page
+## changes the live model and resets it.
+func _held_ball() -> void:
+	await _ready_to_throw()
+	cues.clear()
+	var at: Vector2 = lab.ball_screen_position()
+	var center := at + Vector2(0.0, -60.0)
+	await _touch(at, true)
+	for i in 9: # a slow quarter circle, 10 degrees every other frame
+		var angle := deg_to_rad(90.0 + 10.0 * (i + 1))
+		var next := center + Vector2(cos(angle), sin(angle)) * 60.0
+		await _drag(next, next - at)
+		await process_frame
+		at = next
+	var weak: float = lab.held_charge()
+	_check(weak > 0.0 and not lab.curve_ready() and lab.charged_spin() == 0.0, "a weak swing charges (%.2f) but is not curve-ready" % weak)
+	for i in 8:
+		at += Vector2(0, -32)
+		await _drag(at, Vector2(0, -32))
+	await _touch(at, false)
+	_check(lab.state == "rolling" and lab.lane.launch.spin == 0.0, "below the sparkle threshold the throw is exactly straight")
+	_check(not cues.any(func(c): return c[0] == "throw.curve_ready"), "no curve-ready cue for a weak swing")
+	await _await_result("weak swing")
+	await _ready_to_throw()
+	await _focus_accept(scene.options)
+	await _focus_accept(lab.settings_panel.tuning_button)
+	_check(lab.settings_panel.tuning_box.visible, "Throw tuning opens its page")
+	var gain: HSlider = lab.settings_panel.tuning_box.get_node("Tune_charge_gain")
+	gain.grab_focus()
+	await _ui("ui_right", 6)
+	_check(absf(lab._flick.tuning.charge_gain - 0.2) < 1e-6 and absf(lab.settings.throw_tuning.charge_gain - 0.2) < 1e-6, "the tuning slider changes the live charge rate")
+	await _capture("tuning")
+	await _focus_accept(lab.settings_panel.tuning_box.get_node("ResetTuning"))
+	_check(lab._flick.tuning.charge_gain == Held.DEFAULTS.charge_gain and lab.settings.throw_tuning.is_empty(), "Reset restores the default tuning")
+	await _focus_accept(lab.settings_panel.tuning_box.get_node("CloseTuning"))
+	await _focus_accept(lab.settings_panel.close)
+	_check(not lab.settings_panel.visible, "settings close after tuning")
+
 func _mouse_throw() -> void:
 	await _ready_to_throw()
 	var at: Vector2 = lab.ball_screen_position()
@@ -440,6 +490,8 @@ func _check_trial_log() -> void:
 		_check(entry is Dictionary and entry.has("launch") and entry.has("input") and entry.has("fallen"), "trial log line is a complete record")
 		if entry is Dictionary:
 			sources[entry.input.get("source", "?")] = true
+			if entry.input.get("source", "") in ["touch", "mouse"]:
+				_check(entry.input.get("model", "") == "held" and entry.input.has("charge") and entry.input.has("tuning"), "gesture trials record the held-ball charge and tuning")
 	for source in ["touch", "mouse", "assist"]:
 		_check(sources.has(source), "trial log records %s throws" % source)
 	print("J02 trials=%d sources=%s" % [lines.size(), str(sources.keys())])

@@ -25,13 +25,17 @@ signal retry_requested
 signal menu_requested
 signal checkpoint_written(phase: String)
 signal tactic_played(action: Dictionary)
+## E05-R1b: held-ball cues for effects and sound (AV-T01): "throw.charge" when the
+## swing starts charging, "throw.curve_ready" when the spin will curve (the sparkle),
+## "throw.full_charge" at full spin. Fired once each per hold, with the signed charge.
+signal throw_cue(id: String, charge: float)
 const Lane = preload("res://src/simulation/lane_spec.gd")
 const LaneWorld = preload("res://src/simulation/lane_world.gd")
 const Dressing = preload("res://src/presentation/live_dressing.gd")
 const AimOverlay = preload("res://src/presentation/aim_overlay.gd")
 const SettingsPanel = preload("res://src/presentation/throw_settings_panel.gd")
 const AssistPanel = preload("res://src/presentation/assist_panel.gd")
-const Flick = preload("res://src/input/flick_gesture.gd")
+const Held = preload("res://src/input/held_ball.gd")
 const Mapper = preload("res://src/input/launch_mapper.gd")
 const Ring = preload("res://src/input/target_ring.gd")
 const Contracts = preload("res://src/contracts/contracts.gd")
@@ -100,7 +104,13 @@ var _viewport: SubViewport
 var _camera: Camera3D
 var _marker: MeshInstance3D
 var _dressing := Dressing.new()
-var _flick := Flick.new()
+var _flick := Held.new()
+## Gesture timing: the input event's own time in real play, the frame clock when a
+## journey drives the game (it runs under --script with --fixed-fps), so automated
+## gestures stay deterministic (ADR 011).
+var _event_clock := not ("--script" in OS.get_cmdline_args())
+var _cues_fired: Dictionary = {}
+var _spin_angle := 0.0
 var _touch := -1
 var _target_touch := -1
 var _hold_source := "touch"
@@ -625,7 +635,9 @@ func _apply_settings() -> void:
 		_handedness = settings.handedness
 		target_x = Ring.default_target(_handedness)
 		assist_panel.set_target(target_x)
-	_flick.sensitivity = settings.sensitivity
+	_flick.tuning = Held.DEFAULTS.duplicate()
+	_flick.tuning.merge(settings.get("throw_tuning", {}), true)
+	_flick.tuning.sensitivity = settings.sensitivity
 	assist_panel.visible = settings.assist
 	var left: bool = settings.handedness == "left"
 	assist_panel.set_anchors_preset(Control.PRESET_CENTER_LEFT if left else Control.PRESET_CENTER_RIGHT)
@@ -670,8 +682,9 @@ func _process(delta: float) -> void:
 	ring_radius = Ring.radius(_clock_usec - _ring_start_usec, settings.reduced_motion) if ringing else Ring.RING_MAX
 	_update_ring()
 	assist_panel.visible = settings.assist and state == "aim"
-	if state == "holding" and not settings.reduced_motion and lane.state == "ready":
-		lane.aim_ball.rotate(Vector3.FORWARD, _flick.charge() * 12.0 * delta)
+	if state == "holding" and lane.state == "ready":
+		_flick.tick(_input_usec())
+		_draw_held_ball(delta)
 	if state == "result":
 		_result_timer += delta
 		if _result_timer >= RESULT_HOLD_SEC:
@@ -695,7 +708,9 @@ func _input(event: InputEvent) -> void:
 				_hold_source = "mouse" if event.device == InputEvent.DEVICE_ID_EMULATION else "touch"
 				_hold_start_x = start_x
 				_ring_start_usec = _clock_usec
-				_flick.begin(_normalized(event.position), _clock_usec)
+				_flick.begin(_normalized(event.position), _input_usec())
+				_cues_fired = {}
+				_spin_angle = 0.0
 				state = "holding"
 				_update_status()
 			elif _in_target_zone(event.position):
@@ -715,8 +730,7 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 	elif event is InputEventScreenDrag:
 		if state == "holding" and event.index == _touch:
-			_flick.move(_normalized(event.position), _clock_usec)
-			lane.place_ball(_placed_x(_flick.placement(), _flick.origin))
+			_flick.move(_normalized(event.position), _input_usec())
 		elif state == "aim" and event.index == _target_touch:
 			_set_target_from(event.position)
 		else:
@@ -739,13 +753,14 @@ func _notification(what: int) -> void:
 func _release(position: Vector2) -> void:
 	var origin := _flick.origin
 	var frozen := Ring.radius(_clock_usec - _ring_start_usec, settings.reduced_motion)
-	var flick := _flick.release(_normalized(position), _clock_usec)
+	var flick := _flick.release(_normalized(position), _input_usec())
 	if not flick.committed:
 		_cancel(flick.reason)
 		return
 	var x := _placed_x(flick.placement, origin)
 	var launch := RivalRules.constrain_launch(active_rules(), Mapper.to_launch(flick, x, "lab-%d" % (_launch_serial + 1), roll_index, target_x, frozen, armed_ball_id()))
-	_last_input = {"source": _hold_source, "speed": flick.speed, "screen_angle_deg": flick.angle_deg, "turn_deg": flick.turn_deg,
+	_last_input = {"source": _hold_source, "model": "held", "charge": flick.charge, "tuning": _flick.tuning.duplicate(),
+		"speed": flick.speed, "screen_angle_deg": flick.angle_deg, "turn_deg": flick.turn_deg,
 		"spin": flick.spin, "power": flick.power}
 	_commit(launch, _hold_source)
 
@@ -829,6 +844,7 @@ func _cancel(reason: String) -> void:
 	start_x = _hold_start_x
 	lane.place_ball(start_x)
 	lane.aim_ball.rotation = Vector3.ZERO
+	_spin_angle = 0.0
 	cancels += 1
 	last_cancel = reason
 	state = "aim"
@@ -1451,10 +1467,13 @@ func _normalized(position: Vector2) -> Vector2:
 ## Ball lane x for a finger position: the ball follows sideways finger travel at
 ## the ball's own depth, so the lane under the finger stays under the finger.
 func _placed_x(finger: Vector2, origin: Vector2) -> float:
+	return clampf(_hold_start_x + (finger.x - origin.x) * _lane_units_per_norm(), -Lane.MAX_START_X, Lane.MAX_START_X)
+
+## Normalized lane x per normalized screen unit at the ball's depth.
+func _lane_units_per_norm() -> float:
 	var left := _screen(Lane.world(-Lane.LANE_HALF_WIDTH, Lane.BALL_START_F, Lane.BALL_RADIUS))
 	var right := _screen(Lane.world(Lane.LANE_HALF_WIDTH, Lane.BALL_START_F, Lane.BALL_RADIUS))
-	var lane_units_per_norm := 2.0 * minf(size.x, size.y) / maxf(right.x - left.x, 1.0)
-	return clampf(_hold_start_x + (finger.x - origin.x) * lane_units_per_norm, -Lane.MAX_START_X, Lane.MAX_START_X)
+	return 2.0 * minf(size.x, size.y) / maxf(right.x - left.x, 1.0)
 
 func _screen(point: Vector3) -> Vector2:
 	return _camera.unproject_position(point) * size / Vector2(_viewport.size)
@@ -1503,6 +1522,46 @@ func ball_touch_radius() -> float:
 func _on_ball(position: Vector2) -> bool:
 	return lane != null and position.distance_to(_screen(lane.ball_position())) <= ball_touch_radius()
 
+## The held spin as it builds, below the curve threshold too, for the meter and the
+## ball's rotation; zero while spin is disabled.
+func held_charge() -> float:
+	return 0.0 if spin_disabled() or state != "holding" else _flick.charge()
+
+## True when a held throw would curve now (the sparkle state); full_charge at full spin.
+func curve_ready() -> bool:
+	return state == "holding" and not spin_disabled() and _flick.curve_ready()
+
+func full_charge() -> bool:
+	return curve_ready() and _flick.full_charge()
+
+## Microseconds for gesture samples (see _event_clock).
+func _input_usec() -> int:
+	return Time.get_ticks_usec() if _event_clock else _clock_usec
+
+## Draws the held ball where the spring carries it: sideways along the approach,
+## lifted as the finger rises, spinning with the charge and leaning into its motion;
+## fires the charge cues and their vibration once each per hold.
+func _draw_held_ball(delta: float) -> void:
+	var place := _flick.placement()
+	lane.place_ball(_placed_x(place, _flick.origin))
+	var scale := _lane_units_per_norm() * Lane.LANE_HALF_WIDTH
+	var lift := clampf((_flick.origin.y - place.y) * scale, 0.0, 0.6)
+	lane.aim_ball.position.y += lift
+	var charge := held_charge()
+	if settings.reduced_motion:
+		lane.aim_ball.basis = Basis.IDENTITY
+	else:
+		_spin_angle += charge * 12.0 * delta
+		var lean := clampf(_flick.ball_velocity.x * 0.25, -0.35, 0.35)
+		var pitch := clampf(-_flick.ball_velocity.y * 0.15, -0.3, 0.3)
+		lane.aim_ball.basis = Basis(Vector3.BACK, -lean) * Basis(Vector3.RIGHT, pitch) * Basis(Vector3.FORWARD, _spin_angle)
+	for cue in [["throw.charge", absf(charge) >= 0.05, 0], ["throw.curve_ready", curve_ready(), 25], ["throw.full_charge", full_charge(), 45]]:
+		if cue[1] and not _cues_fired.has(cue[0]):
+			_cues_fired[cue[0]] = true
+			throw_cue.emit(cue[0], charge)
+			if cue[2] > 0 and settings.get("haptics", true):
+				Input.vibrate_handheld(cue[2])
+
 ## True while a rule in force (Dead Straight) disables charged spin.
 func spin_disabled() -> bool:
 	return division != null and RivalRules.spin_disabled(active_rules())
@@ -1513,7 +1572,8 @@ func charged_spin() -> float:
 	if spin_disabled():
 		return 0.0
 	if state == "holding":
-		return _flick.charge()
+		var raw := _flick.charge()
+		return raw if absf(raw) >= float(_flick.tuning.curve_threshold) else 0.0
 	return assist_panel.values().spin if settings.assist and state == "aim" else 0.0
 
 func _update_status() -> void:

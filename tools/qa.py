@@ -1,5 +1,6 @@
 """Roguewood headless verification; unimplemented suites fail explicitly."""
 import argparse
+import json
 import os
 from pathlib import Path
 import shutil
@@ -14,6 +15,9 @@ ROOT = Path(__file__).resolve().parents[1]
 VERSION = (ROOT / ".godot-version").read_text().strip()
 # journey -> script, success marker, artifact directory, rendered captures, timeout, extra engine flags
 JOURNEYS = {
+    "JAVH3BC": ("res://tests/house_keepsake_contact.gd", "ROGUEWOOD_H3B_CONTACT_OK", "artifacts/av-h3-b/contact", ("contact", "motion", "counted"), 180, ["--fixed-fps", "60"]),
+    "JAVH3AC": ("res://tests/house_equipment_contact.gd", "ROGUEWOOD_H3_CONTACT_OK", "artifacts/av-h3-a/contact", ("contact", "motion"), 180, ["--fixed-fps", "60"]),
+    "JUIA1": ("res://tests/ui_a1_journey.gd", "ROGUEWOOD_UI_A1_OK", "artifacts/ui-a1", ("portrait_cards", "portrait_studies", "landscape_cards", "landscape_studies"), 180, ["--fixed-fps", "60"]),
     "JAVC07AC": ("res://tests/upgrade_identity_contact.gd", "ROGUEWOOD_UPGRADE_IDENTITY_OK", "artifacts/av-c07-a/contact", ("contact",), 180, ["--fixed-fps", "60"]),
     "JAVC07BC": ("res://tests/upgrade_identity_contact_b.gd", "ROGUEWOOD_UPGRADE_IDENTITY_OK", "artifacts/av-c07-b/contact", ("contact",), 180, ["--fixed-fps", "60"]),
     "JAVH1AC": ("res://tests/house_identity_contact_a.gd", "ROGUEWOOD_HOUSE_IDENTITY_OK", "artifacts/av-h1-a/contact", ("contact",), 180, ["--fixed-fps", "60"]),
@@ -155,6 +159,28 @@ for art_batch in range(8, 13):
         f"artifacts/e19-a{art_batch:02}/preview", ("contact", "comparison"), 180, ["--fixed-fps", "60"])
 
 
+# UI-A1-B extends the existing card journey without replacing its captures.
+JOURNEYS["JUIA1"] = (
+    *JOURNEYS["JUIA1"][:3],
+    JOURNEYS["JUIA1"][3] + ("portrait_throw", "portrait_shop", "portrait_kit",
+                           "landscape_throw", "landscape_shop", "landscape_kit"),
+    *JOURNEYS["JUIA1"][4:],
+)
+
+
+# AV-H3-A appends native evidence without dropping the original C10 captures.
+JOURNEYS["J03C10"] = (*JOURNEYS["J03C10"][:3], JOURNEYS["J03C10"][3] +
+    ("ball_spare_ball_armed", "ball_workhorse_armed", "ball_spare_ball_cue",
+     "ball_workhorse_cue", "pin_oak_cue", "ball_workhorse_roll", "ball_spare_ball_roll", "oak_rock"), *JOURNEYS["J03C10"][4:])
+
+
+# AV-H3-B keeps every earlier capture and adds the native counted-card lifecycle.
+JOURNEYS["J03C10"] = (*JOURNEYS["J03C10"][:3], JOURNEYS["J03C10"][3] +
+    ("pin_tin_fallen", "pin_tin_after_bank", "charm_spare_jar_after_bank",
+     "charm_spare_jar_charm", "charm_consolation_prize_after_bank",
+     "jar_before_bank", "jar_drop", "jar_inventory", "jar_skipped", "jar_shop", "jar_rebought"), *JOURNEYS["J03C10"][4:])
+
+
 def engine():
     executable = os.environ.get("GODOT_BIN") or shutil.which("godot") or shutil.which("godot4")
     if not executable:
@@ -187,9 +213,39 @@ def run(args, marker=None, log_path=None, timeout=120):
         raise RuntimeError(f"Missing completion marker: {marker}")
 
 
+def web_journey(exe, inject_failure):
+    import functools, http.server, threading
+    target = ROOT / "build/web/index.html"
+    shutil.rmtree(target.parent, ignore_errors=True)
+    target.parent.mkdir(parents=True)
+    run([exe, "--headless", "--path", str(ROOT), "--export-release", "Web", str(target)], timeout=600)
+    sizes = {f.name: f.stat().st_size for f in sorted(target.parent.iterdir())}
+    mode = "headless-failure" if inject_failure else "headless"
+    artifact_dir = ROOT / "artifacts/e26-w01" / mode
+    shutil.rmtree(artifact_dir, ignore_errors=True)
+    artifact_dir.mkdir(parents=True)
+    (artifact_dir / "sizes.json").write_text(json.dumps(sizes, indent=1))
+    print("Web build sizes (bytes):", json.dumps(sizes))
+
+    class Quiet(http.server.SimpleHTTPRequestHandler):
+        def log_message(self, *args):
+            pass
+    server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), functools.partial(Quiet, directory=str(target.parent)))
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    try:
+        url = "http://127.0.0.1:%d/index.html?qa=1" % server.server_address[1]
+        node = shutil.which("node")
+        if not node:
+            raise RuntimeError("node not found; the web journey needs Node and Playwright")
+        command = [node, str(ROOT / "tests/web/web_journey.mjs"), url, str(artifact_dir)] + (["--inject-failure"] if inject_failure else [])
+        run(command, "ROGUEWOOD_JW01_OK", timeout=600)
+    finally:
+        server.shutdown()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["doctor", "import", "smoke", "export", "unit", "integration", "content", "physics", "shell", "e2e", "experiment", "slice"])
+    parser.add_argument("command", choices=["doctor", "import", "smoke", "export", "unit", "integration", "content", "physics", "shell", "e2e", "experiment", "slice", "web"])
     parser.add_argument("--journey", choices=sorted(JOURNEYS), default="J01")
     parser.add_argument("--rendered", action="store_true", help="Use a real display; on Linux run via xvfb-run")
     parser.add_argument("--inject-failure", action="store_true", help="Exercise J01 failure artifacts")
@@ -274,6 +330,10 @@ def main():
         run([exe, "--headless", "--path", str(ROOT), "--script", "res://tests/shell_smoke.gd"], "ROGUEWOOD_SHELL_OK", ROOT / "artifacts/e03/shell.log")
     elif args.command == "smoke":
         run([exe, "--headless", "--path", str(ROOT), "--", "--bootstrap-smoke"], "ROGUEWOOD_BOOT_OK")
+    elif args.command == "web":
+        # E26-W01: the single-threaded Web export, served locally and played end to end
+        # in headless Chromium (tests/web/web_journey.mjs, JW01).
+        web_journey(exe, args.inject_failure)
     elif args.command == "export":
         target = ROOT / "build/linux/roguewood.x86_64"
         target.parent.mkdir(parents=True, exist_ok=True)

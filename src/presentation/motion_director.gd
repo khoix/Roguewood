@@ -6,6 +6,7 @@ var equipment_art: HBoxContainer
 var sound: Node
 var abilities: Node
 var house_counts: Node
+var spare_jar: Node
 var modifications: Node
 var tacticals: Control
 var upgrades: Node
@@ -68,6 +69,9 @@ func _ready() -> void:
 	house_counts = preload("res://src/presentation/house_count_cards.gd").new()
 	house_counts.lab = lab
 	add_child(house_counts)
+	spare_jar = preload("res://src/presentation/spare_jar_cards.gd").new()
+	spare_jar.lab = lab
+	add_child(spare_jar)
 
 ## Legacy lab fixture only. Production rivals use the E21 manifest and HUD portraits.
 const PORTRAITS := ["rival.lab_custodian"]
@@ -148,7 +152,9 @@ func _process(delta: float) -> void:
 			_trail.append(point)
 			if _trail.size()>10: _trail.pop_front()
 		else: _trail.clear()
-		var fallen: int=lab.lane.tracker.sequence.size()
+		# The tracker exists from the launch's first physics tick; the lab already reads
+		# "rolling" for the frame before it.
+		var fallen: int=lab.lane.tracker.sequence.size() if lab.lane.tracker!=null else 0
 		if fallen>_seen_fallen:
 			impact_count+=fallen-_seen_fallen
 			_seen_fallen=fallen

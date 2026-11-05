@@ -663,3 +663,95 @@ at counted positions. Conditions/counts come from resolver facts and frame rolls
 Shared mixer/reduced motion/flash controls reused. J03C09 captures real cues and
 checks straight spare/all-House strike/count positions plus silent skip/mute.
 No subjective audio listening or phone gate claimed. No screenshots committed.
+
+## Wave 9 / UI-A1-A — House playing cards
+
+- `assets/ui/cards/build_frames.py` and its fourteen SVG outputs: original
+  Codex-authored geometric vector masters, written for Roguewood. Five distinct
+  material frames, reversible back, Value/Mult/money symbols, five category marks.
+  No external icon, font, texture or brand assets. Reproducible from the script.
+- Existing item card resources are referenced unchanged (House Ball, Ruby Pin,
+  Crown Jewel, Nudge, Spotlight Sign); their original provenance remains in the
+  earlier ledger entries. No catalogue asset slots or completeness flags changed.
+- `src/presentation/ui_a1_preview.*`: standalone composition using live labels
+  and existing illustrations. Engine fallback typography remains provisional;
+  licensed pixel font and panel kit belong to UI-A1-B.
+- Static card material target only: dynamic foil/reveal is UI-A2, game integration
+  UI-1. Native JUIA1 portrait/landscape captures are generated evidence, not source
+  assets, and must never be committed. See `docs/art/ui/UI-A1.md` for dimensions.
+
+## Wave 9 / UI-A1-B — House frame kit and typography
+
+- `assets/ui/house/{hud,shop,slip,menu,panel}.svg` and matching StyleBoxTexture
+  resources: original Codex-authored nine-slice geometry, E11 House palette,
+  walnut/brass rails, ivory studs, bevels and paper perforation marks. Original
+  `corner.svg` and `divider.svg` ornaments; generated reproducibly by
+  `assets/ui/house/build_kit.py`. No third-party frame or icon assets.
+- New `ui.house.*` bindings in `assets/ui/house/manifest.json`; existing House
+  League asset IDs/bindings untouched. Five fixed-corner, tiled-rail resources.
+- `assets/ui/fonts/PixelifySans.ttf`: unmodified Pixelify Sans variable font,
+  Copyright 2021 The Pixelify Sans Project Authors
+  (https://github.com/eifetx/Pixelify-Sans). SIL Open Font License 1.1 permits
+  redistribution with the licence; full unmodified licence accompanies it as
+  `OFL.txt`. Retrieved 2026-11-04 from
+  `https://raw.githubusercontent.com/google/fonts/main/ofl/pixelifysans/PixelifySans%5Bwght%5D.ttf`
+  and the same directory's `OFL.txt`. Font SHA256
+  `9ba86cd010a4de309d263ceff8e8044092c9db7efda869620cb9ff1c4389e8a5`;
+  downloaded licence SHA256 `b66ba46f511a851ab09998b5a5a9fdbb102545a3864cb993095e1745996873a7`.
+  Repository licence has LF line endings and trailing whitespace removed, with
+  all licence text preserved; SHA256 `62247d172c6173c3deaa58dc9e5e77d7942977048281a40e68fd766c4168e582`.
+- The new standalone UI composition reuses existing House room/lane/equipment
+  resources and Session A illustrations without modifying those sources. Scores
+  and shop state are static composition samples; no production UI integration.
+- JUIA1 produces ten native captures, never committed. Typography and frame
+  target checked at 720×1280 and 1280×720. Physical-phone approval and UI-1/UI-2
+  integration are separate. No catalogue completeness flags changed.
+
+## Wave 9 / AV-H3-A — Spare Ball, Workhorse, Oak Pin
+
+- `assets/items/d09/source.AV-H3-A.png`: original built-in generation from
+  `briefs/AV-H3-A-source-prompt.txt`, no external image/brand reference. Unchanged
+  RGBA 1536×1024 source (not a game capture), SHA256
+  `27712a8deb269fbf5a427669df1bf47a0cfc5407526bfdabe2a29c5217b32662`.
+  Generated output; no exclusive-copyright or independent legal-clearance claim.
+- Card/icon/static reduced AtlasTexture views: Spare Ball (0,260,540,560),
+  Workhorse (540,260,536,560), Oak Pin (1100,0,436,960). Existing common-frame
+  style copied unchanged; all seven slots per item now bind to real resources.
+- Original `equipment.gdshader`: fixed world-oriented Spare stripe; rotating
+  oxblood scuffs/shield; tighter dark oak grain and walnut bands. `oak.gd` and
+  its scene add only a visual mesh and contact-triggered damped follow-through;
+  no physics writes. Reduced motion/flash suppresses that motion.
+- Original glyph additions: parallel Spare guides, exactly one Workhorse tally
+  per resolver event.count, damped hardwood arc. Native score log remains the
+  numeric authority; counts are never animation-derived.
+- Original sample-free deterministic PCM via the existing author_foley.py:
+  `sound.ball.spare_ball rubber 660 0.24`, `sound.ball.workhorse wood 240 0.32`,
+  `sound.pin.oak wood 170 0.46`. Mono 22050 Hz, peak 0.48; bounded shared mixer,
+  mute and skipped-step semantics retained. Native audio dispatch checked;
+  subjective speaker/headphone listening and phone certification not claimed.
+- J03C10 normal/reduced captures and JAVH3AC native card/icon/effect contact
+  inspected before both flags were set on these three items only. No AV-H3-B,
+  E17-D10 or House League bindings changed. Captures remain ignored artifacts.
+
+
+## Wave 9 / AV-H3-B — Tin Pin, Spare Jar, Consolation Prize
+
+- Original built-in image generation, no external image or brand reference:
+  `assets/items/d09/source.AV-H3-B.png`, unchanged 1536×1024 source, SHA256
+  `37e78c9db397c3ba9551068b335fe1c7b4766b917491f79029d8e8c959571b62`.
+  Prompt retained in `briefs/AV-H3-B-source-prompt.txt`. Generated output; no
+  exclusive-copyright claim. Earlier haloed drafts were discarded. The final
+  illustration intentionally has a dark House ground, not transparent cutouts.
+- Atlas regions: Tin (32,32,416,896); empty Spare Jar (492,160,504,736);
+  Consolation Prize (1032,48,480,880). Card/icon/reduced views share these
+  unchanged source regions. Common rarity frames reuse the existing style.
+- Original tin.gdshader adds metal patches, petrol rings, seam and visual-only
+  dents. Original glyphs add surviving-frame coin, earned pin drop and fastened
+  ribbon. Spare Jar live marks/counts read frame snapshots and revealed resolver
+  events; an empty illustration avoids a baked-in count. No House bindings changed.
+- Original sample-free PCM from author_foley.py: `sound.pin.tin metal 950 .42`
+  (three taps at 0/65/140 ms), `sound.charm.spare_jar glass 1250 .34`,
+  `sound.charm.consolation_prize cloth 430 .24`. Mono 22050 Hz, peak 0.48;
+  shared bounded mixer and mute/skip semantics. No licensed samples added.
+- Native evidence: J03C10 and JAVH3BC, headless/rendered. Completion and exact
+  results are in handoffs/AV-H3-B.md; screenshots remain ignored artifacts.

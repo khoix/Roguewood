@@ -138,6 +138,10 @@ func _physical() -> void:
 		_hook = false
 		_hammer = false
 		_rubber.clear()
+	for pin in lab.lane.pins.values():
+		var identity=pin.get_node_or_null("CatalogueIdentity")
+		if identity!=null and pin.get_meta("art_item_id","")=="pin.oak":
+			identity.reduced=lab.settings.reduced_motion or lab.settings.reduced_flash
 	if lab.state != "rolling": return
 	var launch: Dictionary = lab.lane.launch
 	var ball_id: String = launch.get("ball_id","")
@@ -150,6 +154,7 @@ func _physical() -> void:
 			if pin.get_colliding_bodies().any(func(body): return body is RigidBody3D):
 				_rubber[position] = true
 				_world_cue("pin.rubber","physical_contact",lab.screen_point(pin.global_position))
+	if lab.lane.tracker == null: return # until the launch's first physics tick
 	var sequence: Array = lab.lane.tracker.sequence
 	for i in range(_fallen,sequence.size()):
 		var position: int = sequence[i]
