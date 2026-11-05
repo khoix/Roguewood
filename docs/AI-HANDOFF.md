@@ -215,6 +215,8 @@ Open: Wave 8 is merged (PR #19, main `f444488`). Base: `claude/roguewood-build` 
 
 ## Wave 9 progress (coordinator)
 - **E26-W01 DONE** (handoffs/E26-W01.md): Web export, JW01 in the `game` shard, the Web build as the CI artifact `web-build` for self-hosting, and a GitHub Pages test deployment of main (the owner enables Pages once; removable by deleting web-preview.yml). Findings for R1a: sample gesture times from input events. For W02: the 60 MB pck.
+- **Codex DONE** (handoffs/WAVE9-CODEX.md; head `9690701`, fast-forwarded by the coordinator): UI-A1-A/B (card face and back, House frame kit, licensed pixel font, compositions, JUIA1, spec docs/art/ui/UI-A1.md) and AV-H3-A/B (E17-D09's six items, JAVH3AC/BC). Unit and JUIA1 rendered re-checked on the merged tree; captures sent to the owner for the UI-A1 approval that gates UI-1.
+- **Remaining before "Wave 9 closed":** Claude's E05-R1a and E05-R1b, then the full matrix.
 
 ## Wave 8 closed (coordinator, 2026-11-03)
 - **Contents** (all on `claude/roguewood-build` at the "Wave 8 closed" commit):
