@@ -154,6 +154,7 @@ func _physical() -> void:
 			if pin.get_colliding_bodies().any(func(body): return body is RigidBody3D):
 				_rubber[position] = true
 				_world_cue("pin.rubber","physical_contact",lab.screen_point(pin.global_position))
+	if lab.lane.tracker == null: return # until the launch's first physics tick
 	var sequence: Array = lab.lane.tracker.sequence
 	for i in range(_fallen,sequence.size()):
 		var position: int = sequence[i]

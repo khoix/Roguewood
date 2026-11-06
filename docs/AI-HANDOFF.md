@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-11-03. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
+Updated: 2026-11-05. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). **Wave 10 is open** (see "Wave 10 claims"). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
 
 ## Read first
 
@@ -38,7 +38,7 @@ Source baseline: main commit `22fa7bde901677411f8a2c84a2ef02a34e235093`; design 
 - Wave 4 MERGED to main by PR #15 (CI 40760480791 PASS on `e72051b`): Claude E18-C03 and E17-D04; Codex E17-D03-ART, E19-A16 and E20-V08. 
 - Wave 5 MERGED to main by PR #16 (CI PASS on `bebb702`, which also raised the CI job limit to 90 minutes): Claude E18-C04 and E17-L01; Codex AV-C03 and E17-D04-ART.
 - Wave 6 MERGED to main by PR #17 (main `1f8a304`; CI PASS on `f5192eb`): Claude E18-C05…C07; Codex AV-C04 and E22-L01-ART. 
-- Wave 7 MERGED to main by PR #18 (main `48ea9e3`; CI PASS on `ed8173a`): Claude DC-H1…H3 (E18-C08…C10); Codex E21-R03/R04, AV-C06 and AV-C07. Wave 8 MERGED to main by PR #19 (main `f444488`; CI PASS on `ee7e9e6`). **Wave 9 is open** (see "Wave 9 claims"): Claude E26-W01, then E05-R1a and E05-R1b; Codex UI-A1 and AV-H3. Wave 10: UI-1, UI-2, UI-A2, AV-H4, AV-T01. Neon (E17-L02) starts in Wave 11 (owner, 2026-11-03/04). The equipment model is decided: the deck (ADR 004).
+- Wave 7 MERGED to main by PR #18 (main `48ea9e3`; CI PASS on `ed8173a`): Claude DC-H1…H3 (E18-C08…C10); Codex E21-R03/R04, AV-C06 and AV-C07. Wave 8 MERGED to main by PR #19 (main `f444488`; CI PASS on `ee7e9e6`). Wave 9 MERGED to main by PR #20 (main `e52343f`; CI PASS on `189910b`). It held: Claude E26-W01, then E05-R1a and E05-R1b; Codex UI-A1 and AV-H3. Wave 10: UI-1, UI-2, UI-A2, AV-H4, AV-T01. Neon (E17-L02) starts in Wave 11 (owner, 2026-11-03/04). The equipment model is decided: the deck (ADR 004).
 - **Roadmap (2026-10-28):** docs/ROADMAP.md maps every remaining milestone to phases (one per League group) and waves, with ownership, the content split per League and the owner's decisions. Waves 5–8 complete the House League.
 - See handoffs/E01.md for exact evidence, decisions and remaining gates.
 
@@ -213,8 +213,66 @@ Open: Wave 8 is merged (PR #19, main `f444488`). Base: `claude/roguewood-build` 
   - Codex: UI-A2, AV-H4 (E17-D10's five), AV-T01.
 - **Owner:** approve the UI-A1 mockups (gates UI-1), and play the held-ball throw on a phone through the hosted web build.
 
+## Wave 10 claims (coordinator: Claude, 2026-11-06)
+Open: Wave 9 is merged (PR #20), plus the CI fix (PR #21, main `f4810aa`). Base: `claude/roguewood-build` at the "Wave 10 claims" commit. Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave10.md). Scope: docs/ROADMAP.md, "Art-forward interface: UI-R1" (with the owner's decisions of 2026-11-05) and "Tethered swing: E05-R2".
+- **Claude, in this order:**
+  1. **UI-1** (High): one card component, used everywhere.
+     - Paths: src/presentation/card_view.gd (new); card_hand.gd; card_inspector.gd; the card rendering in shop_panel.gd and in the Clubhouse binder; the Equipment option in throw_settings_panel.gd.
+     - Delivers:
+       - UI-A1's card face and back in the hand, shop, binder and inspector;
+       - deal, draw, flip, cycle and discard motion, with press and tilt;
+       - long-press Inspect for full rule text;
+       - direct selection removed from Options (ADR 004 decided the deck);
+       - hand size 4 in landscape and 2 in portrait.
+  2. **E05-R2** (High): the tethered swing.
+     - Paths: src/input/held_ball.gd, tests/held_ball_test.gd, throw_lab.gd's hold code, tests/throw_journey.gd, ADR 011.
+     - Delivers:
+       - the ball orbits the touch point, capped inside its own radius;
+       - the charge is the orbit's angular speed;
+       - tuning-page additions;
+       - a swirl clip for the owner.
+  3. **UI-2** (High): every screen in the approved layout. Starts after the owner approves UI-A1-C.
+     - Paths: throw_lab.gd's layout and HUD, division_hud.gd, score_panel.gd, the shop_panel.gd layout, bootstrap and Clubhouse menus.
+     - Delivers:
+       - full-width landscape with top bar and lane-safe side panels, which shrink and then fold on 4:3;
+       - the portrait layout as approved;
+       - icons and numbers instead of text;
+       - an ordered score chain;
+       - the camera framing for portrait;
+       - the backdrop the owner picks.
+- **Codex:**
+  - **UI-A1-C** (Medium, first): the layout revision.
+    - Re-render the throw and shop screens: landscape full width with side panels, in 16:9 and 4:3, and portrait as approved (two-card hand, money in its own slot).
+    - Offer 2–3 side-space backdrop options for House (for example a slow star field matching the windows), with reduced-motion versions.
+    - Update docs/art/ui/UI-A1.md.
+    - Paths: assets/ui/, docs/art/ui/, the UI-A1 preview and composition scenes, and JUIA1.
+    - The owner's mockups: artifacts/landscape_full_*.png and artifacts/portrait_*.png, shared in chat and not committed. The layout is described in docs/ROADMAP.md.
+  - **UI-A2** (Medium–High): card material treatments.
+    - Foil and rarity treatments, as a shader or layers the card component can use.
+    - Per-League frame variants (House first).
+    - The final icon pass.
+    - Paths: assets/ui/ and its docs.
+  - **AV-H4** (Medium; High for counted displays; 2 sessions): identity art, activation, sound and both flags for E17-D10's five items: Double Take, Called Shot, Pin Count, Cleanup Crew and Lucky Seven. J03C11 plays them.
+- **Moved to Wave 11:** AV-T01, so the throw effects follow the tethered swing. Neon starts in Wave 11.
+- **Owner:** pick a backdrop from UI-A1-C; approve UI-A1-C before UI-2; turn on GitHub Pages; tune the throw on a phone.
+
+## Wave 9 closed (coordinator, 2026-11-05)
+- **Contents** (all on `claude/roguewood-build` at the "Wave 9 closed" commit):
+  - Claude: E26-W01 (`3af873b`, `fa868d0`, `1f1f34d`), E05-R1a (`85ed6ad`) and E05-R1b (`2ef4f2b`).
+  - Codex: UI-A1-A/B (`fdacb63`, `b874f02`, `f4acab7`) and AV-H3-A/B (`0b9f3a4`, `4d0fb91`), fast-forwarded at `9690701`.
+- **Validation:**
+  - The full CI command list (152 units, both shards, every journey headless and rendered, the web journey included) PASS locally on `2ef4f2b`.
+  - The physics digest `75d1a3c0…` is unchanged. J02's injected failure exits 1.
+  - CI runs on this commit.
+- **Owner actions:** approve the UI-A1 mockups (this gates UI-1); turn on GitHub Pages; play the held-ball throw on a phone and tune it (Options → Throw tuning).
+- **Merge:** MERGED to main by PR #20 (`e52343f`) after CI passed on `189910b`.
+
 ## Wave 9 progress (coordinator)
 - **E26-W01 DONE** (handoffs/E26-W01.md): Web export, JW01 in the `game` shard, the Web build as the CI artifact `web-build` for self-hosting, and a GitHub Pages test deployment of main (the owner enables Pages once; removable by deleting web-preview.yml). Findings for R1a: sample gesture times from input events. For W02: the 60 MB pck.
+- **Codex DONE** (handoffs/WAVE9-CODEX.md; head `9690701`, fast-forwarded by the coordinator): UI-A1-A/B (card face and back, House frame kit, licensed pixel font, compositions, JUIA1, spec docs/art/ui/UI-A1.md) and AV-H3-A/B (E17-D09's six items, JAVH3AC/BC). Unit and JUIA1 rendered re-checked on the merged tree; captures sent to the owner for the UI-A1 approval that gates UI-1.
+- **E05-R1a DONE** (handoffs/E05-R1a.md, docs/decisions/011-held-ball-throw.md): the held-ball model and its unit tests; the lab switches to it in R1b.
+- **E05-R1b DONE** (handoffs/E05-R1b.md): the held ball is live in the lab, with cues and vibration, the tuning page (Options → Throw tuning) and J02's new checks. The old gesture is deleted.
+- **Remaining before "Wave 9 closed":** the full matrix.
 
 ## Wave 8 closed (coordinator, 2026-11-03)
 - **Contents** (all on `claude/roguewood-build` at the "Wave 8 closed" commit):

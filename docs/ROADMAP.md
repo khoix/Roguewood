@@ -88,8 +88,8 @@ Estimated sessions: Claude about 75, Codex about 97. At 3 and 4 sessions per wav
 | **7** | DC-H1 to DC-H3: 18 House items (3 sessions, Medium). | E21-R03, R04: House's new rivals with their rule badges. AV-C06: the 3 tactical cards. AV-C07: the 6 upgrades (2 sessions). |
 | **8** | DC-H4: the last 5 House items. E22-L01: House League integration and its full-League journey (High). | AV-H1, AV-H2: the first 12 House items (4 sessions). |
 | **9** | In this order: E26-W01 Web export (High), then E05-R1a and E05-R1b, the held-ball throw (2 sessions, High). All owner-approved 2026-11-03/04. W01 is the claim that carries into Wave 10 if it overruns. | UI-A1: the interface visual target for the owner's approval (2 sessions, High). AV-H3: House item art (2 sessions, Medium; High for counted effects). |
-| **10** | UI-1: one real card everywhere (High). UI-2: every screen in the frame kit, score-chain choreography (High). | UI-A2: foil, rarity and theme on the card and frames (Medium–High). AV-H4: the last House item art (2 sessions). AV-T01: throw charge and sparkle effects and sounds (Medium). |
-| 11 (Phase 2 starts) | E17-L02: Neon spec; Neon rules and lanes. | Neon rivals and theme (League template wave b). |
+| **10** | UI-1: one real card everywhere (High). UI-2: every screen in the approved layout, score-chain choreography (High; after UI-A1-C). E05-R2: the tethered swing (High; owner-approved 2026-11-05). | UI-A1-C: the layout revision and side-space backdrop options (Medium; first). UI-A2: foil, rarity and theme on the card and frames (Medium–High). AV-H4: the last House item art (2 sessions). |
+| 11 (Phase 2 starts) | E17-L02: Neon spec; Neon rules and lanes. | AV-T01: throw charge and sparkle effects and sounds for the tethered swing (Medium). Neon rivals and theme (League template wave b). |
 
 ### League template (Phases 2 and 3)
 | Wave | Claude | Codex |
@@ -106,6 +106,17 @@ Estimated sessions: Claude about 75, Codex about 97. At 3 and 4 sessions per wav
 | By the end of Phase 2 | Provide phone hardware (and an iOS toolchain if iOS stays a target), or decide that desktop evidence is acceptable for now. | Real-phone feel (E05), readability (E12), the play session (E13) and all of E26 are blocked without it. Finding feel problems before four more Leagues of content is much cheaper. |
 | Phase 5 | Human playtests to corroborate the balance study. | E24 may not present simulation alone as proof of fun. |
 
+### Tethered swing: E05-R2 (owner decision, 2026-11-05)
+The owner asked for the PoGo-style ragdoll fling: while held, the ball swings around the touch point like a hula hoop around a waist, not just following the finger.
+- **The finger stays inside the ball:** the ball's centre orbits the touch point on a soft, low-damping tether capped at about 0.8 of the ball's on-screen radius.
+- **Orbit speed sets the charge, not loop count:** the curve charge is the orbit's current angular speed, slightly smoothed. Faster swirling gives more curve, and no rotation has to be completed.
+- **Momentum:** the swirl winds down on its own damping when the finger stops, and the charge falls with it. Clockwise hooks right; reversing must slow the orbit before it builds the other way.
+- **Release:** the flick dominates. The orbit is smaller than the ball, so its sideways nudge is small.
+- **Unchanged:** the sparkle threshold, cues, vibration and the launch contract all stay as they are.
+- **Tuning page additions:** orbit cap, swing rate, damping and the speed for full charge.
+- **Deliverables:** a short animated clip of the swirl for the owner. ADR 011 is updated, replacing R1's charge-per-radian rule.
+- **Schedule:** Claude, Wave 10, High. AV-T01 moves to Wave 11 so its effects follow the orbit.
+
 ### Art-forward interface: UI-R1 (owner decision, 2026-11-04)
 First impression (owner): the game reads as a wall of text with tiny art icons, plain borders and cards that look like boxes. Design §17 already requires premium collectible cards, framing that fits the art, tactile card handling and no generic panels, but no milestone owned the card faces, frame kit or interface motion. UI-R1 is a split milestone (art: Codex; integration and UI: Claude):
 - **UI-A1** (Codex, Wave 9, High, 2 sessions): the visual target at actual size, portrait and landscape: a playing-card face (card proportions and corners, an art window taking most of the face, name banner, rarity frame, category mark, short icon-led rule text), a card back, a frame and border kit for the HUD, shop, score slip and panels (House first), a pixel font, and Value, Mult and $ icons. **Owner approval gates UI-1.**
@@ -113,6 +124,12 @@ First impression (owner): the game reads as a wall of text with tiny art icons, 
 - **UI-2** (Claude, Wave 10, High): HUD, shop, score resolution, menus and Clubhouse in the frame kit; text cut to icons and numbers; the score chain resolves in order.
 - **UI-A2** (Codex, Wave 10, Medium–High): foil and rarity treatments on the card, per-League frame variants, the final icon pass.
 - **Owner review:** UI-A1 mockups before UI-1; screenshots and a phone play-through after UI-2.
+- **Owner decisions on UI-A1 (2026-11-05):**
+  - **Landscape throw screen:** the lane renders full width. A framed top-bar HUD spans the width (League and Division, score, target, money, Options). Framed panels sit over the empty flanks: the hand on the left (with deck count, Cycle and Inspect); the score slip, rival and rule, and Charm slots on the right. Each panel is about 19% of the width, and never covers the lane corridor; on narrow landscape (4:3) the panels shrink, then fold into the top bar. The shop keeps a three-column grid. (Approved from a coordinator mockup of the real game with the kit overlaid.)
+  - **Hand size:** four cards in landscape, two in portrait (rule text by long-press Inspect).
+  - **Empty flanks:** not wider League environment art. The space gets an ambient backdrop of its own, for example a slow star field for House that matches the night sky in its windows. It must stay behind the panels and lane, respect reduced motion, and vary by League.
+  - **Portrait (phone) approved (2026-11-05):** from a coordinator mockup on the real game. Top to bottom: a two-row top bar (League and Division with Options; score, target and money, with money in its own slot); a strip with the score slip and rival chip side by side; a Charms row; the full-width lane, with the camera raised so the ball sits about two-thirds down; and a hand panel of two cards, with deck counts, Cycle and Inspect at the thumb side (mirrored for left-handed play).
+  - **Wave 10 work:** Codex's UI-A1-C revision (Medium) re-renders the landscape throw and shop to this layout, adds the narrow-landscape case and the backdrop treatment, and updates docs/art/ui/UI-A1.md, before UI-2 builds the screens. UI-1 (the card component) can start in parallel.
 
 ### Throw rework: the held ball (owner decision, 2026-11-03)
 The E05 gesture counts path turning abstractly and locks the ball once circling starts, so it reads as drawing a circle rather than handling a ball. The owner approved a held-ball model, built before Neon:
