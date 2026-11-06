@@ -39,6 +39,7 @@
   - SOLD, CAN'T AFFORD, OWNED MAX and similar show as stamps or tabs.
   - An empty slot shows the card back.
   - The offer label keeps the old text, so "SOLD" and "can't afford" are still in `text`.
+- **Shop in portrait (stopgap until UI-2):** offers render as compact 105×150 cards (name, art, rarity, price), the same height as the old buttons. Full-size cards pushed Reroll, Next Match and the Sell list off the screen, and J03C07–C09 tap real screen positions (CI run 42148336118). UI-2 lays the shop out properly.
 - **Inspector** (card_inspector.gd):
   - Shows the whole card at inspection size: 240×344 in portrait, 210×300 in landscape.
   - Foil, tilt and the legendary reveal act on the card's illustration. `inspector.art` is that illustration, so Codex's modification badge still attaches to it.
