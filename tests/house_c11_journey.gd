@@ -47,6 +47,9 @@ func _run() -> void:
 	var called := await _card_frame("consumable.called_shot", 1, [STRIKE], "Called Shot strike")
 	_check(called.result.category == "strike" and _logged("Called Shot"), "Called Shot doubles a strike")
 	await _capture("c11_called_shot")
+	await _focus_accept(scene.options)
+	await _focus_accept(lab.settings_panel.reduced_motion)
+	await _focus_accept(lab.settings_panel.close)
 	await _focus_accept(lab.next_rack)
 	var echo := await _card_frame("consumable.double_take", 1, [STRIKE], "Double Take strike")
 	_check(echo.result.category == "strike" and int(echo.result.retriggers) >= 1 and _logged("Double Take"), "Double Take repeats the first direct pin (%d repeat)" % int(echo.result.retriggers))
@@ -69,6 +72,8 @@ func _run() -> void:
 		_check(not _logged("Lucky Seven"), "Lucky Seven stays silent with %d standing" % standing)
 	_check(lucky, "a seven-pin open frame was thrown")
 	await _capture("c11_lucky_seven")
+	await _tactical_miss()
+	for label in ["called_shot_ball","double_take_retrigger","pin_count_ball","called_shot_missed"]:_check(art_captures.has(label),"native tactical capture: "+label)
 	if "--inject-failure" in OS.get_cmdline_user_args(): _check(false, "Injected diagnostic failure")
 	if failures.is_empty(): print("ROGUEWOOD_J03C11_OK")
 	quit(0 if failures.is_empty() else 1)
@@ -136,3 +141,55 @@ func _capture(label: String) -> void:
 	var image := root.get_texture().get_image()
 	if image == null or image.is_empty() or image.save_png(artifact_dir.path_join(label + ".png")) != OK:
 		_check(false, "Cannot capture " + label)
+
+# AV-H4-A: observe the existing reveal; all amounts remain resolver-owned.
+func _scored() -> Dictionary:
+	for tick in ROLL_FRAMES*3:
+		if lab.state in ["scoring","frame_done"]:
+			var glyph:Control=lab.motion.abilities.glyph
+			if glyph.style!=null and glyph.age<glyph.style.duration and glyph.style.item_id in preload("res://src/presentation/house_tactical_events.gd").IDS:
+				var id:String=glyph.style.item_id
+				var key:=id.get_slice(".",1)+"_"+String(glyph.details.phase)
+				if not art_captures.has(key):
+					art_captures[key]=true
+					var scored:Dictionary=lab.scored_frames[-1]
+					_check(glyph.still==bool(lab.settings.reduced_motion or lab.settings.reduced_flash),"tactical respects reduced setting")
+					var missed:bool=glyph.details.get("zero",false)
+					_check(lab.motion.abilities.history.any(func(e):return e.id==id and e.event==glyph.details.phase and e.audio_played!=missed),"tactical sound follows success, never miss")
+					if id=="consumable.pin_count":
+						var count:int=preload("res://src/presentation/house_tactical_events.gd").fallen_positions(scored.frame).size()
+						_check(int(glyph.details.count)==count and int(glyph.details.amount)==5*count,"Pin Count ticks match resolver count and Value")
+						_check(lab.motion.abilities.counted_rack_positions().size()==count,"counted rack marks exactly the paid pins")
+					elif id=="consumable.double_take":
+						_check(glyph.details.positions==[scored.frame.rolls[0].first_direct],"doubled outline over actual first direct pin")
+					elif missed:
+						await process_frame # allow the rack child to consume the newly revealed cue
+						_check(scored.result.category!="strike" and not glyph.details.lit,"Called Shot is grey when spent without strike")
+						_check(glyph.material is ShaderMaterial and lab.motion.abilities.tactical_hand.material is ShaderMaterial,"miss desaturates both hand annotations")
+					else:_check(scored.result.category=="strike" and glyph.details.lit,"Called Shot lights on strike")
+					await _capture("h4_"+key)
+		if lab.state=="frame_done":return lab.scored_frames[-1]
+		await process_frame
+	_check(false,"H4-A score reveal timeout")
+	return lab.scored_frames[-1]
+
+func _tactical_miss() -> void:
+	# Buy a fresh copy through the shop: the successful card is exhausted.
+	await _focus_accept(lab.next_rack)
+	for frame in 5:
+		if lab.state=="shop":break
+		await _card_frame("",0,[GUTTER,GUTTER],"advance to tactical rebuy")
+		await _focus_accept(lab.next_rack)
+	_check(lab.state=="shop","fresh tactical shop")
+	var bought:=false
+	for visit in 150:
+		for i in lab.shop.offers.size():
+			var offer:Dictionary=lab.shop.offers[i]
+			if offer.item_id!="consumable.called_shot" or offer.sold:continue
+			await _tap(lab.shop_panel.button_for_offer(i));bought=true;break
+		if bought:break
+		await _tap(lab.shop_panel.reroll_button)
+	_check(bought,"fresh Called Shot bought for negative case")
+	await _leave_shop()
+	var missed:=await _card_frame("consumable.called_shot",1,[LEAVE,CLEANUP],"Called Shot spent on spare")
+	_check(missed.result.category=="spare" and not _logged("Called Shot"),"miss gives no multiplier")

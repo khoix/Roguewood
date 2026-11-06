@@ -16,6 +16,11 @@ func show_cue(recipe: Resource, reduced: bool, texture: Texture2D, context: Dict
 	still = reduced
 	identity = texture
 	details = context.duplicate(true)
+	material = null
+	if style != null and style.item_id == "consumable.called_shot" and not details.get("lit",true):
+		var grey := ShaderMaterial.new()
+		grey.shader = preload("res://assets/effects/house_tactical_miss.gdshader")
+		material = grey
 	queue_redraw()
 func _process(delta: float) -> void:
 	age += delta
@@ -25,6 +30,7 @@ func _draw() -> void:
 	var c := size * 0.5
 	var t: float = 0.5 if still else clampf(age / style.duration,0,1)
 	var ink: Color = style.ink
+	if _draw_house_tacticals(c,t,ink): return
 	if _draw_house_keepsakes(c,t,ink): return
 	if _draw_house_equipment(c,t,ink): return
 	if _draw_house_final(c,t,ink): return
@@ -427,4 +433,22 @@ func _draw_house_keepsakes(c: Vector2, t: float, ink: Color) -> bool:
 		var end := c+Vector2(10 if still else lerpf(-10,10,clampf(t*3,0,1)),-24)
 		draw_line(c+Vector2(-10,-24),end,ink,2)
 		draw_circle(c+Vector2(-10,-24),3,ink)
+	return true
+
+func _draw_house_tacticals(c:Vector2,t:float,ink:Color) -> bool:
+	if style.item_id not in preload("res://src/presentation/house_tactical_events.gd").IDS:return false
+	if not details.get("lit",true):ink=Color("667078")
+	if identity:draw_texture_rect(identity,Rect2(c-Vector2(23,23),Vector2(46,46)),false,Color.WHITE if details.get("lit",true) else Color("667078"))
+	if style.item_id=="consumable.pin_count":
+		var count:=clampi(int(details.get("count",0)),0,10)
+		# The target count is authoritative; time only reveals those exact ticks.
+		var shown:=count if still else mini(count,int(t*count*2)+1)
+		for j in shown:
+			var x:float=-25+(j%5)*5
+			var y:float=15+(j/5)*8
+			draw_line(c+Vector2(x,y),c+Vector2(x+2,y-6),ink,2)
+	elif style.item_id=="consumable.double_take":
+		for x in [-5,5]:draw_arc(c+Vector2(x,0),26,0,TAU,24,ink,2)
+	elif details.get("lit",true):
+		draw_arc(c,27,-PI*.7,-PI*.3,12,ink,2)
 	return true

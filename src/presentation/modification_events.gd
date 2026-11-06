@@ -50,13 +50,18 @@ static func project(frame:Dictionary,event:Dictionary,owners_by_source:Dictionar
      out.append({"id":"ball_mod.echo_charge","key":"charge:%s:%s:%d"%[cause,source,int(event.repeat)],"phase":"retrigger","position":int(source.get_slice(":",1)),"count":1,"repeat":int(event.repeat),"amount":1,"roll":int(roll.roll_index),"positions":[int(source.get_slice(":",1))]})
  return out
 static func combine(frame:Dictionary,event:Dictionary,owners_by_source:Dictionary,facts:Dictionary={}) -> Array:
+ var tactical=preload("res://src/presentation/house_tactical_events.gd")
  var projected:=project(frame,event,owners_by_source)
- var charges:=projected.filter(func(c):return c.id=="ball_mod.echo_charge")
- var out:=projected.filter(func(c):return c.id!="ball_mod.echo_charge")
+ projected.append_array(tactical.project(frame,event,owners_by_source,facts))
+ var repeat_id:String=tactical.repeat_owner(frame,event,owners_by_source)
+ if not repeat_id.is_empty():projected=projected.filter(func(c):return c.id!="ball_mod.echo_charge" or repeat_id==c.id)
+ var charges:=projected.filter(func(c):return c.id in ["ball_mod.echo_charge","consumable.double_take"])
+ var out:=projected.filter(func(c):return c.id not in ["ball_mod.echo_charge","consumable.double_take"])
  var source_ids:Array=owners_by_source.get(event.get("source",""),[])
  var index:=int(event.get("effect_index",-1))
- var attached:=index>=0 and index<source_ids.size() and (String(source_ids[index]).begins_with("pin_mod.") or String(source_ids[index]).begins_with("ball_mod."))
+ var attached:bool=index>=0 and index<source_ids.size() and (String(source_ids[index]).begins_with("pin_mod.") or String(source_ids[index]).begins_with("ball_mod.") or source_ids[index] in tactical.IDS)
  for cue in preload("res://src/presentation/ability_events.gd").project(frame,event,facts):
+  if cue.phase=="retrigger" and not repeat_id.is_empty() and repeat_id!=cue.id:continue
   # A modification's effect is not its host's effect. A retrigger's cause is
   # independent: Echo must still read when a Crown's only paid row is its mod.
   if not attached or cue.phase=="retrigger":out.append(cue)

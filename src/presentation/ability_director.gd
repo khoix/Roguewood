@@ -20,6 +20,8 @@ var _rubber := {}
 var shop_glyph: Control
 var growth_label: Label
 var growth_row: HBoxContainer
+var tactical_hand: TextureRect
+var tactical_grey: ShaderMaterial
 func _ready() -> void:
 	name = "AbilityDirector"
 	marquee = TextureRect.new()
@@ -58,6 +60,17 @@ func _ready() -> void:
 		world_glyphs.append(marker)
 	lab.score_panel.step_revealed.connect(_step)
 	lab.score_panel.rack_view.draw.connect(_draw_counted_rack)
+	tactical_hand = TextureRect.new()
+	tactical_hand.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tactical_hand.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	tactical_hand.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tactical_hand.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	tactical_hand.texture = Assets.slot("consumable.called_shot","icon")
+	tactical_hand.size = Vector2(48,48)
+	lab.score_panel.rack_view.add_child(tactical_hand)
+	tactical_hand.hide()
+	tactical_grey = ShaderMaterial.new()
+	tactical_grey.shader = preload("res://assets/effects/house_tactical_miss.gdshader")
 func _process(_delta: float) -> void:
 	if lab.run != null:
 		marquee.visible = lab.run.charms.any(func(e): return e.item_id == "charm.opening_act")
@@ -66,9 +79,14 @@ func _process(_delta: float) -> void:
 		marquee.tooltip_text = "Opening Act · frame 1 active" if marquee_lit else "Opening Act · inactive after frame 1"
 	_physical()
 	glyph.enabled = lab.motion.sound.enabled
-	var counted := not counted_rack_positions().is_empty()
+	var counted: bool = not counted_rack_positions().is_empty() or (glyph.style != null and glyph.style.item_id == "consumable.called_shot" and glyph.age < glyph.style.duration)
 	if counted or _counted_rack_active: lab.score_panel.rack_view.queue_redraw()
 	_counted_rack_active = counted
+	tactical_hand.visible = glyph.enabled and glyph.style != null and glyph.style.item_id == "consumable.called_shot" and glyph.age < glyph.style.duration
+	if tactical_hand.visible:
+		tactical_hand.position = Vector2(lab.score_panel.rack_view.size.x*.5+25,lab.score_panel.rack_view.size.y-58)
+		tactical_hand.material = null if glyph.details.get("lit",true) else tactical_grey
+		tactical_hand.modulate = Color.WHITE if glyph.details.get("lit",true) else Color("889098")
 	intro_glyph.enabled = lab.motion.sound.enabled
 	shop_glyph.enabled = lab.motion.sound.enabled
 	if lab.state == "shop" and int(lab.settlement.get("match",-1)) != _settlement:
@@ -115,6 +133,12 @@ func _step(step: Dictionary, index: int, skipped: bool) -> void:
 	if row.get("zero","") == "pin.crown":
 		cue("pin.crown","explained_zero",skipped,{"zero":true,"amount":0,"position":row.position,"last_fallen":int(scored.result.get("facts",{}).get("last_fallen",0))})
 		return
+	if index == 0:
+		Assets._ensure()
+		var pre_snapshot: Dictionary = lab.motion.modifications.snapshots.get(int(scored.get("frame_number",lab.frame_number)),{})
+		var pre_owners: Dictionary = preload("res://src/presentation/modification_events.gd").owners(scored.frame,Assets._items,pre_snapshot)
+		for missed in preload("res://src/presentation/house_tactical_events.gd").missed(scored.frame,pre_owners,scored.result):
+			cue(missed.id,missed.phase,skipped,missed)
 	if not row.has("event"): return
 	var event: Dictionary = row.event
 	var snapshot: Dictionary = lab.motion.modifications.snapshots.get(int(scored.get("frame_number",lab.frame_number)),{})
@@ -184,12 +208,13 @@ func _world_cue(id: String, event: String, point: Vector2) -> void:
 ## Highlight actual counted slots without replacing the rack's roll colours,
 ## position labels or standing outlines. The resolver-owned count stays on the cue.
 func counted_rack_positions() -> Array:
-	if not glyph.enabled or glyph.style == null or glyph.style.item_id not in ["charm.front_line","charm.corner_pockets","charm.head_pin","charm.back_row","pin_mod.keystone","pin_mod.lantern","ball_mod.echo_charge"] or glyph.age >= glyph.style.duration: return []
+	if not glyph.enabled or glyph.style == null or glyph.style.item_id not in ["charm.front_line","charm.corner_pockets","charm.head_pin","charm.back_row","pin_mod.keystone","pin_mod.lantern","ball_mod.echo_charge","consumable.double_take","consumable.pin_count"] or glyph.age >= glyph.style.duration: return []
 	return glyph.details.get("positions",[]).duplicate()
 func _draw_counted_rack() -> void:
 	var view: Control = lab.score_panel.rack_view
 	var lane = preload("res://src/simulation/lane_spec.gd")
 	var counted := counted_rack_positions()
+	_draw_tactical_rack(view)
 	var front: bool = glyph.style != null and glyph.style.item_id == "charm.front_line" and not counted.is_empty()
 	for position in ([1,2,3] if front else counted):
 		var at: Vector2 = lane.spot(position)
@@ -206,3 +231,21 @@ func _draw_counted_rack() -> void:
 			view.draw_arc(center,27,0,TAU,24,Color("e8d69c"),2,true)
 		view.draw_arc(center,21.0,0.0,TAU,24,Color("e8d69c"),2.0,true)
 		view.draw_line(center+Vector2(-11,-24),center+Vector2(11,-24),Color("e8d69c"),3.0)
+
+func _draw_tactical_rack(view:Control) -> void:
+	if not glyph.enabled or glyph.style==null or glyph.age>=glyph.style.duration:return
+	var id:String=glyph.style.item_id
+	var lane=preload("res://src/simulation/lane_spec.gd")
+	if id=="consumable.double_take":
+		for position in glyph.details.get("positions",[]):
+			var at:Vector2=lane.spot(position)
+			var center:=Vector2(view.size.x*.5+at.x/lane.PIN_SPACING*44,view.size.y-44-(at.y-lane.HEAD_PIN_F)/lane.ROW_SPACING*36)
+			for offset in [-5,5]:
+				var outline:=PackedVector2Array()
+				for point in [Vector2(-5,-19),Vector2(5,-19),Vector2(7,-12),Vector2(5,-6),Vector2(12,12),Vector2(10,20),Vector2(-10,20),Vector2(-12,12),Vector2(-5,-6),Vector2(-7,-12),Vector2(-5,-19)]:outline.append(center+point+Vector2(offset,0))
+				view.draw_polyline(outline,Color("e8d69c"),2,true)
+	if id=="consumable.called_shot":
+		# The pocket lies between head pin and pin 3. This annotation has no hitbox.
+		var pocket:=Vector2(view.size.x*.5+11,view.size.y-62)
+		var color:=Color("e8d69c") if glyph.details.get("lit",true) else Color("667078")
+		view.draw_line(pocket+Vector2(20,20),pocket,color,2,true)

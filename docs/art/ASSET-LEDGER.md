@@ -778,3 +778,21 @@ bindings, the league-keyed manifest and nine original 32px action icons under
 assets/ui/icons. Existing eight UI-A1 score/category icons and five House frame
 masters are reused unchanged. No external font, image or audio added. Future
 League frames explicitly fall back to House; their art is not claimed.
+
+### AV-H4-A — House throw tacticals (Wave 10)
+
+- Original generated identity atlas: `assets/items/d10/source.AV-H4-A.png`.
+  Created for Roguewood with OpenAI image generation, 2026-11-06; unchanged
+  source, no third-party images, trademarks or sampled material. Prompt: three
+  isolated pixel-art columns on House ink — doubled ivory/teal bowling pin,
+  pointing ivory bowling glove toward the pocket, blank brass-clipped tally
+  clipboard with pencil. Ivory, petrol, brass and walnut; no baked counts/text.
+- AtlasTextures: card/icon/reduced for Double Take, Called Shot, Pin Count;
+  464–512×700 source regions. Original Common/Uncommon StyleBoxFlat frames.
+- Original GDScript event projection and bounded cue/rack drawing, plus three
+  activation resources. No asset IDs or House environment bindings replaced.
+- Original deterministic PCM: `sound.consumable.{double_take,called_shot,pin_count}.wav`;
+  author_foley.py wood 380/.35, metal 880/.32, paper 450/.22 respectively.
+  Double Take has two taps at 0/.095 s; all normalized to .48 peak. No samples.
+- Native evidence is generated under artifacts/av-h4-a and artifacts/e18-c11,
+  never committed. Completeness is recorded only after those checks pass.
