@@ -12,6 +12,7 @@ extends Control
 signal career_changed
 const Model = preload("res://src/clubhouse/clubhouse_model.gd")
 const Art = preload("res://src/clubhouse/clubhouse_art.gd")
+const CardView = preload("res://src/presentation/card_view.gd")
 const Career = preload("res://src/persistence/career_profile.gd")
 const TABS := ["board", "binder", "trophies", "goals"]
 const TAB_NAMES := {"board": "League Board", "binder": "Binder", "trophies": "Trophies", "goals": "Goals"}
@@ -225,20 +226,18 @@ func _refresh_binder() -> void:
 	if selected_item.is_empty() or shown.filter(func(e): return e.id == selected_item).is_empty():
 		selected_item = shown[0].id if not shown.is_empty() else ""
 	for entry in shown:
-		var card := Button.new()
+		# UI-1: binder entries are the playing cards themselves, with their Career state.
+		var card := CardView.new()
 		card.name = "Binder_" + entry.id.replace(".", "_")
-		card.text = "%s\n%s  %s" % [entry.name, Art.STATE_MARKS[entry.state], Model.STATE_NAMES[entry.state]]
-		card.add_theme_font_size_override("font_size", 20)
-		card.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		card.set_item(entry.id)
+		var state_word: String = Model.STATE_NAMES[entry.state]
+		card.set_state("locked" if entry.state == "locked" else "", "" if entry.state in ["locked", "available"] else ("%s %s" % [Art.STATE_MARKS[entry.state], state_word]).to_upper(), "",
+			"%s\n%s  %s" % [entry.name, Art.STATE_MARKS[entry.state], state_word])
 		if Art.has_art(entry.asset):
-			card.icon = load(Art.path_for(entry.asset))
-			card.expand_icon = true
-			card.add_theme_constant_override("icon_max_width", 48)
-			card.add_theme_constant_override("h_separation", 12)
-		Art.button_style(card, entry.state)
+			card.icon = load(Art.path_for(entry.asset)) # the binder's identity art (art journeys check it)
 		card.toggle_mode = true
 		card.button_pressed = entry.id == selected_item
-		card.custom_minimum_size = Vector2(316, 88)
+		card.custom_minimum_size = Vector2(150, 214)
 		card.pressed.connect(func(): _select(entry.id))
 		binder_grid.add_child(card)
 	_clear(binder_art)
