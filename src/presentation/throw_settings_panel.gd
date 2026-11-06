@@ -6,16 +6,16 @@ extends PanelContainer
 signal changed
 const DEFAULTS := {"handedness": "right", "sensitivity": 1.0, "reduced_motion": false, "large_targets": false, "assist": false, "score_speed": 1,
 	"equipment": "deck", "practice": false, "reduced_flash": false, "haptics": true, "throw_tuning": {}}
-## E05-R1b: the held-ball constants the tuning page adjusts (ADR 011), as
+## E05-R2: the tethered-swing constants the tuning page adjusts (ADR 011), as
 ## [key, label, min, max, step, format]. Values live in settings.throw_tuning for the
 ## session; anything not set uses held_ball.gd's defaults.
 const Held = preload("res://src/input/held_ball.gd")
 const TUNABLE := [
-	["charge_gain", "Charge per radian", 0.04, 0.4, 0.01, "%.2f"],
-	["reference_speed", "Full-rate swing speed", 0.25, 2.0, 0.05, "%.2f"],
-	["half_life", "Spin half-life (s)", 0.5, 10.0, 0.25, "%.2f"],
-	["spring_frequency", "Ball spring (rad/s)", 10.0, 80.0, 1.0, "%.0f"],
-	["spring_damping", "Spring damping", 0.2, 1.5, 0.05, "%.2f"],
+	["full_charge_speed", "Full-charge swirl (rad/s)", 4.0, 25.0, 0.5, "%.1f"],
+	["swirl_half_life", "Swirl wind-down half-life (s)", 0.3, 5.0, 0.1, "%.1f"],
+	["spin_up_time", "Swirl catch-up time (s)", 0.03, 0.5, 0.01, "%.2f"],
+	["swirl_start_deg", "Turn before a swirl counts (°)", 90.0, 540.0, 10.0, "%.0f"],
+	["orbit_nudge", "Orbit nudge on release", 0.0, 1.0, 0.05, "%.2f"],
 ]
 
 var settings: Dictionary = {}

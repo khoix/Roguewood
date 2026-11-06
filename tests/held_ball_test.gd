@@ -1,9 +1,9 @@
 extends RefCounted
-## E05-R1a: the held-ball model (src/input/held_ball.gd, ADR 011) from synthetic,
-## timestamped finger samples. Covers the follow spring, charging by swinging,
-## pace, reversal, fading while held, the straight-below-threshold rule, the
-## fling release (mid-circle included), event timing at low frame rates, and the
-## launch contract.
+## E05-R2: the tethered swing (src/input/held_ball.gd, ADR 011) from synthetic,
+## timestamped finger samples: the finger stays inside the ball, orbit speed (not
+## loop count) sets the charge, a single corner never curves, the orbit coasts and
+## winds down, reversing slows it first, the flick sets the throw with a small orbit
+## nudge, low frame rates read the same, and the safe cancels.
 const Held = preload("res://src/input/held_ball.gd")
 const Mapper = preload("res://src/input/launch_mapper.gd")
 const Contracts = preload("res://src/contracts/contracts.gd")
@@ -14,6 +14,7 @@ class Driver:
 	var at := Vector2(0.5, 0.85)
 	var usec := 1000000
 	var frame := 16667
+	var max_offset := 0.0 # largest ball-to-finger distance seen
 	func _init(model: RefCounted, frame_usec: int = 16667) -> void:
 		held = model
 		frame = frame_usec
@@ -24,12 +25,14 @@ class Driver:
 			at += step
 			usec += frame
 			held.move(at, usec)
+			max_offset = maxf(max_offset, held.ball.distance_to(held.finger))
 	## Holds the finger still for `seconds`, ticking every frame.
 	func hold(seconds: float) -> void:
 		var end := usec + int(seconds * 1000000.0)
 		while usec < end:
 			usec += frame
 			held.tick(usec)
+			max_offset = maxf(max_offset, held.ball.distance_to(held.finger))
 	func release() -> Dictionary:
 		return held.release(at, usec)
 
@@ -43,9 +46,9 @@ static func side(count: int, step: float) -> Array:
 	for i in count: out.append(Vector2(step, 0.0))
 	return out
 
-## Steps of a circle of `radius` swept `sweep_deg` (positive = clockwise on screen),
-## `deg_per_step` degrees per sample, starting at the circle's bottom.
-static func circle(radius: float, sweep_deg: float, deg_per_step: float = 10.0) -> Array:
+## Steps of a small finger circle of `radius` swept `sweep_deg` (positive =
+## clockwise on screen), `deg_per_step` degrees per sample.
+static func circle(radius: float, sweep_deg: float, deg_per_step: float) -> Array:
 	var out: Array = []
 	var center := Vector2(0.0, -radius)
 	var previous := Vector2.ZERO
@@ -57,116 +60,113 @@ static func circle(radius: float, sweep_deg: float, deg_per_step: float = 10.0) 
 		previous = next
 	return out
 
-## Loops of brisk circling (radius 0.06, 10 degrees per frame) until full charge.
-static func loops_to_full(clockwise: bool) -> float:
-	var drive := Driver.new(Held.new())
-	var sign := 1.0 if clockwise else -1.0
-	for i in 72 * 4:
-		drive.steps(circle(0.06, sign * 10.0) if i == 0 else [_arc_step(0.06, sign, i)])
-		if absf(drive.held.charge()) >= 0.999:
-			return (i + 1) / 36.0
-	return 99.0
-
-static func _arc_step(radius: float, sign: float, i: int) -> Vector2:
-	var a0 := deg_to_rad(90.0 + sign * 10.0 * i)
-	var a1 := deg_to_rad(90.0 + sign * 10.0 * (i + 1))
-	return (Vector2(cos(a1), sin(a1)) - Vector2(cos(a0), sin(a0))) * radius
+## Charge after swirling `turns_per_second` for `seconds` (finger circle radius 0.02).
+static func swirl_charge(turns_per_second: float, seconds: float, frame_usec: int = FRAME) -> float:
+	var drive := Driver.new(Held.new(), frame_usec)
+	var per_step := absf(360.0 * turns_per_second * frame_usec / 1000000.0)
+	drive.steps(circle(0.02, 360.0 * turns_per_second * seconds, per_step))
+	return drive.held.charge()
 
 static func run() -> Array[String]:
 	var failures: Array[String] = []
-	# Straight drag: a fast forward flick commits straight, with no spin.
+	var cap := float(Held.DEFAULTS.orbit_cap)
+	# A straight flick: committed, straight, no spin.
 	var straight := Driver.new(Held.new())
 	straight.steps(up(8))
 	var s := straight.release()
-	_expect(s.committed and s.spin == 0.0 and absf(s.angle_deg) < 1e-3, "a straight flick commits straight with no spin", failures)
-	_expect(s.power > 0.3 and s.power <= 1.0, "flick speed maps to power (%.2f)" % s.power, failures)
+	_expect(s.committed and s.spin == 0.0 and s.angle_deg == 0.0 and s.power > 0.3, "a straight flick commits straight with no spin (power %.2f)" % s.get("power", 0.0), failures)
 	_expect(Contracts.validate("launch", Mapper.to_launch(s, 0.0, "held-1", 1)).is_empty(), "the result maps to a valid launch record", failures)
 	var again := Driver.new(Held.new())
 	again.steps(up(8))
 	_expect(again.release() == s, "identical samples give identical results", failures)
 
-	var near := Driver.new(Held.new())
-	near.steps(up(8).map(func(v): return v + Vector2(0.0015, 0.0)))
-	var n := near.release()
-	_expect(n.committed and n.angle_deg == 0.0, "a flick within 2 degrees of straight up throws exactly straight", failures)
+	# Orbit speed, not loop count, sets the charge.
+	var brisk := swirl_charge(2.0, 0.75)
+	var medium := swirl_charge(1.0, 1.5)
+	var lazy := swirl_charge(0.5, 3.0)
+	_expect(brisk >= 0.9, "a brisk swirl (2 turns a second) reaches full charge (%.2f)" % brisk, failures)
+	_expect(absf(medium - 0.5) < 0.12 and absf(lazy - 0.25) < 0.08, "half the speed gives about half the charge (1 t/s %.2f, 0.5 t/s %.2f)" % [medium, lazy], failures)
+	_expect(lazy < brisk * 0.5, "one and a half lazy loops charge less than one and a half brisk ones", failures)
+	_expect(absf(swirl_charge(-2.0, 0.75) + brisk) < 0.01, "counter-clockwise charges the mirror spin", failures)
 
-	# The ball follows the finger on a spring: it lags, then settles on the finger.
-	var follow := Driver.new(Held.new())
-	follow.steps(side(1, 0.08))
-	follow.hold(FRAME / 1000000.0)
-	var lagging: Vector2 = follow.held.placement()
-	_expect(lagging.x > 0.5 and lagging.x < 0.58, "the ball lags behind a sudden finger move (x %.3f)" % lagging.x, failures)
-	follow.hold(0.5)
-	_expect(follow.held.placement().distance_to(follow.at) < 0.002, "then settles under the finger", failures)
-	var overshoot := Driver.new(Held.new())
-	overshoot.steps(side(6, 0.03))
-	var peak := 0.0
-	for i in 30:
-		overshoot.hold(FRAME / 1000000.0)
-		peak = maxf(peak, overshoot.held.placement().x)
-	_expect(peak > overshoot.at.x, "a moving ball overshoots when the finger stops (%.3f past %.3f)" % [peak, overshoot.at.x], failures)
+	# The finger stays inside the ball: the orbit never exceeds its cap.
+	var tether := Driver.new(Held.new())
+	tether.steps(circle(0.03, 1080.0, 12.0))
+	tether.hold(0.5)
+	tether.steps(up(8))
+	_expect(tether.max_offset <= cap + 1e-4 and tether.max_offset > cap * 0.6, "the ball orbits within its cap of the finger (largest %.3f, cap %.3f)" % [tether.max_offset, cap], failures)
 
-	# Swinging charges spin; brisk circles reach full in about 1.5 loops, both ways.
-	var cw := loops_to_full(true)
-	var ccw := loops_to_full(false)
-	_expect(cw >= 1.0 and cw <= 2.0 and absf(cw - ccw) < 1e-6, "brisk circles reach full spin in 1-2 loops, symmetric (%.2f, %.2f)" % [cw, ccw], failures)
-	var brisk := Driver.new(Held.new())
-	brisk.steps(circle(0.06, 360.0))
-	var lazy := Driver.new(Held.new())
-	lazy.steps(circle(0.06, 360.0, 3.0))
-	_expect(brisk.held.charge() > 0.5 and lazy.held.charge() < brisk.held.charge() * 0.6,
-		"lazy circles charge more slowly than brisk ones (%.2f vs %.2f after one loop)" % [lazy.held.charge(), brisk.held.charge()], failures)
-	var counter := Driver.new(Held.new())
-	counter.steps(circle(0.06, -360.0))
-	_expect(absf(counter.held.charge() + brisk.held.charge()) < 1e-6, "counter-clockwise charges the mirror spin", failures)
-	_expect(brisk.held.curve_ready() and not Driver.new(Held.new()).held.curve_ready(), "the curve-ready (sparkle) state follows the threshold", failures)
-
-	# Reversing bleeds spin off first, then builds the other way.
-	var reverse := Driver.new(Held.new())
-	reverse.steps(circle(0.06, 540.0))
-	var before := float(reverse.held.charge())
-	reverse.steps(circle(0.06, -180.0))
-	var bled := float(reverse.held.charge())
-	reverse.steps(circle(0.06, -900.0))
-	_expect(before > 0.9 and bled < before and bled > 0.0 and reverse.held.charge() < -0.5,
-		"reversing bleeds spin (%.2f -> %.2f) before building the other way (%.2f)" % [before, bled, reverse.held.charge()], failures)
-
-	# Held spin persists and fades slowly; the throw keeps it.
-	var keep := Driver.new(Held.new())
-	keep.steps(circle(0.06, 720.0))
-	var charged := float(keep.held.charge())
-	keep.hold(2.5)
-	_expect(absf(keep.held.charge() - charged * 0.5) < 0.02, "held spin halves in 2.5 s (%.2f -> %.2f)" % [charged, keep.held.charge()], failures)
-	keep.steps(up(8))
-	var kept := keep.release()
-	_expect(kept.committed and kept.spin > 0.25 and absf(kept.angle_deg) < 5.0, "a pause then a straight flick throws the held spin (%.2f)" % kept.spin, failures)
-
-	# Below the curve threshold a throw is exactly straight.
-	var weak := Driver.new(Held.new())
-	weak.steps(circle(0.06, 90.0))
-	weak.hold(0.3)
-	weak.steps(up(8))
-	var w := weak.release()
-	_expect(w.committed and w.spin == 0.0 and w.charge > 0.0 and w.charge < 0.25, "spin below the threshold throws straight (charge %.2f)" % w.charge, failures)
+	# A single corner, a part arc or sideways jiggling never starts a swirl.
 	var corner := Driver.new(Held.new())
 	corner.steps(side(5, 0.03))
 	corner.steps(up(8))
-	var c := corner.release()
-	_expect(c.committed and c.spin == 0.0, "sideways placement then a flick is straight", failures)
+	_expect(not corner.held.swirling and corner.release().spin == 0.0, "sideways placement then a flick is straight", failures)
+	var arc := Driver.new(Held.new())
+	arc.steps(circle(0.02, 150.0, 12.0))
+	_expect(not arc.held.swirling and arc.held.charge() == 0.0, "a part arc (150 degrees) charges nothing", failures)
 	var zigzag := Driver.new(Held.new())
 	zigzag.steps(side(4, 0.03) + side(4, -0.03) + side(4, 0.03))
-	_expect(absf(zigzag.held.charge()) < 1e-6, "sideways reversals charge nothing", failures)
+	_expect(not zigzag.held.swirling, "sideways reversals charge nothing", failures)
 
-	# The release is the held ball's motion: letting go mid-circle flings along it.
-	var fling := Driver.new(Held.new())
-	fling.steps(circle(0.1, 720.0 + 135.0, 15.0))
-	var f := fling.release()
-	_expect(f.has("angle_deg") and absf(f.angle_deg) > 20.0, "a mid-circle release flings along the circle (angle %.1f, %s)" % [f.get("angle_deg", 0.0), f.reason], failures)
-	_expect(f.spin > 0.25, "and keeps its spin", failures)
-	var lifted := Driver.new(Held.new())
-	lifted.steps(up(6))
-	lifted.hold(0.25)
-	_expect(lifted.release().reason in ["short", "slow"], "stopping before letting go cancels safely", failures)
+	# Momentum: with the finger still, the ball keeps orbiting and winds down.
+	var coast := Driver.new(Held.new())
+	coast.steps(circle(0.02, 540.0, 12.0))
+	var before := float(coast.held.charge())
+	var angle := float(coast.held.orbit_angle)
+	coast.hold(1.2)
+	_expect(absf(coast.held.charge() - before * 0.5) < 0.06 and absf(coast.held.orbit_angle - angle) > TAU, "a still finger: the ball keeps orbiting and the charge halves in 1.2 s (%.2f -> %.2f)" % [before, coast.held.charge()], failures)
+	_expect(coast.held.curve_ready() and not Driver.new(Held.new()).held.curve_ready(), "the sparkle state follows the threshold", failures)
+	coast.hold(6.0)
+	_expect(not coast.held.swirling and coast.held.charge() == 0.0, "a long pause lets the orbit stop", failures)
+
+	# Reversing slows the orbit first, then builds the other way.
+	var reverse := Driver.new(Held.new())
+	reverse.steps(circle(0.02, 540.0, 12.0))
+	var forward := float(reverse.held.charge())
+	reverse.steps(circle(0.02, -120.0, 12.0))
+	var slowed := float(reverse.held.charge())
+	reverse.steps(circle(0.02, -900.0, 12.0))
+	_expect(forward > 0.9 and slowed < forward and reverse.held.charge() < -0.8, "reversing slows the orbit (%.2f -> %.2f) before it builds the other way (%.2f)" % [forward, slowed, reverse.held.charge()], failures)
+
+	# The release: the flick sets the throw; the orbit adds only a nudge; the charge holds.
+	var throw := Driver.new(Held.new())
+	throw.steps(circle(0.02, 720.0, 12.0))
+	var held_charge := float(throw.held.charge())
+	throw.steps(up(8))
+	var t := throw.release()
+	_expect(t.committed and t.spin > 0.85 and absf(t.spin - held_charge) < 0.15, "a swirl then a flick throws the held charge (%.2f of %.2f)" % [t.spin, held_charge], failures)
+	_expect(absf(t.angle_deg) < 20.0, "the orbit nudges the throw only a little (%.1f degrees)" % t.angle_deg, failures)
+	var no_nudge_model := Held.new()
+	no_nudge_model.tuning.orbit_nudge = 0.0
+	var plain := Driver.new(no_nudge_model)
+	plain.steps(circle(0.02, 720.0, 12.0))
+	plain.steps(up(8))
+	_expect(plain.release().angle_deg == 0.0, "with no nudge the flick alone sets the direction", failures)
+	var weak := Driver.new(Held.new())
+	weak.steps(circle(0.02, 360.0, 2.4)) # 0.4 turns a second
+	var w_charge := float(weak.held.charge())
+	weak.steps(up(8))
+	var w := weak.release()
+	_expect(w_charge > 0.0 and w_charge < 0.25 and w.committed and w.spin == 0.0, "a slow swirl below the threshold throws straight (charge %.2f)" % w_charge, failures)
+
+	var turned := Driver.new(Held.new())
+	turned.steps(circle(0.02, 360.0, 2.4))
+	turned.steps([Vector2(0.03, -0.02), Vector2(0.01, -0.05)] + up(6))
+	_expect(turned.release().spin == 0.0, "turning sharply into a fast flick never pumps a weak swirl into a curve", failures)
+
+	# Event timing: 15 fps reads like 60 fps; a late lift still throws.
+	var fps15 := swirl_charge(2.0, 0.8, FRAME * 4)
+	_expect(absf(fps15 - brisk) < 0.15, "a brisk swirl sampled at 15 fps charges like 60 fps (%.2f vs %.2f)" % [fps15, brisk], failures)
+	var late := Driver.new(Held.new(), FRAME * 4)
+	late.steps(up(3, 0.16))
+	late.hold(FRAME * 4 / 1000000.0)
+	_expect(late.release().committed, "a lift one 15 fps frame after the last move still throws", failures)
+
+	# Safe cancels and limits.
+	var stopped := Driver.new(Held.new())
+	stopped.steps(up(6))
+	stopped.hold(0.25)
+	_expect(stopped.release().reason in ["short", "slow"], "stopping before letting go cancels safely", failures)
 	_expect(Driver.new(Held.new()).release().reason == "no_motion", "a tap without motion cancels", failures)
 	var down := Driver.new(Held.new())
 	down.steps(up(6, -0.05))
@@ -177,28 +177,6 @@ static func run() -> Array[String]:
 	var violent := Driver.new(Held.new())
 	violent.steps(up(6, 0.2))
 	_expect(violent.release().power == 1.0, "a violent flick is capped at full power", failures)
-
-	# Event timing: the same gesture sampled at 15 fps reads like it does at 60 fps.
-	var fast := Driver.new(Held.new(), FRAME)
-	fast.steps(circle(0.06, 720.0, 10.0))
-	fast.steps(up(12, 0.04))
-	var slow := Driver.new(Held.new(), FRAME * 4)
-	slow.steps(circle(0.06, 720.0, 40.0))
-	slow.steps(up(3, 0.16))
-	var a := fast.release()
-	var b := slow.release()
-	_expect(a.committed and b.committed and absf(a.spin - b.spin) < 0.25 and absf(a.power - b.power) < 0.25,
-		"15 fps and 60 fps sampling give similar throws (spin %.2f/%.2f, power %.2f/%.2f)" % [a.spin, b.spin, a.power, b.power], failures)
-
-	# E26-W01's finding: at 15 fps the finger's lift arrives a frame after its last
-	# move. The ball is still travelling on the spring, so the flick still counts.
-	var late := Driver.new(Held.new(), FRAME * 4)
-	late.steps(up(3, 0.16))
-	late.hold(FRAME * 4 / 1000000.0)
-	var l := late.release()
-	_expect(l.committed, "a lift one 15 fps frame after the last move still throws (%s)" % l.reason, failures)
-
-	# Sensitivity scales the measured flick speed only.
 	var gentle := Driver.new(Held.new())
 	gentle.steps(up(20, 0.012))
 	var boosted_model := Held.new()
@@ -206,7 +184,6 @@ static func run() -> Array[String]:
 	var boosted := Driver.new(boosted_model)
 	boosted.steps(up(20, 0.012))
 	_expect(gentle.release().reason == "slow" and boosted.release().committed, "sensitivity scales flick speed", failures)
-
 	var cancelled := Driver.new(Held.new())
 	cancelled.held.cancel()
 	_expect(cancelled.held.release(Vector2(0.5, 0.2), 2000000).reason == "inactive", "a cancelled hold cannot throw", failures)
