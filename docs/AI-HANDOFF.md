@@ -256,6 +256,14 @@ Open: Wave 9 is merged (PR #20), plus the CI fix (PR #21, main `f4810aa`). Base:
 - **Moved to Wave 11:** AV-T01, so the throw effects follow the tethered swing. Neon starts in Wave 11.
 - **Owner:** pick a backdrop from UI-A1-C; approve UI-A1-C before UI-2; turn on GitHub Pages; tune the throw on a phone.
 
+## Wave 10 progress (coordinator)
+- **UI-1 DONE** (handoffs/UI-1.md):
+  - Commits: `2c7ffd5`, with fixes `a1a9d0b` and `6fb9c44`.
+  - The UI-A1 playing card (CardView) is in the hand, shop, binder and inspector, with states, motion and long-press inspect. Direct selection has left Options.
+  - Validation: the full local matrix ran 150/152 before the hand-sizing fix. After it, J03C11 passes headless and rendered, and J02, J04, J06, J03C06 and J03C10 pass.
+  - CI: run 42163465370 PASS on `6fb9c44`, both shards.
+- **Open owner question:** how portrait shows a four-card hand (paging two, a fan, or four small cards). This is for UI-2.
+
 ## Wave 9 closed (coordinator, 2026-11-05)
 - **Contents** (all on `claude/roguewood-build` at the "Wave 9 closed" commit):
   - Claude: E26-W01 (`3af873b`, `fa868d0`, `1f1f34d`), E05-R1a (`85ed6ad`) and E05-R1b (`2ef4f2b`).

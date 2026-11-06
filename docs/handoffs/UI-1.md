@@ -56,7 +56,8 @@
 |---|---|
 | `qa.py unit` (card_view_test.gd) | PASS. Short rules for nine representative items; every catalogue item has a short rule and icon; sold, armed, reduced-motion, price and compact states. |
 | J04, J05 and J11, headless and rendered | PASS. Captures were inspected: the hand, shop (portrait and landscape) and binder show the cards. Portrait shop captures taken right after a reroll catch the deal animation mid-way, which is expected. |
-| Full CI matrix | See the Wave 10 progress record in docs/AI-HANDOFF.md |
+| Full CI matrix (local, on `a1a9d0b`) | 150/152. J03C11 armed the wrong card: new hand cards started at zero size and grew a frame later. Fixed in `6fb9c44` (cards are sized as they are created). J03C11 then passes headless and rendered, and J02, J04, J06, J03C06 and J03C10 pass. |
+| CI | Run 42163465370 PASS on `6fb9c44` (game and art shards) |
 
 ## Decisions and open question
 - **Hand size:** in UI-1 the whole hand of four always shows; the cards are smaller in portrait.
