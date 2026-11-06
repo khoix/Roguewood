@@ -90,3 +90,13 @@ After seeing R1, the owner asked for the ragdoll fling: the ball should swing ro
     - the cancels.
   - J02 checks a brisk 450° swirl (charge ±0.83, a strike each way), the tether inside the cap, a slow 0.4 turns-a-second swirl that throws straight, the tuning page, and the trial-log fields.
   - The swirl clip for the owner is in docs/handoffs/E05-R2.md.
+
+### Owner adjustments (2026-11-06)
+- **Full charge** now needs **6 turns a second** (`full_charge_speed` 37.7 rad/s), three times R2's first 2 turns a second. The charge stays proportional: 3 turns a second gives 0.50 and 2 turns a second gives 0.33.
+- **Slower swirling lowers the bar:** while the finger is still swirling, the orbit follows its speed down as well as up (`spin_up_time` 0.12 s each way). It only coasts and winds down (`swirl_half_life` 1.2 s) when the finger stops or flicks.
+- **A more elastic tether:**
+  - the trailing spring is softer (24 rad/s, damping ratio 0.45);
+  - the orbit radius springs to its target, under-damped (14 rad/s, damping ratio 0.35), and reaches the cap at 1.5 turns a second;
+  - the tether may stretch to 1.15× the cap (0.92 of the ball's radius, so the finger stays inside the ball) and springs back.
+- **Fast swirls count:** sharper path steps (up to 150°) and faster swirl motion (up to 2 shorter sides a second) now register, so a 6 turns-a-second swirl reads the same at 15 fps.
+- **Owner demo:** a speed-ramp clip (1 → 6 → 2 → 6 turns a second, with the charge on screen).

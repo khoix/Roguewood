@@ -81,20 +81,29 @@ static func run() -> Array[String]:
 	_expect(again.release() == s, "identical samples give identical results", failures)
 
 	# Orbit speed, not loop count, sets the charge.
-	var brisk := swirl_charge(2.0, 0.75)
-	var medium := swirl_charge(1.0, 1.5)
-	var lazy := swirl_charge(0.5, 3.0)
-	_expect(brisk >= 0.9, "a brisk swirl (2 turns a second) reaches full charge (%.2f)" % brisk, failures)
-	_expect(absf(medium - 0.5) < 0.12 and absf(lazy - 0.25) < 0.08, "half the speed gives about half the charge (1 t/s %.2f, 0.5 t/s %.2f)" % [medium, lazy], failures)
-	_expect(lazy < brisk * 0.5, "one and a half lazy loops charge less than one and a half brisk ones", failures)
-	_expect(absf(swirl_charge(-2.0, 0.75) + brisk) < 0.01, "counter-clockwise charges the mirror spin", failures)
+	# Full charge takes 6 turns a second (owner, 2026-11-06: three times the first 2).
+	var brisk := swirl_charge(6.0, 0.6)
+	var medium := swirl_charge(3.0, 1.0)
+	var lazy := swirl_charge(1.5, 1.5)
+	var old_full := swirl_charge(2.0, 1.0)
+	_expect(brisk >= 0.9, "a brisk swirl (6 turns a second) reaches full charge (%.2f)" % brisk, failures)
+	_expect(absf(medium - 0.5) < 0.08 and absf(lazy - 0.25) < 0.05 and absf(old_full - 0.33) < 0.05,
+		"charge is proportional to swirl speed (3 t/s %.2f, 1.5 t/s %.2f, 2 t/s %.2f)" % [medium, lazy, old_full], failures)
+	_expect(absf(swirl_charge(-6.0, 0.6) + brisk) < 0.01, "counter-clockwise charges the mirror spin", failures)
+	# Swirling slower lowers the bar (owner, 2026-11-06), without letting go.
+	var slower := Driver.new(Held.new())
+	slower.steps(circle(0.02, 1080.0, 36.0)) # 6 turns a second
+	var fast_charge := float(slower.held.charge())
+	slower.steps(circle(0.02, 720.0, 12.0)) # then 2 turns a second
+	_expect(fast_charge > 0.9 and absf(slower.held.charge() - 0.33) < 0.06, "slowing the swirl lowers the charge (%.2f -> %.2f)" % [fast_charge, slower.held.charge()], failures)
 
 	# The finger stays inside the ball: the orbit never exceeds its cap.
+	var stretch := cap * float(Held.DEFAULTS.tether_stretch)
 	var tether := Driver.new(Held.new())
-	tether.steps(circle(0.03, 1080.0, 12.0))
+	tether.steps(circle(0.02, 2160.0, 36.0))
 	tether.hold(0.5)
 	tether.steps(up(8))
-	_expect(tether.max_offset <= cap + 1e-4 and tether.max_offset > cap * 0.6, "the ball orbits within its cap of the finger (largest %.3f, cap %.3f)" % [tether.max_offset, cap], failures)
+	_expect(tether.max_offset <= stretch + 1e-4 and tether.max_offset > cap, "the elastic tether gives past its cap but stays inside the ball (largest %.3f, cap %.3f, stretch %.3f)" % [tether.max_offset, cap, stretch], failures)
 
 	# A single corner, a part arc or sideways jiggling never starts a swirl.
 	var corner := Driver.new(Held.new())
@@ -110,7 +119,7 @@ static func run() -> Array[String]:
 
 	# Momentum: with the finger still, the ball keeps orbiting and winds down.
 	var coast := Driver.new(Held.new())
-	coast.steps(circle(0.02, 540.0, 12.0))
+	coast.steps(circle(0.02, 1440.0, 36.0))
 	var before := float(coast.held.charge())
 	var angle := float(coast.held.orbit_angle)
 	coast.hold(1.2)
@@ -121,16 +130,16 @@ static func run() -> Array[String]:
 
 	# Reversing slows the orbit first, then builds the other way.
 	var reverse := Driver.new(Held.new())
-	reverse.steps(circle(0.02, 540.0, 12.0))
+	reverse.steps(circle(0.02, 1440.0, 36.0))
 	var forward := float(reverse.held.charge())
-	reverse.steps(circle(0.02, -120.0, 12.0))
+	reverse.steps(circle(0.02, -144.0, 36.0))
 	var slowed := float(reverse.held.charge())
-	reverse.steps(circle(0.02, -900.0, 12.0))
+	reverse.steps(circle(0.02, -1800.0, 36.0))
 	_expect(forward > 0.9 and slowed < forward and reverse.held.charge() < -0.8, "reversing slows the orbit (%.2f -> %.2f) before it builds the other way (%.2f)" % [forward, slowed, reverse.held.charge()], failures)
 
 	# The release: the flick sets the throw; the orbit adds only a nudge; the charge holds.
 	var throw := Driver.new(Held.new())
-	throw.steps(circle(0.02, 720.0, 12.0))
+	throw.steps(circle(0.02, 1440.0, 36.0))
 	var held_charge := float(throw.held.charge())
 	throw.steps(up(8))
 	var t := throw.release()
@@ -139,7 +148,7 @@ static func run() -> Array[String]:
 	var no_nudge_model := Held.new()
 	no_nudge_model.tuning.orbit_nudge = 0.0
 	var plain := Driver.new(no_nudge_model)
-	plain.steps(circle(0.02, 720.0, 12.0))
+	plain.steps(circle(0.02, 1440.0, 36.0))
 	plain.steps(up(8))
 	_expect(plain.release().angle_deg == 0.0, "with no nudge the flick alone sets the direction", failures)
 	var weak := Driver.new(Held.new())
@@ -155,7 +164,7 @@ static func run() -> Array[String]:
 	_expect(turned.release().spin == 0.0, "turning sharply into a fast flick never pumps a weak swirl into a curve", failures)
 
 	# Event timing: 15 fps reads like 60 fps; a late lift still throws.
-	var fps15 := swirl_charge(2.0, 0.8, FRAME * 4)
+	var fps15 := swirl_charge(6.0, 0.8, FRAME * 4)
 	_expect(absf(fps15 - brisk) < 0.15, "a brisk swirl sampled at 15 fps charges like 60 fps (%.2f vs %.2f)" % [fps15, brisk], failures)
 	var late := Driver.new(Held.new(), FRAME * 4)
 	late.steps(up(3, 0.16))

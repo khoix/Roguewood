@@ -13,8 +13,9 @@ extends RefCounted
 const Lane = preload("res://src/simulation/lane_spec.gd")
 
 const DEFAULTS := {
-	# Orbit speed (radians per second; 2 turns a second) that gives full charge.
-	"full_charge_speed": 12.566,
+	# Orbit speed (radians per second; 6 turns a second) that gives full charge.
+	# Owner, 2026-11-06: three times the first 2 turns a second.
+	"full_charge_speed": 37.699,
 	# Seconds for a coasting orbit (finger still) to halve its speed.
 	"swirl_half_life": 1.2,
 	# Seconds for the orbit to catch up with a faster swirl of the finger.
@@ -29,9 +30,13 @@ const DEFAULTS := {
 	"orbit_nudge": 0.5,
 	# Below the curve threshold a throw is exactly straight: no sparkle, no curve.
 	"curve_threshold": Lane.CURVE_SPIN_THRESHOLD,
-	# Spring that trails the ball behind a moving finger before any swirl.
-	"spring_frequency": 40.0,
-	"spring_damping": 0.75,
+	# Spring that trails the ball behind a moving finger before any swirl. Softer
+	# and bouncier than R1 (owner, 2026-11-06: a slightly more elastic tether).
+	"spring_frequency": 24.0,
+	"spring_damping": 0.45,
+	# The tether gives a little: the ball may stretch to this multiple of the cap
+	# (0.8 x 1.15 = 0.92 of its radius, so the finger stays inside) and springs back.
+	"tether_stretch": 1.15,
 	# The release reads the flick over this window.
 	"release_window_usec": 100000,
 	# Flicks within this many degrees of straight up throw exactly straight.
@@ -43,14 +48,17 @@ const MIN_FLICK_DISTANCE := 0.04
 const MAX_FLICK_ANGLE_DEG := 60.0 # from straight up
 const FULL_POWER_SPEED := 4.0 # cap: faster flicks add no power
 const MIN_SEGMENT := 0.006 # finger jitter shorter than this is ignored
-const MAX_TURN_STEP_DEG := 100.0 # sharper steps are reversals, not swirling
+const MAX_TURN_STEP_DEG := 150.0 # sharper steps are reversals, not swirling (6 turns/s at 15 fps is 144 per step)
 const SWIRL_WINDOW_USEC := 1600000
 ## Path steps faster than this (shorter sides per second) are flicks or slides, not
 ## swirling: the finger circles small inside the ball, so a fast turn into the flick
 ## never pumps the orbit.
-const SWIRL_MAX_SPEED := 1.5
+const SWIRL_MAX_SPEED := 2.0
 const DRIVE_SMOOTH := 0.06 # seconds: smoothing of the finger's turning rate
-const DRIVE_HOLD_USEC := 100000 # a finger that has not moved for this long is still
+const DRIVE_HOLD_USEC := 100000 # a finger that has not swirled for this long is coasting
+const ORBIT_FULL_RADIUS_SPEED := 9.42 # rad/s (1.5 turns/s) at which the orbit reaches its cap
+const ORBIT_SPRING := 14.0 # rad/s: the orbit radius springs toward its target...
+const ORBIT_BOUNCE := 0.35 # ...under-damped, so the tether is elastic
 const MIN_SENSITIVITY := 0.5
 const MAX_SENSITIVITY := 2.0
 const MAX_STEP_USEC := 2000
@@ -75,6 +83,8 @@ var _usec := 0
 var _last_point := Vector2.ZERO
 var _last_point_usec := 0
 var _last_move_usec := 0
+var _last_swirl_usec := 0 # the last path step that counted as swirling
+var _radius_velocity := 0.0
 var _last_direction := Vector2.ZERO
 var _trail_velocity := Vector2.ZERO
 var _turns: Array = [] # [usec, signed radians] of recent path steps
@@ -97,6 +107,8 @@ func begin(position: Vector2, usec: int) -> void:
 	_last_point = position
 	_last_point_usec = usec
 	_last_move_usec = usec
+	_last_swirl_usec = usec
+	_radius_velocity = 0.0
 	_last_direction = Vector2.ZERO
 	_trail_velocity = Vector2.ZERO
 	_turns = []
@@ -122,6 +134,7 @@ func move(position: Vector2, usec: int) -> void:
 			turn_deg += rad_to_deg(step)
 			_turns.append([usec, step])
 			_drive += (step / seconds - _drive) * (1.0 - exp(-seconds / DRIVE_SMOOTH))
+			_last_swirl_usec = usec
 			# A swirl starts once the path has turned far enough one way, recently.
 			var recent := 0.0
 			for entry in _turns:
@@ -146,8 +159,8 @@ func _attach() -> void:
 	var cap := float(tuning.orbit_cap)
 	if swirling:
 		ball = finger + Vector2(cos(orbit_angle), sin(orbit_angle)) * orbit_radius
-	elif ball.distance_to(finger) > cap:
-		ball = finger + (ball - finger).normalized() * cap
+	elif ball.distance_to(finger) > cap * float(tuning.tether_stretch):
+		ball = finger + (ball - finger).normalized() * cap * float(tuning.tether_stretch)
 
 ## Moves the clock without a finger sample (the finger is held still): the orbit
 ## coasts and winds down. The lab calls this every frame.
@@ -237,17 +250,18 @@ func _advance(usec: int) -> void:
 		var dt := step / 1000000.0
 		now += step
 		if swirling:
-			var driving := now - _last_move_usec <= DRIVE_HOLD_USEC
-			var same_way := signf(_drive) == signf(orbit_speed) or orbit_speed == 0.0
-			if driving and ((same_way and absf(_drive) > absf(orbit_speed)) or (not same_way and absf(_drive) > 0.15 * full)):
-				# The finger swirls faster (or the other way): the orbit follows it.
+			var driving := now - _last_swirl_usec <= DRIVE_HOLD_USEC
+			if driving:
+				# While the finger swirls, the orbit follows its speed both ways: swirling
+				# faster raises the charge, swirling slower lowers it (owner, 2026-11-06).
 				orbit_speed += (_drive - orbit_speed) * (1.0 - exp(-dt / float(tuning.spin_up_time)))
 			else:
-				# Coasting: the orbit winds down on its own.
+				# Coasting (finger still, or flicking): the orbit winds down on its own.
 				orbit_speed *= pow(0.5, dt / float(tuning.swirl_half_life))
 			orbit_angle += orbit_speed * dt
-			var target := cap * clampf(absf(orbit_speed) / (0.5 * full), 0.0, 1.0)
-			orbit_radius += (target - orbit_radius) * (1.0 - exp(-dt / 0.1))
+			var target := cap * clampf(absf(orbit_speed) / ORBIT_FULL_RADIUS_SPEED, 0.0, 1.0)
+			_radius_velocity += ((target - orbit_radius) * ORBIT_SPRING * ORBIT_SPRING - _radius_velocity * 2.0 * ORBIT_BOUNCE * ORBIT_SPRING) * dt
+			orbit_radius = clampf(orbit_radius + _radius_velocity * dt, 0.0, cap * float(tuning.tether_stretch))
 			ball = finger + Vector2(cos(orbit_angle), sin(orbit_angle)) * orbit_radius
 			if absf(orbit_speed) < 0.03 * full and not driving:
 				swirling = false
@@ -260,8 +274,8 @@ func _advance(usec: int) -> void:
 			_trail_velocity += accel * dt
 			ball += _trail_velocity * dt
 			var offset := ball - finger
-			if offset.length() > cap:
-				ball = finger + offset.normalized() * cap
+			if offset.length() > cap * float(tuning.tether_stretch):
+				ball = finger + offset.normalized() * cap * float(tuning.tether_stretch)
 	var seconds := (usec - _usec) / 1000000.0
 	if seconds > 0.0:
 		ball_velocity = (ball - before) / seconds

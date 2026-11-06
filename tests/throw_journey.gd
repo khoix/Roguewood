@@ -279,20 +279,20 @@ func _ready_to_throw() -> void:
 ## Holds the ball, circles sweep_deg (clockwise positive on screen) starting at the
 ## circle's bottom (the ball), then flicks straight up. Captures mid-hold if asked.
 func _circle_throw(sweep_deg: float, hold_capture: String = "") -> void:
-	var radius := 60.0
+	var radius := 20.0 # a small, fast swirl: 30 degrees a frame is 5 turns a second (E05-R2)
 	var at: Vector2 = lab.ball_screen_position()
 	var center := at + Vector2(0.0, -radius)
 	await _touch(at, true)
-	for i in int(absf(sweep_deg) / 10.0):
-		var angle := deg_to_rad(90.0 + signf(sweep_deg) * 10.0 * (i + 1))
+	for i in int(absf(sweep_deg) / 30.0):
+		var angle := deg_to_rad(90.0 + signf(sweep_deg) * 30.0 * (i + 1))
 		var next := center + Vector2(cos(angle), sin(angle)) * radius
 		await _drag(next, next - at)
 		at = next
 	if not hold_capture.is_empty():
 		_check(lab.curve_ready() and lab.charged_spin() == lab.held_charge(), "after a brisk swing the held ball is curve-ready (sparkle state)")
-		_check(absf(lab.lane.ball_position().x) > 0.05, "the held ball travels with the circling finger (x %.3f m)" % lab.lane.ball_position().x)
+		_check(lab._flick.orbit_radius > 0.5 * float(lab._flick.tuning.orbit_cap), "the held ball swings out on its tether (radius %.3f)" % lab._flick.orbit_radius)
 		var tether: float = lab._flick.ball.distance_to(lab._flick.finger)
-		_check(lab._flick.swirling and tether <= float(lab._flick.tuning.orbit_cap) + 1e-4 and tether > 0.0,
+		_check(lab._flick.swirling and tether <= float(lab._flick.tuning.orbit_cap) * float(lab._flick.tuning.tether_stretch) + 1e-4 and tether > 0.0,
 			"the ball orbits the touch point inside its own radius (%.3f of cap %.3f)" % [tether, lab._flick.tuning.orbit_cap])
 		await _capture(hold_capture)
 	for i in 8:
@@ -323,7 +323,7 @@ func _curves_and_target() -> void:
 	var cancels: int = lab.cancels
 	await _gesture(Vector2.ZERO, 0, Vector2(0, -6), 3)
 	_check(lab.cancels == cancels + 1 and lab.last_cancel == "short", "short flick cancels")
-	for sweep in [450.0, -450.0]:
+	for sweep in [720.0, -720.0]:
 		await _ready_to_throw()
 		cues.clear()
 		var label := "curve_right" if sweep > 0.0 else "curve_left"
