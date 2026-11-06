@@ -268,6 +268,11 @@ jobs:
         run: |
           python3 tools/qa.py e2e --journey JAVH3BC
           xvfb-run -a python3 tools/qa.py e2e --journey JAVH3BC --rendered
+      - name: UI-A2 card materials
+        if: matrix.shard == 'art'
+        run: |
+          python3 tools/qa.py e2e --journey JUIA2
+          xvfb-run -a python3 tools/qa.py e2e --journey JUIA2 --rendered
       - name: UI-A1 card visual target
         if: matrix.shard == 'art'
         run: |
@@ -283,6 +288,7 @@ jobs:
             artifacts/av-h3-a/
             artifacts/av-h3-b/
             artifacts/ui-a1/
+            artifacts/ui-a2/
             artifacts/e26-w01/
             artifacts/e04/
             artifacts/e06/

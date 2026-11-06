@@ -60,3 +60,7 @@ rules, physics, input or UI scripts changed; no catalogue flags changed. The
 full Wave 10 gameplay/art regression matrix remains a closing-wave task, not
 claimed at this isolated UI-A1-C checkpoint. git diff --check PASS.
 Logs: artifacts/wave10-codex/ui-a1-c/. Captures remain ignored artifacts.
+
+Owner sky refinement delivered with UI-A2: denser stars and distinct schematic
+Orion, Cassiopeia, Cygnus and Big Dipper patterns replace repeated zigzags.
+See UI-A2.md for source, captures and verification. All layout contracts remain.

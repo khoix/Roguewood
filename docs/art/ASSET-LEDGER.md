@@ -764,3 +764,17 @@ model, external artwork, font or sound source added. The revision scene reuses
 existing House environment, lane, item illustrations, card frames and licensed
 Pixelify Sans. House League IDs and bindings are unchanged. Compact faces use
 actual catalogue rarity. All scene captures are ignored artifacts, never assets.
+
+UI-A1-C follow-up with UI-A2: denser 240-point star layer and original schematic
+line drawings of Orion, Cassiopeia, Cygnus and Ursa Major's Big Dipper asterism.
+Hand-authored normalized points/edges, no downloaded star chart or external image.
+
+## Wave 10 / UI-A2 — House materials and final action icons
+
+Original `assets/ui/materials/house_foil.gdshader`: controlled-phase masked
+brass, sea-glass, violet and engraved prism overlays, with static reduced states.
+No external shader or texture source. `build_materials.py` reproduces ten .tres
+bindings, the league-keyed manifest and nine original 32px action icons under
+assets/ui/icons. Existing eight UI-A1 score/category icons and five House frame
+masters are reused unchanged. No external font, image or audio added. Future
+League frames explicitly fall back to House; their art is not claimed.

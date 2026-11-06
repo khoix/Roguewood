@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 VERSION = (ROOT / ".godot-version").read_text().strip()
 # journey -> script, success marker, artifact directory, rendered captures, timeout, extra engine flags
 JOURNEYS = {
+    "JUIA2": ("res://tests/ui_a2_journey.gd", "ROGUEWOOD_UI_A2_OK", "artifacts/ui-a2", ("phase_a", "phase_b", "base"), 180, ["--fixed-fps", "60"]),
     "JUIA1CSTUDY": ("res://tests/ui_a1_revision_journey.gd", "ROGUEWOOD_UI_A1_OK", "artifacts/ui-a1-c-study", tuple(f"{size}_{option}_{state}_{page}" for size in ["720x1280","1280x720","1024x768"] for option in range(2) for state in ["motion","still"] for page in ["throw","shop"]), 180, ["--fixed-fps", "60"]),
     "JAVH3BC": ("res://tests/house_keepsake_contact.gd", "ROGUEWOOD_H3B_CONTACT_OK", "artifacts/av-h3-b/contact", ("contact", "motion", "counted"), 180, ["--fixed-fps", "60"]),
     "JAVH3AC": ("res://tests/house_equipment_contact.gd", "ROGUEWOOD_H3_CONTACT_OK", "artifacts/av-h3-a/contact", ("contact", "motion"), 180, ["--fixed-fps", "60"]),

@@ -232,3 +232,11 @@ The original art-only CI step runs the extended journey and uploads this folder.
 Review both backdrop options, both shop aspects, the narrow folds, portrait
 money placement, compact-card readability and the mirrored thumb rail.
 These are reviewable visual targets; physical-phone approval is not claimed.
+
+UI-A1-C sky refinement (owner feedback, alongside UI-A2): the star layer now
+has 240 points instead of 90, mostly dim to preserve text contrast. Option 1
+replaces the repeated generated zigzags with four individually drawn schematic
+patterns: Orion, Cassiopeia, Cygnus and the Big Dipper asterism in Ursa Major.
+Each appears once, at a different position and scale. This is a decorative,
+recognizable sky treatment rather than a chart of astronomical coordinates.
+Reduced mode freezes both the stars and all constellation positions.
