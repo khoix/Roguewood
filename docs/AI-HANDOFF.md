@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-11-05. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
+Updated: 2026-11-05. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). **Wave 10 is open** (see "Wave 10 claims"). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
 
 ## Read first
 
@@ -212,6 +212,49 @@ Open: Wave 8 is merged (PR #19, main `f444488`). Base: `claude/roguewood-build` 
   - Claude: UI-1, UI-2.
   - Codex: UI-A2, AV-H4 (E17-D10's five), AV-T01.
 - **Owner:** approve the UI-A1 mockups (gates UI-1), and play the held-ball throw on a phone through the hosted web build.
+
+## Wave 10 claims (coordinator: Claude, 2026-11-06)
+Open: Wave 9 is merged (PR #20), plus the CI fix (PR #21, main `f4810aa`). Base: `claude/roguewood-build` at the "Wave 10 claims" commit. Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave10.md). Scope: docs/ROADMAP.md, "Art-forward interface: UI-R1" (with the owner's decisions of 2026-11-05) and "Tethered swing: E05-R2".
+- **Claude, in this order:**
+  1. **UI-1** (High): one card component, used everywhere.
+     - Paths: src/presentation/card_view.gd (new); card_hand.gd; card_inspector.gd; the card rendering in shop_panel.gd and in the Clubhouse binder; the Equipment option in throw_settings_panel.gd.
+     - Delivers:
+       - UI-A1's card face and back in the hand, shop, binder and inspector;
+       - deal, draw, flip, cycle and discard motion, with press and tilt;
+       - long-press Inspect for full rule text;
+       - direct selection removed from Options (ADR 004 decided the deck);
+       - hand size 4 in landscape and 2 in portrait.
+  2. **E05-R2** (High): the tethered swing.
+     - Paths: src/input/held_ball.gd, tests/held_ball_test.gd, throw_lab.gd's hold code, tests/throw_journey.gd, ADR 011.
+     - Delivers:
+       - the ball orbits the touch point, capped inside its own radius;
+       - the charge is the orbit's angular speed;
+       - tuning-page additions;
+       - a swirl clip for the owner.
+  3. **UI-2** (High): every screen in the approved layout. Starts after the owner approves UI-A1-C.
+     - Paths: throw_lab.gd's layout and HUD, division_hud.gd, score_panel.gd, the shop_panel.gd layout, bootstrap and Clubhouse menus.
+     - Delivers:
+       - full-width landscape with top bar and lane-safe side panels, which shrink and then fold on 4:3;
+       - the portrait layout as approved;
+       - icons and numbers instead of text;
+       - an ordered score chain;
+       - the camera framing for portrait;
+       - the backdrop the owner picks.
+- **Codex:**
+  - **UI-A1-C** (Medium, first): the layout revision.
+    - Re-render the throw and shop screens: landscape full width with side panels, in 16:9 and 4:3, and portrait as approved (two-card hand, money in its own slot).
+    - Offer 2–3 side-space backdrop options for House (for example a slow star field matching the windows), with reduced-motion versions.
+    - Update docs/art/ui/UI-A1.md.
+    - Paths: assets/ui/, docs/art/ui/, the UI-A1 preview and composition scenes, and JUIA1.
+    - The owner's mockups: artifacts/landscape_full_*.png and artifacts/portrait_*.png, shared in chat and not committed. The layout is described in docs/ROADMAP.md.
+  - **UI-A2** (Medium–High): card material treatments.
+    - Foil and rarity treatments, as a shader or layers the card component can use.
+    - Per-League frame variants (House first).
+    - The final icon pass.
+    - Paths: assets/ui/ and its docs.
+  - **AV-H4** (Medium; High for counted displays; 2 sessions): identity art, activation, sound and both flags for E17-D10's five items: Double Take, Called Shot, Pin Count, Cleanup Crew and Lucky Seven. J03C11 plays them.
+- **Moved to Wave 11:** AV-T01, so the throw effects follow the tethered swing. Neon starts in Wave 11.
+- **Owner:** pick a backdrop from UI-A1-C; approve UI-A1-C before UI-2; turn on GitHub Pages; tune the throw on a phone.
 
 ## Wave 9 closed (coordinator, 2026-11-05)
 - **Contents** (all on `claude/roguewood-build` at the "Wave 9 closed" commit):
