@@ -113,6 +113,7 @@ func show_cards(cards: Array, marks: Dictionary, header: String, cycle_supported
 		inspecting = false
 		inspect_button.text = "Inspect"
 	info.text = header
+	_size_cards()
 	cycle_button.visible = cycle_supported
 	cycle_button.disabled = not (can_cycle and enabled)
 
@@ -120,14 +121,23 @@ func button_for(uid: String) -> Button:
 	return buttons.get(uid)
 
 ## Sizes the cards so the whole hand shows at once, at playing-card proportions.
+## Cards get their size as they are created (show_cards), so a tap right after the
+## hand changes lands where the card is drawn; this keeps it right after resizes.
 func _process(_delta: float) -> void:
-	if buttons.is_empty() or cards_row.size.x <= 0.0: return
+	_size_cards()
+
+func _card_size() -> Vector2:
 	var gap := 8.0
-	var count := buttons.size()
+	var count := maxi(buttons.size(), 1)
+	var width_available := cards_row.size.x if cards_row.size.x > 0.0 else 480.0
 	var per_row := count if size.x >= size.y * 1.4 or count <= 2 else ceili(count / 2.0)
-	var width := (cards_row.size.x - gap * (per_row - 1)) / per_row
+	var width := (width_available - gap * (per_row - 1)) / per_row
 	width = minf(width, max_card_height / CardView.ASPECT)
-	var want := Vector2(floorf(width), floorf(width * CardView.ASPECT))
+	return Vector2(floorf(width), floorf(width * CardView.ASPECT))
+
+func _size_cards() -> void:
+	if buttons.is_empty(): return
+	var want := _card_size()
 	for button in buttons.values():
 		if button.custom_minimum_size != want:
 			button.custom_minimum_size = want
