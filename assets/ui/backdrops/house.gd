@@ -26,8 +26,8 @@ func _draw() -> void:
  for figure in FIGURES:
   var points:PackedVector2Array=[]
   # The entire figure moves together. Small bounded displacement avoids wrap lines.
-  var offset:=Vector2(sin(drift)*.018,cos(drift)*.009-.009)
+  var offset:=Vector2(sin(drift*8.0)*.012,cos(drift*8.0)*.006-.006)
   for point in figure.points:points.append((figure.at+point*figure.span+offset)*size)
-  for edge in figure.edges:draw_line(points[edge[0]],points[edge[1]],Color("385961"),1)
+  for edge in figure.edges:draw_line(points[edge[0]],points[edge[1]],Color(0.22,0.35,0.38,0.18),1)
   for point in points:
    draw_rect(Rect2(point-Vector2(1,1),Vector2(3,3)),Color("e5bc74"))

@@ -240,3 +240,10 @@ patterns: Orion, Cassiopeia, Cygnus and the Big Dipper asterism in Ursa Major.
 Each appears once, at a different position and scale. This is a decorative,
 recognizable sky treatment rather than a chart of astronomical coordinates.
 Reduced mode freezes both the stars and all constellation positions.
+
+UI-A1-C motion refinement: constellation strokes use 18% alpha. Their bounded
+drift is approximately 1 px/s at 1280 wide; the 240 field stars drift faster
+(about 10 px/s). No pulsing. Normal mode visibly moves; reduced mode stays
+pixel-identical. JUIA1 now retains all 37 stills and adds 24 actual process-frame
+captures, `sky_motion_00.png` through `sky_motion_23.png` (61 total). Play the
+sequence at 12 fps; each frame samples five Godot frames at fixed 60 fps.

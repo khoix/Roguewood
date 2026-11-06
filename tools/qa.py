@@ -188,6 +188,11 @@ JOURNEYS["JUIA1"] = ("res://tests/ui_a1_revision_journey.gd", *JOURNEYS["JUIA1"]
     JOURNEYS["JUIA1"][3] + JOURNEYS["JUIA1CSTUDY"][3] + ("folded_hand", "folded_details", "left_handed"), *JOURNEYS["JUIA1"][4:])
 
 
+# Native two-second sky sequence for motion review; preserve every prior capture.
+JOURNEYS["JUIA1"] = (*JOURNEYS["JUIA1"][:3], JOURNEYS["JUIA1"][3] +
+    tuple("sky_motion_%02d" % i for i in range(24)), *JOURNEYS["JUIA1"][4:])
+
+
 def engine():
     executable = os.environ.get("GODOT_BIN") or shutil.which("godot") or shutil.which("godot4")
     if not executable:

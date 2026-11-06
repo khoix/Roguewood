@@ -46,3 +46,26 @@ func compositions() -> void:
   if DisplayServer.get_name()!="headless":
    await RenderingServer.frame_post_draw
    check(root.get_texture().get_image().save_png(destination.path_join(sample+".png"))==OK,"capture "+sample)
+
+ # Actual process-frame sequence: two seconds of normal sky, then static proof.
+ root.size=Vector2i(1280,720);root.content_scale_size=root.size;await frames()
+ app.page=0;app.option=1;app.reduced=false;app.left_handed=false;app.show_hand=false;app.show_details=false;app.rebuild();await frames()
+ var first:Image
+ var last:Image
+ for sample in 24:
+  for tick in 5:await process_frame
+  if DisplayServer.get_name()!="headless":
+   await RenderingServer.frame_post_draw
+   last=root.get_texture().get_image()
+   if sample==0:first=last
+   check(last.save_png(destination.path_join("sky_motion_%02d.png"%sample))==OK,"sky motion frame")
+ if first!=null:check(first.get_data()!=last.get_data(),"normal sky visibly moves over actual frames")
+ app.reduced=true;app.rebuild();await frames()
+ if DisplayServer.get_name()!="headless":
+  await RenderingServer.frame_post_draw
+  first=root.get_texture().get_image()
+ for tick in 60:await process_frame
+ if first!=null:
+  await RenderingServer.frame_post_draw
+  last=root.get_texture().get_image()
+  check(first.get_data()==last.get_data(),"reduced sky is pixel-identical after one second")
