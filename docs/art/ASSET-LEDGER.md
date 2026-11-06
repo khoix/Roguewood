@@ -755,3 +755,12 @@ No subjective audio listening or phone gate claimed. No screenshots committed.
   shared bounded mixer and mute/skip semantics. No licensed samples added.
 - Native evidence: J03C10 and JAVH3BC, headless/rendered. Completion and exact
   results are in handoffs/AV-H3-B.md; screenshots remain ignored artifacts.
+
+## Wave 10 / UI-A1-C — side-space and screen compositions
+
+Original deterministic procedural source `assets/ui/backdrops/house.gd`: sparse
+pixel stars and local constellation groups, with static reduced states. No image
+model, external artwork, font or sound source added. The revision scene reuses
+existing House environment, lane, item illustrations, card frames and licensed
+Pixelify Sans. House League IDs and bindings are unchanged. Compact faces use
+actual catalogue rarity. All scene captures are ignored artifacts, never assets.

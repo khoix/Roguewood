@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 VERSION = (ROOT / ".godot-version").read_text().strip()
 # journey -> script, success marker, artifact directory, rendered captures, timeout, extra engine flags
 JOURNEYS = {
+    "JUIA1CSTUDY": ("res://tests/ui_a1_revision_journey.gd", "ROGUEWOOD_UI_A1_OK", "artifacts/ui-a1-c-study", tuple(f"{size}_{option}_{state}_{page}" for size in ["720x1280","1280x720","1024x768"] for option in range(2) for state in ["motion","still"] for page in ["throw","shop"]), 180, ["--fixed-fps", "60"]),
     "JAVH3BC": ("res://tests/house_keepsake_contact.gd", "ROGUEWOOD_H3B_CONTACT_OK", "artifacts/av-h3-b/contact", ("contact", "motion", "counted"), 180, ["--fixed-fps", "60"]),
     "JAVH3AC": ("res://tests/house_equipment_contact.gd", "ROGUEWOOD_H3_CONTACT_OK", "artifacts/av-h3-a/contact", ("contact", "motion"), 180, ["--fixed-fps", "60"]),
     "JUIA1": ("res://tests/ui_a1_journey.gd", "ROGUEWOOD_UI_A1_OK", "artifacts/ui-a1", ("portrait_cards", "portrait_studies", "landscape_cards", "landscape_studies"), 180, ["--fixed-fps", "60"]),
@@ -179,6 +180,11 @@ JOURNEYS["J03C10"] = (*JOURNEYS["J03C10"][:3], JOURNEYS["J03C10"][3] +
     ("pin_tin_fallen", "pin_tin_after_bank", "charm_spare_jar_after_bank",
      "charm_spare_jar_charm", "charm_consolation_prize_after_bank",
      "jar_before_bank", "jar_drop", "jar_inventory", "jar_skipped", "jar_shop", "jar_rebought"), *JOURNEYS["J03C10"][4:])
+
+
+# UI-A1-C keeps the original journey and adds revised composition evidence.
+JOURNEYS["JUIA1"] = ("res://tests/ui_a1_revision_journey.gd", *JOURNEYS["JUIA1"][1:3],
+    JOURNEYS["JUIA1"][3] + JOURNEYS["JUIA1CSTUDY"][3] + ("folded_hand", "folded_details", "left_handed"), *JOURNEYS["JUIA1"][4:])
 
 
 def engine():
