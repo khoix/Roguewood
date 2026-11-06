@@ -711,6 +711,9 @@ func _input(event: InputEvent) -> void:
 				_hold_source = "mouse" if event.device == InputEvent.DEVICE_ID_EMULATION else "touch"
 				_hold_start_x = start_x
 				_ring_start_usec = _clock_usec
+				# The tether: the ball's centre orbits within 0.8 of its on-screen radius,
+				# so the touch point stays inside the ball (E05-R2).
+				_flick.tuning.orbit_cap = 0.8 * _ball_screen_radius() / minf(size.x, size.y)
 				_flick.begin(_normalized(event.position), _input_usec())
 				_cues_fired = {}
 				_spin_angle = 0.0
@@ -1540,6 +1543,11 @@ func curve_ready() -> bool:
 func full_charge() -> bool:
 	return curve_ready() and _flick.full_charge()
 
+## The ball's radius on screen, in lab pixels.
+func _ball_screen_radius() -> float:
+	var center := _screen(lane.ball_position())
+	return center.distance_to(_screen(lane.ball_position() + _camera.global_transform.basis.x * Lane.BALL_RADIUS))
+
 ## Microseconds for gesture samples (see _event_clock).
 func _input_usec() -> int:
 	return Time.get_ticks_usec() if _event_clock else _clock_usec
@@ -1551,7 +1559,9 @@ func _draw_held_ball(delta: float) -> void:
 	var place := _flick.placement()
 	lane.place_ball(_placed_x(place, _flick.origin))
 	var scale := _lane_units_per_norm() * Lane.LANE_HALF_WIDTH
-	var lift := clampf((_flick.origin.y - place.y) * scale, 0.0, 0.6)
+	# Held, the ball floats one orbit above the lane, so the lower half of its swirl
+	# never clips into the boards.
+	var lift := clampf((_flick.origin.y - place.y + float(_flick.tuning.orbit_cap)) * scale, 0.0, 0.8)
 	lane.aim_ball.position.y += lift
 	var charge := held_charge()
 	if settings.reduced_motion:
@@ -1604,7 +1614,7 @@ func _update_status() -> void:
 			if settings.assist:
 				status.text = lead + "\nSet position, aim, power and spin, then Throw."
 			else:
-				status.text = lead + "\nHold the ball · circle to spin · flick up. Tap the lane to move the target."
+				status.text = lead + "\nHold the ball · swirl to charge a curve · flick up. Tap the lane to move the target."
 			if spin_disabled():
 				status.text += "\nDead Straight: spin is disabled — every throw rolls straight."
 			if not RivalRules.ball_allowed(active_rules(), "ball.hook"):
@@ -1620,7 +1630,7 @@ func _update_status() -> void:
 		"tactic":
 			status.text = lead + "\nChoose how to play %s, or Cancel." % _names.get(_tactic.get("item_id", ""), "the card")
 		"holding":
-			status.text = lead + "\nCircle to spin, flick up to release. Let go without a flick to cancel."
+			status.text = lead + "\nSwirl the ball to charge a curve, flick up to release. Let go without a flick to cancel."
 		"rolling":
 			var spin: float = lane.launch.get("spin", 0.0)
 			status.text = lead + "\nRolling… " + ("curved %s" % ("right" if spin > 0.0 else "left") if Lane.is_curved(spin) else "straight")

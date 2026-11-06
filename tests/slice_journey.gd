@@ -108,12 +108,12 @@ func _drag(canvas: Vector2, relative: Vector2) -> void:
 func _circle_throw(sweep_deg: float) -> Dictionary:
 	await _aim()
 	var count: int = lab.history.size()
-	var radius := 60.0
+	var radius := 20.0 # a small, fast swirl: 30 degrees a frame is 5 turns a second (E05-R2)
 	var at: Vector2 = lab.ball_screen_position()
 	var center := at + Vector2(0.0, -radius)
 	await _touch(at, true)
-	for i in int(absf(sweep_deg) / 10.0):
-		var angle := deg_to_rad(90.0 + signf(sweep_deg) * 10.0 * (i + 1))
+	for i in int(absf(sweep_deg) / 30.0):
+		var angle := deg_to_rad(90.0 + signf(sweep_deg) * 30.0 * (i + 1))
 		var next := center + Vector2(cos(angle), sin(angle)) * radius
 		await _drag(next, next - at)
 		at = next
@@ -294,7 +294,7 @@ func _division_one() -> void:
 	await _capture("slice_dead_straight")
 	# ...and a real gesture that charges spin is committed straight.
 	await _toggle_assist()
-	var straight := await _circle_throw(270.0)
+	var straight := await _circle_throw(720.0)
 	_check(straight.launch.spin == 0.0 and absf(lab.trials[-1].input.spin) >= 0.25 and lab.trials[-1].curved == false,
 		"a charged circle gesture is committed with zero spin (%.2f charged)" % lab.trials[-1].input.spin)
 	await _toggle_assist()

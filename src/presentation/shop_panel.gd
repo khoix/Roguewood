@@ -151,8 +151,12 @@ func show_view(view: Dictionary) -> void:
 	offers_grid.columns = view.get("columns", 3)
 	while offer_buttons.size() < view.offers.size():
 		_add_offer_button()
+	# Portrait keeps the cards compact so the actions and sales stay on screen (UI-2
+	# lays the shop out properly); landscape shows full-size cards in one row.
+	var card_size := Vector2(105, 150) if offers_grid.columns <= 3 else Vector2(196, 280)
 	for i in offer_buttons.size():
 		offer_buttons[i].visible = i < view.offers.size()
+		offer_buttons[i].custom_minimum_size = card_size
 	for i in view.offers.size():
 		var offer: Dictionary = view.offers[i]
 		var button: CardView = offer_buttons[i]
