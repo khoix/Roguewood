@@ -560,6 +560,9 @@ func _refresh_hand() -> void:
 	else:
 		header = "Bag · House always ready · specials %d uses left this match" % counts.special_uses
 	var choosing: bool = state == "aim" or (state == "frame_done" and equipment.can_retain() and not division.match_over())
+	card_hand.reduced_motion = settings.reduced_motion
+	# Hand cards stay clear of the ball in portrait; the landscape side panel allows taller ones.
+	card_hand.max_card_height = 230.0 if size.x > size.y else 150.0
 	card_hand.show_cards(cards, marks, header, equipment.MODEL == "deck", state == "aim" and equipment.can_cycle(), choosing)
 	card_hand.cycle_button.text = "Cancel" if cycling else "Cycle"
 	card_hand.visible = state not in ["scoring", "shop", "intro", "division_over"]
@@ -1433,7 +1436,10 @@ func _refresh_shop() -> void:
 				var short := {"insufficient funds": "can't afford", "owned limit": "owned max", "incompatible with owned items": "incompatible",
 					"nothing to modify": "no target", "no place for it": "no slot"}
 				text += "  (%s)" % short.get(plan.reason, plan.reason)
-		offers.append({"text": text, "state": offer_state, "item_id": offer.item_id}) # item_id: presentation art (Codex Wave 1 request)
+		var status := ""
+		if offer_state != "buy":
+			status = "SOLD" if offer_state == "sold" else text.get_slice("  (", 1).trim_suffix(")").to_upper()
+		offers.append({"text": text, "state": offer_state, "item_id": offer.item_id, "price": offer.price, "status": status, "slot": slot_name, "name": item.name}) # item_id: presentation art (Codex Wave 1 request)
 	var pins: Array = []
 	for position in range(1, 11):
 		var pin: Dictionary = run.rack[position]

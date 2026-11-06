@@ -283,10 +283,8 @@ func _new_match() -> void:
 ## Switching the model on a fresh frame starts a direct-selection match.
 func _direct_model() -> void:
 	await _focus_accept(scene.options)
-	lab.settings_panel.equipment.grab_focus()
-	await _action("ui_accept")
-	await _action("ui_down")
-	await _action("ui_accept")
+	lab.settings_panel.use_equipment("direct") # fixture: direct selection is no longer a player option (ADR 004)
+	print("%s fixture: direct selection set through settings_panel.use_equipment (not a player option since UI-1)" % get_script().resource_path.get_file())
 	await _focus_accept(lab.settings_panel.close)
 	var bag = lab.equipment
 	_check(lab.settings.equipment == "direct" and bag.MODEL == "direct", "options switch to direct selection")

@@ -3,8 +3,9 @@ extends PanelContainer
 ## (direct model), a Cycle button and pile counts. A view only: it shows what the
 ## lab tells it and reports presses; the lab and the rules models own every
 ## decision. Buttons work by touch, mouse and keyboard/gamepad focus.
-## Developmental look; card art and foil are E12/E19.
+## Cards are UI-1's CardView: the UI-A1 playing-card face with art, rules and states.
 const ItemAssets = preload("res://src/presentation/item_assets.gd")
+const CardView = preload("res://src/presentation/card_view.gd")
 signal card_pressed(uid: String)
 signal cycle_pressed
 signal inspect_requested(card: Dictionary, origin: Control)
@@ -15,7 +16,10 @@ var info: Label
 var inspect_button: Button
 var inspecting := false
 var card_data: Dictionary = {}
-var buttons: Dictionary = {} # uid -> Button
+var buttons: Dictionary = {} # uid -> CardView (a Button)
+var reduced_motion := false
+## Tallest a hand card may be (the lab keeps the hand clear of the ball).
+var max_card_height := 150.0
 
 func _ready() -> void:
 	name = "CardHand"
@@ -75,49 +79,34 @@ func show_cards(cards: Array, marks: Dictionary, header: String, cycle_supported
 		card = card.duplicate()
 		card["item_id"] = ItemAssets.identify(card)
 		card_data[card.uid] = card
-		var button: Button = buttons.get(card.uid)
+		var button: CardView = buttons.get(card.uid)
+		var dealt := button == null
 		if button == null:
-			button = Button.new()
+			button = CardView.new()
 			button.name = "Card_" + card.uid.replace("-", "_").replace(".", "_")
-			button.custom_minimum_size = Vector2(124, 96)
-			button.toggle_mode = false
-			button.clip_text = true
-			button.add_theme_font_size_override("font_size", 16)
-			button.expand_icon = true
-			button.add_theme_constant_override("icon_max_width", 24)
-			button.icon = preload("res://src/presentation/card_inspector.gd").illustration(int(card.get("art_index", 2)))
-			var frame := StyleBoxFlat.new()
-			frame.bg_color = Color("17363d")
-			frame.border_color = Color("c4b69b")
-			frame.set_border_width_all(2)
-			frame.set_content_margin_all(6)
-			button.add_theme_stylebox_override("normal", frame)
 			var uid: String = card.uid
 			button.pressed.connect(func():
+				if button.consume_long_press(): return
 				if inspecting:
 					inspecting = false
 					inspect_button.text = "Inspect"
 					inspect_requested.emit(card_data[uid], buttons[uid])
 				else: card_pressed.emit(uid), CONNECT_DEFERRED)
+			# Long press opens inspection directly (UI-1).
+			button.long_pressed.connect(func(): inspect_requested.emit(card_data[uid], buttons[uid]))
 			cards_row.add_child(button)
 			buttons[card.uid] = button
+		button.reduced_motion = reduced_motion
 		cards_row.move_child(button, wanted.find(card.uid))
-		var icon := ItemAssets.slot(card.item_id, "icon") as Texture2D
-		if icon:
-			button.icon = icon
-			button.texture_filter = TEXTURE_FILTER_NEAREST
-			button.add_theme_constant_override("icon_max_width", 40)
-			button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			button.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
-			button.custom_minimum_size.y = 128
-			button.tooltip_text = "%s · BALL · %s\n%s" % [card.title, ItemAssets.rarity_mark(card.item_id), card.detail]
-			button.add_theme_stylebox_override("normal", ItemAssets.slot(card.item_id, "rarity_treatment"))
+		if button.item_id != card.item_id or button.item_id.is_empty():
+			button.set_item(card.item_id, {}, card.title, preload("res://src/presentation/card_inspector.gd").illustration(int(card.get("art_index", 2))))
 		var mark: String = marks.get(card.uid, "")
-		var tag: String = {"ball": "▶ ARMED", "tactical": "▶ TACTIC", "keep": "★ KEEP"}.get(mark, "")
-		button.text = "%s\n%s%s" % [card.title, card.detail, ("\n" + tag) if not tag.is_empty() else ""]
-		if icon:
-			button.text = "%s\n%s\n%s%s" % [card.title, card.detail, ItemAssets.rarity_mark(card.item_id), ("\n" + tag) if not tag.is_empty() else ""]
-		button.modulate = Color(1.0, 0.9, 0.45) if not mark.is_empty() else (Color(0.75, 0.9, 1.0) if card.kind == "tactical" else Color.WHITE)
+		var tag: String = {"ball": "ARMED", "tactical": "TACTIC", "keep": "KEEP"}.get(mark, "")
+		var state: String = {"ball": "armed", "tactical": "tactic", "keep": "keep"}.get(mark, "")
+		button.set_state(state, tag, "", "%s\n%s\n%s%s" % [card.title, card.detail, ItemAssets.rarity_mark(card.item_id), ("\n▶ " + tag) if not tag.is_empty() else ""])
+		button.tooltip_text = "%s · %s\n%s" % [card.title, ItemAssets.rarity_mark(card.item_id), card.detail]
+		if dealt:
+			button.deal_in(0.035 * wanted.find(card.uid))
 		button.disabled = not enabled
 	inspect_button.disabled = not enabled
 	if not enabled:
@@ -129,3 +118,16 @@ func show_cards(cards: Array, marks: Dictionary, header: String, cycle_supported
 
 func button_for(uid: String) -> Button:
 	return buttons.get(uid)
+
+## Sizes the cards so the whole hand shows at once, at playing-card proportions.
+func _process(_delta: float) -> void:
+	if buttons.is_empty() or cards_row.size.x <= 0.0: return
+	var gap := 8.0
+	var count := buttons.size()
+	var per_row := count if size.x >= size.y * 1.4 or count <= 2 else ceili(count / 2.0)
+	var width := (cards_row.size.x - gap * (per_row - 1)) / per_row
+	width = minf(width, max_card_height / CardView.ASPECT)
+	var want := Vector2(floorf(width), floorf(width * CardView.ASPECT))
+	for button in buttons.values():
+		if button.custom_minimum_size != want:
+			button.custom_minimum_size = want

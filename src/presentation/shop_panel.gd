@@ -5,6 +5,7 @@ extends PanelContainer
 ## RunInventory own every rule and number. Touch, mouse and keyboard/gamepad focus
 ## all work. Developmental look; card art and foil are E12/E19.
 const ItemAssets = preload("res://src/presentation/item_assets.gd")
+const CardView = preload("res://src/presentation/card_view.gd")
 signal offer_pressed(index: int)
 signal reroll_pressed
 signal remove_pressed
@@ -105,11 +106,11 @@ func _ready() -> void:
 ## Offer buttons grow with the offers (E18-C07: Extra Shelf and the License offer).
 func _add_offer_button() -> void:
 	var i := offer_buttons.size()
-	var button := Button.new()
+	# Offers are UI-1 playing cards; the price is a removable overlay, never on the face.
+	var button := CardView.new()
 	button.name = "Offer_%d" % i
-	button.custom_minimum_size = Vector2(216, 150)
-	button.clip_text = true
-	button.pressed.connect(func(): offer_pressed.emit(i))
+	button.custom_minimum_size = Vector2(196, 280)
+	button.pressed.connect(func(): if not button.consume_long_press(): offer_pressed.emit(i))
 	offers_grid.add_child(button)
 	offer_buttons.append(button)
 
@@ -154,16 +155,20 @@ func show_view(view: Dictionary) -> void:
 		offer_buttons[i].visible = i < view.offers.size()
 	for i in view.offers.size():
 		var offer: Dictionary = view.offers[i]
-		var button: Button = offer_buttons[i]
-		button.icon = ItemAssets.slot(str(offer.get("item_id", "")), "icon") as Texture2D
-		button.expand_icon = true
-		button.texture_filter = TEXTURE_FILTER_NEAREST
-		button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		button.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
-		button.add_theme_constant_override("icon_max_width", 32)
-		button.text = offer.text
+		var button: CardView = offer_buttons[i]
+		var item_id := str(offer.get("item_id", ""))
+		if item_id.is_empty():
+			button.item_id = ""
+			button.show_face(false) # an empty slot shows the card back
+		else:
+			if button.item_id != item_id:
+				button.set_item(item_id, {}, String(offer.get("name", "")))
+				button.deal_in(0.035 * i)
+			button.show_face(true)
+		var state: String = {"buy": "", "poor": "unaffordable", "blocked": "unaffordable", "sold": "sold", "empty": ""}[offer.state]
+		var price := "$%d" % int(offer.price) if offer.has("price") and offer.state != "sold" else ""
+		button.set_state(state, String(offer.get("status", "")), price, offer.text)
 		button.disabled = offer.state != "buy" or choice_sheet.visible
-		button.modulate = {"buy": Color.WHITE, "poor": Color(1.0, 0.75, 0.75), "blocked": Color(0.8, 0.8, 0.8), "sold": Color(0.6, 0.6, 0.6), "empty": Color(0.5, 0.5, 0.5)}[offer.state]
 	reroll_button.text = "Reroll $%d" % view.reroll_cost
 	reroll_button.disabled = not view.can_reroll or choice_sheet.visible
 	remove_button.text = "Remove a card $%d" % view.removal_price

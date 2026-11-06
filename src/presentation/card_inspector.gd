@@ -1,13 +1,16 @@
 extends Control
 ## Inspection never plays cards or changes their rarity. Finish samples are visual only.
 const ItemAssets = preload("res://src/presentation/item_assets.gd")
+const CardView = preload("res://src/presentation/card_view.gd")
+const ScoreLog = preload("res://src/rules/score_log.gd")
 var _item_texture: Texture2D
 var _default_frame: StyleBox
 signal closed
 const FINISHES = ["Common — matte", "Uncommon — metal", "Rare — border foil", "Epic — full foil", "Legendary — crown reveal"]
 const COLORS = [Color("c4b69b"),Color("bb935b"),Color("75cbd1"),Color("c691d9"),Color("e9b768")]
 var panel: PanelContainer
-var art: TextureRect
+var art: TextureRect # the card's illustration (UI-1: inside the full-size card)
+var card_view: CardView
 var title: Label
 var detail: Label
 var finish: OptionButton
@@ -48,16 +51,19 @@ func _ready() -> void:
 	title.add_theme_font_size_override("font_size",28)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(title)
-	art = TextureRect.new()
-	art.custom_minimum_size = Vector2(280,300)
-	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	art.texture_filter = TEXTURE_FILTER_NEAREST
-	art.mouse_filter = MOUSE_FILTER_IGNORE
+	# UI-1: inspection shows the whole playing card at its inspection size (UI-A1:
+	# 240×344 portrait, 210×300 landscape); foil and tilt act on its illustration.
+	card_view = CardView.new()
+	card_view.name = "InspectedCard"
+	card_view.custom_minimum_size = Vector2(240, 344)
+	card_view.focus_mode = Control.FOCUS_NONE
+	card_view.mouse_filter = MOUSE_FILTER_IGNORE
+	card_view.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	box.add_child(card_view)
+	art = card_view.art
 	foil = ShaderMaterial.new()
 	foil.shader = load("res://assets/motion/foil.gdshader")
 	art.material = foil
-	box.add_child(art)
 	detail = Label.new()
 	detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	detail.add_theme_font_size_override("font_size",20)
@@ -104,8 +110,17 @@ func inspect(card: Dictionary, origin: Control, reduce: bool) -> void:
 	reduced = reduce
 	selected_uid = card.uid
 	_base_index = int(card.get("art_index",0))
+	var item_id := ItemAssets.identify(card)
 	title.text = card.title
-	detail.text = "%s · %s\n%s" % [card.kind.capitalize(),card.get("rarity","common").capitalize(),card.detail]
+	card_view.reduced_motion = reduce
+	card_view.visible = true
+	card_view.set_item(item_id, {}, str(card.title), illustration(int(card.get("art_index", 0))))
+	ItemAssets._ensure()
+	var rules: String = ScoreLog.item_text(ItemAssets._items.get(item_id, {})) if ItemAssets._items.has(item_id) else str(card.detail)
+	# Full rules live here; the card face carries only the short rule.
+	detail.text = "%s · %s\n%s" % [card.kind.capitalize(),card.get("rarity","common").capitalize(),rules]
+	detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	detail.custom_minimum_size.x = 420
 	show()
 	var initial := ["common", "uncommon", "rare", "epic", "legendary"].find(card.get("rarity", "common")) if _item_texture else 0
 	finish.select(initial)
@@ -148,7 +163,7 @@ func dismiss() -> void:
 
 func _process(_delta: float) -> void:
 	if not visible: return
-	art.custom_minimum_size.y = 250 if size.x > size.y else 330
+	card_view.custom_minimum_size = Vector2(210, 300) if size.x > size.y else Vector2(240, 344)
 	panel.size = panel.get_combined_minimum_size()
 	panel.position = (size-panel.size)/2
 
