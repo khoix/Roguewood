@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 VERSION = (ROOT / ".godot-version").read_text().strip()
 # journey -> script, success marker, artifact directory, rendered captures, timeout, extra engine flags
 JOURNEYS = {
+    "JAVH4BC": ("res://tests/house_cleanup_contact.gd", "ROGUEWOOD_H4B_CONTACT_OK", "artifacts/av-h4-b/contact", ("contact", "motion", "counted"), 180, ["--fixed-fps", "60"]),
     "JAVH4AC": ("res://tests/house_tactical_contact.gd", "ROGUEWOOD_H4A_CONTACT_OK", "artifacts/av-h4-a/contact", ("contact", "motion", "counted"), 180, ["--fixed-fps", "60"]),
     "JUIA2": ("res://tests/ui_a2_journey.gd", "ROGUEWOOD_UI_A2_OK", "artifacts/ui-a2", ("phase_a", "phase_b", "base"), 180, ["--fixed-fps", "60"]),
     "JUIA1CSTUDY": ("res://tests/ui_a1_revision_journey.gd", "ROGUEWOOD_UI_A1_OK", "artifacts/ui-a1-c-study", tuple(f"{size}_{option}_{state}_{page}" for size in ["720x1280","1280x720","1024x768"] for option in range(2) for state in ["motion","still"] for page in ["throw","shop"]), 180, ["--fixed-fps", "60"]),
@@ -195,6 +196,9 @@ JOURNEYS["JUIA1"] = (*JOURNEYS["JUIA1"][:3], JOURNEYS["JUIA1"][3] +
 
 
 JOURNEYS["J03C11"] = (*JOURNEYS["J03C11"][:3], JOURNEYS["J03C11"][3] + ("h4_called_shot_ball", "h4_double_take_retrigger", "h4_pin_count_ball", "h4_called_shot_missed"), *JOURNEYS["J03C11"][4:])
+
+
+JOURNEYS["J03C11"] = (*JOURNEYS["J03C11"][:3], JOURNEYS["J03C11"][3] + ("h4_cleanup_crew", "h4_lucky_seven"), *JOURNEYS["J03C11"][4:])
 
 
 def engine():

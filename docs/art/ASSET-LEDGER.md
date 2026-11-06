@@ -796,3 +796,18 @@ League frames explicitly fall back to House; their art is not claimed.
   Double Take has two taps at 0/.095 s; all normalized to .48 peak. No samples.
 - Native evidence is generated under artifacts/av-h4-a and artifacts/e18-c11,
   never committed. Completeness is recorded only after those checks pass.
+
+### AV-H4-B — Cleanup Crew and Lucky Seven (Wave 10)
+
+- Original OpenAI-generated atlas, 2026-11-06:
+  `assets/items/d10/source.AV-H4-B.png`, unchanged. Prompt: two isolated premium
+  pixel-art objects on House ink, a crew of three straw brooms with walnut/brass/
+  petrol details and fallen miniature pins; ivory/brass die with clover side,
+  blank front face and lucky coin. No external IP, third-party art or baked counts.
+- Original AtlasTexture card/icon/reduced resources (768×900, 720×800), Common
+  frames, two activation resources and counted GDScript drawing. Live numeral
+  and leave caption are presentation of resolver/committed-frame data.
+- Original deterministic foley from author_foley.py: sound.charm.cleanup_crew,
+  swish 260/.48; sound.charm.lucky_seven, wood 720/.36, taps at 0/.055/.12 s.
+  Mono 22050 Hz PCM, .48 peak, no samples. Shared bounded mixer unchanged.
+- Evidence: artifacts/av-h4-b/contact and artifacts/e18-c11; never committed.

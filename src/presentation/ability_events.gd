@@ -37,6 +37,15 @@ static func project(frame: Dictionary, event: Dictionary, facts: Dictionary = {}
 		out.append({"id":id,"key":key,"phase":phase,"count":int(event.get("count",0)),
 			"amount":float(event.get("amount",0)),
 			"streak":int(frame.get("context",{}).get("strike_streak",0))+1 if id == "charm.hot_streak" else 0})
+		if id == "charm.cleanup_crew":
+			out[-1]["leave"] = int(facts.get("leave",0))
+			out[-1]["required"] = int(event.get("condition",{}).get("leave_min",2))
+			out[-1]["positions"] = range(1,11).filter(func(p): return p not in frame.rolls[0].fallen_positions)
+		if id == "charm.lucky_seven":
+			var down: int = preload("res://src/presentation/house_tactical_events.gd").fallen_positions(frame).size()
+			out[-1]["down"] = down
+			out[-1]["standing"] = 10-down
+			out[-1]["face"] = 7 if down == 7 and "open" in event.get("condition",{}).get("category",[]) else 0
 		if id in ["pin.crown","charm.crown_jewel","charm.split_specialist"]:
 			out[-1]["last_fallen"] = int(facts.get("last_fallen",0))
 			out[-1]["leave"] = int(facts.get("leave",0))

@@ -30,6 +30,7 @@ func _draw() -> void:
 	var c := size * 0.5
 	var t: float = 0.5 if still else clampf(age / style.duration,0,1)
 	var ink: Color = style.ink
+	if _draw_house_cleanup(c,t,ink): return
 	if _draw_house_tacticals(c,t,ink): return
 	if _draw_house_keepsakes(c,t,ink): return
 	if _draw_house_equipment(c,t,ink): return
@@ -451,4 +452,29 @@ func _draw_house_tacticals(c:Vector2,t:float,ink:Color) -> bool:
 		for x in [-5,5]:draw_arc(c+Vector2(x,0),26,0,TAU,24,ink,2)
 	elif details.get("lit",true):
 		draw_arc(c,27,-PI*.7,-PI*.3,12,ink,2)
+	return true
+
+func _draw_house_cleanup(c:Vector2,t:float,ink:Color) -> bool:
+	if style.item_id not in ["charm.cleanup_crew","charm.lucky_seven"]:return false
+	var font:=get_theme_default_font()
+	if style.item_id=="charm.cleanup_crew":
+		var sweep:=0.0 if still else sin(t*PI)*6
+		if identity:draw_texture_rect(identity,Rect2(c+Vector2(-23+sweep,-30),Vector2(46,46)),false)
+		for j in 3:draw_line(c+Vector2(-24+sweep,8+j*3),c+Vector2(20+sweep,5+j*3),ink,1)
+		var caption:="%d / %d"%[int(details.get("leave",0)),int(details.get("required",2))]
+		var width:float=font.get_string_size(caption,HORIZONTAL_ALIGNMENT_LEFT,-1,14).x
+		draw_string(font,c+Vector2(-width*.5,31),caption,HORIZONTAL_ALIGNMENT_LEFT,-1,14,Color("f1e4c6"))
+		draw_string(font,c+Vector2(-14,18),"LEAVE",HORIZONTAL_ALIGNMENT_LEFT,-1,9,ink)
+	else:
+		var landed:=still or t>=.25
+		var squash:=1.0 if landed else lerpf(.35,1.0,t*4)
+		var rect:=Rect2(c+Vector2(-21*squash,-25),Vector2(42*squash,42))
+		draw_rect(Rect2(rect.position+Vector2(4,4),rect.size),Color("755633"))
+		draw_rect(rect,ink)
+		draw_rect(rect.grow(-2),Color("f1e4c6"))
+		if landed and int(details.get("face",0))==7 and int(details.get("down",0))==7:
+			draw_string(font,c+Vector2(-9,9),"7",HORIZONTAL_ALIGNMENT_LEFT,-1,30,Color("173b40"))
+		var caption:="%d DOWN"%int(details.get("down",0))
+		var width:float=font.get_string_size(caption,HORIZONTAL_ALIGNMENT_LEFT,-1,10).x
+		draw_string(font,c+Vector2(-width*.5,31),caption,HORIZONTAL_ALIGNMENT_LEFT,-1,10,Color("f1e4c6"))
 	return true

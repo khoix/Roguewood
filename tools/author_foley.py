@@ -38,6 +38,7 @@ for i in range(int(rate * seconds)):
     values.append(value*attack*min(1.0,(1-p)*40))
 # Hand-authored short rhythmic identities, mixed before peak limiting.
 patterns = {
+ 'sound.charm.lucky_seven': [(0,.6),(.055,.8),(.12,1)],
  'sound.consumable.double_take': [(0,1),(.095,.65)],
  'sound.pin.tin': [(0,1),(.065,.5),(.14,.28)],
  'sound.ball_mod.echo_charge': [(0,1),(.095,.55)],

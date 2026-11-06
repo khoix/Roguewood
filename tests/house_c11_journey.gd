@@ -72,6 +72,7 @@ func _run() -> void:
 		_check(not _logged("Lucky Seven"), "Lucky Seven stays silent with %d standing" % standing)
 	_check(lucky, "a seven-pin open frame was thrown")
 	await _capture("c11_lucky_seven")
+	for label in ["cleanup_crew","lucky_seven"]:_check(art_captures.has(label),"native H4-B capture: "+label)
 	await _tactical_miss()
 	for label in ["called_shot_ball","double_take_retrigger","pin_count_ball","called_shot_missed"]:_check(art_captures.has(label),"native tactical capture: "+label)
 	if "--inject-failure" in OS.get_cmdline_user_args(): _check(false, "Injected diagnostic failure")
@@ -168,6 +169,7 @@ func _scored() -> Dictionary:
 						_check(glyph.material is ShaderMaterial and lab.motion.abilities.tactical_hand.material is ShaderMaterial,"miss desaturates both hand annotations")
 					else:_check(scored.result.category=="strike" and glyph.details.lit,"Called Shot lights on strike")
 					await _capture("h4_"+key)
+		await _capture_h4_charms()
 		if lab.state=="frame_done":return lab.scored_frames[-1]
 		await process_frame
 	_check(false,"H4-A score reveal timeout")
@@ -193,3 +195,27 @@ func _tactical_miss() -> void:
 	await _leave_shop()
 	var missed:=await _card_frame("consumable.called_shot",1,[LEAVE,CLEANUP],"Called Shot spent on spare")
 	_check(missed.result.category=="spare" and not _logged("Called Shot"),"miss gives no multiplier")
+
+# AV-H4-B: first-roll leave and exact-seven feedback from resolved frames.
+func _capture_h4_charms() -> void:
+	if lab.state not in ["scoring","frame_done"] or lab.scored_frames.is_empty():return
+	var glyph:Control=lab.motion.abilities.glyph
+	if glyph.style==null or glyph.age>=glyph.style.duration:return
+	var id:String=glyph.style.item_id
+	if id not in ["charm.cleanup_crew","charm.lucky_seven"]:return
+	var key:=id.get_slice(".",1)
+	if art_captures.has(key):return
+	if id=="charm.lucky_seven" and not glyph.still:
+		while glyph.age<glyph.style.duration*.28:await process_frame
+	art_captures[key]=true
+	var scored:Dictionary=lab.scored_frames[-1]
+	_check(glyph.still==bool(lab.settings.reduced_motion or lab.settings.reduced_flash),"H4-B reduced setting")
+	_check(lab.motion.abilities.history.any(func(e):return e.id==id and e.audio_played),"H4-B native sound")
+	if id=="charm.cleanup_crew":
+		var leave:int=10-scored.frame.rolls[0].fallen_positions.size()
+		_check(scored.result.category=="spare" and leave>=2 and int(glyph.details.leave)==leave and int(glyph.details.required)==2 and int(glyph.details.amount)==5,"Crew shows actual first leave against two, with +5 Mult")
+		_check(lab.motion.abilities.counted_rack_positions()==range(1,11).filter(func(p):return p not in scored.frame.rolls[0].fallen_positions),"Crew sweeps the actual first-roll leave")
+	else:
+		var down:int=scored.frame.rolls.reduce(func(n,r):return n+r.fallen_positions.size(),0)
+		_check(scored.result.category=="open" and down==7 and int(glyph.details.down)==7 and int(glyph.details.standing)==3 and int(glyph.details.face)==7 and int(glyph.details.amount)==7,"Lucky Seven lands on seven only for seven down on an open frame")
+	await _capture("h4_"+key)
