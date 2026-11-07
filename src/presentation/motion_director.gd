@@ -97,6 +97,8 @@ func set_reaction(index: int, text: String) -> void:
 	rival.texture=atlas
 	reaction.text=text
 	_reaction_time=2.0
+	# UI-2: the line is spoken in the rival panel (MatchPanels).
+	if lab.get("panels") != null: lab.panels.show_quote(text.get_slice("\n", 1) if text.contains("\n") else text)
 
 func _scored(scored: Dictionary) -> void:
 	reaction_count+=1
@@ -125,7 +127,9 @@ func _process(delta: float) -> void:
 	rival.size=Vector2(76,108 if size.y>size.x else 72)
 	reaction.position=rival.position+(Vector2(0,112) if size.y>size.x else Vector2(84,8))
 	reaction.size=Vector2(220,44)
-	rival.visible=lab.state in ["aim","holding","result","scoring","frame_done"] and not lab.settings_panel.visible and _rival().get("id","") in PORTRAITS
+	# UI-2: the rival panel shows the rival and this line, so the free-floating
+	# portrait stays hidden while the match panels are up.
+	rival.visible=lab.state in ["aim","holding","result","scoring","frame_done"] and not lab.settings_panel.visible and _rival().get("id","") in PORTRAITS and (lab.panels == null or not lab.panels.rival.visible)
 	reaction.visible=rival.visible
 	if _state!=lab.state:
 		_state=lab.state

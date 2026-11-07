@@ -171,3 +171,83 @@ content margins, touch heights, text bounds in both compositions, hand/lane
 separation, ball visibility with a safe margin, and byte-identical rendered
 corner pixels across panel sizes and orientations. Native view inspection remains
 necessary: metric checks cannot certify visual quality or phone ergonomics.
+
+## Wave 10 layout revision — UI-A1-C (current screen target)
+
+This section supersedes the Wave 9 composition coordinate table above. The old
+composition remains a frame-kit regression specimen; it is not the current
+screen layout. Open `src/presentation/ui_a1_revision.tscn` for the revised target.
+The exported option selects Slow stars (0) or Constellations (1); reduced and
+left_handed select their corresponding states. All game values are sample data.
+
+| Region | 720×1280 portrait | 1280×720 landscape | 1024×768 landscape |
+|---|---|---|---|
+| Top bar | (24,88), 672×136, two rows | (24,88), 1232×68 | (24,88), 976×68 plus fold row y160–228 |
+| Money | dedicated (440,158), 172×52 | independent $ slot before Options | independent $ slot before Options |
+| Slip / rival | two chips at y238 | right flank x1013, slip y172, rival y336 | native Details fold control |
+| Charms | (24,298), 672×48 | right flank y494 | inside Details fold |
+| Lane viewport | full available width, y354–864 | full available width, y172–696 | full available width, y172–744 |
+| Hand | two 190×270 cards, y902 | four 104×166 cards, two rows at left | folded; four 120×172 cards on expansion |
+| Actions | thumb rail, mirrored for left-handed play | left flank bottom | expanded hand bottom |
+| Shop | existing two-column portrait shelves | three columns | three columns |
+
+Outer safe margin is 24 px; the viewport retains its 12 px inner rendering
+inset. The transparent cosmetic lane viewport draws over the side-space artwork.
+This is full-width rendering, not wider League geometry. Existing House scene,
+lane, ball and pin bindings remain unchanged. The camera keeps vertical framing
+and aims the ball at 0.667 of viewport height; the journey checks this with the
+actual camera projection. Reserved landscape corridor is the central 36% of
+screen width, portrait 40%; projected lane edges at ball/rack depths must fit.
+Panels and expanded hand cards remain outside that corridor.
+
+Flanks target 19% width. Below 240 px available flank width or landscape aspect
+ratio 1.5, fold into the second top-bar row instead of shrinking lettering.
+Hand and Details controls independently expose their panels and close the other.
+These native buttons demonstrate the fold interaction. Cycle, Inspect and Options
+remain visual specimens; Claude integrates their real actions in UI-1/UI-2.
+Compact cards keep real rarity, illustration and name, with 14 px labels; full
+rules belong to long-press Inspect. No rarity is invented by a compact face.
+
+### House backdrop alternatives
+
+- **0 — Slow stars:** 240 mostly dim ivory/brass pixel stars on House ink,
+  drifting at 0.008 viewport widths per second; no pulsing or flashing.
+- **1 — Constellations:** four distinct schematic figures (Orion, Cassiopeia,
+  Cygnus and Ursa Major’s Big Dipper), each once, joined by petrol lines at 18%
+  alpha. Their bounded drift is about 1 px/s at 1280 wide, slower than the
+  surrounding field stars. These are recognizable decorative patterns.
+- **Reduced motion/flash:** integrations set `reduced=true`; deterministic static
+  positions, no drift. The preview checks that the phase does not advance.
+
+Original procedural source: `assets/ui/backdrops/house.gd`. It is independent
+of League environment manifests. Future League backdrops can replace this
+presentation layer; no future League artwork is delivered here. Layer order:
+backdrop, transparent lane, framed panels/cards/text, preview navigation.
+
+### Revised evidence and review
+
+JUIA1 retains the ten Wave 9 captures and adds 27 composition stills plus 24
+native motion frames, under `artifacts/ui-a1/rendered/` (61 total). Revised
+composition names are:
+`{720x1280,1280x720,1024x768}_{0,1}_{motion,still}_{throw,shop}.png`, plus
+`folded_hand.png`, `folded_details.png`, `left_handed.png`. Motion frames are
+`sky_motion_00.png` through `sky_motion_23.png`, sampled every five native frames.
+The original art-only CI step runs the extended journey and uploads this folder.
+Review both backdrop options, both shop aspects, the narrow folds, portrait
+money placement, compact-card readability and the mirrored thumb rail.
+These are reviewable visual targets; physical-phone approval is not claimed.
+
+UI-A1-C sky refinement (owner feedback, alongside UI-A2): the star layer now
+has 240 points instead of 90, mostly dim to preserve text contrast. Option 1
+replaces the repeated generated zigzags with four individually drawn schematic
+patterns: Orion, Cassiopeia, Cygnus and the Big Dipper asterism in Ursa Major.
+Each appears once, at a different position and scale. This is a decorative,
+recognizable sky treatment rather than a chart of astronomical coordinates.
+Reduced mode freezes both the stars and all constellation positions.
+
+UI-A1-C motion refinement: constellation strokes use 18% alpha. Their bounded
+drift is approximately 1 px/s at 1280 wide; the 240 field stars drift faster
+(about 10 px/s). No pulsing. Normal mode visibly moves; reduced mode stays
+pixel-identical. JUIA1 now retains all 37 stills and adds 24 actual process-frame
+captures, `sky_motion_00.png` through `sky_motion_23.png` (61 total). Play the
+sequence at 12 fps; each frame samples five Godot frames at fixed 60 fps.

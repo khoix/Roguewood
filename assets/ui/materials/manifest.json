@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "canonical_size": [
+    210,
+    300
+  ],
+  "leagues": {
+    "league.house": {
+      "common": {
+        "frame": "res://assets/ui/cards/face-common.svg",
+        "overlay": "res://assets/ui/materials/house-common.tres",
+        "reduced": "res://assets/ui/materials/house-common-reduced.tres"
+      },
+      "uncommon": {
+        "frame": "res://assets/ui/cards/face-uncommon.svg",
+        "overlay": "res://assets/ui/materials/house-uncommon.tres",
+        "reduced": "res://assets/ui/materials/house-uncommon-reduced.tres"
+      },
+      "rare": {
+        "frame": "res://assets/ui/cards/face-rare.svg",
+        "overlay": "res://assets/ui/materials/house-rare.tres",
+        "reduced": "res://assets/ui/materials/house-rare-reduced.tres"
+      },
+      "epic": {
+        "frame": "res://assets/ui/cards/face-epic.svg",
+        "overlay": "res://assets/ui/materials/house-epic.tres",
+        "reduced": "res://assets/ui/materials/house-epic-reduced.tres"
+      },
+      "legendary": {
+        "frame": "res://assets/ui/cards/face-legendary.svg",
+        "overlay": "res://assets/ui/materials/house-legendary.tres",
+        "reduced": "res://assets/ui/materials/house-legendary-reduced.tres"
+      }
+    }
+  },
+  "fallback_league": "league.house",
+  "icons": {
+    "value": "res://assets/ui/cards/value.svg",
+    "mult": "res://assets/ui/cards/mult.svg",
+    "money": "res://assets/ui/cards/money.svg",
+    "ball": "res://assets/ui/cards/ball.svg",
+    "pin": "res://assets/ui/cards/pin.svg",
+    "charm": "res://assets/ui/cards/charm.svg",
+    "consumable": "res://assets/ui/cards/consumable.svg",
+    "shop_upgrade": "res://assets/ui/cards/shop_upgrade.svg",
+    "cycle": "res://assets/ui/icons/cycle.svg",
+    "inspect": "res://assets/ui/icons/inspect.svg",
+    "deck": "res://assets/ui/icons/deck.svg",
+    "discard": "res://assets/ui/icons/discard.svg",
+    "options": "res://assets/ui/icons/options.svg",
+    "target": "res://assets/ui/icons/target.svg",
+    "lock": "res://assets/ui/icons/lock.svg",
+    "armed": "res://assets/ui/icons/armed.svg",
+    "sold": "res://assets/ui/icons/sold.svg"
+  }
+}

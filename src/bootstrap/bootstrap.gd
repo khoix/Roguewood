@@ -4,6 +4,7 @@ const ThrowLab = preload("res://src/presentation/throw_lab.gd")
 const SaveStore = preload("res://src/persistence/save_store.gd")
 const Snapshot = preload("res://src/persistence/attempt_snapshot.gd")
 const WebQA = preload("res://src/platform/web_qa.gd")
+const UiTheme = preload("res://src/presentation/house_ui_theme.gd")
 const CareerProfile = preload("res://src/persistence/career_profile.gd")
 const Contracts = preload("res://src/contracts/contracts.gd")
 const FrameBuilder = preload("res://src/rules/frame_builder.gd")
@@ -43,6 +44,8 @@ var save_notice := ""
 var content: Dictionary = {}
 
 func _ready() -> void:
+	# UI-2: one House theme (frame kit, Pixelify Sans) for every screen.
+	theme = UiTheme.build()
 	get_window().size_changed.connect(_viewport_layout)
 	_viewport_layout()
 	clubhouse = Clubhouse.new()
