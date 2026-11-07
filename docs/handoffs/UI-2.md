@@ -38,7 +38,8 @@
 | J02, J03, J05, J06 (two stages), J08 and J11, rendered | PASS. Captures inspected: portrait aim with the fan, the frame-done raised hand, landscape rolling with both flanks, the landscape shop shelf, the boss screen with the rival's line, the Clubhouse binder and the score chain icons. |
 | 4:3 fold probe (1280×960, not committed) | Folded; Hand and Slip · Rival · Charms open their panels and close each other. |
 | Camera probe (not committed) | Ball at y 749/1280 portrait, 521.5/720 landscape, 705.6/960 at 4:3, each 0.667 of its lane region. |
-| Full local matrix (all CI commands, three journeys at a time) | See the Wave 10 progress entry in docs/AI-HANDOFF.md. |
+| Full local matrix (all CI commands, three journeys at a time) | 158/158 PASS on `268da2f`. The run on `45a7fed` failed J07, J10 and J03C02: a restored frame's result has no Value/Mult chain, and the slip read it. Fixed in `268da2f`. |
+| CI | Bootstrap run 42329325151 PASS on `268da2f` (game and art shards) |
 
 ## Limitations and follow-ups
 - **Text still carries the match bar and the prompt.** The money slot, Charms icons, rule seals, chain icons and card materials replace text where they could. The top bar line and the prompt are still words, because many journeys read them; an icon-led bar needs those checks rewritten.
