@@ -6,6 +6,7 @@ extends PanelContainer
 ## Cards are UI-1's CardView: the UI-A1 playing-card face with art, rules and states.
 const ItemAssets = preload("res://src/presentation/item_assets.gd")
 const CardView = preload("res://src/presentation/card_view.gd")
+const UiTheme = preload("res://src/presentation/house_ui_theme.gd")
 signal card_pressed(uid: String)
 signal cycle_pressed
 signal inspect_requested(card: Dictionary, origin: Control)
@@ -23,11 +24,7 @@ var max_card_height := 150.0
 
 func _ready() -> void:
 	name = "CardHand"
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.04, 0.03, 0.08, 0.85)
-	style.set_corner_radius_all(10)
-	style.set_content_margin_all(10)
-	add_theme_stylebox_override("panel", style)
+	add_theme_stylebox_override("panel", UiTheme.frame("panel", 14.0, 10.0))
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 6)
 	add_child(box)

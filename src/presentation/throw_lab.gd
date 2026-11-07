@@ -111,6 +111,7 @@ var _flick := Held.new()
 var _event_clock := not ("--script" in OS.get_cmdline_args())
 var _cues_fired: Dictionary = {}
 var _spin_angle := 0.0
+var backdrop: Control
 var _touch := -1
 var _target_touch := -1
 var _hold_source := "touch"
@@ -179,6 +180,15 @@ func _ready() -> void:
 	SettingsPanel.with_defaults(settings)
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# UI-2: the side space behind the lane is the House night sky (UI-A1-C option 1,
+	# Constellations; owner-approved 2026-11-07). The lane renders over it on a
+	# transparent background, full width.
+	backdrop = load("res://assets/ui/backdrops/house.gd").new()
+	backdrop.name = "Backdrop"
+	backdrop.option = 1
+	backdrop.reduced = bool(settings.get("reduced_motion", false))
+	backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(backdrop)
 	var container := SubViewportContainer.new()
 	container.name = "LaneView"
 	container.stretch = true
@@ -188,11 +198,11 @@ func _ready() -> void:
 	container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(container)
 	_viewport = SubViewport.new()
+	_viewport.transparent_bg = true
 	container.add_child(_viewport)
 	_camera = Camera3D.new()
 	var environment := Environment.new()
-	environment.background_mode = Environment.BG_COLOR
-	environment.background_color = Color(0.05, 0.04, 0.1)
+	environment.background_mode = Environment.BG_CLEAR_COLOR # transparent: the backdrop shows through
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	environment.ambient_light_color = Color(0.55, 0.52, 0.65)
 	environment.ambient_light_energy = 0.7
@@ -656,6 +666,8 @@ func _apply_settings() -> void:
 		_checkpoint("aim")
 	if hud != null:
 		hud.reduced_motion = settings.reduced_motion
+	if backdrop != null:
+		backdrop.reduced = settings.reduced_motion or settings.get("reduced_flash", false)
 	# A model switch applies now at the very start of a match, otherwise at the next match.
 	if settings.equipment != _equipment_model and (equipment == null or (state == "aim" and roll_index == 1 and match_frame == 1)):
 		var first := equipment == null

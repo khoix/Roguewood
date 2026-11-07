@@ -32,8 +32,21 @@ var face_up := true
 var state := ""
 var tag_text := "" # the small tab above the card (ARMED, KEEP, TACTIC, ...)
 var price_text := "" # shop overlay, never part of the permanent face
-var reduced_motion := false
-var art: TextureRect # the item illustration (inspection applies its foil to this)
+## Reduced motion (or reduced flash): no lift or tilt, and the rarity material holds
+## its rest phase (UI-A2).
+var reduced_motion := false:
+	set(value):
+		reduced_motion = value
+		_apply_material()
+var art: TextureRect # the item illustration
+## UI-A2: the rarity material, an additive overlay over the whole face, above the
+## illustration and below every badge and label. Its own duplicated ShaderMaterial.
+var sheen: ColorRect
+var rarity := "common"
+var league := "league.house"
+const MATERIALS := "res://assets/ui/materials/manifest.json"
+const REST_PHASE := 0.42
+static var _manifest: Dictionary = {}
 var _face: Control
 var _back: TextureRect
 var _parts: Dictionary = {}
@@ -80,7 +93,7 @@ func _init() -> void:
 	_back.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_back.visible = false
 	add_child(_back)
-	for key in ["frame", "art", "badge", "rule_icon", "name", "hint", "detail", "rarity", "hatch", "stamp", "price", "tag"]:
+	for key in ["frame", "art", "sheen", "badge", "rule_icon", "name", "hint", "detail", "rarity", "hatch", "stamp", "price", "tag"]:
 		var node: Control
 		if key in ["frame", "art", "badge", "rule_icon"]:
 			var image := TextureRect.new()
@@ -88,6 +101,9 @@ func _init() -> void:
 			image.stretch_mode = TextureRect.STRETCH_SCALE if key == "frame" else TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 			image.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 			node = image
+		elif key == "sheen":
+			node = ColorRect.new()
+			(node as ColorRect).color = Color.WHITE
 		elif key == "hatch":
 			var shade := ColorRect.new()
 			shade.color = Color(0.06, 0.09, 0.12, 0.72)
@@ -104,6 +120,7 @@ func _init() -> void:
 		_face.add_child(node)
 		_parts[key] = node
 	art = _parts.art
+	sheen = _parts.sheen
 	resized.connect(_layout)
 	button_down.connect(_on_down)
 	button_up.connect(func(): _press_started = 0; _settle())
@@ -118,8 +135,9 @@ func set_item(id: String, names: Dictionary = {}, title: String = "", fallback_a
 	item_id = id
 	ItemAssets._ensure()
 	var item: Dictionary = ItemAssets._items.get(id, {})
-	var rarity: String = item.get("rarity", "common")
+	rarity = item.get("rarity", "common")
 	if rarity not in RARITIES: rarity = "common"
+	_apply_material()
 	_parts.frame.texture = load(DIR + "face-%s.svg" % rarity)
 	_parts.art.texture = ItemAssets.slot(id, "card") as Texture2D
 	if _parts.art.texture == null:
@@ -265,6 +283,7 @@ func _layout() -> void:
 		_parts[key].position = rect.position * s
 		_parts[key].size = rect.size * s
 	place.call("frame", Rect2(Vector2.ZERO, NATIVE))
+	place.call("sheen", Rect2(Vector2.ZERO, NATIVE))
 	place.call("badge", Rect2(17, 44, 26, 26) if not compact else Rect2(14, 42, 40, 40))
 	place.call("rule_icon", Rect2(17, 235, 28, 28))
 	place.call("hint", Rect2(51, 228, 144, 18))
@@ -306,6 +325,9 @@ func _refresh() -> void:
 	_parts.detail.text = _detail
 	for key in ["rule_icon", "hint", "detail"]:
 		_parts[key].visible = not compact
+	# Compact cards use a different art recess: the canonical mask does not fit, so
+	# the material is off there (UI-A2). Common is matte everywhere.
+	sheen.visible = not compact and rarity != "common"
 	_parts.hatch.visible = state in ["locked", "unaffordable", "sold"]
 	_parts.hatch.color = Color(0.06, 0.09, 0.12, 0.45 if state == "unaffordable" else 0.72)
 	_parts.stamp.visible = state in ["sold", "locked"]
@@ -343,7 +365,45 @@ func _draw() -> void:
 		r.position.y -= _lift
 		draw_rect(r.grow(3.0), BRASS if state == "keep" or (toggle_mode and button_pressed) else SEA_GLASS, false, 3.0)
 
+## The UI-A2 material for a League and rarity, from the manifest (unprovided
+## Leagues fall back to House). Always a fresh duplicate, so cards never share one.
+static func material_for(rarity_id: String, reduced: bool = false, league_id: String = "league.house") -> ShaderMaterial:
+	if _manifest.is_empty():
+		_manifest = JSON.parse_string(FileAccess.get_file_as_string(MATERIALS))
+	var leagues: Dictionary = _manifest.leagues
+	var family: Dictionary = leagues.get(league_id, leagues[_manifest.fallback_league])
+	var entry: Dictionary = family.get(rarity_id, family.common)
+	return (load(entry.reduced if reduced else entry.overlay) as ShaderMaterial).duplicate()
+
+func _apply_material() -> void:
+	if sheen == null: return
+	sheen.material = material_for(rarity, reduced_motion, league)
+	set_material_phase(REST_PHASE)
+
+## Inspection's finish preview: shows another rarity's material on this face.
+func preview_material(rarity_id: String) -> void:
+	rarity = rarity_id if rarity_id in RARITIES else "common"
+	_apply_material()
+	_refresh()
+
+## Inspection drives the phase from tilt; reduced materials ignore it.
+func set_material_phase(phase: float) -> void:
+	if sheen and sheen.material:
+		(sheen.material as ShaderMaterial).set_shader_parameter("progress", clampf(phase, 0.0, 1.0))
+
+## UI-A2's tilt mapping: each axis in [-1, 1]; settles to the rest phase at zero.
+func tilt_material(tilt: Vector2) -> void:
+	set_material_phase(REST_PHASE + 0.25 * tilt.x + 0.15 * tilt.y)
+
+## One 180 ms sweep when a card is played; never delays game state.
+func sweep_material() -> void:
+	if reduced_motion or rarity == "common" or not is_inside_tree(): return
+	var sweep := create_tween()
+	sweep.tween_method(set_material_phase, 0.0, 1.0, 0.18)
+	sweep.tween_callback(set_material_phase.bind(REST_PHASE))
+
 func _on_down() -> void:
+	sweep_material()
 	_press_started = 1
 	_held = 0.0
 	_long_fired = false

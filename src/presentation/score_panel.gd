@@ -34,11 +34,7 @@ var _skipping := false
 
 func _ready() -> void:
 	name = "ScorePanel"
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.04, 0.03, 0.08, 0.98)
-	style.set_corner_radius_all(12)
-	style.set_content_margin_all(16)
-	add_theme_stylebox_override("panel", style)
+	add_theme_stylebox_override("panel", preload("res://src/presentation/house_ui_theme.gd").frame("menu", 20.0, 16.0))
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 8)
 	add_child(box)

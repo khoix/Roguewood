@@ -6,6 +6,7 @@ extends PanelContainer
 ## all work. Developmental look; card art and foil are E12/E19.
 const ItemAssets = preload("res://src/presentation/item_assets.gd")
 const CardView = preload("res://src/presentation/card_view.gd")
+const UiTheme = preload("res://src/presentation/house_ui_theme.gd")
 signal offer_pressed(index: int)
 signal reroll_pressed
 signal remove_pressed
@@ -36,7 +37,7 @@ var _scroll: ScrollContainer
 
 func _ready() -> void:
 	name = "ShopPanel"
-	add_theme_stylebox_override("panel", _style(Color(0.05, 0.04, 0.09, 0.97)))
+	add_theme_stylebox_override("panel", UiTheme.frame("shop", 20.0, 16.0))
 	var scroll := ScrollContainer.new()
 	_scroll = scroll
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -81,7 +82,7 @@ func _ready() -> void:
 	# Choice sheet: sits over the shop until a choice or Cancel.
 	choice_sheet = PanelContainer.new()
 	choice_sheet.name = "ChoiceSheet"
-	choice_sheet.add_theme_stylebox_override("panel", _style(Color(0.1, 0.08, 0.16, 0.99)))
+	choice_sheet.add_theme_stylebox_override("panel", UiTheme.frame("menu", 20.0, 16.0))
 	choice_sheet.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	choice_sheet.top_level = true
 	choice_sheet.hide()
@@ -114,12 +115,8 @@ func _add_offer_button() -> void:
 	offers_grid.add_child(button)
 	offer_buttons.append(button)
 
-static func _style(color: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = color
-	style.set_corner_radius_all(12)
-	style.set_content_margin_all(14)
-	return style
+static func _style(_color: Color) -> StyleBox:
+	return UiTheme.frame("panel", 14.0, 12.0)
 
 func _label(parent: Control, node_name: String, font_size: int) -> Label:
 	var label := Label.new()

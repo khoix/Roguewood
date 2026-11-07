@@ -5,6 +5,7 @@ extends Control
 ## A view only: the lab and the pure DivisionRun own every rule and number.
 ## E21 portraits resolve exact authored rival IDs; lab badges remain developmental.
 const RivalArt = preload("res://src/presentation/rival_art.gd")
+const UiTheme = preload("res://src/presentation/house_ui_theme.gd")
 const ItemArt = preload("res://src/presentation/item_assets.gd")
 signal intro_done
 signal endless_pressed
@@ -79,7 +80,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	bar = PanelContainer.new()
 	bar.name = "MatchBar"
-	bar.add_theme_stylebox_override("panel", _style(Color(0.04, 0.03, 0.08, 0.85)))
+	bar.add_theme_stylebox_override("panel", UiTheme.frame("hud", 18.0, 10.0))
 	bar.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
 	bar.offset_left = 12.0
 	bar.offset_right = -12.0
@@ -103,7 +104,7 @@ func _ready() -> void:
 	row.add_child(extra_rule_badges)
 	rule_panel = PanelContainer.new()
 	rule_panel.name = "RulePanel"
-	rule_panel.add_theme_stylebox_override("panel", _style(Color(0.1, 0.08, 0.16, 0.97)))
+	rule_panel.add_theme_stylebox_override("panel", UiTheme.frame("menu", 18.0, 14.0))
 	rule_panel.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
 	rule_panel.offset_left = 24.0
 	rule_panel.offset_right = -24.0
@@ -114,7 +115,7 @@ func _ready() -> void:
 	reaction = PanelContainer.new()
 	reaction.name = "Reaction"
 	reaction.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	reaction.add_theme_stylebox_override("panel", _style(Color(0.08, 0.06, 0.14, 0.88)))
+	reaction.add_theme_stylebox_override("panel", UiTheme.frame("panel", 14.0, 10.0))
 	reaction.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
 	reaction.custom_minimum_size = Vector2(420, 0)
 	reaction.hide()
@@ -166,12 +167,9 @@ func _ready() -> void:
 	retry_button = _button(result_box, "RetryDivision", "Retry Division", func(): retry_pressed.emit())
 	menu_button = _button(result_box, "ResultClubhouse", "Clubhouse", func(): menu_pressed.emit())
 
-func _style(color: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = color
-	style.set_corner_radius_all(12)
-	style.set_content_margin_all(12)
-	return style
+## UI-2: panels use the House frame kit (the color argument is kept for callers).
+func _style(_color: Color) -> StyleBox:
+	return UiTheme.frame("panel", 14.0, 12.0)
 
 func _label(parent: Control, node_name: String, font_size: int) -> Label:
 	var label := Label.new()
@@ -195,7 +193,7 @@ func _button(parent: Control, node_name: String, text: String, action: Callable)
 func _sheet(node_name: String) -> PanelContainer:
 	var sheet := PanelContainer.new()
 	sheet.name = node_name
-	sheet.add_theme_stylebox_override("panel", _style(Color(0.05, 0.04, 0.1, 0.96)))
+	sheet.add_theme_stylebox_override("panel", UiTheme.frame("menu", 18.0, 16.0))
 	sheet.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	sheet.hide()
 	add_child(sheet)
