@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-11-05. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). **Wave 10 is open** (see "Wave 10 claims"). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
+Updated: 2026-11-07. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). **Wave 10 is closed** (see "Wave 10 closed"), awaiting the owner's merge. No Wave 11 work starts before it. The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
 
 ## Read first
 
@@ -212,6 +212,19 @@ Open: Wave 8 is merged (PR #19, main `f444488`). Base: `claude/roguewood-build` 
   - Claude: UI-1, UI-2.
   - Codex: UI-A2, AV-H4 (E17-D10's five), AV-T01.
 - **Owner:** approve the UI-A1 mockups (gates UI-1), and play the held-ball throw on a phone through the hosted web build.
+
+## Wave 10 closed (coordinator, 2026-11-07)
+- **Contents** (all on `claude/roguewood-build` at the "Wave 10 closed" commit):
+  - Claude: UI-1 (`2c7ffd5`, `a1a9d0b`, `6fb9c44`), E05-R2 (with the owner's adjustments, `ec9cabc`) and UI-2 (`883adcc`, `45a7fed`, `268da2f`, `8471921`).
+  - Codex: UI-A1-C (`5fb5cec`, `47bf589`), UI-A2 (`dc5877e`), AV-H4-A/B (`bd44d9c`, `9986f67`) and its closing record docs/handoffs/WAVE10-CODEX.md (`9b98a54`, merged at `80395be`).
+- **Validation:**
+  - The full CI command list (158 units, both shards, every journey headless and rendered, the web journey included) PASS locally on `268da2f`. CI: Bootstrap run 42329325151 PASS on `268da2f`, both shards.
+  - Since then only documentation changed (`8471921`, Codex's `9b98a54`, this record).
+  - Codex's closing matrix: 39 journeys in both modes plus unit, content and physics PASS on `9986f67`; the physics digest `75d1a3c0…` is unchanged.
+  - CI runs on this commit.
+- **Follow-up for Wave 11 (Claude, rules lane):** score_log.gd `_cause` names the first non-ball retrigger owner for every repeat on a roll, so with stacked Echo Ball, Echo Charge and Double Take two repeats can share one label (Codex, handoffs/AV-H4-A.md). Text only; scores are right.
+- **Owner actions:** pick a backdrop (Constellations is the default; Slow stars is a one-line switch); turn on GitHub Pages; play the swing, the fan of four and the folds on a phone.
+- **Merge:** pending the owner's merge of the Wave 10 PR.
 
 ## Wave 10 claims (coordinator: Claude, 2026-11-06)
 Open: Wave 9 is merged (PR #20), plus the CI fix (PR #21, main `f4810aa`). Base: `claude/roguewood-build` at the "Wave 10 claims" commit. Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave10.md). Scope: docs/ROADMAP.md, "Art-forward interface: UI-R1" (with the owner's decisions of 2026-11-05) and "Tethered swing: E05-R2".
