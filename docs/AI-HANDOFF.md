@@ -263,7 +263,12 @@ Open: Wave 9 is merged (PR #20), plus the CI fix (PR #21, main `f4810aa`). Base:
   - Validation: the full local matrix ran 150/152 before the hand-sizing fix. After it, J03C11 passes headless and rendered, and J02, J04, J06, J03C06 and J03C10 pass.
   - CI: run 42163465370 PASS on `6fb9c44`, both shards.
 - **E05-R2 DONE** (handoffs/E05-R2.md; ADR 011, "Revision"): the tethered swing. The ball orbits the touch point inside its radius; orbit speed is the charge; the ball coasts and winds down; the release is the flick plus an orbit nudge. A swirl clip was shared with the owner.
-- **Open owner question:** how portrait shows a four-card hand (paging two, a fan, or four small cards). This is for UI-2.
+- **Owner decisions (2026-11-07):** UI-A1-C approved; the portrait hand is a fan of four; the swing demo (6 turns a second for full charge) is good. No backdrop was picked; UI-2 uses Constellations as the default.
+- **Codex's Wave 10 work, integrated** (fast-forward to `9986f67`): UI-A1-C DONE (handoffs/UI-A1-C.md: the layout revision, two backdrops, the 4:3 fold), UI-A2 DONE (handoffs/UI-A2.md: House rarity materials and nine action icons), AV-H4 DONE in two parts (handoffs/AV-H4-A.md, AV-H4-B.md: E17-D10's five items). Codex's closing record (docs/WAVE10-CODEX.md) is not in yet.
+- **UI-2 DONE** (handoffs/UI-2.md):
+  - Commits: `883adcc` (the House theme, backdrop and card materials), `45a7fed` (the match screen in both orientations, the camera line, the landscape shop shelf) and the fix-up commit that follows (score-chain icons, kit frames on the inspector and tactic sheet, the restored-frame slip).
+  - Landscape: top bar, hand flank and details flank (slip, rival, Charms), folding on 4:3. Portrait: two-row bar with a money slot, slip and rival chips, Charms row, and a fan of four at the thumbs. The ball sits at 0.667 of the lane region.
+  - Validation: below.
 
 ## Wave 9 closed (coordinator, 2026-11-05)
 - **Contents** (all on `claude/roguewood-build` at the "Wave 9 closed" commit):

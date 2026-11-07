@@ -193,11 +193,12 @@ func show_slip(result: Dictionary, total: int) -> void:
 	if result.is_empty():
 		slip_text.text = "No frame banked yet" if regions.get("portrait", true) else "LAST FRAME\nNone banked yet"
 		return
-	var chain := "%s × %s = %s" % [_n(result.pin_value), _n(result.mult), _n(result.score)]
+	# A restored frame keeps only its banked score and category, not the chain.
+	var chain := "%s × %s = %s" % [_n(result.pin_value), _n(result.mult), _n(result.score)] if result.has("pin_value") and result.has("mult") else "Banked %s" % _n(result.get("score", 0))
 	if regions.get("portrait", true):
 		slip_text.text = chain
 	else:
-		slip_text.text = "LAST FRAME · %s\n%s\nTotal %s" % [String(result.category).to_upper(), chain, _n(total)]
+		slip_text.text = "LAST FRAME · %s\n%s\nTotal %s" % [String(result.get("category", "")).to_upper(), chain, _n(total)]
 
 ## The match's rival and rule; practice and early matches name the boss to come.
 ## The rival's latest line (show_quote) follows in landscape.

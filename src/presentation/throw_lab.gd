@@ -188,8 +188,8 @@ func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	# UI-2: the side space behind the lane is the House night sky (UI-A1-C option 1,
-	# Constellations; owner-approved 2026-11-07). The lane renders over it on a
-	# transparent background, full width.
+	# Constellations, the coordinator's default until the owner picks; 0 is Slow
+	# stars). The lane renders over it on a transparent background, full width.
 	backdrop = load("res://assets/ui/backdrops/house.gd").new()
 	backdrop.name = "Backdrop"
 	backdrop.option = 1

@@ -13,6 +13,7 @@ const STEP_SEC := 0.3
 const SPEEDS := [1, 2, 4]
 const ROLL_COLORS := [Color(0.95, 0.55, 0.25), Color(0.35, 0.8, 1.0)]
 const HIGHLIGHT := Color(1.0, 0.9, 0.3)
+const ICONS := "res://assets/ui/cards/"
 
 var steps: Array = []
 var shown := 0
@@ -119,16 +120,8 @@ func _reveal() -> void:
 		return
 	var step: Dictionary = steps[shown]
 	step_revealed.emit(step, shown, _skipping)
-	var line := Label.new()
-	line.text = "%s  %s" % [step.symbol, step.text] if not step.symbol.is_empty() else step.text
-	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	line.add_theme_font_size_override("font_size", 22)
-	if step.symbol == "×":
-		line.add_theme_color_override("font_color", Color(1.0, 0.45, 0.45))
-	elif step.phase == "bank":
-		line.add_theme_color_override("font_color", HIGHLIGHT)
-	log_list.add_child(line)
+	log_list.add_child(_chain_line(step))
+	var line: Control = log_list.get_child(-1)
 	if not reduced_motion:
 		line.modulate.a = 0.45
 		create_tween().tween_property(line, "modulate:a", 1.0, 0.16)
@@ -144,6 +137,45 @@ func _reveal() -> void:
 	rack_view.queue_redraw()
 	if shown >= steps.size():
 		_finish()
+
+## UI-2: one link of the ordered score chain: the step's icon (pin, Value, Mult or
+## $) then its text. A flat, untouchable Button so `text` stays the step's words.
+func _chain_line(step: Dictionary) -> Button:
+	var line := Button.new()
+	line.text = "%s  %s" % [step.symbol, step.text] if not step.symbol.is_empty() else step.text
+	line.flat = true
+	line.focus_mode = Control.FOCUS_NONE
+	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	line.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	line.icon = load(ICONS + _chain_icon(step) + ".svg")
+	line.add_theme_constant_override("icon_max_width", 24)
+	line.add_theme_constant_override("h_separation", 10)
+	line.add_theme_font_size_override("font_size", 21)
+	for key in ["normal", "hover", "pressed", "disabled", "focus", "hover_pressed"]:
+		line.add_theme_stylebox_override(key, StyleBoxEmpty.new())
+	var color := Color("f4e6cd")
+	if step.symbol == "×":
+		color = Color(1.0, 0.45, 0.45)
+	elif step.phase == "bank":
+		color = HIGHLIGHT
+	elif step.phase == "after_bank":
+		color = Color("95d9cb")
+	for key in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_disabled_color", "font_hover_pressed_color"]:
+		line.add_theme_color_override(key, color)
+	return line
+
+## The card icon for a chain step (docs/art/ui: the score/category masters).
+static func _chain_icon(step: Dictionary) -> String:
+	var text := String(step.get("text", ""))
+	match String(step.get("phase", "")):
+		"category", "fallen": return "pin"
+		"bank": return "value"
+		"accuracy": return "mult"
+	if text.contains("+$") or text.contains(" $"): return "money"
+	if text.ends_with("Mult") or text.contains(" Mult (") or step.get("symbol", "") == "×": return "mult"
+	return "value"
 
 ## Waits for the new line's layout, then keeps the latest step in view.
 func _scroll_to_end() -> void:

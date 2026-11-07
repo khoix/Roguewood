@@ -40,11 +40,8 @@ func _ready() -> void:
 	add_child(shade)
 	panel = PanelContainer.new()
 	panel.set_anchors_and_offsets_preset(PRESET_CENTER)
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color("101820")
-	style.border_color = Color("e7bc70")
-	style.set_border_width_all(3)
-	style.set_content_margin_all(18)
+	# UI-2: the House menu frame unless the item has its own rarity treatment.
+	var style := preload("res://src/presentation/house_ui_theme.gd").frame("menu", 20.0, 18.0)
 	_default_frame = style
 	panel.add_theme_stylebox_override("panel",style)
 	add_child(panel)
