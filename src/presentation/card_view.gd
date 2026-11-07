@@ -57,6 +57,8 @@ var _press_started := 0
 var _held := 0.0 # seconds the press has lasted, on the frame clock
 var _long_fired := false
 var _lift := 0.0
+var fan_angle := 0.0 # radians
+var fan_drop := 0.0
 var _tween: Tween
 
 func _init() -> void:
@@ -188,17 +190,16 @@ func deal_in(delay: float = 0.0) -> void:
 		return
 	_kill_tween()
 	_face.modulate.a = 0.0
-	_face.position.y = 24.0
+	_face.position.y = _rest_y() + 24.0
 	_tween = create_tween().set_parallel(true)
 	_tween.tween_property(_face, "modulate:a", 1.0, 0.18).set_delay(delay)
-	_tween.tween_property(_face, "position:y", -_lift, 0.18).set_delay(delay).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_tween.tween_property(_face, "position:y", _rest_y(), 0.18).set_delay(delay).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 ## Tilt toward a point (card-local), at most 6°, settling in 150 ms on release.
 func tilt_toward(local: Vector2) -> void:
 	if reduced_motion: return
 	var x := clampf((local.x / maxf(size.x, 1.0) - 0.5) * 2.0, -1.0, 1.0)
-	_face.pivot_offset = size * 0.5
-	_face.rotation = deg_to_rad(6.0) * x
+	_face.rotation = fan_angle + deg_to_rad(6.0) * x
 
 ## True once, after a long press fired: the caller ignores the press that follows.
 func consume_long_press() -> bool:
@@ -273,8 +274,10 @@ func card_rect() -> Rect2:
 
 func _layout() -> void:
 	var r := card_rect()
-	_face.position = Vector2(r.position.x, r.position.y - _lift)
 	_face.size = r.size
+	_face.position = Vector2(r.position.x, _rest_y())
+	_face.pivot_offset = r.size * 0.5
+	_face.rotation = fan_angle
 	_back.position = r.position
 	_back.size = r.size
 	var s := r.size.x / NATIVE.x
@@ -355,14 +358,17 @@ func _refresh() -> void:
 	var lifted := 8.0 if state in ["armed", "tactic"] and not reduced_motion else 0.0
 	if lifted != _lift:
 		_lift = lifted
-		_face.position.y = card_rect().position.y - _lift
+		_face.position.y = _rest_y()
 	queue_redraw()
 
 func _draw() -> void:
 	# Armed or tactic: a 3 px sea-glass outline around the face (UI-A1 states).
 	if (state in ["armed", "tactic", "keep"] or (toggle_mode and button_pressed)) and face_up:
 		var r := card_rect()
-		r.position.y -= _lift
+		r.position.y = _rest_y()
+		if fan_angle != 0.0:
+			draw_set_transform(r.get_center(), fan_angle)
+			r.position = -r.size * 0.5
 		draw_rect(r.grow(3.0), BRASS if state == "keep" or (toggle_mode and button_pressed) else SEA_GLASS, false, 3.0)
 
 ## The UI-A2 material for a League and rarity, from the manifest (unprovided
@@ -408,16 +414,28 @@ func _on_down() -> void:
 	_held = 0.0
 	_long_fired = false
 	if not reduced_motion:
-		_face.position.y = card_rect().position.y - _lift + 2.0 # pressed: down 2 px
+		_face.position.y = _rest_y() + 2.0 # pressed: down 2 px
 
 func _settle() -> void:
 	if _face == null: return
-	_face.position.y = card_rect().position.y - _lift
-	if _face.rotation != 0.0 and not reduced_motion and is_inside_tree():
+	_face.position.y = _rest_y()
+	if _face.rotation != fan_angle and not reduced_motion and is_inside_tree():
 		var settle := create_tween()
-		settle.tween_property(_face, "rotation", 0.0, 0.15)
+		settle.tween_property(_face, "rotation", fan_angle, 0.15)
 	elif reduced_motion:
-		_face.rotation = 0.0
+		_face.rotation = fan_angle
+
+## Where the face rests: lifted when armed, lowered along a fanned hand's arc.
+func _rest_y() -> float:
+	return card_rect().position.y - _lift + fan_drop
+
+## UI-2: a place in a fanned hand (portrait). The face turns and drops; the
+## card's touch area stays its upright rect, so taps land where the card sits.
+func set_fan(angle_deg: float, drop: float) -> void:
+	if is_equal_approx(fan_angle, deg_to_rad(angle_deg)) and is_equal_approx(fan_drop, drop): return
+	fan_angle = deg_to_rad(angle_deg)
+	fan_drop = drop
+	_layout()
 
 func _process(delta: float) -> void:
 	# Long press (450 ms on the frame clock, so a slow frame never turns a tap into

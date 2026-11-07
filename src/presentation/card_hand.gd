@@ -21,6 +21,11 @@ var buttons: Dictionary = {} # uid -> CardView (a Button)
 var reduced_motion := false
 ## Tallest a hand card may be (the lab keeps the hand clear of the ball).
 var max_card_height := 150.0
+## "row" (one row, as before), "flank" (two columns, actions below) or "fan".
+var mode := "row"
+var body: BoxContainer
+var actions: BoxContainer
+const FAN_OVERLAP := 0.3 # of a card's width
 
 func _ready() -> void:
 	name = "CardHand"
@@ -34,29 +39,36 @@ func _ready() -> void:
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	info.add_theme_font_size_override("font_size", 20)
 	box.add_child(info)
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 8)
-	box.add_child(row)
-	# Flows onto a second row when the lab narrows the panel (landscape).
+	# UI-2: cards and actions; "flank" stacks them (landscape), "fan" puts the
+	# actions on a thumb rail beside a fanned hand (portrait, mirrored for left hands).
+	body = BoxContainer.new()
+	body.add_theme_constant_override("separation", 10)
+	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	box.add_child(body)
 	cards_row = HFlowContainer.new()
 	cards_row.name = "Cards"
 	cards_row.add_theme_constant_override("h_separation", 8)
 	cards_row.add_theme_constant_override("v_separation", 8)
 	cards_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_child(cards_row)
+	cards_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.add_child(cards_row)
+	actions = BoxContainer.new()
+	actions.vertical = true
+	actions.alignment = BoxContainer.ALIGNMENT_END
+	actions.add_theme_constant_override("separation", 8)
+	body.add_child(actions)
 	cycle_button = Button.new()
 	cycle_button.name = "CycleCard"
 	cycle_button.text = "Cycle"
-	cycle_button.custom_minimum_size = Vector2(110, 96)
-	cycle_button.pressed.connect(func(): cycle_pressed.emit())
-	var actions := VBoxContainer.new()
-	row.add_child(actions)
 	cycle_button.custom_minimum_size = Vector2(110, 48)
+	cycle_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cycle_button.pressed.connect(func(): cycle_pressed.emit())
 	actions.add_child(cycle_button)
 	inspect_button = Button.new()
 	inspect_button.name = "InspectCard"
 	inspect_button.text = "Inspect"
 	inspect_button.custom_minimum_size = Vector2(110,48)
+	inspect_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	inspect_button.pressed.connect(func():
 		inspecting = not inspecting
 		inspect_button.text = "Pick card" if inspecting else "Inspect")
@@ -127,14 +139,42 @@ func _card_size() -> Vector2:
 	var gap := 8.0
 	var count := maxi(buttons.size(), 1)
 	var width_available := cards_row.size.x if cards_row.size.x > 0.0 else 480.0
-	var per_row := count if size.x >= size.y * 1.4 or count <= 2 else ceili(count / 2.0)
-	var width := (width_available - gap * (per_row - 1)) / per_row
+	var width: float
+	match mode:
+		"flank":
+			width = (width_available - gap) / 2.0
+		"fan":
+			width = width_available / (1.0 + (1.0 - FAN_OVERLAP) * (count - 1))
+		_:
+			var per_row := count if size.x >= size.y * 1.4 or count <= 2 else ceili(count / 2.0)
+			width = (width_available - gap * (per_row - 1)) / per_row
 	width = minf(width, max_card_height / CardView.ASPECT)
 	return Vector2(floorf(width), floorf(width * CardView.ASPECT))
+
+## UI-2 layout modes; `left_handed` puts the fan's thumb rail on the left.
+func set_mode(new_mode: String, left_handed: bool = false) -> void:
+	mode = new_mode
+	body.vertical = mode == "flank"
+	actions.vertical = mode != "flank"
+	actions.alignment = BoxContainer.ALIGNMENT_END if mode != "fan" else BoxContainer.ALIGNMENT_CENTER
+	body.move_child(actions, 0 if mode == "fan" and left_handed else -1)
+	info.add_theme_font_size_override("font_size", 16 if mode == "flank" else 20)
+	for button in [cycle_button, inspect_button]:
+		button.custom_minimum_size = Vector2(0 if mode == "flank" else 150, 48)
+	_size_cards()
 
 func _size_cards() -> void:
 	if buttons.is_empty(): return
 	var want := _card_size()
-	for button in buttons.values():
+	var fan := mode == "fan"
+	var separation := -int(roundf(want.x * FAN_OVERLAP)) if fan else 8
+	if cards_row.get_theme_constant("h_separation") != separation:
+		cards_row.add_theme_constant_override("h_separation", separation)
+	var count := cards_row.get_child_count()
+	for i in count:
+		var button: CardView = cards_row.get_child(i)
 		if button.custom_minimum_size != want:
 			button.custom_minimum_size = want
+		# A gentle arc: outer cards turn out and sit a little lower.
+		var t := (i - (count - 1) * 0.5) / maxf((count - 1) * 0.5, 1.0) if fan and count > 1 else 0.0
+		button.set_fan(6.0 * t, 10.0 * t * t)

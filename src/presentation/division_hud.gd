@@ -40,6 +40,8 @@ var intro_reward: TextureRect
 var result_reward: TextureRect
 var current_rival: Dictionary = {}
 var reduced_motion := false
+var side_box: BoxContainer
+var money: Label
 var intro_remaining := 0.0
 
 ## A developmental rival badge: a coloured disc, initials and a mood mouth.
@@ -94,14 +96,37 @@ func _ready() -> void:
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	row.add_child(info)
+	# UI-2: the rule badge, its extra seals and the money slot; one row in
+	# landscape, stacked at the right of portrait's two-row bar.
+	side_box = BoxContainer.new()
+	side_box.name = "BarSide"
+	side_box.alignment = BoxContainer.ALIGNMENT_CENTER
+	side_box.add_theme_constant_override("separation", 8)
+	row.add_child(side_box)
+	var badges := HBoxContainer.new()
+	badges.add_theme_constant_override("separation", 6)
+	side_box.add_child(badges)
 	badge = Button.new()
 	badge.name = "RuleBadge"
-	badge.custom_minimum_size = Vector2(200, 52)
+	badge.custom_minimum_size = Vector2(200, 48)
+	badge.add_theme_font_size_override("font_size", 18)
 	badge.pressed.connect(func(): rule_panel.visible = not rule_panel.visible)
-	row.add_child(badge)
+	badges.add_child(badge)
 	extra_rule_badges = HBoxContainer.new()
 	extra_rule_badges.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_child(extra_rule_badges)
+	badges.add_child(extra_rule_badges)
+	var money_slot := PanelContainer.new()
+	money_slot.name = "MoneySlot"
+	money_slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	money_slot.add_theme_stylebox_override("panel", UiTheme.frame("panel", 14.0, 4.0))
+	money_slot.custom_minimum_size = Vector2(120, 44)
+	side_box.add_child(money_slot)
+	money = Label.new()
+	money.name = "Money"
+	money.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	money.add_theme_font_size_override("font_size", 26)
+	money.add_theme_color_override("font_color", UiTheme.BRASS)
+	money_slot.add_child(money)
 	rule_panel = PanelContainer.new()
 	rule_panel.name = "RulePanel"
 	rule_panel.add_theme_stylebox_override("panel", UiTheme.frame("menu", 18.0, 14.0))
@@ -215,6 +240,34 @@ func layout(top: float, bubble_top: float) -> void:
 		sheet.offset_left = 12.0
 		sheet.offset_right = -12.0
 		sheet.offset_bottom = -12.0
+
+## UI-2: the top bar at `bar_rect` (two rows in portrait) and the reaction bubble
+## over the rival's panel at `bubble`.
+func layout_regions(bar_rect: Rect2, bubble: Rect2, portrait: bool) -> void:
+	bar.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	bar.position = bar_rect.position
+	bar.size = bar_rect.size
+	bar.custom_minimum_size = bar_rect.size
+	side_box.vertical = portrait
+	info.add_theme_font_size_override("font_size", 22 if portrait else 20)
+	info.max_lines_visible = 4 if portrait else 2
+	rule_panel.offset_top = bar_rect.end.y + 8.0
+	rule_panel.offset_bottom = bar_rect.end.y + 8.0
+	reaction.position = bubble.position
+	reaction.custom_minimum_size = Vector2(bubble.size.x, 0)
+	reaction.size = Vector2(bubble.size.x, 0)
+	reaction_portrait.custom_minimum_size = Vector2(56, 56) if not portrait else Vector2(64, 64)
+	reaction_text.custom_minimum_size.x = maxf(bubble.size.x - 28.0 - reaction_portrait.custom_minimum_size.x - 10.0, 80.0)
+	reaction_text.add_theme_font_size_override("font_size", 20 if portrait else 17)
+	for sheet in [intro, result]:
+		sheet.offset_top = bar_rect.position.y
+		sheet.offset_left = 12.0
+		sheet.offset_right = -12.0
+		sheet.offset_bottom = -12.0
+
+## The money slot (UI-A1-C keeps $ in its own place on the bar).
+func show_money(amount: int) -> void:
+	money.text = "$%d" % amount
 
 ## view: {text, badge ("" hides it), rule_text}
 func show_match(view: Dictionary) -> void:

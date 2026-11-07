@@ -34,15 +34,28 @@ var cancel_choice: Button
 var offer_buttons: Array = []
 var _main: VBoxContainer
 var _scroll: ScrollContainer
+var _split: HBoxContainer
+var _shelf: VBoxContainer
 
 func _ready() -> void:
 	name = "ShopPanel"
 	add_theme_stylebox_override("panel", UiTheme.frame("shop", 20.0, 16.0))
+	# UI-2: landscape puts the offers on a three-column shelf beside the scrolling
+	# shop text and actions; portrait keeps one scrolling column.
+	_split = HBoxContainer.new()
+	_split.add_theme_constant_override("separation", 18)
+	add_child(_split)
+	_shelf = VBoxContainer.new()
+	_shelf.name = "Shelf"
+	_shelf.alignment = BoxContainer.ALIGNMENT_CENTER
+	_shelf.hide()
+	_split.add_child(_shelf)
 	var scroll := ScrollContainer.new()
 	_scroll = scroll
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.follow_focus = true # keyboard and gamepad focus scrolls its button into view
-	add_child(scroll)
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_split.add_child(scroll)
 	_main = VBoxContainer.new()
 	_main.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_main.add_theme_constant_override("separation", 10)
@@ -142,15 +155,28 @@ func show_view(view: Dictionary) -> void:
 	summary.text = view.summary
 	preview.text = view.get("preview", "")
 	money.text = "$%d" % view.money
+	var landscape: bool = view.get("landscape", false)
 	# A reflow (portrait <-> landscape) brings the offers back into view.
-	if offers_grid.columns != int(view.get("columns", 3)):
+	if _shelf.visible != landscape:
 		_scroll.scroll_vertical = 0
+		offers_grid.get_parent().remove_child(offers_grid)
+		if landscape:
+			_shelf.add_child(offers_grid)
+		else:
+			_main.add_child(offers_grid)
+			_main.move_child(offers_grid, money.get_index() + 1)
+		_shelf.visible = landscape
 	offers_grid.columns = view.get("columns", 3)
 	while offer_buttons.size() < view.offers.size():
 		_add_offer_button()
-	# Portrait keeps the cards compact so the actions and sales stay on screen (UI-2
-	# lays the shop out properly); landscape shows full-size cards in one row.
-	var card_size := Vector2(105, 150) if offers_grid.columns <= 3 else Vector2(196, 280)
+	# Portrait keeps the cards compact so the actions and sales stay on screen;
+	# landscape sizes the shelf's cards to fit every row on screen.
+	var card_size := Vector2(105, 150)
+	if landscape:
+		var rows := ceili(view.offers.size() / float(offers_grid.columns))
+		var room := size.y - 40.0 - 8.0 * (rows - 1)
+		var height := floorf(minf(280.0, room / maxf(rows, 1)))
+		card_size = Vector2(floorf(height / CardView.ASPECT), height)
 	for i in offer_buttons.size():
 		offer_buttons[i].visible = i < view.offers.size()
 		offer_buttons[i].custom_minimum_size = card_size

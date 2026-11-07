@@ -33,6 +33,7 @@ const Lane = preload("res://src/simulation/lane_spec.gd")
 const LaneWorld = preload("res://src/simulation/lane_world.gd")
 const Dressing = preload("res://src/presentation/live_dressing.gd")
 const AimOverlay = preload("res://src/presentation/aim_overlay.gd")
+const MatchPanels = preload("res://src/presentation/match_panels.gd")
 const SettingsPanel = preload("res://src/presentation/throw_settings_panel.gd")
 const AssistPanel = preload("res://src/presentation/assist_panel.gd")
 const Held = preload("res://src/input/held_ball.gd")
@@ -72,6 +73,8 @@ const RESULT_HOLD_SEC := 1.2
 const AIM_BACK := 2.0
 const AIM_HEIGHT := 1.05
 const DECK_VIEW_F := Lane.HEAD_PIN_F - 4.0
+const PORTRAIT_HAND_HEIGHT := 292.0 # UI-2: the fanned hand panel at the thumbs
+const PORTRAIT_CARD_HEIGHT := 214.0
 const TOP_UI_HEIGHT := 96.0 # session bar band; touches there are never throws
 const RING_COLORS := {"clean": Color(1.0, 1.0, 1.0), "sweet": Color(0.3, 0.95, 0.85), "perfect": Color(1.0, 0.8, 0.2)}
 
@@ -112,6 +115,10 @@ var _event_clock := not ("--script" in OS.get_cmdline_args())
 var _cues_fired: Dictionary = {}
 var _spin_angle := 0.0
 var backdrop: Control
+var panels: Control # UI-2 match panels: slip, rival, Charms, fold toggles
+var regions: Dictionary = {} # UI-2 screen regions (MatchPanels.compute)
+var _pitch := 0.0 # extra camera pitch that puts the ball on the layout's ball line
+var _framed_for := Rect2() # (lab size, viewport size) the pitch was solved for
 var _touch := -1
 var _target_touch := -1
 var _hold_source := "touch"
@@ -303,10 +310,15 @@ func _ready() -> void:
 	shop_panel.charm_moved.connect(_on_charm_moved)
 	shop_panel.hide()
 	add_child(shop_panel)
+	panels = MatchPanels.new()
+	panels.fold_changed.connect(_update_status)
+	add_child(panels)
+	move_child(panels, card_hand.get_index())
 	hud = DivisionHud.new()
 	hud.endless_pressed.connect(_continue_endless)
 	add_child(hud)
 	hud.layout(TOP_UI_HEIGHT, TOP_UI_HEIGHT + 300.0)
+	resized.connect(_layout_resolution)
 	hud.intro_done.connect(_on_intro_done)
 	hud.retry_pressed.connect(func(): retry_requested.emit())
 	hud.menu_pressed.connect(func(): menu_requested.emit())
@@ -571,30 +583,22 @@ func _refresh_hand() -> void:
 		header = "Bag · House always ready · specials %d uses left this match" % counts.special_uses
 	var choosing: bool = state == "aim" or (state == "frame_done" and equipment.can_retain() and not division.match_over())
 	card_hand.reduced_motion = settings.reduced_motion
-	# Hand cards stay clear of the ball in portrait; the landscape side panel allows taller ones.
-	card_hand.max_card_height = 230.0 if size.x > size.y else 150.0
+	# UI-2: portrait fans the hand at the thumbs (above the score once a frame is
+	# done); landscape lays it in the hand flank, folded away on narrow screens.
+	var portrait := size.y >= size.x
+	card_hand.max_card_height = (150.0 if state == "frame_done" else PORTRAIT_CARD_HEIGHT) if portrait else 400.0
 	card_hand.show_cards(cards, marks, header, equipment.MODEL == "deck", state == "aim" and equipment.can_cycle(), choosing)
 	card_hand.cycle_button.text = "Cancel" if cycling else "Cycle"
-	card_hand.visible = state not in ["scoring", "shop", "intro", "division_over"]
-	# Bottom for thumbs while aiming; under the status line once the score panel is up.
-	# Landscape keeps the ball clear: a narrow two-row panel away from the assist side.
-	card_hand.set_anchors_preset(Control.PRESET_TOP_WIDE if state == "frame_done" else Control.PRESET_BOTTOM_WIDE)
-	card_hand.offset_left = 16.0
-	card_hand.offset_right = -16.0
-	if size.x > size.y:
-		var left: bool = settings.handedness != "left"
-		card_hand.anchor_left = 0.0 if left else 1.0
-		card_hand.anchor_right = card_hand.anchor_left
-		card_hand.offset_left = 16.0 if left else -16.0 - LANDSCAPE_HAND_WIDTH
-		card_hand.offset_right = card_hand.offset_left + LANDSCAPE_HAND_WIDTH
-	if state == "frame_done":
-		card_hand.grow_vertical = Control.GROW_DIRECTION_END
-		card_hand.offset_top = TOP_UI_HEIGHT + 170.0
-		card_hand.offset_bottom = TOP_UI_HEIGHT + 170.0
-	else:
-		card_hand.grow_vertical = Control.GROW_DIRECTION_BEGIN
-		card_hand.offset_top = -16.0
-		card_hand.offset_bottom = -16.0
+	card_hand.visible = state not in ["scoring", "shop", "intro", "division_over"] and (portrait or not regions.get("fold", false) or panels.show_hand)
+	card_hand.set_mode("fan" if portrait else "flank", settings.handedness == "left")
+	var rect: Rect2 = regions.get("hand", Rect2(16, size.y - 300, size.x - 32, 284))
+	if portrait and state == "frame_done":
+		rect = Rect2(rect.position.x, regions.charms.end.y + 10.0, rect.size.x, 224.0)
+	card_hand.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	card_hand.grow_vertical = Control.GROW_DIRECTION_END
+	card_hand.position = rect.position
+	card_hand.custom_minimum_size = rect.size
+	card_hand.size = rect.size
 
 func _effect_text(item: Dictionary) -> String:
 	return ScoreLog.item_text(item, _names)
@@ -637,8 +641,7 @@ func _new_roll(save: bool = true) -> void:
 	lane.place_ball(start_x)
 	state = "aim"
 	_ring_start_usec = _clock_usec
-	_camera.position = Lane.world(0.0, Lane.BALL_START_F - AIM_BACK, AIM_HEIGHT)
-	_camera.look_at(Lane.world(0.0, 11.0, 0.0))
+	_aim_camera()
 	_update_status()
 	if save:
 		_checkpoint("aim")
@@ -652,12 +655,7 @@ func _apply_settings() -> void:
 	_flick.tuning.merge(settings.get("throw_tuning", {}), true)
 	_flick.tuning.sensitivity = settings.sensitivity
 	assist_panel.visible = settings.assist
-	var left: bool = settings.handedness == "left"
-	assist_panel.set_anchors_preset(Control.PRESET_CENTER_LEFT if left else Control.PRESET_CENTER_RIGHT)
-	assist_panel.offset_left = 12.0 if left else -312.0
-	assist_panel.offset_right = 312.0 if left else -12.0
-	assist_panel.offset_top = -40.0
-	assist_panel.offset_bottom = 330.0
+	_layout_resolution()
 	if settings.assist and state == "aim" and lane:
 		_assist_preview(assist_panel.values())
 	# Practice applies to an attempt that has not thrown yet, otherwise to the next attempt.
@@ -683,14 +681,14 @@ func toggle_settings() -> void:
 
 func _process(delta: float) -> void:
 	_clock_usec += int(round(delta * 1000000.0))
-	_camera.keep_aspect = Camera3D.KEEP_WIDTH if size.y > size.x else Camera3D.KEEP_HEIGHT
-	_camera.fov = 44.0 if size.y > size.x else 50.0
+	_frame_camera()
 	if state in ["rolling", "result", "frame_done"] and not settings.reduced_motion:
 		var ball_f: float = -lane.ball_position().z
 		var cam_f := clampf(ball_f - 2.6, Lane.BALL_START_F - AIM_BACK, DECK_VIEW_F)
 		var target := Lane.world(0.0, cam_f, lerpf(AIM_HEIGHT, 1.25, inverse_lerp(0.0, DECK_VIEW_F, cam_f)))
 		_camera.position = _camera.position.lerp(target, 1.0 - exp(-8.0 * delta))
 		_camera.look_at(Lane.world(0.0, minf(_camera.position.z * -1.0 + 6.0, Lane.HEAD_PIN_F + 0.35), 0.12))
+		_camera.rotate_object_local(Vector3.RIGHT, _pitch)
 	if hud != null and hud.reaction.visible and reactions.visible_at(_clock_usec).is_empty():
 		hud.hide_reaction()
 	var ringing: bool = state == "holding" or (state == "aim" and settings.assist)
@@ -1479,7 +1477,7 @@ func _refresh_shop() -> void:
 		"reroll_cost": shop.reroll_cost(run), "can_reroll": run.money >= shop.reroll_cost(run),
 		"removal_price": Economy.REMOVAL_PRICE, "can_remove": run.money >= Economy.REMOVAL_PRICE and not run.cards.is_empty(),
 		"rack": rack_text, "charm_moves": charm_moves, "sellables": sellables,
-		"charm_order": "" if run.charms.is_empty() else "Charm order (left to right): " + ", ".join(run.charms.map(func(e): return _names.get(e.item_id, e.item_id))), "message": shop_message, "columns": 5 if size.x > size.y else 3})
+		"charm_order": "" if run.charms.is_empty() else "Charm order (left to right): " + ", ".join(run.charms.map(func(e): return _names.get(e.item_id, e.item_id))), "message": shop_message, "columns": 3, "landscape": size.x > size.y})
 	money_changed.emit(run.money)
 
 func _normalized(position: Vector2) -> Vector2:
@@ -1524,7 +1522,7 @@ func _over_ui(position: Vector2) -> bool:
 	if position.y < TOP_UI_HEIGHT:
 		return true
 	var global := get_global_transform() * position
-	for control in [settings_panel, assist_panel, next_rack, card_hand, shop_panel, inspector] + (hud.blocking_controls() if hud else []):
+	for control in [settings_panel, assist_panel, next_rack, card_hand, shop_panel, inspector] + (hud.blocking_controls() if hud else []) + (panels.blocking_controls() if panels else []):
 		if control.visible and control.get_global_rect().has_point(global):
 			return true
 	return false
@@ -1687,6 +1685,7 @@ func _refresh_hud() -> void:
 			view.badge = "Boss: %s ⓘ" % rival.name
 		view.rule_text = "%s — target %d in two frames.\n%s\nFirst clear: %s" % [rival.name, int(boss.target), RivalRules.summaries(_rival_rules(rival)), reward]
 	hud.show_match(view)
+	_refresh_panels()
 	if state in ["shop", "division_over"] or not division.is_boss() or reactions.visible_at(_clock_usec).is_empty():
 		hud.hide_reaction()
 
@@ -1704,14 +1703,85 @@ func _inspect_card(card: Dictionary, origin: Control) -> void:
 	if state not in ["aim", "frame_done"]: return
 	inspector.inspect(card, origin, settings.reduced_motion)
 
+## UI-2: places every match control in the approved layout (MatchPanels.compute):
+## the top bar, the slip/rival/Charms panels, the prompt, assist controls, the
+## score and Next Rack. The hand is placed with its cards (_refresh_hand).
 func _layout_resolution() -> void:
-	if not score_panel: return
-	var landscape := size.x > size.y
+	if not score_panel or panels == null: return
+	var portrait := size.y >= size.x
 	var left_hand: bool = settings.get("handedness", "right") == "left"
-	score_panel.offset_left = LANDSCAPE_HAND_WIDTH + 32.0 if landscape and not left_hand else 16.0
-	score_panel.offset_right = -LANDSCAPE_HAND_WIDTH - 32.0 if landscape and left_hand else -16.0
+	regions = MatchPanels.compute(size, left_hand, PORTRAIT_HAND_HEIGHT)
+	hud.layout_regions(regions.top_bar, regions.bubble, portrait)
+	panels.apply(regions, state not in ["shop", "intro", "division_over"])
+	panels.hand_toggle.text = "Hand %d" % (card_hand.buttons.size() if card_hand else 0)
+	var prompt: Rect2 = regions.prompt
+	status.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	status.position = prompt.position
+	status.size = Vector2(prompt.size.x, 0)
+	status.custom_minimum_size = Vector2(prompt.size.x, 0)
+	status.add_theme_font_size_override("font_size", 22 if portrait else 19)
+	var inner: float = 16.0 if portrait else regions.hand.size.x + 40.0
+	score_panel.offset_left = inner
+	score_panel.offset_right = -inner
+	shop_panel.offset_top = regions.top_bar.end.y + 12.0
+	if state == "shop" and shop_panel._shelf.visible != (not portrait):
+		_refresh_shop.call_deferred() # the shop reflows between its two layouts
 	next_rack.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	next_rack.position = Vector2(size.x - 336 if left_hand else 16, size.y - 100) if landscape else Vector2(size.x / 2 - 160, size.y / 2 - 36)
+	# Portrait: between the raised hand (keep a card) and the score; landscape: centre bottom.
+	next_rack.position = Vector2(size.x / 2 - 160, size.y - 16.0 - 540.0 - 84.0) if portrait else Vector2(size.x / 2 - 160, size.y - 100)
+	assist_panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	if portrait:
+		# Beside the ball, above the hand, on the throwing hand's side.
+		assist_panel.position = Vector2(12.0 if left_hand else size.x - 312.0, regions.lane.end.y - 380.0)
+		assist_panel.size = Vector2(300, 370)
+	else:
+		var details: Rect2 = regions.details
+		assist_panel.position = details.position
+		assist_panel.size = Vector2(details.size.x, 0)
+	_frame_camera()
+
+## Fits the aim camera to the layout: vertical framing as before, pitched so the
+## ball sits on the lane region's ball line (UI-A1-C: 0.667 of its height).
+func _frame_camera() -> void:
+	if _camera == null or _viewport == null or regions.is_empty(): return
+	_camera.keep_aspect = Camera3D.KEEP_WIDTH if size.y > size.x else Camera3D.KEEP_HEIGHT
+	_camera.fov = 44.0 if size.y > size.x else 50.0
+	var key := Rect2(size, Vector2(_viewport.size))
+	if key == _framed_for or _viewport.size.x <= 0: return
+	_framed_for = key
+	var aim_pose := Transform3D(Basis(), Lane.world(0.0, Lane.BALL_START_F - AIM_BACK, AIM_HEIGHT)).looking_at(Lane.world(0.0, 11.0, 0.0))
+	var keep := _camera.global_transform
+	var ball := Lane.world(0.0, Lane.BALL_START_F, Lane.BALL_RADIUS)
+	var lo := -0.6
+	var hi := 0.6
+	for i in 32:
+		var mid := (lo + hi) * 0.5
+		_camera.global_transform = aim_pose.rotated_local(Vector3.RIGHT, mid)
+		if _screen(ball).y < regions.ball_y: lo = mid
+		else: hi = mid
+	_pitch = (lo + hi) * 0.5
+	_camera.global_transform = keep
+	if state in ["aim", "holding", "tactic"] or settings.reduced_motion:
+		_aim_camera()
+
+func _aim_camera() -> void:
+	_camera.position = Lane.world(0.0, Lane.BALL_START_F - AIM_BACK, AIM_HEIGHT)
+	_camera.look_at(Lane.world(0.0, 11.0, 0.0))
+	_camera.rotate_object_local(Vector3.RIGHT, _pitch)
+
+## The slip, rival and Charms panels (UI-2).
+func _refresh_panels() -> void:
+	if panels == null: return
+	var last: Dictionary = scored_frames[-1].result if not scored_frames.is_empty() else {}
+	panels.show_slip(last, total_score)
+	if division.practice:
+		panels.show_rival({}, "", false)
+	else:
+		var rival: Dictionary = division.rival_for(division.boss())
+		var rule_names: Array = _rival_rules(rival).map(func(r): return _names.get(r, r))
+		panels.show_rival(rival, " + ".join(rule_names), division.is_boss())
+	panels.show_charms(run.charms.map(func(e): return e.item_id), RunInventory.CHARM_SLOTS, _names)
+	hud.show_money(run.money)
 
 func _can_endless() -> bool:
 	return content.id == "campaign" and division.outcome == "won" and division.specs.size() < Generator.MAX_DIVISIONS
