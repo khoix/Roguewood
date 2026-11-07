@@ -210,10 +210,12 @@ rules belong to long-press Inspect. No rarity is invented by a compact face.
 
 ### House backdrop alternatives
 
-- **0 — Slow stars:** sparse ivory/brass pixel stars on House ink, drifting at
-  0.008 viewport widths per second; no pulsing or flashing.
-- **1 — Constellations:** small local star groups joined by subdued petrol lines,
-  at the same slow drift speed. This is a distinct side-space treatment.
+- **0 — Slow stars:** 240 mostly dim ivory/brass pixel stars on House ink,
+  drifting at 0.008 viewport widths per second; no pulsing or flashing.
+- **1 — Constellations:** four distinct schematic figures (Orion, Cassiopeia,
+  Cygnus and Ursa Major’s Big Dipper), each once, joined by petrol lines at 18%
+  alpha. Their bounded drift is about 1 px/s at 1280 wide, slower than the
+  surrounding field stars. These are recognizable decorative patterns.
 - **Reduced motion/flash:** integrations set `reduced=true`; deterministic static
   positions, no drift. The preview checks that the phase does not advance.
 
@@ -224,10 +226,12 @@ backdrop, transparent lane, framed panels/cards/text, preview navigation.
 
 ### Revised evidence and review
 
-JUIA1 retains the ten Wave 9 captures and adds 27, under
-`artifacts/ui-a1/rendered/` (37 total). New names are:
+JUIA1 retains the ten Wave 9 captures and adds 27 composition stills plus 24
+native motion frames, under `artifacts/ui-a1/rendered/` (61 total). Revised
+composition names are:
 `{720x1280,1280x720,1024x768}_{0,1}_{motion,still}_{throw,shop}.png`, plus
-`folded_hand.png`, `folded_details.png`, `left_handed.png`.
+`folded_hand.png`, `folded_details.png`, `left_handed.png`. Motion frames are
+`sky_motion_00.png` through `sky_motion_23.png`, sampled every five native frames.
 The original art-only CI step runs the extended journey and uploads this folder.
 Review both backdrop options, both shop aspects, the narrow folds, portrait
 money placement, compact-card readability and the mirrored thumb rail.
