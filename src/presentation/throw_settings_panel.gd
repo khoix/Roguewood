@@ -11,9 +11,10 @@ const DEFAULTS := {"handedness": "right", "sensitivity": 1.0, "reduced_motion": 
 ## session; anything not set uses held_ball.gd's defaults.
 const Held = preload("res://src/input/held_ball.gd")
 const TUNABLE := [
-	["full_charge_speed", "Full-charge swirl (rad/s; 22 = 3.5 turns/s)", 12.5, 75.0, 0.5, "%.1f"],
-	["swirl_half_life", "Swirl wind-down half-life (s)", 0.3, 5.0, 0.1, "%.1f"],
-	["spin_up_time", "Swirl catch-up time (s)", 0.03, 0.5, 0.01, "%.2f"],
+	["full_charge_speed", "Ball spin for full charge (rad/s)", 12.5, 75.0, 0.5, "%.1f"],
+	["gravity", "Gravity on the held ball", 0.0, 15.0, 0.5, "%.1f"],
+	["swirl_half_life", "Drag half-life (s)", 0.03, 2.0, 0.01, "%.2f"],
+	["spin_up_time", "Charge smoothing (s)", 0.05, 0.8, 0.01, "%.2f"],
 	["swirl_start_deg", "Turn before a swirl counts (°)", 90.0, 540.0, 10.0, "%.0f"],
 	["orbit_nudge", "Orbit nudge on release", 0.0, 1.0, 0.05, "%.2f"],
 ]

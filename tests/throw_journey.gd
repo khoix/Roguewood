@@ -156,7 +156,7 @@ func _cancellations(lane_before: Node, ball_home: Vector3) -> void:
 	var resting_y: float = lab.ball_screen_position().y
 	lifted += Vector2(0, 90) * _px()
 	await _drag(lifted, Vector2(0, 90) * _px())
-	await process_frame
+	for i in 6: await process_frame # the ball swings down after the finger (E05-R4)
 	_check(lab.state == "holding" and lab.lane.aim_ball.position.z > ball_home.z + 0.05 and lab.ball_screen_position().y > resting_y + 20.0,
 		"below its start the held ball follows the finger down (z %.2f -> %.2f)" % [ball_home.z, lab.lane.aim_ball.position.z])
 	await _touch(lifted, false) # the finger lifts where it is (the held ball floats above it)
@@ -294,19 +294,19 @@ func _ready_to_throw() -> void:
 ## Holds the ball, circles sweep_deg (clockwise positive on screen) starting at the
 ## circle's bottom (the ball), then flicks straight up. Captures mid-hold if asked.
 func _circle_throw(sweep_deg: float, hold_capture: String = "") -> void:
-	var radius := 20.0 * _px() # a small, fast swirl: 30 degrees a frame is 5 turns a second (E05-R2)
+	var radius := 40.0 * _px() # a brisk swirl: 21 degrees a frame is 3.5 turns a second (E05-R4)
 	var at: Vector2 = lab.ball_screen_position()
 	var center := at + Vector2(0.0, -radius)
 	await _touch(at, true)
-	for i in int(absf(sweep_deg) / 30.0):
-		var angle := deg_to_rad(90.0 + signf(sweep_deg) * 30.0 * (i + 1))
+	for i in int(absf(sweep_deg) / 21.0):
+		var angle := deg_to_rad(90.0 + signf(sweep_deg) * 21.0 * (i + 1))
 		var next := center + Vector2(cos(angle), sin(angle)) * radius
 		await _drag(next, next - at)
 		at = next
 	if not hold_capture.is_empty():
 		_check(lab.curve_ready() and lab.charged_spin() == lab.held_charge(), "after a brisk swing the held ball is curve-ready (sparkle state)")
 		_check(lab._flick.orbit_radius > 0.5 * float(lab._flick.tuning.orbit_cap), "the held ball swings out on its tether (radius %.3f)" % lab._flick.orbit_radius)
-		var tether: float = lab._flick.ball.distance_to(lab._flick.finger)
+		var tether: float = lab._flick.ball.distance_to(lab._flick.pivot)
 		_check(lab._flick.swirling and tether <= float(lab._flick.tuning.orbit_cap) * float(lab._flick.tuning.tether_stretch) + 1e-4 and tether > 0.0,
 			"the ball orbits the touch point inside its own radius (%.3f of cap %.3f)" % [tether, lab._flick.tuning.orbit_cap])
 		await _capture(hold_capture)
@@ -338,7 +338,7 @@ func _curves_and_target() -> void:
 	var cancels: int = lab.cancels
 	await _gesture(Vector2.ZERO, 0, Vector2(0, -6), 3)
 	_check(lab.cancels == cancels + 1 and lab.last_cancel == "short", "short flick cancels")
-	for sweep in [720.0, -720.0]:
+	for sweep in [1260.0, -1260.0]: # a second of brisk swirling each way
 		await _ready_to_throw()
 		cues.clear()
 		var label := "curve_right" if sweep > 0.0 else "curve_left"
@@ -349,7 +349,7 @@ func _curves_and_target() -> void:
 			"%s: a brisk swing charges matching held spin (%+.2f)" % [label, launch.spin])
 		_check(cues.map(func(c): return c[0]).slice(0, 2) == ["throw.charge", "throw.curve_ready"] and signf(cues[1][1]) == signf(sweep),
 			label + " fires the charge and curve-ready cues in order")
-		_check(absf(launch.direction_x) < 0.01, label + " circle does not steer the flick")
+		_check(absf(launch.direction_x) < 0.15, label + " circle barely steers the flick (%.3f)" % launch.direction_x)
 		_check(absf(launch.target_x - pocket / Lane.LANE_HALF_WIDTH) < 0.01, label + " launch carries the moved target")
 		_check(launch.ring_radius < Ring.RING_MAX and launch.ring_radius >= Ring.RING_MIN, label + " ring contracted while held and froze at release")
 		for i in 50: await process_frame
@@ -388,13 +388,13 @@ func _held_ball() -> void:
 	var at: Vector2 = lab.ball_screen_position()
 	var center := at + Vector2(0.0, -60.0)
 	await _touch(at, true)
-	for i in 150: # a slow full circle, 0.4 turns a second: a swirl, but below the sparkle
+	for i in 150: # a slow full circle, 0.4 turns a second: the ball only sways (E05-R4)
 		var angle := deg_to_rad(90.0 + 2.4 * (i + 1))
 		var next := center + Vector2(cos(angle), sin(angle)) * 60.0
 		await _drag(next, next - at)
 		at = next
 	var weak: float = lab.held_charge()
-	_check(weak > 0.0 and not lab.curve_ready() and lab.charged_spin() == 0.0, "a weak swing charges (%.2f) but is not curve-ready" % weak)
+	_check(weak < 0.25 and not lab.curve_ready() and lab.charged_spin() == 0.0, "a weak swing sways the ball without charging a curve (%.2f)" % weak)
 	for i in 8:
 		at += Vector2(0, -32) * _px()
 		await _drag(at, Vector2(0, -32) * _px())

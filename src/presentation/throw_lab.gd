@@ -1607,7 +1607,9 @@ func _draw_held_ball(delta: float) -> void:
 	if settings.reduced_motion:
 		lane.aim_ball.basis = Basis.IDENTITY
 	else:
-		_spin_angle += charge * 12.0 * delta
+		# E05-R4: the ball turns with its pin, as a body pinned off-centre does: what
+		# the player sees spinning is the physics, not an animation.
+		_spin_angle = _flick.body_angle
 		var lean := clampf(_flick.ball_velocity.x * 0.25, -0.35, 0.35)
 		var pitch := clampf(-_flick.ball_velocity.y * 0.15, -0.3, 0.3)
 		lane.aim_ball.basis = Basis(Vector3.BACK, -lean) * Basis(Vector3.RIGHT, pitch) * Basis(Vector3.FORWARD, _spin_angle)
