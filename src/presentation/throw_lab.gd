@@ -1779,8 +1779,9 @@ func _layout_resolution() -> void:
 	assist_panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	if portrait:
 		# Beside the ball, above the hand, on the throwing hand's side.
-		assist_panel.position = Vector2(12.0 if left_hand else size.x - 312.0, regions.lane.end.y - 380.0)
-		assist_panel.size = Vector2(300, 370)
+		var tall := assist_panel.get_combined_minimum_size().y
+		assist_panel.size = Vector2(300, tall)
+		assist_panel.position = Vector2(12.0 if left_hand else size.x - 312.0, maxf(regions.lane.position.y, regions.lane.end.y - tall))
 	else:
 		var details: Rect2 = regions.details
 		assist_panel.position = details.position
