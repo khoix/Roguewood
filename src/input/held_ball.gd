@@ -13,9 +13,10 @@ extends RefCounted
 const Lane = preload("res://src/simulation/lane_spec.gd")
 
 const DEFAULTS := {
-	# Orbit speed (radians per second; 6 turns a second) that gives full charge.
-	# Owner, 2026-11-06: three times the first 2 turns a second.
-	"full_charge_speed": 37.699,
+	# Orbit speed (radians per second; 3.5 turns a second) that gives full charge.
+	# 6 turns a second (2026-11-06) proved out of reach on a phone (owner trial,
+	# 2026-11-08); 3.5 is brisk but reachable. Tunable on the tuning page.
+	"full_charge_speed": 21.991,
 	# Seconds for a coasting orbit (finger still) to halve its speed.
 	"swirl_half_life": 1.2,
 	# Seconds for the orbit to catch up with a faster swirl of the finger.
@@ -50,10 +51,14 @@ const FULL_POWER_SPEED := 4.0 # cap: faster flicks add no power
 const MIN_SEGMENT := 0.006 # finger jitter shorter than this is ignored
 const MAX_TURN_STEP_DEG := 150.0 # sharper steps are reversals, not swirling (6 turns/s at 15 fps is 144 per step)
 const SWIRL_WINDOW_USEC := 1600000
-## Path steps faster than this (shorter sides per second) are flicks or slides, not
-## swirling: the finger circles small inside the ball, so a fast turn into the flick
-## never pumps the orbit.
-const SWIRL_MAX_SPEED := 2.0
+## A path step swirls only when it turns the same way as the step before it, by a
+## similar amount (within this ratio): a circle of any size or speed turns steadily,
+## while a corner into a flick is one sharp step between straight ones. (R2 capped
+## finger speed instead, which threw away the brisk, larger circles people draw on a
+## phone: owner trial, 2026-11-08.)
+const SWIRL_STEADY_RATIO := 3.0
+const MIN_SWIRL_STEP_DEG := 2.0 # steps that turn less than this are straight
+const STEADY_STEPS := 2 # consecutive steady turns (three steps) before a step swirls
 const DRIVE_SMOOTH := 0.06 # seconds: smoothing of the finger's turning rate
 const DRIVE_HOLD_USEC := 100000 # a finger that has not swirled for this long is coasting
 const ORBIT_FULL_RADIUS_SPEED := 9.42 # rad/s (1.5 turns/s) at which the orbit reaches its cap
@@ -86,6 +91,8 @@ var _last_move_usec := 0
 var _last_swirl_usec := 0 # the last path step that counted as swirling
 var _radius_velocity := 0.0
 var _last_direction := Vector2.ZERO
+var _last_step := 0.0 # the previous path step's turn, radians
+var _steady_run := 0
 var _trail_velocity := Vector2.ZERO
 var _turns: Array = [] # [usec, signed radians] of recent path steps
 var _finger_history: Array = [] # [usec, position]
@@ -110,6 +117,8 @@ func begin(position: Vector2, usec: int) -> void:
 	_last_swirl_usec = usec
 	_radius_velocity = 0.0
 	_last_direction = Vector2.ZERO
+	_last_step = 0.0
+	_steady_run = 0
 	_trail_velocity = Vector2.ZERO
 	_turns = []
 	_finger_history = [[usec, position]]
@@ -130,7 +139,11 @@ func move(position: Vector2, usec: int) -> void:
 	var seconds := maxf((usec - _last_point_usec) / 1000000.0, 0.001)
 	if _last_direction != Vector2.ZERO:
 		var step := _last_direction.angle_to(segment)
-		if absf(rad_to_deg(step)) <= MAX_TURN_STEP_DEG and segment.length() / seconds <= SWIRL_MAX_SPEED:
+		var steady := absf(rad_to_deg(step)) >= MIN_SWIRL_STEP_DEG and absf(rad_to_deg(_last_step)) >= MIN_SWIRL_STEP_DEG \
+			and signf(step) == signf(_last_step) and absf(step) <= absf(_last_step) * SWIRL_STEADY_RATIO and absf(_last_step) <= absf(step) * SWIRL_STEADY_RATIO
+		_last_step = step
+		_steady_run = _steady_run + 1 if steady else 0
+		if absf(rad_to_deg(step)) <= MAX_TURN_STEP_DEG and _steady_run >= STEADY_STEPS:
 			turn_deg += rad_to_deg(step)
 			_turns.append([usec, step])
 			_drive += (step / seconds - _drive) * (1.0 - exp(-seconds / DRIVE_SMOOTH))

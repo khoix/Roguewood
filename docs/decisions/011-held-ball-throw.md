@@ -100,3 +100,14 @@ After seeing R1, the owner asked for the ragdoll fling: the ball should swing ro
   - the tether may stretch to 1.15× the cap (0.92 of the ball's radius, so the finger stays inside the ball) and springs back.
 - **Fast swirls count:** sharper path steps (up to 150°) and faster swirl motion (up to 2 shorter sides a second) now register, so a 6 turns-a-second swirl reads the same at 15 fps.
 - **Owner demo:** a speed-ramp clip (1 → 6 → 2 → 6 turns a second, with the charge on screen).
+
+## Revision: the phone trial (E05-R3, owner trial 2026-11-08)
+The owner played the web build on a phone and found the swing "extremely stiff, almost non-functional", and the swirl confined above the foul line.
+- **Why it was stiff:**
+  - R2 ignored any path step faster than 2 shorter sides a second, to keep a corner into a flick from pumping the orbit. At 6 turns a second that allows only a circle about 1 cm across; the brisk 2–3 cm circles people draw were thrown away.
+  - Full charge at 6 turns a second is near the fastest a finger can circle.
+- **Changes:**
+  - **Full charge at 3.5 turns a second** (`full_charge_speed` 22.0 rad/s; owner, 2026-11-08). The charge stays proportional: 1.75 turns a second gives 0.50. Still tunable; Reset on the tuning page brings back this default.
+  - **Steady-turn swirl detection:** a step swirls only after three consecutive steps turn the same way by similar amounts (within 3×, each at least 2°). Circles of any size and speed qualify; a corner into a flick is one or two sharp steps between straight ones and never does. The finger-speed cap is gone.
+  - **Below the start point:** the held ball no longer stops at the foul line. Above the touch point it lifts, as before; below it, it comes back toward the player over the approach (up to 1.3 m), so it follows the finger down the screen.
+- **Evidence:** tests/held_ball_test.gd (speed-proportional charge at the new scale, a brisk wide circle 0.16 across reaching full charge, the corner-into-flick and zigzag cases still straight, 15 fps against 60 fps); J02 checks the ball following the finger below its start point.

@@ -73,6 +73,7 @@ const RESULT_HOLD_SEC := 1.2
 const AIM_BACK := 2.0
 const AIM_HEIGHT := 1.05
 const DECK_VIEW_F := Lane.HEAD_PIN_F - 4.0
+const MAX_HELD_BACK := 1.3 # metres a held ball may come back toward the player
 const PORTRAIT_HAND_HEIGHT := 292.0 # UI-2: the fanned hand panel at the thumbs
 const PORTRAIT_CARD_HEIGHT := 214.0
 const TOP_UI_HEIGHT := 96.0 # session bar band; touches there are never throws
@@ -1570,9 +1571,17 @@ func _draw_held_ball(delta: float) -> void:
 	lane.place_ball(_placed_x(place, _flick.origin))
 	var scale := _lane_units_per_norm() * Lane.LANE_HALF_WIDTH
 	# Held, the ball floats one orbit above the lane, so the lower half of its swirl
-	# never clips into the boards.
-	var lift := clampf((_flick.origin.y - place.y + float(_flick.tuning.orbit_cap)) * scale, 0.0, 0.8)
-	lane.aim_ball.position.y += lift
+	# never clips into the boards. Above the touch point it lifts; below it (owner,
+	# 2026-11-08: the swirl must not stop at the foul line) it comes back toward the
+	# player over the approach, so it follows the finger down the screen too.
+	var rise := _flick.origin.y - place.y + float(_flick.tuning.orbit_cap)
+	if rise >= 0.0:
+		lane.aim_ball.position.y += clampf(rise * scale, 0.0, 0.8)
+	else:
+		var near := _screen(Lane.world(0.0, Lane.BALL_START_F - 0.5, Lane.BALL_RADIUS)).y
+		var at := _screen(Lane.world(0.0, Lane.BALL_START_F, Lane.BALL_RADIUS)).y
+		var pixels_per_metre := maxf((near - at) / 0.5, 1.0)
+		lane.aim_ball.position.z += clampf(-rise * minf(size.x, size.y) / pixels_per_metre, 0.0, MAX_HELD_BACK)
 	var charge := held_charge()
 	if settings.reduced_motion:
 		lane.aim_ball.basis = Basis.IDENTITY

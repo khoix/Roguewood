@@ -144,6 +144,14 @@ func _cancellations(lane_before: Node, ball_home: Vector3) -> void:
 	var lifted := await _gesture(Vector2(90, 0), 6, Vector2.ZERO, 0, false)
 	_check(lab.state == "holding", "touch on ball starts hold")
 	_check(lab.lane.ball_position().x > ball_home.x + 0.05, "ball follows sideways drag")
+	# E05-R3 (owner, 2026-11-08): below its start point the held ball follows the
+	# finger back over the approach instead of stopping at the foul line.
+	var resting_y: float = lab.ball_screen_position().y
+	lifted += Vector2(0, 90)
+	await _drag(lifted, Vector2(0, 90))
+	await process_frame
+	_check(lab.state == "holding" and lab.lane.aim_ball.position.z > ball_home.z + 0.05 and lab.ball_screen_position().y > resting_y + 20.0,
+		"below its start the held ball follows the finger down (z %.2f -> %.2f)" % [ball_home.z, lab.lane.aim_ball.position.z])
 	await _touch(lifted, false) # the finger lifts where it is (the held ball floats above it)
 	_check(lab.state == "aim" and lab.cancels == 1 and lab.last_cancel == "short", "sideways-only release cancels")
 	# Slow upward drag, then an OS-cancelled touch.
