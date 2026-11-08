@@ -90,11 +90,11 @@ func _ready() -> void:
 
 ## UI-3: a shorter, centred review for portrait phones; the full size otherwise.
 func fit(portrait: bool) -> void:
-	header.get_parent().custom_minimum_size.y = 44 if portrait else 64
+	header.get_parent().custom_minimum_size.y = 40 if portrait else 64
 	header.add_theme_font_size_override("font_size", 26 if portrait else 30)
 	rack_view.custom_minimum_size = Vector2(190, 160) if portrait else Vector2(210, 190)
 	counters.add_theme_font_size_override("font_size", 32 if portrait else 34)
-	log_scroll.custom_minimum_size.y = 90 if portrait else 150
+	log_scroll.custom_minimum_size.y = 72 if portrait else 150
 
 ## reports: the frame's LaneWorld reports, used only for roll attribution.
 func play(frame_steps: Array, reports: Array, title: String, play_speed: int) -> void:

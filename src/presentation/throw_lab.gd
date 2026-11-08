@@ -1766,7 +1766,7 @@ func _layout_resolution() -> void:
 	score_panel.offset_right = -inner
 	# Portrait (UI-3): the score fills the lower part; when the frame is done, Next
 	# Rack sits just above it and the hand (to keep a card) above that.
-	var score_top := maxf(542.0, size.y - 600.0) if portrait else size.y - 556.0
+	var score_top := maxf(530.0, size.y - 600.0) if portrait else size.y - 556.0
 	score_panel.offset_top = score_top - size.y
 	score_panel.offset_bottom = -12.0
 	score_panel.fit(portrait)
