@@ -228,13 +228,16 @@ func _begin_attempt(attempt: int, saved: Dictionary = {}) -> void:
 	session_bar.show()
 	reset.grab_focus()
 
-## UI-3 roll view: Restart and Clubhouse step aside while the ball rolls and
-## scores; Options stays reachable at the top right.
+## UI-3 roll view: Restart steps aside while the ball rolls and scores; Clubhouse
+## and Options stay reachable, smaller, at the top right.
 func _on_chrome_compact(compact: bool) -> void:
 	reset.visible = not compact
-	back.visible = not compact
 	session_bar.alignment = BoxContainer.ALIGNMENT_END if compact else BoxContainer.ALIGNMENT_CENTER
 	session_bar.offset_right = -12.0 if compact else 0.0
+	session_bar.add_theme_constant_override("separation", 8 if compact else 16)
+	var portrait := get_window().size.x <= get_window().size.y
+	for button in [back, options]:
+		button.custom_minimum_size = Vector2(116, 48) if compact else (Vector2(160, 48) if portrait else Vector2(220, 64))
 
 ## The session fixture tracks the lab's banked total and current frame.
 func _on_frame_scored(scored: Dictionary) -> void:
