@@ -743,9 +743,9 @@ func _input(event: InputEvent) -> void:
 				_hold_source = "mouse" if event.device == InputEvent.DEVICE_ID_EMULATION else "touch"
 				_hold_start_x = start_x
 				_ring_start_usec = _clock_usec
-				# The tether: the ball's centre orbits within 0.8 of its on-screen radius,
-				# so the touch point stays inside the ball (E05-R2).
-				_flick.tuning.orbit_cap = 0.8 * _ball_screen_radius() / minf(size.x, size.y)
+				# The pin: the ball's centre hangs within `pin_reach` (0.8) of its on-screen
+				# radius from the touch point, so the finger stays inside the ball (E05-R4).
+				_flick.tuning.orbit_cap = float(_flick.tuning.get("pin_reach", 0.8)) * _ball_screen_radius() / minf(size.x, size.y)
 				_flick.begin(_normalized(event.position), _input_usec())
 				_cues_fired = {}
 				_spin_angle = 0.0

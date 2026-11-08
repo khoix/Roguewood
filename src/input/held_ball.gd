@@ -35,9 +35,13 @@ const DEFAULTS := {
 	# The ball must turn this far one way about the finger, recently, before the
 	# charge counts: a sway or a single swing never curves.
 	"swirl_start_deg": 200.0,
-	# The pin's longest reach, normalized: the lab sets it to 0.8 of the ball's
-	# on-screen radius, so the touch point stays inside the ball.
+	# The pin's longest reach, normalized: the lab sets it to `pin_reach` times the
+	# ball's on-screen radius when the ball is picked up.
 	"orbit_cap": 0.05,
+	# How far the ball hangs from the finger, in ball radii (0.8: the finger stays
+	# inside the ball; past about 0.87 the stretched pin can carry the finger past
+	# the rim, for a bigger, floppier swing). Tunable for the owner's phone trial.
+	"pin_reach": 0.8,
 	# Share of the ball's own swinging velocity that the release keeps.
 	"orbit_nudge": 0.2,
 	# Below the curve threshold a throw is exactly straight: no sparkle, no curve.

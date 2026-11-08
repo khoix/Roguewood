@@ -13,6 +13,7 @@ const Held = preload("res://src/input/held_ball.gd")
 const TUNABLE := [
 	["full_charge_speed", "Ball spin for full charge (rad/s)", 12.5, 75.0, 0.5, "%.1f"],
 	["gravity", "Gravity on the held ball", 0.0, 15.0, 0.5, "%.1f"],
+	["pin_reach", "How far the ball hangs (× ball radius)", 0.5, 2.0, 0.05, "%.2f"],
 	["swirl_half_life", "Drag half-life (s)", 0.03, 2.0, 0.01, "%.2f"],
 	["spin_up_time", "Charge smoothing (s)", 0.05, 0.8, 0.01, "%.2f"],
 	["swirl_start_deg", "Turn before a swirl counts (°)", 90.0, 540.0, 10.0, "%.0f"],
