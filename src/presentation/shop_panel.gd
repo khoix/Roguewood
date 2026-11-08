@@ -34,6 +34,9 @@ var cancel_choice: Button
 var offer_buttons: Array = []
 var _main: VBoxContainer
 var _scroll: ScrollContainer
+var details_button: Button
+var _details_open := false
+var _landscape := false
 var _split: HBoxContainer
 var _shelf: VBoxContainer
 
@@ -60,13 +63,17 @@ func _ready() -> void:
 	_main.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_main.add_theme_constant_override("separation", 10)
 	scroll.add_child(_main)
-	title = _label(_main, "ShopTitle", 30)
+	# UI-3: the title and money share a line.
+	var heading := HBoxContainer.new()
+	_main.add_child(heading)
+	title = _label(heading, "ShopTitle", 30)
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	summary = _label(_main, "Settlement", 22)
 	summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	preview = _label(_main, "NextMatch", 22)
 	preview.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	preview.add_theme_color_override("font_color", Color(0.75, 0.85, 1.0))
-	money = _label(_main, "Money", 28)
+	money = _label(heading, "Money", 30)
 	money.add_theme_color_override("font_color", Color(1.0, 0.85, 0.35))
 	offers_grid = GridContainer.new()
 	offers_grid.name = "Offers"
@@ -86,6 +93,11 @@ func _ready() -> void:
 	message = _label(_main, "ShopMessage", 22)
 	message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	message.add_theme_color_override("font_color", Color(1.0, 0.55, 0.45))
+	# UI-3: the payout breakdown and the rack list fold behind Details in portrait.
+	details_button = _button(_main, "ShopDetails", func():
+		_details_open = not _details_open
+		_show_details())
+	_main.move_child(summary, -1) # actions, message, Details, then the payout
 	rack_label = _label(_main, "RackSummary", 20)
 	rack_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	owned_list = VBoxContainer.new()
@@ -128,6 +140,16 @@ func _add_offer_button() -> void:
 	offers_grid.add_child(button)
 	offer_buttons.append(button)
 
+func _show_details() -> void:
+	for button in [reroll_button, remove_button, continue_button]:
+		button.custom_minimum_size = Vector2(200, 64) if _landscape else Vector2(0, 60)
+		button.size_flags_horizontal = Control.SIZE_FILL if _landscape else Control.SIZE_EXPAND_FILL
+	var shown := _landscape or _details_open
+	summary.visible = shown
+	rack_label.visible = shown
+	details_button.visible = not _landscape
+	details_button.text = "Hide details" if _details_open else "Payout & rack details"
+
 static func _style(_color: Color) -> StyleBox:
 	return UiTheme.frame("panel", 14.0, 12.0)
 
@@ -156,6 +178,8 @@ func show_view(view: Dictionary) -> void:
 	preview.text = view.get("preview", "")
 	money.text = "$%d" % view.money
 	var landscape: bool = view.get("landscape", false)
+	_landscape = landscape
+	_show_details()
 	# A reflow (portrait <-> landscape) brings the offers back into view.
 	if _shelf.visible != landscape:
 		_scroll.scroll_vertical = 0
@@ -172,6 +196,10 @@ func show_view(view: Dictionary) -> void:
 	# Portrait keeps the cards compact so the actions and sales stay on screen;
 	# landscape sizes the shelf's cards to fit every row on screen.
 	var card_size := Vector2(105, 150)
+	if not landscape:
+		# UI-3: three columns as wide as the panel allows (up to 150 px).
+		var width := floorf(minf(150.0, (size.x - 40.0 - 14.0 - 16.0) / 3.0))
+		card_size = Vector2(width, floorf(width * CardView.ASPECT))
 	if landscape:
 		var rows := ceili(view.offers.size() / float(offers_grid.columns))
 		var room := size.y - 40.0 - 8.0 * (rows - 1)

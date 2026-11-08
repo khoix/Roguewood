@@ -52,4 +52,14 @@ func _process(_delta: float) -> void:
 			label.mouse_filter = MOUSE_FILTER_IGNORE
 			box.add_child(label)
 			add_child(panel)
-	position = Vector2(maxf(16, (lab.size.x - get_combined_minimum_size().x) * 0.5), lab.status.position.y + lab.status.size.y + 12)
+	# UI-3 (Claude integration): the match layout seats the strip in its Charms
+	# row as small icons, out of the lane; otherwise it floats centred as before.
+	var hosted := get_parent() != null and get_parent().has_meta("hosts_equipment_strip")
+	for panel in get_children():
+		var body: Node = panel.get_node_or_null("Body")
+		if body == null: continue
+		(body.get_node("Identity") as Control).custom_minimum_size = Vector2(32, 32) if hosted else Vector2(48, 48)
+		for child in body.get_children():
+			if child is Label: child.visible = not hosted
+	if not hosted:
+		position = Vector2(maxf(16, (lab.size.x - get_combined_minimum_size().x) * 0.5), lab.status.position.y + lab.status.size.y + 12)

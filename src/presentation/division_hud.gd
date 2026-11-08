@@ -42,6 +42,11 @@ var current_rival: Dictionary = {}
 var reduced_motion := false
 var side_box: BoxContainer
 var money: Label
+var title_label: Label
+var score_label: Label
+var frames_label: Label
+var _top_row: HBoxContainer
+var _bottom_row: HBoxContainer
 var intro_remaining := 0.0
 
 ## A developmental rival badge: a coloured disc, initials and a mood mouth.
@@ -87,15 +92,29 @@ func _ready() -> void:
 	bar.offset_left = 12.0
 	bar.offset_right = -12.0
 	add_child(bar)
+	# UI-3: the bar shows the match as a title, a big score against target and the
+	# frames left; `info` keeps the full sentence (read by tools and tests) unshown.
+	var rows := VBoxContainer.new()
+	rows.add_theme_constant_override("separation", 2)
+	bar.add_child(rows)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 10)
-	bar.add_child(row)
+	rows.add_child(row)
+	_top_row = row
+	_bottom_row = HBoxContainer.new()
+	_bottom_row.add_theme_constant_override("separation", 12)
+	rows.add_child(_bottom_row)
 	info = Label.new()
 	info.name = "MatchInfo"
-	info.add_theme_font_size_override("font_size", 22)
-	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	info.visible = false
 	row.add_child(info)
+	title_label = _bar_label(row, "MatchTitle", 20, UiTheme.IVORY)
+	title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	title_label.clip_text = true
+	score_label = _bar_label(_bottom_row, "MatchScore", 28, UiTheme.IVORY)
+	frames_label = _bar_label(_bottom_row, "FramesLeft", 18, UiTheme.SEA_GLASS)
+	frames_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	# UI-2: the rule badge, its extra seals and the money slot; one row in
 	# landscape, stacked at the right of portrait's two-row bar.
 	side_box = BoxContainer.new()
@@ -243,14 +262,28 @@ func layout(top: float, bubble_top: float) -> void:
 
 ## UI-2: the top bar at `bar_rect` (two rows in portrait) and the reaction bubble
 ## over the rival's panel at `bubble`.
-func layout_regions(bar_rect: Rect2, bubble: Rect2, portrait: bool) -> void:
+func layout_regions(bar_rect: Rect2, bubble: Rect2, portrait: bool, slim: bool = false) -> void:
 	bar.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	bar.position = bar_rect.position
 	bar.size = bar_rect.size
 	bar.custom_minimum_size = bar_rect.size
-	side_box.vertical = portrait
-	info.add_theme_font_size_override("font_size", 22 if portrait else 20)
-	info.max_lines_visible = 4 if portrait else 2
+	side_box.vertical = false
+	# Portrait: title and money on top, score, frames and the rule badge below.
+	# Landscape: one row.
+	var badges: Control = badge.get_parent()
+	var money_slot: Control = money.get_parent()
+	for node in [score_label, frames_label, badges, money_slot]:
+		node.get_parent().remove_child(node)
+	if portrait:
+		_top_row.add_child(money_slot)
+		for node in [score_label, frames_label, badges]: _bottom_row.add_child(node)
+	else:
+		for node in [score_label, frames_label, badges, money_slot]: _top_row.add_child(node)
+	_bottom_row.visible = portrait
+	badge.custom_minimum_size = Vector2(0, 40)
+	# The roll view's slim bar: the match and its score only.
+	badges.visible = not slim
+	money_slot.visible = not slim
 	rule_panel.offset_top = bar_rect.end.y + 8.0
 	rule_panel.offset_bottom = bar_rect.end.y + 8.0
 	reaction.position = bubble.position
@@ -265,6 +298,16 @@ func layout_regions(bar_rect: Rect2, bubble: Rect2, portrait: bool) -> void:
 		sheet.offset_right = -12.0
 		sheet.offset_bottom = -12.0
 
+func _bar_label(parent: Control, node_name: String, font_size: int, color: Color) -> Label:
+	var label := Label.new()
+	label.name = node_name
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_color_override("font_color", color)
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(label)
+	return label
+
 ## The money slot (UI-A1-C keeps $ in its own place on the bar).
 func show_money(amount: int) -> void:
 	money.text = "$%d" % amount
@@ -272,6 +315,9 @@ func show_money(amount: int) -> void:
 ## view: {text, badge ("" hides it), rule_text}
 func show_match(view: Dictionary) -> void:
 	info.text = view.text
+	title_label.text = view.get("title", view.text)
+	score_label.text = view.get("score", "")
+	frames_label.text = view.get("frames", "")
 	badge.text = view.badge.replace(" + ", " +\n")
 	badge.visible = not view.badge.is_empty()
 	rule_text.text = view.rule_text

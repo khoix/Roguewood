@@ -119,6 +119,7 @@ func _ready() -> void:
 	back = _button(session_bar, "Clubhouse", "BackToMenu", 220)
 	options = _button(session_bar, "Options", "ThrowOptions", 220)
 	options.pressed.connect(func(): if lab: lab.toggle_settings())
+	_viewport_layout() # size the session buttons for the orientation
 	enter.pressed.connect(_start_session)
 	reset.pressed.connect(_start_session)
 	back.pressed.connect(_show_menu)
@@ -219,6 +220,8 @@ func _begin_attempt(attempt: int, saved: Dictionary = {}) -> void:
 	lab.menu_requested.connect(_show_menu, CONNECT_DEFERRED)
 	lab.frame_scored.connect(_on_frame_scored)
 	lab.money_changed.connect(func(money): session.money = money)
+	# UI-3 roll view: the session buttons step aside while the ball rolls and scores.
+	lab.chrome_compact_changed.connect(func(compact): session_bar.visible = not compact)
 	add_child(lab)
 	move_child(lab, 0)
 	session_bar.show()
@@ -293,4 +296,12 @@ func _clear_lab() -> void:
 ## Preserve native reference typography in both orientations.
 func _viewport_layout() -> void:
 	var window := get_window()
-	window.content_scale_size = Vector2i(1280,720) if window.size.x > window.size.y else Vector2i(720,1280)
+	# UI-3 (owner phone trial, 2026-11-08): portrait lays out 540 wide, so every
+	# label reads about a third larger on a phone; the screens are re-fitted for it.
+	window.content_scale_size = Vector2i(1280,720) if window.size.x > window.size.y else Vector2i(540,960)
+	if session_bar:
+		var portrait := window.size.x <= window.size.y
+		session_bar.offset_top = 12 if portrait else 16
+		for button in session_bar.get_children():
+			button.custom_minimum_size = Vector2(160, 48) if portrait else Vector2(220, 64)
+		reset.text = "Restart" if portrait else "Restart Session"
