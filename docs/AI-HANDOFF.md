@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-11-07. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). **Wave 10 is closed** (see "Wave 10 closed"), awaiting the owner's merge. No Wave 11 work starts before it. The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
+Updated: 2026-11-08. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). Wave 10 is merged by PR #22 (main `706767f`). **Wave 11 is not claimed yet.** The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
 
 ## Read first
 
@@ -224,7 +224,7 @@ Open: Wave 8 is merged (PR #19, main `f444488`). Base: `claude/roguewood-build` 
   - CI runs on this commit.
 - **Follow-up for Wave 11 (Claude, rules lane):** score_log.gd `_cause` names the first non-ball retrigger owner for every repeat on a roll, so with stacked Echo Ball, Echo Charge and Double Take two repeats can share one label (Codex, handoffs/AV-H4-A.md). Text only; scores are right.
 - **Owner actions:** pick a backdrop (Constellations is the default; Slow stars is a one-line switch); turn on GitHub Pages; play the swing, the fan of four and the folds on a phone.
-- **Merge:** pending the owner's merge of the Wave 10 PR.
+- **Merge:** MERGED to main by PR #22 (`706767f`) after CI passed on `a91c2a9`.
 
 ## Wave 10 claims (coordinator: Claude, 2026-11-06)
 Open: Wave 9 is merged (PR #20), plus the CI fix (PR #21, main `f4810aa`). Base: `claude/roguewood-build` at the "Wave 10 claims" commit. Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave10.md). Scope: docs/ROADMAP.md, "Art-forward interface: UI-R1" (with the owner's decisions of 2026-11-05) and "Tethered swing: E05-R2".
