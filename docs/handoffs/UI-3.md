@@ -30,7 +30,7 @@ Also: the assist controls put each label beside its slider, so the panel fits be
 | The journeys the redesign touches (J01, J03–J11, J03C01–C11, J22L01) | PASS after three fixes: Options stays reachable during the roll view (J06, J11, J03C08 and J03C10 open Options while the ball rolls), journey taps scroll a control into view first, as a player would (J03C07), and the compact assist panel (J08). |
 | Phone-shaped captures (not committed) | Menu, aim, assist, rolling, scoring, frame done and the House shop, shared with the owner. |
 | Full local matrix (all CI commands, three journeys at a time) | 158/158 PASS on `c0777f5`. Earlier runs on this pass caught, and these commits fixed: J02's pixel gestures at the new scale (`eb13c5e`), shop cards resizing a frame after the first show under a tap (J03C06, `d85b2a8`), the roll view hiding the Clubhouse button that art journeys use right after a roll (J08A02, `8529d69`), and the frame review overflowing a 960-tall screen (J12V01–V03, `c0777f5`). |
-| CI | Runs on `c0777f5`. |
+| CI | Bootstrap run 42443398228 PASS on `c0777f5` (game and art shards). |
 
 ## Limitations and follow-ups
 - **Landscape phones** still lay out 1280 wide; a phone held sideways gets the old text size. Desktop landscape is unchanged.

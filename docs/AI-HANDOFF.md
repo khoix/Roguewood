@@ -230,7 +230,7 @@ Open: Wave 10 is merged (PR #22, main `706767f`). Base: `claude/roguewood-build`
 - **UI-3 DONE** (handoffs/UI-3.md; E05-R3 in ADR 011): the phone pass from the owner's trial of 2026-11-08.
   - Swing: full charge at 3.5 turns a second, steady-turn swirl detection, the held ball follows the finger below its start point.
   - Portrait lays out 540 wide (text about a third larger), with re-fitted screens: a two-row top bar, one info row, the prompt above the hand, the kit strip in the Charms row, a full-width fan, the roll view, a centred frame review, and a three-column portrait shop with pinned actions.
-  - Validation: full local matrix 158/158 on `c0777f5`.
+  - Validation: full local matrix 158/158 on `c0777f5`; CI Bootstrap run 42443398228 PASS on `c0777f5`.
 - **Next (Claude):** the ordinal retrigger labels, then E17-L02 (Neon spec).
 
 ## Wave 10 closed (coordinator, 2026-11-07)
