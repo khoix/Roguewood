@@ -34,6 +34,7 @@ var haptics: CheckButton
 var tuning_button: Button
 var tuning_box: VBoxContainer
 var _main_box: VBoxContainer
+var _pages: VBoxContainer
 var _tuning_sliders: Dictionary = {}
 var _tuning_labels: Dictionary = {}
 
@@ -45,9 +46,20 @@ static func with_defaults(values: Dictionary) -> Dictionary:
 
 func _ready() -> void:
 	name = "ThrowSettings"
+	# UI-3 (owner, 2026-11-08): the panel fits the screen and scrolls, so every
+	# setting and the tuning page are reachable on a phone.
+	var scroll := ScrollContainer.new()
+	scroll.name = "SettingsScroll"
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true
+	add_child(scroll)
+	_pages = VBoxContainer.new()
+	_pages.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(_pages)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 14)
-	add_child(box)
+	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_pages.add_child(box)
 	_main_box = box
 	var title := Label.new()
 	title.text = "Throw settings"
@@ -61,6 +73,7 @@ func _ready() -> void:
 	handedness.item_selected.connect(func(index): _store("handedness", "left" if index == 1 else "right"))
 	box.add_child(handedness)
 	_sensitivity_label = Label.new()
+	_sensitivity_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(_sensitivity_label)
 	sensitivity = HSlider.new()
 	sensitivity.name = "Sensitivity"
@@ -68,7 +81,7 @@ func _ready() -> void:
 	sensitivity.max_value = 2.0
 	sensitivity.step = 0.25
 	sensitivity.value = settings.sensitivity
-	sensitivity.custom_minimum_size = Vector2(320, 44)
+	sensitivity.custom_minimum_size = Vector2(0, 44)
 	sensitivity.value_changed.connect(func(value): _store("sensitivity", value))
 	box.add_child(sensitivity)
 	reduced_motion = _toggle(box, "ReducedMotion", "Reduced motion (steady camera & foil)", "reduced_motion")
@@ -79,7 +92,7 @@ func _ready() -> void:
 	tuning_button = Button.new()
 	tuning_button.name = "ThrowTuning"
 	tuning_button.text = "Throw tuning (test)…"
-	tuning_button.custom_minimum_size = Vector2(320, 56)
+	tuning_button.custom_minimum_size = Vector2(0, 56)
 	tuning_button.pressed.connect(func(): _show_tuning(true))
 	box.add_child(tuning_button)
 	# ADR 004 decided the draw-and-cycle deck (owner, 2026-11-04): the player's Options
@@ -89,7 +102,7 @@ func _ready() -> void:
 	close = Button.new()
 	close.name = "CloseSettings"
 	close.text = "Done"
-	close.custom_minimum_size = Vector2(320, 64)
+	close.custom_minimum_size = Vector2(0, 64)
 	close.pressed.connect(hide)
 	box.add_child(close)
 	_build_tuning()
@@ -102,13 +115,15 @@ func _build_tuning() -> void:
 	tuning_box.name = "TuningPage"
 	tuning_box.add_theme_constant_override("separation", 6)
 	tuning_box.visible = false
-	add_child(tuning_box)
+	tuning_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_pages.add_child(tuning_box)
 	var title := Label.new()
 	title.text = "Throw tuning (test)"
 	title.add_theme_font_size_override("font_size", 30)
 	tuning_box.add_child(title)
 	for row in TUNABLE:
 		var label := Label.new()
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		tuning_box.add_child(label)
 		_tuning_labels[row[0]] = label
 		var slider := HSlider.new()
@@ -116,7 +131,7 @@ func _build_tuning() -> void:
 		slider.min_value = row[2]
 		slider.max_value = row[3]
 		slider.step = row[4]
-		slider.custom_minimum_size = Vector2(320, 40)
+		slider.custom_minimum_size = Vector2(0, 40)
 		slider.value = _tuned(row[0])
 		slider.value_changed.connect(func(value): _store_tuning(row[0], value))
 		tuning_box.add_child(slider)
@@ -124,7 +139,7 @@ func _build_tuning() -> void:
 	var reset := Button.new()
 	reset.name = "ResetTuning"
 	reset.text = "Reset to defaults"
-	reset.custom_minimum_size = Vector2(320, 52)
+	reset.custom_minimum_size = Vector2(0, 52)
 	reset.pressed.connect(func():
 		settings.throw_tuning = {}
 		for key in _tuning_sliders: _tuning_sliders[key].set_value_no_signal(_tuned(key))
@@ -134,7 +149,7 @@ func _build_tuning() -> void:
 	var back := Button.new()
 	back.name = "CloseTuning"
 	back.text = "Back"
-	back.custom_minimum_size = Vector2(320, 52)
+	back.custom_minimum_size = Vector2(0, 52)
 	back.pressed.connect(func(): _show_tuning(false))
 	tuning_box.add_child(back)
 
@@ -161,7 +176,8 @@ func _toggle(box: Container, node_name: String, text: String, key: String) -> Ch
 	var toggle := CheckButton.new()
 	toggle.name = node_name
 	toggle.text = text
-	toggle.custom_minimum_size = Vector2(320, 56)
+	toggle.custom_minimum_size = Vector2(0, 56)
+	toggle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	toggle.button_pressed = settings[key]
 	toggle.toggled.connect(func(on): _store(key, on))
 	box.add_child(toggle)

@@ -34,6 +34,13 @@ static func steps(result: Dictionary, frame: Dictionary, names: Dictionary = {},
 	var seen := {}
 	var banked := -1
 	var facts: Dictionary = result.get("facts", {})
+	# A pin's repeats from one roll are numbered in a run; the first one there
+	# marks where that roll's run starts, so each repeat knows its place in it.
+	var first_repeat := {}
+	for event in result.events:
+		if int(event.get("repeat", 0)) > 0 and not String(event.get("cause", "")).is_empty():
+			var run := "%s#%s" % [event.source, event.cause]
+			first_repeat[run] = mini(int(first_repeat.get(run, event.repeat)), int(event.repeat))
 	for event in result.events:
 		var step := {"phase": event.phase, "symbol": "", "pin": 0}
 		if event.phase == "accuracy":
@@ -89,7 +96,8 @@ static func steps(result: Dictionary, frame: Dictionary, names: Dictionary = {},
 				if int(event.get("repeat", 0)) > 0:
 					var by := ""
 					if not String(event.get("cause", "")).is_empty():
-						by = " · " + _cause(event.cause, frame, owners, names, _owner(event.cause, pins, balls, charms, names))
+						var nth := int(event.repeat) - int(first_repeat.get("%s#%s" % [event.source, event.cause], event.repeat))
+						by = " · " + _cause(event.cause, nth, frame, owners, names, _owner(event.cause, pins, balls, charms, names))
 					step.text += " (retrigger %d%s)" % [int(event.repeat), by]
 				if String(event.source).begins_with("pin:"):
 					step.pin = int(String(event.source).trim_prefix("pin:"))
@@ -129,9 +137,12 @@ static func _effect_owner(event: Dictionary, frame: Dictionary, owners: Dictiona
 		count += 1
 	return fallback
 
-## A roll's repeat names the item that owns its retrigger effect: the ball (Echo) or
-## a tactical card played with it (Double Take, E18-C11).
-static func _cause(cause: String, frame: Dictionary, owners: Dictionary, names: Dictionary, fallback: String) -> String:
+## A roll's repeat names the item that owns its retrigger effect: the ball (Echo), a
+## ball modification (Echo Charge) or a tactical card played with it (Double Take,
+## E18-C11). FrameRules grants a roll's repeats in effect order, `amount` each, so
+## the nth repeat (from 0) that roll gave a pin comes from the effect that granted
+## it. No retrigger effect carries a condition, so every one of them grants.
+static func _cause(cause: String, nth: int, frame: Dictionary, owners: Dictionary, names: Dictionary, fallback: String) -> String:
 	if not cause.begins_with("roll:"):
 		return fallback
 	var index := int(cause.trim_prefix("roll:"))
@@ -140,9 +151,13 @@ static func _cause(cause: String, frame: Dictionary, owners: Dictionary, names: 
 			continue
 		var effects: Array = roll.get("effects", [])
 		var listed: Array = owners.get(cause, [])
+		var granted := 0
 		for i in effects.size():
-			if effects[i].op == "retrigger" and i < listed.size() and not String(listed[i]).begins_with("ball."):
-				return "Roll %d %s" % [index, names.get(listed[i], listed[i])]
+			if effects[i].op != "retrigger":
+				continue
+			granted += int(effects[i].amount)
+			if nth < granted:
+				return "Roll %d %s" % [index, names.get(listed[i], listed[i])] if i < listed.size() else fallback
 	return fallback
 
 static func _owner(source: String, pins: Dictionary, balls: Dictionary, charms: Dictionary, names: Dictionary) -> String:

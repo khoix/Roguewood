@@ -53,6 +53,7 @@ static func _cards(catalogue: Dictionary, failures: Array[String]) -> void:
 	var echo_built := Builder.build(SliceTest._loadout(), catalogue, SliceTest._strike(), {1: ["consumable.double_take"]}, {})
 	var echo_lines: Array = ScoreLog.steps(Rules.resolve(echo_built.frame), echo_built.frame, names0, echo_built.owners).map(func(s): return s.text)
 	_expect(echo_lines.any(func(l): return l.contains("(retrigger 1 · Roll 1 Double Take)")), "the repeat is credited to Double Take: %s" % str(echo_lines), failures)
+	_stacked_repeats(catalogue, names0, failures)
 	var called := _played(catalogue, SliceTest._strike(), {1: ["consumable.called_shot"]})
 	_expect(called.score == int(b.pin_value * b.mult * 2), "Called Shot: ×2 on a strike", failures)
 	var missed := _played(catalogue, SliceTest._spare([1, 2, 3]), {1: ["consumable.called_shot"]})
@@ -66,6 +67,35 @@ static func _cards(catalogue: Dictionary, failures: Array[String]) -> void:
 	var built := Builder.build(SliceTest._loadout(), catalogue, SliceTest._strike(), {1: ["consumable.called_shot"]}, {})
 	var lines: Array = ScoreLog.steps(Rules.resolve(built.frame), built.frame, names, built.owners).map(func(s): return s.text)
 	_expect(lines.any(func(l): return l.contains("Called Shot")), "the explanation names the card: %s" % str(lines), failures)
+
+## Wave 11: Echo Ball, Echo Charge and Double Take on one throw give its first
+## direct pin three repeats, and each repeat names its own cause (it named the
+## first card for all of them before). Scores were already right.
+static func _stacked_repeats(catalogue: Dictionary, names: Dictionary, failures: Array[String]) -> void:
+	_expect(catalogue.items.all(func(item): return item.get("effects", []).all(func(e): return e.op != "retrigger" or not e.has("condition"))),
+		"no retrigger effect carries a condition (ScoreLog numbers each roll's repeats by effect order)", failures)
+	var built := Builder.build(SliceTest._loadout(), catalogue, SliceTest._strike("ball.echo"), {1: ["ball_mod.echo_charge", "consumable.double_take"]}, {})
+	var result := Rules.resolve(built.frame) if built.ok else {"ok": false}
+	_expect(result.ok and result.retriggers == 3, "three repeats from one throw: %s" % str(result.get("retriggers", result.get("errors", built.get("errors")))), failures)
+	if not result.ok:
+		return
+	var lines: Array = ScoreLog.steps(result, built.frame, names, built.owners).map(func(s): return s.text)
+	for label in ["(retrigger 1 · Roll 1 Echo Ball)", "(retrigger 2 · Roll 1 Echo Charge)", "(retrigger 3 · Roll 1 Double Take)"]:
+		_expect(lines.any(func(l): return l.contains(label)), "stacked repeats name their own cause, %s: %s" % [label, str(lines)], failures)
+	# Card order decides the order of the repeats, and the labels follow it.
+	built = Builder.build(SliceTest._loadout(), catalogue, SliceTest._strike("ball.echo"), {1: ["consumable.double_take", "ball_mod.echo_charge"]}, {})
+	lines = ScoreLog.steps(Rules.resolve(built.frame), built.frame, names, built.owners).map(func(s): return s.text)
+	_expect(lines.any(func(l): return l.contains("(retrigger 2 · Roll 1 Double Take)")) and lines.any(func(l): return l.contains("(retrigger 3 · Roll 1 Echo Charge)")),
+		"the labels follow the order the cards were played: %s" % str(lines), failures)
+	# A spare's two rolls each repeat their own first direct pin, numbered from 1 each.
+	var spare := SliceTest._spare([1, 2, 3])
+	spare[0] = SliceTest._rep(1, [1, 2, 3], SliceTest.ALL, "ball.echo")
+	built = Builder.build(SliceTest._loadout(), catalogue, spare, {2: ["consumable.double_take"]}, {})
+	result = Rules.resolve(built.frame) if built.ok else {"ok": false}
+	if result.ok:
+		lines = ScoreLog.steps(result, built.frame, names, built.owners).map(func(s): return s.text)
+	_expect(result.ok and lines.any(func(l): return l.contains("(retrigger 1 · Roll 1 Echo Ball)")) and lines.any(func(l): return l.contains("(retrigger 1 · Roll 2 Double Take)")),
+		"each roll's repeats are its own: %s" % str(lines), failures)
 
 static func _charms(catalogue: Dictionary, failures: Array[String]) -> void:
 	var wide := SliceTest._spare([1, 2, 3, 4, 5, 6, 7, 8])
