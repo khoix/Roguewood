@@ -239,7 +239,8 @@ Open: Wave 10 is merged (PR #22, main `706767f`). Base: `claude/roguewood-build`
 - **Early merge 3:** the Options fix and the retrigger labels MERGED to main by PR #25 (`f1852bf`) after CI passed on `1d041bd` (Wave 11 stays open).
 - **Owner:** tune the throw on the phone (Options → Throw tuning: ball spin for full charge, how far the ball hangs) and send the values; they become the defaults.
 - **E17-L02, spec part DONE** (handoffs/E17-L02.md): content/leagues/neon.json (eight Divisions; Slick, Laser Lena and DJ Flicker recurring; DJ Flicker as champion with Strobe plus Oil Slick; features and bosses on Neon lanes; the Neon Kit; the title opens the Spectral League) and E17-D11 (Long Oil, Two-Tone, the Neon Kit), with the Neon item plan for the item batches. Content and unit pass.
-- **Next (Claude):** E17-L02's rules and lanes (Oil Slick, Narrow Lane, Strobe; Long Oil, Two-Tone).
+- **E17-L02 DONE** (handoffs/E17-L02.md), with its rules and lanes as E18-C13 (`8a06e17`): Oil Slick halves the hook (the committed spin is kept), Narrow Lane rules a ball crossing an edge two boards in a gutter ball (a rail carries it in; the start is kept inside), Strobe halves the ring's perfect and sweet bands, Long Oil runs the oil to 47 ft and Two-Tone dries the left half at 34 ft. Unit, content, physics (digest unchanged) and the new J03C13 (headless and rendered) pass; the full local matrix and CI are running on `8a06e17`.
+- **Next (Claude):** Wave 11's Claude claims are complete once the matrix passes. Then the owner's throw values (they become the defaults), and the Wave 11 close when Codex's AV-T01 is in.
 - **Codex can start the Neon rivals and theme** from neon.json and handoffs/E17-L02.md: Slick, Laser Lena and DJ Flicker (E21), their rule badges, and the Long Oil and Two-Tone lane looks.
 
 ## Wave 10 closed (coordinator, 2026-11-07)

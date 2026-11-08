@@ -2,7 +2,7 @@
   "schema_version": 1,
   "batch": "E17-D05",
   "status": "authored",
-  "note": "E17-L01's definitions: the nine new boss rules that complete the 20 (one per rival in content/leagues/rivals.json), House's second kit and House's two lane conditions (formalising the campaign fixtures). Each rule needs a rule primitive in rival_rules.gd (E18); the House ones land in E18-C05. Nothing here is in content/catalogue.json until E18. E18-C05 landed boss_rule.house_pins, lane_condition.house_oil, lane_condition.dry_backend.",
+  "note": "E17-L01's definitions: the nine new boss rules that complete the 20 (one per rival in content/leagues/rivals.json), House's second kit and House's two lane conditions (formalising the campaign fixtures). Each rule needs a rule primitive in rival_rules.gd (E18); the House ones land in E18-C05. Nothing here is in content/catalogue.json until E18. E18-C05 landed boss_rule.house_pins, lane_condition.house_oil, lane_condition.dry_backend. E18-C13 (the rules of E17-L02) landed boss_rule.strobe.",
   "definitions": [
     {
       "item": {

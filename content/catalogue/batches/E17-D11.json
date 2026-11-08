@@ -2,7 +2,7 @@
   "schema_version": 1,
   "batch": "E17-D11",
   "status": "authored",
-  "note": "E17-L02's definitions: the Neon League's two lane conditions and its kit. The three Neon boss rules (Oil Slick, Narrow Lane, Strobe) were written in E17-D03 and E17-D05. The lanes and rules land in E17-L02's rules work (src/rules/rival_rules.gd, src/simulation/lane_spec.gd); nothing here is in content/catalogue.json until then.",
+  "note": "E17-L02's definitions: the Neon League's two lane conditions and its kit. The three Neon boss rules (Oil Slick, Narrow Lane, Strobe) were written in E17-D03 and E17-D05. E18-C13 (the rules of E17-L02) landed Long Oil and Two-Tone; the Neon Kit stays here until E22-L02 makes the League live.",
   "definitions": [
     {
       "item": {

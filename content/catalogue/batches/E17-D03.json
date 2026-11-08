@@ -2,7 +2,7 @@
   "schema_version": 1,
   "batch": "E17-D03",
   "status": "authored",
-  "note": "Boss rules (9). Each needs a rule primitive in rival_rules.gd (E18) and a rival identity (E17 League batches, E21). Counter tags are in content/career/unlocks.json. Nothing here is in content/catalogue.json until E18. E18-C05 landed boss_rule.house_rules.",
+  "note": "Boss rules (9). Each needs a rule primitive in rival_rules.gd (E18) and a rival identity (E17 League batches, E21). Counter tags are in content/career/unlocks.json. Nothing here is in content/catalogue.json until E18. E18-C05 landed boss_rule.house_rules. E18-C13 (the rules of E17-L02) landed Oil Slick and Narrow Lane.",
   "definitions": [
     {
       "item": {
