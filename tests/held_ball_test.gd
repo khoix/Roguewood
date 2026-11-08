@@ -214,7 +214,19 @@ static func run() -> Array[String]:
 	boosted_model.tuning.sensitivity = 2.0
 	var boosted := Driver.new(boosted_model)
 	boosted.steps(up(20, 0.012))
-	_expect(gentle.release().reason == "slow" and boosted.release().committed, "sensitivity scales flick speed", failures)
+	_expect(gentle.release().reason == "slow" and boosted.release().committed, "a higher sensitivity lets a gentler flick throw", failures)
+	# Below x1, sensitivity softens the throw but never refuses it (owner, 2026-11-08).
+	var flicks := {}
+	for gain in [1.0, 0.4, 0.25]:
+		for flick in [["light", 0.03], ["firm", 0.1]]:
+			var model := Held.new()
+			model.tuning.sensitivity = gain
+			var drive := Driver.new(model)
+			drive.steps(up(8, flick[1]))
+			flicks["%s@%.2f" % [flick[0], gain]] = drive.release()
+	_expect(flicks.values().all(func(r): return r.committed), "every flick that throws at x1 also throws at x0.4 and x0.25", failures)
+	_expect(flicks["firm@0.40"].power < flicks["firm@1.00"].power and flicks["firm@0.25"].power < flicks["firm@0.40"].power and flicks["light@0.40"].power <= flicks["light@1.00"].power,
+		"lower sensitivity throws softer (firm: %.2f, %.2f, %.2f)" % [flicks["firm@1.00"].power, flicks["firm@0.40"].power, flicks["firm@0.25"].power], failures)
 	var cancelled := Driver.new(Held.new())
 	cancelled.held.cancel()
 	_expect(cancelled.held.release(Vector2(0.5, 0.2), 2000000).reason == "inactive", "a cancelled hold cannot throw", failures)

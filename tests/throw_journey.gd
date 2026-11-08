@@ -450,6 +450,7 @@ func _flat_spin() -> void:
 		at = next
 		depths.append(depth.call())
 	var spread: float = depths.max() - depths.min()
+	await _capture("flat_spin")
 	var heights: Array = []
 	for i in 6:
 		at += Vector2(0, 15) * _px()

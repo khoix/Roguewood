@@ -65,7 +65,10 @@ const DEFAULTS := {
 	"sensitivity": 1.0,
 }
 const REST_REACH := 0.75 # the pin's rest length, as a share of orbit_cap
-const MIN_FLICK_SPEED := 0.8 # shorter sides per second, after sensitivity
+## Shorter sides per second. Sensitivity scales the throw's power; above x1 it also
+## lets gentler flicks throw, but below x1 it never turns a flick into a cancel (the
+## owner's x0.4 default softens throws without refusing them, 2026-11-08).
+const MIN_FLICK_SPEED := 0.8
 const MIN_FLICK_DISTANCE := 0.04
 const MAX_FLICK_ANGLE_DEG := 60.0 # from straight up
 const FULL_POWER_SPEED := 4.0 # cap: faster flicks add no power
@@ -224,7 +227,9 @@ func release(position: Vector2, usec: int) -> Dictionary:
 		result.reason = "no_motion"
 		return result
 	var travel: Vector2 = finger - start[1]
-	var velocity := (travel / seconds + nudge) * clampf(float(tuning.sensitivity), MIN_SENSITIVITY, MAX_SENSITIVITY)
+	var gain := clampf(float(tuning.sensitivity), MIN_SENSITIVITY, MAX_SENSITIVITY)
+	var flicked := travel / seconds + nudge
+	var velocity := flicked * gain
 	result.velocity = velocity
 	result.speed = velocity.length()
 	result.angle_deg = rad_to_deg(atan2(velocity.x, -velocity.y))
@@ -234,7 +239,7 @@ func release(position: Vector2, usec: int) -> Dictionary:
 		result.reason = "short"
 	elif absf(result.angle_deg) > MAX_FLICK_ANGLE_DEG:
 		result.reason = "not_forward"
-	elif result.speed < MIN_FLICK_SPEED:
+	elif flicked.length() * maxf(gain, 1.0) < MIN_FLICK_SPEED:
 		result.reason = "slow"
 	else:
 		result.committed = true
