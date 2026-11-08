@@ -220,14 +220,17 @@ func show_view(view: Dictionary) -> void:
 	if not landscape:
 		# UI-3: three columns as wide as the panel allows (up to 150 px), short
 		# enough that every row of offers shows above the pinned actions.
+		# From the panel's anchored size, known before its first layout, so the cards
+		# never resize under a tap a frame later.
+		var area := get_parent_area_size() - Vector2(offset_left - offset_right, offset_top - offset_bottom)
 		var rows := ceili(view.offers.size() / 3.0)
-		var room := _scroll.size.y - 150.0 - 8.0 * (rows - 1)
+		var room := area.y - 32.0 - 68.0 - 150.0 - 8.0 * (rows - 1) # margins, pinned actions, heading
 		var height := clampf(room / maxf(rows, 1), 150.0, 214.0)
-		var width := floorf(minf(minf(150.0, (size.x - 40.0 - 14.0 - 16.0) / 3.0), height / CardView.ASPECT))
+		var width := floorf(minf(minf(150.0, (area.x - 40.0 - 14.0 - 16.0) / 3.0), height / CardView.ASPECT))
 		card_size = Vector2(width, floorf(width * CardView.ASPECT))
 	if landscape:
 		var rows := ceili(view.offers.size() / float(offers_grid.columns))
-		var room := size.y - 40.0 - 8.0 * (rows - 1)
+		var room := (get_parent_area_size().y - offset_top + offset_bottom) - 40.0 - 8.0 * (rows - 1)
 		var height := floorf(minf(280.0, room / maxf(rows, 1)))
 		card_size = Vector2(floorf(height / CardView.ASPECT), height)
 	for i in offer_buttons.size():
