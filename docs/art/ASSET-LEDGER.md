@@ -755,3 +755,59 @@ No subjective audio listening or phone gate claimed. No screenshots committed.
   shared bounded mixer and mute/skip semantics. No licensed samples added.
 - Native evidence: J03C10 and JAVH3BC, headless/rendered. Completion and exact
   results are in handoffs/AV-H3-B.md; screenshots remain ignored artifacts.
+
+## Wave 10 / UI-A1-C — side-space and screen compositions
+
+Original deterministic procedural source `assets/ui/backdrops/house.gd`: sparse
+pixel stars and local constellation groups, with static reduced states. No image
+model, external artwork, font or sound source added. The revision scene reuses
+existing House environment, lane, item illustrations, card frames and licensed
+Pixelify Sans. House League IDs and bindings are unchanged. Compact faces use
+actual catalogue rarity. All scene captures are ignored artifacts, never assets.
+
+UI-A1-C follow-up with UI-A2: denser 240-point star layer and original schematic
+line drawings of Orion, Cassiopeia, Cygnus and Ursa Major's Big Dipper asterism.
+Hand-authored normalized points/edges, no downloaded star chart or external image.
+
+## Wave 10 / UI-A2 — House materials and final action icons
+
+Original `assets/ui/materials/house_foil.gdshader`: controlled-phase masked
+brass, sea-glass, violet and engraved prism overlays, with static reduced states.
+No external shader or texture source. `build_materials.py` reproduces ten .tres
+bindings, the league-keyed manifest and nine original 32px action icons under
+assets/ui/icons. Existing eight UI-A1 score/category icons and five House frame
+masters are reused unchanged. No external font, image or audio added. Future
+League frames explicitly fall back to House; their art is not claimed.
+
+### AV-H4-A — House throw tacticals (Wave 10)
+
+- Original generated identity atlas: `assets/items/d10/source.AV-H4-A.png`.
+  Created for Roguewood with OpenAI image generation, 2026-11-06; unchanged
+  source, no third-party images, trademarks or sampled material. Prompt: three
+  isolated pixel-art columns on House ink — doubled ivory/teal bowling pin,
+  pointing ivory bowling glove toward the pocket, blank brass-clipped tally
+  clipboard with pencil. Ivory, petrol, brass and walnut; no baked counts/text.
+- AtlasTextures: card/icon/reduced for Double Take, Called Shot, Pin Count;
+  464–512×700 source regions. Original Common/Uncommon StyleBoxFlat frames.
+- Original GDScript event projection and bounded cue/rack drawing, plus three
+  activation resources. No asset IDs or House environment bindings replaced.
+- Original deterministic PCM: `sound.consumable.{double_take,called_shot,pin_count}.wav`;
+  author_foley.py wood 380/.35, metal 880/.32, paper 450/.22 respectively.
+  Double Take has two taps at 0/.095 s; all normalized to .48 peak. No samples.
+- Native evidence is generated under artifacts/av-h4-a and artifacts/e18-c11,
+  never committed. Completeness is recorded only after those checks pass.
+
+### AV-H4-B — Cleanup Crew and Lucky Seven (Wave 10)
+
+- Original OpenAI-generated atlas, 2026-11-06:
+  `assets/items/d10/source.AV-H4-B.png`, unchanged. Prompt: two isolated premium
+  pixel-art objects on House ink, a crew of three straw brooms with walnut/brass/
+  petrol details and fallen miniature pins; ivory/brass die with clover side,
+  blank front face and lucky coin. No external IP, third-party art or baked counts.
+- Original AtlasTexture card/icon/reduced resources (768×900, 720×800), Common
+  frames, two activation resources and counted GDScript drawing. Live numeral
+  and leave caption are presentation of resolver/committed-frame data.
+- Original deterministic foley from author_foley.py: sound.charm.cleanup_crew,
+  swish 260/.48; sound.charm.lucky_seven, wood 720/.36, taps at 0/.055/.12 s.
+  Mono 22050 Hz PCM, .48 peak, no samples. Shared bounded mixer unchanged.
+- Evidence: artifacts/av-h4-b/contact and artifacts/e18-c11; never committed.

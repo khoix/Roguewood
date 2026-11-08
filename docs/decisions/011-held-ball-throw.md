@@ -1,4 +1,4 @@
-# ADR 011 — The held-ball throw (E05-R1)
+# ADR 011 — The held-ball throw (E05-R1) and the tethered swing (E05-R2)
 
 Status: accepted by the owner on 2026-11-03 (model and both design changes). Implemented as a model in E05-R1a and made live in the lab in E05-R1b, both on 2026-11-05. All values are **provisional until real-phone trials** and the lab's tuning panel. This ADR replaces the gesture sections of [ADR 003](003-spin-curve-input.md); ADR 003's hook physics, spin sign, target ring and accessibility rules stand. It amends design §5 where noted.
 
@@ -60,3 +60,43 @@ J02 drives the live gesture end to end (handoffs/E05-R1b.md).
 ## Not yet done
 - Real-phone feel is the owner's trial through the web build, using the tuning page.
 - The final sparkle, sound and effects are AV-T01.
+
+## Revision: the tethered swing (E05-R2, owner decision 2026-11-05)
+After seeing R1, the owner asked for the ragdoll fling: the ball should swing round the touch point like a hula hoop round a waist, not just follow the finger. R2 replaces R1's charge-per-radian model. The release window, curve threshold, cancels, cues, vibration and the launch contract are unchanged.
+- **Tether:**
+  - The ball's centre orbits the touch point. Its radius is capped at `orbit_cap`, which the lab sets to 0.8 of the ball's on-screen radius, so the finger always stays inside the ball.
+  - Before any swirl, the ball trails the finger on R1's stiff spring, clamped to the same cap.
+  - While held, the ball floats one orbit above the lane in the lab, so the lower half of its swirl never clips into the boards.
+- **A swirl must start:** the finger path has to turn `swirl_start_deg` (200°) one way within 1.6 s. A single corner, a part arc or sideways jiggling never curves.
+  - Path steps sharper than 100° are reversals and never count.
+  - Steps faster than 1.5 shorter sides a second are flicks or slides, and never count either. This keeps the turn into a fast flick from pumping a weak swirl.
+- **Orbit speed is the charge:**
+  - While the finger swirls, the orbit follows the finger's turning rate (`spin_up_time` 0.12 s).
+  - The charge is orbit speed divided by `full_charge_speed` (12.57 rad/s, two turns a second). It is proportional to speed and does not depend on how many loops were drawn. Measured: 2, 1 and 0.5 turns a second give charges of 1.00, 0.50 and 0.25.
+  - Clockwise on screen is positive, as before.
+- **Momentum:** with the finger still or moving straight, the orbit coasts and halves its speed every `swirl_half_life` (1.2 s); the ball keeps visibly orbiting. Swirling the other way slows the orbit through zero before it builds the opposite spin.
+- **Release:** direction and power come from the finger's flick over the last 100 ms. To that the orbit adds `orbit_nudge` (50%) of its own tangential velocity at release: a sloppy release drifts a little, never far. The spin is the charge when the window opened.
+- **Tuning page** (Options → Throw tuning): full-charge swirl speed, wind-down half-life, catch-up time, turn before a swirl counts, and orbit nudge.
+- **Evidence:**
+  - tests/held_ball_test.gd covers:
+    - speed-proportional charge, and the mirror;
+    - the cap held throughout;
+    - a corner, a part arc and a zigzag staying straight;
+    - coasting, and the stop;
+    - reversal;
+    - flick plus nudge, and zero nudge;
+    - a slow swirl below the threshold, and a turn into a fast flick;
+    - 15 fps against 60 fps, and a late lift;
+    - the cancels.
+  - J02 checks a brisk 450° swirl (charge ±0.83, a strike each way), the tether inside the cap, a slow 0.4 turns-a-second swirl that throws straight, the tuning page, and the trial-log fields.
+  - The swirl clip for the owner is in docs/handoffs/E05-R2.md.
+
+### Owner adjustments (2026-11-06)
+- **Full charge** now needs **6 turns a second** (`full_charge_speed` 37.7 rad/s), three times R2's first 2 turns a second. The charge stays proportional: 3 turns a second gives 0.50 and 2 turns a second gives 0.33.
+- **Slower swirling lowers the bar:** while the finger is still swirling, the orbit follows its speed down as well as up (`spin_up_time` 0.12 s each way). It only coasts and winds down (`swirl_half_life` 1.2 s) when the finger stops or flicks.
+- **A more elastic tether:**
+  - the trailing spring is softer (24 rad/s, damping ratio 0.45);
+  - the orbit radius springs to its target, under-damped (14 rad/s, damping ratio 0.35), and reaches the cap at 1.5 turns a second;
+  - the tether may stretch to 1.15× the cap (0.92 of the ball's radius, so the finger stays inside the ball) and springs back.
+- **Fast swirls count:** sharper path steps (up to 150°) and faster swirl motion (up to 2 shorter sides a second) now register, so a 6 turns-a-second swirl reads the same at 15 fps.
+- **Owner demo:** a speed-ramp clip (1 → 6 → 2 → 6 turns a second, with the charge on screen).

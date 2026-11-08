@@ -5,6 +5,8 @@ extends PanelContainer
 ## RunInventory own every rule and number. Touch, mouse and keyboard/gamepad focus
 ## all work. Developmental look; card art and foil are E12/E19.
 const ItemAssets = preload("res://src/presentation/item_assets.gd")
+const CardView = preload("res://src/presentation/card_view.gd")
+const UiTheme = preload("res://src/presentation/house_ui_theme.gd")
 signal offer_pressed(index: int)
 signal reroll_pressed
 signal remove_pressed
@@ -32,15 +34,28 @@ var cancel_choice: Button
 var offer_buttons: Array = []
 var _main: VBoxContainer
 var _scroll: ScrollContainer
+var _split: HBoxContainer
+var _shelf: VBoxContainer
 
 func _ready() -> void:
 	name = "ShopPanel"
-	add_theme_stylebox_override("panel", _style(Color(0.05, 0.04, 0.09, 0.97)))
+	add_theme_stylebox_override("panel", UiTheme.frame("shop", 20.0, 16.0))
+	# UI-2: landscape puts the offers on a three-column shelf beside the scrolling
+	# shop text and actions; portrait keeps one scrolling column.
+	_split = HBoxContainer.new()
+	_split.add_theme_constant_override("separation", 18)
+	add_child(_split)
+	_shelf = VBoxContainer.new()
+	_shelf.name = "Shelf"
+	_shelf.alignment = BoxContainer.ALIGNMENT_CENTER
+	_shelf.hide()
+	_split.add_child(_shelf)
 	var scroll := ScrollContainer.new()
 	_scroll = scroll
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.follow_focus = true # keyboard and gamepad focus scrolls its button into view
-	add_child(scroll)
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_split.add_child(scroll)
 	_main = VBoxContainer.new()
 	_main.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_main.add_theme_constant_override("separation", 10)
@@ -80,7 +95,7 @@ func _ready() -> void:
 	# Choice sheet: sits over the shop until a choice or Cancel.
 	choice_sheet = PanelContainer.new()
 	choice_sheet.name = "ChoiceSheet"
-	choice_sheet.add_theme_stylebox_override("panel", _style(Color(0.1, 0.08, 0.16, 0.99)))
+	choice_sheet.add_theme_stylebox_override("panel", UiTheme.frame("menu", 20.0, 16.0))
 	choice_sheet.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	choice_sheet.top_level = true
 	choice_sheet.hide()
@@ -105,20 +120,16 @@ func _ready() -> void:
 ## Offer buttons grow with the offers (E18-C07: Extra Shelf and the License offer).
 func _add_offer_button() -> void:
 	var i := offer_buttons.size()
-	var button := Button.new()
+	# Offers are UI-1 playing cards; the price is a removable overlay, never on the face.
+	var button := CardView.new()
 	button.name = "Offer_%d" % i
-	button.custom_minimum_size = Vector2(216, 150)
-	button.clip_text = true
-	button.pressed.connect(func(): offer_pressed.emit(i))
+	button.custom_minimum_size = Vector2(196, 280)
+	button.pressed.connect(func(): if not button.consume_long_press(): offer_pressed.emit(i))
 	offers_grid.add_child(button)
 	offer_buttons.append(button)
 
-static func _style(color: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = color
-	style.set_corner_radius_all(12)
-	style.set_content_margin_all(14)
-	return style
+static func _style(_color: Color) -> StyleBox:
+	return UiTheme.frame("panel", 14.0, 12.0)
 
 func _label(parent: Control, node_name: String, font_size: int) -> Label:
 	var label := Label.new()
@@ -144,26 +155,47 @@ func show_view(view: Dictionary) -> void:
 	summary.text = view.summary
 	preview.text = view.get("preview", "")
 	money.text = "$%d" % view.money
+	var landscape: bool = view.get("landscape", false)
 	# A reflow (portrait <-> landscape) brings the offers back into view.
-	if offers_grid.columns != int(view.get("columns", 3)):
+	if _shelf.visible != landscape:
 		_scroll.scroll_vertical = 0
+		offers_grid.get_parent().remove_child(offers_grid)
+		if landscape:
+			_shelf.add_child(offers_grid)
+		else:
+			_main.add_child(offers_grid)
+			_main.move_child(offers_grid, money.get_index() + 1)
+		_shelf.visible = landscape
 	offers_grid.columns = view.get("columns", 3)
 	while offer_buttons.size() < view.offers.size():
 		_add_offer_button()
+	# Portrait keeps the cards compact so the actions and sales stay on screen;
+	# landscape sizes the shelf's cards to fit every row on screen.
+	var card_size := Vector2(105, 150)
+	if landscape:
+		var rows := ceili(view.offers.size() / float(offers_grid.columns))
+		var room := size.y - 40.0 - 8.0 * (rows - 1)
+		var height := floorf(minf(280.0, room / maxf(rows, 1)))
+		card_size = Vector2(floorf(height / CardView.ASPECT), height)
 	for i in offer_buttons.size():
 		offer_buttons[i].visible = i < view.offers.size()
+		offer_buttons[i].custom_minimum_size = card_size
 	for i in view.offers.size():
 		var offer: Dictionary = view.offers[i]
-		var button: Button = offer_buttons[i]
-		button.icon = ItemAssets.slot(str(offer.get("item_id", "")), "icon") as Texture2D
-		button.expand_icon = true
-		button.texture_filter = TEXTURE_FILTER_NEAREST
-		button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		button.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
-		button.add_theme_constant_override("icon_max_width", 32)
-		button.text = offer.text
+		var button: CardView = offer_buttons[i]
+		var item_id := str(offer.get("item_id", ""))
+		if item_id.is_empty():
+			button.item_id = ""
+			button.show_face(false) # an empty slot shows the card back
+		else:
+			if button.item_id != item_id:
+				button.set_item(item_id, {}, String(offer.get("name", "")))
+				button.deal_in(0.035 * i)
+			button.show_face(true)
+		var state: String = {"buy": "", "poor": "unaffordable", "blocked": "unaffordable", "sold": "sold", "empty": ""}[offer.state]
+		var price := "$%d" % int(offer.price) if offer.has("price") and offer.state != "sold" else ""
+		button.set_state(state, String(offer.get("status", "")), price, offer.text)
 		button.disabled = offer.state != "buy" or choice_sheet.visible
-		button.modulate = {"buy": Color.WHITE, "poor": Color(1.0, 0.75, 0.75), "blocked": Color(0.8, 0.8, 0.8), "sold": Color(0.6, 0.6, 0.6), "empty": Color(0.5, 0.5, 0.5)}[offer.state]
 	reroll_button.text = "Reroll $%d" % view.reroll_cost
 	reroll_button.disabled = not view.can_reroll or choice_sheet.visible
 	remove_button.text = "Remove a card $%d" % view.removal_price

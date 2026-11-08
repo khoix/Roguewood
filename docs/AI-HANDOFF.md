@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-11-05. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
+Updated: 2026-11-07. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). **Wave 10 is closed** (see "Wave 10 closed"), awaiting the owner's merge. No Wave 11 work starts before it. The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
 
 ## Read first
 
@@ -212,6 +212,76 @@ Open: Wave 8 is merged (PR #19, main `f444488`). Base: `claude/roguewood-build` 
   - Claude: UI-1, UI-2.
   - Codex: UI-A2, AV-H4 (E17-D10's five), AV-T01.
 - **Owner:** approve the UI-A1 mockups (gates UI-1), and play the held-ball throw on a phone through the hosted web build.
+
+## Wave 10 closed (coordinator, 2026-11-07)
+- **Contents** (all on `claude/roguewood-build` at the "Wave 10 closed" commit):
+  - Claude: UI-1 (`2c7ffd5`, `a1a9d0b`, `6fb9c44`), E05-R2 (with the owner's adjustments, `ec9cabc`) and UI-2 (`883adcc`, `45a7fed`, `268da2f`, `8471921`).
+  - Codex: UI-A1-C (`5fb5cec`, `47bf589`), UI-A2 (`dc5877e`), AV-H4-A/B (`bd44d9c`, `9986f67`) and its closing record docs/handoffs/WAVE10-CODEX.md (`9b98a54`, merged at `80395be`).
+- **Validation:**
+  - The full CI command list (158 units, both shards, every journey headless and rendered, the web journey included) PASS locally on `268da2f`. CI: Bootstrap run 42329325151 PASS on `268da2f`, both shards.
+  - Since then only documentation changed (`8471921`, Codex's `9b98a54`, this record).
+  - Codex's closing matrix: 39 journeys in both modes plus unit, content and physics PASS on `9986f67`; the physics digest `75d1a3c0…` is unchanged.
+  - CI runs on this commit.
+- **Follow-up for Wave 11 (Claude, rules lane):** score_log.gd `_cause` names the first non-ball retrigger owner for every repeat on a roll, so with stacked Echo Ball, Echo Charge and Double Take two repeats can share one label (Codex, handoffs/AV-H4-A.md). Text only; scores are right.
+- **Owner actions:** pick a backdrop (Constellations is the default; Slow stars is a one-line switch); turn on GitHub Pages; play the swing, the fan of four and the folds on a phone.
+- **Merge:** pending the owner's merge of the Wave 10 PR.
+
+## Wave 10 claims (coordinator: Claude, 2026-11-06)
+Open: Wave 9 is merged (PR #20), plus the CI fix (PR #21, main `f4810aa`). Base: `claude/roguewood-build` at the "Wave 10 claims" commit. Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave10.md). Scope: docs/ROADMAP.md, "Art-forward interface: UI-R1" (with the owner's decisions of 2026-11-05) and "Tethered swing: E05-R2".
+- **Claude, in this order:**
+  1. **UI-1** (High): one card component, used everywhere.
+     - Paths: src/presentation/card_view.gd (new); card_hand.gd; card_inspector.gd; the card rendering in shop_panel.gd and in the Clubhouse binder; the Equipment option in throw_settings_panel.gd.
+     - Delivers:
+       - UI-A1's card face and back in the hand, shop, binder and inspector;
+       - deal, draw, flip, cycle and discard motion, with press and tilt;
+       - long-press Inspect for full rule text;
+       - direct selection removed from Options (ADR 004 decided the deck);
+       - hand size 4 in landscape and 2 in portrait.
+  2. **E05-R2** (High): the tethered swing.
+     - Paths: src/input/held_ball.gd, tests/held_ball_test.gd, throw_lab.gd's hold code, tests/throw_journey.gd, ADR 011.
+     - Delivers:
+       - the ball orbits the touch point, capped inside its own radius;
+       - the charge is the orbit's angular speed;
+       - tuning-page additions;
+       - a swirl clip for the owner.
+  3. **UI-2** (High): every screen in the approved layout. Starts after the owner approves UI-A1-C.
+     - Paths: throw_lab.gd's layout and HUD, division_hud.gd, score_panel.gd, the shop_panel.gd layout, bootstrap and Clubhouse menus.
+     - Delivers:
+       - full-width landscape with top bar and lane-safe side panels, which shrink and then fold on 4:3;
+       - the portrait layout as approved;
+       - icons and numbers instead of text;
+       - an ordered score chain;
+       - the camera framing for portrait;
+       - the backdrop the owner picks.
+- **Codex:**
+  - **UI-A1-C** (Medium, first): the layout revision.
+    - Re-render the throw and shop screens: landscape full width with side panels, in 16:9 and 4:3, and portrait as approved (two-card hand, money in its own slot).
+    - Offer 2–3 side-space backdrop options for House (for example a slow star field matching the windows), with reduced-motion versions.
+    - Update docs/art/ui/UI-A1.md.
+    - Paths: assets/ui/, docs/art/ui/, the UI-A1 preview and composition scenes, and JUIA1.
+    - The owner's mockups: artifacts/landscape_full_*.png and artifacts/portrait_*.png, shared in chat and not committed. The layout is described in docs/ROADMAP.md.
+  - **UI-A2** (Medium–High): card material treatments.
+    - Foil and rarity treatments, as a shader or layers the card component can use.
+    - Per-League frame variants (House first).
+    - The final icon pass.
+    - Paths: assets/ui/ and its docs.
+  - **AV-H4** (Medium; High for counted displays; 2 sessions): identity art, activation, sound and both flags for E17-D10's five items: Double Take, Called Shot, Pin Count, Cleanup Crew and Lucky Seven. J03C11 plays them.
+- **Moved to Wave 11:** AV-T01, so the throw effects follow the tethered swing. Neon starts in Wave 11.
+- **Owner:** pick a backdrop from UI-A1-C; approve UI-A1-C before UI-2; turn on GitHub Pages; tune the throw on a phone.
+
+## Wave 10 progress (coordinator)
+- **UI-1 DONE** (handoffs/UI-1.md):
+  - Commits: `2c7ffd5`, with fixes `a1a9d0b` and `6fb9c44`.
+  - The UI-A1 playing card (CardView) is in the hand, shop, binder and inspector, with states, motion and long-press inspect. Direct selection has left Options.
+  - Validation: the full local matrix ran 150/152 before the hand-sizing fix. After it, J03C11 passes headless and rendered, and J02, J04, J06, J03C06 and J03C10 pass.
+  - CI: run 42163465370 PASS on `6fb9c44`, both shards.
+- **E05-R2 DONE** (handoffs/E05-R2.md; ADR 011, "Revision"): the tethered swing. The ball orbits the touch point inside its radius; orbit speed is the charge; the ball coasts and winds down; the release is the flick plus an orbit nudge. A swirl clip was shared with the owner.
+- **Owner decisions (2026-11-07):** UI-A1-C approved; the portrait hand is a fan of four; the swing demo (6 turns a second for full charge) is good. No backdrop was picked; UI-2 uses Constellations as the default.
+- **Codex's Wave 10 work, integrated** (fast-forward to `9986f67`): UI-A1-C DONE (handoffs/UI-A1-C.md: the layout revision, two backdrops, the 4:3 fold), UI-A2 DONE (handoffs/UI-A2.md: House rarity materials and nine action icons), AV-H4 DONE in two parts (handoffs/AV-H4-A.md, AV-H4-B.md: E17-D10's five items). Codex's closing record (docs/WAVE10-CODEX.md) is not in yet.
+- **UI-2 DONE** (handoffs/UI-2.md):
+  - Commits: `883adcc` (the House theme, backdrop and card materials), `45a7fed` (the match screen in both orientations, the camera line, the landscape shop shelf) and `268da2f` (score-chain icons, kit frames on the inspector and tactic sheet, the restored-frame slip).
+  - Landscape: top bar, hand flank and details flank (slip, rival, Charms), folding on 4:3. Portrait: two-row bar with a money slot, slip and rival chips, Charms row, and a fan of four at the thumbs. The ball sits at 0.667 of the lane region.
+  - Validation: the full local matrix (every CI command) passed 158/158 on `268da2f`, after the restored-frame slip fix (the run before it caught J07, J10 and J03C02). CI: Bootstrap run 42329325151 PASS on `268da2f`, both shards.
 
 ## Wave 9 closed (coordinator, 2026-11-05)
 - **Contents** (all on `claude/roguewood-build` at the "Wave 9 closed" commit):

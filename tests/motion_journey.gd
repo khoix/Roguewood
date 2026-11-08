@@ -50,14 +50,16 @@ func _run() -> void:
 	pointer.position=_window(lab.inspector.art.get_global_rect().position+lab.inspector.art.size*Vector2(0.8,0.4))
 	Input.parse_input_event(pointer)
 	await process_frame
-	var tilt: Vector2=lab.inspector.foil.get_shader_parameter("tilt")
+	var tilt: Vector2=lab.inspector.tilt
+	var phase: float=lab.inspector.foil.get_shader_parameter("progress")
 	_check(tilt==Vector2.ZERO if reduced_only else tilt.length()>0.01,"foil follows pointer only in full motion")
+	_check(lab.inspector.art.material==null and lab.inspector.foil.get_shader_parameter("reduced")==reduced_only and (is_equal_approx(phase,0.42) if reduced_only else phase>0.42),"the card's UI-A2 material takes the tilt (phase %.2f); the old art foil is off" % phase)
 	var drag := InputEventScreenDrag.new()
 	drag.index = 0
 	drag.position = _window(lab.inspector.art.get_global_rect().position + lab.inspector.art.size * Vector2(0.2, 0.6))
 	Input.parse_input_event(drag)
 	await process_frame
-	var touch_tilt: Vector2 = lab.inspector.foil.get_shader_parameter("tilt")
+	var touch_tilt: Vector2 = lab.inspector.tilt
 	_check(touch_tilt == Vector2.ZERO if reduced_only else touch_tilt.x < 0, "touch drag controls foil without playing a card")
 	_check(lab.state == "aim" and lab.armed_ball.is_empty(), "inspection drag cannot start a throw")
 	await _capture("foil")

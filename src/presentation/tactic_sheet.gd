@@ -13,11 +13,8 @@ var rack_hint: Label
 
 func _ready() -> void:
 	name = "TacticSheet"
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.1, 0.08, 0.16, 0.99)
-	style.set_corner_radius_all(12)
-	style.set_content_margin_all(14)
-	add_theme_stylebox_override("panel", style)
+	# UI-2: the House menu frame.
+	add_theme_stylebox_override("panel", preload("res://src/presentation/house_ui_theme.gd").frame("menu", 18.0, 14.0))
 	top_level = true
 	var scroll := ScrollContainer.new()
 	scroll.custom_minimum_size = Vector2(520, 0)
