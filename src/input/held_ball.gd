@@ -22,26 +22,28 @@ const Lane = preload("res://src/simulation/lane_spec.gd")
 const DEFAULTS := {
 	# Turning speed of the ball about the finger (rad/s) that gives full charge. A
 	# whipped ball turns faster than the finger circles (about 1.3-2x, more for
-	# bigger circles). 32 put full charge at a brisk 3.5 finger turns a second; the
-	# owner's phone trial found that a bit too easy (2026-11-08), so 38.
-	"full_charge_speed": 38.0,
+	# bigger circles, and more with a longer pin). 32 put full charge at a brisk 3.5
+	# finger turns a second; the owner found that a bit too easy (2026-11-08) and
+	# tuned it on the phone to 50, with the longer pin and quick smoothing below.
+	"full_charge_speed": 50.0,
 	# Seconds for the ball to lose half its speed to drag against the world, like
 	# the table under the coaster in the owner's video: it trails the finger, and
 	# spins on briefly when the finger stops.
 	"swirl_half_life": 0.1,
 	# Seconds over which the charge follows the ball's turning (smooths the sway of
-	# a pendulum so only real rotation charges).
-	"spin_up_time": 0.3,
+	# a pendulum so only real rotation charges). The owner's phone tuning: 0.05, so
+	# the meter follows the ball almost at once (the swirl gate still stops sways).
+	"spin_up_time": 0.05,
 	# The ball must turn this far one way about the finger, recently, before the
 	# charge counts: a sway or a single swing never curves.
 	"swirl_start_deg": 200.0,
 	# The pin's longest reach, normalized: the lab sets it to `pin_reach` times the
 	# ball's on-screen radius when the ball is picked up.
 	"orbit_cap": 0.05,
-	# How far the ball hangs from the finger, in ball radii (0.8: the finger stays
+	# How far the ball hangs from the finger, in ball radii. At 0.8 the finger stays
 	# inside the ball; past about 0.87 the stretched pin can carry the finger past
-	# the rim, for a bigger, floppier swing). Tunable for the owner's phone trial.
-	"pin_reach": 0.8,
+	# the rim, for a bigger, floppier swing. The owner's phone tuning: 1.0.
+	"pin_reach": 1.0,
 	# Share of the ball's own swinging velocity that the release keeps.
 	"orbit_nudge": 0.2,
 	# Below the curve threshold a throw is exactly straight: no sparkle, no curve.
@@ -68,7 +70,7 @@ const MIN_FLICK_DISTANCE := 0.04
 const MAX_FLICK_ANGLE_DEG := 60.0 # from straight up
 const FULL_POWER_SPEED := 4.0 # cap: faster flicks add no power
 const SWIRL_WINDOW_USEC := 1600000
-const MIN_SENSITIVITY := 0.5
+const MIN_SENSITIVITY := 0.25
 const MAX_SENSITIVITY := 2.0
 const MAX_STEP_USEC := 2000
 const HISTORY_USEC := 400000
