@@ -652,6 +652,7 @@ func _new_roll(save: bool = true) -> void:
 	lane.name = "Lane"
 	_viewport.add_child(lane)
 	lane.lane_condition = division.current().get("lane_condition", "lane.house")
+	_arm_lane_rules()
 	lane.setup(rack, _dressing, ItemPhysics.profiles(_catalogue, run.loadout().pins))
 	if league_theme != null:
 		var last: bool = division.division_number() == division.division_count()
@@ -731,7 +732,25 @@ func _update_ring() -> void:
 		(_marker.material_override as StandardMaterial3D).albedo_color = ring_color()
 
 func ring_color() -> Color:
-	return RING_COLORS[Ring.grade(ring_radius)]
+	return RING_COLORS[Ring.grade(ring_radius, zone_scale())]
+
+## E17-L02: what the rules in force change in the roll (Oil Slick, Narrow Lane,
+## Strobe). Set on each new lane and again at commit, so a Rule Waiver played while
+## aiming is honoured, and on resume, so a restart re-simulates the same roll.
+func lane_rules() -> Dictionary:
+	return RivalRules.lane_rules(active_rules())
+
+func _arm_lane_rules() -> void:
+	if lane != null:
+		lane.rules = lane_rules()
+
+## Strobe's narrowed ring zones (1.0 otherwise), for the ring's colour.
+func zone_scale() -> float:
+	return float(lane_rules().get("zone_scale", 1.0))
+
+## Oil Slick's halved hook (1.0 otherwise), for the aim guide's bend.
+func hook_scale() -> float:
+	return float(lane_rules().get("hook_scale", 1.0))
 
 func _input(event: InputEvent) -> void:
 	if inspector and inspector.visible: return
@@ -818,6 +837,7 @@ func _assist_preview(controls: Dictionary) -> void:
 	lane.place_ball(start_x)
 
 func _commit(launch: Dictionary, source: String) -> void:
+	_arm_lane_rules()
 	var errors := lane.commit(launch)
 	if not errors.is_empty():
 		push_error("Rejected lab launch: " + str(errors))
@@ -839,6 +859,7 @@ func _commit(launch: Dictionary, source: String) -> void:
 ## Resume a committed launch after a restart: the same launch, in the same rack,
 ## with the cards already spent. There is no way to throw it again differently.
 func _resume_commit(pending: Dictionary) -> void:
+	_arm_lane_rules()
 	var errors := lane.commit(pending.launch)
 	if not errors.is_empty():
 		push_error("Saved launch rejected on resume: " + str(errors))
@@ -1595,7 +1616,10 @@ func _draw_held_ball(delta: float) -> void:
 	# 2026-11-08: the swirl must not stop at the foul line) it comes back toward the
 	# player over the approach, so it follows the finger down the screen too.
 	var rise := _flick.origin.y - place.y + float(_flick.tuning.orbit_cap)
-	if rise >= 0.0:
+	var flat: bool = settings.get("spin_view", "flat") == "flat"
+	if flat:
+		lane.aim_ball.position = _flat_held_position(place, scale)
+	elif rise >= 0.0:
 		lane.aim_ball.position.y += clampf(rise * scale, 0.0, 0.8)
 	else:
 		var near := _screen(Lane.world(0.0, Lane.BALL_START_F - 0.5, Lane.BALL_RADIUS)).y
@@ -1605,6 +1629,11 @@ func _draw_held_ball(delta: float) -> void:
 	var charge := held_charge()
 	if settings.reduced_motion:
 		lane.aim_ball.basis = Basis.IDENTITY
+	elif flat:
+		# Flat spin: the ball turns about the camera's line of sight, facing the
+		# player like a coaster spun under a fingertip (positive is clockwise on screen).
+		_spin_angle = _flick.body_angle
+		lane.aim_ball.basis = Basis(-_camera.global_transform.basis.z.normalized(), _spin_angle)
 	else:
 		# E05-R4: the ball turns with its pin, as a body pinned off-centre does: what
 		# the player sees spinning is the physics, not an animation.
@@ -1618,6 +1647,25 @@ func _draw_held_ball(delta: float) -> void:
 			throw_cue.emit(cue[0], charge)
 			if cue[2] > 0 and settings.get("haptics", true):
 				Input.vibrate_handheld(cue[2])
+
+## Flat spin (owner, 2026-11-08): the held ball follows the swing exactly on screen
+## at one distance from the camera, so it never moves in or out of the screen. It is
+## lifted one orbit above the lane at its start so a swirl below the finger stays
+## above the boards; where the finger goes lower still, it rides the lane surface
+## toward the player. Visual only: the launch is made exactly as in depth spin.
+func _flat_held_position(place: Vector2, metres_per_norm: float) -> Vector3:
+	var home := Lane.world(_hold_start_x * Lane.LANE_HALF_WIDTH, Lane.BALL_START_F, Lane.BALL_RADIUS + float(_flick.tuning.orbit_cap) * metres_per_norm)
+	var at := _screen(home) + (place - _flick.origin) * minf(size.x, size.y)
+	var local := at * Vector2(_viewport.size) / size
+	var depth := -(_camera.global_transform.affine_inverse() * home).z
+	var point := _camera.project_position(local, depth)
+	if point.y < Lane.BALL_RADIUS:
+		var origin := _camera.project_ray_origin(local)
+		var normal := _camera.project_ray_normal(local)
+		if normal.y < -1e-6:
+			point = origin + normal * ((Lane.BALL_RADIUS - origin.y) / normal.y)
+		point.y = Lane.BALL_RADIUS
+	return point
 
 ## True while a rule in force (Dead Straight) disables charged spin.
 func spin_disabled() -> bool:
@@ -1664,6 +1712,11 @@ func _compose_status() -> void:
 				status.text += "\nDead Straight: spin is disabled — every throw rolls straight."
 			if not RivalRules.ball_allowed(active_rules(), "ball.hook"):
 				status.text += "\nHouse Rules: only the House Ball may be thrown; tactical cards are allowed."
+			for rule in active_rules():
+				if RivalRules.kind(rule) in ["hook_scale", "lane_width", "ring_scale"]:
+					status.text += "\n" + RivalRules.summary(rule).replace(" — ", ": ")
+			if lane != null and lane.lane_condition.begins_with("lane_condition.") and lane.lane_condition != "lane_condition.house_oil":
+				status.text += "\nLane: %s" % _lane_text(lane.lane_condition)
 			for action in frame_actions:
 				status.text += "\n" + Tactics.text(action, _names)
 			if last_cancel == "house_rules":
@@ -1884,4 +1937,4 @@ func _continue_endless() -> void:
 func _lane_text(id: String) -> String:
 	for entry in content.get("profile", {}).get("lanes", []):
 		if entry.id == id: return entry.text
-	return id
+	return _names.get(id, id)

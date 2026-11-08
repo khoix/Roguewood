@@ -38,7 +38,7 @@ func _check(condition: bool, label: String) -> void:
 	if not condition:
 		failures.append(label)
 
-func _simulate(tree: SceneTree, key: String, rack: Dictionary, launch: Dictionary, idle_ticks: int) -> void:
+func _simulate(tree: SceneTree, key: String, rack: Dictionary, launch: Dictionary, idle_ticks: int, rules: Dictionary = {}, condition: String = "lane.house") -> void:
 	_active += 1
 	var viewport := SubViewport.new()
 	viewport.own_world_3d = true
@@ -46,6 +46,8 @@ func _simulate(tree: SceneTree, key: String, rack: Dictionary, launch: Dictionar
 	tree.root.add_child(viewport)
 	var world: Node3D = LaneWorld.new()
 	viewport.add_child(world)
+	world.rules = rules
+	world.lane_condition = condition
 	world.setup(rack)
 	for i in idle_ticks:
 		await tree.physics_frame
@@ -64,7 +66,7 @@ func _run_jobs(tree: SceneTree, jobs: Array) -> void:
 	for job in jobs:
 		while _active >= CONCURRENT:
 			await tree.physics_frame
-		_simulate(tree, job[0], job[1], job[2], job[3])
+		_simulate(tree, job[0], job[1], job[2], job[3], job[4] if job.size() > 4 else {}, job[5] if job.size() > 5 else "lane.house")
 	while _active > 0:
 		await tree.physics_frame
 
@@ -107,6 +109,7 @@ func run(tree: SceneTree, report_path: String) -> Array[String]:
 		for key in COMPARED:
 			_check(results.get("pocket@idle%d" % idle, {}).get(key) == results.get("pocket#0", {}).get(key), "aim delay %d ticks cannot change %s" % [idle, key])
 	await _second_roll_round_trip(tree, fixtures)
+	await _neon(tree, fixtures)
 	var report := {"engine": Engine.get_version_info().string, "physics_engine": ProjectSettings.get_setting("physics/3d/physics_engine"),
 		"ticks_per_second": Engine.physics_ticks_per_second, "simulations": results.size(), "elapsed_ms": Time.get_ticks_msec() - started,
 		"sensitivity": {"start_x_delta": 0.002, "nudged": nudged, "changed_outcome": changed},
@@ -126,6 +129,50 @@ func _hook_relations(summary: Dictionary) -> void:
 	_check(absf(curve.call("curve_right_50") + curve.call("curve_left_50")) < 1e-4, "hook mirrors exactly with spin sign")
 	_check(curve.call("curve_right_50_slow") > curve.call("curve_right_50") and curve.call("curve_right_50") > curve.call("curve_right_50_fast"), "faster throws hook less")
 	_check(absf(summary.get("pocket", {}).get("curve_m", 1.0)) < 1e-4, "spin 0 stays straight")
+
+## E18-C13 (E17-L02): the Neon rules and lanes change the roll as written, and only
+## when in force (these runs stay out of the digest, which covers the standard lane).
+func _neon(tree: SceneTree, fixtures: Array) -> void:
+	var by := {}
+	for fixture in fixtures:
+		by[fixture.id] = fixture
+	var full: Dictionary = rack_of(by.pocket.rack)
+	var narrow := {"gutter_edge": Lane.LANE_HALF_WIDTH - 2 * Lane.BOARD_WIDTH}
+	# From near the right edge, drifting out: it crosses the narrowed edge before the
+	# deck but would reach the real gutter only past the pit.
+	var drift := launch_of({"start_x": 0.69, "angle_deg": 0.4, "power": 0.6}, "drift")
+	var strobe_ring := launch_of(by.pocket, "strobe")
+	strobe_ring.ring_radius = 0.075
+	await _run_jobs(tree, [
+		["neon.slick", full, launch_of(by.curve_right_50, "slick"), 0, {"hook_scale": 0.5}],
+		["neon.slick#1", full, launch_of(by.curve_right_50, "slick"), 0, {"hook_scale": 0.5}],
+		["neon.long_oil", full, launch_of(by.curve_right_50, "long"), 0, {}, Lane.LONG_OIL],
+		["neon.two_tone_right", full, launch_of(by.curve_right_50, "tt_right"), 0, {}, Lane.TWO_TONE],
+		["neon.two_tone_left", full, launch_of(by.curve_left_50, "tt_left"), 0, {}, Lane.TWO_TONE],
+		["neon.drift", rack_of([7]), drift, 0],
+		["neon.drift_narrow", rack_of([7]), drift, 0, narrow],
+		["neon.strobe", full, strobe_ring, 0, {"zone_scale": 0.5}],
+		["neon.strobe_off", full, strobe_ring, 0]])
+	var hook := func(key: String) -> float: return curve_of(results.get(key, {})) if results.has(key) else NAN
+	var base: float = hook.call("curve_right_50#0")
+	var left: float = hook.call("curve_left_50#0")
+	_check(hook.call("neon.slick") > 0.0 and hook.call("neon.slick") < base * 0.75, "Oil Slick bends a curve less (%.3f vs %.3f m)" % [hook.call("neon.slick"), base])
+	_check(results.get("neon.slick", {}).get("final_state") == results.get("neon.slick#1", {}).get("final_state"), "Oil Slick rolls repeat exactly")
+	_check(hook.call("neon.long_oil") > 0.0 and hook.call("neon.long_oil") < base, "Long Oil bends a curve less (%.3f vs %.3f m)" % [hook.call("neon.long_oil"), base])
+	_check(results.get("neon.two_tone_right", {}).get("final_state") == results.get("curve_right_50#0", {}).get("final_state"), "Two-Tone leaves a ball on the right half exactly as House Oil")
+	_check(hook.call("neon.two_tone_left") < left, "Two-Tone's dry left half hooks a left curve further (%.3f vs %.3f m)" % [hook.call("neon.two_tone_left"), left])
+	var free: Dictionary = results.get("neon.drift", {}).get("knockdown_log", {})
+	var ruled: Dictionary = results.get("neon.drift_narrow", {})
+	_check(free.get("gutter") == false and ruled.get("knockdown_log", {}).get("gutter") == true and ruled.get("roll_result", {}).get("fallen_positions", [1]).is_empty(),
+		"Narrow Lane makes a ball crossing its edge a gutter ball (it is not one on the standard lane)")
+	_check(not ruled.is_empty() and absf(float(ruled.final_state.ball[0])) > Lane.LANE_HALF_WIDTH, "the rail carries a Narrow Lane gutter ball into the gutter")
+	for key in ["neon.strobe", "neon.strobe_off"]:
+		var r: Dictionary = results.get(key, {})
+		var scale := 0.5 if key == "neon.strobe" else 1.0
+		_check(not r.is_empty() and r.roll_result.accuracy == Lane.grade_accuracy(r.knockdown_log.target_crossed, r.knockdown_log.target_offset - r.launch.target_x, r.launch.ring_radius, scale),
+			"%s grades with zone scale %.1f" % [key, scale])
+	print("PHYSICS neon slick=%.3f long_oil=%.3f base=%.3f two_tone_left=%.3f left=%.3f strobe=%s off=%s" % [hook.call("neon.slick"), hook.call("neon.long_oil"), base, hook.call("neon.two_tone_left"), left,
+		results.get("neon.strobe", {}).get("roll_result", {}).get("accuracy"), results.get("neon.strobe_off", {}).get("roll_result", {}).get("accuracy")])
 
 ## Survivor racks persist as JSON (E10); a round trip must not change roll two.
 func _second_roll_round_trip(tree: SceneTree, fixtures: Array) -> void:

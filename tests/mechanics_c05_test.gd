@@ -26,7 +26,7 @@ static func run() -> Array[String]:
 	var catalogue: Dictionary = ContentSet.load_set("slice").catalogue
 	var ids: Array = catalogue.items.map(func(i): return i.id)
 	_expect([HOUSE_RULES, HOUSE_PINS, "lane_condition.house_oil", "lane_condition.dry_backend"].all(func(id): return id in ids), "the four C05 items are in the catalogue", failures)
-	_expect(RivalRules.unknown([HOUSE_RULES, HOUSE_PINS]).is_empty() and not RivalRules.unknown(["boss_rule.oil_slick"]).is_empty(), "House Rules and House Pins are known rules; unbuilt rules stay refused", failures)
+	_expect(RivalRules.unknown([HOUSE_RULES, HOUSE_PINS]).is_empty() and not RivalRules.unknown(["boss_rule.heavy_set"]).is_empty(), "House Rules and House Pins are known rules; unbuilt rules (Heavy Set) stay refused", failures)
 	_house_rules(failures)
 	_house_pins(catalogue, failures)
 	_champion(catalogue, failures)

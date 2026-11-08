@@ -2,72 +2,8 @@
   "schema_version": 1,
   "batch": "E17-D03",
   "status": "authored",
-  "note": "Boss rules (9). Each needs a rule primitive in rival_rules.gd (E18) and a rival identity (E17 League batches, E21). Counter tags are in content/career/unlocks.json. Nothing here is in content/catalogue.json until E18. E18-C05 landed boss_rule.house_rules.",
+  "note": "Boss rules (9). Each needs a rule primitive in rival_rules.gd (E18) and a rival identity (E17 League batches, E21). Counter tags are in content/career/unlocks.json. Nothing here is in content/catalogue.json until E18. E18-C05 landed boss_rule.house_rules. E18-C13 (the rules of E17-L02) landed Oil Slick and Narrow Lane.",
   "definitions": [
-    {
-      "item": {
-        "id": "boss_rule.oil_slick",
-        "name": "Oil Slick",
-        "category": "boss_rule",
-        "rarity": "common",
-        "pool_weight": 0,
-        "unlock": {
-          "kind": "initial",
-          "prerequisites": []
-        },
-        "earliest_division": 1,
-        "purchase_price": 0,
-        "resale_price": 0,
-        "effects": [],
-        "limits": {
-          "max_owned": 1,
-          "charges": 0,
-          "exhaustion": "none"
-        },
-        "downside": "Hook response is halved for the whole boss match.",
-        "synergy_tags": [
-          "straight",
-          "precision",
-          "power"
-        ],
-        "incompatibilities": [],
-        "assets": {
-          "icon": "",
-          "card": "",
-          "in_play": "",
-          "rarity_treatment": "",
-          "activation": "",
-          "sound": "",
-          "reduced_motion": ""
-        },
-        "completeness": {
-          "authored": true,
-          "mechanics": false,
-          "automated_validation": false,
-          "artwork": false,
-          "effects_audio": false,
-          "unlock_assigned": true,
-          "integrated": false
-        }
-      },
-      "design": {
-        "trigger": "For every roll of the boss match, the ball's hook response is multiplied by 0.5 (the lane's oil and the ball's spin response are unchanged; the curve the same charge produces is halved). Straight throws are unaffected.",
-        "primitives": [
-          "rule.hook_scale"
-        ],
-        "pool": "Boss rule: never in a shop; assigned to rivals by League specs (E17 League batch, E21).",
-        "counterplay": "Straight-line aim, precision Charms (Plumb Line, House Favorite), or a strong spin ball (Hook Ball) to recover the curve.",
-        "presentation_needs": "A glossy lane sheen readable without colour; the rule badge shows a halved hook arc. The aim preview reflects the reduced curve.",
-        "asset_ids": {
-          "icon": "icon.boss_rule.oil_slick",
-          "card": "card.boss_rule.oil_slick",
-          "rarity_treatment": "rarity_treatment.boss_rule.oil_slick",
-          "activation": "activation.boss_rule.oil_slick",
-          "sound": "sound.boss_rule.oil_slick",
-          "reduced_motion": "reduced_motion.boss_rule.oil_slick"
-        }
-      }
-    },
     {
       "item": {
         "id": "boss_rule.heavy_set",
@@ -257,70 +193,6 @@
           "activation": "activation.boss_rule.charm_freeze",
           "sound": "sound.boss_rule.charm_freeze",
           "reduced_motion": "reduced_motion.boss_rule.charm_freeze"
-        }
-      }
-    },
-    {
-      "item": {
-        "id": "boss_rule.narrow_lane",
-        "name": "Narrow Lane",
-        "category": "boss_rule",
-        "rarity": "common",
-        "pool_weight": 0,
-        "unlock": {
-          "kind": "initial",
-          "prerequisites": []
-        },
-        "earliest_division": 1,
-        "purchase_price": 0,
-        "resale_price": 0,
-        "effects": [],
-        "limits": {
-          "max_owned": 1,
-          "charges": 0,
-          "exhaustion": "none"
-        },
-        "downside": "The gutters reach two boards further in for the whole boss match.",
-        "synergy_tags": [
-          "precision",
-          "straight",
-          "positional"
-        ],
-        "incompatibilities": [],
-        "assets": {
-          "icon": "",
-          "card": "",
-          "in_play": "",
-          "rarity_treatment": "",
-          "activation": "",
-          "sound": "",
-          "reduced_motion": ""
-        },
-        "completeness": {
-          "authored": true,
-          "mechanics": false,
-          "automated_validation": false,
-          "artwork": false,
-          "effects_audio": false,
-          "unlock_assigned": true,
-          "integrated": false
-        }
-      },
-      "design": {
-        "trigger": "For the boss match each gutter edge moves 2 boards (5.1 cm) toward the centre: a ball crossing the new edge is a gutter ball. Pins, rack and target ring are unchanged.",
-        "primitives": [
-          "rule.lane_width"
-        ],
-        "pool": "Boss rule: never in a shop; assigned to rivals by League specs (E17 League batch, E21).",
-        "counterplay": "Precise, straight launches; Sweet Spot and Plumb Line; avoiding wide curves.",
-        "presentation_needs": "Painted guard lines at the new edges visible from the behind-ball view; the aim preview clips at them.",
-        "asset_ids": {
-          "icon": "icon.boss_rule.narrow_lane",
-          "card": "card.boss_rule.narrow_lane",
-          "rarity_treatment": "rarity_treatment.boss_rule.narrow_lane",
-          "activation": "activation.boss_rule.narrow_lane",
-          "sound": "sound.boss_rule.narrow_lane",
-          "reduced_motion": "reduced_motion.boss_rule.narrow_lane"
         }
       }
     },
@@ -536,6 +408,48 @@
           "activation": "activation.boss_rule.house_rules",
           "sound": "sound.boss_rule.house_rules",
           "reduced_motion": "reduced_motion.boss_rule.house_rules"
+        }
+      }
+    },
+    {
+      "id": "boss_rule.oil_slick",
+      "landed_in": "E18-C13",
+      "design": {
+        "trigger": "For every roll of the boss match, the ball's hook response is multiplied by 0.5 (the lane's oil and the ball's spin response are unchanged; the curve the same charge produces is halved). Straight throws are unaffected. The committed spin is kept, so a curved throw still counts as curved; the aim guide's bend is halved too.",
+        "primitives": [
+          "rule.hook_scale"
+        ],
+        "pool": "Boss rule: never in a shop; assigned to rivals by League specs (E17 League batch, E21).",
+        "counterplay": "Straight-line aim, precision Charms (Plumb Line, House Favorite), or a strong spin ball (Hook Ball) to recover the curve.",
+        "presentation_needs": "A glossy lane sheen readable without colour; the rule badge shows a halved hook arc. The aim preview reflects the reduced curve.",
+        "asset_ids": {
+          "icon": "icon.boss_rule.oil_slick",
+          "card": "card.boss_rule.oil_slick",
+          "rarity_treatment": "rarity_treatment.boss_rule.oil_slick",
+          "activation": "activation.boss_rule.oil_slick",
+          "sound": "sound.boss_rule.oil_slick",
+          "reduced_motion": "reduced_motion.boss_rule.oil_slick"
+        }
+      }
+    },
+    {
+      "id": "boss_rule.narrow_lane",
+      "landed_in": "E18-C13",
+      "design": {
+        "trigger": "For the boss match each gutter edge moves 2 boards (5.4 cm; a board is 1/39 of the lane) toward the centre: a ball crossing the new edge is a gutter ball. Pins, rack and target ring are unchanged. The rail then carries such a ball into the gutter, and the start position is kept inside the new edges.",
+        "primitives": [
+          "rule.lane_width"
+        ],
+        "pool": "Boss rule: never in a shop; assigned to rivals by League specs (E17 League batch, E21).",
+        "counterplay": "Precise, straight launches; Sweet Spot and Plumb Line; avoiding wide curves.",
+        "presentation_needs": "Painted guard lines at the new edges visible from the behind-ball view; the aim preview clips at them.",
+        "asset_ids": {
+          "icon": "icon.boss_rule.narrow_lane",
+          "card": "card.boss_rule.narrow_lane",
+          "rarity_treatment": "rarity_treatment.boss_rule.narrow_lane",
+          "activation": "activation.boss_rule.narrow_lane",
+          "sound": "sound.boss_rule.narrow_lane",
+          "reduced_motion": "reduced_motion.boss_rule.narrow_lane"
         }
       }
     }
