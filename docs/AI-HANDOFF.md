@@ -233,7 +233,7 @@ Open: Wave 10 is merged (PR #22, main `706767f`). Base: `claude/roguewood-build`
   - Validation: full local matrix 158/158 on `c0777f5`; CI Bootstrap run 42443398228 PASS on `c0777f5`.
 - **Early merge:** UI-3 MERGED to main by PR #23 for the owner's phone testing (Wave 11 stays open).
 - **E05-R4 DONE** (ADR 011, "Revision: the ragdoll ball"): after the owner's phone trial and reference video (2026-11-08), the held ball is a weighted body hanging from the finger under screen gravity, with drag against the world; its turning about the finger is the charge. The hand hides while the ball is held. A "how far the ball hangs" tuning slider lets the owner try a bigger swing. Validation: unit and J02 pass; full local matrix 158/158 on `92d127d`; `7ac9039` adds only the slider (unit and J02 pass). A demo clip was shared.
-- **Early merge 2:** E05-R4 goes to main by PR for the owner's phone testing (Wave 11 stays open).
+- **Early merge 2:** E05-R4 MERGED to main by PR #24 for the owner's phone testing (Wave 11 stays open).
 - **Next (Claude):** the ordinal retrigger labels, then E17-L02 (Neon spec).
 
 ## Wave 10 closed (coordinator, 2026-11-07)
