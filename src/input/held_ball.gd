@@ -22,9 +22,9 @@ const Lane = preload("res://src/simulation/lane_spec.gd")
 const DEFAULTS := {
 	# Turning speed of the ball about the finger (rad/s) that gives full charge. A
 	# whipped ball turns faster than the finger circles (about 1.3-2x, more for
-	# bigger circles), so 32 rad/s keeps full charge at a brisk 3.5 finger turns a
-	# second, as the owner chose (2026-11-08).
-	"full_charge_speed": 32.0,
+	# bigger circles). 32 put full charge at a brisk 3.5 finger turns a second; the
+	# owner's phone trial found that a bit too easy (2026-11-08), so 38.
+	"full_charge_speed": 38.0,
 	# Seconds for the ball to lose half its speed to drag against the world, like
 	# the table under the coaster in the owner's video: it trails the finger, and
 	# spins on briefly when the finger stops.

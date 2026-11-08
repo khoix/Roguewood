@@ -343,7 +343,6 @@ func _ready() -> void:
 	settings_panel = SettingsPanel.new()
 	settings_panel.settings = settings
 	settings_panel.changed.connect(_apply_settings)
-	settings_panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	settings_panel.hide()
 	add_child(settings_panel)
 	inspector = preload("res://src/presentation/card_inspector.gd").new()
@@ -1779,6 +1778,19 @@ func _layout_resolution() -> void:
 	next_rack.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	# Portrait: between the raised hand (keep a card) and the score; landscape: centre bottom.
 	next_rack.position = Vector2(size.x / 2 - 160, score_top - 76.0) if portrait else Vector2(size.x / 2 - 160, size.y - 100)
+	# The settings page fits the screen and scrolls (UI-3): the full width in
+	# portrait, a centred column in landscape, below the session buttons.
+	settings_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	settings_panel.offset_top = 72.0 if portrait else 96.0
+	settings_panel.offset_bottom = -12.0
+	if portrait:
+		settings_panel.offset_left = 12.0
+		settings_panel.offset_right = -12.0
+	else:
+		settings_panel.anchor_left = 0.5
+		settings_panel.anchor_right = 0.5
+		settings_panel.offset_left = -320.0
+		settings_panel.offset_right = 320.0
 	assist_panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	if portrait:
 		# Beside the ball, above the hand, on the throwing hand's side.

@@ -28,7 +28,8 @@ func _ready() -> void:
 	button.name = "SoundAndEffects"
 	button.text = "Sound & effects"
 	button.custom_minimum_size.y = 48
-	var options: VBoxContainer = lab.settings_panel.get_child(0)
+	# UI-3 (Claude integration): the settings list sits inside a scroll container now.
+	var options: VBoxContainer = lab.settings_panel.close.get_parent()
 	var row := HBoxContainer.new()
 	options.remove_child(lab.settings_panel.close)
 	options.add_child(row)
