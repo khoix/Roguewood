@@ -236,6 +236,8 @@ Open: Wave 10 is merged (PR #22, main `706767f`). Base: `claude/roguewood-build`
 - **Early merge 2:** E05-R4 MERGED to main by PR #24 for the owner's phone testing (Wave 11 stays open).
 - **Options on the phone** (`4b9ff25`): the Options panel ran off the phone's screen, so Throw tuning could not be reached; it now fills the width in portrait and scrolls, and Codex's Sound & effects row finds the list inside the scroll. Full charge needs 38 rad/s of ball spin (was 32; the owner found it a bit too easy). Unit and the journeys that use Options pass locally. PR #25 for the owner's phone tuning.
 - **Retrigger labels DONE:** score_log.gd numbers each roll's repeats of a pin and names the effect that granted each one, so stacked Echo Ball, Echo Charge and Double Take read Echo Ball, Echo Charge, Double Take (in the order the cards were played). Text only; scores are unchanged. mechanics_c11_test has the stacked case, the reversed card order and a spare whose two rolls each repeat their own pin, and checks that no retrigger effect carries a condition (the numbering assumes every one grants). The new case fails on the old code. Unit, J06 and J03C11 pass.
+- **Early merge 3:** the Options fix and the retrigger labels MERGED to main by PR #25 (`f1852bf`) after CI passed on `1d041bd` (Wave 11 stays open).
+- **Owner:** tune the throw on the phone (Options → Throw tuning: ball spin for full charge, how far the ball hangs) and send the values; they become the defaults.
 - **Next (Claude):** E17-L02 (Neon spec).
 
 ## Wave 10 closed (coordinator, 2026-11-07)
