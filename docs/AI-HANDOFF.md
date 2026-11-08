@@ -234,7 +234,9 @@ Open: Wave 10 is merged (PR #22, main `706767f`). Base: `claude/roguewood-build`
 - **Early merge:** UI-3 MERGED to main by PR #23 for the owner's phone testing (Wave 11 stays open).
 - **E05-R4 DONE** (ADR 011, "Revision: the ragdoll ball"): after the owner's phone trial and reference video (2026-11-08), the held ball is a weighted body hanging from the finger under screen gravity, with drag against the world; its turning about the finger is the charge. The hand hides while the ball is held. A "how far the ball hangs" tuning slider lets the owner try a bigger swing. Validation: unit and J02 pass; full local matrix 158/158 on `92d127d`; `7ac9039` adds only the slider (unit and J02 pass). A demo clip was shared.
 - **Early merge 2:** E05-R4 MERGED to main by PR #24 for the owner's phone testing (Wave 11 stays open).
-- **Next (Claude):** the ordinal retrigger labels, then E17-L02 (Neon spec).
+- **Options on the phone** (`4b9ff25`): the Options panel ran off the phone's screen, so Throw tuning could not be reached; it now fills the width in portrait and scrolls, and Codex's Sound & effects row finds the list inside the scroll. Full charge needs 38 rad/s of ball spin (was 32; the owner found it a bit too easy). Unit and the journeys that use Options pass locally. PR #25 for the owner's phone tuning.
+- **Retrigger labels DONE:** score_log.gd numbers each roll's repeats of a pin and names the effect that granted each one, so stacked Echo Ball, Echo Charge and Double Take read Echo Ball, Echo Charge, Double Take (in the order the cards were played). Text only; scores are unchanged. mechanics_c11_test has the stacked case, the reversed card order and a spare whose two rolls each repeat their own pin, and checks that no retrigger effect carries a condition (the numbering assumes every one grants). The new case fails on the old code. Unit, J06 and J03C11 pass.
+- **Next (Claude):** E17-L02 (Neon spec).
 
 ## Wave 10 closed (coordinator, 2026-11-07)
 - **Contents** (all on `claude/roguewood-build` at the "Wave 10 closed" commit):
