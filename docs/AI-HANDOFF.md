@@ -226,6 +226,13 @@ Open: Wave 10 is merged (PR #22, main `706767f`). Base: `claude/roguewood-build`
   - **Neon rivals and theme:** only once E17-L02's spec is committed; otherwise it moves to Wave 12 and Codex closes after AV-T01.
 - **Owner:** play UI-3's build on the phone; pick a backdrop; tune the throw (Options → Throw tuning; Reset brings back the new defaults).
 
+## Wave 11 progress (coordinator)
+- **UI-3 DONE** (handoffs/UI-3.md; E05-R3 in ADR 011): the phone pass from the owner's trial of 2026-11-08.
+  - Swing: full charge at 3.5 turns a second, steady-turn swirl detection, the held ball follows the finger below its start point.
+  - Portrait lays out 540 wide (text about a third larger), with re-fitted screens: a two-row top bar, one info row, the prompt above the hand, the kit strip in the Charms row, a full-width fan, the roll view, a centred frame review, and a three-column portrait shop with pinned actions.
+  - Validation: full local matrix 158/158 on `c0777f5`.
+- **Next (Claude):** the ordinal retrigger labels, then E17-L02 (Neon spec).
+
 ## Wave 10 closed (coordinator, 2026-11-07)
 - **Contents** (all on `claude/roguewood-build` at the "Wave 10 closed" commit):
   - Claude: UI-1 (`2c7ffd5`, `a1a9d0b`, `6fb9c44`), E05-R2 (with the owner's adjustments, `ec9cabc`) and UI-2 (`883adcc`, `45a7fed`, `268da2f`, `8471921`).
