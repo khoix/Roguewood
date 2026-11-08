@@ -79,7 +79,14 @@ func _drag(canvas: Vector2, relative: Vector2) -> void:
 	await process_frame
 
 ## Holds the ball, slides sideways, then flicks along step; returns the release point.
+## Gesture distances are written for a 720-wide layout; UI-3 lays portrait out 540
+## wide, so they scale with the screen's shorter side (the model reads them so).
+func _px() -> float:
+	return minf(lab.size.x, lab.size.y) / 720.0
+
 func _gesture(slide: Vector2, slide_frames: int, step: Vector2, step_frames: int, release: bool = true) -> Vector2:
+	slide *= _px()
+	step *= _px()
 	var at: Vector2 = lab.ball_screen_position()
 	await _touch(at, true)
 	for i in slide_frames:
@@ -144,6 +151,14 @@ func _cancellations(lane_before: Node, ball_home: Vector3) -> void:
 	var lifted := await _gesture(Vector2(90, 0), 6, Vector2.ZERO, 0, false)
 	_check(lab.state == "holding", "touch on ball starts hold")
 	_check(lab.lane.ball_position().x > ball_home.x + 0.05, "ball follows sideways drag")
+	# E05-R3 (owner, 2026-11-08): below its start point the held ball follows the
+	# finger back over the approach instead of stopping at the foul line.
+	var resting_y: float = lab.ball_screen_position().y
+	lifted += Vector2(0, 90) * _px()
+	await _drag(lifted, Vector2(0, 90) * _px())
+	await process_frame
+	_check(lab.state == "holding" and lab.lane.aim_ball.position.z > ball_home.z + 0.05 and lab.ball_screen_position().y > resting_y + 20.0,
+		"below its start the held ball follows the finger down (z %.2f -> %.2f)" % [ball_home.z, lab.lane.aim_ball.position.z])
 	await _touch(lifted, false) # the finger lifts where it is (the held ball floats above it)
 	_check(lab.state == "aim" and lab.cancels == 1 and lab.last_cancel == "short", "sideways-only release cancels")
 	# Slow upward drag, then an OS-cancelled touch.
@@ -279,7 +294,7 @@ func _ready_to_throw() -> void:
 ## Holds the ball, circles sweep_deg (clockwise positive on screen) starting at the
 ## circle's bottom (the ball), then flicks straight up. Captures mid-hold if asked.
 func _circle_throw(sweep_deg: float, hold_capture: String = "") -> void:
-	var radius := 20.0 # a small, fast swirl: 30 degrees a frame is 5 turns a second (E05-R2)
+	var radius := 20.0 * _px() # a small, fast swirl: 30 degrees a frame is 5 turns a second (E05-R2)
 	var at: Vector2 = lab.ball_screen_position()
 	var center := at + Vector2(0.0, -radius)
 	await _touch(at, true)
@@ -296,8 +311,8 @@ func _circle_throw(sweep_deg: float, hold_capture: String = "") -> void:
 			"the ball orbits the touch point inside its own radius (%.3f of cap %.3f)" % [tether, lab._flick.tuning.orbit_cap])
 		await _capture(hold_capture)
 	for i in 8:
-		at += Vector2(0, -32)
-		await _drag(at, Vector2(0, -32))
+		at += Vector2(0, -32) * _px()
+		await _drag(at, Vector2(0, -32) * _px())
 	await _touch(at, false)
 
 func _await_result(label: String) -> Dictionary:
@@ -381,8 +396,8 @@ func _held_ball() -> void:
 	var weak: float = lab.held_charge()
 	_check(weak > 0.0 and not lab.curve_ready() and lab.charged_spin() == 0.0, "a weak swing charges (%.2f) but is not curve-ready" % weak)
 	for i in 8:
-		at += Vector2(0, -32)
-		await _drag(at, Vector2(0, -32))
+		at += Vector2(0, -32) * _px()
+		await _drag(at, Vector2(0, -32) * _px())
 	await _touch(at, false)
 	_check(lab.state == "rolling" and lab.lane.launch.spin == 0.0, "below the sparkle threshold the throw is exactly straight")
 	_check(not cues.any(func(c): return c[0] == "throw.curve_ready"), "no curve-ready cue for a weak swing")
@@ -409,8 +424,8 @@ func _mouse_throw() -> void:
 	await _mouse_button(at, true)
 	_check(lab.state == "holding", "mouse press on the ball holds it")
 	for i in 8:
-		at += Vector2(0, -32)
-		await _mouse_move(at, Vector2(0, -32))
+		at += Vector2(0, -32) * _px()
+		await _mouse_move(at, Vector2(0, -32) * _px())
 	await _mouse_button(at, false)
 	_check(lab.state == "rolling" and lab.last_source == "mouse", "mouse flick commits a throw")
 	await _await_result("mouse")

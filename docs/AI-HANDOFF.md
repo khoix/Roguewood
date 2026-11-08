@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-11-07. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). **Wave 10 is closed** (see "Wave 10 closed"), awaiting the owner's merge. No Wave 11 work starts before it. The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
+Updated: 2026-11-08. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). Wave 10 is merged by PR #22 (main `706767f`). **Wave 11 is open** (see "Wave 11 claims"). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
 
 ## Read first
 
@@ -213,6 +213,26 @@ Open: Wave 8 is merged (PR #19, main `f444488`). Base: `claude/roguewood-build` 
   - Codex: UI-A2, AV-H4 (E17-D10's five), AV-T01.
 - **Owner:** approve the UI-A1 mockups (gates UI-1), and play the held-ball throw on a phone through the hosted web build.
 
+## Wave 11 claims (coordinator: Claude, 2026-11-08)
+Open: Wave 10 is merged (PR #22, main `706767f`). Base: `claude/roguewood-build` at this commit. Codex merges it into `codex/roguewood-build` with a merge commit before starting. Scope: docs/ROADMAP.md, "Phone pass: UI-3" and the Wave 11 row.
+- **Claude, in this order:**
+  1. **UI-3** (High): the phone pass from the owner's trial of 2026-11-08, including E05-R3 (the swing fix: full charge at 3.5 turns a second, steady-turn swirl detection, the held ball below the foul line).
+     - Paths: src/input/held_ball.gd and its test; throw_lab.gd layout, match_panels.gd, division_hud.gd, card_hand.gd, score_panel.gd, shop_panel.gd, the bootstrap content scale; the journeys these touch; ADR 011.
+     - Delivers: the readable scale with re-fitted screens, the roll view, the slim top chrome, the centered frame review, the portrait shop; captures for the owner.
+  2. **Retrigger labels** (Low): ordinal-aware `_cause` in src/rules/score_log.gd (handoffs/AV-H4-A.md); a unit case with Echo Ball, Echo Charge and Double Take stacked.
+  3. **E17-L02** (High): the Neon spec, rules and lanes. Carries into Wave 12 if UI-3 runs long.
+- **Codex:**
+  - **AV-T01** (Medium): throw charge and sparkle effects and sounds for the tethered swing, in two levels with reduced versions. Read ADR 011 (including E05-R3) and the cues `throw.charge`, `throw.curve_ready`, `throw.full_charge`.
+  - **Neon rivals and theme:** only once E17-L02's spec is committed; otherwise it moves to Wave 12 and Codex closes after AV-T01.
+- **Owner:** play UI-3's build on the phone; pick a backdrop; tune the throw (Options → Throw tuning; Reset brings back the new defaults).
+
+## Wave 11 progress (coordinator)
+- **UI-3 DONE** (handoffs/UI-3.md; E05-R3 in ADR 011): the phone pass from the owner's trial of 2026-11-08.
+  - Swing: full charge at 3.5 turns a second, steady-turn swirl detection, the held ball follows the finger below its start point.
+  - Portrait lays out 540 wide (text about a third larger), with re-fitted screens: a two-row top bar, one info row, the prompt above the hand, the kit strip in the Charms row, a full-width fan, the roll view, a centred frame review, and a three-column portrait shop with pinned actions.
+  - Validation: full local matrix 158/158 on `c0777f5`; CI Bootstrap run 42443398228 PASS on `c0777f5`.
+- **Next (Claude):** the ordinal retrigger labels, then E17-L02 (Neon spec).
+
 ## Wave 10 closed (coordinator, 2026-11-07)
 - **Contents** (all on `claude/roguewood-build` at the "Wave 10 closed" commit):
   - Claude: UI-1 (`2c7ffd5`, `a1a9d0b`, `6fb9c44`), E05-R2 (with the owner's adjustments, `ec9cabc`) and UI-2 (`883adcc`, `45a7fed`, `268da2f`, `8471921`).
@@ -224,7 +244,7 @@ Open: Wave 8 is merged (PR #19, main `f444488`). Base: `claude/roguewood-build` 
   - CI runs on this commit.
 - **Follow-up for Wave 11 (Claude, rules lane):** score_log.gd `_cause` names the first non-ball retrigger owner for every repeat on a roll, so with stacked Echo Ball, Echo Charge and Double Take two repeats can share one label (Codex, handoffs/AV-H4-A.md). Text only; scores are right.
 - **Owner actions:** pick a backdrop (Constellations is the default; Slow stars is a one-line switch); turn on GitHub Pages; play the swing, the fan of four and the folds on a phone.
-- **Merge:** pending the owner's merge of the Wave 10 PR.
+- **Merge:** MERGED to main by PR #22 (`706767f`) after CI passed on `a91c2a9`.
 
 ## Wave 10 claims (coordinator: Claude, 2026-11-06)
 Open: Wave 9 is merged (PR #20), plus the CI fix (PR #21, main `f4810aa`). Base: `claude/roguewood-build` at the "Wave 10 claims" commit. Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave10.md). Scope: docs/ROADMAP.md, "Art-forward interface: UI-R1" (with the owner's decisions of 2026-11-05) and "Tethered swing: E05-R2".

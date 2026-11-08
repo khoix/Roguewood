@@ -23,8 +23,10 @@ var reduced_motion := false
 var max_card_height := 150.0
 ## "row" (one row, as before), "flank" (two columns, actions below) or "fan".
 var mode := "row"
+var _left_handed := false
 var body: BoxContainer
 var actions: BoxContainer
+var header: HBoxContainer
 const FAN_OVERLAP := 0.3 # of a card's width
 
 func _ready() -> void:
@@ -38,7 +40,10 @@ func _ready() -> void:
 	info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	info.add_theme_font_size_override("font_size", 20)
-	box.add_child(info)
+	header = HBoxContainer.new()
+	header.add_theme_constant_override("separation", 8)
+	box.add_child(header)
+	header.add_child(info)
 	# UI-2: cards and actions; "flank" stacks them (landscape), "fan" puts the
 	# actions on a thumb rail beside a fanned hand (portrait, mirrored for left hands).
 	body = BoxContainer.new()
@@ -134,6 +139,10 @@ func button_for(uid: String) -> Button:
 ## hand changes lands where the card is drawn; this keeps it right after resizes.
 func _process(_delta: float) -> void:
 	_size_cards()
+	# Shrink back to the content when the cards get smaller (UI-3: the raised hand).
+	var want := maxf(custom_minimum_size.y, get_combined_minimum_size().y)
+	if not is_equal_approx(size.y, want):
+		size.y = want
 
 func _card_size() -> Vector2:
 	var gap := 8.0
@@ -152,15 +161,25 @@ func _card_size() -> Vector2:
 	return Vector2(floorf(width), floorf(width * CardView.ASPECT))
 
 ## UI-2 layout modes; `left_handed` puts the fan's thumb rail on the left.
+## "fan" (portrait, UI-3): Cycle and Inspect sit in the header beside the counts,
+## mirrored for left hands, so the fan gets the panel's full width. "flank"
+## (landscape): two columns with the actions below.
 func set_mode(new_mode: String, left_handed: bool = false) -> void:
+	if mode == new_mode and _left_handed == left_handed and actions.get_parent() != null and actions.get_parent() != body: return
 	mode = new_mode
+	_left_handed = left_handed
 	body.vertical = mode == "flank"
-	actions.vertical = mode != "flank"
-	actions.alignment = BoxContainer.ALIGNMENT_END if mode != "fan" else BoxContainer.ALIGNMENT_CENTER
-	body.move_child(actions, 0 if mode == "fan" and left_handed else -1)
-	info.add_theme_font_size_override("font_size", 16 if mode == "flank" else 20)
+	actions.vertical = false
+	actions.alignment = BoxContainer.ALIGNMENT_END
+	actions.get_parent().remove_child(actions)
+	if mode == "fan":
+		header.add_child(actions)
+		header.move_child(actions, 0 if left_handed else -1)
+	else:
+		body.add_child(actions)
+	info.add_theme_font_size_override("font_size", 16 if mode == "flank" else 18)
 	for button in [cycle_button, inspect_button]:
-		button.custom_minimum_size = Vector2(0 if mode == "flank" else 150, 48)
+		button.custom_minimum_size = Vector2(0 if mode == "flank" else 112, 44)
 	_size_cards()
 
 func _size_cards() -> void:

@@ -11,7 +11,9 @@ const MARGIN := 24.0
 const FLANK := 0.19 # of the screen width, landscape
 const FLANK_MIN := 240.0 # below this, or under 1.5:1, landscape folds
 const FOLD_ASPECT := 1.5
+const PORTRAIT_MARGIN := 12.0
 const BALL_AT := 0.667 # of the lane region's height
+const BALL_AT_PORTRAIT := 0.76
 const INK := Color("101820")
 
 signal fold_changed
@@ -24,6 +26,7 @@ var rival_text: Label
 var charms: PanelContainer
 var charm_icons: HFlowContainer
 var charm_count: Label
+var charm_heading: Label
 var fold_bar: PanelContainer
 var hand_toggle: Button
 var details_toggle: Button
@@ -56,6 +59,7 @@ func _ready() -> void:
 	charm_row.add_theme_constant_override("separation", 10)
 	charms.add_child(charm_row)
 	var heading := Label.new()
+	charm_heading = heading
 	heading.text = "CHARMS"
 	heading.add_theme_color_override("font_color", UiTheme.BRASS)
 	heading.add_theme_font_size_override("font_size", 18)
@@ -124,21 +128,34 @@ func _text(parent: Control, node_name: String, color: Color) -> Label:
 ## slip and rival chips, the Charms row, the lane, and the hand at the thumbs.
 ## Landscape: a one-row top bar, the hand flank and the details flank (mirrored for
 ## left-handed play), folding into a second bar row when the screen is narrow.
-static func compute(screen: Vector2, left_handed: bool, hand_height: float) -> Dictionary:
+## `compact` is the roll view (UI-3): while the ball rolls and the frame scores, the
+## hand and details leave and the top bar shrinks to one slim line.
+static func compute(screen: Vector2, left_handed: bool, hand_height: float, compact: bool = false) -> Dictionary:
 	var w := screen.x
 	var h := screen.y
-	var r := {"portrait": h >= w, "fold": false, "left_handed": left_handed}
+	var r := {"portrait": h >= w, "fold": false, "left_handed": left_handed, "compact": compact}
 	if r.portrait:
-		r.top_bar = Rect2(MARGIN, 88, w - 2 * MARGIN, 136)
-		var chip_w := floorf((w - 2 * MARGIN - 16) * 0.48)
-		r.slip = Rect2(MARGIN, 238, chip_w, 48)
-		r.rival = Rect2(MARGIN + chip_w + 16, 238, w - 2 * MARGIN - chip_w - 16, 48)
-		r.charms = Rect2(MARGIN, 298, w - 2 * MARGIN, 48)
-		r.hand = Rect2(MARGIN, h - MARGIN - hand_height, w - 2 * MARGIN, hand_height)
-		r.lane = Rect2(MARGIN, 354, w - 2 * MARGIN, r.hand.position.y - 18 - 354)
-		r.prompt = Rect2(MARGIN, 356, w - 2 * MARGIN, 0)
-		r.bubble = Rect2(MARGIN, 238, w - 2 * MARGIN, 0)
+		# UI-3 (owner phone trial, 2026-11-08): narrow margins, a two-row bar, one
+		# info row (slip, rival, Charms), the lane, and the fanned hand at the thumbs.
+		# The prompt sits above the hand, out of the pins' way.
+		var m := PORTRAIT_MARGIN
+		r.top_bar = Rect2(m, 68, w - 2 * m, 100)
+		var row_y := 176.0
+		var inner := w - 2 * m - 16
+		var slip_w := floorf(inner * 0.32)
+		var rival_w := floorf(inner * 0.38)
+		r.slip = Rect2(m, row_y, slip_w, 56)
+		r.rival = Rect2(m + slip_w + 8, row_y, rival_w, 56)
+		r.charms = Rect2(r.rival.end.x + 8, row_y, w - m - r.rival.end.x - 8, 56)
+		r.hand = Rect2(m, h - m - hand_height, w - 2 * m, hand_height)
+		r.lane = Rect2(m, row_y + 64, w - 2 * m, r.hand.position.y - 8 - row_y - 64)
+		r.prompt = Rect2(m, r.hand.position.y - 8, w - 2 * m, 0) # bottom edge
+		r.kit = Rect2(m, row_y + 68, 64, 0)
+		r.bubble = Rect2(m, row_y, w - 2 * m, 0)
 		r.corridor = Rect2(w * 0.3, r.lane.position.y, w * 0.4, r.lane.size.y)
+		if compact:
+			r.top_bar = Rect2(m, m, w - 4 * m - 240, 52) # Clubhouse and Options stay at the right
+			r.prompt = Rect2(m, h - 16, w - 2 * m, 0)
 	else:
 		var side := floorf(w * FLANK)
 		r.fold = w / h < FOLD_ASPECT or side < FLANK_MIN
@@ -158,9 +175,11 @@ static func compute(screen: Vector2, left_handed: bool, hand_height: float) -> D
 		r.lane = Rect2(MARGIN, top, w - 2 * MARGIN, h - top - MARGIN)
 		r.corridor = Rect2(w * 0.32, top, w * 0.36, h - top - MARGIN)
 		var inner := MARGIN + side + 16
-		r.prompt = Rect2(inner, top, w - 2 * inner, 0)
+		r.prompt = Rect2(inner, h - MARGIN, w - 2 * inner, 0) # bottom edge, between the flanks
+		r.kit = Rect2(inner, top, 64, 0)
 		r.bubble = Rect2(detail_x, r.rival.position.y, side, 0)
-	r.ball_y = r.lane.position.y + r.lane.size.y * BALL_AT
+	# Portrait puts the ball lower (UI-3) so the pins clear the info row on short screens.
+	r.ball_y = r.lane.position.y + r.lane.size.y * (BALL_AT_PORTRAIT if r.portrait else BALL_AT)
 	return r
 
 ## Places the panels for `layout` (compute()); `playing` hides them outside a match.
@@ -170,17 +189,18 @@ func apply(layout: Dictionary, playing: bool) -> void:
 	fold_bar.visible = playing and fold
 	if fold:
 		_place(fold_bar, layout.fold_bar)
-	var details_shown: bool = playing and (not fold or show_details)
+	var details_shown: bool = playing and (not fold or show_details) and not layout.get("compact", false)
 	for pair in [[slip, "slip"], [rival, "rival"], [charms, "charms"]]:
 		pair[0].visible = details_shown
 		_place(pair[0], layout[pair[1]])
 	var portrait: bool = layout.portrait
-	rival_portrait.custom_minimum_size = Vector2(36, 36) if portrait else Vector2(64, 64)
-	var size_px := 18 if portrait else 20
-	slip_text.add_theme_font_size_override("font_size", size_px)
-	rival_text.add_theme_font_size_override("font_size", 16 if portrait else 18)
-	slip_text.max_lines_visible = 1 if portrait else 4
+	rival_portrait.custom_minimum_size = Vector2(34, 34) if portrait else Vector2(64, 64)
+	slip_text.add_theme_font_size_override("font_size", 18 if portrait else 20)
+	rival_text.add_theme_font_size_override("font_size", 15 if portrait else 18)
+	slip_text.max_lines_visible = 2 if portrait else 4
 	rival_text.max_lines_visible = 2 if portrait else 4
+	slip_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER if portrait else HORIZONTAL_ALIGNMENT_LEFT
+	charm_heading.visible = not portrait # portrait shows the icons and count only
 
 func _place(control: Control, rect: Rect2) -> void:
 	control.set_anchors_preset(Control.PRESET_TOP_LEFT)
@@ -191,7 +211,7 @@ func _place(control: Control, rect: Rect2) -> void:
 ## The last banked frame, or a note that none is banked yet.
 func show_slip(result: Dictionary, total: int) -> void:
 	if result.is_empty():
-		slip_text.text = "No frame banked yet" if regions.get("portrait", true) else "LAST FRAME\nNone banked yet"
+		slip_text.text = "No frame yet" if regions.get("portrait", true) else "LAST FRAME\nNone banked yet"
 		return
 	# A restored frame keeps only its banked score and category, not the chain.
 	var chain := "%s × %s = %s" % [_n(result.pin_value), _n(result.mult), _n(result.score)] if result.has("pin_value") and result.has("mult") else "Banked %s" % _n(result.get("score", 0))
@@ -212,7 +232,7 @@ func show_rival(rival_entry: Dictionary, rule_line: String, boss_now: bool) -> v
 	rival_portrait.visible = rival_portrait.texture != null
 	var name_line: String = rival_entry.get("name", "")
 	if regions.get("portrait", true):
-		rival_text.text = "%s · %s" % [name_line, rule_line] if boss_now else "Boss ahead: %s" % name_line
+		rival_text.text = "%s\n%s" % [name_line, rule_line] if boss_now else "Next boss\n%s" % name_line
 	else:
 		rival_text.text = "%s\n%s" % [name_line, rule_line] if boss_now else "BOSS AHEAD\n%s\n%s" % [name_line, rule_line]
 		if not quote.is_empty() and boss_now:
@@ -252,6 +272,21 @@ func show_charms(item_ids: Array, slots: int, names: Dictionary) -> void:
 			icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			charm_icons.add_child(icon)
 	charm_count.text = "%d/%d" % [item_ids.size(), slots]
+
+## Seats Codex's equipment art strip (kit and Charm identities) in the Charms row;
+## this row's own name tags then stand in only for Charms without identity art.
+func host_equipment_strip(strip: Control) -> void:
+	strip.get_parent().remove_child(strip)
+	charm_icons.get_parent().set_meta("hosts_equipment_strip", true)
+	charm_icons.get_parent().add_child(strip)
+	charm_icons.get_parent().move_child(strip, charm_icons.get_index())
+	_strip = strip
+
+var _strip: Control
+
+func _process(_delta: float) -> void:
+	if _strip != null:
+		charm_icons.visible = _strip.get_child_count() == 0
 
 ## Controls that take touches (the lab never starts a throw over them).
 func blocking_controls() -> Array:

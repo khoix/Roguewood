@@ -69,6 +69,14 @@ func _window(canvas: Vector2) -> Vector2:
 
 ## A finger tap: the lab must ignore it (over UI) and the button must take it.
 func _tap(control: Control) -> void:
+	# A player scrolls a control into view before tapping it (UI-3's portrait shop
+	# scrolls under its pinned actions).
+	var scroll: Node = control.get_parent()
+	while scroll != null and not (scroll is ScrollContainer): scroll = scroll.get_parent()
+	if scroll != null and not (scroll as Control).get_global_rect().encloses(control.get_global_rect()):
+		(scroll as ScrollContainer).ensure_control_visible(control)
+		await process_frame
+		await process_frame
 	var at := control.get_global_rect().get_center()
 	for pressed in [true, false]:
 		var event := InputEventScreenTouch.new()

@@ -19,9 +19,16 @@ var _initial_target := Lane.DEFAULT_TARGET_X
 
 func _ready() -> void:
 	name = "AssistControls"
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 6)
-	add_child(box)
+	# UI-3: each label sits beside its slider, so the panel fits beside the ball on
+	# a phone; Throw spans the bottom.
+	var outer := VBoxContainer.new()
+	outer.add_theme_constant_override("separation", 8)
+	add_child(outer)
+	var box := GridContainer.new()
+	box.columns = 2
+	box.add_theme_constant_override("h_separation", 10)
+	box.add_theme_constant_override("v_separation", 6)
+	outer.add_child(box)
 	position_slider = _slider(box, "AssistPosition", -snappedf(Lane.MAX_START_X, 0.05), snappedf(Lane.MAX_START_X, 0.05), 0.05, 0.0)
 	aim_slider = _slider(box, "AssistAim", -Mapper.MAX_LAUNCH_ANGLE_DEG, Mapper.MAX_LAUNCH_ANGLE_DEG, 0.25, 0.0)
 	power_slider = _slider(box, "AssistPower", 0.0, 1.0, 0.05, 0.5)
@@ -30,9 +37,9 @@ func _ready() -> void:
 	throw_button = Button.new()
 	throw_button.name = "AssistThrow"
 	throw_button.text = "Throw"
-	throw_button.custom_minimum_size = Vector2(0, 64)
+	throw_button.custom_minimum_size = Vector2(0, 56)
 	throw_button.pressed.connect(func(): throw_requested.emit(values()))
-	box.add_child(throw_button)
+	outer.add_child(throw_button)
 	_refresh()
 
 func set_target(x: float) -> void:
@@ -43,6 +50,8 @@ func set_target(x: float) -> void:
 
 func _slider(box: Container, node_name: String, low: float, high: float, step: float, value: float) -> HSlider:
 	var label := Label.new()
+	label.add_theme_font_size_override("font_size", 18)
+	label.custom_minimum_size = Vector2(132, 0)
 	box.add_child(label)
 	var slider := HSlider.new()
 	slider.name = node_name
@@ -50,7 +59,8 @@ func _slider(box: Container, node_name: String, low: float, high: float, step: f
 	slider.max_value = high
 	slider.step = step
 	slider.value = value
-	slider.custom_minimum_size = Vector2(260, 40)
+	slider.custom_minimum_size = Vector2(100, 32)
+	slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	slider.value_changed.connect(func(_value): _refresh(); preview_changed.emit(values()))
 	box.add_child(slider)
 	_labels[node_name] = label

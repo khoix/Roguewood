@@ -46,9 +46,11 @@ func _ready() -> void:
 	header.name = "ScoreHeader"
 	header.add_theme_font_size_override("font_size", 30)
 	header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	header_row.add_child(header)
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 16)
+	row.add_theme_constant_override("separation", 24)
+	row.alignment = BoxContainer.ALIGNMENT_CENTER # UI-3: the review is centred
 	box.add_child(row)
 	rack_view = Control.new()
 	rack_view.name = "RackDiagram"
@@ -58,7 +60,6 @@ func _ready() -> void:
 	counters = Label.new()
 	counters.name = "ScoreCounters"
 	counters.add_theme_font_size_override("font_size", 34)
-	counters.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	counters.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	row.add_child(counters)
 	log_scroll = ScrollContainer.new()
@@ -71,6 +72,7 @@ func _ready() -> void:
 	log_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	log_scroll.add_child(log_list)
 	var buttons := HBoxContainer.new()
+	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
 	buttons.add_theme_constant_override("separation", 12)
 	box.add_child(buttons)
 	speed_button = Button.new()
@@ -85,6 +87,14 @@ func _ready() -> void:
 	skip_button.pressed.connect(skip)
 	buttons.add_child(skip_button)
 	_refresh_speed()
+
+## UI-3: a shorter, centred review for portrait phones; the full size otherwise.
+func fit(portrait: bool) -> void:
+	header.get_parent().custom_minimum_size.y = 40 if portrait else 64
+	header.add_theme_font_size_override("font_size", 26 if portrait else 30)
+	rack_view.custom_minimum_size = Vector2(190, 160) if portrait else Vector2(210, 190)
+	counters.add_theme_font_size_override("font_size", 32 if portrait else 34)
+	log_scroll.custom_minimum_size.y = 72 if portrait else 150
 
 ## reports: the frame's LaneWorld reports, used only for roll attribution.
 func play(frame_steps: Array, reports: Array, title: String, play_speed: int) -> void:
