@@ -221,11 +221,20 @@ func _begin_attempt(attempt: int, saved: Dictionary = {}) -> void:
 	lab.frame_scored.connect(_on_frame_scored)
 	lab.money_changed.connect(func(money): session.money = money)
 	# UI-3 roll view: the session buttons step aside while the ball rolls and scores.
-	lab.chrome_compact_changed.connect(func(compact): session_bar.visible = not compact)
+	lab.chrome_compact_changed.connect(_on_chrome_compact)
 	add_child(lab)
 	move_child(lab, 0)
+	_on_chrome_compact(false)
 	session_bar.show()
 	reset.grab_focus()
+
+## UI-3 roll view: Restart and Clubhouse step aside while the ball rolls and
+## scores; Options stays reachable at the top right.
+func _on_chrome_compact(compact: bool) -> void:
+	reset.visible = not compact
+	back.visible = not compact
+	session_bar.alignment = BoxContainer.ALIGNMENT_END if compact else BoxContainer.ALIGNMENT_CENTER
+	session_bar.offset_right = -12.0 if compact else 0.0
 
 ## The session fixture tracks the lab's banked total and current frame.
 func _on_frame_scored(scored: Dictionary) -> void:

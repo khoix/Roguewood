@@ -38,6 +38,8 @@ var details_button: Button
 var _details_open := false
 var _landscape := false
 var _split: HBoxContainer
+var _pin: HBoxContainer
+var _actions: HBoxContainer
 var _shelf: VBoxContainer
 
 func _ready() -> void:
@@ -45,9 +47,17 @@ func _ready() -> void:
 	add_theme_stylebox_override("panel", UiTheme.frame("shop", 20.0, 16.0))
 	# UI-2: landscape puts the offers on a three-column shelf beside the scrolling
 	# shop text and actions; portrait keeps one scrolling column.
+	var root := VBoxContainer.new()
+	root.add_theme_constant_override("separation", 8)
+	add_child(root)
 	_split = HBoxContainer.new()
 	_split.add_theme_constant_override("separation", 18)
-	add_child(_split)
+	_split.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	root.add_child(_split)
+	# UI-3: in portrait the actions are pinned below the scrolling shop, always in reach.
+	_pin = HBoxContainer.new()
+	_pin.name = "PinnedActions"
+	root.add_child(_pin)
 	_shelf = VBoxContainer.new()
 	_shelf.name = "Shelf"
 	_shelf.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -85,7 +95,9 @@ func _ready() -> void:
 		_add_offer_button()
 	var actions := HBoxContainer.new()
 	actions.add_theme_constant_override("separation", 8)
+	actions.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_main.add_child(actions)
+	_actions = actions
 	reroll_button = _button(actions, "Reroll", func(): reroll_pressed.emit())
 	remove_button = _button(actions, "RemoveCard", func(): remove_pressed.emit())
 	continue_button = _button(actions, "ContinueShop", func(): continue_pressed.emit())
@@ -141,6 +153,15 @@ func _add_offer_button() -> void:
 	offer_buttons.append(button)
 
 func _show_details() -> void:
+	var pinned := not _landscape
+	if pinned != (_actions.get_parent() == _pin):
+		_actions.get_parent().remove_child(_actions)
+		if pinned:
+			_pin.add_child(_actions)
+		else:
+			_main.add_child(_actions)
+			_main.move_child(_actions, message.get_index())
+	_pin.visible = pinned
 	for button in [reroll_button, remove_button, continue_button]:
 		button.custom_minimum_size = Vector2(200, 64) if _landscape else Vector2(0, 60)
 		button.size_flags_horizontal = Control.SIZE_FILL if _landscape else Control.SIZE_EXPAND_FILL
@@ -197,8 +218,12 @@ func show_view(view: Dictionary) -> void:
 	# landscape sizes the shelf's cards to fit every row on screen.
 	var card_size := Vector2(105, 150)
 	if not landscape:
-		# UI-3: three columns as wide as the panel allows (up to 150 px).
-		var width := floorf(minf(150.0, (size.x - 40.0 - 14.0 - 16.0) / 3.0))
+		# UI-3: three columns as wide as the panel allows (up to 150 px), short
+		# enough that every row of offers shows above the pinned actions.
+		var rows := ceili(view.offers.size() / 3.0)
+		var room := _scroll.size.y - 150.0 - 8.0 * (rows - 1)
+		var height := clampf(room / maxf(rows, 1), 150.0, 214.0)
+		var width := floorf(minf(minf(150.0, (size.x - 40.0 - 14.0 - 16.0) / 3.0), height / CardView.ASPECT))
 		card_size = Vector2(width, floorf(width * CardView.ASPECT))
 	if landscape:
 		var rows := ceili(view.offers.size() / float(offers_grid.columns))

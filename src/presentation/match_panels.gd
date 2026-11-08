@@ -154,7 +154,7 @@ static func compute(screen: Vector2, left_handed: bool, hand_height: float, comp
 		r.bubble = Rect2(m, row_y, w - 2 * m, 0)
 		r.corridor = Rect2(w * 0.3, r.lane.position.y, w * 0.4, r.lane.size.y)
 		if compact:
-			r.top_bar = Rect2(m, m, w - 2 * m, 56)
+			r.top_bar = Rect2(m, m, w - 3 * m - 160, 52) # Options stays at the right
 			r.prompt = Rect2(m, h - 16, w - 2 * m, 0)
 	else:
 		var side := floorf(w * FLANK)
