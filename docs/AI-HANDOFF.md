@@ -238,7 +238,9 @@ Open: Wave 10 is merged (PR #22, main `706767f`). Base: `claude/roguewood-build`
 - **Retrigger labels DONE:** score_log.gd numbers each roll's repeats of a pin and names the effect that granted each one, so stacked Echo Ball, Echo Charge and Double Take read Echo Ball, Echo Charge, Double Take (in the order the cards were played). Text only; scores are unchanged. mechanics_c11_test has the stacked case, the reversed card order and a spare whose two rolls each repeat their own pin, and checks that no retrigger effect carries a condition (the numbering assumes every one grants). The new case fails on the old code. Unit, J06 and J03C11 pass.
 - **Early merge 3:** the Options fix and the retrigger labels MERGED to main by PR #25 (`f1852bf`) after CI passed on `1d041bd` (Wave 11 stays open).
 - **Owner:** tune the throw on the phone (Options → Throw tuning: ball spin for full charge, how far the ball hangs) and send the values; they become the defaults.
-- **Next (Claude):** E17-L02 (Neon spec).
+- **E17-L02, spec part DONE** (handoffs/E17-L02.md): content/leagues/neon.json (eight Divisions; Slick, Laser Lena and DJ Flicker recurring; DJ Flicker as champion with Strobe plus Oil Slick; features and bosses on Neon lanes; the Neon Kit; the title opens the Spectral League) and E17-D11 (Long Oil, Two-Tone, the Neon Kit), with the Neon item plan for the item batches. Content and unit pass.
+- **Next (Claude):** E17-L02's rules and lanes (Oil Slick, Narrow Lane, Strobe; Long Oil, Two-Tone).
+- **Codex can start the Neon rivals and theme** from neon.json and handoffs/E17-L02.md: Slick, Laser Lena and DJ Flicker (E21), their rule badges, and the Long Oil and Two-Tone lane looks.
 
 ## Wave 10 closed (coordinator, 2026-11-07)
 - **Contents** (all on `claude/roguewood-build` at the "Wave 10 closed" commit):

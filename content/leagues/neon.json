@@ -1,0 +1,500 @@
+{
+  "schema_version": 1,
+  "id": "league.neon",
+  "name": "Neon League",
+  "batch": "E17-L02",
+  "status": "authored",
+  "note": "Neon League spec (E17-L02): eight Divisions, open from the start like the House League. Its pressure is curve and precision on lanes that visibly change, with straight lines kept viable. Bosses: Slick (Oil Slick), Laser Lena (Narrow Lane) and DJ Flicker (Strobe), recurring; the champion is DJ Flicker with Strobe plus Oil Slick. Targets follow the House League's curve and are provisional until E24. Openers keep House Oil; features and bosses play the listed lane (chosen by Division number, ContentSet.assign_lanes). The rivals' first-clear items are chosen in the Neon item batches; their gates are named here and registered when E22-L02 makes the League live.",
+  "access": [],
+  "rivals_recur": true,
+  "lanes": [
+    "lane_condition.house_oil",
+    "lane_condition.long_oil",
+    "lane_condition.two_tone"
+  ],
+  "kits": [
+    {
+      "id": "kit.neon",
+      "name": "Neon Kit",
+      "unlock": "initial",
+      "pins": [
+        "pin.wood",
+        "pin.wood",
+        "pin.wood",
+        "pin.wood",
+        "pin.wood",
+        "pin.wood",
+        "pin.wood",
+        "pin.wood",
+        "pin.wood",
+        "pin.wood"
+      ],
+      "deck": [
+        "ball.hook",
+        "ball.hook",
+        "ball.hook",
+        "ball.spare_ball",
+        "ball.spare_ball",
+        "ball.spare_ball"
+      ],
+      "money": 6
+    }
+  ],
+  "championship": {
+    "gates": [
+      "gate.neon_champion"
+    ],
+    "opens": "league.spectral"
+  },
+  "divisions": [
+    {
+      "schema_version": 1,
+      "division": 1,
+      "name": "Neon League · Division 1",
+      "frames_per_match": 2,
+      "matches": [
+        {
+          "id": "match.neon_d1_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 300
+        },
+        {
+          "id": "match.neon_d1_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 500
+        },
+        {
+          "id": "match.neon_d1_boss",
+          "kind": "boss",
+          "name": "Boss",
+          "target": 800,
+          "rival": "rival.slick",
+          "lanes": [
+            "lane_condition.house_oil"
+          ]
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.slick",
+          "name": "Slick",
+          "initials": "SL",
+          "rule": "boss_rule.oil_slick",
+          "intro": "Slick runs the oil machine and never wipes it down. Under Oil Slick every hook is halved: the same charge curves half as far, so a straight line, or a strong spin ball to win the curve back, takes this lane.",
+          "first_clear": {
+            "unlocks": [
+              "gate.slick_cleared"
+            ],
+            "text": "A Neon item joins the shop pool from your next attempt."
+          },
+          "reactions": {
+            "entrance": "Mind the shine, friend. It's all slide out here.",
+            "confident": "Slid right off the line. Told you.",
+            "impressed": "Huh. You kept it on the board.",
+            "threatened": "Wait. Who taught you to read oil?",
+            "defeated": "You found the dry boards. Fine. Take the lane.",
+            "victorious": "Too slick for you. Come back with a straighter arm."
+          }
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "division": 2,
+      "name": "Neon League · Division 2",
+      "frames_per_match": 2,
+      "matches": [
+        {
+          "id": "match.neon_d2_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 1100
+        },
+        {
+          "id": "match.neon_d2_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 1600,
+          "lanes": [
+            "lane_condition.long_oil"
+          ]
+        },
+        {
+          "id": "match.neon_d2_boss",
+          "kind": "boss",
+          "name": "Boss",
+          "target": 2400,
+          "rival": "rival.laser_lena",
+          "lanes": [
+            "lane_condition.house_oil"
+          ]
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.laser_lena",
+          "name": "Laser Lena",
+          "initials": "LL",
+          "rule": "boss_rule.narrow_lane",
+          "intro": "Laser Lena paints the lane edges in light. Under Narrow Lane each gutter edge moves two boards in, so a wide curve drops off the lane: aim tight, roll straight, or bend it late.",
+          "first_clear": {
+            "unlocks": [
+              "gate.laser_lena_cleared"
+            ],
+            "text": "A Neon item joins the shop pool from your next attempt."
+          },
+          "reactions": {
+            "entrance": "Stay between the lines. They're closer than they look.",
+            "confident": "Off the rail. The light doesn't lie.",
+            "impressed": "Dead centre. Nice.",
+            "threatened": "You're threading my beams...",
+            "defeated": "Clean through the lasers. The light show is yours.",
+            "victorious": "Lights out. Tighten your line and come back."
+          }
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "division": 3,
+      "name": "Neon League · Division 3",
+      "frames_per_match": 2,
+      "matches": [
+        {
+          "id": "match.neon_d3_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 2700
+        },
+        {
+          "id": "match.neon_d3_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 3700,
+          "lanes": [
+            "lane_condition.two_tone"
+          ]
+        },
+        {
+          "id": "match.neon_d3_boss",
+          "kind": "boss",
+          "name": "Boss",
+          "target": 5000,
+          "rival": "rival.dj_flicker",
+          "lanes": [
+            "lane_condition.two_tone"
+          ]
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.dj_flicker",
+          "name": "DJ Flicker",
+          "initials": "DF",
+          "rule": "boss_rule.strobe",
+          "intro": "DJ Flicker drops the beat on your timing. Under Strobe the ring's sweet and perfect zones are half their size, so accuracy Mult is hard to earn: build Value, strikes or power that do not need a perfect release.",
+          "first_clear": {
+            "unlocks": [
+              "gate.dj_flicker_cleared"
+            ],
+            "text": "A Neon item joins the shop pool from your next attempt."
+          },
+          "reactions": {
+            "entrance": "Feel the beat? Release on the drop.",
+            "confident": "Off-beat! The whole floor felt that.",
+            "impressed": "Right on the drop. Sweet.",
+            "threatened": "Okay, okay, you've got rhythm...",
+            "defeated": "Mic drop. The floor is yours.",
+            "victorious": "Missed the drop. Run it back."
+          }
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "division": 4,
+      "name": "Neon League · Division 4",
+      "frames_per_match": 2,
+      "matches": [
+        {
+          "id": "match.neon_d4_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 5600
+        },
+        {
+          "id": "match.neon_d4_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 7200,
+          "lanes": [
+            "lane_condition.long_oil"
+          ]
+        },
+        {
+          "id": "match.neon_d4_boss",
+          "kind": "boss",
+          "name": "Boss",
+          "target": 9000,
+          "rival": "rival.slick",
+          "lanes": [
+            "lane_condition.long_oil"
+          ]
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.slick",
+          "name": "Slick",
+          "initials": "SL",
+          "rule": "boss_rule.oil_slick",
+          "intro": "Slick runs the oil machine and never wipes it down. Under Oil Slick every hook is halved: the same charge curves half as far, so a straight line, or a strong spin ball to win the curve back, takes this lane.",
+          "first_clear": {
+            "unlocks": [
+              "gate.slick_cleared"
+            ],
+            "text": "A Neon item joins the shop pool from your next attempt."
+          },
+          "reactions": {
+            "entrance": "Mind the shine, friend. It's all slide out here.",
+            "confident": "Slid right off the line. Told you.",
+            "impressed": "Huh. You kept it on the board.",
+            "threatened": "Wait. Who taught you to read oil?",
+            "defeated": "You found the dry boards. Fine. Take the lane.",
+            "victorious": "Too slick for you. Come back with a straighter arm."
+          }
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "division": 5,
+      "name": "Neon League · Division 5",
+      "frames_per_match": 2,
+      "matches": [
+        {
+          "id": "match.neon_d5_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 10000
+        },
+        {
+          "id": "match.neon_d5_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 12500,
+          "lanes": [
+            "lane_condition.two_tone"
+          ]
+        },
+        {
+          "id": "match.neon_d5_boss",
+          "kind": "boss",
+          "name": "Boss",
+          "target": 15000,
+          "rival": "rival.laser_lena",
+          "lanes": [
+            "lane_condition.two_tone"
+          ]
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.laser_lena",
+          "name": "Laser Lena",
+          "initials": "LL",
+          "rule": "boss_rule.narrow_lane",
+          "intro": "Laser Lena paints the lane edges in light. Under Narrow Lane each gutter edge moves two boards in, so a wide curve drops off the lane: aim tight, roll straight, or bend it late.",
+          "first_clear": {
+            "unlocks": [
+              "gate.laser_lena_cleared"
+            ],
+            "text": "A Neon item joins the shop pool from your next attempt."
+          },
+          "reactions": {
+            "entrance": "Stay between the lines. They're closer than they look.",
+            "confident": "Off the rail. The light doesn't lie.",
+            "impressed": "Dead centre. Nice.",
+            "threatened": "You're threading my beams...",
+            "defeated": "Clean through the lasers. The light show is yours.",
+            "victorious": "Lights out. Tighten your line and come back."
+          }
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "division": 6,
+      "name": "Neon League · Division 6",
+      "frames_per_match": 2,
+      "matches": [
+        {
+          "id": "match.neon_d6_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 16500
+        },
+        {
+          "id": "match.neon_d6_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 20000,
+          "lanes": [
+            "lane_condition.long_oil"
+          ]
+        },
+        {
+          "id": "match.neon_d6_boss",
+          "kind": "boss",
+          "name": "Boss",
+          "target": 24000,
+          "rival": "rival.dj_flicker",
+          "lanes": [
+            "lane_condition.long_oil"
+          ]
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.dj_flicker",
+          "name": "DJ Flicker",
+          "initials": "DF",
+          "rule": "boss_rule.strobe",
+          "intro": "DJ Flicker drops the beat on your timing. Under Strobe the ring's sweet and perfect zones are half their size, so accuracy Mult is hard to earn: build Value, strikes or power that do not need a perfect release.",
+          "first_clear": {
+            "unlocks": [
+              "gate.dj_flicker_cleared"
+            ],
+            "text": "A Neon item joins the shop pool from your next attempt."
+          },
+          "reactions": {
+            "entrance": "Feel the beat? Release on the drop.",
+            "confident": "Off-beat! The whole floor felt that.",
+            "impressed": "Right on the drop. Sweet.",
+            "threatened": "Okay, okay, you've got rhythm...",
+            "defeated": "Mic drop. The floor is yours.",
+            "victorious": "Missed the drop. Run it back."
+          }
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "division": 7,
+      "name": "Neon League · Division 7",
+      "frames_per_match": 2,
+      "matches": [
+        {
+          "id": "match.neon_d7_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 26000
+        },
+        {
+          "id": "match.neon_d7_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 31500,
+          "lanes": [
+            "lane_condition.two_tone"
+          ]
+        },
+        {
+          "id": "match.neon_d7_boss",
+          "kind": "boss",
+          "name": "Boss",
+          "target": 38000,
+          "rival": "rival.slick",
+          "lanes": [
+            "lane_condition.two_tone"
+          ]
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.slick",
+          "name": "Slick",
+          "initials": "SL",
+          "rule": "boss_rule.oil_slick",
+          "intro": "Slick runs the oil machine and never wipes it down. Under Oil Slick every hook is halved: the same charge curves half as far, so a straight line, or a strong spin ball to win the curve back, takes this lane.",
+          "first_clear": {
+            "unlocks": [
+              "gate.slick_cleared"
+            ],
+            "text": "A Neon item joins the shop pool from your next attempt."
+          },
+          "reactions": {
+            "entrance": "Mind the shine, friend. It's all slide out here.",
+            "confident": "Slid right off the line. Told you.",
+            "impressed": "Huh. You kept it on the board.",
+            "threatened": "Wait. Who taught you to read oil?",
+            "defeated": "You found the dry boards. Fine. Take the lane.",
+            "victorious": "Too slick for you. Come back with a straighter arm."
+          }
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "division": 8,
+      "name": "Neon League · Division 8",
+      "frames_per_match": 2,
+      "matches": [
+        {
+          "id": "match.neon_d8_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 41000
+        },
+        {
+          "id": "match.neon_d8_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 50000,
+          "lanes": [
+            "lane_condition.long_oil"
+          ]
+        },
+        {
+          "id": "match.neon_d8_boss",
+          "kind": "boss",
+          "name": "Championship",
+          "target": 60000,
+          "rival": "rival.dj_flicker_champion",
+          "lanes": [
+            "lane_condition.two_tone"
+          ]
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.dj_flicker_champion",
+          "name": "DJ Flicker, Neon Champion",
+          "initials": "DF",
+          "rule": "boss_rule.strobe",
+          "extra_rules": [
+            "boss_rule.oil_slick"
+          ],
+          "of": "rival.dj_flicker",
+          "intro": "DJ Flicker headlines the Neon title night with Slick on the oil: the ring's sweet and perfect zones are halved and every hook is halved too, on the two-tone pattern. Its dry left half gives back some of the curve; a straight, powerful game still scores.",
+          "first_clear": {
+            "unlocks": [
+              "gate.neon_champion_cleared"
+            ],
+            "text": "The Neon champion's plaque goes on your shelf; the League title opens the Spectral League."
+          },
+          "reactions": {
+            "entrance": "Title night. Lights low, ring fast, lane slick.",
+            "confident": "The headliner doesn't miss. You did.",
+            "impressed": "That one hit the drop and the pocket.",
+            "threatened": "Hold up... you're stealing my set.",
+            "defeated": "The encore's yours, champ. Neon bows.",
+            "victorious": "Show's over. Come back when you can keep time."
+          }
+        }
+      ]
+    }
+  ]
+}

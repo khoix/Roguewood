@@ -1,0 +1,199 @@
+{
+  "schema_version": 1,
+  "batch": "E17-D11",
+  "status": "authored",
+  "note": "E17-L02's definitions: the Neon League's two lane conditions and its kit. The three Neon boss rules (Oil Slick, Narrow Lane, Strobe) were written in E17-D03 and E17-D05. The lanes and rules land in E17-L02's rules work (src/rules/rival_rules.gd, src/simulation/lane_spec.gd); nothing here is in content/catalogue.json until then.",
+  "definitions": [
+    {
+      "item": {
+        "id": "lane_condition.long_oil",
+        "name": "Long Oil",
+        "category": "lane_condition",
+        "rarity": "common",
+        "pool_weight": 0,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 0,
+        "resale_price": 0,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "Curved throws hook later and less: the oil runs 7 ft further down the lane.",
+        "synergy_tags": [
+          "straight",
+          "precision",
+          "neon"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "The oil runs to 47 ft (14.33 m) instead of the standard 40 ft (12.19 m), so a charged spin has less dry backend to hook in: the same charge curves later and less. Straight throws are unaffected, and the backend's friction is unchanged.",
+        "primitives": [
+          "lane.oil_length"
+        ],
+        "pool": "Lane condition: never in a shop; listed in a League's lane pool (Neon League spec).",
+        "presentation_needs": "A glowing line where the oil ends, further down the lane than on House Oil, readable from the behind-ball view without colour; the HUD and the shop's next-match preview name it; the aim preview reflects the later hook.",
+        "asset_ids": {
+          "icon": "icon.lane_condition.long_oil",
+          "card": "card.lane_condition.long_oil",
+          "rarity_treatment": "rarity_treatment.lane_condition.long_oil",
+          "activation": "activation.lane_condition.long_oil",
+          "sound": "sound.lane_condition.long_oil",
+          "reduced_motion": "reduced_motion.lane_condition.long_oil"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "lane_condition.two_tone",
+        "name": "Two-Tone",
+        "category": "lane_condition",
+        "rarity": "common",
+        "pool_weight": 0,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 0,
+        "resale_price": 0,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "The lane's two halves hook differently, so the same throw curves more on the left than on the right.",
+        "synergy_tags": [
+          "curve",
+          "positional",
+          "neon"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "On the left half of the lane (the bowler's left of the centre board) the oil ends at 34 ft (10.36 m) instead of 40 ft, so a ball rolling there reaches the dry backend sooner and a charged spin hooks earlier and further. The right half keeps the standard pattern. Straight throws are unaffected.",
+        "primitives": [
+          "lane.oil_sides"
+        ],
+        "pool": "Lane condition: never in a shop; listed in a League's lane pool (Neon League spec).",
+        "presentation_needs": "Two clearly different halves (a pattern or texture split down the centre board, not colour alone), each glowing to where its oil ends; the HUD and the next-match preview name it; the aim preview reflects which half the ball travels on.",
+        "asset_ids": {
+          "icon": "icon.lane_condition.two_tone",
+          "card": "card.lane_condition.two_tone",
+          "rarity_treatment": "rarity_treatment.lane_condition.two_tone",
+          "activation": "activation.lane_condition.two_tone",
+          "sound": "sound.lane_condition.two_tone",
+          "reduced_motion": "reduced_motion.lane_condition.two_tone"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "kit.neon",
+        "name": "Neon Kit",
+        "category": "kit",
+        "rarity": "common",
+        "pool_weight": 0,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 0,
+        "resale_price": 0,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "No Hammer or Echo Ball: six cards split between curve and straight, with no power or retrigger ball.",
+        "synergy_tags": [
+          "curve",
+          "straight",
+          "precision",
+          "neon"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "Start a Neon League attempt with ten Wood pins, a deck of three Hook Balls and three Spare Balls (the House Ball is always available) and $6.",
+        "primitives": [
+          "kit.loadout"
+        ],
+        "pool": "Starting kit: chosen on the League Board for the Neon League; available from the start, as the League is.",
+        "presentation_needs": "A kit card in Neon colours with a curve and a straight line crossing; the binder shows its loadout.",
+        "asset_ids": {
+          "icon": "icon.kit.neon",
+          "card": "card.kit.neon",
+          "rarity_treatment": "rarity_treatment.kit.neon",
+          "activation": "activation.kit.neon",
+          "sound": "sound.kit.neon",
+          "reduced_motion": "reduced_motion.kit.neon"
+        }
+      }
+    }
+  ],
+  "landed": []
+}
