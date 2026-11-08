@@ -608,8 +608,9 @@ func _refresh_hand() -> void:
 	card_hand.max_card_height = (140.0 if state == "frame_done" else PORTRAIT_CARD_HEIGHT) if portrait else 400.0
 	card_hand.show_cards(cards, marks, header, equipment.MODEL == "deck", state == "aim" and equipment.can_cycle(), choosing)
 	card_hand.cycle_button.text = "Cancel" if cycling else "Cycle"
-	# The roll view (UI-3): the hand leaves once the ball is away.
-	card_hand.visible = state not in ["rolling", "result", "scoring", "shop", "intro", "division_over"] and (portrait or not regions.get("fold", false) or panels.show_hand)
+	# The roll view (UI-3): the hand leaves once the ball is away, and while the ball
+	# is held, so the whole lower screen is room to swirl (owner, 2026-11-08).
+	card_hand.visible = state not in ["holding", "rolling", "result", "scoring", "shop", "intro", "division_over"] and (portrait or not regions.get("fold", false) or panels.show_hand)
 	card_hand.set_mode("fan" if portrait else "flank", settings.handedness == "left")
 	var rect: Rect2 = regions.get("hand", Rect2(16, size.y - 300, size.x - 32, 284))
 	if portrait and state == "frame_done":
@@ -742,9 +743,9 @@ func _input(event: InputEvent) -> void:
 				_hold_source = "mouse" if event.device == InputEvent.DEVICE_ID_EMULATION else "touch"
 				_hold_start_x = start_x
 				_ring_start_usec = _clock_usec
-				# The tether: the ball's centre orbits within 0.8 of its on-screen radius,
-				# so the touch point stays inside the ball (E05-R2).
-				_flick.tuning.orbit_cap = 0.8 * _ball_screen_radius() / minf(size.x, size.y)
+				# The pin: the ball's centre hangs within `pin_reach` (0.8) of its on-screen
+				# radius from the touch point, so the finger stays inside the ball (E05-R4).
+				_flick.tuning.orbit_cap = float(_flick.tuning.get("pin_reach", 0.8)) * _ball_screen_radius() / minf(size.x, size.y)
 				_flick.begin(_normalized(event.position), _input_usec())
 				_cues_fired = {}
 				_spin_angle = 0.0
@@ -1606,7 +1607,9 @@ func _draw_held_ball(delta: float) -> void:
 	if settings.reduced_motion:
 		lane.aim_ball.basis = Basis.IDENTITY
 	else:
-		_spin_angle += charge * 12.0 * delta
+		# E05-R4: the ball turns with its pin, as a body pinned off-centre does: what
+		# the player sees spinning is the physics, not an animation.
+		_spin_angle = _flick.body_angle
 		var lean := clampf(_flick.ball_velocity.x * 0.25, -0.35, 0.35)
 		var pitch := clampf(-_flick.ball_velocity.y * 0.15, -0.3, 0.3)
 		lane.aim_ball.basis = Basis(Vector3.BACK, -lean) * Basis(Vector3.RIGHT, pitch) * Basis(Vector3.FORWARD, _spin_angle)
