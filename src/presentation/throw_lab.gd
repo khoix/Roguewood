@@ -652,6 +652,7 @@ func _new_roll(save: bool = true) -> void:
 	lane.name = "Lane"
 	_viewport.add_child(lane)
 	lane.lane_condition = division.current().get("lane_condition", "lane.house")
+	_arm_lane_rules()
 	lane.setup(rack, _dressing, ItemPhysics.profiles(_catalogue, run.loadout().pins))
 	if league_theme != null:
 		var last: bool = division.division_number() == division.division_count()
@@ -731,7 +732,25 @@ func _update_ring() -> void:
 		(_marker.material_override as StandardMaterial3D).albedo_color = ring_color()
 
 func ring_color() -> Color:
-	return RING_COLORS[Ring.grade(ring_radius)]
+	return RING_COLORS[Ring.grade(ring_radius, zone_scale())]
+
+## E17-L02: what the rules in force change in the roll (Oil Slick, Narrow Lane,
+## Strobe). Set on each new lane and again at commit, so a Rule Waiver played while
+## aiming is honoured, and on resume, so a restart re-simulates the same roll.
+func lane_rules() -> Dictionary:
+	return RivalRules.lane_rules(active_rules())
+
+func _arm_lane_rules() -> void:
+	if lane != null:
+		lane.rules = lane_rules()
+
+## Strobe's narrowed ring zones (1.0 otherwise), for the ring's colour.
+func zone_scale() -> float:
+	return float(lane_rules().get("zone_scale", 1.0))
+
+## Oil Slick's halved hook (1.0 otherwise), for the aim guide's bend.
+func hook_scale() -> float:
+	return float(lane_rules().get("hook_scale", 1.0))
 
 func _input(event: InputEvent) -> void:
 	if inspector and inspector.visible: return
@@ -818,6 +837,7 @@ func _assist_preview(controls: Dictionary) -> void:
 	lane.place_ball(start_x)
 
 func _commit(launch: Dictionary, source: String) -> void:
+	_arm_lane_rules()
 	var errors := lane.commit(launch)
 	if not errors.is_empty():
 		push_error("Rejected lab launch: " + str(errors))
@@ -839,6 +859,7 @@ func _commit(launch: Dictionary, source: String) -> void:
 ## Resume a committed launch after a restart: the same launch, in the same rack,
 ## with the cards already spent. There is no way to throw it again differently.
 func _resume_commit(pending: Dictionary) -> void:
+	_arm_lane_rules()
 	var errors := lane.commit(pending.launch)
 	if not errors.is_empty():
 		push_error("Saved launch rejected on resume: " + str(errors))
@@ -1664,6 +1685,11 @@ func _compose_status() -> void:
 				status.text += "\nDead Straight: spin is disabled — every throw rolls straight."
 			if not RivalRules.ball_allowed(active_rules(), "ball.hook"):
 				status.text += "\nHouse Rules: only the House Ball may be thrown; tactical cards are allowed."
+			for rule in active_rules():
+				if RivalRules.kind(rule) in ["hook_scale", "lane_width", "ring_scale"]:
+					status.text += "\n" + RivalRules.summary(rule).replace(" — ", ": ")
+			if lane != null and lane.lane_condition.begins_with("lane_condition.") and lane.lane_condition != "lane_condition.house_oil":
+				status.text += "\nLane: %s" % _lane_text(lane.lane_condition)
 			for action in frame_actions:
 				status.text += "\n" + Tactics.text(action, _names)
 			if last_cancel == "house_rules":
@@ -1884,4 +1910,4 @@ func _continue_endless() -> void:
 func _lane_text(id: String) -> String:
 	for entry in content.get("profile", {}).get("lanes", []):
 		if entry.id == id: return entry.text
-	return id
+	return _names.get(id, id)

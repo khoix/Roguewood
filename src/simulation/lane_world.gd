@@ -29,6 +29,15 @@ var _zone_friction := 0.0
 ## Item physics (ItemPhysics.profiles): balls by id, pins by position. Empty keeps
 ## the House ball and Wood pins exactly.
 var physics: Dictionary = {}
+## Boss rules that change the roll (RivalRules.lane_rules, E17-L02): hook_scale
+## (Oil Slick) scales the side spin, gutter_edge (Narrow Lane) is where a ball
+## becomes a gutter ball, zone_scale (Strobe) narrows the ring's grades. Empty keeps
+## the standard lane exactly.
+var rules: Dictionary = {}
+## Narrow Lane's rail speed (m/s): a ball ruled into the gutter is carried into it,
+## so it never rolls on to pins that cannot count.
+const RAIL_SPEED := 1.2
+var _railed := false
 
 ## dressing (optional) attaches presentation meshes; it never adds collision.
 ## item_physics (optional) gives per-item ball and pin profiles (ADR 008).
@@ -187,7 +196,11 @@ func _add_ball() -> void:
 ## Aim-time placement of the visual ball only; ignored after commit.
 func place_ball(start_x: float) -> void:
 	if state == "ready":
-		aim_ball.position = Lane.world(clampf(start_x, -Lane.MAX_START_X, Lane.MAX_START_X) * Lane.LANE_HALF_WIDTH, Lane.BALL_START_F, Lane.BALL_RADIUS)
+		var reach := Lane.max_start_x(gutter_edge())
+		aim_ball.position = Lane.world(clampf(start_x, -reach, reach) * Lane.LANE_HALF_WIDTH, Lane.BALL_START_F, Lane.BALL_RADIUS)
+
+func gutter_edge() -> float:
+	return float(rules.get("gutter_edge", Lane.LANE_HALF_WIDTH))
 
 ## Where the player sees the ball: the aim ball until launch, then the rolling ball.
 func ball_position() -> Vector3:
@@ -199,7 +212,7 @@ func commit(record: Dictionary) -> Array[String]:
 	if state != "ready":
 		errors.append("Lane already committed")
 	if errors.is_empty():
-		if absf(record.start_x) > Lane.MAX_START_X + 1e-9:
+		if absf(record.start_x) > Lane.max_start_x(gutter_edge()) + 1e-9:
 			errors.append("start_x places the ball off the lane")
 		if record.ball_id not in Lane.SIMULATED_BALLS and not physics.get("balls", {}).has(record.ball_id):
 			errors.append("Ball is not simulated yet: " + record.ball_id)
@@ -221,10 +234,12 @@ func _apply_launch() -> void:
 	ball.linear_velocity = velocity
 	# True forward roll plus side rotation about the travel axis (positive hooks right);
 	# a ball's spin response scales the side spin its charge produces.
-	ball.angular_velocity = Vector3.UP.cross(velocity) / Lane.BALL_RADIUS + direction * Lane.side_spin(launch.spin) * float(profile.get("spin_response", 1.0))
+	# Oil Slick halves the hook the charge produces; the committed spin is unchanged.
+	var hook := float(profile.get("spin_response", 1.0)) * float(rules.get("hook_scale", 1.0))
+	ball.angular_velocity = Vector3.UP.cross(velocity) / Lane.BALL_RADIUS + direction * Lane.side_spin(launch.spin) * hook
 	for position in pins:
 		pins[position].freeze = false
-	tracker = Tracker.new(pins.keys())
+	tracker = Tracker.new(pins.keys(), gutter_edge())
 	state = "rolling"
 
 func _physics_process(_delta: float) -> void:
@@ -234,13 +249,23 @@ func _physics_process(_delta: float) -> void:
 	elif state == "rolling" and tracker.step(observe()):
 		_finish()
 	if state == "rolling":
+		_rail()
 		_oil_pattern()
+
+## Narrow Lane: once the ball is ruled a gutter ball inside the physical lane, the
+## rail carries it sideways into the gutter (deterministic, once per roll).
+func _rail() -> void:
+	if _railed or not tracker.gutter or gutter_edge() >= Lane.LANE_HALF_WIDTH:
+		return
+	_railed = true
+	var side := signf(ball.global_position.x)
+	ball.linear_velocity.x = side * maxf(absf(ball.linear_velocity.x), RAIL_SPEED)
 
 ## Sets the ball's friction for the zone it is in before the next step.
 var lane_condition := "lane.house"
 
 func _oil_pattern() -> void:
-	var friction := Lane.ball_friction(-ball.global_position.z, lane_condition)
+	var friction := Lane.ball_friction(-ball.global_position.z, lane_condition, ball.global_position.x)
 	if friction != _zone_friction:
 		_zone_friction = friction
 		_ball_material.friction = friction
@@ -300,7 +325,7 @@ func _finish() -> void:
 	report = {
 		"launch": launch.duplicate(true),
 		"roll_result": {"schema_version": 1, "launch_id": launch.launch_id, "ball_id": launch.ball_id, "roll_index": launch.roll_index,
-			"fallen_positions": fallen, "accuracy": Lane.grade_accuracy(tracker.target_crossed, tracker.target_offset() - launch.target_x, launch.ring_radius)},
+			"fallen_positions": fallen, "accuracy": Lane.grade_accuracy(tracker.target_crossed, tracker.target_offset() - launch.target_x, launch.ring_radius, float(rules.get("zone_scale", 1.0)))},
 		"knockdown_log": {"schema_version": 1, "launch_id": launch.launch_id, "ball_id": launch.ball_id, "roll_index": launch.roll_index,
 			"knockdowns": tracker.knockdowns(), "standing": tracker.standing(), "gutter": tracker.gutter, "voided_positions": tracker.voided, "target_crossed": tracker.target_crossed,
 			"target_offset": tracker.target_offset(), "settle": tracker.settle, "ticks": tracker.tick},

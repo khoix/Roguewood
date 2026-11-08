@@ -6,70 +6,6 @@
   "definitions": [
     {
       "item": {
-        "id": "boss_rule.strobe",
-        "name": "Strobe",
-        "category": "boss_rule",
-        "rarity": "common",
-        "pool_weight": 0,
-        "unlock": {
-          "kind": "initial",
-          "prerequisites": []
-        },
-        "earliest_division": 1,
-        "purchase_price": 0,
-        "resale_price": 0,
-        "effects": [],
-        "limits": {
-          "max_owned": 1,
-          "charges": 0,
-          "exhaustion": "none"
-        },
-        "downside": "The target ring's sweet and perfect zones are half their usual size.",
-        "synergy_tags": [
-          "precision",
-          "accuracy",
-          "neon"
-        ],
-        "incompatibilities": [],
-        "assets": {
-          "icon": "",
-          "card": "",
-          "in_play": "",
-          "rarity_treatment": "",
-          "activation": "",
-          "sound": "",
-          "reduced_motion": ""
-        },
-        "completeness": {
-          "authored": true,
-          "mechanics": false,
-          "automated_validation": false,
-          "artwork": false,
-          "effects_audio": false,
-          "unlock_assigned": true,
-          "integrated": false
-        }
-      },
-      "design": {
-        "trigger": "For every roll of the boss match, the target ring's sweet and perfect zones are half their usual radius, so accuracy grades and the Mult they add are harder to earn. Clean and miss grading is unchanged.",
-        "primitives": [
-          "rule.ring_scale"
-        ],
-        "pool": "Boss rule: never in a shop; used by its rival in the Neon League spec (docs/ROADMAP.md).",
-        "counterplay": "Builds that do not lean on accuracy: Value pins, strike Charms, Hammer Ball's power or straight lines with Plumb Line.",
-        "presentation_needs": "A pulsing strobe on the ring that never hides its edge; reduced motion shows a static narrowed ring.",
-        "asset_ids": {
-          "icon": "icon.boss_rule.strobe",
-          "card": "card.boss_rule.strobe",
-          "rarity_treatment": "rarity_treatment.boss_rule.strobe",
-          "activation": "activation.boss_rule.strobe",
-          "sound": "sound.boss_rule.strobe",
-          "reduced_motion": "reduced_motion.boss_rule.strobe"
-        }
-      }
-    },
-    {
-      "item": {
         "id": "boss_rule.rust",
         "name": "Rust",
         "category": "boss_rule",
@@ -591,6 +527,27 @@
           "activation": "activation.kit.tournament",
           "sound": "sound.kit.tournament",
           "reduced_motion": "reduced_motion.kit.tournament"
+        }
+      }
+    },
+    {
+      "id": "boss_rule.strobe",
+      "landed_in": "E18-C13",
+      "design": {
+        "trigger": "For every roll of the boss match, the target ring's perfect and sweet zones are half their usual size: each band of the contracting ring is halved, measured from the ring's smallest radius (perfect from 0.06 to 0.07 instead of 0.08; sweet to 0.11 instead of 0.16), so both grades stay reachable but take a later, tighter release. Clean and miss grading are unchanged.",
+        "primitives": [
+          "rule.ring_scale"
+        ],
+        "pool": "Boss rule: never in a shop; used by its rival in the Neon League spec (docs/ROADMAP.md).",
+        "counterplay": "Builds that do not lean on accuracy: Value pins, strike Charms, Hammer Ball's power or straight lines with Plumb Line.",
+        "presentation_needs": "A pulsing strobe on the ring that never hides its edge; reduced motion shows a static narrowed ring.",
+        "asset_ids": {
+          "icon": "icon.boss_rule.strobe",
+          "card": "card.boss_rule.strobe",
+          "rarity_treatment": "rarity_treatment.boss_rule.strobe",
+          "activation": "activation.boss_rule.strobe",
+          "sound": "sound.boss_rule.strobe",
+          "reduced_motion": "reduced_motion.boss_rule.strobe"
         }
       }
     }
