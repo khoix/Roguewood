@@ -608,8 +608,9 @@ func _refresh_hand() -> void:
 	card_hand.max_card_height = (140.0 if state == "frame_done" else PORTRAIT_CARD_HEIGHT) if portrait else 400.0
 	card_hand.show_cards(cards, marks, header, equipment.MODEL == "deck", state == "aim" and equipment.can_cycle(), choosing)
 	card_hand.cycle_button.text = "Cancel" if cycling else "Cycle"
-	# The roll view (UI-3): the hand leaves once the ball is away.
-	card_hand.visible = state not in ["rolling", "result", "scoring", "shop", "intro", "division_over"] and (portrait or not regions.get("fold", false) or panels.show_hand)
+	# The roll view (UI-3): the hand leaves once the ball is away, and while the ball
+	# is held, so the whole lower screen is room to swirl (owner, 2026-11-08).
+	card_hand.visible = state not in ["holding", "rolling", "result", "scoring", "shop", "intro", "division_over"] and (portrait or not regions.get("fold", false) or panels.show_hand)
 	card_hand.set_mode("fan" if portrait else "flank", settings.handedness == "left")
 	var rect: Rect2 = regions.get("hand", Rect2(16, size.y - 300, size.x - 32, 284))
 	if portrait and state == "frame_done":
