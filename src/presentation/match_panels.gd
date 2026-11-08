@@ -144,13 +144,13 @@ static func compute(screen: Vector2, left_handed: bool, hand_height: float, comp
 		var inner := w - 2 * m - 16
 		var slip_w := floorf(inner * 0.32)
 		var rival_w := floorf(inner * 0.38)
-		r.slip = Rect2(m, row_y, slip_w, 48)
-		r.rival = Rect2(m + slip_w + 8, row_y, rival_w, 48)
-		r.charms = Rect2(r.rival.end.x + 8, row_y, w - m - r.rival.end.x - 8, 48)
+		r.slip = Rect2(m, row_y, slip_w, 56)
+		r.rival = Rect2(m + slip_w + 8, row_y, rival_w, 56)
+		r.charms = Rect2(r.rival.end.x + 8, row_y, w - m - r.rival.end.x - 8, 56)
 		r.hand = Rect2(m, h - m - hand_height, w - 2 * m, hand_height)
-		r.lane = Rect2(m, row_y + 56, w - 2 * m, r.hand.position.y - 8 - row_y - 56)
+		r.lane = Rect2(m, row_y + 64, w - 2 * m, r.hand.position.y - 8 - row_y - 64)
 		r.prompt = Rect2(m, r.hand.position.y - 8, w - 2 * m, 0) # bottom edge
-		r.kit = Rect2(m, row_y + 60, 64, 0)
+		r.kit = Rect2(m, row_y + 68, 64, 0)
 		r.bubble = Rect2(m, row_y, w - 2 * m, 0)
 		r.corridor = Rect2(w * 0.3, r.lane.position.y, w * 0.4, r.lane.size.y)
 		if compact:
@@ -196,7 +196,7 @@ func apply(layout: Dictionary, playing: bool) -> void:
 	var portrait: bool = layout.portrait
 	rival_portrait.custom_minimum_size = Vector2(34, 34) if portrait else Vector2(64, 64)
 	slip_text.add_theme_font_size_override("font_size", 18 if portrait else 20)
-	rival_text.add_theme_font_size_override("font_size", 16 if portrait else 18)
+	rival_text.add_theme_font_size_override("font_size", 15 if portrait else 18)
 	slip_text.max_lines_visible = 2 if portrait else 4
 	rival_text.max_lines_visible = 2 if portrait else 4
 	slip_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER if portrait else HORIZONTAL_ALIGNMENT_LEFT
@@ -232,7 +232,7 @@ func show_rival(rival_entry: Dictionary, rule_line: String, boss_now: bool) -> v
 	rival_portrait.visible = rival_portrait.texture != null
 	var name_line: String = rival_entry.get("name", "")
 	if regions.get("portrait", true):
-		rival_text.text = "%s\n%s" % [name_line, rule_line] if boss_now else "Boss: %s" % name_line
+		rival_text.text = "%s\n%s" % [name_line, rule_line] if boss_now else "Next boss\n%s" % name_line
 	else:
 		rival_text.text = "%s\n%s" % [name_line, rule_line] if boss_now else "BOSS AHEAD\n%s\n%s" % [name_line, rule_line]
 		if not quote.is_empty() and boss_now:

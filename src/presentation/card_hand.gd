@@ -139,6 +139,10 @@ func button_for(uid: String) -> Button:
 ## hand changes lands where the card is drawn; this keeps it right after resizes.
 func _process(_delta: float) -> void:
 	_size_cards()
+	# Shrink back to the content when the cards get smaller (UI-3: the raised hand).
+	var want := maxf(custom_minimum_size.y, get_combined_minimum_size().y)
+	if not is_equal_approx(size.y, want):
+		size.y = want
 
 func _card_size() -> Vector2:
 	var gap := 8.0

@@ -263,10 +263,6 @@ func layout(top: float, bubble_top: float) -> void:
 ## UI-2: the top bar at `bar_rect` (two rows in portrait) and the reaction bubble
 ## over the rival's panel at `bubble`.
 func layout_regions(bar_rect: Rect2, bubble: Rect2, portrait: bool, slim: bool = false) -> void:
-	bar.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	bar.position = bar_rect.position
-	bar.size = bar_rect.size
-	bar.custom_minimum_size = bar_rect.size
 	side_box.vertical = false
 	# Portrait: title and money on top, score, frames and the rule badge below.
 	# Landscape: one row.
@@ -284,6 +280,15 @@ func layout_regions(bar_rect: Rect2, bubble: Rect2, portrait: bool, slim: bool =
 	# The roll view's slim bar: the match and its score only.
 	badges.visible = not slim
 	money_slot.visible = not slim
+	frames_label.visible = not slim
+	score_label.add_theme_font_size_override("font_size", 22 if slim else 28)
+	title_label.custom_minimum_size.x = 0
+	# Placed after the rows are rearranged, so the bar shrinks to the new content.
+	bar.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	bar.custom_minimum_size = bar_rect.size
+	bar.position = bar_rect.position
+	bar.size = Vector2.ZERO
+	bar.size = bar_rect.size
 	rule_panel.offset_top = bar_rect.end.y + 8.0
 	rule_panel.offset_bottom = bar_rect.end.y + 8.0
 	reaction.position = bubble.position
