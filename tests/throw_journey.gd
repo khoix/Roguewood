@@ -123,15 +123,6 @@ func _run() -> void:
 	await _accept()
 	lab.settings_panel.practice.grab_focus()
 	await _accept()
-	# The owner's phone defaults (2026-11-08): flick sensitivity 0.4 and the flat spin
-	# view. This journey's gestures are calibrated at sensitivity 1.0 and its first
-	# checks are of the depth view, so it sets both through the Options controls.
-	_check(is_equal_approx(lab.settings.sensitivity, 0.4) and lab.settings.spin_view == "flat" and lab.settings_panel.sensitivity.min_value == 0.25,
-		"the defaults are flick sensitivity ×0.4 (slider from ×0.25) and flat spin")
-	lab.settings_panel.sensitivity.value = 1.0
-	lab.settings_panel.spin_view.select(1)
-	lab.settings_panel.spin_view.item_selected.emit(1)
-	_check(is_equal_approx(lab._flick.tuning.sensitivity, 1.0) and lab.settings.spin_view == "depth", "Options set sensitivity ×1.0 and depth spin")
 	lab.settings_panel.close.grab_focus()
 	await _accept()
 	_check(lab.division.practice, "practice mode via Options")
@@ -146,7 +137,6 @@ func _run() -> void:
 	await _replays(frame)
 	await _curves_and_target()
 	await _held_ball()
-	await _flat_spin()
 	await _mouse_throw()
 	await _assist_throw()
 	await _landscape_throw()
@@ -427,45 +417,6 @@ func _held_ball() -> void:
 	await _focus_accept(lab.settings_panel.tuning_box.get_node("CloseTuning"))
 	await _focus_accept(lab.settings_panel.close)
 	_check(not lab.settings_panel.visible, "settings close after tuning")
-
-## Flat spin (owner, 2026-11-08): the held ball stays at one distance from the
-## camera while it swirls, also below its start, and turns about the line of sight.
-func _flat_spin() -> void:
-	await _ready_to_throw()
-	lab.settings_panel.spin_view.select(0)
-	lab.settings_panel.spin_view.item_selected.emit(0)
-	_check(lab.settings.spin_view == "flat", "Options switch to flat spin")
-	var cam: Transform3D = lab._camera.global_transform
-	var depth := func() -> float: return -(cam.affine_inverse() * lab.lane.aim_ball.global_position).z
-	var at: Vector2 = lab.ball_screen_position()
-	var resting_y: float = at.y
-	await _touch(at, true)
-	var depths: Array = []
-	var radius := 30.0 * _px()
-	var center := at + Vector2(0.0, -radius)
-	for i in 72: # two brisk turns, 12 degrees a frame (2 turns a second at 60 fps)
-		var angle := deg_to_rad(90.0 + 12.0 * (i + 1))
-		var next := center + Vector2(cos(angle), sin(angle)) * radius
-		await _drag(next, next - at)
-		at = next
-		depths.append(depth.call())
-	var spread: float = depths.max() - depths.min()
-	await _capture("flat_spin")
-	var heights: Array = []
-	for i in 6:
-		at += Vector2(0, 15) * _px()
-		await _drag(at, Vector2(0, 15) * _px())
-		heights.append([depth.call(), lab.lane.aim_ball.global_position.y])
-	for i in 6: await process_frame
-	heights.append([depth.call(), lab.lane.aim_ball.global_position.y])
-	print("J02 flat spin: swirl depth %.3f..%.3f; below the start [depth, height] %s" % [depths.min(), depths.max(), str(heights.map(func(h): return [snappedf(h[0], 0.001), snappedf(h[1], 0.001)]))])
-	_check(lab.state == "holding" and spread < 0.02, "the flat-spun ball never moves in or out of the screen while it swirls (depth spread %.3f m)" % spread)
-	_check(lab.ball_screen_position().y > resting_y + 20.0 and lab.lane.aim_ball.global_position.y >= Lane.BALL_RADIUS - 1e-4, "below its start it follows the finger down and stays on or above the lane")
-	var view := -cam.basis.z.normalized()
-	var basis: Basis = lab.lane.aim_ball.basis
-	_check(not basis.is_equal_approx(Basis.IDENTITY) and (basis * view).distance_to(view) < 1e-3, "the ball turns about the line of sight")
-	await _touch(at, false)
-	_check(lab.state == "aim" and lab.last_cancel in ["short", "not_forward", "slow"], "letting go without a flick cancels (%s)" % lab.last_cancel)
 
 func _mouse_throw() -> void:
 	await _ready_to_throw()

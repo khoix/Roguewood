@@ -1616,10 +1616,7 @@ func _draw_held_ball(delta: float) -> void:
 	# 2026-11-08: the swirl must not stop at the foul line) it comes back toward the
 	# player over the approach, so it follows the finger down the screen too.
 	var rise := _flick.origin.y - place.y + float(_flick.tuning.orbit_cap)
-	var flat: bool = settings.get("spin_view", "flat") == "flat"
-	if flat:
-		lane.aim_ball.position = _flat_held_position(place, scale)
-	elif rise >= 0.0:
+	if rise >= 0.0:
 		lane.aim_ball.position.y += clampf(rise * scale, 0.0, 0.8)
 	else:
 		var near := _screen(Lane.world(0.0, Lane.BALL_START_F - 0.5, Lane.BALL_RADIUS)).y
@@ -1629,11 +1626,6 @@ func _draw_held_ball(delta: float) -> void:
 	var charge := held_charge()
 	if settings.reduced_motion:
 		lane.aim_ball.basis = Basis.IDENTITY
-	elif flat:
-		# Flat spin: the ball turns about the camera's line of sight, facing the
-		# player like a coaster spun under a fingertip (positive is clockwise on screen).
-		_spin_angle = _flick.body_angle
-		lane.aim_ball.basis = Basis(-_camera.global_transform.basis.z.normalized(), _spin_angle)
 	else:
 		# E05-R4: the ball turns with its pin, as a body pinned off-centre does: what
 		# the player sees spinning is the physics, not an animation.
@@ -1647,25 +1639,6 @@ func _draw_held_ball(delta: float) -> void:
 			throw_cue.emit(cue[0], charge)
 			if cue[2] > 0 and settings.get("haptics", true):
 				Input.vibrate_handheld(cue[2])
-
-## Flat spin (owner, 2026-11-08): the held ball follows the swing exactly on screen
-## at one distance from the camera, so it never moves in or out of the screen. It is
-## lifted one orbit above the lane at its start so a swirl below the finger stays
-## above the boards; where the finger goes lower still, it rides the lane surface
-## toward the player. Visual only: the launch is made exactly as in depth spin.
-func _flat_held_position(place: Vector2, metres_per_norm: float) -> Vector3:
-	var home := Lane.world(_hold_start_x * Lane.LANE_HALF_WIDTH, Lane.BALL_START_F, Lane.BALL_RADIUS + float(_flick.tuning.orbit_cap) * metres_per_norm)
-	var at := _screen(home) + (place - _flick.origin) * minf(size.x, size.y)
-	var local := at * Vector2(_viewport.size) / size
-	var depth := -(_camera.global_transform.affine_inverse() * home).z
-	var point := _camera.project_position(local, depth)
-	if point.y < Lane.BALL_RADIUS:
-		var origin := _camera.project_ray_origin(local)
-		var normal := _camera.project_ray_normal(local)
-		if normal.y < -1e-6:
-			point = origin + normal * ((Lane.BALL_RADIUS - origin.y) / normal.y)
-		point.y = Lane.BALL_RADIUS
-	return point
 
 ## True while a rule in force (Dead Straight) disables charged spin.
 func spin_disabled() -> bool:
