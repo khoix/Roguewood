@@ -89,7 +89,19 @@ Estimated sessions: Claude about 75, Codex about 97. At 3 and 4 sessions per wav
 | **8** | DC-H4: the last 5 House items. E22-L01: House League integration and its full-League journey (High). | AV-H1, AV-H2: the first 12 House items (4 sessions). |
 | **9** | In this order: E26-W01 Web export (High), then E05-R1a and E05-R1b, the held-ball throw (2 sessions, High). All owner-approved 2026-11-03/04. W01 is the claim that carries into Wave 10 if it overruns. | UI-A1: the interface visual target for the owner's approval (2 sessions, High). AV-H3: House item art (2 sessions, Medium; High for counted effects). |
 | **10** | UI-1: one real card everywhere (High). UI-2: every screen in the approved layout, score-chain choreography (High; after UI-A1-C). E05-R2: the tethered swing (High; owner-approved 2026-11-05). | UI-A1-C: the layout revision and side-space backdrop options (Medium; first). UI-A2: foil, rarity and theme on the card and frames (Medium–High). AV-H4: the last House item art (2 sessions). |
-| 11 (Phase 2 starts) | E17-L02: Neon spec; Neon rules and lanes. | AV-T01: throw charge and sparkle effects and sounds for the tethered swing (Medium). Neon rivals and theme (League template wave b). |
+| **11** (Phase 2 starts) | In this order: UI-3, the phone pass (High; owner, 2026-11-08: first, ahead of Neon), the ordinal retrigger labels (Low), then E17-L02: the Neon spec (High; carries into Wave 12 if UI-3 runs long). | AV-T01: throw charge and sparkle effects and sounds for the tethered swing (Medium). Then Neon rivals and theme once the E17-L02 spec lands (League template wave b; otherwise Wave 12). |
+
+### Phone pass: UI-3 (owner trial, 2026-11-08)
+The owner played the web build on a phone. Findings: the swing was stiff to the point of barely working; a held ball could not swirl below the foul line; the House Kit badge sat in the lane; the top HUD covered the pins; the frame review was pinned left with empty space; shop art was small and text-heavy; the hand and top HUD stayed up while the ball rolled; most text was too small to read.
+- **Decided:** full charge at 3.5 turns a second (was 6), still tunable; the phone pass runs first in Wave 11.
+- **Owner's direction:** not just bigger text. A minimal redesign so every screen still works with the larger text.
+- **Scope (Claude, High):**
+  - **Swing (E05-R3):** swirls are told from flicks by a steady turn over three steps (not a finger-speed cap), so brisk, larger circles count; the held ball follows the finger below its start point, back over the approach.
+  - **Readable scale:** portrait lays out for a narrower logical width on phones, so all text is about a third larger, and every screen is re-fitted for it: fewer words, icons where a word was, and content that moves behind a tap instead of shrinking.
+  - **Roll view:** while the ball rolls and the frame scores, the hand leaves and the top HUD collapses to one slim line.
+  - **Top chrome:** one row for the slip, rival and Charms; the prompt and kit badge leave the lane so the pins show.
+  - **Frame review:** centered, numbers large, the chain full width.
+  - **Shop (portrait):** two columns of large cards; payout, rack and sales behind tabs.
 
 ### League template (Phases 2 and 3)
 | Wave | Claude | Codex |
@@ -129,6 +141,7 @@ First impression (owner): the game reads as a wall of text with tiny art icons, 
   - **Hand size:** four cards in landscape, two in portrait (rule text by long-press Inspect).
   - **Empty flanks:** not wider League environment art. The space gets an ambient backdrop of its own, for example a slow star field for House that matches the night sky in its windows. It must stay behind the panels and lane, respect reduced motion, and vary by League.
   - **Portrait (phone) approved (2026-11-05):** from a coordinator mockup on the real game. Top to bottom: a two-row top bar (League and Division with Options; score, target and money, with money in its own slot); a strip with the score slip and rival chip side by side; a Charms row; the full-width lane, with the camera raised so the ball sits about two-thirds down; and a hand panel of two cards, with deck counts, Cycle and Inspect at the thumb side (mirrored for left-handed play).
+  - **Owner decisions (2026-11-07):** UI-A1-C is approved. The portrait hand is a **fan of four** at the thumbs (replacing two cards). The swing demo with the 6 turns-a-second full charge is good. No backdrop was picked: UI-2 uses option 1, Constellations, as the coordinator's default; Slow stars (option 0) is a one-line switch in throw_lab.gd.
   - **Wave 10 work:** Codex's UI-A1-C revision (Medium) re-renders the landscape throw and shop to this layout, adds the narrow-landscape case and the backdrop treatment, and updates docs/art/ui/UI-A1.md, before UI-2 builds the screens. UI-1 (the card component) can start in parallel.
 
 ### Throw rework: the held ball (owner decision, 2026-11-03)

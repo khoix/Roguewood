@@ -4461,6 +4461,231 @@
         "unlock_assigned": true,
         "integrated": false
       }
+    },
+    {
+      "id": "boss_rule.oil_slick",
+      "name": "Oil Slick",
+      "category": "boss_rule",
+      "rarity": "common",
+      "pool_weight": 0,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 0,
+      "resale_price": 0,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Hook response is halved for the whole boss match.",
+      "synergy_tags": [
+        "straight",
+        "precision",
+        "power"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "boss_rule.narrow_lane",
+      "name": "Narrow Lane",
+      "category": "boss_rule",
+      "rarity": "common",
+      "pool_weight": 0,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 0,
+      "resale_price": 0,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "The gutters reach two boards further in for the whole boss match.",
+      "synergy_tags": [
+        "precision",
+        "straight",
+        "positional"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "boss_rule.strobe",
+      "name": "Strobe",
+      "category": "boss_rule",
+      "rarity": "common",
+      "pool_weight": 0,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 0,
+      "resale_price": 0,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "The target ring's sweet and perfect zones are half their usual size.",
+      "synergy_tags": [
+        "precision",
+        "accuracy",
+        "neon"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "lane_condition.long_oil",
+      "name": "Long Oil",
+      "category": "lane_condition",
+      "rarity": "common",
+      "pool_weight": 0,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 0,
+      "resale_price": 0,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Curved throws hook later and less: the oil runs 7 ft further down the lane.",
+      "synergy_tags": [
+        "straight",
+        "precision",
+        "neon"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "lane_condition.two_tone",
+      "name": "Two-Tone",
+      "category": "lane_condition",
+      "rarity": "common",
+      "pool_weight": 0,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 0,
+      "resale_price": 0,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "The lane's two halves hook differently, so the same throw curves more on the left than on the right.",
+      "synergy_tags": [
+        "curve",
+        "positional",
+        "neon"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
     }
   ]
 }

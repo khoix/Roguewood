@@ -4,16 +4,19 @@ extends PanelContainer
 ## E09 practice mode. Values live in the shell's settings
 ## dictionary so they survive Restart Session; saving them is E25 work.
 signal changed
-const DEFAULTS := {"handedness": "right", "sensitivity": 1.0, "reduced_motion": false, "large_targets": false, "assist": false, "score_speed": 1,
+## Flick sensitivity 0.4 and the flat spin view: the owner's phone trial (2026-11-08).
+const DEFAULTS := {"handedness": "right", "sensitivity": 0.4, "spin_view": "flat", "reduced_motion": false, "large_targets": false, "assist": false, "score_speed": 1,
 	"equipment": "deck", "practice": false, "reduced_flash": false, "haptics": true, "throw_tuning": {}}
 ## E05-R2: the tethered-swing constants the tuning page adjusts (ADR 011), as
 ## [key, label, min, max, step, format]. Values live in settings.throw_tuning for the
 ## session; anything not set uses held_ball.gd's defaults.
 const Held = preload("res://src/input/held_ball.gd")
 const TUNABLE := [
-	["full_charge_speed", "Full-charge swirl (rad/s; 37.7 = 6 turns/s)", 12.5, 75.0, 0.5, "%.1f"],
-	["swirl_half_life", "Swirl wind-down half-life (s)", 0.3, 5.0, 0.1, "%.1f"],
-	["spin_up_time", "Swirl catch-up time (s)", 0.03, 0.5, 0.01, "%.2f"],
+	["full_charge_speed", "Ball spin for full charge (rad/s)", 12.5, 75.0, 0.5, "%.1f"],
+	["gravity", "Gravity on the held ball", 0.0, 15.0, 0.5, "%.1f"],
+	["pin_reach", "How far the ball hangs (× ball radius)", 0.5, 2.0, 0.05, "%.2f"],
+	["swirl_half_life", "Drag half-life (s)", 0.03, 2.0, 0.01, "%.2f"],
+	["spin_up_time", "Charge smoothing (s)", 0.05, 0.8, 0.01, "%.2f"],
 	["swirl_start_deg", "Turn before a swirl counts (°)", 90.0, 540.0, 10.0, "%.0f"],
 	["orbit_nudge", "Orbit nudge on release", 0.0, 1.0, 0.05, "%.2f"],
 ]
@@ -21,6 +24,7 @@ const TUNABLE := [
 var settings: Dictionary = {}
 var handedness: OptionButton
 var sensitivity: HSlider
+var spin_view: OptionButton
 var reduced_motion: CheckButton
 var reduced_flash: CheckButton
 var large_targets: CheckButton
@@ -32,6 +36,7 @@ var haptics: CheckButton
 var tuning_button: Button
 var tuning_box: VBoxContainer
 var _main_box: VBoxContainer
+var _pages: VBoxContainer
 var _tuning_sliders: Dictionary = {}
 var _tuning_labels: Dictionary = {}
 
@@ -43,9 +48,20 @@ static func with_defaults(values: Dictionary) -> Dictionary:
 
 func _ready() -> void:
 	name = "ThrowSettings"
+	# UI-3 (owner, 2026-11-08): the panel fits the screen and scrolls, so every
+	# setting and the tuning page are reachable on a phone.
+	var scroll := ScrollContainer.new()
+	scroll.name = "SettingsScroll"
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true
+	add_child(scroll)
+	_pages = VBoxContainer.new()
+	_pages.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(_pages)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 14)
-	add_child(box)
+	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_pages.add_child(box)
 	_main_box = box
 	var title := Label.new()
 	title.text = "Throw settings"
@@ -59,16 +75,26 @@ func _ready() -> void:
 	handedness.item_selected.connect(func(index): _store("handedness", "left" if index == 1 else "right"))
 	box.add_child(handedness)
 	_sensitivity_label = Label.new()
+	_sensitivity_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(_sensitivity_label)
 	sensitivity = HSlider.new()
 	sensitivity.name = "Sensitivity"
-	sensitivity.min_value = 0.5
+	sensitivity.min_value = 0.25
 	sensitivity.max_value = 2.0
-	sensitivity.step = 0.25
+	sensitivity.step = 0.05
 	sensitivity.value = settings.sensitivity
-	sensitivity.custom_minimum_size = Vector2(320, 44)
+	sensitivity.custom_minimum_size = Vector2(0, 44)
 	sensitivity.value_changed.connect(func(value): _store("sensitivity", value))
 	box.add_child(sensitivity)
+	# How the held ball turns on screen (owner, 2026-11-08): flat, facing the player
+	# like a coaster spun under a fingertip, or in depth, about the lane's axis.
+	spin_view = OptionButton.new()
+	spin_view.name = "SpinView"
+	spin_view.add_item("Flat spin (the ball turns facing you)")
+	spin_view.add_item("Depth spin (the ball turns along the lane)")
+	spin_view.select(1 if settings.get("spin_view", "flat") == "depth" else 0)
+	spin_view.item_selected.connect(func(index): _store("spin_view", "depth" if index == 1 else "flat"))
+	box.add_child(spin_view)
 	reduced_motion = _toggle(box, "ReducedMotion", "Reduced motion (steady camera & foil)", "reduced_motion")
 	reduced_flash = _toggle(box, "ReducedFlash", "Reduced flash (no impact accents)", "reduced_flash")
 	large_targets = _toggle(box, "LargeTargets", "Larger touch targets", "large_targets")
@@ -77,7 +103,7 @@ func _ready() -> void:
 	tuning_button = Button.new()
 	tuning_button.name = "ThrowTuning"
 	tuning_button.text = "Throw tuning (test)…"
-	tuning_button.custom_minimum_size = Vector2(320, 56)
+	tuning_button.custom_minimum_size = Vector2(0, 56)
 	tuning_button.pressed.connect(func(): _show_tuning(true))
 	box.add_child(tuning_button)
 	# ADR 004 decided the draw-and-cycle deck (owner, 2026-11-04): the player's Options
@@ -87,7 +113,7 @@ func _ready() -> void:
 	close = Button.new()
 	close.name = "CloseSettings"
 	close.text = "Done"
-	close.custom_minimum_size = Vector2(320, 64)
+	close.custom_minimum_size = Vector2(0, 64)
 	close.pressed.connect(hide)
 	box.add_child(close)
 	_build_tuning()
@@ -100,13 +126,15 @@ func _build_tuning() -> void:
 	tuning_box.name = "TuningPage"
 	tuning_box.add_theme_constant_override("separation", 6)
 	tuning_box.visible = false
-	add_child(tuning_box)
+	tuning_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_pages.add_child(tuning_box)
 	var title := Label.new()
 	title.text = "Throw tuning (test)"
 	title.add_theme_font_size_override("font_size", 30)
 	tuning_box.add_child(title)
 	for row in TUNABLE:
 		var label := Label.new()
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		tuning_box.add_child(label)
 		_tuning_labels[row[0]] = label
 		var slider := HSlider.new()
@@ -114,7 +142,7 @@ func _build_tuning() -> void:
 		slider.min_value = row[2]
 		slider.max_value = row[3]
 		slider.step = row[4]
-		slider.custom_minimum_size = Vector2(320, 40)
+		slider.custom_minimum_size = Vector2(0, 40)
 		slider.value = _tuned(row[0])
 		slider.value_changed.connect(func(value): _store_tuning(row[0], value))
 		tuning_box.add_child(slider)
@@ -122,7 +150,7 @@ func _build_tuning() -> void:
 	var reset := Button.new()
 	reset.name = "ResetTuning"
 	reset.text = "Reset to defaults"
-	reset.custom_minimum_size = Vector2(320, 52)
+	reset.custom_minimum_size = Vector2(0, 52)
 	reset.pressed.connect(func():
 		settings.throw_tuning = {}
 		for key in _tuning_sliders: _tuning_sliders[key].set_value_no_signal(_tuned(key))
@@ -132,7 +160,7 @@ func _build_tuning() -> void:
 	var back := Button.new()
 	back.name = "CloseTuning"
 	back.text = "Back"
-	back.custom_minimum_size = Vector2(320, 52)
+	back.custom_minimum_size = Vector2(0, 52)
 	back.pressed.connect(func(): _show_tuning(false))
 	tuning_box.add_child(back)
 
@@ -159,7 +187,8 @@ func _toggle(box: Container, node_name: String, text: String, key: String) -> Ch
 	var toggle := CheckButton.new()
 	toggle.name = node_name
 	toggle.text = text
-	toggle.custom_minimum_size = Vector2(320, 56)
+	toggle.custom_minimum_size = Vector2(0, 56)
+	toggle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	toggle.button_pressed = settings[key]
 	toggle.toggled.connect(func(on): _store(key, on))
 	box.add_child(toggle)

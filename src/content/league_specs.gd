@@ -10,7 +10,9 @@ extends RefCounted
 ## rivals (`of`) with its rule and one or more `extra_rules` from the same League.
 ##
 ## Specs are checked against a prospective catalogue (the shipped catalogue plus the
-## authored batches), because their rules, lanes and kits land in E18 later.
+## authored batches), because their rules, lanes and kits land in E18 later. An
+## opener or feature may list `lanes` too (the Neon League's features do); they come
+## from the pool like a boss's.
 const Contracts = preload("res://src/contracts/contracts.gd")
 const Division = preload("res://src/rules/division_run.gd")
 const DIRECTORY := "res://content/leagues/"
@@ -115,6 +117,10 @@ static func validate_spec(spec: Variant, roster_data: Dictionary, catalogue: Dic
 		var lanes: Array = boss.get("lanes", [])
 		if lanes.is_empty() or not lanes.all(func(l): return l in pool):
 			errors.append(where + ": the boss lists at least one lane from the League's pool")
+		# Openers and features may play a lane too (E17-L02); it comes from the pool.
+		for m in matches.slice(0, 2):
+			if m.has("lanes") and (m.lanes.is_empty() or not m.lanes.all(func(l): return l in pool)):
+				errors.append("%s: %s plays lanes from the League's pool" % [where, m.get("kind", "match")])
 		var rival := {}
 		for r in division.get("rivals", []):
 			if r.get("id") == boss.get("rival"):

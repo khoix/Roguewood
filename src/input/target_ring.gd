@@ -15,9 +15,9 @@ static func radius(held_usec: int, steady: bool) -> float:
 		return RING_MAX
 	return lerpf(RING_MAX, RING_MIN, float(held_usec % PERIOD_USEC) / PERIOD_USEC)
 
-## Grade the ring would award if the ball crossed inside it now.
-static func grade(ring_radius: float) -> String:
-	return Lane.grade_accuracy(true, 0.0, ring_radius)
+## Grade the ring would award if the ball crossed inside it now (zone_scale: Strobe).
+static func grade(ring_radius: float, zone_scale: float = 1.0) -> String:
+	return Lane.grade_accuracy(true, 0.0, ring_radius, zone_scale)
 
 static func default_target(handedness: String) -> float:
 	return -Lane.DEFAULT_TARGET_X if handedness == "left" else Lane.DEFAULT_TARGET_X

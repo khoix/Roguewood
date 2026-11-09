@@ -29,10 +29,13 @@ signal tactic_played(action: Dictionary)
 ## swing starts charging, "throw.curve_ready" when the spin will curve (the sparkle),
 ## "throw.full_charge" at full spin. Fired once each per hold, with the signed charge.
 signal throw_cue(id: String, charge: float)
+## UI-3: true while the ball rolls and the frame scores (the shell hides its bar).
+signal chrome_compact_changed(compact: bool)
 const Lane = preload("res://src/simulation/lane_spec.gd")
 const LaneWorld = preload("res://src/simulation/lane_world.gd")
 const Dressing = preload("res://src/presentation/live_dressing.gd")
 const AimOverlay = preload("res://src/presentation/aim_overlay.gd")
+const MatchPanels = preload("res://src/presentation/match_panels.gd")
 const SettingsPanel = preload("res://src/presentation/throw_settings_panel.gd")
 const AssistPanel = preload("res://src/presentation/assist_panel.gd")
 const Held = preload("res://src/input/held_ball.gd")
@@ -72,6 +75,9 @@ const RESULT_HOLD_SEC := 1.2
 const AIM_BACK := 2.0
 const AIM_HEIGHT := 1.05
 const DECK_VIEW_F := Lane.HEAD_PIN_F - 4.0
+const MAX_HELD_BACK := 1.3 # metres a held ball may come back toward the player
+const PORTRAIT_HAND_HEIGHT := 300.0 # UI-3: the fanned hand panel at the thumbs
+const PORTRAIT_CARD_HEIGHT := 230.0
 const TOP_UI_HEIGHT := 96.0 # session bar band; touches there are never throws
 const RING_COLORS := {"clean": Color(1.0, 1.0, 1.0), "sweet": Color(0.3, 0.95, 0.85), "perfect": Color(1.0, 0.8, 0.2)}
 
@@ -111,6 +117,16 @@ var _flick := Held.new()
 var _event_clock := not ("--script" in OS.get_cmdline_args())
 var _cues_fired: Dictionary = {}
 var _spin_angle := 0.0
+var backdrop: Control
+var panels: Control # UI-2 match panels: slip, rival, Charms, fold toggles
+var regions: Dictionary = {} # UI-2 screen regions (MatchPanels.compute)
+var _ball_line := 0.0 # the aim layout's ball line (the roll view never moves the camera)
+var _compact := false
+## UI-3: the player-facing prompt (the hint lines of `status`, which keeps the full
+## sentence for tools and tests); it sits above the hand, out of the pins' way.
+var prompt: Label
+var _pitch := 0.0 # extra camera pitch that puts the ball on the layout's ball line
+var _framed_for := Rect2() # (lab size, viewport size) the pitch was solved for
 var _touch := -1
 var _target_touch := -1
 var _hold_source := "touch"
@@ -179,6 +195,15 @@ func _ready() -> void:
 	SettingsPanel.with_defaults(settings)
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# UI-2: the side space behind the lane is the House night sky (UI-A1-C option 1,
+	# Constellations, the coordinator's default until the owner picks; 0 is Slow
+	# stars). The lane renders over it on a transparent background, full width.
+	backdrop = load("res://assets/ui/backdrops/house.gd").new()
+	backdrop.name = "Backdrop"
+	backdrop.option = 1
+	backdrop.reduced = bool(settings.get("reduced_motion", false))
+	backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(backdrop)
 	var container := SubViewportContainer.new()
 	container.name = "LaneView"
 	container.stretch = true
@@ -188,11 +213,11 @@ func _ready() -> void:
 	container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(container)
 	_viewport = SubViewport.new()
+	_viewport.transparent_bg = true
 	container.add_child(_viewport)
 	_camera = Camera3D.new()
 	var environment := Environment.new()
-	environment.background_mode = Environment.BG_COLOR
-	environment.background_color = Color(0.05, 0.04, 0.1)
+	environment.background_mode = Environment.BG_CLEAR_COLOR # transparent: the backdrop shows through
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	environment.ambient_light_color = Color(0.55, 0.52, 0.65)
 	environment.ambient_light_energy = 0.7
@@ -220,7 +245,17 @@ func _ready() -> void:
 	status.offset_left = 24
 	status.offset_right = -24
 	status.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	status.visible = false
 	add_child(status)
+	prompt = Label.new()
+	prompt.name = "Prompt"
+	prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	prompt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	prompt.add_theme_font_size_override("font_size", 20)
+	prompt.add_theme_color_override("font_outline_color", Color.BLACK)
+	prompt.add_theme_constant_override("outline_size", 6)
+	prompt.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(prompt)
 	next_rack = Button.new()
 	next_rack.name = "NextRack"
 	next_rack.text = "Next Rack"
@@ -293,17 +328,21 @@ func _ready() -> void:
 	shop_panel.charm_moved.connect(_on_charm_moved)
 	shop_panel.hide()
 	add_child(shop_panel)
+	panels = MatchPanels.new()
+	panels.fold_changed.connect(_update_status)
+	add_child(panels)
+	move_child(panels, card_hand.get_index())
 	hud = DivisionHud.new()
 	hud.endless_pressed.connect(_continue_endless)
 	add_child(hud)
 	hud.layout(TOP_UI_HEIGHT, TOP_UI_HEIGHT + 300.0)
+	resized.connect(_layout_resolution)
 	hud.intro_done.connect(_on_intro_done)
 	hud.retry_pressed.connect(func(): retry_requested.emit())
 	hud.menu_pressed.connect(func(): menu_requested.emit())
 	settings_panel = SettingsPanel.new()
 	settings_panel.settings = settings
 	settings_panel.changed.connect(_apply_settings)
-	settings_panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	settings_panel.hide()
 	add_child(settings_panel)
 	inspector = preload("res://src/presentation/card_inspector.gd").new()
@@ -316,6 +355,7 @@ func _ready() -> void:
 	motion.lab = self
 	add_child(motion)
 	move_child(motion, 2)
+	panels.host_equipment_strip(motion.equipment_art) # UI-3: out of the lane
 	if not restore_from.is_empty():
 		_restore(restore_from)
 		return
@@ -552,39 +592,34 @@ func _refresh_hand() -> void:
 	var counts: Dictionary = equipment.counts()
 	var header: String
 	if equipment.MODEL == "deck":
-		header = "Deck · draw %d · discard %d · used %d · House always ready" % [counts.draw, counts.discard, counts.exhausted]
+		header = "Draw %d · Discard %d · Used %d" % [counts.draw, counts.discard, counts.exhausted]
 		if state == "frame_done":
-			header = "Tap one card to keep for next frame (optional)" if not division.match_over() else "Match over — the deck recombines and reshuffles"
+			header = "Keep a card? (optional)" if not division.match_over() else "Match over — the deck recombines and reshuffles"
 		elif cycling:
 			header = "Cycle: tap a card to discard it and draw one"
 	else:
 		header = "Bag · House always ready · specials %d uses left this match" % counts.special_uses
 	var choosing: bool = state == "aim" or (state == "frame_done" and equipment.can_retain() and not division.match_over())
 	card_hand.reduced_motion = settings.reduced_motion
-	# Hand cards stay clear of the ball in portrait; the landscape side panel allows taller ones.
-	card_hand.max_card_height = 230.0 if size.x > size.y else 150.0
+	# UI-2: portrait fans the hand at the thumbs (above the score once a frame is
+	# done); landscape lays it in the hand flank, folded away on narrow screens.
+	var portrait := size.y >= size.x
+	card_hand.max_card_height = (140.0 if state == "frame_done" else PORTRAIT_CARD_HEIGHT) if portrait else 400.0
 	card_hand.show_cards(cards, marks, header, equipment.MODEL == "deck", state == "aim" and equipment.can_cycle(), choosing)
 	card_hand.cycle_button.text = "Cancel" if cycling else "Cycle"
-	card_hand.visible = state not in ["scoring", "shop", "intro", "division_over"]
-	# Bottom for thumbs while aiming; under the status line once the score panel is up.
-	# Landscape keeps the ball clear: a narrow two-row panel away from the assist side.
-	card_hand.set_anchors_preset(Control.PRESET_TOP_WIDE if state == "frame_done" else Control.PRESET_BOTTOM_WIDE)
-	card_hand.offset_left = 16.0
-	card_hand.offset_right = -16.0
-	if size.x > size.y:
-		var left: bool = settings.handedness != "left"
-		card_hand.anchor_left = 0.0 if left else 1.0
-		card_hand.anchor_right = card_hand.anchor_left
-		card_hand.offset_left = 16.0 if left else -16.0 - LANDSCAPE_HAND_WIDTH
-		card_hand.offset_right = card_hand.offset_left + LANDSCAPE_HAND_WIDTH
-	if state == "frame_done":
-		card_hand.grow_vertical = Control.GROW_DIRECTION_END
-		card_hand.offset_top = TOP_UI_HEIGHT + 170.0
-		card_hand.offset_bottom = TOP_UI_HEIGHT + 170.0
-	else:
-		card_hand.grow_vertical = Control.GROW_DIRECTION_BEGIN
-		card_hand.offset_top = -16.0
-		card_hand.offset_bottom = -16.0
+	# The roll view (UI-3): the hand leaves once the ball is away, and while the ball
+	# is held, so the whole lower screen is room to swirl (owner, 2026-11-08).
+	card_hand.visible = state not in ["holding", "rolling", "result", "scoring", "shop", "intro", "division_over"] and (portrait or not regions.get("fold", false) or panels.show_hand)
+	card_hand.set_mode("fan" if portrait else "flank", settings.handedness == "left")
+	var rect: Rect2 = regions.get("hand", Rect2(16, size.y - 300, size.x - 32, 284))
+	if portrait and state == "frame_done":
+		var top: float = regions.charms.end.y + 8.0
+		rect = Rect2(rect.position.x, top, rect.size.x, maxf(next_rack.position.y - 8.0 - top, 200.0))
+	card_hand.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	card_hand.grow_vertical = Control.GROW_DIRECTION_END
+	card_hand.position = rect.position
+	card_hand.custom_minimum_size = rect.size
+	card_hand.size = rect.size
 
 func _effect_text(item: Dictionary) -> String:
 	return ScoreLog.item_text(item, _names)
@@ -617,6 +652,7 @@ func _new_roll(save: bool = true) -> void:
 	lane.name = "Lane"
 	_viewport.add_child(lane)
 	lane.lane_condition = division.current().get("lane_condition", "lane.house")
+	_arm_lane_rules()
 	lane.setup(rack, _dressing, ItemPhysics.profiles(_catalogue, run.loadout().pins))
 	if league_theme != null:
 		var last: bool = division.division_number() == division.division_count()
@@ -627,8 +663,7 @@ func _new_roll(save: bool = true) -> void:
 	lane.place_ball(start_x)
 	state = "aim"
 	_ring_start_usec = _clock_usec
-	_camera.position = Lane.world(0.0, Lane.BALL_START_F - AIM_BACK, AIM_HEIGHT)
-	_camera.look_at(Lane.world(0.0, 11.0, 0.0))
+	_aim_camera()
 	_update_status()
 	if save:
 		_checkpoint("aim")
@@ -642,12 +677,7 @@ func _apply_settings() -> void:
 	_flick.tuning.merge(settings.get("throw_tuning", {}), true)
 	_flick.tuning.sensitivity = settings.sensitivity
 	assist_panel.visible = settings.assist
-	var left: bool = settings.handedness == "left"
-	assist_panel.set_anchors_preset(Control.PRESET_CENTER_LEFT if left else Control.PRESET_CENTER_RIGHT)
-	assist_panel.offset_left = 12.0 if left else -312.0
-	assist_panel.offset_right = 312.0 if left else -12.0
-	assist_panel.offset_top = -40.0
-	assist_panel.offset_bottom = 330.0
+	_layout_resolution()
 	if settings.assist and state == "aim" and lane:
 		_assist_preview(assist_panel.values())
 	# Practice applies to an attempt that has not thrown yet, otherwise to the next attempt.
@@ -656,6 +686,8 @@ func _apply_settings() -> void:
 		_checkpoint("aim")
 	if hud != null:
 		hud.reduced_motion = settings.reduced_motion
+	if backdrop != null:
+		backdrop.reduced = settings.reduced_motion or settings.get("reduced_flash", false)
 	# A model switch applies now at the very start of a match, otherwise at the next match.
 	if settings.equipment != _equipment_model and (equipment == null or (state == "aim" and roll_index == 1 and match_frame == 1)):
 		var first := equipment == null
@@ -671,14 +703,14 @@ func toggle_settings() -> void:
 
 func _process(delta: float) -> void:
 	_clock_usec += int(round(delta * 1000000.0))
-	_camera.keep_aspect = Camera3D.KEEP_WIDTH if size.y > size.x else Camera3D.KEEP_HEIGHT
-	_camera.fov = 44.0 if size.y > size.x else 50.0
+	_frame_camera()
 	if state in ["rolling", "result", "frame_done"] and not settings.reduced_motion:
 		var ball_f: float = -lane.ball_position().z
 		var cam_f := clampf(ball_f - 2.6, Lane.BALL_START_F - AIM_BACK, DECK_VIEW_F)
 		var target := Lane.world(0.0, cam_f, lerpf(AIM_HEIGHT, 1.25, inverse_lerp(0.0, DECK_VIEW_F, cam_f)))
 		_camera.position = _camera.position.lerp(target, 1.0 - exp(-8.0 * delta))
 		_camera.look_at(Lane.world(0.0, minf(_camera.position.z * -1.0 + 6.0, Lane.HEAD_PIN_F + 0.35), 0.12))
+		_camera.rotate_object_local(Vector3.RIGHT, _pitch)
 	if hud != null and hud.reaction.visible and reactions.visible_at(_clock_usec).is_empty():
 		hud.hide_reaction()
 	var ringing: bool = state == "holding" or (state == "aim" and settings.assist)
@@ -700,7 +732,25 @@ func _update_ring() -> void:
 		(_marker.material_override as StandardMaterial3D).albedo_color = ring_color()
 
 func ring_color() -> Color:
-	return RING_COLORS[Ring.grade(ring_radius)]
+	return RING_COLORS[Ring.grade(ring_radius, zone_scale())]
+
+## E17-L02: what the rules in force change in the roll (Oil Slick, Narrow Lane,
+## Strobe). Set on each new lane and again at commit, so a Rule Waiver played while
+## aiming is honoured, and on resume, so a restart re-simulates the same roll.
+func lane_rules() -> Dictionary:
+	return RivalRules.lane_rules(active_rules())
+
+func _arm_lane_rules() -> void:
+	if lane != null:
+		lane.rules = lane_rules()
+
+## Strobe's narrowed ring zones (1.0 otherwise), for the ring's colour.
+func zone_scale() -> float:
+	return float(lane_rules().get("zone_scale", 1.0))
+
+## Oil Slick's halved hook (1.0 otherwise), for the aim guide's bend.
+func hook_scale() -> float:
+	return float(lane_rules().get("hook_scale", 1.0))
 
 func _input(event: InputEvent) -> void:
 	if inspector and inspector.visible: return
@@ -711,9 +761,9 @@ func _input(event: InputEvent) -> void:
 				_hold_source = "mouse" if event.device == InputEvent.DEVICE_ID_EMULATION else "touch"
 				_hold_start_x = start_x
 				_ring_start_usec = _clock_usec
-				# The tether: the ball's centre orbits within 0.8 of its on-screen radius,
-				# so the touch point stays inside the ball (E05-R2).
-				_flick.tuning.orbit_cap = 0.8 * _ball_screen_radius() / minf(size.x, size.y)
+				# The pin: the ball's centre hangs within `pin_reach` (0.8) of its on-screen
+				# radius from the touch point, so the finger stays inside the ball (E05-R4).
+				_flick.tuning.orbit_cap = float(_flick.tuning.get("pin_reach", 0.8)) * _ball_screen_radius() / minf(size.x, size.y)
 				_flick.begin(_normalized(event.position), _input_usec())
 				_cues_fired = {}
 				_spin_angle = 0.0
@@ -787,6 +837,7 @@ func _assist_preview(controls: Dictionary) -> void:
 	lane.place_ball(start_x)
 
 func _commit(launch: Dictionary, source: String) -> void:
+	_arm_lane_rules()
 	var errors := lane.commit(launch)
 	if not errors.is_empty():
 		push_error("Rejected lab launch: " + str(errors))
@@ -808,6 +859,7 @@ func _commit(launch: Dictionary, source: String) -> void:
 ## Resume a committed launch after a restart: the same launch, in the same rack,
 ## with the cards already spent. There is no way to throw it again differently.
 func _resume_commit(pending: Dictionary) -> void:
+	_arm_lane_rules()
 	var errors := lane.commit(pending.launch)
 	if not errors.is_empty():
 		push_error("Saved launch rejected on resume: " + str(errors))
@@ -1467,7 +1519,7 @@ func _refresh_shop() -> void:
 		"reroll_cost": shop.reroll_cost(run), "can_reroll": run.money >= shop.reroll_cost(run),
 		"removal_price": Economy.REMOVAL_PRICE, "can_remove": run.money >= Economy.REMOVAL_PRICE and not run.cards.is_empty(),
 		"rack": rack_text, "charm_moves": charm_moves, "sellables": sellables,
-		"charm_order": "" if run.charms.is_empty() else "Charm order (left to right): " + ", ".join(run.charms.map(func(e): return _names.get(e.item_id, e.item_id))), "message": shop_message, "columns": 5 if size.x > size.y else 3})
+		"charm_order": "" if run.charms.is_empty() else "Charm order (left to right): " + ", ".join(run.charms.map(func(e): return _names.get(e.item_id, e.item_id))), "message": shop_message, "columns": 3, "landscape": size.x > size.y})
 	money_changed.emit(run.money)
 
 func _normalized(position: Vector2) -> Vector2:
@@ -1512,7 +1564,7 @@ func _over_ui(position: Vector2) -> bool:
 	if position.y < TOP_UI_HEIGHT:
 		return true
 	var global := get_global_transform() * position
-	for control in [settings_panel, assist_panel, next_rack, card_hand, shop_panel, inspector] + (hud.blocking_controls() if hud else []):
+	for control in [settings_panel, assist_panel, next_rack, card_hand, shop_panel, inspector] + (hud.blocking_controls() if hud else []) + (panels.blocking_controls() if panels else []):
 		if control.visible and control.get_global_rect().has_point(global):
 			return true
 	return false
@@ -1523,7 +1575,7 @@ func ball_screen_position() -> Vector2:
 
 func ball_touch_radius() -> float:
 	var center := _screen(lane.ball_position())
-	var edge := _screen(lane.ball_position() + _camera.global_transform.basis.x * Lane.BALL_RADIUS)
+	var edge := _screen(lane.ball_position() + _camera.global_transform.basis.x * Lane.BALL_RADIUS * lane.ball_scale())
 	var factor := 2.6 if settings.large_targets else 1.8
 	var minimum := 0.1 if settings.large_targets else 0.07
 	return maxf(center.distance_to(edge) * factor, minimum * minf(size.x, size.y))
@@ -1546,7 +1598,7 @@ func full_charge() -> bool:
 ## The ball's radius on screen, in lab pixels.
 func _ball_screen_radius() -> float:
 	var center := _screen(lane.ball_position())
-	return center.distance_to(_screen(lane.ball_position() + _camera.global_transform.basis.x * Lane.BALL_RADIUS))
+	return center.distance_to(_screen(lane.ball_position() + _camera.global_transform.basis.x * Lane.BALL_RADIUS * lane.ball_scale()))
 
 ## Microseconds for gesture samples (see _event_clock).
 func _input_usec() -> int:
@@ -1560,14 +1612,35 @@ func _draw_held_ball(delta: float) -> void:
 	lane.place_ball(_placed_x(place, _flick.origin))
 	var scale := _lane_units_per_norm() * Lane.LANE_HALF_WIDTH
 	# Held, the ball floats one orbit above the lane, so the lower half of its swirl
-	# never clips into the boards.
-	var lift := clampf((_flick.origin.y - place.y + float(_flick.tuning.orbit_cap)) * scale, 0.0, 0.8)
-	lane.aim_ball.position.y += lift
+	# never clips into the boards. Above the touch point it lifts; below it (owner,
+	# 2026-11-08: the swirl must not stop at the foul line) it comes back toward the
+	# player over the approach, so it follows the finger down the screen too.
+	var rise := _flick.origin.y - place.y + float(_flick.tuning.orbit_cap)
+	var flat: bool = settings.get("spin_view", "flat") == "flat"
+	var shrink := 1.0
+	if flat:
+		var held := _flat_held(place, scale)
+		lane.aim_ball.position = held.position
+		shrink = held.scale
+	elif rise >= 0.0:
+		lane.aim_ball.position.y += clampf(rise * scale, 0.0, 0.8)
+	else:
+		var near := _screen(Lane.world(0.0, Lane.BALL_START_F - 0.5, Lane.BALL_RADIUS)).y
+		var at := _screen(Lane.world(0.0, Lane.BALL_START_F, Lane.BALL_RADIUS)).y
+		var pixels_per_metre := maxf((near - at) / 0.5, 1.0)
+		lane.aim_ball.position.z += clampf(-rise * minf(size.x, size.y) / pixels_per_metre, 0.0, MAX_HELD_BACK)
 	var charge := held_charge()
 	if settings.reduced_motion:
-		lane.aim_ball.basis = Basis.IDENTITY
+		lane.aim_ball.basis = Basis.IDENTITY.scaled(Vector3.ONE * shrink)
+	elif flat:
+		# Flat spin: the ball turns about the camera's line of sight, facing the
+		# player like a coaster spun under a fingertip (positive is clockwise on screen).
+		_spin_angle = _flick.body_angle
+		lane.aim_ball.basis = Basis(-_camera.global_transform.basis.z.normalized(), _spin_angle).scaled(Vector3.ONE * shrink)
 	else:
-		_spin_angle += charge * 12.0 * delta
+		# E05-R4: the ball turns with its pin, as a body pinned off-centre does: what
+		# the player sees spinning is the physics, not an animation.
+		_spin_angle = _flick.body_angle
 		var lean := clampf(_flick.ball_velocity.x * 0.25, -0.35, 0.35)
 		var pitch := clampf(-_flick.ball_velocity.y * 0.15, -0.3, 0.3)
 		lane.aim_ball.basis = Basis(Vector3.BACK, -lean) * Basis(Vector3.RIGHT, pitch) * Basis(Vector3.FORWARD, _spin_angle)
@@ -1577,6 +1650,36 @@ func _draw_held_ball(delta: float) -> void:
 			throw_cue.emit(cue[0], charge)
 			if cue[2] > 0 and settings.get("haptics", true):
 				Input.vibrate_handheld(cue[2])
+
+## Flat spin (owner, 2026-11-08): the held ball follows the swing exactly on screen
+## and never changes size, wherever the finger goes. A ball kept at its own depth
+## would sink under the boards when the finger goes well below its start, so it is
+## drawn nearer the camera, in front of every part of the lane, and scaled down by the
+## same factor: it looks exactly like the ball at its place on the approach (lifted
+## one orbit), at one size. Visual only: the launch is made exactly as in depth spin.
+## Returns {position, scale}.
+const FLAT_NEAR := 0.5 # share of the nearest lane depth on screen the held ball is drawn at
+
+func _flat_held(place: Vector2, metres_per_norm: float) -> Dictionary:
+	var home := Lane.world(_hold_start_x * Lane.LANE_HALF_WIDTH, Lane.BALL_START_F, Lane.BALL_RADIUS + float(_flick.tuning.orbit_cap) * metres_per_norm)
+	var at := _screen(home) + (place - _flick.origin) * minf(size.x, size.y)
+	var local := at * Vector2(_viewport.size) / size
+	var depth := -(_camera.global_transform.affine_inverse() * home).z
+	var near := maxf(minf(depth, _nearest_lane_depth()) * FLAT_NEAR, _camera.near * 4.0)
+	return {"position": _camera.project_position(local, near), "scale": near / depth}
+
+## The smallest view depth at which the lane's surface shows on screen: where the rays
+## through the bottom corners and bottom centre of the view meet the lane.
+func _nearest_lane_depth() -> float:
+	var nearest := INF
+	var inverse := _camera.global_transform.affine_inverse()
+	var bottom := float(_viewport.size.y)
+	for x in [0.0, _viewport.size.x * 0.5, float(_viewport.size.x)]:
+		var origin := _camera.project_ray_origin(Vector2(x, bottom))
+		var normal := _camera.project_ray_normal(Vector2(x, bottom))
+		if normal.y < -1e-6:
+			nearest = minf(nearest, -(inverse * (origin + normal * (-origin.y / normal.y))).z)
+	return nearest
 
 ## True while a rule in force (Dead Straight) disables charged spin.
 func spin_disabled() -> bool:
@@ -1595,6 +1698,10 @@ func charged_spin() -> float:
 func _update_status() -> void:
 	if status == null:
 		return
+	_compose_status()
+	_place_prompt()
+
+func _compose_status() -> void:
 	_layout_resolution()
 	_refresh_hand()
 	_refresh_hud()
@@ -1614,11 +1721,16 @@ func _update_status() -> void:
 			if settings.assist:
 				status.text = lead + "\nSet position, aim, power and spin, then Throw."
 			else:
-				status.text = lead + "\nHold the ball · swirl to charge a curve · flick up. Tap the lane to move the target."
+				status.text = lead + "\nHold the ball, swirl to curve, flick up · tap the lane to aim"
 			if spin_disabled():
 				status.text += "\nDead Straight: spin is disabled — every throw rolls straight."
 			if not RivalRules.ball_allowed(active_rules(), "ball.hook"):
 				status.text += "\nHouse Rules: only the House Ball may be thrown; tactical cards are allowed."
+			for rule in active_rules():
+				if RivalRules.kind(rule) in ["hook_scale", "lane_width", "ring_scale"]:
+					status.text += "\n" + RivalRules.summary(rule).replace(" — ", ": ")
+			if lane != null and lane.lane_condition.begins_with("lane_condition.") and lane.lane_condition != "lane_condition.house_oil":
+				status.text += "\nLane: %s" % _lane_text(lane.lane_condition)
 			for action in frame_actions:
 				status.text += "\n" + Tactics.text(action, _names)
 			if last_cancel == "house_rules":
@@ -1653,28 +1765,35 @@ func _refresh_hud() -> void:
 	var m: Dictionary = division.current()
 	var left: int = division.frames_left()
 	var frames := "%d frame%s left" % [left, "" if left == 1 else "s"]
-	var view := {"text": "", "badge": "", "rule_text": ""}
+	var view := {"text": "", "badge": "", "rule_text": "", "frames": frames}
 	if division.practice:
 		view.text = "Practice · no target · score %d · %s · no unlocks" % [division.match_score, frames]
+		view.title = "Practice · no unlocks"
+		view.score = ScoreLog._n(division.match_score)
 	else:
 		var index: int = division.spec.matches.find(m) + 1
 		view.text = "%s %d/3 · Target %d · Score %d · %s" % [m.name, index, division.target(), division.match_score, frames]
+		view.title = "%s %d/3" % [m.name, index]
+		view.score = "%s / %s" % [ScoreLog._n(division.match_score), ScoreLog._n(division.target())]
 		if division.division_count() > 1:
 			view.text = "D%d/%d · %s" % [division.division_number(), division.division_count(), view.text]
+			view.title = "D%d/%d · %s" % [division.division_number(), division.division_count(), view.title]
 		if content.id == "campaign": view.text += " · " + ("Dry backend" if m.get("lane_condition") == "lane.dry" else "House oil")
 		var boss: Dictionary = division.boss()
 		var rival: Dictionary = division.rival_for(boss)
 		var reward: String = rival.first_clear.text if not career.first_clears.has(rival.id) else "already cleared"
 		if division.is_boss():
 			view.text = "%s · %s" % [rival.name, view.text]
+			view.title = "%s · %s" % [rival.name, view.title]
 			var rule_names: Array = _rival_rules(rival).map(func(r): return _names.get(r, r))
-			view.badge = ("Rules: %s ⓘ" if rule_names.size() > 1 else "Rule: %s ⓘ") % " + ".join(rule_names)
+			view.badge = "%s ⓘ" % " + ".join(rule_names)
 			if Tactics.waived(frame_actions):
 				view.badge = view.badge.replace(" ⓘ", " — waived this frame ⓘ")
 		else:
 			view.badge = "Boss: %s ⓘ" % rival.name
 		view.rule_text = "%s — target %d in two frames.\n%s\nFirst clear: %s" % [rival.name, int(boss.target), RivalRules.summaries(_rival_rules(rival)), reward]
 	hud.show_match(view)
+	_refresh_panels()
 	if state in ["shop", "division_over"] or not division.is_boss() or reactions.visible_at(_clock_usec).is_empty():
 		hud.hide_reaction()
 
@@ -1692,14 +1811,128 @@ func _inspect_card(card: Dictionary, origin: Control) -> void:
 	if state not in ["aim", "frame_done"]: return
 	inspector.inspect(card, origin, settings.reduced_motion)
 
+## UI-2: places every match control in the approved layout (MatchPanels.compute):
+## the top bar, the slip/rival/Charms panels, the prompt, assist controls, the
+## score and Next Rack. The hand is placed with its cards (_refresh_hand).
 func _layout_resolution() -> void:
-	if not score_panel: return
-	var landscape := size.x > size.y
+	if not score_panel or panels == null: return
+	var portrait := size.y >= size.x
 	var left_hand: bool = settings.get("handedness", "right") == "left"
-	score_panel.offset_left = LANDSCAPE_HAND_WIDTH + 32.0 if landscape and not left_hand else 16.0
-	score_panel.offset_right = -LANDSCAPE_HAND_WIDTH - 32.0 if landscape and left_hand else -16.0
+	# UI-3 roll view: once the ball is away, the hand and details leave and the bar slims.
+	var compact: bool = state in ["rolling", "result", "scoring"]
+	var aim_layout := MatchPanels.compute(size, left_hand, PORTRAIT_HAND_HEIGHT)
+	_ball_line = aim_layout.ball_y
+	regions = MatchPanels.compute(size, left_hand, PORTRAIT_HAND_HEIGHT, true) if compact else aim_layout
+	if compact != _compact:
+		_compact = compact
+		chrome_compact_changed.emit(compact)
+	hud.layout_regions(regions.top_bar, regions.bubble, portrait and not compact, compact)
+	panels.apply(regions, state not in ["shop", "intro", "division_over"])
+	panels.hand_toggle.text = "Hand %d" % (card_hand.buttons.size() if card_hand else 0)
+	_place_prompt()
+	var inner: float = 12.0 if portrait else regions.hand.size.x + 40.0
+	score_panel.offset_left = inner
+	score_panel.offset_right = -inner
+	# Portrait (UI-3): the score fills the lower part; when the frame is done, Next
+	# Rack sits just above it and the hand (to keep a card) above that.
+	var score_top := maxf(530.0, size.y - 600.0) if portrait else size.y - 556.0
+	score_panel.offset_top = score_top - size.y
+	score_panel.offset_bottom = -12.0
+	score_panel.fit(portrait)
+	shop_panel.offset_top = regions.top_bar.end.y + 12.0
+	if state == "shop" and shop_panel._shelf.visible != (not portrait):
+		_refresh_shop.call_deferred() # the shop reflows between its two layouts
 	next_rack.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	next_rack.position = Vector2(size.x - 336 if left_hand else 16, size.y - 100) if landscape else Vector2(size.x / 2 - 160, size.y / 2 - 36)
+	# Portrait: between the raised hand (keep a card) and the score; landscape: centre bottom.
+	next_rack.position = Vector2(size.x / 2 - 160, score_top - 76.0) if portrait else Vector2(size.x / 2 - 160, size.y - 100)
+	# The settings page fits the screen and scrolls (UI-3): the full width in
+	# portrait, a centred column in landscape, below the session buttons.
+	settings_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	settings_panel.offset_top = 72.0 if portrait else 96.0
+	settings_panel.offset_bottom = -12.0
+	if portrait:
+		settings_panel.offset_left = 12.0
+		settings_panel.offset_right = -12.0
+	else:
+		settings_panel.anchor_left = 0.5
+		settings_panel.anchor_right = 0.5
+		settings_panel.offset_left = -320.0
+		settings_panel.offset_right = 320.0
+	assist_panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	if portrait:
+		# Beside the ball, above the hand, on the throwing hand's side.
+		var tall := assist_panel.get_combined_minimum_size().y
+		assist_panel.size = Vector2(300, tall)
+		assist_panel.position = Vector2(12.0 if left_hand else size.x - 312.0, maxf(regions.lane.position.y, regions.lane.end.y - tall))
+	else:
+		var details: Rect2 = regions.details
+		assist_panel.position = details.position
+		assist_panel.size = Vector2(details.size.x, 0)
+	_frame_camera()
+
+## The prompt: the hint lines of the status (the match line is the bar's job), with
+## its bottom edge on the layout's prompt line.
+func _place_prompt() -> void:
+	if prompt == null or regions.is_empty(): return
+	var lines := status.text.split("\n")
+	if lines.size() > 1 and lines[0].begins_with("Match "):
+		lines.remove_at(0)
+	# The armed card already shows the ball; a tactic stays named.
+	if lines.size() > 1 and lines[0].begins_with("Ball: "):
+		var tactic := lines[0].find(" · Tactic: ")
+		if tactic < 0: lines.remove_at(0)
+		else: lines[0] = lines[0].substr(tactic + 3)
+	prompt.text = "\n".join(lines)
+	prompt.visible = state not in ["shop", "intro", "division_over"] and not prompt.text.is_empty()
+	var rect: Rect2 = regions.prompt
+	prompt.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	prompt.custom_minimum_size = Vector2(rect.size.x, 0)
+	prompt.size = Vector2(rect.size.x, 0)
+	prompt.add_theme_font_size_override("font_size", 20 if size.y >= size.x else 19)
+	prompt.position = Vector2(rect.position.x, rect.position.y - prompt.get_combined_minimum_size().y)
+
+## Fits the aim camera to the layout: vertical framing as before, pitched so the
+## ball sits on the lane region's ball line (UI-A1-C: 0.667 of its height).
+func _frame_camera() -> void:
+	if _camera == null or _viewport == null or regions.is_empty() or _ball_line <= 0.0: return
+	_camera.keep_aspect = Camera3D.KEEP_WIDTH if size.y > size.x else Camera3D.KEEP_HEIGHT
+	_camera.fov = 44.0 if size.y > size.x else 50.0
+	var key := Rect2(size, Vector2(_viewport.size))
+	if key == _framed_for or _viewport.size.x <= 0: return
+	_framed_for = key
+	var aim_pose := Transform3D(Basis(), Lane.world(0.0, Lane.BALL_START_F - AIM_BACK, AIM_HEIGHT)).looking_at(Lane.world(0.0, 11.0, 0.0))
+	var keep := _camera.global_transform
+	var ball := Lane.world(0.0, Lane.BALL_START_F, Lane.BALL_RADIUS)
+	var lo := -0.6
+	var hi := 0.6
+	for i in 32:
+		var mid := (lo + hi) * 0.5
+		_camera.global_transform = aim_pose.rotated_local(Vector3.RIGHT, mid)
+		if _screen(ball).y < _ball_line: lo = mid
+		else: hi = mid
+	_pitch = (lo + hi) * 0.5
+	_camera.global_transform = keep
+	if state in ["aim", "holding", "tactic"] or settings.reduced_motion:
+		_aim_camera()
+
+func _aim_camera() -> void:
+	_camera.position = Lane.world(0.0, Lane.BALL_START_F - AIM_BACK, AIM_HEIGHT)
+	_camera.look_at(Lane.world(0.0, 11.0, 0.0))
+	_camera.rotate_object_local(Vector3.RIGHT, _pitch)
+
+## The slip, rival and Charms panels (UI-2).
+func _refresh_panels() -> void:
+	if panels == null: return
+	var last: Dictionary = scored_frames[-1].result if not scored_frames.is_empty() else {}
+	panels.show_slip(last, total_score)
+	if division.practice:
+		panels.show_rival({}, "", false)
+	else:
+		var rival: Dictionary = division.rival_for(division.boss())
+		var rule_names: Array = _rival_rules(rival).map(func(r): return _names.get(r, r))
+		panels.show_rival(rival, " + ".join(rule_names), division.is_boss())
+	panels.show_charms(run.charms.map(func(e): return e.item_id), RunInventory.CHARM_SLOTS, _names)
+	hud.show_money(run.money)
 
 func _can_endless() -> bool:
 	return content.id == "campaign" and division.outcome == "won" and division.specs.size() < Generator.MAX_DIVISIONS
@@ -1718,4 +1951,4 @@ func _continue_endless() -> void:
 func _lane_text(id: String) -> String:
 	for entry in content.get("profile", {}).get("lanes", []):
 		if entry.id == id: return entry.text
-	return id
+	return _names.get(id, id)

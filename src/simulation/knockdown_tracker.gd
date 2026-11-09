@@ -35,7 +35,12 @@ var _quiet := 0
 var _stalled := 0
 var _last_ball: Variant = null
 
-func _init(standing_positions: Array) -> void:
+## gutter_edge: how far from the centre a ball that has touched no pin becomes a
+## gutter ball (the lane's edge; Narrow Lane, E17-L02, moves it two boards in).
+var gutter_edge := Lane.LANE_HALF_WIDTH
+
+func _init(standing_positions: Array, edge: float = Lane.LANE_HALF_WIDTH) -> void:
+	gutter_edge = edge
 	for position in standing_positions:
 		positions.append(int(position))
 	positions.sort()
@@ -80,7 +85,7 @@ func step(observation: Dictionary) -> bool:
 func _track_ball(ball: Dictionary) -> void:
 	var x := float(ball.x)
 	var f := float(ball.f)
-	if not ball_touched_pins and f > 0.0 and f < Lane.PIT_F and absf(x) > Lane.LANE_HALF_WIDTH:
+	if not ball_touched_pins and f > 0.0 and f < Lane.PIT_F and absf(x) > gutter_edge:
 		gutter = true
 	if _last_ball != null and not target_crossed and _last_ball.f < Lane.TARGET_PLANE_F and f >= Lane.TARGET_PLANE_F:
 		var t: float = (Lane.TARGET_PLANE_F - _last_ball.f) / (f - _last_ball.f)

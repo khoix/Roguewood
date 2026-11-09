@@ -13,6 +13,7 @@ const STEP_SEC := 0.3
 const SPEEDS := [1, 2, 4]
 const ROLL_COLORS := [Color(0.95, 0.55, 0.25), Color(0.35, 0.8, 1.0)]
 const HIGHLIGHT := Color(1.0, 0.9, 0.3)
+const ICONS := "res://assets/ui/cards/"
 
 var steps: Array = []
 var shown := 0
@@ -34,11 +35,7 @@ var _skipping := false
 
 func _ready() -> void:
 	name = "ScorePanel"
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.04, 0.03, 0.08, 0.98)
-	style.set_corner_radius_all(12)
-	style.set_content_margin_all(16)
-	add_theme_stylebox_override("panel", style)
+	add_theme_stylebox_override("panel", preload("res://src/presentation/house_ui_theme.gd").frame("menu", 20.0, 16.0))
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 8)
 	add_child(box)
@@ -49,9 +46,11 @@ func _ready() -> void:
 	header.name = "ScoreHeader"
 	header.add_theme_font_size_override("font_size", 30)
 	header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	header_row.add_child(header)
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 16)
+	row.add_theme_constant_override("separation", 24)
+	row.alignment = BoxContainer.ALIGNMENT_CENTER # UI-3: the review is centred
 	box.add_child(row)
 	rack_view = Control.new()
 	rack_view.name = "RackDiagram"
@@ -61,7 +60,6 @@ func _ready() -> void:
 	counters = Label.new()
 	counters.name = "ScoreCounters"
 	counters.add_theme_font_size_override("font_size", 34)
-	counters.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	counters.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	row.add_child(counters)
 	log_scroll = ScrollContainer.new()
@@ -74,6 +72,7 @@ func _ready() -> void:
 	log_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	log_scroll.add_child(log_list)
 	var buttons := HBoxContainer.new()
+	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
 	buttons.add_theme_constant_override("separation", 12)
 	box.add_child(buttons)
 	speed_button = Button.new()
@@ -88,6 +87,14 @@ func _ready() -> void:
 	skip_button.pressed.connect(skip)
 	buttons.add_child(skip_button)
 	_refresh_speed()
+
+## UI-3: a shorter, centred review for portrait phones; the full size otherwise.
+func fit(portrait: bool) -> void:
+	header.get_parent().custom_minimum_size.y = 40 if portrait else 64
+	header.add_theme_font_size_override("font_size", 26 if portrait else 30)
+	rack_view.custom_minimum_size = Vector2(190, 160) if portrait else Vector2(210, 190)
+	counters.add_theme_font_size_override("font_size", 32 if portrait else 34)
+	log_scroll.custom_minimum_size.y = 72 if portrait else 150
 
 ## reports: the frame's LaneWorld reports, used only for roll attribution.
 func play(frame_steps: Array, reports: Array, title: String, play_speed: int) -> void:
@@ -123,16 +130,8 @@ func _reveal() -> void:
 		return
 	var step: Dictionary = steps[shown]
 	step_revealed.emit(step, shown, _skipping)
-	var line := Label.new()
-	line.text = "%s  %s" % [step.symbol, step.text] if not step.symbol.is_empty() else step.text
-	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	line.add_theme_font_size_override("font_size", 22)
-	if step.symbol == "×":
-		line.add_theme_color_override("font_color", Color(1.0, 0.45, 0.45))
-	elif step.phase == "bank":
-		line.add_theme_color_override("font_color", HIGHLIGHT)
-	log_list.add_child(line)
+	log_list.add_child(_chain_line(step))
+	var line: Control = log_list.get_child(-1)
 	if not reduced_motion:
 		line.modulate.a = 0.45
 		create_tween().tween_property(line, "modulate:a", 1.0, 0.16)
@@ -148,6 +147,45 @@ func _reveal() -> void:
 	rack_view.queue_redraw()
 	if shown >= steps.size():
 		_finish()
+
+## UI-2: one link of the ordered score chain: the step's icon (pin, Value, Mult or
+## $) then its text. A flat, untouchable Button so `text` stays the step's words.
+func _chain_line(step: Dictionary) -> Button:
+	var line := Button.new()
+	line.text = "%s  %s" % [step.symbol, step.text] if not step.symbol.is_empty() else step.text
+	line.flat = true
+	line.focus_mode = Control.FOCUS_NONE
+	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	line.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	line.icon = load(ICONS + _chain_icon(step) + ".svg")
+	line.add_theme_constant_override("icon_max_width", 24)
+	line.add_theme_constant_override("h_separation", 10)
+	line.add_theme_font_size_override("font_size", 21)
+	for key in ["normal", "hover", "pressed", "disabled", "focus", "hover_pressed"]:
+		line.add_theme_stylebox_override(key, StyleBoxEmpty.new())
+	var color := Color("f4e6cd")
+	if step.symbol == "×":
+		color = Color(1.0, 0.45, 0.45)
+	elif step.phase == "bank":
+		color = HIGHLIGHT
+	elif step.phase == "after_bank":
+		color = Color("95d9cb")
+	for key in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_disabled_color", "font_hover_pressed_color"]:
+		line.add_theme_color_override(key, color)
+	return line
+
+## The card icon for a chain step (docs/art/ui: the score/category masters).
+static func _chain_icon(step: Dictionary) -> String:
+	var text := String(step.get("text", ""))
+	match String(step.get("phase", "")):
+		"category", "fallen": return "pin"
+		"bank": return "value"
+		"accuracy": return "mult"
+	if text.contains("+$") or text.contains(" $"): return "money"
+	if text.ends_with("Mult") or text.contains(" Mult (") or step.get("symbol", "") == "×": return "mult"
+	return "value"
 
 ## Waits for the new line's layout, then keeps the latest step in view.
 func _scroll_to_end() -> void:

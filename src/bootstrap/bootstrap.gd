@@ -4,6 +4,7 @@ const ThrowLab = preload("res://src/presentation/throw_lab.gd")
 const SaveStore = preload("res://src/persistence/save_store.gd")
 const Snapshot = preload("res://src/persistence/attempt_snapshot.gd")
 const WebQA = preload("res://src/platform/web_qa.gd")
+const UiTheme = preload("res://src/presentation/house_ui_theme.gd")
 const CareerProfile = preload("res://src/persistence/career_profile.gd")
 const Contracts = preload("res://src/contracts/contracts.gd")
 const FrameBuilder = preload("res://src/rules/frame_builder.gd")
@@ -43,6 +44,8 @@ var save_notice := ""
 var content: Dictionary = {}
 
 func _ready() -> void:
+	# UI-2: one House theme (frame kit, Pixelify Sans) for every screen.
+	theme = UiTheme.build()
 	get_window().size_changed.connect(_viewport_layout)
 	_viewport_layout()
 	clubhouse = Clubhouse.new()
@@ -116,6 +119,7 @@ func _ready() -> void:
 	back = _button(session_bar, "Clubhouse", "BackToMenu", 220)
 	options = _button(session_bar, "Options", "ThrowOptions", 220)
 	options.pressed.connect(func(): if lab: lab.toggle_settings())
+	_viewport_layout() # size the session buttons for the orientation
 	enter.pressed.connect(_start_session)
 	reset.pressed.connect(_start_session)
 	back.pressed.connect(_show_menu)
@@ -216,10 +220,24 @@ func _begin_attempt(attempt: int, saved: Dictionary = {}) -> void:
 	lab.menu_requested.connect(_show_menu, CONNECT_DEFERRED)
 	lab.frame_scored.connect(_on_frame_scored)
 	lab.money_changed.connect(func(money): session.money = money)
+	# UI-3 roll view: the session buttons step aside while the ball rolls and scores.
+	lab.chrome_compact_changed.connect(_on_chrome_compact)
 	add_child(lab)
 	move_child(lab, 0)
+	_on_chrome_compact(false)
 	session_bar.show()
 	reset.grab_focus()
+
+## UI-3 roll view: Restart steps aside while the ball rolls and scores; Clubhouse
+## and Options stay reachable, smaller, at the top right.
+func _on_chrome_compact(compact: bool) -> void:
+	reset.visible = not compact
+	session_bar.alignment = BoxContainer.ALIGNMENT_END if compact else BoxContainer.ALIGNMENT_CENTER
+	session_bar.offset_right = -12.0 if compact else 0.0
+	session_bar.add_theme_constant_override("separation", 8 if compact else 16)
+	var portrait := get_window().size.x <= get_window().size.y
+	for button in [back, options]:
+		button.custom_minimum_size = Vector2(116, 48) if compact else (Vector2(160, 48) if portrait else Vector2(220, 64))
 
 ## The session fixture tracks the lab's banked total and current frame.
 func _on_frame_scored(scored: Dictionary) -> void:
@@ -290,4 +308,12 @@ func _clear_lab() -> void:
 ## Preserve native reference typography in both orientations.
 func _viewport_layout() -> void:
 	var window := get_window()
-	window.content_scale_size = Vector2i(1280,720) if window.size.x > window.size.y else Vector2i(720,1280)
+	# UI-3 (owner phone trial, 2026-11-08): portrait lays out 540 wide, so every
+	# label reads about a third larger on a phone; the screens are re-fitted for it.
+	window.content_scale_size = Vector2i(1280,720) if window.size.x > window.size.y else Vector2i(540,960)
+	if session_bar:
+		var portrait := window.size.x <= window.size.y
+		session_bar.offset_top = 12 if portrait else 16
+		for button in session_bar.get_children():
+			button.custom_minimum_size = Vector2(160, 48) if portrait else Vector2(220, 64)
+		reset.text = "Restart" if portrait else "Restart Session"

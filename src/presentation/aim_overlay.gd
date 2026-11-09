@@ -6,7 +6,8 @@ extends Control
 ## charged spin and is not a forecast of the roll. Developmental look (E12 owns VFX).
 const Lane = preload("res://src/simulation/lane_spec.gd")
 const GUIDE_LENGTH := 4.5
-const GUIDE_BEND := 0.06 # meters of qualitative bend at full spin
+const GUIDE_BEND := 0.06 # meters of qualitative bend at full spin; Oil Slick halves it
+const GUARD_COLOR := Color(1.0, 0.25, 0.85, 0.9) # Narrow Lane's guard lines (developmental; E21/E22 art replaces them)
 const DASHES := 9
 const GUIDE_COLOR := Color(1.0, 1.0, 1.0, 0.55)
 const CLOCKWISE_COLOR := Color(1.0, 0.55, 0.35)
@@ -33,7 +34,12 @@ func _draw() -> void:
 	draw_arc(Vector2.ZERO, reticle, 0.0, TAU, 48, Color(0, 0, 0, 0.5), 7.0, true)
 	draw_arc(Vector2.ZERO, reticle, 0.0, TAU, 48, lab.ring_color(), 4.0, true)
 	draw_set_transform(Vector2.ZERO)
-	var spin: float = lab.charged_spin()
+	# Narrow Lane (E17-L02): guard lines at the new gutter edges, from the ball to the deck.
+	var edge: float = lab.lane.gutter_edge()
+	if edge < Lane.LANE_HALF_WIDTH:
+		for side in [-1.0, 1.0]:
+			draw_line(lab.screen_point(Lane.world(side * edge, Lane.BALL_START_F, 0.002)), lab.screen_point(Lane.world(side * edge, Lane.HEAD_PIN_F - 0.6, 0.002)), GUARD_COLOR, 4.0, true)
+	var spin: float = lab.charged_spin() * lab.hook_scale()
 	var ball: Vector3 = lab.lane.ball_position()
 	var points: Array[Vector2] = []
 	for i in DASHES * 2 + 1:

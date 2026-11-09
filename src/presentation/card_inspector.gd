@@ -16,7 +16,11 @@ var detail: Label
 var finish: OptionButton
 var close_button: Button
 var skip_button: Button
-var foil: ShaderMaterial
+## UI-A2: the card's own rarity material (the old illustration foil is off, so the
+## two never double up). Tilt drives its phase.
+var foil: ShaderMaterial:
+	get: return card_view.sheen.material if card_view else null
+var tilt := Vector2.ZERO
 var reduced := false
 var revealing := false
 var reveal_count := 0
@@ -36,11 +40,8 @@ func _ready() -> void:
 	add_child(shade)
 	panel = PanelContainer.new()
 	panel.set_anchors_and_offsets_preset(PRESET_CENTER)
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color("101820")
-	style.border_color = Color("e7bc70")
-	style.set_border_width_all(3)
-	style.set_content_margin_all(18)
+	# UI-2: the House menu frame unless the item has its own rarity treatment.
+	var style := preload("res://src/presentation/house_ui_theme.gd").frame("menu", 20.0, 18.0)
 	_default_frame = style
 	panel.add_theme_stylebox_override("panel",style)
 	add_child(panel)
@@ -52,7 +53,7 @@ func _ready() -> void:
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(title)
 	# UI-1: inspection shows the whole playing card at its inspection size (UI-A1:
-	# 240×344 portrait, 210×300 landscape); foil and tilt act on its illustration.
+	# 240×344 portrait, 210×300 landscape); tilt drives its UI-A2 rarity material.
 	card_view = CardView.new()
 	card_view.name = "InspectedCard"
 	card_view.custom_minimum_size = Vector2(240, 344)
@@ -61,9 +62,6 @@ func _ready() -> void:
 	card_view.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	box.add_child(card_view)
 	art = card_view.art
-	foil = ShaderMaterial.new()
-	foil.shader = load("res://assets/motion/foil.gdshader")
-	art.material = foil
 	detail = Label.new()
 	detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	detail.add_theme_font_size_override("font_size",20)
@@ -130,9 +128,8 @@ func inspect(card: Dictionary, origin: Control, reduce: bool) -> void:
 func _finish_selected(index: int) -> void:
 	skip_reveal()
 	art.texture = _item_texture if _item_texture else illustration(4 if index == 4 else _base_index)
-	foil.set_shader_parameter("strength",[0.0,0.15,0.65,0.8,0.9][index])
-	foil.set_shader_parameter("border_only",index <= 2)
-	foil.set_shader_parameter("tilt",Vector2.ZERO)
+	card_view.preview_material(["common", "uncommon", "rare", "epic", "legendary"][index])
+	tilt = Vector2.ZERO
 	if index == 4:
 		reveal_count += 1
 		if not reduced:
@@ -175,10 +172,15 @@ func _input(event: InputEvent) -> void:
 	elif event is InputEventMouseMotion or event is InputEventScreenDrag:
 		var at: Vector2 = event.position
 		if art.get_global_rect().has_point(at):
-			var tilt := ((at-art.global_position)/art.size-Vector2.ONE*0.5)*2
+			tilt = (((at-art.global_position)/art.size-Vector2.ONE*0.5)*2).clamp(-Vector2.ONE, Vector2.ONE)
 			if reduced: tilt = Vector2.ZERO
-			foil.set_shader_parameter("tilt",tilt)
+			card_view.tilt_material(tilt)
 			if not revealing:
 				art.pivot_offset = art.size/2
 				art.rotation = tilt.x*0.045
 			get_viewport().set_input_as_handled()
+		elif tilt != Vector2.ZERO:
+			# Off the art: the material settles to its rest phase (UI-A2).
+			tilt = Vector2.ZERO
+			card_view.tilt_material(tilt)
+			art.rotation = 0

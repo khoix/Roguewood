@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-11-05. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). **Wave 10 is open** (see "Wave 10 claims"). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
+Updated: 2026-11-08. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). Wave 10 is merged by PR #22 (main `706767f`). **Wave 11 is open** (see "Wave 11 claims"). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
 
 ## Read first
 
@@ -213,6 +213,54 @@ Open: Wave 8 is merged (PR #19, main `f444488`). Base: `claude/roguewood-build` 
   - Codex: UI-A2, AV-H4 (E17-D10's five), AV-T01.
 - **Owner:** approve the UI-A1 mockups (gates UI-1), and play the held-ball throw on a phone through the hosted web build.
 
+## Wave 11 claims (coordinator: Claude, 2026-11-08)
+Open: Wave 10 is merged (PR #22, main `706767f`). Base: `claude/roguewood-build` at this commit. Codex merges it into `codex/roguewood-build` with a merge commit before starting. Scope: docs/ROADMAP.md, "Phone pass: UI-3" and the Wave 11 row.
+- **Claude, in this order:**
+  1. **UI-3** (High): the phone pass from the owner's trial of 2026-11-08, including E05-R3 (the swing fix: full charge at 3.5 turns a second, steady-turn swirl detection, the held ball below the foul line).
+     - Paths: src/input/held_ball.gd and its test; throw_lab.gd layout, match_panels.gd, division_hud.gd, card_hand.gd, score_panel.gd, shop_panel.gd, the bootstrap content scale; the journeys these touch; ADR 011.
+     - Delivers: the readable scale with re-fitted screens, the roll view, the slim top chrome, the centered frame review, the portrait shop; captures for the owner.
+  2. **Retrigger labels** (Low): ordinal-aware `_cause` in src/rules/score_log.gd (handoffs/AV-H4-A.md); a unit case with Echo Ball, Echo Charge and Double Take stacked.
+  3. **E17-L02** (High): the Neon spec, rules and lanes. Carries into Wave 12 if UI-3 runs long.
+- **Codex:**
+  - **AV-T01** (Medium): throw charge and sparkle effects and sounds for the tethered swing, in two levels with reduced versions. Read ADR 011 (including E05-R3) and the cues `throw.charge`, `throw.curve_ready`, `throw.full_charge`.
+  - **Neon rivals and theme:** only once E17-L02's spec is committed; otherwise it moves to Wave 12 and Codex closes after AV-T01.
+- **Owner:** play UI-3's build on the phone; pick a backdrop; tune the throw (Options → Throw tuning; Reset brings back the new defaults).
+
+## Wave 11 progress (coordinator)
+- **UI-3 DONE** (handoffs/UI-3.md; E05-R3 in ADR 011): the phone pass from the owner's trial of 2026-11-08.
+  - Swing: full charge at 3.5 turns a second, steady-turn swirl detection, the held ball follows the finger below its start point.
+  - Portrait lays out 540 wide (text about a third larger), with re-fitted screens: a two-row top bar, one info row, the prompt above the hand, the kit strip in the Charms row, a full-width fan, the roll view, a centred frame review, and a three-column portrait shop with pinned actions.
+  - Validation: full local matrix 158/158 on `c0777f5`; CI Bootstrap run 42443398228 PASS on `c0777f5`.
+- **Early merge:** UI-3 MERGED to main by PR #23 for the owner's phone testing (Wave 11 stays open).
+- **E05-R4 DONE** (ADR 011, "Revision: the ragdoll ball"): after the owner's phone trial and reference video (2026-11-08), the held ball is a weighted body hanging from the finger under screen gravity, with drag against the world; its turning about the finger is the charge. The hand hides while the ball is held. A "how far the ball hangs" tuning slider lets the owner try a bigger swing. Validation: unit and J02 pass; full local matrix 158/158 on `92d127d`; `7ac9039` adds only the slider (unit and J02 pass). A demo clip was shared.
+- **Early merge 2:** E05-R4 MERGED to main by PR #24 for the owner's phone testing (Wave 11 stays open).
+- **Options on the phone** (`4b9ff25`): the Options panel ran off the phone's screen, so Throw tuning could not be reached; it now fills the width in portrait and scrolls, and Codex's Sound & effects row finds the list inside the scroll. Full charge needs 38 rad/s of ball spin (was 32; the owner found it a bit too easy). Unit and the journeys that use Options pass locally. PR #25 for the owner's phone tuning.
+- **Retrigger labels DONE:** score_log.gd numbers each roll's repeats of a pin and names the effect that granted each one, so stacked Echo Ball, Echo Charge and Double Take read Echo Ball, Echo Charge, Double Take (in the order the cards were played). Text only; scores are unchanged. mechanics_c11_test has the stacked case, the reversed card order and a spare whose two rolls each repeat their own pin, and checks that no retrigger effect carries a condition (the numbering assumes every one grants). The new case fails on the old code. Unit, J06 and J03C11 pass.
+- **Early merge 3:** the Options fix and the retrigger labels MERGED to main by PR #25 (`f1852bf`) after CI passed on `1d041bd` (Wave 11 stays open).
+- **Owner:** tune the throw on the phone (Options → Throw tuning: ball spin for full charge, how far the ball hangs) and send the values; they become the defaults.
+- **E17-L02, spec part DONE** (handoffs/E17-L02.md): content/leagues/neon.json (eight Divisions; Slick, Laser Lena and DJ Flicker recurring; DJ Flicker as champion with Strobe plus Oil Slick; features and bosses on Neon lanes; the Neon Kit; the title opens the Spectral League) and E17-D11 (Long Oil, Two-Tone, the Neon Kit), with the Neon item plan for the item batches. Content and unit pass.
+- **E17-L02 DONE** (handoffs/E17-L02.md), with its rules and lanes as E18-C13 (`8a06e17`): Oil Slick halves the hook (the committed spin is kept), Narrow Lane rules a ball crossing an edge two boards in a gutter ball (a rail carries it in; the start is kept inside), Strobe halves the ring's perfect and sweet bands, Long Oil runs the oil to 47 ft and Two-Tone dries the left half at 34 ft. Unit, content, physics (digest unchanged) and the new J03C13 (headless and rendered) pass. Full local matrix 160/160 on `8a06e17`; CI Bootstrap run 42516260515 PASS on `fc4ced8` (its hand-off).
+- **Owner's phone tuning (2026-11-08; rolled back, below):** the defaults were full charge 50 rad/s, hang 1.0, charge smoothing 0.05, flick sensitivity ×0.4 (slider from ×0.25), and a new Options choice, Flat or Depth spin (Flat by default: the held ball turns facing the player at one distance from the camera). ADR 011, "The owner's phone tuning and the spin view". Lowering sensitivity now softens a throw without ever cancelling it (at first ×0.4 refused the web journey's flick). Full local matrix 160/160 on `15feaf6`; CI Bootstrap run 42520775737 PASS on `15feaf6`.
+- **Early merge 4:** E17-L02 (with E18-C13) and the owner's phone tuning with the Flat/Depth spin view MERGED to main by PR #26 (`3d769fc`) after CI passed on `4ea240d` (Wave 11 stays open).
+- **Rolled back (owner, 2026-11-08):** on the phone the swing felt laggy, with little of the ragdoll feel, in both spin views, and flat spin still changed size as the finger moved (below the start it rode the lane toward the camera). The owner asked for the previous iteration back for reevaluation, so the tuning defaults, the sensitivity change and the spin view are reverted: the throw is as merged by PR #25 (full charge 38 rad/s, hang 0.8, smoothing 0.3, sensitivity ×1 from ×0.5, depth view only). The Neon spec, rules and lanes stay; they do not touch the held ball and are not live. Note for the reevaluation: in the depth view the held-ball code was unchanged by the reverted commits; only the default values (50, 1.0, 0.05, the values on the owner's tuning page) differed.
+- **Rollback MERGED** to main by PR #27 (`a898d29`) after CI passed on `1168b47`.
+- **Restored (owner, 2026-11-09):** the lag was the phone's Low Power Mode, not the change. The tuning defaults, the sensitivity rule and the spin view are back for evaluation (reverting PR #27's commit), with flat spin fixed so the ball never changes size (below).
+- **Next (Claude):** Wave 11's Claude claims are complete. The Wave 11 close follows Codex's AV-T01. Then the owner's throw values (they become the defaults), and the Wave 11 close when Codex's AV-T01 is in.
+- **Codex can start the Neon rivals and theme** from neon.json and handoffs/E17-L02.md: Slick, Laser Lena and DJ Flicker (E21), their rule badges, and the Long Oil and Two-Tone lane looks.
+
+## Wave 10 closed (coordinator, 2026-11-07)
+- **Contents** (all on `claude/roguewood-build` at the "Wave 10 closed" commit):
+  - Claude: UI-1 (`2c7ffd5`, `a1a9d0b`, `6fb9c44`), E05-R2 (with the owner's adjustments, `ec9cabc`) and UI-2 (`883adcc`, `45a7fed`, `268da2f`, `8471921`).
+  - Codex: UI-A1-C (`5fb5cec`, `47bf589`), UI-A2 (`dc5877e`), AV-H4-A/B (`bd44d9c`, `9986f67`) and its closing record docs/handoffs/WAVE10-CODEX.md (`9b98a54`, merged at `80395be`).
+- **Validation:**
+  - The full CI command list (158 units, both shards, every journey headless and rendered, the web journey included) PASS locally on `268da2f`. CI: Bootstrap run 42329325151 PASS on `268da2f`, both shards.
+  - Since then only documentation changed (`8471921`, Codex's `9b98a54`, this record).
+  - Codex's closing matrix: 39 journeys in both modes plus unit, content and physics PASS on `9986f67`; the physics digest `75d1a3c0…` is unchanged.
+  - CI runs on this commit.
+- **Follow-up for Wave 11 (Claude, rules lane):** score_log.gd `_cause` names the first non-ball retrigger owner for every repeat on a roll, so with stacked Echo Ball, Echo Charge and Double Take two repeats can share one label (Codex, handoffs/AV-H4-A.md). Text only; scores are right.
+- **Owner actions:** pick a backdrop (Constellations is the default; Slow stars is a one-line switch); turn on GitHub Pages; play the swing, the fan of four and the folds on a phone.
+- **Merge:** MERGED to main by PR #22 (`706767f`) after CI passed on `a91c2a9`.
+
 ## Wave 10 claims (coordinator: Claude, 2026-11-06)
 Open: Wave 9 is merged (PR #20), plus the CI fix (PR #21, main `f4810aa`). Base: `claude/roguewood-build` at the "Wave 10 claims" commit. Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave10.md). Scope: docs/ROADMAP.md, "Art-forward interface: UI-R1" (with the owner's decisions of 2026-11-05) and "Tethered swing: E05-R2".
 - **Claude, in this order:**
@@ -263,7 +311,12 @@ Open: Wave 9 is merged (PR #20), plus the CI fix (PR #21, main `f4810aa`). Base:
   - Validation: the full local matrix ran 150/152 before the hand-sizing fix. After it, J03C11 passes headless and rendered, and J02, J04, J06, J03C06 and J03C10 pass.
   - CI: run 42163465370 PASS on `6fb9c44`, both shards.
 - **E05-R2 DONE** (handoffs/E05-R2.md; ADR 011, "Revision"): the tethered swing. The ball orbits the touch point inside its radius; orbit speed is the charge; the ball coasts and winds down; the release is the flick plus an orbit nudge. A swirl clip was shared with the owner.
-- **Open owner question:** how portrait shows a four-card hand (paging two, a fan, or four small cards). This is for UI-2.
+- **Owner decisions (2026-11-07):** UI-A1-C approved; the portrait hand is a fan of four; the swing demo (6 turns a second for full charge) is good. No backdrop was picked; UI-2 uses Constellations as the default.
+- **Codex's Wave 10 work, integrated** (fast-forward to `9986f67`): UI-A1-C DONE (handoffs/UI-A1-C.md: the layout revision, two backdrops, the 4:3 fold), UI-A2 DONE (handoffs/UI-A2.md: House rarity materials and nine action icons), AV-H4 DONE in two parts (handoffs/AV-H4-A.md, AV-H4-B.md: E17-D10's five items). Codex's closing record (docs/WAVE10-CODEX.md) is not in yet.
+- **UI-2 DONE** (handoffs/UI-2.md):
+  - Commits: `883adcc` (the House theme, backdrop and card materials), `45a7fed` (the match screen in both orientations, the camera line, the landscape shop shelf) and `268da2f` (score-chain icons, kit frames on the inspector and tactic sheet, the restored-frame slip).
+  - Landscape: top bar, hand flank and details flank (slip, rival, Charms), folding on 4:3. Portrait: two-row bar with a money slot, slip and rival chips, Charms row, and a fan of four at the thumbs. The ball sits at 0.667 of the lane region.
+  - Validation: the full local matrix (every CI command) passed 158/158 on `268da2f`, after the restored-frame slip fix (the run before it caught J07, J10 and J03C02). CI: Bootstrap run 42329325151 PASS on `268da2f`, both shards.
 
 ## Wave 9 closed (coordinator, 2026-11-05)
 - **Contents** (all on `claude/roguewood-build` at the "Wave 9 closed" commit):

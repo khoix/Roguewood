@@ -6,6 +6,7 @@ extends PanelContainer
 ## all work. Developmental look; card art and foil are E12/E19.
 const ItemAssets = preload("res://src/presentation/item_assets.gd")
 const CardView = preload("res://src/presentation/card_view.gd")
+const UiTheme = preload("res://src/presentation/house_ui_theme.gd")
 signal offer_pressed(index: int)
 signal reroll_pressed
 signal remove_pressed
@@ -33,26 +34,56 @@ var cancel_choice: Button
 var offer_buttons: Array = []
 var _main: VBoxContainer
 var _scroll: ScrollContainer
+var details_button: Button
+var _details_open := false
+var _landscape := false
+var _split: HBoxContainer
+var _pin: HBoxContainer
+var _actions: HBoxContainer
+var _shelf: VBoxContainer
 
 func _ready() -> void:
 	name = "ShopPanel"
-	add_theme_stylebox_override("panel", _style(Color(0.05, 0.04, 0.09, 0.97)))
+	add_theme_stylebox_override("panel", UiTheme.frame("shop", 20.0, 16.0))
+	# UI-2: landscape puts the offers on a three-column shelf beside the scrolling
+	# shop text and actions; portrait keeps one scrolling column.
+	var root := VBoxContainer.new()
+	root.add_theme_constant_override("separation", 8)
+	add_child(root)
+	_split = HBoxContainer.new()
+	_split.add_theme_constant_override("separation", 18)
+	_split.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	root.add_child(_split)
+	# UI-3: in portrait the actions are pinned below the scrolling shop, always in reach.
+	_pin = HBoxContainer.new()
+	_pin.name = "PinnedActions"
+	root.add_child(_pin)
+	_shelf = VBoxContainer.new()
+	_shelf.name = "Shelf"
+	_shelf.alignment = BoxContainer.ALIGNMENT_CENTER
+	_shelf.hide()
+	_split.add_child(_shelf)
 	var scroll := ScrollContainer.new()
 	_scroll = scroll
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.follow_focus = true # keyboard and gamepad focus scrolls its button into view
-	add_child(scroll)
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_split.add_child(scroll)
 	_main = VBoxContainer.new()
 	_main.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_main.add_theme_constant_override("separation", 10)
 	scroll.add_child(_main)
-	title = _label(_main, "ShopTitle", 30)
+	# UI-3: the title and money share a line.
+	var heading := HBoxContainer.new()
+	_main.add_child(heading)
+	title = _label(heading, "ShopTitle", 30)
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	summary = _label(_main, "Settlement", 22)
 	summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	preview = _label(_main, "NextMatch", 22)
 	preview.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	preview.add_theme_color_override("font_color", Color(0.75, 0.85, 1.0))
-	money = _label(_main, "Money", 28)
+	money = _label(heading, "Money", 30)
 	money.add_theme_color_override("font_color", Color(1.0, 0.85, 0.35))
 	offers_grid = GridContainer.new()
 	offers_grid.name = "Offers"
@@ -64,7 +95,9 @@ func _ready() -> void:
 		_add_offer_button()
 	var actions := HBoxContainer.new()
 	actions.add_theme_constant_override("separation", 8)
+	actions.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_main.add_child(actions)
+	_actions = actions
 	reroll_button = _button(actions, "Reroll", func(): reroll_pressed.emit())
 	remove_button = _button(actions, "RemoveCard", func(): remove_pressed.emit())
 	continue_button = _button(actions, "ContinueShop", func(): continue_pressed.emit())
@@ -72,6 +105,11 @@ func _ready() -> void:
 	message = _label(_main, "ShopMessage", 22)
 	message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	message.add_theme_color_override("font_color", Color(1.0, 0.55, 0.45))
+	# UI-3: the payout breakdown and the rack list fold behind Details in portrait.
+	details_button = _button(_main, "ShopDetails", func():
+		_details_open = not _details_open
+		_show_details())
+	_main.move_child(summary, -1) # actions, message, Details, then the payout
 	rack_label = _label(_main, "RackSummary", 20)
 	rack_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	owned_list = VBoxContainer.new()
@@ -81,7 +119,7 @@ func _ready() -> void:
 	# Choice sheet: sits over the shop until a choice or Cancel.
 	choice_sheet = PanelContainer.new()
 	choice_sheet.name = "ChoiceSheet"
-	choice_sheet.add_theme_stylebox_override("panel", _style(Color(0.1, 0.08, 0.16, 0.99)))
+	choice_sheet.add_theme_stylebox_override("panel", UiTheme.frame("menu", 20.0, 16.0))
 	choice_sheet.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	choice_sheet.top_level = true
 	choice_sheet.hide()
@@ -114,12 +152,27 @@ func _add_offer_button() -> void:
 	offers_grid.add_child(button)
 	offer_buttons.append(button)
 
-static func _style(color: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = color
-	style.set_corner_radius_all(12)
-	style.set_content_margin_all(14)
-	return style
+func _show_details() -> void:
+	var pinned := not _landscape
+	if pinned != (_actions.get_parent() == _pin):
+		_actions.get_parent().remove_child(_actions)
+		if pinned:
+			_pin.add_child(_actions)
+		else:
+			_main.add_child(_actions)
+			_main.move_child(_actions, message.get_index())
+	_pin.visible = pinned
+	for button in [reroll_button, remove_button, continue_button]:
+		button.custom_minimum_size = Vector2(200, 64) if _landscape else Vector2(0, 60)
+		button.size_flags_horizontal = Control.SIZE_FILL if _landscape else Control.SIZE_EXPAND_FILL
+	var shown := _landscape or _details_open
+	summary.visible = shown
+	rack_label.visible = shown
+	details_button.visible = not _landscape
+	details_button.text = "Hide details" if _details_open else "Payout & rack details"
+
+static func _style(_color: Color) -> StyleBox:
+	return UiTheme.frame("panel", 14.0, 12.0)
 
 func _label(parent: Control, node_name: String, font_size: int) -> Label:
 	var label := Label.new()
@@ -145,15 +198,41 @@ func show_view(view: Dictionary) -> void:
 	summary.text = view.summary
 	preview.text = view.get("preview", "")
 	money.text = "$%d" % view.money
+	var landscape: bool = view.get("landscape", false)
+	_landscape = landscape
+	_show_details()
 	# A reflow (portrait <-> landscape) brings the offers back into view.
-	if offers_grid.columns != int(view.get("columns", 3)):
+	if _shelf.visible != landscape:
 		_scroll.scroll_vertical = 0
+		offers_grid.get_parent().remove_child(offers_grid)
+		if landscape:
+			_shelf.add_child(offers_grid)
+		else:
+			_main.add_child(offers_grid)
+			_main.move_child(offers_grid, money.get_index() + 1)
+		_shelf.visible = landscape
 	offers_grid.columns = view.get("columns", 3)
 	while offer_buttons.size() < view.offers.size():
 		_add_offer_button()
-	# Portrait keeps the cards compact so the actions and sales stay on screen (UI-2
-	# lays the shop out properly); landscape shows full-size cards in one row.
-	var card_size := Vector2(105, 150) if offers_grid.columns <= 3 else Vector2(196, 280)
+	# Portrait keeps the cards compact so the actions and sales stay on screen;
+	# landscape sizes the shelf's cards to fit every row on screen.
+	var card_size := Vector2(105, 150)
+	if not landscape:
+		# UI-3: three columns as wide as the panel allows (up to 150 px), short
+		# enough that every row of offers shows above the pinned actions.
+		# From the panel's anchored size, known before its first layout, so the cards
+		# never resize under a tap a frame later.
+		var area := get_parent_area_size() - Vector2(offset_left - offset_right, offset_top - offset_bottom)
+		var rows := ceili(view.offers.size() / 3.0)
+		var room := area.y - 32.0 - 68.0 - 150.0 - 8.0 * (rows - 1) # margins, pinned actions, heading
+		var height := clampf(room / maxf(rows, 1), 150.0, 214.0)
+		var width := floorf(minf(minf(150.0, (area.x - 40.0 - 14.0 - 16.0) / 3.0), height / CardView.ASPECT))
+		card_size = Vector2(width, floorf(width * CardView.ASPECT))
+	if landscape:
+		var rows := ceili(view.offers.size() / float(offers_grid.columns))
+		var room := (get_parent_area_size().y - offset_top + offset_bottom) - 40.0 - 8.0 * (rows - 1)
+		var height := floorf(minf(280.0, room / maxf(rows, 1)))
+		card_size = Vector2(floorf(height / CardView.ASPECT), height)
 	for i in offer_buttons.size():
 		offer_buttons[i].visible = i < view.offers.size()
 		offer_buttons[i].custom_minimum_size = card_size

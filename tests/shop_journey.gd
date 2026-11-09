@@ -10,7 +10,7 @@ extends SceneTree
 ## - a full slot: Cancel changes nothing, then an explicit replacement sells the old item;
 ## - the removal service (with a cancelled attempt) and selling;
 ## - buying then selling never makes money; the balance never goes negative;
-## - the shop reflows for landscape.
+## - the shop reflows for landscape (UI-2's three-column shelf).
 ## The next match then scores with what was bought, checked against an independent
 ## FrameBuilder/FrameRules resolution.
 ## Fixture setup (not UI): to reach a full Charm row without many matches, the
@@ -79,6 +79,14 @@ func _window(canvas: Vector2) -> Vector2:
 	return root.get_screen_transform() * canvas
 
 func _tap(control: Control) -> void:
+	# A player scrolls a control into view before tapping it (UI-3's portrait shop
+	# scrolls under its pinned actions).
+	var scroll: Node = control.get_parent()
+	while scroll != null and not (scroll is ScrollContainer): scroll = scroll.get_parent()
+	if scroll != null and not (scroll as Control).get_global_rect().encloses(control.get_global_rect()):
+		(scroll as ScrollContainer).ensure_control_visible(control)
+		await process_frame
+		await process_frame
 	var at := control.get_global_rect().get_center()
 	for pressed in [true, false]:
 		var event := InputEventScreenTouch.new()
@@ -376,14 +384,15 @@ func _removal_and_sale() -> void:
 	var stats: Dictionary = run.stats()
 	_check(run.money == int(run.ledger[0].amount) + stats.net + 30, "the wallet equals the ledger (plus the $30 fixture grant)")
 
-## The shop reflows for landscape: five offers in one row, all on screen.
+## The shop reflows for landscape: a three-column shelf, every offer on screen (UI-2).
 func _landscape() -> void:
 	root.size = Vector2i(PORTRAIT.y, PORTRAIT.x)
 	for i in 3: await process_frame
 	lab._refresh_shop()
 	await process_frame
+	await process_frame
 	var screen := Rect2(Vector2.ZERO, lab.size)
-	_check(lab.shop_panel.offers_grid.columns == 5 and lab.shop_panel.offer_buttons.all(func(b): return screen.encloses(b.get_global_rect())), "landscape shows all five offers in one row")
+	_check(lab.shop_panel.offers_grid.columns == 3 and lab.shop_panel.offer_buttons.all(func(b): return not b.visible or screen.encloses(b.get_global_rect())), "landscape shelves the offers in three columns, all on screen (UI-2)")
 	await _capture("landscape")
 	root.size = PORTRAIT
 	for i in 3: await process_frame

@@ -100,24 +100,58 @@ static func ball_speed(power: float) -> float:
 	return lerpf(MIN_BALL_SPEED, MAX_BALL_SPEED, clampf(power, 0.0, 1.0))
 
 ## Simulation measures the crossing; rules award the grade once per frame.
-static func grade_accuracy(crossed: bool, offset: float, ring_radius: float) -> String:
+## zone_scale < 1 (Strobe, E17-L02) narrows the perfect and sweet bands of the
+## contracting ring by that factor, measured from its smallest radius (ZONE_FLOOR,
+## TargetRing.RING_MIN), so both stay reachable; clean and miss are unchanged.
+static func grade_accuracy(crossed: bool, offset: float, ring_radius: float, zone_scale: float = 1.0) -> String:
 	if not crossed or absf(offset) > ring_radius:
 		return "miss"
-	if ring_radius <= PERFECT_RING:
+	if ring_radius <= perfect_ring(zone_scale):
 		return "perfect"
-	if ring_radius <= SWEET_RING:
+	if ring_radius <= sweet_ring(zone_scale):
 		return "sweet"
 	return "clean"
+
+const ZONE_FLOOR := 0.06
+
+static func perfect_ring(zone_scale: float = 1.0) -> float:
+	return PERFECT_RING if zone_scale == 1.0 else ZONE_FLOOR + (PERFECT_RING - ZONE_FLOOR) * zone_scale
+
+static func sweet_ring(zone_scale: float = 1.0) -> float:
+	return SWEET_RING if zone_scale == 1.0 else perfect_ring(zone_scale) + (SWEET_RING - PERFECT_RING) * zone_scale
 
 ## Lane conditions that raise the backend's friction: the campaign fixture id and the
 ## catalogue lane condition (E18-C05) are the same condition.
 const DRY_BACKEND := ["lane.dry", "lane_condition.dry_backend"]
 const DRY_BACKEND_FRICTION := 0.3
+## Neon lane conditions (E17-L02) move where the oil ends. Long Oil runs it to 47 ft
+## everywhere; Two-Tone ends it at 34 ft on the bowler's left of the centre board
+## (x < 0) and keeps 40 ft on the right. The backend's friction is unchanged.
+const LONG_OIL := "lane_condition.long_oil"
+const TWO_TONE := "lane_condition.two_tone"
+const LONG_OIL_END_F := 14.3256 # 47 ft
+const TWO_TONE_LEFT_END_F := 10.3632 # 34 ft
 
-static func ball_friction(f: float, condition: String = "lane.house") -> float:
+## Where the oil ends for a lane condition and the ball's side of the lane.
+static func oil_end(condition: String = "lane.house", x: float = 0.0) -> float:
+	if condition == LONG_OIL:
+		return LONG_OIL_END_F
+	if condition == TWO_TONE and x < 0.0:
+		return TWO_TONE_LEFT_END_F
+	return OIL_END_F
+
+static func ball_friction(f: float, condition: String = "lane.house", x: float = 0.0) -> float:
 	if f >= DECK_ZONE_F:
 		return BALL_PIN_FRICTION
-	return OIL_FRICTION if f < OIL_END_F else (DRY_BACKEND_FRICTION if condition in DRY_BACKEND else BACKEND_FRICTION)
+	return OIL_FRICTION if f < oil_end(condition, x) else (DRY_BACKEND_FRICTION if condition in DRY_BACKEND else BACKEND_FRICTION)
+
+## A board is one of the lane's 39 (Narrow Lane moves each gutter edge two in).
+const BOARD_WIDTH := LANE_HALF_WIDTH * 2.0 / 39.0
+
+## The farthest start (normalized, like start_x) that keeps the whole ball inside a
+## lane whose gutter edges are `edge` meters from the centre.
+static func max_start_x(edge: float = LANE_HALF_WIDTH) -> float:
+	return MAX_START_X if edge >= LANE_HALF_WIDTH else (edge - BALL_RADIUS) / LANE_HALF_WIDTH
 
 static func side_spin(spin: float) -> float:
 	return clampf(spin, -1.0, 1.0) * MAX_SIDE_SPIN
