@@ -1616,7 +1616,7 @@ func _draw_held_ball(delta: float) -> void:
 	# 2026-11-08: the swirl must not stop at the foul line) it comes back toward the
 	# player over the approach, so it follows the finger down the screen too.
 	var rise := _flick.origin.y - place.y + float(_flick.tuning.orbit_cap)
-	var flat: bool = settings.get("spin_view", "flat") == "flat"
+	var flat: bool = settings.get("spin_view", "depth") == "flat"
 	var shrink := 1.0
 	if flat:
 		var held := _flat_held(place, scale)
