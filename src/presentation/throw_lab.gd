@@ -1575,7 +1575,7 @@ func ball_screen_position() -> Vector2:
 
 func ball_touch_radius() -> float:
 	var center := _screen(lane.ball_position())
-	var edge := _screen(lane.ball_position() + _camera.global_transform.basis.x * Lane.BALL_RADIUS)
+	var edge := _screen(lane.ball_position() + _camera.global_transform.basis.x * Lane.BALL_RADIUS * lane.ball_scale())
 	var factor := 2.6 if settings.large_targets else 1.8
 	var minimum := 0.1 if settings.large_targets else 0.07
 	return maxf(center.distance_to(edge) * factor, minimum * minf(size.x, size.y))
@@ -1598,7 +1598,7 @@ func full_charge() -> bool:
 ## The ball's radius on screen, in lab pixels.
 func _ball_screen_radius() -> float:
 	var center := _screen(lane.ball_position())
-	return center.distance_to(_screen(lane.ball_position() + _camera.global_transform.basis.x * Lane.BALL_RADIUS))
+	return center.distance_to(_screen(lane.ball_position() + _camera.global_transform.basis.x * Lane.BALL_RADIUS * lane.ball_scale()))
 
 ## Microseconds for gesture samples (see _event_clock).
 func _input_usec() -> int:
@@ -1617,8 +1617,11 @@ func _draw_held_ball(delta: float) -> void:
 	# player over the approach, so it follows the finger down the screen too.
 	var rise := _flick.origin.y - place.y + float(_flick.tuning.orbit_cap)
 	var flat: bool = settings.get("spin_view", "flat") == "flat"
+	var shrink := 1.0
 	if flat:
-		lane.aim_ball.position = _flat_held_position(place, scale)
+		var held := _flat_held(place, scale)
+		lane.aim_ball.position = held.position
+		shrink = held.scale
 	elif rise >= 0.0:
 		lane.aim_ball.position.y += clampf(rise * scale, 0.0, 0.8)
 	else:
@@ -1628,12 +1631,12 @@ func _draw_held_ball(delta: float) -> void:
 		lane.aim_ball.position.z += clampf(-rise * minf(size.x, size.y) / pixels_per_metre, 0.0, MAX_HELD_BACK)
 	var charge := held_charge()
 	if settings.reduced_motion:
-		lane.aim_ball.basis = Basis.IDENTITY
+		lane.aim_ball.basis = Basis.IDENTITY.scaled(Vector3.ONE * shrink)
 	elif flat:
 		# Flat spin: the ball turns about the camera's line of sight, facing the
 		# player like a coaster spun under a fingertip (positive is clockwise on screen).
 		_spin_angle = _flick.body_angle
-		lane.aim_ball.basis = Basis(-_camera.global_transform.basis.z.normalized(), _spin_angle)
+		lane.aim_ball.basis = Basis(-_camera.global_transform.basis.z.normalized(), _spin_angle).scaled(Vector3.ONE * shrink)
 	else:
 		# E05-R4: the ball turns with its pin, as a body pinned off-centre does: what
 		# the player sees spinning is the physics, not an animation.
@@ -1649,23 +1652,34 @@ func _draw_held_ball(delta: float) -> void:
 				Input.vibrate_handheld(cue[2])
 
 ## Flat spin (owner, 2026-11-08): the held ball follows the swing exactly on screen
-## at one distance from the camera, so it never moves in or out of the screen. It is
-## lifted one orbit above the lane at its start so a swirl below the finger stays
-## above the boards; where the finger goes lower still, it rides the lane surface
-## toward the player. Visual only: the launch is made exactly as in depth spin.
-func _flat_held_position(place: Vector2, metres_per_norm: float) -> Vector3:
+## and never changes size, wherever the finger goes. A ball kept at its own depth
+## would sink under the boards when the finger goes well below its start, so it is
+## drawn nearer the camera, in front of every part of the lane, and scaled down by the
+## same factor: it looks exactly like the ball at its place on the approach (lifted
+## one orbit), at one size. Visual only: the launch is made exactly as in depth spin.
+## Returns {position, scale}.
+const FLAT_NEAR := 0.5 # share of the nearest lane depth on screen the held ball is drawn at
+
+func _flat_held(place: Vector2, metres_per_norm: float) -> Dictionary:
 	var home := Lane.world(_hold_start_x * Lane.LANE_HALF_WIDTH, Lane.BALL_START_F, Lane.BALL_RADIUS + float(_flick.tuning.orbit_cap) * metres_per_norm)
 	var at := _screen(home) + (place - _flick.origin) * minf(size.x, size.y)
 	var local := at * Vector2(_viewport.size) / size
 	var depth := -(_camera.global_transform.affine_inverse() * home).z
-	var point := _camera.project_position(local, depth)
-	if point.y < Lane.BALL_RADIUS:
-		var origin := _camera.project_ray_origin(local)
-		var normal := _camera.project_ray_normal(local)
+	var near := maxf(minf(depth, _nearest_lane_depth()) * FLAT_NEAR, _camera.near * 4.0)
+	return {"position": _camera.project_position(local, near), "scale": near / depth}
+
+## The smallest view depth at which the lane's surface shows on screen: where the rays
+## through the bottom corners and bottom centre of the view meet the lane.
+func _nearest_lane_depth() -> float:
+	var nearest := INF
+	var inverse := _camera.global_transform.affine_inverse()
+	var bottom := float(_viewport.size.y)
+	for x in [0.0, _viewport.size.x * 0.5, float(_viewport.size.x)]:
+		var origin := _camera.project_ray_origin(Vector2(x, bottom))
+		var normal := _camera.project_ray_normal(Vector2(x, bottom))
 		if normal.y < -1e-6:
-			point = origin + normal * ((Lane.BALL_RADIUS - origin.y) / normal.y)
-		point.y = Lane.BALL_RADIUS
-	return point
+			nearest = minf(nearest, -(inverse * (origin + normal * (-origin.y / normal.y))).z)
+	return nearest
 
 ## True while a rule in force (Dead Straight) disables charged spin.
 func spin_disabled() -> bool:

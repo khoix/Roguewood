@@ -198,6 +198,12 @@ func place_ball(start_x: float) -> void:
 	if state == "ready":
 		var reach := Lane.max_start_x(gutter_edge())
 		aim_ball.position = Lane.world(clampf(start_x, -reach, reach) * Lane.LANE_HALF_WIDTH, Lane.BALL_START_F, Lane.BALL_RADIUS)
+		aim_ball.scale = Vector3.ONE # a flat-spun held ball is drawn scaled (presentation)
+
+## The visual ball's scale: 1 except while the lab draws a flat-spun held ball nearer
+## the camera (ThrowLab._flat_held).
+func ball_scale() -> float:
+	return 1.0 if ball.get_parent() == self or not is_instance_valid(aim_ball) else aim_ball.basis.get_scale().x
 
 func gutter_edge() -> float:
 	return float(rules.get("gutter_edge", Lane.LANE_HALF_WIDTH))

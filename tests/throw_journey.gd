@@ -428,8 +428,9 @@ func _held_ball() -> void:
 	await _focus_accept(lab.settings_panel.close)
 	_check(not lab.settings_panel.visible, "settings close after tuning")
 
-## Flat spin (owner, 2026-11-08): the held ball stays at one distance from the
-## camera while it swirls, also below its start, and turns about the line of sight.
+## Flat spin (owner, 2026-11-08): the held ball never changes size on screen while
+## it swirls, nor when the finger goes well below its start, and turns about the line
+## of sight. It is drawn nearer the camera than any of the lane, scaled to match.
 func _flat_spin() -> void:
 	await _ready_to_throw()
 	lab.settings_panel.spin_view.select(0)
@@ -439,7 +440,9 @@ func _flat_spin() -> void:
 	var depth := func() -> float: return -(cam.affine_inverse() * lab.lane.aim_ball.global_position).z
 	var at: Vector2 = lab.ball_screen_position()
 	var resting_y: float = at.y
+	var resting_radius: float = lab._ball_screen_radius()
 	await _touch(at, true)
+	var radii: Array = []
 	var depths: Array = []
 	var radius := 30.0 * _px()
 	var center := at + Vector2(0.0, -radius)
@@ -448,24 +451,31 @@ func _flat_spin() -> void:
 		var next := center + Vector2(cos(angle), sin(angle)) * radius
 		await _drag(next, next - at)
 		at = next
+		radii.append(lab._ball_screen_radius())
 		depths.append(depth.call())
-	var spread: float = depths.max() - depths.min()
 	await _capture("flat_spin")
-	var heights: Array = []
-	for i in 6:
+	for i in 12: # then well below its start, toward the bottom of the screen
 		at += Vector2(0, 15) * _px()
 		await _drag(at, Vector2(0, 15) * _px())
-		heights.append([depth.call(), lab.lane.aim_ball.global_position.y])
+		radii.append(lab._ball_screen_radius())
+		depths.append(depth.call())
 	for i in 6: await process_frame
-	heights.append([depth.call(), lab.lane.aim_ball.global_position.y])
-	print("J02 flat spin: swirl depth %.3f..%.3f; below the start [depth, height] %s" % [depths.min(), depths.max(), str(heights.map(func(h): return [snappedf(h[0], 0.001), snappedf(h[1], 0.001)]))])
-	_check(lab.state == "holding" and spread < 0.02, "the flat-spun ball never moves in or out of the screen while it swirls (depth spread %.3f m)" % spread)
-	_check(lab.ball_screen_position().y > resting_y + 20.0 and lab.lane.aim_ball.global_position.y >= Lane.BALL_RADIUS - 1e-4, "below its start it follows the finger down and stays on or above the lane")
+	radii.append(lab._ball_screen_radius())
+	depths.append(depth.call())
+	await _capture("flat_spin_low")
+	var size_spread: float = (radii.max() - radii.min()) / resting_radius
+	print("J02 flat spin: screen radius %.1f..%.1f px (resting %.1f), drawn depth %.3f..%.3f m, nearest lane %.3f m, ball %.0f px below its start" % [radii.min(), radii.max(), resting_radius,
+		depths.min(), depths.max(), lab._nearest_lane_depth(), lab.ball_screen_position().y - resting_y])
+	_check(lab.state == "holding" and size_spread < 0.02 and absf(radii[0] - resting_radius) / resting_radius < 0.02,
+		"the flat-spun ball keeps its size on screen through the swirl and below its start (spread %.1f%%)" % (size_spread * 100.0))
+	_check(depths.max() - depths.min() < 0.002 and depths.max() < lab._nearest_lane_depth(), "it is drawn at one depth, in front of every part of the lane")
+	_check(lab.ball_screen_position().y > resting_y + 60.0, "below its start it follows the finger down")
 	var view := -cam.basis.z.normalized()
-	var basis: Basis = lab.lane.aim_ball.basis
+	var basis: Basis = lab.lane.aim_ball.basis.orthonormalized()
 	_check(not basis.is_equal_approx(Basis.IDENTITY) and (basis * view).distance_to(view) < 1e-3, "the ball turns about the line of sight")
 	await _touch(at, false)
 	_check(lab.state == "aim" and lab.last_cancel in ["short", "not_forward", "slow"], "letting go without a flick cancels (%s)" % lab.last_cancel)
+	_check(lab.lane.ball_scale() == 1.0 and absf(lab._ball_screen_radius() - resting_radius) < 0.5, "a cancelled hold puts the ball back at full size on the approach")
 
 func _mouse_throw() -> void:
 	await _ready_to_throw()
