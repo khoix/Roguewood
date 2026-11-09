@@ -122,6 +122,8 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y xvfb xauth libgl1-mesa-dri
+          python3 tools/qa.py e2e --journey JAVT01
+          xvfb-run -a python3 tools/qa.py e2e --journey JAVT01 --rendered
           python3 tools/qa.py e2e --journey J08
           python3 tools/qa.py e2e --journey J08A01
           xvfb-run -a python3 tools/qa.py e2e --journey J08A01 --rendered

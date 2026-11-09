@@ -1,5 +1,10 @@
 extends Node
 ## Original local foley, at most four voices. Session preferences only.
+const THROW_SOUNDS := {
+	"throw.charge": preload("res://assets/audio/throw_charge.wav"),
+	"throw.curve_ready": preload("res://assets/audio/throw_curve_ready.wav"),
+	"throw.full_charge": preload("res://assets/audio/throw_full_charge.wav"),
+}
 var lab: Control
 var muted := false
 var volume := 0.65
@@ -87,6 +92,12 @@ func _ready() -> void:
 	close.pressed.connect(func(): panel.hide(); button.grab_focus())
 	box.add_child(close)
 	panel.hide()
+	lab.throw_cue.connect(_throw_cue)
+
+func _throw_cue(id: String, _charge: float) -> void:
+	if THROW_SOUNDS.has(id):
+		cue(id, THROW_SOUNDS[id], 3 if id == "throw.full_charge" else 2)
+
 func _mix() -> void:
 	for voice in voices:
 		voice.volume_db = linear_to_db(maxf(0.0001, volume * 0.35))
