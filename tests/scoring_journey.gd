@@ -51,13 +51,41 @@ func _action(action: String, times: int = 1) -> void:
 			Input.parse_input_event(event)
 			await process_frame
 
-func _focus_accept(control: Control) -> void:
-	# UI-5: the session buttons live in the menu; a player opens it first.
-	if scene != null and scene.session_menu.is_ancestor_of(control) and not scene.session_menu.visible:
+## UI-5: what a player does first to reach a control that sits behind another:
+## open the session menu or the shop's Sell sheet, or close a sheet that is in the way.
+func _reach(control: Control) -> void:
+	if scene == null: return
+	if scene.session_menu.is_ancestor_of(control) and not scene.session_menu.visible:
 		scene.menu_button.grab_focus()
 		await _action("ui_accept")
+	var shop: Control = scene.lab.shop_panel if scene.lab != null else null
+	if shop == null or not shop.is_visible_in_tree(): return
+	if shop.sell_sheet.is_ancestor_of(control):
+		if not shop.sell_sheet.visible:
+			shop.sell_open.grab_focus()
+			await _action("ui_accept")
+			await process_frame
+	elif shop.sell_sheet.visible:
+		shop.sell_close.grab_focus()
+		await _action("ui_accept")
+	if shop.offer_sheet.visible and not shop.offer_sheet.is_ancestor_of(control):
+		shop.offer_back.grab_focus()
+		await _action("ui_accept")
+
+## UI-5b: a tapped offer opens large; a player then presses Buy (or Back when it
+## cannot be bought).
+func _confirm(control) -> void: # untyped: a pressed row may already be freed
+	if scene == null or scene.lab == null or not is_instance_valid(control): return
+	var shop: Control = scene.lab.shop_panel
+	if shop.offer_sheet.visible and control in shop.offer_buttons:
+		(shop.offer_back if shop.buy_button.disabled else shop.buy_button).grab_focus()
+		await _action("ui_accept")
+
+func _focus_accept(control: Control) -> void:
+	await _reach(control)
 	control.grab_focus()
 	await _action("ui_accept")
+	await _confirm(control)
 
 ## Moves a focused slider to value with ui_left/ui_right presses only.
 func _slide(slider: HSlider, value: float) -> void:

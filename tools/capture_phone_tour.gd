@@ -184,6 +184,17 @@ func _run() -> void:
 		if lab.shop_panel.offer_buttons.size() > 0:
 			await _tap(lab.shop_panel.button_for_offer(0))
 			await _settle()
+			await _capture("offer")
+			await _press(lab.shop_panel.offer_back)
+			if not lab.shop_panel.sell_open.disabled:
+				await _tap(lab.shop_panel.sell_open)
+				await _settle()
+				await _capture("sell")
+				await _press(lab.shop_panel.sell_close)
+			await _tap(lab.shop_panel.button_for_offer(0))
+			await _settle()
+			if not lab.shop_panel.buy_button.disabled: await _press(lab.shop_panel.buy_button)
+			await _settle()
 			await _capture("shop_after_buy")
 			if lab.shop_panel.choice_sheet.visible:
 				await _press(lab.shop_panel.cancel_choice)

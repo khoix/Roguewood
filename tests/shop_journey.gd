@@ -71,13 +71,41 @@ func _action(action: String, times: int = 1) -> void:
 			Input.parse_input_event(event)
 			await process_frame
 
-func _focus_accept(control: Control) -> void:
-	# UI-5: the session buttons live in the menu; a player opens it first.
-	if scene != null and scene.session_menu.is_ancestor_of(control) and not scene.session_menu.visible:
+## UI-5: what a player does first to reach a control that sits behind another:
+## open the session menu or the shop's Sell sheet, or close a sheet that is in the way.
+func _reach(control: Control) -> void:
+	if scene == null: return
+	if scene.session_menu.is_ancestor_of(control) and not scene.session_menu.visible:
 		scene.menu_button.grab_focus()
 		await _action("ui_accept")
+	var shop: Control = scene.lab.shop_panel if scene.lab != null else null
+	if shop == null or not shop.is_visible_in_tree(): return
+	if shop.sell_sheet.is_ancestor_of(control):
+		if not shop.sell_sheet.visible:
+			shop.sell_open.grab_focus()
+			await _action("ui_accept")
+			await process_frame
+	elif shop.sell_sheet.visible:
+		shop.sell_close.grab_focus()
+		await _action("ui_accept")
+	if shop.offer_sheet.visible and not shop.offer_sheet.is_ancestor_of(control):
+		shop.offer_back.grab_focus()
+		await _action("ui_accept")
+
+## UI-5b: a tapped offer opens large; a player then presses Buy (or Back when it
+## cannot be bought).
+func _confirm(control) -> void: # untyped: a pressed row may already be freed
+	if scene == null or scene.lab == null or not is_instance_valid(control): return
+	var shop: Control = scene.lab.shop_panel
+	if shop.offer_sheet.visible and control in shop.offer_buttons:
+		(shop.offer_back if shop.buy_button.disabled else shop.buy_button).grab_focus()
+		await _action("ui_accept")
+
+func _focus_accept(control: Control) -> void:
+	await _reach(control)
 	control.grab_focus()
 	await _action("ui_accept")
+	await _confirm(control)
 
 func _window(canvas: Vector2) -> Vector2:
 	return root.get_screen_transform() * canvas
@@ -85,6 +113,7 @@ func _window(canvas: Vector2) -> Vector2:
 func _tap(control: Control) -> void:
 	# A player scrolls a control into view before tapping it (UI-3's portrait shop
 	# scrolls under its pinned actions).
+	await _reach(control)
 	var scroll: Node = control.get_parent()
 	while scroll != null and not (scroll is ScrollContainer): scroll = scroll.get_parent()
 	if scroll != null and not (scroll as Control).get_global_rect().encloses(control.get_global_rect()):
@@ -99,6 +128,7 @@ func _tap(control: Control) -> void:
 		event.pressed = pressed
 		Input.parse_input_event(event)
 		await process_frame
+	await _confirm(control)
 
 func _click(control: Control) -> void:
 	var at := control.get_global_rect().get_center()
@@ -251,8 +281,25 @@ func _offers_and_purchase() -> void:
 	var price: int = shop.offers[charm].price
 	var money: int = run.money
 	var bought: String = shop.offers[charm].item_id
-	await _tap(lab.shop_panel.button_for_offer(charm))
-	_check(run.money == money - price and run.charms.size() == 1 and run.charms[0].item_id == bought, "touch buys a Charm into a free slot")
+	# UI-5b: a tap opens the offer large; nothing is bought until Buy, and Back changes nothing.
+	var panel: Control = lab.shop_panel
+	_check(not panel.preview.visible and panel.preview_short.visible and not panel.preview_short.text.contains("\n") and panel.preview_short.text.begins_with("Next:"),
+		"the shop's preview is one short line (%s)" % panel.preview_short.text)
+	panel.button_for_offer(charm).grab_focus()
+	await _action("ui_accept")
+	for i in 3: await process_frame
+	_check(panel.offer_sheet.visible and run.money == money and run.charms.is_empty(), "opening an offer buys nothing")
+	_check(panel.offer_title.text == run.item(bought).name and panel.buy_button.text == "Buy $%d" % price and panel.buy_button.has_focus()
+		and not panel.offer_detail.text.is_empty() and panel.offer_card.item_id == bought and panel.offer_price.text.contains("you have $%d" % money),
+		"the opened offer shows the card, its text, its price and Buy")
+	_check(panel.offer_sheet.get_global_rect().end.x <= lab.size.x and panel.offer_sheet.get_global_rect().end.y <= lab.size.y and panel.offer_sheet.position.x >= 0.0,
+		"the offer sheet fits the screen (%s in %s)" % [str(panel.offer_sheet.get_global_rect()), str(lab.size)])
+	_check(panel.offer_sheet.get_global_rect().position.y >= 0.0, "the offer sheet starts on the screen")
+	panel.offer_back.grab_focus()
+	await _action("ui_accept")
+	_check(not panel.offer_sheet.visible and run.money == money and run.charms.is_empty() and not shop.offers[charm].sold, "Back closes the offer; nothing changed")
+	await _tap(panel.button_for_offer(charm))
+	_check(run.money == money - price and run.charms.size() == 1 and run.charms[0].item_id == bought, "touch opens the offer and Buy puts the Charm in a free slot")
 	_check(shop.offers[charm].sold and lab.shop_panel.button_for_offer(charm).disabled and lab.shop_panel.button_for_offer(charm).text.contains("SOLD"), "a sold offer is marked and disabled")
 	await _capture("bought")
 
@@ -266,13 +313,21 @@ func _reroll_and_funds() -> void:
 		await _focus_accept(lab.shop_panel.reroll_button)
 		_check(run.money == money - 2 and shop.reroll_cost() == 3 and lab.shop_panel.reroll_button.text == "Reroll $3", "reroll costs $2 and the next costs $3")
 		_check(shop.offers.map(func(o): return o.item_id) != previous and not shop.offers.any(func(o): return o.sold), "reroll replaces the offers")
-	# Insufficient funds: anything priced above the balance is disabled, and a direct
-	# request through the shop changes nothing.
+	# Insufficient funds: anything priced above the balance cannot be bought, and a
+	# direct request through the shop changes nothing.
 	for i in 5:
 		var offer: Dictionary = shop.offers[i]
 		if not offer.item_id.is_empty() and offer.price > run.money:
-			_check(lab.shop_panel.button_for_offer(i).disabled and lab.shop_panel.button_for_offer(i).text.contains("can't afford"), "offer %d is disabled when unaffordable" % i)
+			# UI-5b: it still opens to be read; Buy is off and the sheet says why.
 			var snapshot: Dictionary = run.to_dict()
+			var card: Button = lab.shop_panel.button_for_offer(i)
+			_check(not card.disabled and card.text.contains("can't afford"), "offer %d stays readable when unaffordable" % i)
+			card.grab_focus()
+			await _action("ui_accept")
+			_check(lab.shop_panel.offer_sheet.visible and lab.shop_panel.buy_button.disabled and lab.shop_panel.offer_back.has_focus()
+				and lab.shop_panel.offer_reason.text.contains("insufficient funds"), "the opened offer has Buy off and names the reason")
+			await _action("ui_accept") # Back
+			_check(not lab.shop_panel.offer_sheet.visible and run.to_dict() == snapshot, "Back closes the offer and nothing changed")
 			lab._on_offer(i)
 			_check(run.to_dict() == snapshot and lab.shop_message.contains("insufficient funds") and lab._choice.is_empty(), "an unaffordable purchase is refused without change")
 	if run.money < shop.reroll_cost():
@@ -373,9 +428,16 @@ func _removal_and_sale() -> void:
 	var card_ref: String = "card:" + run.cards.keys()[0]
 	var value: int = run.sale_value(card_ref)
 	money = run.money
-	await _reveal(lab.shop_panel.sell_button(card_ref))
-	await _tap(lab.shop_panel.sell_button(card_ref))
+	# UI-5b: one Sell control opens a sheet of rows; the shop itself lists no Sell buttons.
+	var sellable: int = run.entries().filter(func(e): return run.can_sell(e.ref)).size()
+	_check(not lab.shop_panel.sell_sheet.visible and lab.shop_panel.sell_open.text.begins_with("Sell · %d" % sellable)
+		and not lab.shop_panel._main.find_children("Sell_*", "Button", true, false).size() > 0, "one Sell control counts what can be sold (%s)" % lab.shop_panel.sell_open.text)
+	await _tap(lab.shop_panel.sell_button(card_ref)) # opens the sheet first, as a player does
 	_check(run.money == money + value and run.entry_at(card_ref) == null, "selling pays the sale value")
+	var rows: int = lab.shop_panel.owned_list.get_children().filter(func(c): return c is Button and String(c.name).begins_with("Sell_") and not c.is_queued_for_deletion()).size()
+	_check(lab.shop_panel.sell_sheet.visible and rows == sellable - 1, "the sheet stays open for the next sale, one row fewer (rows %d, were %d)" % [rows, sellable])
+	var sell_rect: Rect2 = lab.shop_panel.sell_sheet.get_global_rect()
+	_check(sell_rect.position.x >= 0.0 and sell_rect.position.y >= 0.0 and sell_rect.end.x <= lab.size.x and sell_rect.end.y <= lab.size.y, "the Sell sheet fits the screen (%s)" % str(sell_rect))
 	_check(lab.shop_panel.sell_button("rack:1") == null, "rack pins are not for sale")
 	var tactical := _offer_of(["consumable"])
 	if tactical >= 0 and shop.plan(tactical, run).ok:

@@ -1440,6 +1440,20 @@ func _next_match_preview() -> String:
 		text += "\nDivision boss target %d · %s" % [int(next.boss.target), _lane_text(next.boss.get("lane_condition", ""))]
 	return text
 
+## UI-5b: the shop's one-line preview. The boss's rule is behind the ⓘ on the bar.
+func _next_match_short() -> String:
+	if division.practice:
+		return "Next: a practice match"
+	var next: Dictionary = division.upcoming()
+	var where := "Division %d " % int(next.division) if division.division_count() > 1 else ""
+	var text := "Next: %s%s · target %d" % [where, next.match.name, int(next.match.target)]
+	if not next.rival.is_empty():
+		text += " · " + String(next.rival.name)
+	var lane_id := String(next.match.get("lane_condition", ""))
+	if lane_id.begins_with("lane_condition.") and lane_id != "lane_condition.house_oil":
+		text += " · " + _lane_text(lane_id)
+	return text
+
 ## A readable name for an owned place, with its modification.
 func _ref_label(ref: String) -> String:
 	var entry = run.entry_at(ref)
@@ -1498,12 +1512,31 @@ func _refresh_shop() -> void:
 		var status := ""
 		if offer_state != "buy":
 			status = "SOLD" if offer_state == "sold" else text.get_slice("  (", 1).trim_suffix(")").to_upper()
-		offers.append({"text": text, "state": offer_state, "item_id": offer.item_id, "price": offer.price, "status": status, "slot": slot_name, "name": item.name}) # item_id: presentation art (Codex Wave 1 request)
+		# UI-5b: the opened offer shows its kind, its full rule text and why it cannot be bought.
+		var detail: String = _effect_text(item)
+		if not String(item.get("downside", "")).is_empty():
+			detail += "\nTradeoff: " + String(item.downside)
+		var reason := ""
+		if offer_state in ["poor", "blocked"]:
+			reason = String(shop.plan(index, run).reason)
+		offers.append({"text": text, "state": offer_state, "item_id": offer.item_id, "price": offer.price, "status": status, "slot": slot_name, "name": item.name,
+			"kind": "%s · %s" % [slot_name, String(item.rarity).capitalize()], "detail": detail, "reason": reason}) # item_id: presentation art (Codex Wave 1 request)
 	var pins: Array = []
 	for position in range(1, 11):
 		var pin: Dictionary = run.rack[position]
 		pins.append("%d %s%s" % [position, _names.get(pin.item_id, ""), "+" + _names.get(pin.mod, "") if not String(pin.mod).is_empty() else ""])
+	# UI-5b: the commonest pin is named once with its count; the others keep their positions.
+	var counts: Dictionary = {}
+	for entry in pins:
+		var kind: String = entry.substr(entry.find(" ") + 1)
+		counts[kind] = int(counts.get(kind, 0)) + 1
+	var common := ""
+	for kind in counts:
+		if common.is_empty() or counts[kind] > counts[common]: common = kind
 	var rack_text := "Rack: " + ", ".join(pins)
+	if not common.is_empty() and counts[common] >= 3:
+		var others: Array = pins.filter(func(entry): return entry.substr(entry.find(" ") + 1) != common)
+		rack_text = "Rack: " + (("all %d %s" % [counts[common], common]) if others.is_empty() else ", ".join(others) + ", the other %d %s" % [counts[common], common])
 	var reserves: Array = run.reserves.map(func(e): return "empty" if e == null else _names.get(e.item_id, ""))
 	rack_text += "\nReserves: " + ", ".join(reserves) + " · Charms %d/%d · Deck %d/%d" % [run.charms.size(), RunInventory.CHARM_SLOTS, run.cards.size(), RunInventory.DECK_CAP]
 	if not run.upgrades.is_empty():
@@ -1514,12 +1547,12 @@ func _refresh_shop() -> void:
 	var sellables: Array = []
 	for owned in run.entries():
 		if run.can_sell(owned.ref):
-			sellables.append({"ref": owned.ref, "label": "Sell %s +$%d" % [_ref_label(owned.ref), run.sale_value(owned.ref)]})
+			sellables.append({"ref": owned.ref, "label": "%s  +$%d" % [_ref_label(owned.ref), run.sale_value(owned.ref)]}) # the sheet's title says Sell
 	var summary := "Match %d paid: payout $%d · interest $%d (on $%d held) · item income $%d" % [settlement.match, settlement.payout,
 		settlement.interest, settlement.balance_before, settlement.item_income]
 	if Upgrades.owned(run, "interest_cap"):
 		summary += " · Savings Book: interest cap $%d" % (Economy.INTEREST_CAP + Upgrades.INTEREST_BONUS)
-	shop_panel.show_view({"title": "Pro Shop", "summary": summary, "preview": _next_match_preview(), "money": run.money, "offers": offers,
+	shop_panel.show_view({"title": "Pro Shop", "summary": summary, "preview": _next_match_preview(), "preview_short": _next_match_short(), "money": run.money, "offers": offers,
 		"reroll_cost": shop.reroll_cost(run), "can_reroll": run.money >= shop.reroll_cost(run),
 		"removal_price": Economy.REMOVAL_PRICE, "can_remove": run.money >= Economy.REMOVAL_PRICE and not run.cards.is_empty(),
 		"rack": rack_text, "charm_moves": charm_moves, "sellables": sellables,
