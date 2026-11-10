@@ -272,7 +272,7 @@ Open: Wave 10 is merged (PR #22, main `706767f`). Base: `claude/roguewood-build`
   - Codex's closing checks: unit, content, physics, JAVT01 and J02, headless and rendered, PASS on `59273da`; the physics digest `75d1a3c0…` is unchanged.
   - Since then only documentation changed (this record and docs/prompts/codex-wave12.md). CI runs on this commit.
 - **Not delivered in Wave 11:** the Neon rivals and theme (Codex), which the claim allowed to move; they are in Wave 12.
-- **Owner decisions (2026-11-10):** yes to both interface questions in handoffs/UI-4.md; they are UI-5 in Wave 12.
+- **Owner decisions (2026-11-10):** yes to both interface questions in handoffs/UI-4.md; they are UI-5 in Wave 12. Added the same day: tapping a shop offer opens it large to read and confirm the purchase, and the frame review loses Speed and Skip.
 - **Owner actions:** listen to the throw sounds and watch the charge collar on the phone (no phone or speaker trial has been run).
 - **Merge:** MERGED to main by PR #29 (`f65d16f`) after CI passed on `335ef53` (Bootstrap run 42735874994, both shards).
 
@@ -281,12 +281,16 @@ Open: Wave 11 is merged (PR #29, main `f65d16f`). Base: `claude/roguewood-build`
 
 League template wave b (docs/ROADMAP.md), with one owner direction (2026-11-09): the wave ends with E22-L02, so the Neon League is live and playable early, with its first twelve items. The other sixteen join its pool as their batches land in Wave 13.
 - **Claude, in this order:**
-  1. **UI-5** (Medium; owner, 2026-11-10): the session menu and a shorter shop. First, so the owner can play it on the phone while the Neon work proceeds.
-     - **One menu button** replaces the row of Restart, Clubhouse and Options on every match screen. It sits on the top bar and opens a sheet with those three, built as a list so more entries can join later (owner). The row it frees goes to the lane. Restart asks once before it discards an attempt (the coordinator's proposal; the owner can drop it).
-     - **Shop words:** the preview above the offers drops to two short lines (the next match and its target; the boss by name, with the rule behind its ⓘ as on the bar). Owned cards sell from a compact list instead of one full-width button each, and the rack summary groups like pins ("10 Wood Pin").
-     - The full sentences stay available to tools and tests, as `career_line` and the HUD's `info` do; journeys that open Options, return to the Clubhouse or read the shop go through the menu and the new texts. That includes Codex's art journeys, which the coordinator edits for this and nothing else.
-     - Paths: src/bootstrap/bootstrap.gd, throw_lab.gd's layout, division_hud.gd, match_panels.gd, shop_panel.gd and the shop view in throw_lab.gd; the journeys' shared helpers; tools/capture_phone_tour.gd.
-     - Delivers: both changes in both orientations, tour captures before and after for the owner, and the full matrix (every journey touches the session buttons).
+  1. **UI-5** (High, 2 sessions; owner, 2026-11-10): the session menu, a leaner frame review and a shop that reads. First, so the owner can play it on the phone while the Neon work proceeds.
+     - **UI-5a, the match screen:**
+       - **One menu button** replaces the row of Restart, Clubhouse and Options on every match screen. It sits on the top bar and opens a sheet with those three, built as a list so more entries can join later (owner). The row it frees goes to the lane. Restart asks once before it discards an attempt (the coordinator's proposal; the owner can drop it).
+       - **Speed and Skip leave the frame review** (owner). A tap on the review, or the accept key, finishes the reveal at once, so it can still be hurried without a button; the reveal keeps its 1× pace (the coordinator's proposal for what replaces the buttons).
+     - **UI-5b, the shop:**
+       - **Tap an offer to open it** (owner): an overlay shows the card large, with its full rule text and price, and Buy and Back. Buying happens there, not on the first tap. An offer the player cannot afford or place opens too, with Buy off and the reason. A purchase that needs a choice (a slot, a pin, a replacement) goes on to the existing choice sheet.
+       - **Shop words:** the preview above the offers drops to two short lines (the next match and its target; the boss by name, with the rule behind its ⓘ as on the bar). Owned cards sell from a compact list instead of one full-width button each, and the rack summary groups like pins ("10 Wood Pin").
+     - The full sentences stay available to tools and tests, as `career_line` and the HUD's `info` do. Journeys that open Options, return to the Clubhouse, finish a reveal, buy or read the shop go through the new controls. That includes Codex's art journeys, which the coordinator edits for this and nothing else.
+     - Paths: src/bootstrap/bootstrap.gd, throw_lab.gd's layout and shop handlers, division_hud.gd, match_panels.gd, score_panel.gd, shop_panel.gd, card_inspector.gd (the overlay reuses its large card); the journeys' shared helpers; tools/capture_phone_tour.gd.
+     - Delivers: each part in both orientations, tour captures before and after for the owner, and the full matrix (every journey uses the session buttons, Skip or a purchase).
   2. **E18-C14** (High): the Neon primitives, each built and tested before the items that use it.
      - `physics.gutter_rebound` (Bumper Guard, written in E17-D04).
      - Lane reading: conditions on the match's lane condition and on the half of the lane the ball rolled (Two-Tone's sides).
@@ -302,7 +306,7 @@ League template wave b (docs/ROADMAP.md), with one owner direction (2026-11-09):
      - The League on the League Board, open from the start; its gates, title and the Neon Kit registered; content set `--content=neon`; the lane pool and feature lanes from neon.json; specialist weights; provisional targets checked with the strategy simulation.
      - J22L02: one full seeded Neon attempt through native input, headless and rendered, in CI.
      - Codex's rivals and theme bind by ID and can follow; until then the developmental presentation stays, marked.
-     - This is the claim that carries into Wave 13 if the wave runs long.
+     - This is the claim that carries into Wave 13 if the wave runs long. With UI-5 at two sessions the wave holds six Claude sessions against the usual three, so expect it to carry.
 - **Codex:**
   1. **UI-A3** (Medium, first): numerals that cannot be read as letters. In Pixelify Sans 5 is almost S and 2 is close to Z (handoffs/UI-4.md). Patched digits or a second face for numbers (the font is OFL); shown on the score slip, the frame review, prices and the tuning page. Paths: assets/ui/fonts/ and its docs; Claude wires a second face in house_ui_theme.gd if that is the choice.
   2. **E21-R05, R06, R07** (3 sessions, High): Slick, Laser Lena and DJ Flicker, each with portrait, idle, entrance, six reactions, defeat and reduced-motion versions, their rule badges (Oil Slick, Narrow Lane, Strobe), the champion's two-seal presentation, and their Clubhouse plaques. `--content=neon_c13` and J03C13 reach all three bosses. With them, the three House plaques still missing: `plaque.proprietor`, `plaque.old_lou`, `plaque.custodian_champion`.
