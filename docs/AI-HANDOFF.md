@@ -323,7 +323,11 @@ League template wave b (docs/ROADMAP.md), with one owner direction (2026-11-09):
   - Validation: the full CI command list (194 commands) PASS locally: 135 on `34a84bf`, and on `86ef216` the 59 that had failed or not run. The first run caught J12 and J12V01–V06 hanging (they replay a frame and still passed a speed to the frame review); `86ef216` fixes that by accepting the argument. The physics digest `75d1a3c0…` and J03 560/240/70 are unchanged. CI: Bootstrap run 42791634165 runs on `86ef216`.
   - Not as claimed: Sell rows are one per item, not grouped (each row sells one particular card).
 - **For Codex:** `score_panel.play` ignores its fourth argument (the reveal has one pace); journeys that open Options, finish a reveal, buy or sell go through `_reach`, `_confirm` and `_focus_accept(lab.score_panel)`. Merge `origin/claude/roguewood-build` before adding or editing such a journey.
-- **Next (Claude):** E18-C14, the Neon primitives (High).
+- **Next (Claude):** E18-C14, the Neon primitives (High), in a fresh session. Scoped on 2026-11-10 against the first twelve items (not built yet):
+  - **Build now:** `physics.gutter_rebound` (Bumper Guard) and the ball property that keeps its hook through lane oil (Slick's ball).
+  - **Expected to be covered by existing rule pieces; check first:** accuracy-grade conditions (DJ Flicker's pin), curved-roll and curved-strike conditions (the initial ball and pin, the curve Charm), first-hit attribution (the pin modification's light), and hook scaling on a ball or a modification (Laser Lena's ball, the hook-control modification).
+  - **Wait for Wave 13** (no item among the first twelve needs them): lane and side reading, and the one-throw hook tactic.
+  - **Where the rebound plugs in:** `LaneWorld.rules` and `_rail` (Narrow Lane's rail is the model: one deterministic nudge per roll); `KnockdownTracker`'s gutter flag at `gutter_edge`; the lab's `_arm_lane_rules`, which already re-arms at commit and on resume, so a restart re-simulates the same roll; `frame_mods`, which carries the thrown card's modification. The −2 Mult needs a roll fact in the knockdown log, which is a contract change (docs/CONTRACTS.md). Existing fixtures' physics digest must not change.
 
 ## Wave 10 closed (coordinator, 2026-11-07)
 - **Contents** (all on `claude/roguewood-build` at the "Wave 10 closed" commit):
