@@ -126,8 +126,8 @@ func _run() -> void:
 	# The owner's phone defaults (2026-11-08): flick sensitivity 0.4 and the flat spin
 	# view. This journey's gestures are calibrated at sensitivity 1.0 and its first
 	# checks are of the depth view, so it sets both through the Options controls.
-	_check(is_equal_approx(lab.settings.sensitivity, 0.4) and lab.settings.spin_view == "flat" and lab.settings_panel.sensitivity.min_value == 0.25,
-		"the defaults are flick sensitivity ×0.4 (slider from ×0.25) and flat spin")
+	_check(is_equal_approx(lab.settings.sensitivity, 0.4) and lab.settings.spin_view == "depth" and lab.settings_panel.sensitivity.min_value == 0.25,
+		"the defaults are flick sensitivity ×0.4 (slider from ×0.25) and depth spin")
 	lab.settings_panel.sensitivity.value = 1.0
 	lab.settings_panel.spin_view.select(1)
 	lab.settings_panel.spin_view.item_selected.emit(1)

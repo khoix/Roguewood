@@ -31,7 +31,9 @@ var throw_settings: Dictionary = {}
 ## retry keep it.
 var career: Dictionary = {}
 var career_graph: Dictionary = {}
-var career_line: Label
+var career_line: Label # the full sentence (read by tools and tests); the tiles and bars show it
+var career_stats: HBoxContainer
+var career_goals: VBoxContainer
 var league_sets: Array = [] # content set behind each League choice
 ## The Clubhouse (E16): the home screen; its League Board holds the panel below.
 var clubhouse: Clubhouse
@@ -75,7 +77,17 @@ func _ready() -> void:
 	career_line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	career_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	career_line.custom_minimum_size = Vector2(460, 0)
+	career_line.hide()
 	panel.add_child(career_line)
+	# The Career at a glance: four tiles, then each followed goal with its progress.
+	career_stats = HBoxContainer.new()
+	career_stats.name = "CareerStats"
+	career_stats.add_theme_constant_override("separation", 8)
+	panel.add_child(career_stats)
+	career_goals = VBoxContainer.new()
+	career_goals.name = "CareerGoals"
+	career_goals.add_theme_constant_override("separation", 6)
+	panel.add_child(career_goals)
 	league = OptionButton.new()
 	league.name = "LeagueChoice"
 	league.add_item(content.get("name", "House League"))
@@ -151,6 +163,26 @@ func _refresh_career_line() -> void:
 	var goals: Array = CareerProfile.goals(career, career_graph.get("objectives", []), 0) # attempt-scoped goals start over
 	if not goals.is_empty():
 		career_line.text += "\nGoals: " + " · ".join(goals.map(func(g): return "%s %d/%d" % [g.name, mini(g.progress, g.threshold), g.threshold]))
+	for box in [career_stats, career_goals]:
+		for child in box.get_children():
+			box.remove_child(child)
+			child.queue_free()
+	var stats: Dictionary = CareerProfile.stats(career, career_graph.get("objectives", []))
+	for tile in [[str(stats.rivals), "Rivals beaten"], [str(stats.titles), "Titles"], ["%d/%d" % [stats.mastered, stats.goals], "Mastery"], [str(stats.attempts), "Attempts"]]:
+		career_stats.add_child(Clubhouse.stat_tile(tile[0], tile[1]))
+	for goal in goals:
+		var row := HBoxContainer.new()
+		row.name = "Goal_" + String(goal.get("id", goal.name)).replace(".", "_")
+		row.add_theme_constant_override("separation", 10)
+		var title := Label.new()
+		title.text = goal.name
+		title.add_theme_font_size_override("font_size", 18)
+		title.custom_minimum_size = Vector2(150, 0)
+		row.add_child(title)
+		var bar := Clubhouse.progress_row(int(goal.progress), int(goal.threshold))
+		bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(bar)
+		career_goals.add_child(row)
 
 ## Saves the Career after a Clubhouse change (tracked goals).
 func _save_career() -> void:

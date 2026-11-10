@@ -43,6 +43,9 @@ var reduced_motion := false
 var side_box: BoxContainer
 var money: Label
 var title_label: Label
+var _titles := ["", ""] # the bar's title, and the short one the slim roll-view bar shows
+var _slim := false
+var _result_width := 0.0
 var score_label: Label
 var frames_label: Label
 var _top_row: HBoxContainer
@@ -150,8 +153,8 @@ func _ready() -> void:
 	rule_panel.name = "RulePanel"
 	rule_panel.add_theme_stylebox_override("panel", UiTheme.frame("menu", 18.0, 14.0))
 	rule_panel.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
-	rule_panel.offset_left = 24.0
-	rule_panel.offset_right = -24.0
+	rule_panel.offset_left = 12.0 # the bar's own edges, so it covers the row beneath it cleanly
+	rule_panel.offset_right = -12.0
 	rule_panel.hide()
 	add_child(rule_panel)
 	rule_text = _label(rule_panel, "RuleText", 22)
@@ -282,6 +285,9 @@ func layout_regions(bar_rect: Rect2, bubble: Rect2, portrait: bool, slim: bool =
 	money_slot.visible = not slim
 	frames_label.visible = not slim
 	score_label.add_theme_font_size_override("font_size", 22 if slim else 28)
+	# A phone's slim bar has no room for the Division or the rival; a wide one has.
+	_slim = slim and bar_rect.size.x < 400.0
+	title_label.text = _titles[1 if _slim else 0]
 	title_label.custom_minimum_size.x = 0
 	# Placed after the rows are rearranged, so the bar shrinks to the new content.
 	bar.set_anchors_preset(Control.PRESET_TOP_LEFT)
@@ -302,6 +308,9 @@ func layout_regions(bar_rect: Rect2, bubble: Rect2, portrait: bool, slim: bool =
 		sheet.offset_left = 12.0
 		sheet.offset_right = -12.0
 		sheet.offset_bottom = -12.0
+	if result.visible and not is_equal_approx(result.size.x, _result_width):
+		_result_width = result.size.x
+		_fit_result()
 
 func _bar_label(parent: Control, node_name: String, font_size: int, color: Color) -> Label:
 	var label := Label.new()
@@ -320,7 +329,8 @@ func show_money(amount: int) -> void:
 ## view: {text, badge ("" hides it), rule_text}
 func show_match(view: Dictionary) -> void:
 	info.text = view.text
-	title_label.text = view.get("title", view.text)
+	_titles = [view.get("title", view.text), view.get("short_title", view.get("title", view.text))]
+	title_label.text = _titles[1 if _slim else 0]
 	score_label.text = view.get("score", "")
 	frames_label.text = view.get("frames", "")
 	badge.text = view.badge.replace(" + ", " +\n")
@@ -401,10 +411,27 @@ func show_result(title: String, body: String, won: bool, retry_label: String = "
 	result_reward.visible = won and result_reward.texture != null
 	result_title.text = title
 	result_body.text = body
+	_fit_result()
 	retry_button.text = "New Attempt" if won else retry_label
 	endless_button.hide()
 	result.show()
 	retry_button.grab_focus()
+
+## The result reads as one centred block: the body takes the height its text needs
+## (scrolling only when the sheet cannot hold it), not all the height there is.
+func _fit_result() -> void:
+	var scroll: ScrollContainer = result_body.get_parent()
+	var box: VBoxContainer = scroll.get_parent()
+	scroll.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	for i in 2:
+		await get_tree().process_frame
+		if not is_inside_tree() or not result.visible: return
+		var others := 0.0
+		for child in box.get_children():
+			if child != scroll and (child as Control).visible:
+				others += (child as Control).get_combined_minimum_size().y + box.get_theme_constant("separation")
+		var room := maxf(result.size.y - 32.0 - others, 80.0)
+		scroll.custom_minimum_size.y = minf(result_body.get_combined_minimum_size().y, room)
 
 func hide_result() -> void:
 	result.hide()

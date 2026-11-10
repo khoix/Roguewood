@@ -122,6 +122,8 @@ func _lose() -> void:
 func _stage_one() -> void:
 	_check(scene.career.attempts == 0 and scene.career_line.text.begins_with("Career: 0 rivals cleared · 0 championships · 0/3 mastery goals")
 		and scene.career_line.text.contains("Goals: Spare Hand 0/10"), "a fresh Career: the menu shows the summary and three goals")
+	_check(scene.career_goals.get_child_count() == 3 and scene.career_goals.get_child(0).find_child("Count", true, false).text == "0/10",
+		"each goal on the board has a progress bar and its count")
 	await _capture("career_fresh")
 	await _enter(scene.enter)
 	await _assist_on()
