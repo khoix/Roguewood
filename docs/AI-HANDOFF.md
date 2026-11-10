@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-11-10. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). Wave 10 is merged by PR #22 (main `706767f`). Wave 11 is merged by PR #29 (main `f65d16f`). **Wave 12 is open** (see "Wave 12 claims" and "Wave 12 progress"): UI-5 is done; E18-C14 is next. The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
+Updated: 2026-11-10. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). Wave 10 is merged by PR #22 (main `706767f`). Wave 11 is merged by PR #29 (main `f65d16f`). **Wave 12 is open** (see "Wave 12 claims" and "Wave 12 progress"): UI-5 and E18-C14 are done; DC-N1 is next. The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
 
 ## Read first
 
@@ -71,7 +71,7 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E15 — Career persistence and unlock graph | DONE | Claude | main (PR #10) | 2cdedb1 (+ 8c19905); local suites and J01–J10 headless/rendered PASS; CI 40577363221 and 40581437392 PASS; ADR 010; E15 handoff |
 | E16 — Clubhouse and collection UI | DONE (core and E16-ART) | Claude core · Codex E16-ART | claude/roguewood-build · codex/roguewood-build | Core b01fb4d; CI 40616441249 PASS; J11; handoffs/E16.md (Art hand-off) |
 | E17 — Catalogue and unlock authoring batches | IN_PROGRESS (D01–D09 and L01 DONE; D01-ART to D04-ART DONE) | Claude definitions · Codex visual briefs | claude/roguewood-build · codex/roguewood-build | Split per batch; see Ownership |
-| E18 — Content mechanics batches | IN_PROGRESS (C01–C10 DONE) | Claude | claude/roguewood-build | C01: six D02 Charms; C02: transform primitive, Glass Pin and Glass Cutter; C03: five primitives, Crown Pin and the last five D02 Charms; C04: eight modifications; C05: House rules, lanes, two-rule champions; C06: tactical primitives and three cards; C07: shop upgrades and six House upgrades; C08–C10: 18 House items (DC-H1…H3); handoffs/E18-Cxx.md |
+| E18 — Content mechanics batches | IN_PROGRESS (C01–C14 DONE) | Claude | claude/roguewood-build | C01: six D02 Charms; C02: transform primitive, Glass Pin and Glass Cutter; C03: five primitives, Crown Pin and the last five D02 Charms; C04: eight modifications; C05: House rules, lanes, two-rule champions; C06: tactical primitives and three cards; C07: shop upgrades and six House upgrades; C08–C10: 18 House items (DC-H1…H3); handoffs/E18-Cxx.md |
 | E19 — Final item artwork batches | IN_PROGRESS (A01–A16 and AV-C03 DONE) | Codex | codex/roguewood-build | E13-S01, E17-D01 and E17-D02 identities; artwork set on the seven C01/C02 Charms and Glass Pin; C03 flags (A17) and D03 identities (A18) in Wave 5 |
 | E20 — Ability effects and audio batches | IN_PROGRESS (V01–V08, the House AV batches and AV-T01 DONE) | Codex | codex/roguewood-build | E13-S01's 23 abilities; V08: the eight C01/C02 items; C03's six in Wave 5 (V09) |
 | E21 — Rival presentation batches | IN_PROGRESS (R01, R02 DONE) | Codex | codex/roguewood-build | Later rivals after E17 defines them |
@@ -323,11 +323,12 @@ League template wave b (docs/ROADMAP.md), with one owner direction (2026-11-09):
   - Validation: the full CI command list (194 commands) PASS locally: 135 on `34a84bf`, and on `86ef216` the 59 that had failed or not run. The first run caught J12 and J12V01–V06 hanging (they replay a frame and still passed a speed to the frame review); `86ef216` fixes that by accepting the argument. The physics digest `75d1a3c0…` and J03 560/240/70 are unchanged. CI: Bootstrap run 42791634165 runs on `86ef216`.
   - Not as claimed: Sell rows are one per item, not grouped (each row sells one particular card).
 - **For Codex:** `score_panel.play` ignores its fourth argument (the reveal has one pace); journeys that open Options, finish a reveal, buy or sell go through `_reach`, `_confirm` and `_focus_accept(lab.score_panel)`. Merge `origin/claude/roguewood-build` before adding or editing such a journey.
-- **Next (Claude):** E18-C14, the Neon primitives (High), in a fresh session. Scoped on 2026-11-10 against the first twelve items (not built yet):
-  - **Build now:** `physics.gutter_rebound` (Bumper Guard) and the ball property that keeps its hook through lane oil (Slick's ball).
-  - **Expected to be covered by existing rule pieces; check first:** accuracy-grade conditions (DJ Flicker's pin), curved-roll and curved-strike conditions (the initial ball and pin, the curve Charm), first-hit attribution (the pin modification's light), and hook scaling on a ball or a modification (Laser Lena's ball, the hook-control modification).
-  - **Wait for Wave 13** (no item among the first twelve needs them): lane and side reading, and the one-throw hook tactic.
-  - **Where the rebound plugs in:** `LaneWorld.rules` and `_rail` (Narrow Lane's rail is the model: one deterministic nudge per roll); `KnockdownTracker`'s gutter flag at `gutter_edge`; the lab's `_arm_lane_rules`, which already re-arms at commit and on resume, so a restart re-simulates the same roll; `frame_mods`, which carries the thrown card's modification. The −2 Mult needs a roll fact in the knockdown log, which is a contract change (docs/CONTRACTS.md). Existing fixtures' physics digest must not change.
+- **E18-C14 DONE** (handoffs/E18-C14.md): the Neon primitives the first twelve items need.
+  - The gutter rebound (the tracker rules it, the lane mirrors the ball's sideways speed once; a roll carries `rebounded`), op `lose_mult` (Mult down, never below 1), a ball's `oil_hold`, a modification's hook scale, and the pin conditions `felled_curved` and `first_hit`. Contracts in docs/CONTRACTS.md.
+  - Lane and side reading and the one-throw hook tactic wait for Wave 13: no item among the first twelve needs them.
+  - Validation: unit (with a mutation check), content, physics (digest `75d1a3c0…` unchanged; the rebound, oil hold and hook scale rolled through real lanes), J02, J03, J03C04, J03C13, J06, J07, J09 and J22L01 headless, and the web journey PASS.
+  - No item uses them yet; DC-N1 plays the rebound natively.
+- **Next (Claude):** DC-N1, Neon items 1–6 (Medium).
 
 ## Wave 10 closed (coordinator, 2026-11-07)
 - **Contents** (all on `claude/roguewood-build` at the "Wave 10 closed" commit):

@@ -743,9 +743,24 @@ func ring_color() -> Color:
 func lane_rules() -> Dictionary:
 	return RivalRules.lane_rules(active_rules())
 
-func _arm_lane_rules() -> void:
+## What the rules in force and the thrown card change in the next roll. `thrown`
+## ({ball_id, mod}) is a committed launch's card on resume; otherwise the armed card.
+func _arm_lane_rules(thrown: Dictionary = {}) -> void:
 	if lane != null:
 		lane.rules = lane_rules()
+		lane.rules.merge(card_rules(thrown))
+
+## E18-C14: what the card brings to its own roll (ItemPhysics.roll_rules): a ball
+## that holds its hook through oil, a modification's rebound or hook scale. Bumper
+## Guard's rebound is once a frame, so a second roll after a rebound has none.
+func card_rules(thrown: Dictionary = {}) -> Dictionary:
+	if run == null: return {}
+	var ball_id: String = String(thrown.get("ball_id", armed_ball_id()))
+	var mod_id: String = String(thrown.get("mod", run.card_mod(armed_ball) if not armed_ball.is_empty() and equipment != null and equipment.MODEL == "deck" else ""))
+	if not RivalRules.ball_allowed(active_rules(), ball_id):
+		return {} # House Rules throws the House Ball in the card's place
+	var used: bool = frame_reports.any(func(r): return bool(r.knockdown_log.get("rebounded", false)))
+	return ItemPhysics.roll_rules(run.item(ball_id), run.item(mod_id) if not mod_id.is_empty() else {}, used)
 
 ## Strobe's narrowed ring zones (1.0 otherwise), for the ring's colour.
 func zone_scale() -> float:
@@ -753,7 +768,7 @@ func zone_scale() -> float:
 
 ## Oil Slick's halved hook (1.0 otherwise), for the aim guide's bend.
 func hook_scale() -> float:
-	return float(lane_rules().get("hook_scale", 1.0))
+	return float(lane_rules().get("hook_scale", 1.0)) * float(card_rules().get("spin_scale", 1.0))
 
 func _input(event: InputEvent) -> void:
 	if input_paused: return
@@ -863,7 +878,9 @@ func _commit(launch: Dictionary, source: String) -> void:
 ## Resume a committed launch after a restart: the same launch, in the same rack,
 ## with the cards already spent. There is no way to throw it again differently.
 func _resume_commit(pending: Dictionary) -> void:
-	_arm_lane_rules()
+	# The same card physics as when it was thrown, from the saved input.
+	var saved: Dictionary = pending.get("input", {}).get("equipment", {})
+	_arm_lane_rules({"ball_id": String(pending.launch.get("ball_id", HOUSE)), "mod": String(saved.get("mod", "")) if saved.get("mod") != null else ""})
 	var errors := lane.commit(pending.launch)
 	if not errors.is_empty():
 		push_error("Saved launch rejected on resume: " + str(errors))

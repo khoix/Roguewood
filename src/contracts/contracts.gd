@@ -152,7 +152,12 @@ static func _catalogue(items: Array, version: int, errors: Array[String]) -> voi
 			var uses_v2: bool = item.has("physics") or item.effects.any(func(e): return e.has("condition") or e.has("per") or e.op in V2_OPS or e.trigger in V2_TRIGGERS)
 			if uses_v2: errors.append(item.id + ": conditions, scaling, retriggers, growth and physics need catalogue v2")
 		if item.has("physics"):
-			if item.category not in ["ball", "pin"]: errors.append(item.id + ": only balls and pins have physics profiles")
+			# E18-C14: a ball modification may carry what it brings to its ball's roll.
+			if item.category not in ["ball", "pin", "ball_mod"]: errors.append(item.id + ": only balls, pins and ball modifications have physics profiles")
+			if item.category == "ball_mod" and item.physics.keys().any(func(k): return k not in ["gutter_rebound", "spin_response"]):
+				errors.append(item.id + ": a ball modification's physics is gutter_rebound or spin_response")
+			if item.physics.has("oil_hold") and item.category != "ball": errors.append(item.id + ": only a ball holds its hook through oil")
+			if item.physics.has("gutter_rebound") and item.category != "ball_mod": errors.append(item.id + ": the gutter rebound belongs to a ball modification")
 			if item.category == "pin" and item.physics.has("spin_response"): errors.append(item.id + ": pins have no spin response")
 			if item.category == "ball" and item.physics.has("bounce"): errors.append(item.id + ": ball bounce is fixed")
 		if ids.has(item.id): errors.append("Duplicate item ID: " + item.id)
@@ -171,7 +176,10 @@ static func _catalogue(items: Array, version: int, errors: Array[String]) -> voi
 			if effect.op == "retrigger":
 				if effect.trigger != "ball" or effect.amount != floor(effect.amount) or effect.amount < 1 or effect.amount > 8: errors.append(item.id + ": a retrigger is 1-8 repeats from a ball")
 				if effect.has("per"): errors.append(item.id + ": a retrigger does not scale")
-			if effect.has("per") and effect.op in ["payout", "multiply_mult"]: errors.append(item.id + ": payouts and multipliers do not scale per count")
+			if effect.has("per") and effect.op in ["payout", "multiply_mult", "lose_mult"]: errors.append(item.id + ": payouts, multipliers and Mult losses do not scale per count")
+			for key in ["felled_curved", "first_hit"]:
+				if effect.get("condition", {}).has(key) and (item.category not in ["pin", "pin_mod"] or effect.trigger != "fallen"):
+					errors.append(item.id + ": %s belongs to a pin's fallen effects" % key)
 			if effect.op == "transform":
 				var into: Variant = effect.get("into")
 				if item.category != "pin" or effect.trigger != "fallen" or effect.amount != floor(effect.amount) or effect.amount < 1 or effect.amount > 100 or effect.has("per"):
