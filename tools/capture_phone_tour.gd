@@ -48,6 +48,11 @@ func _action(action: String, times: int = 1) -> void:
 			await process_frame
 
 func _press(control: Control) -> void:
+	if scene.session_menu.is_ancestor_of(control) and not scene.session_menu.visible:
+		scene.menu_button.grab_focus()
+		await _action("ui_accept")
+		await _settle(6)
+		await _capture("menu")
 	control.grab_focus()
 	await _action("ui_accept")
 
@@ -161,7 +166,7 @@ func _run() -> void:
 	await _wait_for(func(): return lab.state == "scoring", ROLL_FRAMES)
 	await _settle(50)
 	await _capture("scoring")
-	await _press(lab.score_panel.skip_button)
+	await _press(lab.score_panel)
 	await _wait_for(func(): return lab.state == "frame_done", ROLL_FRAMES)
 	await _settle()
 	await _capture("frame_done")
@@ -193,7 +198,7 @@ func _run() -> void:
 	await _capture("roll2_aim")
 	await _throw(GUTTER)
 	await _wait_for(func(): return lab.state == "scoring", ROLL_FRAMES)
-	await _press(lab.score_panel.skip_button)
+	await _press(lab.score_panel)
 	await _wait_for(func(): return lab.state == "frame_done", ROLL_FRAMES)
 	await _settle()
 	await _capture("open_frame")
@@ -207,7 +212,7 @@ func _run() -> void:
 		await _aim()
 		if lab.state == "aim" and lab.roll_index == 2: await _throw(GUTTER)
 		await _wait_for(func(): return lab.state == "scoring", ROLL_FRAMES)
-		await _press(lab.score_panel.skip_button)
+		await _press(lab.score_panel)
 		await _wait_for(func(): return lab.state == "frame_done", ROLL_FRAMES)
 	await _wait_for(func(): return lab.hud.result.visible, 120)
 	await _settle(30)

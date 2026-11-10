@@ -78,7 +78,7 @@ const DECK_VIEW_F := Lane.HEAD_PIN_F - 4.0
 const MAX_HELD_BACK := 1.3 # metres a held ball may come back toward the player
 const PORTRAIT_HAND_HEIGHT := 300.0 # UI-3: the fanned hand panel at the thumbs
 const PORTRAIT_CARD_HEIGHT := 230.0
-const TOP_UI_HEIGHT := 96.0 # session bar band; touches there are never throws
+const TOP_UI_HEIGHT := 12.0 # the top margin; the bar below it is one of the HUD's blocking controls
 const RING_COLORS := {"clean": Color(1.0, 1.0, 1.0), "sweet": Color(0.3, 0.95, 0.85), "perfect": Color(1.0, 0.8, 0.2)}
 
 var state := "aim"
@@ -122,6 +122,10 @@ var panels: Control # UI-2 match panels: slip, rival, Charms, fold toggles
 var regions: Dictionary = {} # UI-2 screen regions (MatchPanels.compute)
 var _ball_line := 0.0 # the aim layout's ball line (the roll view never moves the camera)
 var _compact := false
+## UI-5: the shell's own controls over the lab (the session menu button), which a
+## touch never throws through; and its menu, which pauses the lab's input while open.
+var chrome: Array = []
+var input_paused := false
 ## UI-3: the player-facing prompt (the hint lines of `status`, which keeps the full
 ## sentence for tools and tests); it sits above the hand, out of the pins' way.
 var prompt: Label
@@ -300,7 +304,6 @@ func _ready() -> void:
 	score_panel.offset_right = -16.0
 	score_panel.offset_bottom = -16.0
 	score_panel.finished.connect(_on_scored)
-	score_panel.speed_changed.connect(func(speed): settings.score_speed = speed)
 	score_panel.hide()
 	add_child(score_panel)
 	card_hand = CardHand.new()
@@ -753,6 +756,7 @@ func hook_scale() -> float:
 	return float(lane_rules().get("hook_scale", 1.0))
 
 func _input(event: InputEvent) -> void:
+	if input_paused: return
 	if inspector and inspector.visible: return
 	if event is InputEventScreenTouch:
 		if event.pressed and state == "aim" and _touch == -1 and _target_touch == -1 and not _over_ui(event.position):
@@ -1006,7 +1010,7 @@ func _score_frame() -> void:
 	state = "scoring"
 	_update_status()
 	score_panel.reduced_motion = settings.reduced_motion or settings.reduced_flash
-	score_panel.play(steps, frame_reports, title, int(settings.score_speed))
+	score_panel.play(steps, frame_reports, title)
 
 func _on_scored() -> void:
 	var scored: Dictionary = scored_frames[-1]
@@ -1299,7 +1303,7 @@ func _restore(payload: Dictionary) -> void:
 				"match_over": last.match_over, "match_won": last.match_won, "title": last.title})
 			state = "scoring"
 			_replay_only = true
-			score_panel.play(last.steps, frame_reports, last.title, int(settings.score_speed))
+			score_panel.play(last.steps, frame_reports, last.title)
 			score_panel.skip()
 		"shop":
 			state = "shop"
@@ -1564,7 +1568,7 @@ func _over_ui(position: Vector2) -> bool:
 	if position.y < TOP_UI_HEIGHT:
 		return true
 	var global := get_global_transform() * position
-	for control in [settings_panel, assist_panel, next_rack, card_hand, shop_panel, inspector] + (hud.blocking_controls() if hud else []) + (panels.blocking_controls() if panels else []):
+	for control in [settings_panel, assist_panel, next_rack, card_hand, shop_panel, inspector] + chrome + (hud.blocking_controls() if hud else []) + (panels.blocking_controls() if panels else []):
 		if control.visible and control.get_global_rect().has_point(global):
 			return true
 	return false
@@ -1827,7 +1831,7 @@ func _layout_resolution() -> void:
 	if compact != _compact:
 		_compact = compact
 		chrome_compact_changed.emit(compact)
-	hud.layout_regions(regions.top_bar, regions.bubble, portrait and not compact, compact)
+	hud.layout_regions(regions.top_bar, regions.bubble, portrait and not compact, compact, MatchPanels.menu_rect(size).end.y + 8.0)
 	panels.apply(regions, state not in ["shop", "intro", "division_over"])
 	panels.hand_toggle.text = "Hand %d" % (card_hand.buttons.size() if card_hand else 0)
 	_place_prompt()
@@ -1847,9 +1851,9 @@ func _layout_resolution() -> void:
 	# Portrait: between the raised hand (keep a card) and the score; landscape: centre bottom.
 	next_rack.position = Vector2(size.x / 2 - 160, score_top - 76.0) if portrait else Vector2(size.x / 2 - 160, size.y - 100)
 	# The settings page fits the screen and scrolls (UI-3): the full width in
-	# portrait, a centred column in landscape, below the session buttons.
+	# portrait, a centred column in landscape, below the session menu button.
 	settings_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
-	settings_panel.offset_top = 72.0 if portrait else 96.0
+	settings_panel.offset_top = MatchPanels.menu_rect(size).end.y + 8.0
 	settings_panel.offset_bottom = -12.0
 	if portrait:
 		settings_panel.offset_left = 12.0

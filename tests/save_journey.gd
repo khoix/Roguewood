@@ -67,6 +67,10 @@ func _action(action: String, times: int = 1) -> void:
 			await process_frame
 
 func _focus_accept(control: Control) -> void:
+	# UI-5: the session buttons live in the menu; a player opens it first.
+	if scene != null and scene.session_menu.is_ancestor_of(control) and not scene.session_menu.visible:
+		scene.menu_button.grab_focus()
+		await _action("ui_accept")
 	control.grab_focus()
 	await _action("ui_accept")
 
@@ -155,7 +159,7 @@ func _throw(shot: Array) -> Dictionary:
 
 func _scored() -> void:
 	await _wait_for(func(): return lab.state == "scoring", "scoring", ROLL_FRAMES)
-	await _focus_accept(lab.score_panel.skip_button)
+	await _focus_accept(lab.score_panel)
 	await _wait_for(func(): return lab.state == "frame_done", "frame done", ROLL_FRAMES)
 
 func _saved() -> Dictionary:

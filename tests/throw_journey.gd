@@ -119,8 +119,7 @@ func _run() -> void:
 		DirAccess.remove_absolute(trials_path)
 	lab.trial_log_path = trials_path
 	# Practice (E09): this journey tests throwing, so the Division's targets are off.
-	scene.options.grab_focus()
-	await _accept()
+	await _focus_accept(scene.options)
 	lab.settings_panel.practice.grab_focus()
 	await _accept()
 	# The owner's phone defaults (2026-11-08): flick sensitivity 0.4 and the flat spin
@@ -490,6 +489,10 @@ func _mouse_throw() -> void:
 	await _await_result("mouse")
 
 func _focus_accept(control: Control) -> void:
+	# UI-5: the session buttons live in the menu; a player opens it first.
+	if scene != null and scene.session_menu.is_ancestor_of(control) and not scene.session_menu.visible:
+		scene.menu_button.grab_focus()
+		await _accept()
 	control.grab_focus()
 	await _accept()
 

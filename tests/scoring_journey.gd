@@ -2,7 +2,7 @@ extends SceneTree
 ## J03 scoring journey (E06): strike, spare and open frames played through real
 ## input (focused Options toggles, keyboard steps on the assist sliders and Throw),
 ## then checked against an independent FrameRules resolution: banked score, ordered
-## calculation log, per-roll pin attribution, speed and skip, and running totals.
+## calculation log, per-roll pin attribution, finishing the reveal by tap or key, and running totals.
 ## Assist steps and reduced motion (steady clean-only ring) make every launch exact;
 ## the outcomes come from the deterministic physics. Run with --fixed-fps 60.
 const Contracts = preload("res://src/contracts/contracts.gd")
@@ -52,6 +52,10 @@ func _action(action: String, times: int = 1) -> void:
 			await process_frame
 
 func _focus_accept(control: Control) -> void:
+	# UI-5: the session buttons live in the menu; a player opens it first.
+	if scene != null and scene.session_menu.is_ancestor_of(control) and not scene.session_menu.visible:
+		scene.menu_button.grab_focus()
+		await _action("ui_accept")
 	control.grab_focus()
 	await _action("ui_accept")
 
@@ -151,9 +155,18 @@ func _strike_frame() -> void:
 		await _capture("scoring")
 		var panel: Control = lab.score_panel
 		_check(panel.playing and panel.displayed().score == -1, "score counts up step by step before banking")
-		await _focus_accept(panel.speed_button)
-		await _focus_accept(panel.speed_button)
-		_check(panel.speed == 4 and lab.settings.score_speed == 4, "speed cycles to 4× and is kept"))
+		# UI-5: no Speed or Skip buttons; a tap on the review finishes the reveal.
+		_check(panel.find_child("ScoreSpeed", true, false) == null and panel.find_child("SkipScoring", true, false) == null and panel.hint.modulate.a > 0.5,
+			"the review has no Speed or Skip button, and says a tap finishes it")
+		var at := root.get_screen_transform() * panel.get_global_rect().get_center()
+		for pressed in [true, false]:
+			var touch := InputEventScreenTouch.new()
+			touch.index = 0
+			touch.position = at
+			touch.pressed = pressed
+			Input.parse_input_event(touch)
+			await process_frame
+		_check(not panel.playing and panel.displayed().score >= 0, "a tap on the review finishes the reveal"))
 	await _capture("strike")
 	await _next_frame()
 
@@ -162,9 +175,9 @@ func _spare_frame() -> void:
 	await _throw(0.0, 0.0, 0.6)
 	await _verify_frame("spare", "spare", func():
 		var panel: Control = lab.score_panel
-		_check(panel.speed == 4, "speed preference carries to the next frame")
-		await _focus_accept(panel.skip_button)
-		_check(not panel.playing, "Skip reveals the whole calculation"))
+		_check(panel.playing, "the next frame's reveal counts step by step again")
+		await _focus_accept(panel)
+		_check(not panel.playing, "the accept key finishes the reveal too"))
 	await _capture("spare")
 	await _next_frame()
 

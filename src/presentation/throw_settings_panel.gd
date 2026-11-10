@@ -6,7 +6,7 @@ extends PanelContainer
 signal changed
 ## Flick sensitivity 0.4 (owner's phone trial, 2026-11-08) and the depth spin view
 ## (owner's choice over flat, 2026-11-09; flat stays in Options).
-const DEFAULTS := {"handedness": "right", "sensitivity": 0.4, "spin_view": "depth", "reduced_motion": false, "large_targets": false, "assist": false, "score_speed": 1,
+const DEFAULTS := {"handedness": "right", "sensitivity": 0.4, "spin_view": "depth", "reduced_motion": false, "large_targets": false, "assist": false,
 	"equipment": "deck", "practice": false, "reduced_flash": false, "haptics": true, "throw_tuning": {}}
 ## E05-R2: the tethered-swing constants the tuning page adjusts (ADR 011), as
 ## [key, label, min, max, step, format]. Values live in settings.throw_tuning for the

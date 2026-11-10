@@ -61,6 +61,10 @@ func _action(action: String, times: int = 1) -> void:
 			await process_frame
 
 func _focus_accept(control: Control) -> void:
+	# UI-5: the session buttons live in the menu; a player opens it first.
+	if scene != null and scene.session_menu.is_ancestor_of(control) and not scene.session_menu.visible:
+		scene.menu_button.grab_focus()
+		await _action("ui_accept")
 	control.grab_focus()
 	await _action("ui_accept")
 
@@ -171,7 +175,7 @@ func _aim() -> void:
 ## Scoring must equal an independent resolution with the cards the journey played.
 func _verify_frame(label: String, expect_names: Array) -> void:
 	await _wait_for(func(): return lab.state == "scoring", label + " scoring starts", ROLL_FRAMES)
-	await _focus_accept(lab.score_panel.skip_button)
+	await _focus_accept(lab.score_panel)
 	await _wait_for(func(): return lab.state == "frame_done", label + " scoring finishes", ROLL_FRAMES)
 	_check(lab.frame_tactics == tactics, label + " lab recorded the played tactical cards")
 	var built: Dictionary = FrameBuilder.build(FrameBuilder.lab_loadout(), catalogue, lab.frame_reports, tactics)
