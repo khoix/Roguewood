@@ -108,7 +108,9 @@ func fit(portrait: bool) -> void:
 	log_scroll.custom_minimum_size.y = 72 if portrait else 150
 
 ## reports: the frame's LaneWorld reports, used only for roll attribution.
-func play(frame_steps: Array, reports: Array, title: String) -> void:
+## `_pace` is accepted and ignored: the reveal has one pace since UI-5, and the art
+## journeys that replay a frame still pass the speed they used to choose.
+func play(frame_steps: Array, reports: Array, title: String, _pace: int = 1) -> void:
 	steps = frame_steps
 	shown = 0
 	_timer = 0.0
