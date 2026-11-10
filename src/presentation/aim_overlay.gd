@@ -89,7 +89,7 @@ func _draw_charge() -> void:
 	var font := get_theme_default_font()
 	var fs := 16
 	var width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
-	var tab := Rect2(center + Vector2(-width/2-8, r*1.85), Vector2(width+16, 24))
+	var tab := Rect2(center + Vector2(-width/2-8, -r*1.85-24), Vector2(width+16, 24))
 	draw_style_box(_tab_style(ink, color), tab)
 	draw_string(font, tab.position + Vector2(8,18), text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, color.lightened(0.35))
 	if pose.state == "disabled":
