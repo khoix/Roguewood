@@ -242,12 +242,18 @@ static func goals(career: Dictionary, objectives: Array, uid: int, limit: int = 
 
 ## One line for the menu.
 static func summary(career: Dictionary, objectives: Array) -> String:
+	var s := stats(career, objectives)
+	return "Career: %d rival%s cleared · %d championship%s · %d/%d mastery goals · %d attempt%s" % [s.rivals,
+		"" if s.rivals == 1 else "s", s.titles, "" if s.titles == 1 else "s", s.mastered, s.goals,
+		s.attempts, "" if s.attempts == 1 else "s"]
+
+## The summary's numbers, for the League Board's tiles: {rivals, titles, mastered, goals, attempts}.
+static func stats(career: Dictionary, objectives: Array) -> Dictionary:
 	var titles := 0
 	for entry in career.championships.values():
 		titles += int(entry.wins)
-	return "Career: %d rival%s cleared · %d championship%s · %d/%d mastery goals · %d attempt%s" % [career.first_clears.size(),
-		"" if career.first_clears.size() == 1 else "s", titles, "" if titles == 1 else "s", career.mastery.size(), objectives.size(),
-		int(career.attempts), "" if int(career.attempts) == 1 else "s"]
+	return {"rivals": career.first_clears.size(), "titles": titles, "mastered": career.mastery.size(),
+		"goals": objectives.size(), "attempts": int(career.attempts)}
 
 ## Tracks or untracks an objective (E16): at most TRACK_LIMIT, open goals only.
 ## Returns "" or why it was refused.

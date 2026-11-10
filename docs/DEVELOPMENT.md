@@ -256,3 +256,14 @@ E18-C01 landed six D02 Charms (Pin Counter, Hot Streak, Last Stand, Tip Jar, Ban
 `python3 tools/qa.py e2e --journey J03C01` seats five of them through the inventory API (logged fixture), then plays strikes, a spare and an open frame in Practice through real input. Each banked score must equal an independent resolution. `--rendered` saves c01_strike, c01_streak, c01_spare and c01_open to `artifacts/e18-c01/rendered`.
 
 `python3 tools/qa.py e2e --journey J03C02` racks ten Glass pins (logged fixture) and checks the Glass breaks against an independent replay of the effects stream, across a real Clubhouse → Continue reload. `--rendered` saves c02_breaks, c02_reloaded and c02_second to `artifacts/e18-c02/rendered`.
+
+## GUI review tour (UI-4)
+
+`tools/capture_phone_tour.gd` walks the real game at a phone-shaped window and saves a capture of every screen of a first attempt (the Clubhouse tabs, aim, Options, the roll view, scoring, the shop, the result). It asserts nothing; it exists so a person or an agent can look at every screen at the size a phone draws it. Journeys capture at 450×800; the tour's default is 780×1688, an iPhone 13 Pro's shape.
+
+```sh
+xvfb-run -a -s "-screen 0 1700x3000x24" "$GODOT_BIN" --audio-driver Dummy --fixed-fps 60 --path . \
+  --script res://tools/capture_phone_tour.gd -- --artifact-dir=/tmp/tour --save-dir=/tmp/tour/saves --size=780x1688
+```
+
+Add `--landscape` to rotate the window. Captures are shared with the owner, never committed.

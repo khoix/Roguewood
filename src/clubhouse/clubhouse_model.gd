@@ -135,7 +135,6 @@ static func inspect(entry: Dictionary, catalogue: Dictionary) -> String:
 		lines.append("Win a League with it in your build to master it.")
 	if not String(item.get("downside", "")).is_empty():
 		lines.append("Tradeoff: " + item.downside)
-	lines.append("The binder keeps its history; a new attempt never starts with it.")
 	return "\n".join(lines)
 
 ## Shelf slots: titles, ribbons, plaques, then decorations.

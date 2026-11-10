@@ -146,6 +146,10 @@ func _win_early(kind: String, target: int, preview_contains: Array) -> void:
 	_check(lab.settlement.payout == Economy.MATCH_PAYOUT + Economy.UNUSED_FRAME_BONUS and lab.settlement.interest == Economy.interest(held), "an early win pays the unused-frame bonus ($%d)" % lab.settlement.payout)
 	for text in preview_contains:
 		_check(lab.shop_panel.preview.text.contains(text), "shop previews: " + text)
+	await process_frame
+	var shop_rect: Rect2 = lab.shop_panel.get_global_rect()
+	_check(shop_rect.position.x >= 0.0 and shop_rect.end.x <= lab.size.x + 0.5 and lab.shop_panel.continue_button.get_global_rect().end.x <= shop_rect.end.x,
+		"the shop and its pinned actions fit the phone's width (%s in %s)" % [str(shop_rect), str(lab.size)])
 
 func _first_attempt() -> void:
 	# The boss, its rule and its reward are inspectable from the first frame.
@@ -154,6 +158,8 @@ func _first_attempt() -> void:
 	_check(lab.hud.rule_panel.visible and lab.hud.rule_text.text.contains("Clean Sweep") and lab.hud.rule_text.text.contains("target 800")
 		and lab.hud.rule_text.text.contains("First clear"), "the badge opens the rival's rule, target and reward")
 	_check(lab.state == "aim" and lab.history.is_empty(), "inspecting the rule throws nothing")
+	_check(lab.assist_panel.visible and not (lab.prompt.visible and lab.assist_panel.get_global_rect().intersects(lab.prompt.get_global_rect())),
+		"the assist panel never covers the prompt")
 	await _capture("preview")
 	await _tap(lab.hud.badge)
 	_check(not lab.hud.rule_panel.visible, "the rule panel closes")

@@ -85,6 +85,13 @@ func _ready() -> void:
 	preview.add_theme_color_override("font_color", Color(0.75, 0.85, 1.0))
 	money = _label(heading, "Money", 30)
 	money.add_theme_color_override("font_color", Color(1.0, 0.85, 0.35))
+	# Room for a card's status tab (SOLD), which stands above the card, so it never
+	# covers the last line of the preview.
+	var tab_room := Control.new()
+	tab_room.name = "TabRoom"
+	tab_room.custom_minimum_size = Vector2(0, 14)
+	tab_room.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_main.add_child(tab_room)
 	offers_grid = GridContainer.new()
 	offers_grid.name = "Offers"
 	offers_grid.columns = 3
@@ -165,6 +172,11 @@ func _show_details() -> void:
 	for button in [reroll_button, remove_button, continue_button]:
 		button.custom_minimum_size = Vector2(200, 64) if _landscape else Vector2(0, 60)
 		button.size_flags_horizontal = Control.SIZE_FILL if _landscape else Control.SIZE_EXPAND_FILL
+		# A phone's three pinned actions fit the panel's width (at the default size
+		# their words pushed the panel, and the money, past the screen's edge).
+		if _landscape: button.remove_theme_font_size_override("font_size")
+		else: button.add_theme_font_size_override("font_size", 19)
+	offers_grid.size_flags_horizontal = Control.SIZE_FILL if _landscape else Control.SIZE_SHRINK_CENTER
 	var shown := _landscape or _details_open
 	summary.visible = shown
 	rack_label.visible = shown
@@ -209,7 +221,7 @@ func show_view(view: Dictionary) -> void:
 			_shelf.add_child(offers_grid)
 		else:
 			_main.add_child(offers_grid)
-			_main.move_child(offers_grid, money.get_index() + 1)
+			_main.move_child(offers_grid, _main.get_node("TabRoom").get_index() + 1)
 		_shelf.visible = landscape
 	offers_grid.columns = view.get("columns", 3)
 	while offer_buttons.size() < view.offers.size():

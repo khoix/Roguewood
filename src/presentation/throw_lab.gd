@@ -1774,6 +1774,7 @@ func _refresh_hud() -> void:
 		var index: int = division.spec.matches.find(m) + 1
 		view.text = "%s %d/3 · Target %d · Score %d · %s" % [m.name, index, division.target(), division.match_score, frames]
 		view.title = "%s %d/3" % [m.name, index]
+		view.short_title = view.title # the roll view's slim bar has no room for the Division or the rival
 		view.score = "%s / %s" % [ScoreLog._n(division.match_score), ScoreLog._n(division.target())]
 		if division.division_count() > 1:
 			view.text = "D%d/%d · %s" % [division.division_number(), division.division_count(), view.text]
@@ -1882,9 +1883,21 @@ func _place_prompt() -> void:
 		var tactic := lines[0].find(" · Tactic: ")
 		if tactic < 0: lines.remove_at(0)
 		else: lines[0] = lines[0].substr(tactic + 3)
+	var rect: Rect2 = regions.prompt
+	if size.y >= size.x:
+		# A phone breaks the aim hint at its separator instead of orphaning a word.
+		for i in lines.size():
+			if lines[i].begins_with("Hold the ball"): lines[i] = lines[i].replace(" · ", "\n")
+		# The assist sliders name what to set and their panel takes the throwing hand's
+		# side, so that hint goes and the other lines keep to the free side.
+		if assist_panel != null and assist_panel.visible:
+			var kept: Array = Array(lines).filter(func(line): return not line.begins_with("Set position, aim"))
+			lines = PackedStringArray(kept)
+			var beside := assist_panel.position.x > size.x * 0.25
+			rect.size.x = maxf((assist_panel.position.x if beside else size.x - assist_panel.get_rect().end.x) - rect.position.x - 8.0, 120.0)
+			if not beside: rect.position.x = assist_panel.get_rect().end.x + 8.0
 	prompt.text = "\n".join(lines)
 	prompt.visible = state not in ["shop", "intro", "division_over"] and not prompt.text.is_empty()
-	var rect: Rect2 = regions.prompt
 	prompt.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	prompt.custom_minimum_size = Vector2(rect.size.x, 0)
 	prompt.size = Vector2(rect.size.x, 0)
