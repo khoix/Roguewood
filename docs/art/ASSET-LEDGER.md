@@ -811,3 +811,21 @@ League frames explicitly fall back to House; their art is not claimed.
   swish 260/.48; sound.charm.lucky_seven, wood 720/.36, taps at 0/.055/.12 s.
   Mono 22050 Hz PCM, .48 peak, no samples. Shared bounded mixer unchanged.
 - Evidence: artifacts/av-h4-b/contact and artifacts/e18-c11; never committed.
+
+## UI-A3 — numeral legibility (2026-11-10)
+
+`assets/ui/fonts/PixelifySans.ttf` is now an OFL 1.1 derivative of the font
+recorded in UI-A1 above, internally named **Roguewood Numerals**. Codex authored
+original curved `two` and `five` outlines; all other outlines and advance widths
+are retained. Their old gvar outline deltas are removed. The resource filename
+is retained for existing Godot preloads, not used as the derivative family name.
+`docs/art/ui/patch_numerals.py` records the source geometry and transformation.
+No external donor font or generated image is used.
+
+The original copyright and OFL.txt remain intact. OFL 1.1 requires modified fonts
+to avoid declared Reserved Font Names without permission; the bundled header
+has no RFN declaration. The internal family and PostScript names are renamed
+anyway. The modified font remains OFL 1.1, including the new contours.
+Source SHA256: `9ba86cd010a4de309d263ceff8e8044092c9db7efda869620cb9ff1c4389e8a5`.
+Patched SHA256: `9e38d077f2679e2f7587b360ae3afbd97b03e84baf87a827ab1ef231971b9f68`.
+See docs/art/ui/UI-A3.md and docs/handoffs/UI-A3.md for application and evidence.
