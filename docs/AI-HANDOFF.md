@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-11-10. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). Wave 10 is merged by PR #22 (main `706767f`). Wave 11 is merged by PR #29 (main `f65d16f`). **Wave 12 is open** (see "Wave 12 claims" and "Wave 12 progress"): UI-5, E18-C14 and DC-N1 are done, and Codex's UI-A3 is in; DC-N2 is next. The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
+Updated: 2026-11-10. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). Wave 10 is merged by PR #22 (main `706767f`). Wave 11 is merged by PR #29 (main `f65d16f`). **Wave 12 is open** (see "Wave 12 claims" and "Wave 12 progress"): UI-5, E18-C14, DC-N1 and DC-N2 are done, and Codex's UI-A3 is in; E22-L02 is next. The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
 
 ## Read first
 
@@ -71,7 +71,7 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E15 — Career persistence and unlock graph | DONE | Claude | main (PR #10) | 2cdedb1 (+ 8c19905); local suites and J01–J10 headless/rendered PASS; CI 40577363221 and 40581437392 PASS; ADR 010; E15 handoff |
 | E16 — Clubhouse and collection UI | DONE (core and E16-ART) | Claude core · Codex E16-ART | claude/roguewood-build · codex/roguewood-build | Core b01fb4d; CI 40616441249 PASS; J11; handoffs/E16.md (Art hand-off) |
 | E17 — Catalogue and unlock authoring batches | IN_PROGRESS (D01–D09 and L01 DONE; D01-ART to D04-ART DONE) | Claude definitions · Codex visual briefs | claude/roguewood-build · codex/roguewood-build | Split per batch; see Ownership |
-| E18 — Content mechanics batches | IN_PROGRESS (C01–C15 DONE) | Claude | claude/roguewood-build | C01: six D02 Charms; C02: transform primitive, Glass Pin and Glass Cutter; C03: five primitives, Crown Pin and the last five D02 Charms; C04: eight modifications; C05: House rules, lanes, two-rule champions; C06: tactical primitives and three cards; C07: shop upgrades and six House upgrades; C08–C10: 18 House items (DC-H1…H3); handoffs/E18-Cxx.md |
+| E18 — Content mechanics batches | IN_PROGRESS (C01–C16 DONE) | Claude | claude/roguewood-build | C01: six D02 Charms; C02: transform primitive, Glass Pin and Glass Cutter; C03: five primitives, Crown Pin and the last five D02 Charms; C04: eight modifications; C05: House rules, lanes, two-rule champions; C06: tactical primitives and three cards; C07: shop upgrades and six House upgrades; C08–C10: 18 House items (DC-H1…H3); handoffs/E18-Cxx.md |
 | E19 — Final item artwork batches | IN_PROGRESS (A01–A16 and AV-C03 DONE) | Codex | codex/roguewood-build | E13-S01, E17-D01 and E17-D02 identities; artwork set on the seven C01/C02 Charms and Glass Pin; C03 flags (A17) and D03 identities (A18) in Wave 5 |
 | E20 — Ability effects and audio batches | IN_PROGRESS (V01–V08, the House AV batches and AV-T01 DONE) | Codex | codex/roguewood-build | E13-S01's 23 abilities; V08: the eight C01/C02 items; C03's six in Wave 5 (V09) |
 | E21 — Rival presentation batches | IN_PROGRESS (R01, R02 DONE) | Codex | codex/roguewood-build | Later rivals after E17 defines them |
@@ -335,7 +335,12 @@ League template wave b (docs/ROADMAP.md), with one owner direction (2026-11-09):
   - **Hand-off to Codex (AV-N1, Wave 13):** the six items; J03C15 and its four captures.
 - **Codex's UI-A3, integrated** (merge of `05ff30d`; handoffs/UI-A3.md): the bundled font's 2 and 5 are redrawn so they cannot be read as Z and S; widths and every other glyph are unchanged, and no code changed. Unit, JUIA1 (both modes), and JUIA2, J03, J05 and J03C15 rendered PASS on the merge.
 - **A note for item batches:** a journey with a fixed reroll budget can fail when a batch grows a shop slot's pool. Give such loops room (as J08A02 now has) rather than tuning them to the seed.
-- **Next (Claude):** DC-N2, Neon items 7–12 (Medium).
+- **DC-N2 DONE** (handoffs/E18-C16.md; E17-D13 with E18-C16, `d0fa6d2`): Neon's opening pool, all initial from Division 1.
+  - Glow Ball, Prism Pin, Grip Tape, Spotlight, Afterimage and Laser Level, each scored through the real FrameBuilder and played natively in J03C16 (a curved spare, a timed curved strike that meets the head pin first, a straight strike).
+  - Twelve of Neon's 28 items are landed. Left for DC-N3 to N5 (Wave 13): one ball, one pin, nine Charms, three tactical cards and two shop upgrades.
+  - Validation: all 198 CI commands PASS on `d0fa6d2` (with Codex's UI-A3 merged). The physics digest `75d1a3c0…`, J03 560/240/70 and J05 21060 are unchanged.
+  - **Hand-off to Codex (AV-N2, Wave 13):** the six items; J03C16 and its four captures.
+- **Next (Claude):** E22-L02, the Neon League live (High). It registers the Neon gates and assigns DC-N1's five rewards to them.
 
 ## Wave 10 closed (coordinator, 2026-11-07)
 - **Contents** (all on `claude/roguewood-build` at the "Wave 10 closed" commit):
