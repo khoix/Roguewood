@@ -84,14 +84,14 @@ func _back_to_clubhouse() -> void:
 func _stage_one_clubhouse() -> void:
 	var club = scene.clubhouse
 	await _tab("binder", true)
-	_check(club.binder_counts.text == "12 Locked · 72 Available · 0 Discovered · 0 Mastered", "a fresh binder: %s" % club.binder_counts.text)
+	_check(club.binder_counts.text == "12 Locked · 78 Available · 0 Discovered · 0 Mastered", "a fresh binder: %s" % club.binder_counts.text)
 	var tiles: Array = club.binder_stats.get_children().map(func(t): return t.get_child(0).get_child(0).text + " " + t.get_child(0).get_child(1).text)
 	_check(" · ".join(tiles) == club.binder_counts.text, "the binder's tiles show the same counts: %s" % str(tiles))
 	var cards: Array = club.binder_grid.get_children()
 	_check(is_equal_approx(cards[2].global_position.y, cards[0].global_position.y) and not is_equal_approx(cards[3].global_position.y, cards[0].global_position.y)
 		and cards[2].get_global_rect().end.x <= club.size.x, "a phone's binder is three cards across")
 	await _focus_accept(club.filter_button("charm"))
-	_check(club.category == "charm" and club.binder_grid.get_child_count() == 41, "the Charms filter shows the forty-one Charms")
+	_check(club.category == "charm" and club.binder_grid.get_child_count() == 43, "the Charms filter shows the forty-three Charms")
 	var encore := await _card("charm.encore")
 	_check(encore.state == "locked" and club.selected_item == "charm.encore" and club.binder_detail.text.contains("Unlock: Beat The Surveyor (House League)")
 		and club.binder_art.get_child(0) is TextureRect and club.binder_art.get_child(0).texture == load(encore.asset), "inspecting Encore: Locked, the rival that unlocks it, actual catalogue artwork")

@@ -5016,6 +5016,338 @@
       "physics": {
         "gutter_rebound": true
       }
+    },
+    {
+      "id": "ball.glow",
+      "name": "Glow Ball",
+      "category": "ball",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 5,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "add_mult",
+          "amount": 5,
+          "trigger": "ball",
+          "scope": "roll",
+          "condition": {
+            "category": [
+              "strike"
+            ],
+            "curved": true
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 2,
+        "charges": 0,
+        "exhaustion": "cycle"
+      },
+      "downside": "It hooks only as far as the House Ball, and pays for nothing but a curved strike.",
+      "synergy_tags": [
+        "curve",
+        "strike",
+        "mult"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "pin.prism",
+      "name": "Prism Pin",
+      "category": "pin",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 4,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "add_value",
+          "amount": 25,
+          "trigger": "fallen",
+          "scope": "frame",
+          "condition": {
+            "felled_curved": true
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 12,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Knocked down by a straight roll it is worth nothing, less than the Wood Pin it replaced.",
+      "synergy_tags": [
+        "curve",
+        "value",
+        "rack"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "ball_mod.grip_tape",
+      "name": "Grip Tape",
+      "category": "ball_mod",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 5,
+      "resale_price": 2,
+      "effects": [],
+      "limits": {
+        "max_owned": 4,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "More hook on every throw with that card: on House Oil a full charge can carry past the pocket.",
+      "synergy_tags": [
+        "curve",
+        "hook",
+        "physics"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      },
+      "physics": {
+        "spin_response": 1.4
+      }
+    },
+    {
+      "id": "pin_mod.spotlight",
+      "name": "Spotlight",
+      "category": "pin_mod",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 6,
+      "resale_price": 3,
+      "effects": [
+        {
+          "op": "add_mult",
+          "amount": 3,
+          "trigger": "fallen",
+          "scope": "frame",
+          "condition": {
+            "first_hit": true,
+            "felled_curved": true
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 4,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "It lights only if a curved ball meets its pin first: elsewhere in the rack, or on a straight roll, it does nothing.",
+      "synergy_tags": [
+        "curve",
+        "rack",
+        "mult",
+        "positional"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.afterimage",
+      "name": "Afterimage",
+      "category": "charm",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 6,
+      "resale_price": 3,
+      "effects": [
+        {
+          "op": "multiply_mult",
+          "amount": 1.5,
+          "trigger": "charm",
+          "scope": "frame",
+          "condition": {
+            "category": [
+              "spare"
+            ],
+            "curved": true
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Only a spare with a curved roll in it counts; strikes and straight spares earn nothing.",
+      "synergy_tags": [
+        "curve",
+        "spare",
+        "mult"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.laser_level",
+      "name": "Laser Level",
+      "category": "charm",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 4,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "add_value",
+          "amount": 5,
+          "trigger": "charm",
+          "scope": "frame",
+          "per": "fallen",
+          "condition": {
+            "curved": false
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Any curved roll in the frame switches it off, so it pulls against every hook build.",
+      "synergy_tags": [
+        "straight",
+        "value",
+        "baseline"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
     }
   ]
 }
