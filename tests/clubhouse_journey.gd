@@ -22,6 +22,11 @@ func _run() -> void:
 	await process_frame
 	await _wait_for(func(): return scene.screen == "menu" and (scene.enter.has_focus() or scene.continue_button.has_focus()), "menu focus")
 	_check(scene.clubhouse.visible and scene.clubhouse.current_tab == "board", "the Clubhouse opens on the League Board")
+	# The phone layout: four tabs on one row inside the screen, and the Career as tiles.
+	var tabs: Array = scene.clubhouse.tab_buttons.values()
+	_check(tabs.all(func(b): return is_equal_approx(b.global_position.y, tabs[0].global_position.y) and b.get_global_rect().end.x <= scene.clubhouse.size.x and b.size.y >= 52),
+		"the four tabs share one row on a phone")
+	_check(scene.career_stats.get_child_count() == 4 and not scene.career_line.visible, "the League Board shows the Career as four tiles")
 	match stage:
 		1: await _stage_one_clubhouse()
 		2: await _stage_two_clubhouse()
@@ -69,7 +74,7 @@ func _shelf(id: String) -> Control:
 
 func _earned(id: String) -> bool:
 	var box := _shelf(id)
-	return box != null and not box.get_node("Name").text.ends_with("(not yet)")
+	return box != null and not box.find_child("Name", true, false).text.ends_with("(not yet)")
 
 func _back_to_clubhouse() -> void:
 	await _focus_accept(lab.hud.menu_button)
@@ -80,6 +85,11 @@ func _stage_one_clubhouse() -> void:
 	var club = scene.clubhouse
 	await _tab("binder", true)
 	_check(club.binder_counts.text == "12 Locked · 66 Available · 0 Discovered · 0 Mastered", "a fresh binder: %s" % club.binder_counts.text)
+	var tiles: Array = club.binder_stats.get_children().map(func(t): return t.get_child(0).get_child(0).text + " " + t.get_child(0).get_child(1).text)
+	_check(" · ".join(tiles) == club.binder_counts.text, "the binder's tiles show the same counts: %s" % str(tiles))
+	var cards: Array = club.binder_grid.get_children()
+	_check(is_equal_approx(cards[2].global_position.y, cards[0].global_position.y) and not is_equal_approx(cards[3].global_position.y, cards[0].global_position.y)
+		and cards[2].get_global_rect().end.x <= club.size.x, "a phone's binder is three cards across")
 	await _focus_accept(club.filter_button("charm"))
 	_check(club.category == "charm" and club.binder_grid.get_child_count() == 40, "the Charms filter shows the forty Charms")
 	var encore := await _card("charm.encore")

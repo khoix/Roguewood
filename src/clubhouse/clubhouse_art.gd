@@ -20,6 +20,9 @@ static func button_style(button: Button, state: String = "available") -> void:
 	button.add_theme_stylebox_override("normal", panel_style(Color("182b32"), Color("697a7b")))
 	button.add_theme_stylebox_override("hover", panel_style(Color("263e45"), Color("d8b873"), 2))
 	button.add_theme_stylebox_override("pressed", panel_style(Color("30454a"), Color("f0d99b"), 3))
+	# A chosen tab or filter looks the same whether or not the pointer rests on it
+	# (after a tap a phone leaves it hovered).
+	button.add_theme_stylebox_override("hover_pressed", panel_style(Color("30454a"), Color("f0d99b"), 3))
 	var focus := panel_style(Color(0,0,0,0), Color("fff1c9"), 3)
 	button.add_theme_stylebox_override("focus", focus)
 	button.add_theme_color_override("font_color", Color("f4e9cf"))

@@ -73,7 +73,8 @@ func _ready() -> void:
 	finish.item_selected.connect(_finish_selected)
 	box.add_child(finish)
 	var hint := Label.new()
-	hint.text = "Finish preview · item stats stay unchanged\nDrag artwork to tilt · Escape to close"
+	# A phone has no Escape key; Close is the button below.
+	hint.text = "Finish preview · item stats stay unchanged\nDrag artwork to tilt" + ("" if OS.has_feature("mobile") or OS.has_feature("web_android") or OS.has_feature("web_ios") else " · Escape to close")
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hint.add_theme_font_size_override("font_size",17)
 	box.add_child(hint)
