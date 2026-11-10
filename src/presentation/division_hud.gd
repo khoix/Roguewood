@@ -285,8 +285,9 @@ func layout_regions(bar_rect: Rect2, bubble: Rect2, portrait: bool, slim: bool =
 	money_slot.visible = not slim
 	frames_label.visible = not slim
 	score_label.add_theme_font_size_override("font_size", 22 if slim else 28)
-	_slim = slim
-	title_label.text = _titles[1 if slim else 0]
+	# A phone's slim bar has no room for the Division or the rival; a wide one has.
+	_slim = slim and bar_rect.size.x < 400.0
+	title_label.text = _titles[1 if _slim else 0]
 	title_label.custom_minimum_size.x = 0
 	# Placed after the rows are rearranged, so the bar shrinks to the new content.
 	bar.set_anchors_preset(Control.PRESET_TOP_LEFT)

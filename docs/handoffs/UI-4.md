@@ -10,7 +10,7 @@
 ## How the review was done
 `tools/capture_phone_tour.gd` (new) walks the real game at a phone-shaped window and saves a capture of every screen of a first attempt: the four Clubhouse tabs, aim, the rule panel, the inspector, Options and throw tuning, assist controls, the roll view, scoring, frame done, the shop (folded, open, after a purchase), a second match, an open frame and the result. It asserts nothing; journeys do that.
 
-Journeys capture at 450×800 (9:16). The tour ran at 780×1688, an iPhone 13 Pro's shape (the canvas is 540×1169), where several problems only show: a taller screen, and text at the size a phone draws it.
+Journeys capture at 450×800 (9:16). The tour ran at 780×1688, an iPhone 13 Pro's shape (the canvas is 540×1169), where several problems only show: a taller screen, and text at the size a phone draws it. It also ran rotated (1688×780) to check that the wide layouts were not disturbed.
 
 ## Found and fixed
 | Screen | Found | Change |
@@ -21,9 +21,10 @@ Journeys capture at 450×800 (9:16). The tour ran at 780×1688, an iPhone 13 Pro
 | Trophies | One column of tall boxes, about four to a screen, with wrapped names. | On a phone, a full-width row per trophy: art, name, how to earn it. About eight to a screen. The wide shelf is unchanged. |
 | Goals | Each Follow button was as tall as its goal's text, which wrapped in a narrow column. | Each goal is a panel: its name beside a compact Follow button, what it asks, a progress bar with its count. A followed goal has a brass border. |
 | Aim | The hint wrapped with one orphaned word. With assist controls on, their panel covered the hint. | A phone breaks the hint at its separator, in two balanced lines. With assist on, the "set position…" hint goes (the sliders are labelled) and other lines keep to the free side. |
-| Roll view | The slim bar cut the match title to "D1/8 · Opene…". | The slim bar shows the short title ("Opener 1/3"). |
+| Roll view | A phone's slim bar cut the match title to "D1/8 · Opene…". | A phone's slim bar shows the short title ("Opener 1/3"); the wide one keeps the full title. |
 | Rule panel | Narrower than the row it covers, so chip edges showed at both sides. | It spans the bar's width. |
 | Shop | The three pinned actions were wider than a phone, so the whole shop ran 15 px past the right edge and cut the money. A SOLD tab covered the last line of the preview. | The pinned actions fit (19 px text); the offers are centred; there is room above the first row for a tab. |
+| Shop, landscape | The first shop of an attempt opened scrolled past its title: the focused action scrolled into view against the portrait arrangement, a frame before the landscape one settled. | The shop starts from its top once the new layout has settled. |
 | Result | The text sat at the top of a full-height sheet with the buttons at the bottom. | One centred block; the body scrolls only when it cannot fit. |
 | Inspector | "Escape to close" on a phone. | Shown only where there is a keyboard. |
 

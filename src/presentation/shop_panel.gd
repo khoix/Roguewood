@@ -223,6 +223,7 @@ func show_view(view: Dictionary) -> void:
 			_main.add_child(offers_grid)
 			_main.move_child(offers_grid, _main.get_node("TabRoom").get_index() + 1)
 		_shelf.visible = landscape
+		_scroll_home.call_deferred()
 	offers_grid.columns = view.get("columns", 3)
 	while offer_buttons.size() < view.offers.size():
 		_add_offer_button()
@@ -295,6 +296,13 @@ func show_view(view: Dictionary) -> void:
 		button.text = move.label
 		button.custom_minimum_size = Vector2(0, 52)
 		button.disabled = choice_sheet.visible
+
+## After a reflow the focused action scrolls into view against the old layout
+## (follow_focus), which hid the title when a shop first opened in landscape.
+## Once the new layout has settled the shop starts from its top.
+func _scroll_home() -> void:
+	await get_tree().process_frame
+	if is_inside_tree(): _scroll.scroll_vertical = 0
 
 func show_choices(prompt: String, labels: Array) -> void:
 	choice_prompt.text = prompt
