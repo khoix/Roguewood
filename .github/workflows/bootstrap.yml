@@ -94,6 +94,8 @@ jobs:
           xvfb-run -a python3 tools/qa.py e2e --journey J03C05 --rendered
           python3 tools/qa.py e2e --journey J03C13
           xvfb-run -a python3 tools/qa.py e2e --journey J03C13 --rendered
+          python3 tools/qa.py e2e --journey J03C15
+          xvfb-run -a python3 tools/qa.py e2e --journey J03C15 --rendered
           python3 tools/qa.py e2e --journey J03C06
           xvfb-run -a python3 tools/qa.py e2e --journey J03C06 --rendered
           python3 tools/qa.py e2e --journey J03C07
