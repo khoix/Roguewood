@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-11-10. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). Wave 10 is merged by PR #22 (main `706767f`). Wave 11 is merged by PR #29 (main `f65d16f`). **Wave 12 is open** (see "Wave 12 claims"). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
+Updated: 2026-11-10. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). Wave 10 is merged by PR #22 (main `706767f`). Wave 11 is merged by PR #29 (main `f65d16f`). **Wave 12 is open** (see "Wave 12 claims" and "Wave 12 progress"): UI-5 is done; E18-C14 is next. The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
 
 ## Read first
 
@@ -288,7 +288,7 @@ League template wave b (docs/ROADMAP.md), with one owner direction (2026-11-09):
      - **UI-5b, the shop:**
        - **Tap an offer to open it** (owner): an overlay shows the card large, with its full rule text and price, and Buy and Back. Buying happens there, not on the first tap. An offer the player cannot afford or place opens too, with Buy off and the reason. A purchase that needs a choice (a slot, a pin, a replacement) goes on to the existing choice sheet.
        - **Shop words:** the preview above the offers drops to two short lines (the next match and its target; the boss by name, with the rule behind its ⓘ as on the bar). The rack summary groups like pins ("10 Wood Pin").
-       - **One Sell control** (owner, 2026-11-10: the long row of Sell buttons is excessive; a drop-down sell menu was offered as one option). A single "Sell" button, showing how many things can be sold, opens a sheet that lists them in phone-size rows with their art and sale price, like items grouped ("Hook Ball ×2 · +$2 each"); a tap sells one and the sheet stays open for the next. It works as a drop-down does, but uses the shop's own choice sheet rather than the engine's small pop-up list, so it matches the offer overlay and is easy to hit with a thumb. The Charm-order moves, which sit in the same list today, go into that sheet under the Charms.
+       - **One Sell control** (owner, 2026-11-10: the long row of Sell buttons is excessive; a drop-down sell menu was offered as one option). A single "Sell" button, showing how many things can be sold, opens a sheet that lists them in phone-size rows with their sale price; a tap sells one and the sheet stays open for the next. (Built without grouping like items: each row sells one particular card; see handoffs/UI-5.md.) It works as a drop-down does, but uses the shop's own choice sheet rather than the engine's small pop-up list, so it matches the offer overlay and is easy to hit with a thumb. The Charm-order moves, which sit in the same list today, go into that sheet under the Charms.
      - The full sentences stay available to tools and tests, as `career_line` and the HUD's `info` do. Journeys that open Options, return to the Clubhouse, finish a reveal, buy or read the shop go through the new controls. That includes Codex's art journeys, which the coordinator edits for this and nothing else.
      - Paths: src/bootstrap/bootstrap.gd, throw_lab.gd's layout and shop handlers, division_hud.gd, match_panels.gd, score_panel.gd, shop_panel.gd, card_inspector.gd (the overlay reuses its large card); the journeys' shared helpers; tools/capture_phone_tour.gd.
      - Delivers: each part in both orientations, tour captures before and after for the owner, and the full matrix (every journey uses the session buttons, Skip or a purchase).
@@ -314,6 +314,16 @@ League template wave b (docs/ROADMAP.md), with one owner direction (2026-11-09):
   3. **E22-L02-ART** (High, 2 sessions): the Neon theme for eight Divisions: environment and signage, the Long Oil and Two-Tone lane looks, the Narrow Lane edge and rail (replacing the developmental guard lines), the Strobe ring, the music identity, the Neon frame-kit variant and flank backdrop, and `trophy.neon`.
   - **Wave 13:** AV-N1 and AV-N2 for the twelve items of DC-N1 and DC-N2.
 - **Owner:** play UI-5 on the phone when it lands; play the Neon League once E22-L02 lands.
+
+## Wave 12 progress (coordinator)
+- **UI-5 DONE** (handoffs/UI-5.md; `985e956`, `34a84bf`, `86ef216`), the owner's decisions of 2026-11-10:
+  - **UI-5a:** one menu button beside the top bar replaces Restart, Clubhouse and Options (Resume, Options, Clubhouse, Restart; `add_menu_entry` adds more; Restart asks once). The top bar moved into the freed row, so the lane is taller in both orientations. The frame review has no Speed or Skip: a tap on it, or the accept key, finishes the reveal.
+  - **UI-5b:** a tapped offer opens large with its full text and price, and Buy and Back; one "Sell" button opens a sheet of rows in place of a Sell button per item; the preview is one line; the rack summary names the commonest pin once.
+  - Journeys reach the menu and the Sell sheet, and press Buy, as a player does (`_reach` and `_confirm` in each base journey). J01, J03 and J05 check the new controls.
+  - Validation: the full CI command list (194 commands) PASS locally: 135 on `34a84bf`, and on `86ef216` the 59 that had failed or not run. The first run caught J12 and J12V01–V06 hanging (they replay a frame and still passed a speed to the frame review); `86ef216` fixes that by accepting the argument. The physics digest `75d1a3c0…` and J03 560/240/70 are unchanged. CI: Bootstrap run 42791634165 runs on `86ef216`.
+  - Not as claimed: Sell rows are one per item, not grouped (each row sells one particular card).
+- **For Codex:** `score_panel.play` ignores its fourth argument (the reveal has one pace); journeys that open Options, finish a reveal, buy or sell go through `_reach`, `_confirm` and `_focus_accept(lab.score_panel)`. Merge `origin/claude/roguewood-build` before adding or editing such a journey.
+- **Next (Claude):** E18-C14, the Neon primitives (High).
 
 ## Wave 10 closed (coordinator, 2026-11-07)
 - **Contents** (all on `claude/roguewood-build` at the "Wave 10 closed" commit):
