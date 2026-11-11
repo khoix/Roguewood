@@ -1,4 +1,16 @@
 {
+  "rival.dj_flicker": {
+    "source": "res://assets/rivals/dj_flicker.png",
+    "rule": "boss_rule.strobe",
+    "reward": "",
+    "lane": ""
+  },
+  "rival.dj_flicker_champion": {
+    "source": "res://assets/rivals/dj_flicker_champion.png",
+    "rule": "boss_rule.strobe",
+    "reward": "",
+    "lane": ""
+  },
   "rival.laser_lena": {
     "source": "res://assets/rivals/laser_lena.png",
     "rule": "boss_rule.narrow_lane",

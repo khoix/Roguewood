@@ -866,3 +866,27 @@ Existing HUD motion/reduced motion applies to every authored expression.
 established brass seal enclosure with close rails, central pin and inward arrows.
 It is static, including in reduced-motion mode. No dialogue, rule, item or theme
 completion is claimed. See E21-R06.md for local evidence and exact resume.
+
+## E21-R07 — DJ Flicker and Neon Champion (2026-11-11)
+
+Original OpenAI image generation, no external donor art. Prompts, corrective
+edits and exact crop rectangles: docs/art/briefs/E21-R07.md. Initial regular
+atlas retained as `assets/rivals/sources/E21-R07-initial.png`, SHA256
+`ded08cd5301af9bf2981d5a400588c0415fb9de7be3659e35def5274edb6be2e`.
+An image edit removed its pale grid/haze. Corrected `assets/rivals/dj_flicker.png`:
+`1fe9d25765147359981ee1f9435b593b158c6ecc29f398110c53ecdf2a8a8608`.
+Champion costume edit of that corrected atlas, `dj_flicker_champion.png`:
+`7981a0b8ee5ab4b524064d5db0157c958c2d7bde9791baecd3486c2299549d83`.
+Both final six-state sources ship unchanged and bind by exact rival ID.
+
+Corrected plaque source `assets/clubhouse/sources/E21-R07-plaques.png`:
+`f6721b63475fdda57c204ec16c7ac0236dc2e0828024392ca6785fe456260383`.
+Its two 887-square halves are cropped without resampling to `plaque.dj_flicker`
+and `plaque.dj_flicker_champion`. The generated correction adds complete crown
+finial/margins. Original authored `assets/rivals/rules/strobe.svg` uses the
+established brass frame with tight timing-ring geometry. Static, no strobing
+flash effect. Motion/reduced motion reuse the HUD contract. No new music or
+Neon theme completion claimed here.
+Strobe SVG is delivered but not yet enabled in the production rule-badge lookup:
+native validation exposed the coordinator-owned two-rule bar-height issue.
+Portrait/plaques bind now; E21-R07 handoff records the integration blocker.
