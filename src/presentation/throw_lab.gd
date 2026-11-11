@@ -99,6 +99,10 @@ var trial_log_path := "user://throw_trials.jsonl"
 var lane: LaneWorld
 var status: Label
 var next_rack: Button
+const NEXT_RACK_HEIGHT := 72.0
+const TWO_LINE_BADGE := 18.0 # extra height of portrait's top bar under a two-rule badge
+var _badge_lines := 1
+var _score_top := 450.0 # where the frame review starts (set by the layout)
 var settings_panel: SettingsPanel
 var assist_panel: AssistPanel
 var score_panel: ScorePanel
@@ -618,7 +622,7 @@ func _refresh_hand() -> void:
 	var rect: Rect2 = regions.get("hand", Rect2(16, size.y - 300, size.x - 32, 284))
 	if portrait and state == "frame_done":
 		var top: float = regions.charms.end.y + 8.0
-		rect = Rect2(rect.position.x, top, rect.size.x, maxf(next_rack.position.y - 8.0 - top, 200.0))
+		rect = Rect2(rect.position.x, top, rect.size.x, maxf(_score_top - 8.0 - top, 200.0))
 	card_hand.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	card_hand.grow_vertical = Control.GROW_DIRECTION_END
 	card_hand.position = rect.position
@@ -1850,6 +1854,8 @@ func _refresh_hud() -> void:
 			view.badge = "Boss: %s ⓘ" % rival.name
 		view.rule_text = "%s — target %d in two frames.\n%s\nFirst clear: %s" % [rival.name, int(boss.target), RivalRules.summaries(_rival_rules(rival)), reward]
 	hud.show_match(view)
+	if size.y >= size.x and hud.badge_lines() != _badge_lines:
+		_layout_resolution() # a two-rule badge makes portrait's bar a line taller
 	_refresh_panels()
 	if state in ["shop", "division_over"] or not division.is_boss() or reactions.visible_at(_clock_usec).is_empty():
 		hud.hide_reaction()
@@ -1877,7 +1883,8 @@ func _layout_resolution() -> void:
 	var left_hand: bool = settings.get("handedness", "right") == "left"
 	# UI-3 roll view: once the ball is away, the hand and details leave and the bar slims.
 	var compact: bool = state in ["rolling", "result", "scoring"]
-	var aim_layout := MatchPanels.compute(size, left_hand, PORTRAIT_HAND_HEIGHT)
+	_badge_lines = hud.badge_lines() if portrait else 1
+	var aim_layout := MatchPanels.compute(size, left_hand, PORTRAIT_HAND_HEIGHT, false, TWO_LINE_BADGE if _badge_lines > 1 else 0.0)
 	_ball_line = aim_layout.ball_y
 	regions = MatchPanels.compute(size, left_hand, PORTRAIT_HAND_HEIGHT, true) if compact else aim_layout
 	if compact != _compact:
@@ -1890,18 +1897,25 @@ func _layout_resolution() -> void:
 	var inner: float = 12.0 if portrait else regions.hand.size.x + 40.0
 	score_panel.offset_left = inner
 	score_panel.offset_right = -inner
-	# Portrait (UI-3): the score fills the lower part; when the frame is done, Next
-	# Rack sits just above it and the hand (to keep a card) above that.
-	var score_top := maxf(530.0, size.y - 600.0) if portrait else size.y - 556.0
+	# The frame review fills the lower part and stops above the action row at the
+	# bottom edge, where Next Rack appears once the frame is done (owner, 2026-11-11:
+	# the button belongs at the bottom, not between the hand and the review). In
+	# portrait the hand (to keep a card) sits above the review.
+	var action := Rect2(inner, size.y - 12.0 - NEXT_RACK_HEIGHT, size.x - 2.0 * inner, NEXT_RACK_HEIGHT)
+	if not portrait:
+		action = Rect2(size.x / 2.0 - 180.0, action.position.y, 360.0, NEXT_RACK_HEIGHT)
+	var score_top := maxf(450.0, size.y - 680.0) if portrait else maxf(size.y - 636.0, regions.top_bar.end.y + 8.0)
+	_score_top = score_top
 	score_panel.offset_top = score_top - size.y
-	score_panel.offset_bottom = -12.0
+	score_panel.offset_bottom = action.position.y - 8.0 - size.y
 	score_panel.fit(portrait)
 	shop_panel.offset_top = regions.top_bar.end.y + 12.0
 	if state == "shop" and shop_panel._shelf.visible != (not portrait):
 		_refresh_shop.call_deferred() # the shop reflows between its two layouts
 	next_rack.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	# Portrait: between the raised hand (keep a card) and the score; landscape: centre bottom.
-	next_rack.position = Vector2(size.x / 2 - 160, score_top - 76.0) if portrait else Vector2(size.x / 2 - 160, size.y - 100)
+	next_rack.custom_minimum_size = action.size
+	next_rack.position = action.position
+	next_rack.size = action.size
 	# The settings page fits the screen and scrolls (UI-3): the full width in
 	# portrait, a centred column in landscape, below the session menu button.
 	settings_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -1953,7 +1967,8 @@ func _place_prompt() -> void:
 			rect.size.x = maxf((assist_panel.position.x if beside else size.x - assist_panel.get_rect().end.x) - rect.position.x - 8.0, 120.0)
 			if not beside: rect.position.x = assist_panel.get_rect().end.x + 8.0
 	prompt.text = "\n".join(lines)
-	prompt.visible = state not in ["shop", "intro", "division_over"] and not prompt.text.is_empty()
+	# Frame done: the review says it all, and Next Rack takes the bottom edge.
+	prompt.visible = state not in ["shop", "intro", "division_over", "frame_done"] and not prompt.text.is_empty()
 	prompt.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	prompt.custom_minimum_size = Vector2(rect.size.x, 0)
 	prompt.size = Vector2(rect.size.x, 0)

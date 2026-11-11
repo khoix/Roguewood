@@ -106,6 +106,8 @@ func _run() -> void:
 	await process_frame
 	_check(not lab.card_hand.get_global_rect().intersects(lab.score_panel.get_global_rect()), "retained hand does not cover score")
 	_check(not lab.next_rack.get_global_rect().intersects(lab.score_panel.get_global_rect()), "Next Rack remains outside score panel")
+	_check(lab.next_rack.get_global_rect().position.y >= lab.score_panel.get_global_rect().end.y and lab.next_rack.get_global_rect().end.y <= lab.size.y
+		and lab.next_rack.get_global_rect().position.y >= lab.card_hand.get_global_rect().end.y, "Next Rack sits at the bottom, below the hand and the review")
 	await _capture("reaction")
 	metrics_report.append(lab.motion.metrics())
 	await _focus_accept(lab.next_rack)

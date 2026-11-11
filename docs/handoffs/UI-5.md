@@ -48,3 +48,13 @@ The journeys do what a player now does, through three small helpers in each base
 - **The reveal has one pace.** If the owner wants a faster default, `STEP_SEC` in score_panel.gd is the one number.
 - **The menu button is drawn, not illustrated**, and the two shop sheets use the House menu frame. Codex may give them art; they bind by node, with no code change needed for a frame swap.
 - **No phone has played this build yet.**
+
+## Follow-up (owner's screenshot, 2026-11-11)
+| Found | Change |
+|---|---|
+| In the Neon champion's match the top bar ran under the session menu button: a long score, the frame count and a two-rule badge were wider than the bar's region, so the bar grew to the right. | The bar never grows past its region. Its second row steps its text down until it fits (measured directly, since a Label's minimum size lags a font change), and cuts the frame count short as a last resort. Two empty 32 px slots for rule seals that have no art yet (Neon's) no longer take room. |
+| The stacked two-rule badge made portrait's bar taller than its region, over the info row. | Portrait's bar is a line taller under a two-rule badge (`MatchPanels.compute(…, bar_extra)`, 18 px) and everything below moves down with it. Landscape shows the two rules on one line. |
+| Next Rack sat in the middle of the screen, between the hand and the frame review. | The frame review stops above an action row at the bottom edge, and Next Rack (or Collect & Shop, Division Result) fills that row: full width in portrait, centred in landscape. The review keeps its height; it starts 80 px higher. The prompt is hidden when the frame is done (in landscape it showed behind the button). |
+| A rival's speech bubble covered the top line of the hand under it. | In portrait the bubble is sized to the info row it covers (a 44 px portrait, 18 px text). |
+
+Validation: all 200 CI commands PASS locally on `71247f7`. Checks added: J03C13 (the Neon champion, portrait): the bar stays inside its region, clear of the menu button and above the info row. J08: Next Rack is below the hand and the review, inside the screen.

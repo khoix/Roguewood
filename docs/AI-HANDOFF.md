@@ -349,6 +349,7 @@ League template wave b (docs/ROADMAP.md), with one owner direction (2026-11-09):
   - Validation: all 200 CI commands PASS locally on `0240fe7`. The physics digest `75d1a3c0…` is unchanged.
   - Not done: no Neon theme or rival art yet (Codex); `league.spectral` is not registered, so the title opens nothing yet.
   - **Hand-off to Codex (E22-L02-ART):** the League is playable to bind against; throw_lab loads a theme only for the `house` set today.
+- **UI-5 follow-up** (owner's screenshot, 2026-11-11; handoffs/UI-5.md, "Follow-up"): the top bar no longer runs under the session menu button (it fits its second row, and a two-rule badge makes portrait's bar a line taller); Next Rack is at the bottom edge, below the frame review, in both orientations; a rival's bubble no longer covers the hand's first line. J03C13 and J08 check the new layout. All 200 CI commands PASS locally on `71247f7`; the physics digest `75d1a3c0…` is unchanged.
 - **Next (Claude):** Claude's Wave 12 claims are complete. Integrate Codex's (E21-R05 to R07, E22-L02-ART) when they land, run the full matrix, then "Wave 12 closed".
 
 ## Wave 10 closed (coordinator, 2026-11-07)
