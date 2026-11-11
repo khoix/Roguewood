@@ -850,3 +850,19 @@ No resizing or paint edits after generation. Source retained for provenance.
 reusing the established House seal enclosure and adding a can/drop silhouette.
 It is static and independent of portrait identity, including champions. No new
 audio, item art, lane art or Neon theme completion is claimed by this batch.
+
+## E21-R06 — Laser Lena (2026-11-11)
+
+Original OpenAI image generation for Roguewood, no donor art or external
+references. Brief/prompt record: docs/art/briefs/E21-R06.md. Generated sources
+ship unaltered: `assets/rivals/laser_lena.png` (six-cell 1536×1024 atlas), SHA256
+`220648914929b04531adf0f9fd1075af48ff45b11f9fe14e492341b0d954df88`;
+`assets/clubhouse/plaque.laser_lena.png`, SHA256
+`b8ea18d4ae848867460f93b32f889f9510ed844027006d342689616d8ad4acec`.
+No cropping, resampling or paint edits. Exact rival and plaque filename bindings.
+Existing HUD motion/reduced motion applies to every authored expression.
+
+`assets/rivals/rules/narrow_lane.svg` is original authored geometry, reusing the
+established brass seal enclosure with close rails, central pin and inward arrows.
+It is static, including in reduced-motion mode. No dialogue, rule, item or theme
+completion is claimed. See E21-R06.md for local evidence and exact resume.

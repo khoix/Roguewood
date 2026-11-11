@@ -1,4 +1,10 @@
 {
+  "rival.laser_lena": {
+    "source": "res://assets/rivals/laser_lena.png",
+    "rule": "boss_rule.narrow_lane",
+    "reward": "",
+    "lane": ""
+  },
   "rival.slick": {
     "source": "res://assets/rivals/slick.png",
     "rule": "boss_rule.oil_slick",

@@ -15,6 +15,8 @@ ROOT = Path(__file__).resolve().parents[1]
 VERSION = (ROOT / ".godot-version").read_text().strip()
 # journey -> script, success marker, artifact directory, rendered captures, timeout, extra engine flags
 JOURNEYS = {
+    "J21R06": ("res://tests/lena_art_journey.gd", "ROGUEWOOD_J03C13_OK", "artifacts/e21-r06/native", ("laser_lena_intro", "laser_lena_landscape", "laser_lena_normal", "laser_lena_reduced", "laser_lena_reaction", "laser_lena_defeated", "c13_oil_slick", "c13_narrow_lane", "c13_champion"), 900, ["--fixed-fps", "60"]),
+    "J21R06C": ("res://tests/lena_art_contact.gd", "ROGUEWOOD_LENA_CONTACT_OK", "artifacts/e21-r06/contact", ("normal", "reduced"), 180, ["--fixed-fps", "60"]),
     "J21R05": ("res://tests/slick_art_journey.gd", "ROGUEWOOD_J03C13_OK", "artifacts/e21-r05/native", ("slick_intro", "slick_landscape", "slick_normal", "slick_reduced", "slick_reaction", "slick_defeated", "c13_oil_slick", "c13_narrow_lane", "c13_champion"), 900, ["--fixed-fps", "60"]),
     "J21R05C": ("res://tests/slick_art_contact.gd", "ROGUEWOOD_SLICK_CONTACT_OK", "artifacts/e21-r05/contact", ("normal", "reduced"), 180, ["--fixed-fps", "60"]),
     "JAVT01": ("res://tests/throw_charge_art_journey.gd", "ROGUEWOOD_THROW_CHARGE_ART_OK", "artifacts/av-t01", tuple(f"{v}_{r}_{s}" for v in ["depth", "flat"] for r in ["normal", "motion", "flash"] for s in ["charging", "ready", "full"]) + ("disabled",), 240, ["--fixed-fps", "60"]),
@@ -147,6 +149,7 @@ CONTENT = {"J03C05": "house_c05", "J09": "slice", "J02": "lab", "J03": "lab", "J
 CONTENT.update({"J21R03": "house_c05", "J21R04": "house_c05", "J22L01": "house", "J22L02": "house"})
 CONTENT.update({"J03C13": "neon_c13"})
 CONTENT.update({"J21R05": "neon_c13"})
+CONTENT.update({"J21R06": "neon_c13"})
 # Multi-stage journeys whose stages are different scripts, content and save
 # directories: J06 plays the slice's two Divisions, then the E09 lab Division.
 STAGE_RUNS = {"J06": [("res://tests/slice_journey.gd", "slice"), ("res://tests/division_journey.gd", "lab")]}
