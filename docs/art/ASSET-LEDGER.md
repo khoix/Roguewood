@@ -829,3 +829,24 @@ anyway. The modified font remains OFL 1.1, including the new contours.
 Source SHA256: `9ba86cd010a4de309d263ceff8e8044092c9db7efda869620cb9ff1c4389e8a5`.
 Patched SHA256: `9e38d077f2679e2f7587b360ae3afbd97b03e84baf87a827ab1ef231971b9f68`.
 See docs/art/ui/UI-A3.md and docs/handoffs/UI-A3.md for application and evidence.
+
+## E21-R05 — Slick and four plaques (2026-11-11)
+
+Original OpenAI image generation for Roguewood, with no external reference or
+donor artwork. Brief, prompt record, cell order and extraction rectangles:
+`docs/art/briefs/E21-R05.md`. Portrait atlas `assets/rivals/slick.png` is the
+unaltered generated source: SHA256
+`f0a18fa78271648fac687dba5d3c29ee964554ee2b0a28ec765b62d42b8fa085`.
+Six poses bind to exact `rival.slick`; idle/entrance/reaction and reduced-motion
+presentation reuse the existing HUD, with no rule or dialogue changes.
+
+Original four-plaque source `assets/clubhouse/sources/E21-R05-plaques.png`:
+SHA256 `0f59eba5ac32e672f89ab4e7ddf50f262514a35931f570583adbbe0d4ee085f7`.
+Mechanical crops provide `plaque.slick`, `plaque.proprietor`, `plaque.old_lou`
+and `plaque.custodian_champion`, resolved by the existing Clubhouse filenames.
+No resizing or paint edits after generation. Source retained for provenance.
+
+`assets/rivals/rules/oil_slick.svg` is original authored vector pixel geometry,
+reusing the established House seal enclosure and adding a can/drop silhouette.
+It is static and independent of portrait identity, including champions. No new
+audio, item art, lane art or Neon theme completion is claimed by this batch.

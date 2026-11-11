@@ -1,4 +1,10 @@
 {
+  "rival.slick": {
+    "source": "res://assets/rivals/slick.png",
+    "rule": "boss_rule.oil_slick",
+    "reward": "",
+    "lane": ""
+  },
   "rival.surveyor": {
     "source": "res://assets/rivals/surveyor.png",
     "rule": "boss_rule.dead_straight",
