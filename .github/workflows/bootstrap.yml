@@ -317,6 +317,11 @@ jobs:
         run: |
           python3 tools/qa.py e2e --journey J21R07C
           xvfb-run -a python3 tools/qa.py e2e --journey J21R07C --rendered
+      - name: Neon environment and signage art (E22-L02-ART session 1)
+        if: matrix.shard == 'art'
+        run: |
+          python3 tools/qa.py e2e --journey J22L02ENV
+          xvfb-run -a python3 tools/qa.py e2e --journey J22L02ENV --rendered
       - name: Preserve journey diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -395,4 +400,5 @@ jobs:
             artifacts/av-c04-b/
             artifacts/av-c04-c/
             artifacts/e22-l01-art/
+            artifacts/e22-l02-art/
           if-no-files-found: warn

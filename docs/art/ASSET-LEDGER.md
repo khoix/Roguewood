@@ -890,3 +890,23 @@ Neon theme completion claimed here.
 Strobe SVG is delivered but not yet enabled in the production rule-badge lookup:
 native validation exposed the coordinator-owned two-rule bar-height issue.
 Portrait/plaques bind now; E21-R07 handoff records the integration blocker.
+
+## E22-L02-ART — environment and signage, session 1 (2026-11-11)
+
+Original OpenAI image generation for Roguewood; no external reference or donor
+art. Exact prompt, actual dimensions and extraction contract are retained in
+`assets/leagues/neon/source.environment.txt`. The unmodified source PNG is
+1254 x 1254, nine 418-square cells; SHA256
+`9500785e403671cb79f070bc9d2ab9b482502a55fc54b6d6794f28b0c3215280`.
+Nine AtlasTextures inset their cells by 3 pixels, without resampling or paint
+edits. Generated source is project artwork, with no third-party license or
+reserved-name dependency introduced.
+
+Original scene resources and native sign data bind 27 IDs in the Neon manifest:
+environment/signage/backdrop for division_01 through division_08 and championship.
+Scene construction follows the project's House environment contract, with
+violet sign trim and a dark face. Native engine lettering supplies all text;
+the image has none. All rooms are static in normal/reduced motion. Full brief:
+`docs/art/briefs/E22-L02-ART.md`. These assets are delivered for integration;
+the partial manifest is not enabled in the live League resolver. Lane art,
+music, frame kit, flank backdrop and trophy are session 2, not claimed here.
