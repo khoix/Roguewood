@@ -285,6 +285,7 @@ func _ready() -> void:
 	# E18-C02: after-bank chances (Glass breaking) use the attempt's effects stream.
 	run.seed_effects(equipment_seed, int(content.campaign.rng.states.effects) if content.id == "campaign" else 0)
 	shop = Shop.create(_catalogue, int(content.campaign.rng.states.shops) if content.id == "campaign" else hash([equipment_seed, "shop"])) # its own stream, never the deck's
+	shop.specialists = content.get("specialists", {})
 	var blank := CareerProfile.fresh()
 	for key in blank:
 		if not career.has(key):
@@ -1281,6 +1282,7 @@ func _restore(payload: Dictionary) -> void:
 		_save_career()
 	run = parts.run
 	shop = parts.shop
+	shop.specialists = content.get("specialists", {})
 	division = parts.division
 	divisions = division.specs
 	equipment = parts.equipment

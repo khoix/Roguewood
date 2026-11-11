@@ -100,12 +100,16 @@ func _ready() -> void:
 	league.name = "LeagueChoice"
 	league.add_item(content.get("name", "House League"))
 	league_sets = [content.id]
+	if content.id == "house":
+		# E22-L02: the production board lists every live League, then the campaign.
+		league.add_item(ContentSet.load_set("neon").get("name", "Neon League"))
+		league_sets.append("neon")
 	if content.id in ["house", "slice"]:
-		var base: String = content.id
 		league.add_item("House Campaign · 8 Divisions (provisional)")
 		league_sets.append("campaign")
+	if league_sets.size() > 1:
 		league.item_selected.connect(func(index):
-			content = ContentSet.load_set("campaign" if index == 1 else base)
+			content = ContentSet.load_set(league_sets[index])
 			_show_menu())
 	panel.add_child(league)
 	kit = OptionButton.new()
@@ -294,16 +298,25 @@ func _saved_attempt() -> Dictionary:
 	var read: Dictionary = store.read("attempt")
 	if not read.ok:
 		return read
-	var problems := Snapshot.validate(read.payload, content.catalogue, content.id)
+	# An attempt saved in another League on the board is continued in that League.
+	var saved_set := String(read.payload.get("content_set", "lab"))
+	var target: Dictionary = content
+	if saved_set != content.id and saved_set in league_sets:
+		target = ContentSet.load_set(saved_set, int(read.payload.get("seed", 1)))
+	var problems := Snapshot.validate(read.payload, target.catalogue, target.id)
 	if not problems.is_empty():
 		return {"ok": false, "notice": "The saved attempt no longer fits this version's content (%s); start a new attempt." % problems[0]}
-	if read.payload.phase == "division_over" and not (content.id == "campaign" and read.payload.division.current.outcome == "won"):
+	if read.payload.phase == "division_over" and not (target.id == "campaign" and read.payload.division.current.outcome == "won"):
 		return {"ok": false, "notice": read.notice}
+	read["content_set"] = target.id
 	return read
 
 func _continue_attempt() -> void:
 	var saved := _saved_attempt()
 	if saved.ok:
+		if saved.content_set != content.id:
+			content = ContentSet.load_set(saved.content_set, int(saved.payload.get("seed", 1)))
+			league.select(league_sets.find(saved.content_set))
 		_begin_attempt(int(saved.payload.attempt), saved.payload)
 ## Attempt n of the content set's League (seed n). Restart Session begins
 ## attempt 1 again; Retry and New Attempt begin the next one.
@@ -312,7 +325,7 @@ func _begin_attempt(attempt: int, saved: Dictionary = {}) -> void:
 	if content.id == "campaign": content = ContentSet.load_set("campaign", int(saved.get("seed", attempt)))
 	if saved.is_empty():
 		content.kit = _chosen_kit()
-	session = {"schema_version": 1, "seed": attempt, "attempt": attempt, "league_id": "league.house", "kit_id": content.kit.get("id", "kit.house"),
+	session = {"schema_version": 1, "seed": attempt, "attempt": attempt, "league_id": String(content.get("league_id", "league.house")) if content.id != "campaign" else "league.house", "kit_id": content.kit.get("id", "kit.house"),
 		"content": content.id, "division": 1, "match": 1, "frame": 1, "score": 0, "money": int(content.kit.get("money", 6))}
 	if not saved.is_empty():
 		session.seed = int(saved.seed)

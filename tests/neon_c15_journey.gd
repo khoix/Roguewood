@@ -1,8 +1,8 @@
 extends "res://tests/mods_c04_journey.gd"
 ## J03C15 (E18-C15, DC-N1): the first six Neon items bought through the real Pro Shop
 ## and played in real throws on the production slice (real targets, not Practice).
-## Fixture setup (logged, as J05 does): a wallet grant and Division 2 shop
-## eligibility after the opener; offers, rerolls, purchases, placements, sales and
+## Fixture setup (logged, as J05 does): a wallet grant, Division 2 shop eligibility
+## and the Neon League's reward gates (E22-L02) after the opener; offers, rerolls, purchases, placements, sales and
 ## card taps are real input.
 ##   shop:      Oilskin Ball and Laser Ball to the deck, Tempo Pin at rack 1, Neon
 ##              Sign to the Charms, Bumper Guard on one Hook card and Blacklight on
@@ -21,6 +21,7 @@ extends "res://tests/mods_c04_journey.gd"
 ## and the explanation contains every independent line. Run with --fixed-fps 60.
 const N1 := {"ball.oilskin": "card:new", "ball.laser": "card:new", "pin.tempo": "rack:1", "charm.neon_sign": "charm:new",
 	"ball_mod.bumper_guard": "ball.hook", "ball_mod.blacklight": "ball.hook"}
+const NEON_GATES := ["gate.slick_cleared", "gate.laser_lena_cleared", "gate.dj_flicker_cleared", "gate.neon_champion_cleared", "gate.neon_champion"]
 const STRAY := [0.8, 2.0, 0.6] # the slice journey's gutter throw
 ## A Hook Ball strike with a half charge: it crosses the target plane at +0.24, so
 ## the ring is set there (found by rolling the real lane across starts and spins).
@@ -50,8 +51,11 @@ func _run() -> void:
 	await _to_shop("opener")
 	lab.run.credit(8000, "fixture: C15 item sampling")
 	lab.shop.division = 2 # the two modifications are offered from Division 2
+	# E22-L02 gates five of the six behind the Neon rivals' first clears and the title.
+	for gate in NEON_GATES:
+		if gate not in lab.shop.unlocked: lab.shop.unlocked.append(gate)
 	lab._refresh_shop()
-	print("J03C15 fixture: $8000 and Division 2 shop eligibility after the opener; offers, rerolls, purchases, placements and sales follow")
+	print("J03C15 fixture: $8000, Division 2 shop eligibility and the Neon League's five reward gates after the opener; offers, rerolls, purchases, placements and sales follow")
 	var cards := await _buy_n1()
 	await _sell_kit_cards()
 	await _capture("c15_shop")

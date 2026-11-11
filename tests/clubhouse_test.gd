@@ -32,20 +32,21 @@ static func _entry(entries: Array, id: String) -> Dictionary:
 static func _fresh(graph: Dictionary, failures: Array[String]) -> void:
 	var career := Career.fresh()
 	var rows := Model.board(career, graph)
-	_expect(rows.size() == 2 and rows[0].id == "league.house" and rows[0].access.is_empty() and Model.record_line(rows[0]) == "House League · not played yet",
-		"a fresh board: both Leagues open, nothing played", failures)
+	_expect(rows.size() == 3 and rows[0].id == "league.house" and rows[0].access.is_empty() and Model.record_line(rows[0]) == "House League · not played yet"
+		and rows[1].id == "league.neon" and rows[1].access.is_empty() and Model.record_line(rows[1]) == "Neon League · not played yet",
+		"a fresh board: the House, Neon and campaign Leagues open, nothing played", failures)
 	var binder := Model.binder(career, graph, graph.catalogue)
 	var counts := Model.binder_counts(binder)
-	_expect(binder.size() == 90 and counts.locked == 12 and counts.available == 78 and counts.discovered == 0, "a fresh binder: 12 Locked, 78 Available (boss rules excluded)", failures)
+	_expect(binder.size() == 91 and counts.locked == 17 and counts.available == 74 and counts.discovered == 0, "a fresh binder: 17 Locked, 74 Available (boss rules excluded)", failures)
 	var encore := _entry(binder, "charm.encore")
 	_expect(encore.state == "locked" and encore.requirement == "Beat The Surveyor (House League)" and encore.asset == _entry(graph.catalogue.items, "charm.encore").assets.card and Art.has_art(encore.asset),
 		"Encore names its unlocking rival and resolves its catalogue card artwork", failures)
 	_expect(Model.inspect(encore, graph.catalogue).contains("Unlock: Beat The Surveyor (House League). It then joins the pool from your next attempt."),
 		"inspecting a locked card explains the unlock and the next-attempt rule", failures)
 	var shelf := Model.trophies(career, graph)
-	_expect(shelf.all(func(t): return not t.earned) and shelf.filter(func(t): return t.kind == "plaque").map(func(t): return t.id) == ["rival.custodian", "rival.custodian_champion", "rival.old_lou", "rival.proprietor", "rival.surveyor"],
-		"a fresh shelf: nothing earned; plaques for the House League's five rivals, not provisional encounters", failures)
-	_expect(shelf.filter(func(t): return t.kind == "trophy").map(func(t): return t.asset) == ["trophy.house", "trophy.house_campaign"]
+	_expect(shelf.all(func(t): return not t.earned) and shelf.filter(func(t): return t.kind == "plaque").map(func(t): return t.id) == ["rival.custodian", "rival.custodian_champion", "rival.dj_flicker", "rival.dj_flicker_champion", "rival.laser_lena", "rival.old_lou", "rival.proprietor", "rival.slick", "rival.surveyor"],
+		"a fresh shelf: nothing earned; plaques for the House League's five rivals and the Neon League's four, not provisional encounters", failures)
+	_expect(shelf.filter(func(t): return t.kind == "trophy").map(func(t): return t.asset) == ["trophy.house", "trophy.neon", "trophy.house_campaign"]
 		and shelf.filter(func(t): return t.kind == "decoration").size() == 3, "trophy and decoration slots carry stable asset IDs", failures)
 	_expect(Model.latest(career, graph).is_empty(), "no unlocks yet", failures)
 

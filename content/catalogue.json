@@ -4694,8 +4694,10 @@
       "rarity": "uncommon",
       "pool_weight": 1,
       "unlock": {
-        "kind": "initial",
-        "prerequisites": []
+        "kind": "boss",
+        "prerequisites": [
+          "gate.slick_cleared"
+        ]
       },
       "earliest_division": 1,
       "purchase_price": 6,
@@ -4743,8 +4745,10 @@
       "rarity": "uncommon",
       "pool_weight": 1,
       "unlock": {
-        "kind": "initial",
-        "prerequisites": []
+        "kind": "boss",
+        "prerequisites": [
+          "gate.laser_lena_cleared"
+        ]
       },
       "earliest_division": 1,
       "purchase_price": 7,
@@ -4799,8 +4803,10 @@
       "rarity": "uncommon",
       "pool_weight": 1,
       "unlock": {
-        "kind": "initial",
-        "prerequisites": []
+        "kind": "boss",
+        "prerequisites": [
+          "gate.dj_flicker_cleared"
+        ]
       },
       "earliest_division": 1,
       "purchase_price": 6,
@@ -4852,8 +4858,10 @@
       "rarity": "rare",
       "pool_weight": 1,
       "unlock": {
-        "kind": "initial",
-        "prerequisites": []
+        "kind": "boss",
+        "prerequisites": [
+          "gate.neon_champion_cleared"
+        ]
       },
       "earliest_division": 1,
       "purchase_price": 9,
@@ -4908,8 +4916,10 @@
       "rarity": "rare",
       "pool_weight": 1,
       "unlock": {
-        "kind": "initial",
-        "prerequisites": []
+        "kind": "championship",
+        "prerequisites": [
+          "gate.neon_champion"
+        ]
       },
       "earliest_division": 2,
       "purchase_price": 10,
@@ -5328,6 +5338,52 @@
         "straight",
         "value",
         "baseline"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "kit.neon",
+      "name": "Neon Kit",
+      "category": "kit",
+      "rarity": "common",
+      "pool_weight": 0,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 0,
+      "resale_price": 0,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "No Hammer or Echo Ball: six cards split between curve and straight, with no power or retrigger ball.",
+      "synergy_tags": [
+        "curve",
+        "straight",
+        "precision",
+        "neon"
       ],
       "incompatibilities": [],
       "assets": {

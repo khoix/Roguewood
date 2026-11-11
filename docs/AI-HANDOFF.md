@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-11-10. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). Wave 10 is merged by PR #22 (main `706767f`). Wave 11 is merged by PR #29 (main `f65d16f`). **Wave 12 is open** (see "Wave 12 claims" and "Wave 12 progress"): UI-5, E18-C14, DC-N1 and DC-N2 are done, and Codex's UI-A3 is in; E22-L02 is next. The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
+Updated: 2026-11-11. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E22 IN_PROGRESS; E23–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). Wave 10 is merged by PR #22 (main `706767f`). Wave 11 is merged by PR #29 (main `f65d16f`). **Wave 12 is open** (see "Wave 12 claims" and "Wave 12 progress"): UI-5, E18-C14, DC-N1, DC-N2 and E22-L02 are done (the Neon League is live), and Codex's UI-A3 is in; Codex's rivals and theme are next. The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
 
 ## Read first
 
@@ -75,7 +75,7 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E19 — Final item artwork batches | IN_PROGRESS (A01–A16 and AV-C03 DONE) | Codex | codex/roguewood-build | E13-S01, E17-D01 and E17-D02 identities; artwork set on the seven C01/C02 Charms and Glass Pin; C03 flags (A17) and D03 identities (A18) in Wave 5 |
 | E20 — Ability effects and audio batches | IN_PROGRESS (V01–V08, the House AV batches and AV-T01 DONE) | Codex | codex/roguewood-build | E13-S01's 23 abilities; V08: the eight C01/C02 items; C03's six in Wave 5 (V09) |
 | E21 — Rival presentation batches | IN_PROGRESS (R01, R02 DONE) | Codex | codex/roguewood-build | Later rivals after E17 defines them |
-| E22 — League theme integration batches | NOT_STARTED | Claude configuration and integration · Codex theme art | claude/roguewood-build · codex/roguewood-build | One League per roadmap step (docs/ROADMAP.md); L01 House in Waves 6–8 |
+| E22 — League theme integration batches | IN_PROGRESS (L01 House and L02 Neon live; Neon theme pending) | Claude configuration and integration · Codex theme art | claude/roguewood-build · codex/roguewood-build | One League per roadmap step (docs/ROADMAP.md); L01 House in Waves 6–8 |
 | E23 — Starting kits, mastery, difficulty, and endless | NOT_STARTED | Claude · Codex E23-ART | claude/roguewood-build · codex/roguewood-build | Kits per League bundle; tiers, medals and endless in Phase 4 |
 | E24 — Economy and procedural balance study | NOT_STARTED | Claude | claude/roguewood-build | See Ownership |
 | E25 — Onboarding and accessibility completion | NOT_STARTED | Claude core · Codex E25-ART | claude/roguewood-build · codex/roguewood-build | Split; see Ownership |
@@ -340,7 +340,15 @@ League template wave b (docs/ROADMAP.md), with one owner direction (2026-11-09):
   - Twelve of Neon's 28 items are landed. Left for DC-N3 to N5 (Wave 13): one ball, one pin, nine Charms, three tactical cards and two shop upgrades.
   - Validation: all 198 CI commands PASS on `d0fa6d2` (with Codex's UI-A3 merged). The physics digest `75d1a3c0…`, J03 560/240/70 and J05 21060 are unchanged.
   - **Hand-off to Codex (AV-N2, Wave 13):** the six items; J03C16 and its four captures.
-- **Next (Claude):** E22-L02, the Neon League live (High). It registers the Neon gates and assigns DC-N1's five rewards to them.
+- **E22-L02 DONE** (handoffs/E22-L02.md): the Neon League is live.
+  - The board lists House, Neon, then the campaign; Neon is open from the start. `--content=neon` loads it on the production catalogue and registry.
+  - Registered: `league.neon`, the four rival gates and the title. DC-N1's five rewards now wait for them (a fresh binder: 17 Locked, 74 Available). The Neon Kit is landed: two Hook, two Glow and two Spare Ball cards, $6 (a deck holds two copies of a card at most, so not the spec's three and three).
+  - New: a League's specialist weights (`specialists: {tags, weight}` in its spec; Neon doubles curve, hook, accuracy, precision and straight items within their category and rarity). A saved attempt restores its own League on Continue.
+  - J22L02 plays the whole League from the board, headless and rendered, in CI's game shard.
+  - The strategy simulation takes `--content=neon` (and `house`): Neon's targets are no harder than House's, and in both an ordinary player's single-purpose build stalls at Division 2–3. A finding for E24; targets unchanged.
+  - Not done: no Neon theme or rival art yet (Codex); `league.spectral` is not registered, so the title opens nothing yet.
+  - **Hand-off to Codex (E22-L02-ART):** the League is playable to bind against; throw_lab loads a theme only for the `house` set today.
+- **Next (Claude):** Claude's Wave 12 claims are complete. Integrate Codex's (E21-R05 to R07, E22-L02-ART) when they land, run the full matrix, then "Wave 12 closed".
 
 ## Wave 10 closed (coordinator, 2026-11-07)
 - **Contents** (all on `claude/roguewood-build` at the "Wave 10 closed" commit):

@@ -25,8 +25,11 @@ static func run() -> Array[String]:
 		items[item.id] = item
 	_expect(IDS.all(func(id): return items.has(id) and items[id].completeness.mechanics and not items[id].completeness.artwork and not items[id].completeness.effects_audio),
 		"the six items are in the catalogue with mechanics; their art flags wait for Codex", failures)
-	# The five rewards are initial until E22-L02 registers their gates and assigns them.
-	_expect(IDS.all(func(id): return items[id].unlock.kind == "initial"), "the Neon rewards land as initial items (E22-L02 assigns their gates)", failures)
+	# E22-L02 registered the Neon gates and moved the five rewards onto them.
+	var gates := {"ball.oilskin": "gate.slick_cleared", "ball.laser": "gate.laser_lena_cleared", "pin.tempo": "gate.dj_flicker_cleared",
+		"charm.neon_sign": "gate.neon_champion_cleared", "ball_mod.blacklight": "gate.neon_champion"}
+	_expect(gates.keys().all(func(id): return items[id].unlock.prerequisites == [gates[id]]) and items["ball_mod.bumper_guard"].unlock.kind == "initial",
+		"each Neon reward waits for its rival or the title; Bumper Guard is initial", failures)
 	_physics(items, failures)
 	_laser_and_tempo(catalogue, failures)
 	_neon_sign(catalogue, failures)
