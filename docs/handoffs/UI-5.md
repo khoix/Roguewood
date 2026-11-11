@@ -57,4 +57,4 @@ The journeys do what a player now does, through three small helpers in each base
 | Next Rack sat in the middle of the screen, between the hand and the frame review. | The frame review stops above an action row at the bottom edge, and Next Rack (or Collect & Shop, Division Result) fills that row: full width in portrait, centred in landscape. The review keeps its height; it starts 80 px higher. The prompt is hidden when the frame is done (in landscape it showed behind the button). |
 | A rival's speech bubble covered the top line of the hand under it. | In portrait the bubble is sized to the info row it covers (a 44 px portrait, 18 px text). |
 
-Checks added: J03C13 (the Neon champion, portrait): the bar stays inside its region, clear of the menu button and above the info row. J08: Next Rack is below the hand and the review, inside the screen.
+Validation: all 200 CI commands PASS locally on `71247f7`. Checks added: J03C13 (the Neon champion, portrait): the bar stays inside its region, clear of the menu button and above the info row. J08: Next Rack is below the hand and the review, inside the screen.
