@@ -94,6 +94,10 @@ jobs:
           xvfb-run -a python3 tools/qa.py e2e --journey J03C05 --rendered
           python3 tools/qa.py e2e --journey J03C13
           xvfb-run -a python3 tools/qa.py e2e --journey J03C13 --rendered
+          python3 tools/qa.py e2e --journey J03C15
+          xvfb-run -a python3 tools/qa.py e2e --journey J03C15 --rendered
+          python3 tools/qa.py e2e --journey J03C16
+          xvfb-run -a python3 tools/qa.py e2e --journey J03C16 --rendered
           python3 tools/qa.py e2e --journey J03C06
           xvfb-run -a python3 tools/qa.py e2e --journey J03C06 --rendered
           python3 tools/qa.py e2e --journey J03C07
@@ -108,6 +112,8 @@ jobs:
           xvfb-run -a python3 tools/qa.py e2e --journey J03C11 --rendered
           python3 tools/qa.py e2e --journey J22L01
           xvfb-run -a python3 tools/qa.py e2e --journey J22L01 --rendered
+          python3 tools/qa.py e2e --journey J22L02
+          xvfb-run -a python3 tools/qa.py e2e --journey J22L02 --rendered
           python3 tools/qa.py e2e --journey J11
           xvfb-run -a python3 tools/qa.py e2e --journey J11 --rendered
           python3 tools/qa.py e2e --journey J12

@@ -22,7 +22,7 @@ static func run() -> Array[String]:
 		and d01.all(func(d): return d.item.completeness.mechanics == false),
 		"D01: six authored; Glass Pin landed by E18-C02, Crown Pin by E18-C03, the three tactical cards by E18-C06", failures)
 	var counts := Authored.counts(catalogue, batches)
-	_expect(counts.ball == {"implemented": 6, "authored": 4, "target": 24} and counts.consumable == {"implemented": 6, "authored": 0, "target": 24}
+	_expect(counts.ball == {"implemented": 9, "authored": 4, "target": 24} and counts.consumable == {"implemented": 6, "authored": 0, "target": 24}
 		and counts.shop_upgrade == {"implemented": 6, "authored": 0, "target": 16}, "counts per category against the targets", failures)
 	_expect(Authored.primitives(batches).has("physics.split_ball") and not Authored.primitives(batches).has("condition.last_fallen"),
 		"the E18 primitive list holds only primitives still to build", failures)
@@ -116,7 +116,9 @@ static func _modifications(catalogue: Dictionary, batches: Array, failures: Arra
 	var d04: Array = batches.filter(func(b): return b.data.batch == "E17-D04")
 	var d04_ids: Array = d04[0].data.definitions.map(func(d): return d.item.id) + d04[0].data.landed.map(func(l): return l.id) if d04.size() == 1 else []
 	_expect(d04_ids.filter(func(id): return id.begins_with("ball_mod.")).size() == 6 and d04_ids.filter(func(id): return id.begins_with("pin_mod.")).size() == 6
-		and d04[0].data.landed.size() == 8 and d04[0].data.landed.all(func(l): return l.landed_in == "E18-C04"), "D04: six ball and six pin modifications; eight landed by E18-C04", failures)
+		and d04[0].data.landed.size() == 9 and d04[0].data.landed.filter(func(l): return l.landed_in == "E18-C04").size() == 8
+		and d04[0].data.landed[-1].id == "ball_mod.bumper_guard" and d04[0].data.landed[-1].landed_in == "E18-C15",
+		"D04: six ball and six pin modifications; eight landed by E18-C04 and Bumper Guard by E18-C15", failures)
 	var cat := catalogue.duplicate(true)
 	cat.items.append_array(Authored.items(batches))
 	var score := func(reports: Array, ball_mod: String = "", pin_mods: Dictionary = {}) -> Dictionary:
@@ -152,7 +154,7 @@ static func _modifications(catalogue: Dictionary, batches: Array, failures: Arra
 	_expect(score.call(strike, "", {5: "pin_mod.keystone"}).score == int((b_strike.pin_value + 40) * b_strike.mult)
 		and score.call(open, "", {9: "pin_mod.keystone"}).score == score.call(open).score, "Keystone: +4 Value per pin down when it falls; nothing standing", failures)
 	_expect(score.call(open, "", {2: "pin_mod.lead_weight"}).score == int((score.call(open).pin_value + 15) * score.call(open).mult), "Lead Weight: +15 Value when its pin falls", failures)
-	_refuses(func(b): b[3].data.definitions[3].item.incompatibilities = ["ball.nope"], catalogue, "invalid incompatibility ball.nope", "a modification excluding an unknown host", failures)
+	_refuses(func(b): b[3].data.definitions[2].item.incompatibilities = ["ball.nope"], catalogue, "invalid incompatibility ball.nope", "a modification excluding an unknown host", failures)
 
 static func _errors(batches: Array, catalogue: Dictionary) -> Array[String]:
 	var graph := ContentSet.career_graph(ContentSet.UNLOCKS, Authored.items(batches))

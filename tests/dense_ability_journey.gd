@@ -62,7 +62,7 @@ func _run() -> void:
 	_check(lab.motion.abilities.glyph.still,"reduced mode removes spatial motion")
 	await _capture("reduced")
 	count = sound.played
-	await _focus_accept(lab.score_panel.skip_button)
+	await _focus_accept(lab.score_panel)
 	_check(not lab.score_panel.playing and sound.played == count,"native Skip is silent")
 	_check(JSON.stringify({"total":lab.total_score,"inventory":lab.run.to_dict(),"result":scored.result}) == unchanged,"speed, reduced and skip never mutate bank or inventory")
 	lab.score_panel.finished.connect(lab._on_scored)

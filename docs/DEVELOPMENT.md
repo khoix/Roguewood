@@ -178,7 +178,7 @@ In the shop, ◀ buttons move a Charm one slot left (order matters: additions be
 
 `--rendered` saves slice_preview, slice_echo, slice_shop, slice_dead_straight, slice_cleared, slice_clean_sweep, slice_won and slice_lost_again, plus the E09 PNGs, to `artifacts/e13/rendered`.
 
-`python3 tools/qa.py slice` runs the seeded build-strategy simulation (`tools/slice_strategies.gd`, 400 attempts per strategy, fresh Career and with both rival unlocks) and writes `artifacts/e13/slice-strategies-{locked,unlocked}.json`. Pinfall there is synthetic (see ADR 008); everything else is the real rules code.
+`python3 tools/qa.py slice` runs the seeded build-strategy simulation (`tools/slice_strategies.gd`, 400 attempts per strategy, fresh Career and with both rival unlocks) and writes `artifacts/e13/slice-strategies-{locked,unlocked}.json`. Pinfall there is synthetic (see ADR 008); everything else is the real rules code. Run directly, the tool also takes `--content=neon` or `--content=house` for an eight-Division League (E22-L02): `godot --headless --path . --script res://tools/slice_strategies.gd -- --runs=200 --content=neon --out=<file>`.
 
 The real-device play session is blocked; its protocol and the outstanding defects are in `docs/playtests/E13-slice-playtest.md`.
 

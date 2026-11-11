@@ -15,6 +15,11 @@ const PORTRAIT_MARGIN := 12.0
 const BALL_AT := 0.667 # of the lane region's height
 const BALL_AT_PORTRAIT := 0.76
 const INK := Color("101820")
+## UI-5: the session menu button sits at the top right, beside the top bar.
+const MENU_PORTRAIT := Vector2(56, 56)
+const MENU_LANDSCAPE := Vector2(64, 68)
+const MENU_GAP := 8.0
+const LANDSCAPE_TOP := 16.0
 
 signal fold_changed
 
@@ -130,6 +135,12 @@ func _text(parent: Control, node_name: String, color: Color) -> Label:
 ## left-handed play), folding into a second bar row when the screen is narrow.
 ## `compact` is the roll view (UI-3): while the ball rolls and the frame scores, the
 ## hand and details leave and the top bar shrinks to one slim line.
+## Where the shell puts the session menu button (UI-5); the top bar stops short of it.
+static func menu_rect(screen: Vector2) -> Rect2:
+	if screen.y >= screen.x:
+		return Rect2(screen.x - PORTRAIT_MARGIN - MENU_PORTRAIT.x, PORTRAIT_MARGIN, MENU_PORTRAIT.x, MENU_PORTRAIT.y)
+	return Rect2(screen.x - MARGIN - MENU_LANDSCAPE.x, LANDSCAPE_TOP, MENU_LANDSCAPE.x, MENU_LANDSCAPE.y)
+
 static func compute(screen: Vector2, left_handed: bool, hand_height: float, compact: bool = false) -> Dictionary:
 	var w := screen.x
 	var h := screen.y
@@ -139,8 +150,11 @@ static func compute(screen: Vector2, left_handed: bool, hand_height: float, comp
 		# info row (slip, rival, Charms), the lane, and the fanned hand at the thumbs.
 		# The prompt sits above the hand, out of the pins' way.
 		var m := PORTRAIT_MARGIN
-		r.top_bar = Rect2(m, 68, w - 2 * m, 100)
-		var row_y := 176.0
+		# UI-5: the bar starts at the top (the session buttons are one menu button
+		# at its right), so the lane gains the row they took.
+		var bar_w := w - 2 * m - MENU_PORTRAIT.x - MENU_GAP
+		r.top_bar = Rect2(m, m, bar_w, 100)
+		var row_y := m + 108.0
 		var inner := w - 2 * m - 16
 		var slip_w := floorf(inner * 0.32)
 		var rival_w := floorf(inner * 0.38)
@@ -154,16 +168,16 @@ static func compute(screen: Vector2, left_handed: bool, hand_height: float, comp
 		r.bubble = Rect2(m, row_y, w - 2 * m, 0)
 		r.corridor = Rect2(w * 0.3, r.lane.position.y, w * 0.4, r.lane.size.y)
 		if compact:
-			r.top_bar = Rect2(m, m, w - 4 * m - 240, 52) # Clubhouse and Options stay at the right
+			r.top_bar = Rect2(m, m, bar_w, 52) # the menu button stays at the right
 			r.prompt = Rect2(m, h - 16, w - 2 * m, 0)
 	else:
 		var side := floorf(w * FLANK)
 		r.fold = w / h < FOLD_ASPECT or side < FLANK_MIN
-		r.top_bar = Rect2(MARGIN, 88, w - 2 * MARGIN, 68)
-		var top := 172.0
+		r.top_bar = Rect2(MARGIN, LANDSCAPE_TOP, w - 2 * MARGIN - MENU_LANDSCAPE.x - MENU_GAP, 68)
+		var top := LANDSCAPE_TOP + 84.0
 		if r.fold:
-			r.fold_bar = Rect2(MARGIN, 160, w - 2 * MARGIN, 68)
-			top = 244.0
+			r.fold_bar = Rect2(MARGIN, LANDSCAPE_TOP + 72.0, w - 2 * MARGIN, 68)
+			top = LANDSCAPE_TOP + 156.0
 			side = maxf(side, floorf(w * 0.27))
 		var hand_x := w - MARGIN - side if left_handed else MARGIN
 		var detail_x := MARGIN if left_handed else w - MARGIN - side

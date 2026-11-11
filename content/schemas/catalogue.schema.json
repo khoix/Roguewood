@@ -108,7 +108,8 @@
                     "payout",
                     "grow_value",
                     "retrigger",
-                    "transform"
+                    "transform",
+                    "lose_mult"
                   ]
                 },
                 "amount": {
@@ -184,6 +185,15 @@
                     "last_fallen": {
                       "type": "string",
                       "pattern": "^(self|pin\\.[a-z][a-z0-9_]*)$"
+                    },
+                    "rebounded": {
+                      "type": "boolean"
+                    },
+                    "felled_curved": {
+                      "type": "boolean"
+                    },
+                    "first_hit": {
+                      "type": "boolean"
                     }
                   },
                   "required": [],
@@ -348,6 +358,12 @@
                 "type": "number",
                 "minimum": 0.0,
                 "maximum": 0.6
+              },
+              "oil_hold": {
+                "type": "boolean"
+              },
+              "gutter_rebound": {
+                "type": "boolean"
               }
             },
             "required": [],

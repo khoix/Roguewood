@@ -1,74 +1,9 @@
 {
   "schema_version": 1,
   "batch": "E17-D11",
-  "status": "authored",
-  "note": "E17-L02's definitions: the Neon League's two lane conditions and its kit. The three Neon boss rules (Oil Slick, Narrow Lane, Strobe) were written in E17-D03 and E17-D05. E18-C13 (the rules of E17-L02) landed Long Oil and Two-Tone; the Neon Kit stays here until E22-L02 makes the League live.",
-  "definitions": [
-    {
-      "item": {
-        "id": "kit.neon",
-        "name": "Neon Kit",
-        "category": "kit",
-        "rarity": "common",
-        "pool_weight": 0,
-        "unlock": {
-          "kind": "initial",
-          "prerequisites": []
-        },
-        "earliest_division": 1,
-        "purchase_price": 0,
-        "resale_price": 0,
-        "effects": [],
-        "limits": {
-          "max_owned": 1,
-          "charges": 0,
-          "exhaustion": "none"
-        },
-        "downside": "No Hammer or Echo Ball: six cards split between curve and straight, with no power or retrigger ball.",
-        "synergy_tags": [
-          "curve",
-          "straight",
-          "precision",
-          "neon"
-        ],
-        "incompatibilities": [],
-        "assets": {
-          "icon": "",
-          "card": "",
-          "in_play": "",
-          "rarity_treatment": "",
-          "activation": "",
-          "sound": "",
-          "reduced_motion": ""
-        },
-        "completeness": {
-          "authored": true,
-          "mechanics": false,
-          "automated_validation": false,
-          "artwork": false,
-          "effects_audio": false,
-          "unlock_assigned": true,
-          "integrated": false
-        }
-      },
-      "design": {
-        "trigger": "Start a Neon League attempt with ten Wood pins, a deck of three Hook Balls and three Spare Balls (the House Ball is always available) and $6.",
-        "primitives": [
-          "kit.loadout"
-        ],
-        "pool": "Starting kit: chosen on the League Board for the Neon League; available from the start, as the League is.",
-        "presentation_needs": "A kit card in Neon colours with a curve and a straight line crossing; the binder shows its loadout.",
-        "asset_ids": {
-          "icon": "icon.kit.neon",
-          "card": "card.kit.neon",
-          "rarity_treatment": "rarity_treatment.kit.neon",
-          "activation": "activation.kit.neon",
-          "sound": "sound.kit.neon",
-          "reduced_motion": "reduced_motion.kit.neon"
-        }
-      }
-    }
-  ],
+  "status": "landed",
+  "note": "E17-L02's definitions: the Neon League's two lane conditions and its kit. The three Neon boss rules (Oil Slick, Narrow Lane, Strobe) were written in E17-D03 and E17-D05. E18-C13 (the rules of E17-L02) landed Long Oil and Two-Tone; the Neon Kit stays here until E22-L02 makes the League live. E22-L02 landed the Neon Kit (batch label E18-C17). Its deck became two each of Hook, Glow and Spare Ball: a deck holds at most two copies of a card.",
+  "definitions": [],
   "landed": [
     {
       "id": "lane_condition.long_oil",
@@ -107,6 +42,26 @@
           "activation": "activation.lane_condition.two_tone",
           "sound": "sound.lane_condition.two_tone",
           "reduced_motion": "reduced_motion.lane_condition.two_tone"
+        }
+      }
+    },
+    {
+      "id": "kit.neon",
+      "landed_in": "E18-C17",
+      "design": {
+        "trigger": "Start a Neon League attempt with ten Wood pins, a deck of two Hook Balls, two Glow Balls and two Spare Balls (the House Ball is always available) and $6.",
+        "primitives": [
+          "kit.loadout"
+        ],
+        "pool": "Starting kit: chosen on the League Board for the Neon League; available from the start, as the League is.",
+        "presentation_needs": "A kit card in Neon colours with a curve and a straight line crossing; the binder shows its loadout.",
+        "asset_ids": {
+          "icon": "icon.kit.neon",
+          "card": "card.kit.neon",
+          "rarity_treatment": "rarity_treatment.kit.neon",
+          "activation": "activation.kit.neon",
+          "sound": "sound.kit.neon",
+          "reduced_motion": "reduced_motion.kit.neon"
         }
       }
     }

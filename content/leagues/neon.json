@@ -12,6 +12,17 @@
     "lane_condition.long_oil",
     "lane_condition.two_tone"
   ],
+  "specialists": {
+    "tags": [
+      "curve",
+      "hook",
+      "accuracy",
+      "precision",
+      "straight"
+    ],
+    "weight": 2,
+    "note": "Provisional until E24: an item with one of these tags counts twice in the shop's pick within its category and rarity. Nothing is excluded."
+  },
   "kits": [
     {
       "id": "kit.neon",
@@ -32,8 +43,8 @@
       "deck": [
         "ball.hook",
         "ball.hook",
-        "ball.hook",
-        "ball.spare_ball",
+        "ball.glow",
+        "ball.glow",
         "ball.spare_ball",
         "ball.spare_ball"
       ],

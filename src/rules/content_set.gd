@@ -4,6 +4,9 @@ extends RefCounted
 ## - "house" (E22-L01): the production catalogue and the eight-Division House League
 ##   of content/leagues/house.json, with its rivals, boss lanes and two kits. The
 ##   game's default.
+## - "neon" (E22-L02): the production catalogue and the eight-Division Neon League
+##   of content/leagues/neon.json: Slick, Laser Lena and DJ Flicker, the Neon lanes
+##   and the Neon Kit. Chosen on the League Board beside the House League.
 ## - "slice": the production catalogue with E13's two-Division House League in
 ##   content/slice/league.json, the vertical slice its journeys play. It has its own
 ##   unlock registry (production's with the slice as the House League).
@@ -24,6 +27,8 @@ const LAB_UNLOCKS := "res://content/fixtures/lab_unlocks.json"
 const DEFAULT := "house"
 const SETS := {
 	"house": {"catalogue": "res://content/catalogue.json", "league": "res://content/leagues/house.json", "unlocks": UNLOCKS},
+	# E22-L02: the eight-Division Neon League of content/leagues/neon.json.
+	"neon": {"catalogue": "res://content/catalogue.json", "league": "res://content/leagues/neon.json", "unlocks": UNLOCKS},
 	"slice": {"catalogue": "res://content/catalogue.json", "league": "res://content/slice/league.json", "unlocks": SLICE_UNLOCKS},
 	"lab": {"catalogue": "res://content/fixtures/lab_catalogue.json", "division": "res://content/fixtures/lab_division.json", "unlocks": LAB_UNLOCKS},
 	# E18-C05 test fixture: the House champion and Old Lou on the production catalogue (J03C05 only).
@@ -96,6 +101,7 @@ static func load_set(set_id: String, seed_value: int = 1) -> Dictionary:
 	out.kit = out.kits[0] if not out.kits.is_empty() else {}
 	out.name = league.get("name", "")
 	out["league_id"] = league.get("id", "")
+	out["specialists"] = league.get("specialists", {})
 	for kit in out.kits:
 		out.errors.append_array(validate_kit(kit, out.catalogue))
 	# Hashed for save warnings: a changed catalogue or League is reported on load.

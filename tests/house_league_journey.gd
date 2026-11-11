@@ -24,6 +24,7 @@ const Inventory = preload("res://src/rules/run_inventory.gd")
 const BUILD := ["charm.trophy_case", "charm.opening_act", "charm.finisher", "charm.turkey_club", "charm.house_special"]
 
 var manifest: Dictionary = {}
+var tag := "J22L01" # J22L02 (the Neon League) extends this journey
 
 func _run() -> void:
 	for arg in OS.get_cmdline_user_args():
@@ -86,13 +87,7 @@ func _division(division: int) -> void:
 			await _focus_accept(lab.hud.intro_button)
 			await _aim()
 		var boss: bool = m.kind == "boss"
-		var expected := _stage_id(division, boss and division == 8)
-		_check(lab.division.division_number() == division and lab.hud.info.text.contains("D%d/8" % division) and _environment() == expected,
-			"Division %d %s: HUD and environment %s (%s)" % [division, m.kind, expected, _environment()])
-		if boss:
-			var lane: String = m.lane_condition
-			_check(lab.lane.lane_condition == lane and _lane_visual() == "lane_visual." + lane and lab.division.rival().id == m.rival,
-				"Division %d boss: %s on %s with its surface (%s)" % [division, m.rival, lane, _lane_visual()])
+		_check_stage(division, m)
 		await _play_match(division, m)
 		if division == 1 and index == 0:
 			await _seat_build()
@@ -102,6 +97,20 @@ func _division(division: int) -> void:
 		if division == 5 and index == 0:
 			await _save_and_resume()
 		await _leave_shop()
+
+## The stage a match is played on: environment, HUD, and a boss's lane and surface.
+func _check_stage(division: int, m: Dictionary) -> void:
+	var boss: bool = m.kind == "boss"
+	var expected := _stage_id(division, boss and division == 8)
+	_check(lab.division.division_number() == division and lab.hud.info.text.contains("D%d/8" % division) and _environment() == expected,
+		"Division %d %s: HUD and environment %s (%s)" % [division, m.kind, expected, _environment()])
+	if boss:
+		var lane: String = m.lane_condition
+		_check(lab.lane.lane_condition == lane and _lane_visual() == "lane_visual." + lane and lab.division.rival().id == m.rival,
+			"Division %d boss: %s on %s with its surface (%s)" % [division, m.rival, lane, _lane_visual()])
+
+func _resumed_ok() -> bool:
+	return lab.league_theme != null
 
 ## Throws until the match is won, checking every bank against the rules in force.
 func _play_match(division: int, m: Dictionary) -> void:
@@ -116,7 +125,7 @@ func _play_match(division: int, m: Dictionary) -> void:
 		var scored := await _scored()
 		var built := Builder.build(loadout, lab.content.catalogue, lab.history.slice(before), {}, context)
 		var banked: int = RivalRules.bank(rules, Rules.resolve(built.frame)).score if built.ok else -1
-		print("J22L01 D%d %s frame %d: %s banked=%d expected=%d score=%d/%d rules=%s" % [division, m.kind, frame + 1, scored.result.category, scored.banked, banked,
+		print("%s D%d %s frame %d: %s banked=%d expected=%d score=%d/%d rules=%s" % [tag, division, m.kind, frame + 1, scored.result.category, scored.banked, banked,
 			lab.division.match_score, lab.division.target(), str(rules)])
 		_check(built.ok and scored.banked == banked, "D%d %s frame %d banks the independent resolution (%d vs %d)" % [division, m.kind, frame + 1, scored.banked, banked])
 		if scored.match_over:
@@ -134,7 +143,7 @@ func _seat_build() -> void:
 		lab.run.place(id, 0, "charm:new")
 	for position in range(1, 11):
 		lab.run.rack[position] = Inventory._entry("pin.ruby", 0)
-	print("J22L01 fixture: seated %s and a Ruby rack through the inventory API" % str(BUILD))
+	print("%s fixture: seated %s and a Ruby rack through the inventory API" % [tag, str(BUILD)])
 
 func _save_and_resume() -> void:
 	var money: int = lab.run.money
@@ -144,7 +153,7 @@ func _save_and_resume() -> void:
 	await _wait_for(func(): return scene.lab != null and scene.lab.state == "shop", "the attempt resumes in Division 5's shop")
 	lab = scene.lab
 	lab.trial_log_path = ""
-	_check(lab.division.division_number() == 5 and lab.run.money == money and lab.run.charms.size() == BUILD.size() and lab.league_theme != null,
+	_check(lab.division.division_number() == 5 and lab.run.money == money and lab.run.charms.size() == BUILD.size() and _resumed_ok(),
 		"the resumed attempt is in Division 5 with its build and theme")
 
 func _title() -> void:
@@ -177,7 +186,7 @@ func _tournament() -> void:
 	await _capture("j22_tournament")
 
 func _capture(label: String) -> void:
-	print("J22L01 %s lab=%s division=%d money=%d env=%s" % [label, lab.state, lab.division.division_number(), lab.run.money, _environment()])
+	print("%s %s lab=%s division=%d money=%d env=%s" % [tag, label, lab.state, lab.division.division_number(), lab.run.money, _environment()])
 	if artifact_dir.is_empty() or DisplayServer.get_name() == "headless": return
 	await RenderingServer.frame_post_draw
 	var image := root.get_texture().get_image()

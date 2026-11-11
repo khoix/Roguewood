@@ -265,7 +265,9 @@ func layout(top: float, bubble_top: float) -> void:
 
 ## UI-2: the top bar at `bar_rect` (two rows in portrait) and the reaction bubble
 ## over the rival's panel at `bubble`.
-func layout_regions(bar_rect: Rect2, bubble: Rect2, portrait: bool, slim: bool = false) -> void:
+## `sheet_top` (UI-5): the introduction and result sheets start below the session
+## menu button, which stays in reach over them.
+func layout_regions(bar_rect: Rect2, bubble: Rect2, portrait: bool, slim: bool = false, sheet_top: float = -1.0) -> void:
 	side_box.vertical = false
 	# Portrait: title and money on top, score, frames and the rule badge below.
 	# Landscape: one row.
@@ -304,7 +306,7 @@ func layout_regions(bar_rect: Rect2, bubble: Rect2, portrait: bool, slim: bool =
 	reaction_text.custom_minimum_size.x = maxf(bubble.size.x - 28.0 - reaction_portrait.custom_minimum_size.x - 10.0, 80.0)
 	reaction_text.add_theme_font_size_override("font_size", 20 if portrait else 17)
 	for sheet in [intro, result]:
-		sheet.offset_top = bar_rect.position.y
+		sheet.offset_top = sheet_top if sheet_top >= 0.0 else bar_rect.position.y
 		sheet.offset_left = 12.0
 		sheet.offset_right = -12.0
 		sheet.offset_bottom = -12.0

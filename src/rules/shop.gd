@@ -26,6 +26,7 @@ var offers: Array = [] # {slot, item_id ("" = nothing eligible), price, sold}; t
 var visit := 0
 var rerolls := 0 # this visit
 var division := 1
+var specialists: Dictionary = {} # the League's {tags, weight} (E22-L02); content, not saved state
 var unlocked: Array = [] # unlock prerequisites already met (E15 supplies these)
 var selection_log: Array = []
 var rng_seed := 0
@@ -157,14 +158,24 @@ func _roll_rarity(pool: Array, weights: Dictionary = RARITY_WEIGHTS) -> String:
 		if present.has(rarity) and weights[rarity] > 0: return rarity
 	return pool[0].rarity
 
+## E22-L02: a League's specialist weights. An item carrying one of the League's tags
+## counts `weight` times in the pick within its category and rarity; nothing is
+## excluded, and a League without specialists picks exactly as before.
+func pool_weight(item: Dictionary) -> float:
+	var base := float(item.pool_weight)
+	var tags: Array = specialists.get("tags", [])
+	if tags.is_empty() or not item.get("synergy_tags", []).any(func(t): return t in tags):
+		return base
+	return base * float(specialists.get("weight", 1.0))
+
 func _weighted(pool: Array) -> Dictionary:
 	pool.sort_custom(func(a, b): return a.id < b.id)
 	var total := 0.0
 	for item in pool:
-		total += float(item.pool_weight)
+		total += pool_weight(item)
 	var roll := _rng.randf() * total
 	for item in pool:
-		roll -= float(item.pool_weight)
+		roll -= pool_weight(item)
 		if roll < 0.0:
 			return item
 	return pool[-1]
