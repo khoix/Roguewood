@@ -141,7 +141,9 @@ static func menu_rect(screen: Vector2) -> Rect2:
 		return Rect2(screen.x - PORTRAIT_MARGIN - MENU_PORTRAIT.x, PORTRAIT_MARGIN, MENU_PORTRAIT.x, MENU_PORTRAIT.y)
 	return Rect2(screen.x - MARGIN - MENU_LANDSCAPE.x, LANDSCAPE_TOP, MENU_LANDSCAPE.x, MENU_LANDSCAPE.y)
 
-static func compute(screen: Vector2, left_handed: bool, hand_height: float, compact: bool = false) -> Dictionary:
+## `bar_extra`: added height for portrait's top bar when its rule badge takes two
+## lines (a champion's two rules); everything below moves down with it.
+static func compute(screen: Vector2, left_handed: bool, hand_height: float, compact: bool = false, bar_extra: float = 0.0) -> Dictionary:
 	var w := screen.x
 	var h := screen.y
 	var r := {"portrait": h >= w, "fold": false, "left_handed": left_handed, "compact": compact}
@@ -153,8 +155,8 @@ static func compute(screen: Vector2, left_handed: bool, hand_height: float, comp
 		# UI-5: the bar starts at the top (the session buttons are one menu button
 		# at its right), so the lane gains the row they took.
 		var bar_w := w - 2 * m - MENU_PORTRAIT.x - MENU_GAP
-		r.top_bar = Rect2(m, m, bar_w, 100)
-		var row_y := m + 108.0
+		r.top_bar = Rect2(m, m, bar_w, 100 + bar_extra)
+		var row_y := m + 108.0 + bar_extra
 		var inner := w - 2 * m - 16
 		var slip_w := floorf(inner * 0.32)
 		var rival_w := floorf(inner * 0.38)
