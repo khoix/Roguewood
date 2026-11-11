@@ -346,6 +346,7 @@ League template wave b (docs/ROADMAP.md), with one owner direction (2026-11-09):
   - New: a League's specialist weights (`specialists: {tags, weight}` in its spec; Neon doubles curve, hook, accuracy, precision and straight items within their category and rarity). A saved attempt restores its own League on Continue.
   - J22L02 plays the whole League from the board, headless and rendered, in CI's game shard.
   - The strategy simulation takes `--content=neon` (and `house`): Neon's targets are no harder than House's, and in both an ordinary player's single-purpose build stalls at Division 2–3. A finding for E24; targets unchanged.
+  - Validation: all 200 CI commands PASS locally on `0240fe7`. The physics digest `75d1a3c0…` is unchanged.
   - Not done: no Neon theme or rival art yet (Codex); `league.spectral` is not registered, so the title opens nothing yet.
   - **Hand-off to Codex (E22-L02-ART):** the League is playable to bind against; throw_lab loads a theme only for the `house` set today.
 - **Next (Claude):** Claude's Wave 12 claims are complete. Integrate Codex's (E21-R05 to R07, E22-L02-ART) when they land, run the full matrix, then "Wave 12 closed".
