@@ -1,80 +1,80 @@
 {
   "schema_version": 1,
   "league_id": "league.neon",
-  "delivery_status": "environment_signage_only",
+  "delivery_status": "assets_ready_live_theme_hook_pending",
   "source": "source.environment.png",
   "stages": [
     {
       "division": 1,
       "championship": false,
-      "name": "Neon League · Division 1",
+      "name": "Neon League \u00b7 Division 1",
       "environment_id": "environment.league.neon.division_01",
       "signage_id": "signage.league.neon.division_01",
       "backdrop_id": "backdrop.league.neon.division_01",
-      "art_intent": "Entry lounge · stepped arch and booths"
+      "art_intent": "Entry lounge \u00b7 stepped arch and booths"
     },
     {
       "division": 2,
       "championship": false,
-      "name": "Neon League · Division 2",
+      "name": "Neon League \u00b7 Division 2",
       "environment_id": "environment.league.neon.division_02",
       "signage_id": "signage.league.neon.division_02",
       "backdrop_id": "backdrop.league.neon.division_02",
-      "art_intent": "Precision gallery · paired light fins"
+      "art_intent": "Precision gallery \u00b7 paired light fins"
     },
     {
       "division": 3,
       "championship": false,
-      "name": "Neon League · Division 3",
+      "name": "Neon League \u00b7 Division 3",
       "environment_id": "environment.league.neon.division_03",
       "signage_id": "signage.league.neon.division_03",
       "backdrop_id": "backdrop.league.neon.division_03",
-      "art_intent": "Listening room · speaker niches and ring canopy"
+      "art_intent": "Listening room \u00b7 speaker niches and ring canopy"
     },
     {
       "division": 4,
       "championship": false,
-      "name": "Neon League · Division 4",
+      "name": "Neon League \u00b7 Division 4",
       "environment_id": "environment.league.neon.division_04",
       "signage_id": "signage.league.neon.division_04",
       "backdrop_id": "backdrop.league.neon.division_04",
-      "art_intent": "Oil hall · service pipes and ribbed gate"
+      "art_intent": "Oil hall \u00b7 service pipes and ribbed gate"
     },
     {
       "division": 5,
       "championship": false,
-      "name": "Neon League · Division 5",
+      "name": "Neon League \u00b7 Division 5",
       "environment_id": "environment.league.neon.division_05",
       "signage_id": "signage.league.neon.division_05",
       "backdrop_id": "backdrop.league.neon.division_05",
-      "art_intent": "Prism salon · angular mirrored facets"
+      "art_intent": "Prism salon \u00b7 angular mirrored facets"
     },
     {
       "division": 6,
       "championship": false,
-      "name": "Neon League · Division 6",
+      "name": "Neon League \u00b7 Division 6",
       "environment_id": "environment.league.neon.division_06",
       "signage_id": "signage.league.neon.division_06",
       "backdrop_id": "backdrop.league.neon.division_06",
-      "art_intent": "DJ balcony · curved canopy and speaker towers"
+      "art_intent": "DJ balcony \u00b7 curved canopy and speaker towers"
     },
     {
       "division": 7,
       "championship": false,
-      "name": "Neon League · Division 7",
+      "name": "Neon League \u00b7 Division 7",
       "environment_id": "environment.league.neon.division_07",
       "signage_id": "signage.league.neon.division_07",
       "backdrop_id": "backdrop.league.neon.division_07",
-      "art_intent": "Neon colonnade · receding arches"
+      "art_intent": "Neon colonnade \u00b7 receding arches"
     },
     {
       "division": 8,
       "championship": false,
-      "name": "Neon League · Division 8",
+      "name": "Neon League \u00b7 Division 8",
       "environment_id": "environment.league.neon.division_08",
       "signage_id": "signage.league.neon.division_08",
       "backdrop_id": "backdrop.league.neon.division_08",
-      "art_intent": "Title antechamber · velvet and trophy niches"
+      "art_intent": "Title antechamber \u00b7 velvet and trophy niches"
     },
     {
       "division": 8,
@@ -83,11 +83,47 @@
       "environment_id": "environment.league.neon.championship",
       "signage_id": "signage.league.neon.championship",
       "backdrop_id": "backdrop.league.neon.championship",
-      "art_intent": "Championship stage · crown fan and laureled columns"
+      "art_intent": "Championship stage \u00b7 crown fan and laureled columns"
     }
   ],
-  "lanes": [],
-  "music": {},
+  "lanes": [
+    {
+      "condition_id": "lane_condition.house_oil",
+      "visual_id": "lane_visual.lane_condition.house_oil",
+      "name": "House Oil",
+      "oil_end_f": 12.192,
+      "left_oil_end_f": 12.192,
+      "deck_start_f": 17.288
+    },
+    {
+      "condition_id": "lane_condition.long_oil",
+      "visual_id": "lane_visual.lane_condition.long_oil",
+      "name": "Long Oil",
+      "oil_end_f": 14.3256,
+      "left_oil_end_f": 14.3256,
+      "deck_start_f": 17.288
+    },
+    {
+      "condition_id": "lane_condition.two_tone",
+      "visual_id": "lane_visual.lane_condition.two_tone",
+      "name": "Two-Tone",
+      "oil_end_f": 12.192,
+      "left_oil_end_f": 10.3632,
+      "deck_start_f": 17.288
+    }
+  ],
+  "music": {
+    "asset_id": "music.league.neon.circuit",
+    "bpm": 112,
+    "bars": 16,
+    "sample_rate": 22050,
+    "frames": 756000,
+    "seconds": 34.285714285714285,
+    "peak": 0.65,
+    "rms": 0.1364940070414715,
+    "seam_delta": 0.007592761675836529,
+    "sha256": "91411dab4c524e654e7351c077e4231aa789a593f5e480284995fa579e7ef2cd"
+  },
   "assets": {
     "environment.league.neon.division_01": "res://assets/leagues/neon/environment.league.neon.division_01.tscn",
     "signage.league.neon.division_01": "res://assets/leagues/neon/signage.league.neon.division_01.tres",
@@ -115,6 +151,40 @@
     "backdrop.league.neon.division_08": "res://assets/leagues/neon/backdrop.league.neon.division_08.tres",
     "environment.league.neon.championship": "res://assets/leagues/neon/environment.league.neon.championship.tscn",
     "signage.league.neon.championship": "res://assets/leagues/neon/signage.league.neon.championship.tres",
-    "backdrop.league.neon.championship": "res://assets/leagues/neon/backdrop.league.neon.championship.tres"
+    "backdrop.league.neon.championship": "res://assets/leagues/neon/backdrop.league.neon.championship.tres",
+    "lane_visual.lane_condition.house_oil": "res://assets/leagues/house/lane_visual.lane_condition.house_oil.tres",
+    "lane_visual.lane_condition.long_oil": "res://assets/leagues/neon/lane_visual.lane_condition.long_oil.tres",
+    "lane_visual.lane_condition.two_tone": "res://assets/leagues/neon/lane_visual.lane_condition.two_tone.tres",
+    "ui.neon.hud": "res://assets/ui/neon/hud.tres",
+    "ui.neon.shop": "res://assets/ui/neon/shop.tres",
+    "ui.neon.slip": "res://assets/ui/neon/slip.tres",
+    "ui.neon.menu": "res://assets/ui/neon/menu.tres",
+    "ui.neon.panel": "res://assets/ui/neon/panel.tres",
+    "ui.neon.corner": "res://assets/ui/neon/corner.svg",
+    "ui.neon.divider": "res://assets/ui/neon/divider.svg",
+    "backdrop.ui.neon.normal": "res://assets/ui/backdrops/neon_normal.tscn",
+    "backdrop.ui.neon.reduced": "res://assets/ui/backdrops/neon_reduced.tscn",
+    "rule_visual.boss_rule.narrow_lane": "res://assets/leagues/neon/rule_overlay.gd",
+    "rule_visual.boss_rule.strobe": "res://assets/leagues/neon/rule_overlay.gd",
+    "trophy.neon": "res://assets/clubhouse/trophy.neon.png",
+    "music.league.neon.circuit": "res://assets/leagues/neon/music.league.neon.circuit.wav"
+  },
+  "ui": {
+    "manifest": "res://assets/ui/neon/manifest.json",
+    "frames": {
+      "hud": "ui.neon.hud",
+      "shop": "ui.neon.shop",
+      "slip": "ui.neon.slip",
+      "menu": "ui.neon.menu",
+      "panel": "ui.neon.panel"
+    }
+  },
+  "flank": {
+    "normal": "backdrop.ui.neon.normal",
+    "reduced": "backdrop.ui.neon.reduced"
+  },
+  "rule_visuals": {
+    "boss_rule.narrow_lane": "rule_visual.boss_rule.narrow_lane",
+    "boss_rule.strobe": "rule_visual.boss_rule.strobe"
   }
 }

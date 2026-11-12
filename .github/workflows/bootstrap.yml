@@ -322,6 +322,11 @@ jobs:
         run: |
           python3 tools/qa.py e2e --journey J22L02ENV
           xvfb-run -a python3 tools/qa.py e2e --journey J22L02ENV --rendered
+      - name: Neon lane finishes and theme kit (E22-L02-ART session 2)
+        if: matrix.shard == 'art'
+        run: |
+          python3 tools/qa.py e2e --journey J22L02ART
+          xvfb-run -a python3 tools/qa.py e2e --journey J22L02ART --rendered
       - name: Preserve journey diagnostics
         if: always()
         uses: actions/upload-artifact@v4

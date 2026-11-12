@@ -15,6 +15,8 @@ ROOT = Path(__file__).resolve().parents[1]
 VERSION = (ROOT / ".godot-version").read_text().strip()
 # journey -> script, success marker, artifact directory, rendered captures, timeout, extra engine flags
 JOURNEYS = {
+    "J22L02ART": ("res://tests/neon_theme_journey.gd", "ROGUEWOOD_NEON_THEME_OK", "artifacts/e22-l02-art/theme",
+        ("house_oil", "long_oil", "two_tone", "lane_reduced", "kit_reduced", "kit_reduced_later", "kit_normal", "kit_drift", "kit_landscape", "lane_landscape"), 240, ["--fixed-fps", "60"]),
     "J22L02ENV": ("res://tests/neon_environment_journey.gd", "ROGUEWOOD_NEON_ENVIRONMENT_OK", "artifacts/e22-l02-art/environment",
         tuple("division_%02d" % i for i in range(1,9)) + ("championship", "reduced", "landscape", "contact"), 180, ["--fixed-fps", "60"]),
     "J21R07C": ("res://tests/flicker_art_contact.gd", "ROGUEWOOD_FLICKER_CONTACT_OK", "artifacts/e21-r07/contact", ("normal", "reduced", "champion_normal", "champion_reduced"), 180, ["--fixed-fps", "60"]),

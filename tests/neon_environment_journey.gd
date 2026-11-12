@@ -15,7 +15,10 @@ func run() -> void:
  var spec:Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://content/leagues/neon.json"))
  check(app.manifest.league_id==spec.id,"exact Neon League ID")
  check(app.manifest.stages.size()==9,"eight Divisions plus Championship")
- check(app.manifest.assets.size()==27,"twenty-seven unique environment bindings")
+ var stage_assets:={}
+ for stage in app.manifest.stages:
+  for field in ["environment_id","signage_id","backdrop_id"]:stage_assets[stage[field]]=true
+ check(stage_assets.size()==27,"twenty-seven unique environment bindings")
  for id in app.manifest.assets:check(ResourceLoader.exists(app.manifest.assets[id]),"resource exists: "+id)
  var regions:={}
  var pins:={}

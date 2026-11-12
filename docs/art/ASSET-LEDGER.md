@@ -910,3 +910,30 @@ the image has none. All rooms are static in normal/reduced motion. Full brief:
 `docs/art/briefs/E22-L02-ART.md`. These assets are delivered for integration;
 the partial manifest is not enabled in the live League resolver. Lane art,
 music, frame kit, flank backdrop and trophy are session 2, not claimed here.
+
+## E22-L02-ART — lane and theme assets, session 2 (2026-11-11)
+
+Original authored shaders, drawing geometry, vector masters and synthesized
+music. No third-party references, donor melodies, samples or recordings.
+`tools/author_neon_theme.py` reproduces the five Neon nine-slice frames, two
+ornaments, normal/reduced flank scene bindings, two lane materials and the
+16-bar 112 BPM loop `music.league.neon.circuit`. Music SHA256:
+`91411dab4c524e654e7351c077e4231aa789a593f5e480284995fa579e7ef2cd`.
+Source arrangement, seeded synthesis, circular tails and measurement metadata
+are included; the track is project-original PCM rather than a licensed sample.
+
+Long Oil/Two-Tone material geometry reads authored world-space distances equal
+to the shipped LaneSpec. Matte diagonal grain and twin boundary ticks add
+non-colour cues. Original rail/ring painter consumes the existing gutter and
+timing thresholds. The flank traces drift slowly at constant brightness;
+reduction fixes their position. UI frames reuse the existing OFL font unchanged.
+
+Original OpenAI-generated trophy with a corrective framing edit, no donor art.
+Initial source retained in `assets/clubhouse/sources/E22-L02-trophy-initial.png`,
+SHA256 `a98b18a7662afac8ace6f992cd990150063701ed73adba02c82fb68f60dad486`.
+Final 1254-square RGBA `assets/clubhouse/trophy.neon.png`, SHA256
+`f9c796a125bb155b2f11bd158c6a65fedacd8712d98f6d948838d5675e933fae`.
+No subsequent pixel edits; the native shelf resolves its exact filename.
+Full prompts, hashes and source list: `assets/leagues/neon/source.theme.txt`.
+Live environment/lane/music/UI/flank binding remains a coordinator hook request;
+this provenance entry does not claim the full Neon League integration is done.
