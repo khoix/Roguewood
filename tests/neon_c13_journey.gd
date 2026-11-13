@@ -89,6 +89,20 @@ func _champion() -> void:
 	var bar: Rect2 = lab.hud.bar.get_global_rect()
 	_check(lab.hud.badge.text.contains("\n") and bar.end.x <= lab.regions.top_bar.end.x + 0.5 and not bar.intersects(scene.menu_button.get_global_rect())
 		and bar.end.y <= lab.panels.slip.get_global_rect().position.y, "the two-rule bar stays clear of the menu button and the info row (%s)" % str(bar))
+	# The badge's ⓘ can fall back to a taller system font on another machine (Codex
+	# measured a 70 px badge). A logged fixture makes the badge taller here: the bar
+	# and the rows under it follow its real height.
+	lab.hud.badge.add_theme_constant_override("line_spacing", 14)
+	lab._update_status()
+	await process_frame
+	await process_frame
+	bar = lab.hud.bar.get_global_rect()
+	print("J03C13 fixture: badge line spacing +14 (badge %s, bar %s, slip at %d)" % [str(lab.hud.badge.size), str(bar), int(lab.panels.slip.get_global_rect().position.y)])
+	_check(lab.hud.badge.size.y >= 66.0 and bar.end.x <= lab.regions.top_bar.end.x + 0.5 and bar.end.y <= lab.panels.slip.get_global_rect().position.y,
+		"a taller badge still leaves the bar above the info row (%s)" % str(bar))
+	lab.hud.badge.remove_theme_constant_override("line_spacing")
+	lab._update_status()
+	await process_frame
 	_check(lab.lane.rules == {"zone_scale": 0.5, "hook_scale": 0.5} and lab.zone_scale() == 0.5, "the lane halves the ring zones and the hook")
 	_check(lab.status.text.contains("Strobe: the ring's sweet and perfect zones are half their size") and lab.status.text.contains("Oil Slick"), "the status names both rules")
 	_check(Ring.grade(0.075, lab.zone_scale()) == "sweet" and Ring.grade(0.075) == "perfect", "under Strobe the ring at 0.075 grades sweet, not perfect")

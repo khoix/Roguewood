@@ -340,6 +340,16 @@ func _set_badge() -> void:
 func badge_lines() -> int:
 	return _badge_raw.count(" + ") + 1
 
+## How much taller than its usual two rows portrait's bar must be for the badge as
+## it really measures: a stacked two-rule badge, or one whose ⓘ falls back to a
+## taller system font on another machine. The lab reserves this much more.
+const BAR_USUAL := 106.0 # frame, the money row, the gap and a 40 px badge row
+func bar_extra() -> float:
+	if _badge_raw.is_empty():
+		return 0.0
+	var rows: float = bar.get_theme_stylebox("panel").get_minimum_size().y + money.get_parent().custom_minimum_size.y + 2.0
+	return maxf(0.0, ceilf(rows + badge.get_parent().get_combined_minimum_size().y - BAR_USUAL))
+
 func _fit_bar() -> void:
 	if _bar_width <= 0.0:
 		return

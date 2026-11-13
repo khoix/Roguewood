@@ -100,8 +100,7 @@ var lane: LaneWorld
 var status: Label
 var next_rack: Button
 const NEXT_RACK_HEIGHT := 72.0
-const TWO_LINE_BADGE := 18.0 # extra height of portrait's top bar under a two-rule badge
-var _badge_lines := 1
+var _bar_extra := 0.0 # extra height of portrait's top bar (DivisionHud.bar_extra)
 var _score_top := 450.0 # where the frame review starts (set by the layout)
 var settings_panel: SettingsPanel
 var assist_panel: AssistPanel
@@ -159,7 +158,7 @@ var frame_actions: Array = [] # E18-C06: instant tactics played this frame (Tact
 var tactic_sheet: Control
 var _tactic: Dictionary = {} # the instant tactic being chosen: {uid, item_id, kind, values, ...}
 var _tactic_note := ""
-var league_theme: Node # E22-L01: the League's environment, lane surfaces and music (the House League only)
+var league_theme: Node # E22-L01: the League's environment, lane surfaces, music and backdrop (House and Neon)
 var match_number := 1
 var match_frame := 1
 var _equipment_model := ""
@@ -209,7 +208,7 @@ func _ready() -> void:
 	backdrop = load("res://assets/ui/backdrops/house.gd").new()
 	backdrop.name = "Backdrop"
 	backdrop.option = 1
-	backdrop.reduced = bool(settings.get("reduced_motion", false))
+	backdrop.reduced = bool(settings.get("reduced_motion", false)) or bool(settings.get("reduced_flash", false))
 	backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(backdrop)
 	var container := SubViewportContainer.new()
@@ -278,11 +277,24 @@ func _ready() -> void:
 	if not content.errors.is_empty():
 		push_error("Content set %s invalid: %s" % [content.id, str(content.errors)])
 	_catalogue = content.catalogue
-	if content.get("id", "") == "house":
+	if content.get("id", "") in ["house", "neon"]:
 		league_theme = LeagueTheme.for_league(content.get("league_id", ""))
 		if league_theme != null:
 			add_child(league_theme)
 			league_theme.play_music()
+			# A League's own backdrop replaces the House sky behind the lane.
+			var flank: Control = league_theme.flank()
+			if flank != null:
+				flank.name = "Backdrop"
+				flank.reduced = backdrop.reduced
+				flank.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				flank.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+				var at := backdrop.get_index()
+				remove_child(backdrop)
+				backdrop.free()
+				backdrop = flank
+				add_child(backdrop)
+				move_child(backdrop, at)
 	for entry in _catalogue.items:
 		_names[entry.id] = entry.name
 	run = RunInventory.create(_catalogue, content.kit.pins, content.kit.deck, int(content.kit.money))
@@ -1854,7 +1866,7 @@ func _refresh_hud() -> void:
 			view.badge = "Boss: %s ⓘ" % rival.name
 		view.rule_text = "%s — target %d in two frames.\n%s\nFirst clear: %s" % [rival.name, int(boss.target), RivalRules.summaries(_rival_rules(rival)), reward]
 	hud.show_match(view)
-	if size.y >= size.x and hud.badge_lines() != _badge_lines:
+	if size.y >= size.x and not _compact and not is_equal_approx(hud.bar_extra(), _bar_extra):
 		_layout_resolution() # a two-rule badge makes portrait's bar a line taller
 	_refresh_panels()
 	if state in ["shop", "division_over"] or not division.is_boss() or reactions.visible_at(_clock_usec).is_empty():
@@ -1883,8 +1895,11 @@ func _layout_resolution() -> void:
 	var left_hand: bool = settings.get("handedness", "right") == "left"
 	# UI-3 roll view: once the ball is away, the hand and details leave and the bar slims.
 	var compact: bool = state in ["rolling", "result", "scoring"]
-	_badge_lines = hud.badge_lines() if portrait else 1
-	var aim_layout := MatchPanels.compute(size, left_hand, PORTRAIT_HAND_HEIGHT, false, TWO_LINE_BADGE if _badge_lines > 1 else 0.0)
+	# Portrait's bar is as tall as its badge needs (measured outside the roll view,
+	# so the ball's line never moves while a ball is away).
+	if not compact:
+		_bar_extra = hud.bar_extra() if portrait else 0.0
+	var aim_layout := MatchPanels.compute(size, left_hand, PORTRAIT_HAND_HEIGHT, false, _bar_extra)
 	_ball_line = aim_layout.ball_y
 	regions = MatchPanels.compute(size, left_hand, PORTRAIT_HAND_HEIGHT, true) if compact else aim_layout
 	if compact != _compact:
