@@ -311,7 +311,10 @@ func layout_regions(bar_rect: Rect2, bubble: Rect2, portrait: bool, slim: bool =
 	reaction.size = Vector2(bubble.size.x, 0)
 	# Portrait: the bubble covers the info row and no more (it used to run over the
 	# top of the hand under it), so its portrait and text are sized to that row.
-	reaction_portrait.custom_minimum_size = Vector2(56, 56) if not portrait else Vector2(44, 44)
+	reaction_portrait.custom_minimum_size = Vector2(56, 56) if not portrait else Vector2(40, 40)
+	if portrait != _reaction_portrait:
+		_reaction_portrait = portrait
+		reaction.add_theme_stylebox_override("panel", UiTheme.frame("panel", 14.0, 8.0 if portrait else 10.0))
 	reaction_text.custom_minimum_size.x = maxf(bubble.size.x - 28.0 - reaction_portrait.custom_minimum_size.x - 10.0, 80.0)
 	reaction_text.add_theme_font_size_override("font_size", 18 if portrait else 17)
 	for sheet in [intro, result]:
@@ -330,6 +333,7 @@ const BAR_STEPS := [[28, 18, 18], [28, 16, 16], [26, 15, 16], [24, 15, 15], [22,
 var _bar_width := 0.0
 var _bar_slim := false
 
+var _reaction_portrait := false
 var _badge_raw := ""
 var _bar_portrait := true
 ## Portrait stacks a champion's two rules; landscape has room for one line.

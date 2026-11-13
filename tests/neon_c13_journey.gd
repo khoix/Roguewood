@@ -89,6 +89,8 @@ func _champion() -> void:
 	var bar: Rect2 = lab.hud.bar.get_global_rect()
 	_check(lab.hud.badge.text.contains("\n") and bar.end.x <= lab.regions.top_bar.end.x + 0.5 and not bar.intersects(scene.menu_button.get_global_rect())
 		and bar.end.y <= lab.panels.slip.get_global_rect().position.y, "the two-rule bar stays clear of the menu button and the info row (%s)" % str(bar))
+	_check(lab.card_hand.get_global_rect().position.y >= lab.panels.slip.get_global_rect().end.y or lab.card_hand.get_global_rect().position.y > lab.size.y * 0.5,
+		"the hand keeps below the moved info row")
 	# The badge's ⓘ can fall back to a taller system font on another machine (Codex
 	# measured a 70 px badge). A logged fixture makes the badge taller here: the bar
 	# and the rows under it follow its real height.

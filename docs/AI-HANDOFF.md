@@ -353,6 +353,7 @@ League template wave b (docs/ROADMAP.md), with one owner direction (2026-11-09):
 - **Codex's Wave 12 art, integrated** (merge of `2671841`, clean): UI-A3, E21-R05 (Slick, and the three missing House plaques), E21-R06 (Laser Lena), E21-R07's assets (DJ Flicker and the champion) and the Neon theme's 43 assets (handoffs/E21-R05.md to R07.md, E22-L02-ART.md).
   - **The Neon theme is bound live** (handoffs/E22-L02.md, "The Neon theme, bound live"): rooms and the Championship stage, lane finishes, music, the Neon frame kit on an attempt's screens and the flank backdrop. J22L02 and league_neon_test check them.
   - **The champion's bar** (Codex's blocker): its height now follows the badge's real size, which differs by machine (handoffs/UI-5.md, second follow-up).
+  - Validation: all 214 CI commands (Codex's seven new art journeys included) PASS locally on `d19f9f7`; the physics digest `75d1a3c0…` is unchanged. A small follow-up after it (the hand is re-placed when the bar's height changes, and portrait's speech bubble is 8 px shorter so it covers only the info row) passes J22L02 and J03C13 in both modes, J08, J06, J22L01, J21R05, J21R06 and unit.
   - **Still Codex's:** enable the Strobe badge binding; register J21R07, J21R07DJ and the rule-art journey; add live theme captures; then report. The wave closes after that merge and a full matrix.
 - **Next (Claude):** merge Codex's final Wave 12 checkpoint when it lands, run the full matrix, then "Wave 12 closed".
 

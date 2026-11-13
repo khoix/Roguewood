@@ -1868,6 +1868,7 @@ func _refresh_hud() -> void:
 	hud.show_match(view)
 	if size.y >= size.x and not _compact and not is_equal_approx(hud.bar_extra(), _bar_extra):
 		_layout_resolution() # a two-rule badge makes portrait's bar a line taller
+		_refresh_hand() # the hand was placed against the old rows
 	_refresh_panels()
 	if state in ["shop", "division_over"] or not division.is_boss() or reactions.visible_at(_clock_usec).is_empty():
 		hud.hide_reaction()
