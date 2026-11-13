@@ -1,11 +1,13 @@
 extends "res://tests/clubhouse_journey.gd"
 ## Runs all original J11 actions/assertions; adds real-art and viewport evidence.
 const CLUB_IDS := ["trophy.house", "trophy.house_campaign", "ribbon.spare_hand", "ribbon.true_curve", "ribbon.mixed_rack", "plaque.surveyor", "plaque.custodian", "deco.club_sign", "deco.lane_trim", "deco.trophy_case"]
+const NEON_TROPHY := "trophy.neon"
 
 func _capture(label: String) -> void:
 	var club = scene.clubhouse
 	for id in CLUB_IDS:
 		_check(club.Art.has_art(id), "final Clubhouse resource " + id)
+	_check(club.Art.has_art(NEON_TROPHY), "final Neon trophy resource")
 	if club.current_tab == "binder":
 		# Delivered art only: items whose catalogue artwork flag is set (coordinator scope fix for E18-C01's new Charms).
 		var delivered := {}
@@ -32,6 +34,14 @@ func _capture(label: String) -> void:
 		await super._capture(label + "_" + str(dimensions.x))
 		if club.current_tab == "trophies":
 			var scroll: ScrollContainer = club.pages.trophies.get_parent()
+			var neon_row: Control = _shelf("league.neon")
+			_check(neon_row != null, "Neon trophy shelf row exists")
+			if neon_row != null:
+				var neon_art: TextureRect = neon_row.find_child("Art", true, false)
+				_check(neon_art != null and neon_art.texture == load(club.Art.path_for(NEON_TROPHY)), "Neon shelf resolves authored trophy")
+				scroll.ensure_control_visible(neon_row)
+				for i in 4: await process_frame
+				await super._capture("neon_trophy_shelf_" + str(dimensions.x))
 			scroll.ensure_control_visible(club.trophy_grid.get_child(-1))
 			for i in 4: await process_frame
 			await super._capture(label + "_bottom_" + str(dimensions.x))

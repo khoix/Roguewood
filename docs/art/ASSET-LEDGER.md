@@ -829,3 +829,111 @@ anyway. The modified font remains OFL 1.1, including the new contours.
 Source SHA256: `9ba86cd010a4de309d263ceff8e8044092c9db7efda869620cb9ff1c4389e8a5`.
 Patched SHA256: `9e38d077f2679e2f7587b360ae3afbd97b03e84baf87a827ab1ef231971b9f68`.
 See docs/art/ui/UI-A3.md and docs/handoffs/UI-A3.md for application and evidence.
+
+## E21-R05 — Slick and four plaques (2026-11-11)
+
+Original OpenAI image generation for Roguewood, with no external reference or
+donor artwork. Brief, prompt record, cell order and extraction rectangles:
+`docs/art/briefs/E21-R05.md`. Portrait atlas `assets/rivals/slick.png` is the
+unaltered generated source: SHA256
+`f0a18fa78271648fac687dba5d3c29ee964554ee2b0a28ec765b62d42b8fa085`.
+Six poses bind to exact `rival.slick`; idle/entrance/reaction and reduced-motion
+presentation reuse the existing HUD, with no rule or dialogue changes.
+
+Original four-plaque source `assets/clubhouse/sources/E21-R05-plaques.png`:
+SHA256 `0f59eba5ac32e672f89ab4e7ddf50f262514a35931f570583adbbe0d4ee085f7`.
+Mechanical crops provide `plaque.slick`, `plaque.proprietor`, `plaque.old_lou`
+and `plaque.custodian_champion`, resolved by the existing Clubhouse filenames.
+No resizing or paint edits after generation. Source retained for provenance.
+
+`assets/rivals/rules/oil_slick.svg` is original authored vector pixel geometry,
+reusing the established House seal enclosure and adding a can/drop silhouette.
+It is static and independent of portrait identity, including champions. No new
+audio, item art, lane art or Neon theme completion is claimed by this batch.
+
+## E21-R06 — Laser Lena (2026-11-11)
+
+Original OpenAI image generation for Roguewood, no donor art or external
+references. Brief/prompt record: docs/art/briefs/E21-R06.md. Generated sources
+ship unaltered: `assets/rivals/laser_lena.png` (six-cell 1536×1024 atlas), SHA256
+`220648914929b04531adf0f9fd1075af48ff45b11f9fe14e492341b0d954df88`;
+`assets/clubhouse/plaque.laser_lena.png`, SHA256
+`b8ea18d4ae848867460f93b32f889f9510ed844027006d342689616d8ad4acec`.
+No cropping, resampling or paint edits. Exact rival and plaque filename bindings.
+Existing HUD motion/reduced motion applies to every authored expression.
+
+`assets/rivals/rules/narrow_lane.svg` is original authored geometry, reusing the
+established brass seal enclosure with close rails, central pin and inward arrows.
+It is static, including in reduced-motion mode. No dialogue, rule, item or theme
+completion is claimed. See E21-R06.md for local evidence and exact resume.
+
+## E21-R07 — DJ Flicker and Neon Champion (2026-11-11)
+
+Original OpenAI image generation, no external donor art. Prompts, corrective
+edits and exact crop rectangles: docs/art/briefs/E21-R07.md. Initial regular
+atlas retained as `assets/rivals/sources/E21-R07-initial.png`, SHA256
+`ded08cd5301af9bf2981d5a400588c0415fb9de7be3659e35def5274edb6be2e`.
+An image edit removed its pale grid/haze. Corrected `assets/rivals/dj_flicker.png`:
+`1fe9d25765147359981ee1f9435b593b158c6ecc29f398110c53ecdf2a8a8608`.
+Champion costume edit of that corrected atlas, `dj_flicker_champion.png`:
+`7981a0b8ee5ab4b524064d5db0157c958c2d7bde9791baecd3486c2299549d83`.
+Both final six-state sources ship unchanged and bind by exact rival ID.
+
+Corrected plaque source `assets/clubhouse/sources/E21-R07-plaques.png`:
+`f6721b63475fdda57c204ec16c7ac0236dc2e0828024392ca6785fe456260383`.
+Its two 887-square halves are cropped without resampling to `plaque.dj_flicker`
+and `plaque.dj_flicker_champion`. The generated correction adds complete crown
+finial/margins. Original authored `assets/rivals/rules/strobe.svg` uses the
+established brass frame with tight timing-ring geometry. Static, no strobing
+flash effect. Motion/reduced motion reuse the HUD contract. No new music or
+Neon theme completion claimed here.
+Strobe SVG is delivered but not yet enabled in the production rule-badge lookup:
+native validation exposed the coordinator-owned two-rule bar-height issue.
+Portrait/plaques bind now; E21-R07 handoff records the integration blocker.
+
+## E22-L02-ART — environment and signage, session 1 (2026-11-11)
+
+Original OpenAI image generation for Roguewood; no external reference or donor
+art. Exact prompt, actual dimensions and extraction contract are retained in
+`assets/leagues/neon/source.environment.txt`. The unmodified source PNG is
+1254 x 1254, nine 418-square cells; SHA256
+`9500785e403671cb79f070bc9d2ab9b482502a55fc54b6d6794f28b0c3215280`.
+Nine AtlasTextures inset their cells by 3 pixels, without resampling or paint
+edits. Generated source is project artwork, with no third-party license or
+reserved-name dependency introduced.
+
+Original scene resources and native sign data bind 27 IDs in the Neon manifest:
+environment/signage/backdrop for division_01 through division_08 and championship.
+Scene construction follows the project's House environment contract, with
+violet sign trim and a dark face. Native engine lettering supplies all text;
+the image has none. All rooms are static in normal/reduced motion. Full brief:
+`docs/art/briefs/E22-L02-ART.md`. These assets are delivered for integration;
+the partial manifest is not enabled in the live League resolver. Lane art,
+music, frame kit, flank backdrop and trophy are session 2, not claimed here.
+
+## E22-L02-ART — lane and theme assets, session 2 (2026-11-11)
+
+Original authored shaders, drawing geometry, vector masters and synthesized
+music. No third-party references, donor melodies, samples or recordings.
+`tools/author_neon_theme.py` reproduces the five Neon nine-slice frames, two
+ornaments, normal/reduced flank scene bindings, two lane materials and the
+16-bar 112 BPM loop `music.league.neon.circuit`. Music SHA256:
+`91411dab4c524e654e7351c077e4231aa789a593f5e480284995fa579e7ef2cd`.
+Source arrangement, seeded synthesis, circular tails and measurement metadata
+are included; the track is project-original PCM rather than a licensed sample.
+
+Long Oil/Two-Tone material geometry reads authored world-space distances equal
+to the shipped LaneSpec. Matte diagonal grain and twin boundary ticks add
+non-colour cues. Original rail/ring painter consumes the existing gutter and
+timing thresholds. The flank traces drift slowly at constant brightness;
+reduction fixes their position. UI frames reuse the existing OFL font unchanged.
+
+Original OpenAI-generated trophy with a corrective framing edit, no donor art.
+Initial source retained in `assets/clubhouse/sources/E22-L02-trophy-initial.png`,
+SHA256 `a98b18a7662afac8ace6f992cd990150063701ed73adba02c82fb68f60dad486`.
+Final 1254-square RGBA `assets/clubhouse/trophy.neon.png`, SHA256
+`f9c796a125bb155b2f11bd158c6a65fedacd8712d98f6d948838d5675e933fae`.
+No subsequent pixel edits; the native shelf resolves its exact filename.
+Full prompts, hashes and source list: `assets/leagues/neon/source.theme.txt`.
+Live environment/lane/music/UI/flank binding remains a coordinator hook request;
+this provenance entry does not claim the full Neon League integration is done.

@@ -1,0 +1,9 @@
+[gd_scene load_steps=4 format=3]
+[ext_resource type="Script" path="res://assets/leagues/neon/environment.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/leagues/neon/backdrop.league.neon.division_03.tres" id="2"]
+[ext_resource type="Resource" path="res://assets/leagues/neon/signage.league.neon.division_03.tres" id="3"]
+[node name="NeonEnvironment" type="Node3D"]
+script = ExtResource("1")
+asset_id = "environment.league.neon.division_03"
+backdrop = ExtResource("2")
+signage = ExtResource("3")

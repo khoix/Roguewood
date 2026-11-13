@@ -298,6 +298,35 @@ jobs:
         run: |
           python3 tools/qa.py e2e --journey JUIA1
           xvfb-run -a python3 tools/qa.py e2e --journey JUIA1 --rendered
+      - name: Slick and missing House plaque art (E21-R05)
+        if: matrix.shard == 'art'
+        run: |
+          python3 tools/qa.py e2e --journey J21R05C
+          xvfb-run -a python3 tools/qa.py e2e --journey J21R05C --rendered
+          python3 tools/qa.py e2e --journey J21R05
+          xvfb-run -a python3 tools/qa.py e2e --journey J21R05 --rendered
+      - name: Laser Lena rival art (E21-R06)
+        if: matrix.shard == 'art'
+        run: |
+          python3 tools/qa.py e2e --journey J21R06C
+          xvfb-run -a python3 tools/qa.py e2e --journey J21R06C --rendered
+          python3 tools/qa.py e2e --journey J21R06
+          xvfb-run -a python3 tools/qa.py e2e --journey J21R06 --rendered
+      - name: DJ Flicker and Neon Champion art (E21-R07)
+        if: matrix.shard == 'art'
+        run: |
+          python3 tools/qa.py e2e --journey J21R07C
+          xvfb-run -a python3 tools/qa.py e2e --journey J21R07C --rendered
+      - name: Neon environment and signage art (E22-L02-ART session 1)
+        if: matrix.shard == 'art'
+        run: |
+          python3 tools/qa.py e2e --journey J22L02ENV
+          xvfb-run -a python3 tools/qa.py e2e --journey J22L02ENV --rendered
+      - name: Neon lane finishes and theme kit (E22-L02-ART session 2)
+        if: matrix.shard == 'art'
+        run: |
+          python3 tools/qa.py e2e --journey J22L02ART
+          xvfb-run -a python3 tools/qa.py e2e --journey J22L02ART --rendered
       - name: Preserve journey diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -376,4 +405,5 @@ jobs:
             artifacts/av-c04-b/
             artifacts/av-c04-c/
             artifacts/e22-l01-art/
+            artifacts/e22-l02-art/
           if-no-files-found: warn

@@ -1,4 +1,28 @@
 {
+  "rival.dj_flicker": {
+    "source": "res://assets/rivals/dj_flicker.png",
+    "rule": "boss_rule.strobe",
+    "reward": "",
+    "lane": ""
+  },
+  "rival.dj_flicker_champion": {
+    "source": "res://assets/rivals/dj_flicker_champion.png",
+    "rule": "boss_rule.strobe",
+    "reward": "",
+    "lane": ""
+  },
+  "rival.laser_lena": {
+    "source": "res://assets/rivals/laser_lena.png",
+    "rule": "boss_rule.narrow_lane",
+    "reward": "",
+    "lane": ""
+  },
+  "rival.slick": {
+    "source": "res://assets/rivals/slick.png",
+    "rule": "boss_rule.oil_slick",
+    "reward": "",
+    "lane": ""
+  },
   "rival.surveyor": {
     "source": "res://assets/rivals/surveyor.png",
     "rule": "boss_rule.dead_straight",
