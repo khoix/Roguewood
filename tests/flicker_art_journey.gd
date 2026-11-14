@@ -1,5 +1,5 @@
 extends "res://tests/neon_c13_journey.gd"
-## Pending J21R07: register after the coordinator fits both seals and enables Strobe.
+## J21R07: authored champion identity and paired Strobe/Oil Slick seals.
 ## Retains every original C13 encounter/assertion, including paired-rule layout.
 const Art = preload("res://src/presentation/rival_art.gd")
 var tested_id := "rival.dj_flicker_champion"
@@ -8,6 +8,7 @@ func _focus_accept(control: Control) -> void:
 	var intro: bool = lab != null and control == lab.hud.intro_button and lab.state == "intro" and lab.division.rival_for(lab.division.current()).id == tested_id
 	var prefix := tested_id.trim_prefix("rival.")
 	if intro:
+		_check(Art.rule_badge("boss_rule.strobe") != null, "Strobe seal is authored")
 		_check(lab.hud.intro_portrait.texture == Art.portrait(tested_id, "entrance"), "exact Flicker intro " + tested_id)
 		_check(lab.hud.intro_button.icon == Art.rule_badge("boss_rule.strobe"), "Strobe intro seal")
 		_check(lab.hud.intro_portrait.still, "reduced intro is still")

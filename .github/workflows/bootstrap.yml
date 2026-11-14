@@ -327,6 +327,17 @@ jobs:
         run: |
           python3 tools/qa.py e2e --journey J22L02ART
           xvfb-run -a python3 tools/qa.py e2e --journey J22L02ART --rendered
+      - name: Final Neon rival and live theme art (Wave 12)
+        if: matrix.shard == 'art'
+        run: |
+          python3 tools/qa.py e2e --journey J21R07
+          xvfb-run -a python3 tools/qa.py e2e --journey J21R07 --rendered
+          python3 tools/qa.py e2e --journey J21R07DJ
+          xvfb-run -a python3 tools/qa.py e2e --journey J21R07DJ --rendered
+          python3 tools/qa.py e2e --journey J22L02RULEART
+          xvfb-run -a python3 tools/qa.py e2e --journey J22L02RULEART --rendered
+          python3 tools/qa.py e2e --journey J22L02LIVEART
+          xvfb-run -a python3 tools/qa.py e2e --journey J22L02LIVEART --rendered
       - name: Preserve journey diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -406,4 +417,7 @@ jobs:
             artifacts/av-c04-c/
             artifacts/e22-l01-art/
             artifacts/e22-l02-art/
+            artifacts/e21-r05/
+            artifacts/e21-r06/
+            artifacts/e21-r07/
           if-no-files-found: warn

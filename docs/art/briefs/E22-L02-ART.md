@@ -3,7 +3,7 @@
 Session 1: environment and signage for eight Divisions and the Championship.
 Original OpenAI generation, no external donor art; exact prompt and SHA256 in
 `assets/leagues/neon/source.environment.txt`. Source remains unaltered. Session
-2 adds the remaining assets below; live League integration is still separate.
+2 adds the remaining assets below; Claude's live League integration is now merged.
 
 ## IDs and slots
 
@@ -57,13 +57,13 @@ contact sheet are written under `artifacts/e22-l02-art/environment/`.
 The inspector borrows the existing House Oil floor and Wood rack as context.
 That environment inspector does not claim throws, live League navigation or
 device feel; session 2 has a separate inspector for Neon lane finishes.
-Live binding must follow the coordinator's E22-L02 hook; this session does not
-register the manifest in LeagueTheme or change throw_lab.
+Claude subsequently bound the manifest in LeagueTheme and throw_lab in
+`d19f9f7`; J22L02LIVEART now covers the real League in addition to the inspector.
 
 ## Session 2 — lane, rule and UI theme contract
 
 The expanded theme manifest now has 43 bindings and status
-`assets_ready_live_theme_hook_pending`. It retains all 27 stage bindings and
+`integrated`. It retains all 27 stage bindings and
 adds the following delivered IDs:
 
 | ID | Asset and application |
@@ -91,7 +91,7 @@ guard lines. Strobe art is threshold-based, not flashing: with scale .5 the
 perfect/sweet boundaries are .07/.11, measured from the .06 floor. The existing
 contracting ring and grade colour remain; drawing changes no ring timing,
 grading, launch, gutter detection or input handling. Ring art is distinct from
-the R07 rule badge, whose binding still awaits the champion bar-height fix.
+the R07 rule badge, now enabled after the champion bar-height fix.
 
 The five UI frames keep the House kit's 64px sources, 12/16px slice borders,
 20/24px content insets and 40/48px minimums. Stepped rail corners and diamond
@@ -112,5 +112,7 @@ grayscale comparisons, normal/reduced backdrop pixel comparisons, frame resource
 contracts, trophy margins and actual audio wrap. J11ART additionally validates
 the native Neon trophy shelf texture. `neon_rule_art_journey.gd` preserves all
 C13 assertions and adds normal/reduced/landscape rail/ring captures; its
-registration awaits the known champion layout fix. None of these previews
-claim live environment/lane/music/frame/flank integration or phone performance.
+registration follows the merged champion layout fix. J22L02LIVEART extends the
+full live Neon League journey with stage sign/identity checks, native reduction
+controls and room/condition/Championship captures. The inspectors alone do not
+claim live integration or phone performance; the live journey verifies integration.

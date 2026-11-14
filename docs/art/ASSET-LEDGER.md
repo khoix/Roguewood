@@ -937,3 +937,14 @@ No subsequent pixel edits; the native shelf resolves its exact filename.
 Full prompts, hashes and source list: `assets/leagues/neon/source.theme.txt`.
 Live environment/lane/music/UI/flank binding remains a coordinator hook request;
 this provenance entry does not claim the full Neon League integration is done.
+
+## Wave 12 — final integration (2026-11-14)
+
+The earlier integration deferrals above are resolved. Coordinator d19f9f7 binds
+the Neon room/lane/music/frame/flank assets; a034d61 completes the Champion
+layout fix. Codex enables the delivered Strobe SVG in the production lookup and
+registers the regular/Champion and rule-art journeys, plus a full live League
+art extension. No new image, font, audio source, license or asset hash is
+introduced by this integration. The manifest and its authoring script now mark
+delivery integrated. Final evidence and local capture index: WAVE12-CODEX.md,
+E21-R07.md and E22-L02-ART.md under docs/handoffs/.
