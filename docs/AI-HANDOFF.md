@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-11-13. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E22 IN_PROGRESS; E23–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). Wave 10 is merged by PR #22 (main `706767f`). Wave 11 is merged by PR #29 (main `f65d16f`). **Wave 12 is open** (see "Wave 12 claims" and "Wave 12 progress"): UI-5, E18-C14, DC-N1, DC-N2 and E22-L02 are done (the Neon League is live), Codex's art is merged and the Neon theme is bound live; Codex's last bindings and journeys remain. The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
+Updated: 2026-11-14. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E22 IN_PROGRESS; E23–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). Wave 10 is merged by PR #22 (main `706767f`). Wave 11 is merged by PR #29 (main `f65d16f`). **Wave 12 is closed** (see "Wave 12 closed"; the Neon League is live with its rivals and theme) and awaits its PR to main. **Wave 13 is claimed** (see "Wave 13 claims"). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
 
 ## Read first
 
@@ -276,6 +276,29 @@ Open: Wave 10 is merged (PR #22, main `706767f`). Base: `claude/roguewood-build`
 - **Owner actions:** listen to the throw sounds and watch the charge collar on the phone (no phone or speaker trial has been run).
 - **Merge:** MERGED to main by PR #29 (`f65d16f`) after CI passed on `335ef53` (Bootstrap run 42735874994, both shards).
 
+## Wave 12 closed (coordinator, 2026-11-14)
+- **Contents** (all on `claude/roguewood-build` at the "Wave 12 closed" commit):
+  - Claude: UI-5 (`985e956`, `34a84bf`, `86ef216`), E18-C14, DC-N1 (`119ae77`, `7abcd34`), DC-N2 (`d0fa6d2`), E22-L02 (`0240fe7`, `d43a508`), the UI-5 follow-up (`71247f7`, `97d6c50`) and the live Neon theme with the champion's bar (`d19f9f7`, `a034d61`).
+  - Codex: UI-A3, E21-R05 to R07 and E22-L02-ART, with its closing index docs/handoffs/WAVE12-CODEX.md (`4476c5f`), merged at `79994bb`.
+- **Validation:**
+  - The full CI command list (222 commands: unit, content, integration, physics, smoke, export, the web journey, every journey headless and rendered, Codex's new art journeys and the art capture tools) PASS locally on `79994bb`, the merge of both agents' work. The physics digest `75d1a3c0…`, J03 560/240/70 and J05 21060 are unchanged.
+  - Since then only documentation changed (this record, the Wave 13 claims and docs/prompts/codex-wave13.md). CI runs on this commit.
+- **Not delivered in Wave 12:** Neon's other sixteen items (DC-N3 to N5, planned for Wave 13), lane and side reading and the one-throw hook tactic (no item yet needs them), and `league.spectral`, so the Neon title opens nothing yet. Sell rows are one per item, not grouped.
+- **Finding for E24:** in the strategy simulation an ordinary player's single-purpose build stalls at Division 2–3 in both Leagues; targets are unchanged.
+- **Owner actions:** play the Neon League on the phone; listen to its music; review the captures listed in docs/handoffs/WAVE12-CODEX.md (no phone or speaker trial has been run).
+- **Merge:** pending, by the PR from `claude/roguewood-build` to main.
+
+## Wave 13 claims (coordinator: Claude, 2026-11-14)
+Open once Wave 12 is merged. Base: `claude/roguewood-build` at the "Wave 12 closed" commit. Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave13.md). Scope: docs/ROADMAP.md, the Wave 13 row and "League template".
+- **Claude, in this order:**
+  1. **DC-N3 to DC-N5** (3 sessions, Medium): Neon's other sixteen items (one ball, one pin, nine Charms, three tactical cards and two shop upgrades; the plan is in handoffs/E17-L02.md), with the primitives they still need first (lane and side reading, the one-throw hook tactic). Each batch: definitions, mechanics through the real FrameBuilder and a native journey; the physics digest of existing fixtures must not change.
+  2. **E17-L03** (High): the Salvage League spec, as E17-L02 was for Neon.
+- **Codex:**
+  1. **AV-N1** (DC-N1's six items; J03C15) and **AV-N2** (DC-N2's six items; J03C16), with native checks, artwork flags, effects and sound.
+  2. **The tail of the Neon theme:** anything the live captures show is still developmental.
+  - AV-N3 onward follows DC-N3 to N5 as they land (Wave 14).
+- **Owner:** play the Neon League on the phone.
+
 ## Wave 12 claims (coordinator: Claude, 2026-11-10)
 Open: Wave 11 is merged (PR #29, main `f65d16f`). Base: `claude/roguewood-build` at the "Wave 12 claims" commit (it adds UI-5 to the claims written at the close). Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave12.md). Scope: docs/ROADMAP.md, the Wave 12 row and "GUI review: UI-4".
 
@@ -355,7 +378,7 @@ League template wave b (docs/ROADMAP.md), with one owner direction (2026-11-09):
   - **The champion's bar** (Codex's blocker): its height now follows the badge's real size, which differs by machine (handoffs/UI-5.md, second follow-up).
   - Validation: all 214 CI commands (Codex's seven new art journeys included) PASS locally on `d19f9f7`; the physics digest `75d1a3c0…` is unchanged. A small follow-up after it (the hand is re-placed when the bar's height changes, and portrait's speech bubble is 8 px shorter so it covers only the info row) passes J22L02 and J03C13 in both modes, J08, J06, J22L01, J21R05, J21R06 and unit.
   - **Still Codex's:** enable the Strobe badge binding; register J21R07, J21R07DJ and the rule-art journey; add live theme captures; then report. The wave closes after that merge and a full matrix.
-- **Next (Claude):** merge Codex's final Wave 12 checkpoint when it lands, run the full matrix, then "Wave 12 closed".
+- **Codex's final checkpoint, merged** (`4476c5f` at `79994bb`): the Strobe seal, J21R07, J21R07DJ, J22L02RULEART and J22L02LIVEART. See "Wave 12 closed".
 
 ## Wave 10 closed (coordinator, 2026-11-07)
 - **Contents** (all on `claude/roguewood-build` at the "Wave 10 closed" commit):
