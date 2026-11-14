@@ -1,6 +1,6 @@
 extends "res://tests/neon_c13_journey.gd"
 ## Native art extension; retains ALL C13 mechanics/bank/layout checks.
-## Registration waits for the coordinator's known champion bar-height fix.
+## J22L02RULEART: coordinator bar-height prerequisite merged before registration.
 func _capture(label:String) -> void:
  await super._capture(label)
  if label not in ["c13_narrow_lane","c13_champion"]:return

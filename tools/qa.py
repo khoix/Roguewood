@@ -15,6 +15,10 @@ ROOT = Path(__file__).resolve().parents[1]
 VERSION = (ROOT / ".godot-version").read_text().strip()
 # journey -> script, success marker, artifact directory, rendered captures, timeout, extra engine flags
 JOURNEYS = {
+    "J21R07": ("res://tests/flicker_art_journey.gd", "ROGUEWOOD_J03C13_OK", "artifacts/e21-r07/champion", tuple("dj_flicker_champion_" + s for s in ["intro", "landscape", "normal", "reduced", "reaction", "defeated"]) + ("champion_seals", "c13_oil_slick", "c13_narrow_lane", "c13_champion"), 900, ["--fixed-fps", "60"]),
+    "J21R07DJ": ("res://tests/flicker_regular_art_journey.gd", "ROGUEWOOD_J03C13_OK", "artifacts/e21-r07/regular", tuple("dj_flicker_" + s for s in ["intro", "landscape", "normal", "reduced", "reaction", "defeated"]) + ("c13_oil_slick", "c13_narrow_lane"), 900, ["--fixed-fps", "60"]),
+    "J22L02RULEART": ("res://tests/neon_rule_art_journey.gd", "ROGUEWOOD_J03C13_OK", "artifacts/e22-l02-art/rules", ("c13_oil_slick", "c13_narrow_lane", "c13_champion") + tuple("c13_" + rule + "_art_" + mode for rule in ["narrow_lane", "champion"] for mode in ["normal", "reduced", "landscape"]), 900, ["--fixed-fps", "60"]),
+    "J22L02LIVEART": ("res://tests/neon_live_art_journey.gd", "ROGUEWOOD_J22L02_OK", "artifacts/e22-l02-art/live", tuple("live_d%02d_opener" % i for i in range(1,9)) + ("live_d02_feature", "live_d03_feature", "live_d08_boss", "live_champion_normal", "live_champion_landscape", "j22n_champion", "j22n_title", "j22n_attempt2"), 1800, ["--fixed-fps", "60"]),
     "J22L02ART": ("res://tests/neon_theme_journey.gd", "ROGUEWOOD_NEON_THEME_OK", "artifacts/e22-l02-art/theme",
         ("house_oil", "long_oil", "two_tone", "lane_reduced", "kit_reduced", "kit_reduced_later", "kit_normal", "kit_drift", "kit_landscape", "lane_landscape"), 240, ["--fixed-fps", "60"]),
     "J22L02ENV": ("res://tests/neon_environment_journey.gd", "ROGUEWOOD_NEON_ENVIRONMENT_OK", "artifacts/e22-l02-art/environment",
@@ -155,6 +159,7 @@ CONTENT.update({"J21R03": "house_c05", "J21R04": "house_c05", "J22L01": "house",
 CONTENT.update({"J03C13": "neon_c13"})
 CONTENT.update({"J21R05": "neon_c13"})
 CONTENT.update({"J21R06": "neon_c13"})
+CONTENT.update({"J21R07": "neon_c13", "J21R07DJ": "neon_c13", "J22L02RULEART": "neon_c13", "J22L02LIVEART": "house"})
 # Multi-stage journeys whose stages are different scripts, content and save
 # directories: J06 plays the slice's two Divisions, then the E09 lab Division.
 STAGE_RUNS = {"J06": [("res://tests/slice_journey.gd", "slice"), ("res://tests/division_journey.gd", "lab")]}

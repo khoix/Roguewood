@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "league_id": "league.neon",
-  "delivery_status": "assets_ready_live_theme_hook_pending",
+  "delivery_status": "integrated",
   "source": "source.environment.png",
   "stages": [
     {

@@ -197,7 +197,7 @@ manifest["music"] = dict(asset_id=asset_id, bpm=bpm, bars=bars, sample_rate=rate
                          seconds=length/rate, peak=float(np.max(np.abs(mix))), rms=float(np.sqrt(np.mean(mix**2))),
                          seam_delta=float(np.max(np.abs(mix[0]-mix[-1]))),
                          sha256=hashlib.sha256(audio.read_bytes()).hexdigest())
-manifest["delivery_status"] = "assets_ready_live_theme_hook_pending"
+manifest["delivery_status"] = "integrated"
 save(D / "manifest.json", json.dumps(manifest, indent=2) + "\n")
 print(json.dumps(manifest["music"], indent=2))
 print(len(assets), "stable asset bindings")
