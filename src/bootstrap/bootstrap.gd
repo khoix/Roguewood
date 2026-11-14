@@ -42,6 +42,7 @@ var career_graph: Dictionary = {}
 var career_line: Label # the full sentence (read by tools and tests); the tiles and bars show it
 var career_stats: HBoxContainer
 var career_goals: VBoxContainer
+var _menu_sheet: PanelContainer
 var league_sets: Array = [] # content set behind each League choice
 ## The Clubhouse (E16): the home screen; its League Board holds the panel below.
 var clubhouse: Clubhouse
@@ -190,6 +191,7 @@ func _build_session_menu() -> void:
 	centre.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	session_menu.add_child(centre)
 	var sheet := PanelContainer.new()
+	_menu_sheet = sheet
 	sheet.add_theme_stylebox_override("panel", UiTheme.frame("menu", 20.0, 18.0))
 	centre.add_child(sheet)
 	menu_list = VBoxContainer.new()
@@ -338,9 +340,17 @@ func _begin_attempt(attempt: int, saved: Dictionary = {}) -> void:
 	if content.id == "campaign": details.text += " · Seed %d" % int(session.seed)
 	clubhouse.hide()
 	_clear_lab()
+	# E22-L02: the League's frame kit for everything the attempt builds, and for the
+	# session menu over it. The lab's own Theme carries the kit to its buttons.
+	UiTheme.use_kit(String(content.get("league_id", "")) if content.id in ["house", "neon"] else "")
+	_menu_sheet.add_theme_stylebox_override("panel", UiTheme.frame("menu", 20.0, 18.0))
 	# Throw lab (E04–E09); the lane draws beneath the session controls.
 	lab = ThrowLab.new()
 	lab.name = "ThrowLab"
+	if UiTheme.kit != UiTheme.KIT:
+		lab.theme = UiTheme.build()
+	menu_button.theme = lab.theme
+	session_menu.theme = lab.theme
 	lab.settings = throw_settings
 	lab.content = content
 	lab.equipment_seed = session.seed
@@ -428,6 +438,11 @@ func _clear_lab() -> void:
 		remove_child(lab)
 		lab.free()
 		lab = null
+	UiTheme.use_kit("") # the shell and the Clubhouse are always the House kit
+	if menu_button != null:
+		menu_button.theme = null
+		session_menu.theme = null
+		_menu_sheet.add_theme_stylebox_override("panel", UiTheme.frame("menu", 20.0, 18.0))
 
 ## Preserve native reference typography in both orientations.
 func _viewport_layout() -> void:

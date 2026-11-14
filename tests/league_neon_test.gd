@@ -7,6 +7,8 @@ extends RefCounted
 ## - The registry lists the League, open from the start, with its four rival gates
 ##   and its title; the five DC-N1 rewards wait for those gates and are reachable.
 const ContentSet = preload("res://src/rules/content_set.gd")
+const LeagueTheme = preload("res://src/presentation/league_theme.gd")
+const UiTheme = preload("res://src/presentation/house_ui_theme.gd")
 const Shop = preload("res://src/rules/shop.gd")
 const UnlockGraph = preload("res://src/career/unlock_graph.gd")
 const REWARDS := {"ball.oilskin": "gate.slick_cleared", "ball.laser": "gate.laser_lena_cleared", "pin.tempo": "gate.dj_flicker_cleared",
@@ -48,7 +50,37 @@ static func run() -> Array[String]:
 	for gate in REWARDS.values():
 		_expect(graph.gates.has(gate), "%s is registered" % gate, failures)
 	_specialists(neon, house, failures)
+	_theme(neon, failures)
 	return failures
+
+## E22-L02-ART bound live: a stage for every Division and the Championship, a finish
+## for every listed lane, the music, the flank backdrop and the five-frame kit.
+static func _theme(neon: Dictionary, failures: Array[String]) -> void:
+	var theme = LeagueTheme.for_league("league.neon")
+	_expect(theme != null, "the Neon League has a theme", failures)
+	if theme == null:
+		return
+	_expect(range(1, 9).all(func(d): return theme.stage(d, false).environment_id == "environment.league.neon.division_%02d" % d)
+		and theme.stage(8, true).environment_id == "environment.league.neon.championship"
+		and theme.manifest.stages.all(func(s): return ResourceLoader.exists(theme._asset(s.environment_id))), "stages: each Division's room and the Championship resolve", failures)
+	var listed := {}
+	for d in neon.divisions:
+		for m in d.matches:
+			if m.has("lane_condition"): listed[m.lane_condition] = true
+	var finishes: Array = theme.manifest.lanes.map(func(l): return l.condition_id)
+	_expect(listed.keys().all(func(c): return c in finishes) and theme.manifest.lanes.all(func(l): return ResourceLoader.exists(theme._asset(l.visual_id))),
+		"every lane the League lists has a finish: %s" % str(listed.keys()), failures)
+	_expect(ResourceLoader.exists(theme._asset(theme.manifest.music.asset_id)), "the music resolves", failures)
+	var flank: Control = theme.flank()
+	_expect(flank != null and "reduced" in flank and flank.get_meta("backdrop_id") == "backdrop.ui.neon.normal", "the flank backdrop loads and can be stilled", failures)
+	if flank != null: flank.free()
+	theme.free()
+	UiTheme.use_kit("league.neon")
+	var neon_frames: Array = ["hud", "panel", "slip", "menu", "shop"].map(func(k): return (UiTheme.frame(k) as StyleBoxTexture).texture.resource_path)
+	UiTheme.use_kit("league.salvage")
+	var house_frame: String = (UiTheme.frame("hud") as StyleBoxTexture).texture.resource_path
+	_expect(neon_frames == ["hud", "panel", "slip", "menu", "shop"].map(func(k): return "res://assets/ui/neon/%s.svg" % k) and house_frame.begins_with("res://assets/ui/house/")
+		and UiTheme.kit_id() == "house", "the Neon kit has all five frames; a League without a kit keeps the House frames: %s" % str(neon_frames), failures)
 
 ## Specialist weights: Neon's tags count twice within a category and rarity; the
 ## House League picks exactly as before; nothing is excluded.

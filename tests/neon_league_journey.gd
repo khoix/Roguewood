@@ -18,8 +18,12 @@ extends "res://tests/house_league_journey.gd"
 ##   title:     the League victory banks the title and the first clears of all four
 ##              rivals; the board's Neon trophy is earned; a new Neon attempt has the
 ##              five gated rewards in its pool.
-## Neon has no League theme yet (E22-L02-ART), so no environment is checked.
+##   theme:     Codex's Neon theme (E22-L02-ART) is live: each Division's room and
+##              the Championship stage, the Long Oil and Two-Tone finishes, the
+##              music loop, the flank backdrop and the Neon frame kit; the House
+##              kit returns at the Clubhouse.
 ## Run with --fixed-fps 60.
+const UiTheme = preload("res://src/presentation/house_ui_theme.gd")
 const ClubModel = preload("res://src/clubhouse/clubhouse_model.gd")
 const GATES := ["gate.slick_cleared", "gate.laser_lena_cleared", "gate.dj_flicker_cleared", "gate.neon_champion_cleared", "gate.neon_champion"]
 const REWARDS := ["ball.oilskin", "ball.laser", "pin.tempo", "charm.neon_sign", "ball_mod.blacklight"]
@@ -31,6 +35,7 @@ func _run() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--artifact-dir="): artifact_dir = arg.trim_prefix("--artifact-dir=")
 	root.size = PORTRAIT
+	manifest = JSON.parse_string(FileAccess.get_file_as_string("res://assets/leagues/neon/manifest.json"))
 	scene = load("res://src/bootstrap/bootstrap.tscn").instantiate()
 	root.add_child(scene)
 	await process_frame
@@ -53,11 +58,23 @@ func _run() -> void:
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.assist)
 	await _focus_accept(lab.settings_panel.close)
+	# The Neon theme (E22-L02-ART) is live: music, the flank backdrop behind the lane
+	# (still, since reduced motion is on) and the Neon frame kit on the attempt's screens.
+	_check(lab.league_theme != null and lab.league_theme.music != null and lab.league_theme.music.playing
+		and lab.league_theme.music.stream.resource_path == manifest.assets[manifest.music.asset_id], "the Neon League's music loop is playing")
+	_check(lab.backdrop.get_meta("backdrop_id", "") == manifest.flank.normal and lab.backdrop.reduced and lab.backdrop.get_index() == 0
+		and lab.backdrop.mouse_filter == Control.MOUSE_FILTER_IGNORE, "the Neon flank backdrop is behind the lane, still under reduced motion")
+	_check(UiTheme.kit_id() == "neon" and _frame(lab.hud.bar) == "res://assets/ui/neon/hud.svg" and _frame(lab.score_panel) == "res://assets/ui/neon/menu.svg"
+		and _frame(lab.panels.slip) == "res://assets/ui/neon/slip.svg" and _frame(lab.card_hand) == "res://assets/ui/neon/panel.svg"
+		and lab.next_rack.get_theme_stylebox("normal").texture.resource_path == "res://assets/ui/neon/shop.svg",
+		"the attempt's bar, review, slip, hand and buttons wear the Neon frames (%s, %s)" % [_frame(lab.hud.bar), _frame(lab.card_hand)])
 	for division in range(1, 9):
 		await _division(division)
 	await _title()
 	await _next_attempt()
 	if "--inject-failure" in OS.get_cmdline_user_args(): _check(false, "Injected diagnostic failure")
+	if lab.league_theme != null and lab.league_theme.music != null:
+		lab.league_theme.music.stop() # the audio thread lets go of a playing loop after a few frames
 	for i in 5: await process_frame
 	if failures.is_empty(): print("ROGUEWOOD_J22L02_OK")
 	quit(0 if failures.is_empty() else 1)
@@ -75,10 +92,20 @@ func _in_pool(id: String) -> bool:
 			return item.unlock.kind == "initial" or item.unlock.prerequisites.all(func(p): return p in lab.shop.unlocked)
 	return false
 
+func _frame(control: Control) -> String:
+	var style := control.get_theme_stylebox("panel") as StyleBoxTexture
+	return style.texture.resource_path if style != null and style.texture != null else ""
+
 func _check_stage(division: int, m: Dictionary) -> void:
 	var lane: String = m.get("lane_condition", "lane.house") # no listed lane: the standard House Oil lane
 	_check(lab.division.division_number() == division and lab.hud.info.text.contains("D%d/8" % division) and lab.lane.lane_condition == lane,
 		"Division %d %s: HUD and lane %s (%s)" % [division, m.kind, lane, lab.lane.lane_condition])
+	# The theme: each Division's room, the Championship stage for the final boss,
+	# and the listed lane's finish.
+	var expected := _stage_id(division, m.kind == "boss" and division == 8)
+	_check(not expected.is_empty() and _environment() == expected, "Division %d %s: environment %s (%s)" % [division, m.kind, expected, _environment()])
+	if m.has("lane_condition"):
+		_check(_lane_visual() == "lane_visual." + lane, "Division %d %s: the %s finish (%s)" % [division, m.kind, lane, _lane_visual()])
 	if m.kind == "opener":
 		_check(lane == "lane.house", "Division %d's opener keeps House Oil" % division)
 	if m.kind == "boss":
@@ -87,7 +114,7 @@ func _check_stage(division: int, m: Dictionary) -> void:
 			"Division %d boss: %s under %s (%s)" % [division, m.rival, str(RULES[m.rival]), str(rules)])
 
 func _resumed_ok() -> bool:
-	return scene.content.id == "neon" and scene.league.selected == 1 and scene.session.league_id == "league.neon"
+	return scene.content.id == "neon" and scene.league.selected == 1 and scene.session.league_id == "league.neon" and lab.league_theme != null and UiTheme.kit_id() == "neon"
 
 ## The board is put back on the House League before Continue, so the saved attempt
 ## must bring its own League with it.
@@ -100,6 +127,7 @@ func _save_and_resume() -> void:
 	await _action("ui_up")
 	await _action("ui_accept")
 	await _wait_for(func(): return scene.content.id == "house" and scene.continue_button.visible, "the board on the House League, Continue still offered")
+	_check(UiTheme.kit_id() == "house" and scene.clubhouse.visible, "back at the Clubhouse the House frames return")
 	await _focus_accept(scene.continue_button)
 	await _wait_for(func(): return scene.lab != null and scene.lab.state == "shop", "the attempt resumes in Division 5's shop")
 	lab = scene.lab

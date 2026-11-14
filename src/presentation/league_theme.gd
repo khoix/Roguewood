@@ -7,7 +7,7 @@ extends Node
 ## - The match's lane condition picks the lane surface material; the lane's physics
 ##   material and geometry are untouched.
 ## - The League's music loops on the Master bus, quietly, for the whole attempt.
-const MANIFESTS := {"league.house": "res://assets/leagues/house/manifest.json"}
+const MANIFESTS := {"league.house": "res://assets/leagues/house/manifest.json", "league.neon": "res://assets/leagues/neon/manifest.json"}
 const MUSIC_DB := -18.0
 
 var manifest: Dictionary = {}
@@ -70,6 +70,20 @@ func dress_lane(lane_world: Node3D, condition: String) -> String:
 			child.material_override = material
 			child.set_meta("lane_visual", visual)
 	return visual
+
+## The League's own backdrop for the space beside the lane (E22-L02), or null when
+## it keeps the House sky. The node has a `reduced` property, as the House one has.
+func flank() -> Control:
+	var id: String = manifest.get("flank", {}).get("normal", "")
+	if id.is_empty():
+		return null
+	var scene: PackedScene = load(_asset(id))
+	if scene == null:
+		push_warning("League theme: missing flank backdrop " + id)
+		return null
+	var node: Control = scene.instantiate()
+	node.set_meta("backdrop_id", id)
+	return node
 
 ## Starts the League's music loop (once).
 func play_music() -> void:

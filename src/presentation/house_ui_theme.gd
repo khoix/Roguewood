@@ -5,6 +5,17 @@ extends RefCounted
 ## nine-slice; they are never stretched as pictures.
 const FONT = preload("res://assets/ui/fonts/PixelifySans.ttf")
 const KIT := "res://assets/ui/house/"
+## E22-L02: a League may bring its own frame kit (the same five frames by name).
+## The kit in use is chosen before an attempt's screens are built and put back to
+## the House kit when the attempt's lab is cleared; the Clubhouse is always House.
+const KITS := {"league.house": KIT, "league.neon": "res://assets/ui/neon/"}
+static var kit := KIT
+
+static func use_kit(league_id: String) -> void:
+	kit = KITS.get(league_id, KIT)
+
+static func kit_id() -> String:
+	return kit.trim_suffix("/").get_file()
 const IVORY := Color("f4e6cd")
 const BRASS := Color("e7bc70")
 const SEA_GLASS := Color("95d9cb")
@@ -13,7 +24,7 @@ const INK := Color("101820")
 ## A copy of one kit frame ("hud", "panel", "slip", "menu", "shop") with the
 ## given content margins, so callers can tighten padding without editing the kit.
 static func frame(kind: String, margin_x: float = -1.0, margin_y: float = -1.0) -> StyleBox:
-	var style: StyleBoxTexture = load(KIT + kind + ".tres").duplicate()
+	var style: StyleBoxTexture = load(kit + kind + ".tres").duplicate()
 	if margin_x >= 0.0:
 		style.content_margin_left = margin_x
 		style.content_margin_right = margin_x
