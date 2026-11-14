@@ -110,6 +110,7 @@ func run(tree: SceneTree, report_path: String) -> Array[String]:
 			_check(results.get("pocket@idle%d" % idle, {}).get(key) == results.get("pocket#0", {}).get(key), "aim delay %d ticks cannot change %s" % [idle, key])
 	await _second_roll_round_trip(tree, fixtures)
 	await _neon(tree, fixtures)
+	await _cards(tree, fixtures)
 	var report := {"engine": Engine.get_version_info().string, "physics_engine": ProjectSettings.get_setting("physics/3d/physics_engine"),
 		"ticks_per_second": Engine.physics_ticks_per_second, "simulations": results.size(), "elapsed_ms": Time.get_ticks_msec() - started,
 		"sensitivity": {"start_x_delta": 0.002, "nudged": nudged, "changed_outcome": changed},
@@ -132,6 +133,54 @@ func _hook_relations(summary: Dictionary) -> void:
 
 ## E18-C13 (E17-L02): the Neon rules and lanes change the roll as written, and only
 ## when in force (these runs stay out of the digest, which covers the standard lane).
+## E18-C14: what a thrown card brings to its own roll (LaneWorld.rules). These runs
+## stay out of the digest, like the Neon ones.
+## - gutter_rebound: a ball that reaches the gutter edge before any pin is turned back
+##   once, and its pinfall counts; a second time it is a gutter ball; a roll that
+##   stays on the lane is untouched.
+## - oil_hold: the ball meets every lane as House Oil.
+## - spin_scale: a modification's hook multiplier, the same arithmetic as Oil Slick's.
+func _cards(tree: SceneTree, fixtures: Array) -> void:
+	var by := {}
+	for fixture in fixtures:
+		by[fixture.id] = fixture
+	var full: Dictionary = rack_of(by.pocket.rack)
+	var rebound := {"gutter_rebound": true}
+	# Aimed off the right edge about a third of the way down the lane.
+	var stray := launch_of({"start_x": 0.45, "angle_deg": 2.4, "power": 0.6}, "stray")
+	# Steep enough to cross the whole lane after the rebound, into the other gutter.
+	var wild := launch_of({"start_x": 0.6, "angle_deg": 12.0, "power": 0.5}, "wild")
+	await _run_jobs(tree, [
+		["c14.stray", full, stray, 0],
+		["c14.rebound", full, stray, 0, rebound],
+		["c14.rebound#1", full, stray, 0, rebound],
+		["c14.wild", full, wild, 0, rebound],
+		["c14.on_lane", full, launch_of(by.pocket, "on_lane"), 0, rebound],
+		["c14.hold_long", full, launch_of(by.curve_right_50, "hold_long"), 0, {"oil_hold": true}, Lane.LONG_OIL],
+		["c14.hold_two_tone", full, launch_of(by.curve_left_50, "hold_tt"), 0, {"oil_hold": true}, Lane.TWO_TONE],
+		["c14.spin_half", full, launch_of(by.curve_right_50, "spin_half"), 0, {"spin_scale": 0.5}],
+		["c14.spin_more", full, launch_of(by.curve_right_50, "spin_more"), 0, {"spin_scale": 1.3}]])
+	var log_of := func(key: String) -> Dictionary: return results.get(key, {}).get("knockdown_log", {})
+	var fell := func(key: String) -> int: return results.get(key, {}).get("roll_result", {}).get("fallen_positions", []).size()
+	_check(log_of.call("c14.stray").get("gutter") == true and fell.call("c14.stray") == 0 and not log_of.call("c14.stray").has("rebounded"),
+		"the stray throw is a gutter ball without a rebound")
+	var saved: Dictionary = log_of.call("c14.rebound")
+	_check(saved.get("rebounded") == true and saved.get("gutter") == false, "Bumper Guard's rebound turns the stray throw back (it is not a gutter ball)")
+	_check(fell.call("c14.rebound") > 0 and saved.get("voided_positions", [0]).is_empty(), "the rebounded ball's pinfall counts (%d down)" % fell.call("c14.rebound"))
+	_check(Contracts.validate("knockdown_log", saved).is_empty(), "a rebounded roll's log passes the contract: %s" % str(Contracts.validate("knockdown_log", saved)))
+	_check(results.get("c14.rebound", {}).get("final_state") == results.get("c14.rebound#1", {}).get("final_state") and not saved.is_empty(), "a rebounded roll repeats exactly")
+	var twice: Dictionary = log_of.call("c14.wild")
+	_check(twice.get("rebounded") == true and twice.get("gutter") == true and fell.call("c14.wild") == 0, "it rebounds once: a ball that leaves the lane again is a gutter ball")
+	_check(results.get("c14.on_lane", {}).get("final_state") == results.get("pocket#0", {}).get("final_state") and not log_of.call("c14.on_lane").has("rebounded"),
+		"a roll that stays on the lane is exactly the roll without the modification")
+	_check(results.get("c14.hold_long", {}).get("final_state") == results.get("curve_right_50#0", {}).get("final_state"), "a ball that holds its hook rolls on Long Oil exactly as on House Oil")
+	_check(results.get("c14.hold_two_tone", {}).get("final_state") == results.get("curve_left_50#0", {}).get("final_state"), "and on Two-Tone's dry half exactly as on House Oil")
+	_check(results.get("c14.spin_half", {}).get("final_state") == results.get("neon.slick", {}).get("final_state") and results.has("c14.spin_half"),
+		"a modification's hook scale of 0.5 rolls exactly as Oil Slick's halving")
+	_check(curve_of(results.get("c14.spin_more", {})) > curve_of(results.get("curve_right_50#0", {})), "a hook scale above 1 hooks further (%.3f vs %.3f m)" % [
+		curve_of(results.get("c14.spin_more", {})), curve_of(results.get("curve_right_50#0", {}))])
+	print("PHYSICS cards rebound_down=%d wild_gutter=%s spin_more=%.3f" % [fell.call("c14.rebound"), str(twice.get("gutter")), curve_of(results.get("c14.spin_more", {}))])
+
 func _neon(tree: SceneTree, fixtures: Array) -> void:
 	var by := {}
 	for fixture in fixtures:

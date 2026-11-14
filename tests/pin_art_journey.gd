@@ -20,10 +20,12 @@ func _run() -> void:
 	await _throw(STRIKE)
 	await _scored()
 	await _to_shop("pin art")
-	lab.run.credit(400, "fixture: pin art bounded shop coverage")
+	# The pool grows with every item batch (E18-C15 added a fourth shop pin), so the
+	# bound and the grant leave room: rerolls rise in price within a visit.
+	lab.run.credit(3000, "fixture: pin art bounded shop coverage")
 	lab._refresh_shop()
 	var bought := {}
-	for attempt in range(20):
+	for attempt in range(60):
 		for index in lab.shop.offers.size():
 			var offer: Dictionary = lab.shop.offers[index]
 			var id: String = offer.item_id

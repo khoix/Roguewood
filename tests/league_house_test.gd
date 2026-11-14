@@ -49,7 +49,7 @@ static func _expect(condition: bool, label: String, failures: Array[String]) -> 
 
 static func _theme(failures: Array[String]) -> void:
 	var theme = LeagueTheme.for_league("league.house")
-	_expect(theme != null and LeagueTheme.for_league("league.neon") == null, "the House League has a theme; Leagues without one have none", failures)
+	_expect(theme != null and LeagueTheme.for_league("league.salvage") == null and theme.flank() == null, "the House League has a theme and keeps the House sky; Leagues without a theme have none", failures)
 	if theme == null:
 		return
 	_expect(theme.stage(3, false).environment_id == "environment.league.house.division_03" and theme.stage(8, false).environment_id == "environment.league.house.division_08"

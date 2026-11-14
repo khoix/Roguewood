@@ -1,8 +1,10 @@
 Roguewood — Codex Wave 12: UI-A3 (numerals that cannot be read as letters), E21-R05 to R07 (the Neon rivals, with three missing House plaques) and E22-L02-ART (the Neon theme).
 Recommended effort: Medium for UI-A3; High for each rival session; High for the two theme sessions.
 
-Begin (Wave 11 is merged into main):
-1. Fetch origin. On `codex/roguewood-build`, merge `origin/claude/roguewood-build` (the "Wave 11 closed" commit or later) with a merge commit. Do not rebase or force-push.
+Repository: https://github.com/khoix/Roguewood (your branch: `codex/roguewood-build`; the coordinator's: `claude/roguewood-build`; never push to `main` and open no pull requests).
+
+Begin (Wave 11 is merged into main by PR #29, `f65d16f`):
+1. Clone the repository if this session has no checkout, then fetch origin. On `codex/roguewood-build`, merge `origin/claude/roguewood-build` (the "Wave 12 claims" commit or later) with a merge commit. Do not rebase or force-push.
 2. Read AGENTS.md, then docs/ROADMAP.md: the Wave 12 row, "GUI review: UI-4" and "League template".
 3. Then read docs/AI-HANDOFF.md: "Wave 12 claims" and "Ownership, lanes and hand-offs". Those claims are your assignment and limits; repo state wins over this prompt.
 4. Read docs/handoffs/UI-4.md ("Left for the owner or Codex"), docs/handoffs/E17-L02.md and content/leagues/neon.json, and your own docs/handoffs/WAVE11-CODEX.md.
@@ -28,7 +30,7 @@ E22-L02-ART (High, 2 sessions):
 
 Ownership and limits:
 - Never edit src/rules/, src/simulation/, src/persistence/, src/career/, src/procedural/, src/content/ or src/input/; content/leagues/; content/catalogue.json outside your own items' `assets` slots and flags; export_presets.cfg or project.godot.
-- Claude's concurrent work this wave: E18-C14 (the Neon primitives, in src/rules/ and src/simulation/), DC-N1 and DC-N2 (the first twelve Neon items: E17-D12 and D13 with E18-C15 and C16) and E22-L02 (throw_lab.gd, bootstrap.gd, the League registry, a new J22L02). Their art is your Wave 13 (AV-N1, AV-N2); do not start it.
+- Claude's concurrent work this wave: UI-5 first (one session menu button in place of Restart, Clubhouse and Options, a frame review without Speed and Skip, and a shop whose offers open in an overlay to confirm a purchase and whose Sell buttons become one Sell control: bootstrap.gd, throw_lab.gd, division_hud.gd, match_panels.gd, score_panel.gd, shop_panel.gd, card_inspector.gd, and the journeys' way of reaching Options and the Clubhouse, finishing a reveal and buying, your art journeys included; merge `origin/claude/roguewood-build` again before you add or edit a journey that opens Options, skips a reveal or buys in the shop), then E18-C14 (the Neon primitives, in src/rules/ and src/simulation/), DC-N1 and DC-N2 (the first twelve Neon items: E17-D12 and D13 with E18-C15 and C16) and E22-L02 (throw_lab.gd, bootstrap.gd, the League registry, a new J22L02). Their art is your Wave 13 (AV-N1, AV-N2); do not start it.
 - A hook you need that does not exist goes to the coordinator as a request in your handoff.
 - tools/qa.py, the CI workflow and run_tests.gd are add-only. Every new art step has `if: matrix.shard == 'art'`.
 - These must stay identical: the physics digest `75d1a3c0…`; J03 560/240/70 and J05 21060.

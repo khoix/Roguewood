@@ -16,6 +16,23 @@ static func pin(item: Dictionary) -> Dictionary:
 	var physics: Dictionary = item.get("physics", {})
 	return {"mass_scale": float(physics.get("mass_scale", 1.0)), "bounce": float(physics.get("bounce", Lane.PIN_BOUNCE))}
 
+## E18-C14: what the thrown card brings to its own roll, for LaneWorld.rules.
+## - a ball with `oil_hold` meets every lane as House Oil;
+## - a ball modification with `gutter_rebound` gives the roll one rebound off the
+##   gutter edge, unless the frame has used it (`rebound_used`);
+## - a ball modification's `spin_response` scales the hook the charge produces.
+## An empty result changes nothing.
+static func roll_rules(ball_item: Dictionary, mod_item: Dictionary = {}, rebound_used: bool = false) -> Dictionary:
+	var out := {}
+	if bool(ball_item.get("physics", {}).get("oil_hold", false)):
+		out["oil_hold"] = true
+	var mod: Dictionary = mod_item.get("physics", {})
+	if bool(mod.get("gutter_rebound", false)) and not rebound_used:
+		out["gutter_rebound"] = true
+	if mod.has("spin_response"):
+		out["spin_scale"] = float(mod.spin_response)
+	return out
+
 ## The profile table for one roll: every catalogue ball by id, and the racked pins
 ## by position (rack_pins: position -> pin item id).
 static func profiles(catalogue: Dictionary, rack_pins: Dictionary) -> Dictionary:

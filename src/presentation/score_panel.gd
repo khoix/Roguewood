@@ -6,18 +6,15 @@ extends PanelContainer
 ## Developmental look; final presentation, VFX and audio are E12/E20.
 signal step_revealed(step: Dictionary, index: int, skipped: bool)
 signal finished
-signal speed_changed(speed: int)
 const Lane = preload("res://src/simulation/lane_spec.gd")
 const ScoreLog = preload("res://src/rules/score_log.gd")
 const STEP_SEC := 0.3
-const SPEEDS := [1, 2, 4]
 const ROLL_COLORS := [Color(0.95, 0.55, 0.25), Color(0.35, 0.8, 1.0)]
 const HIGHLIGHT := Color(1.0, 0.9, 0.3)
 const ICONS := "res://assets/ui/cards/"
 
 var steps: Array = []
 var shown := 0
-var speed := 1
 var playing := false
 var reduced_motion := false
 var _accent: Tween
@@ -26,8 +23,8 @@ var counters: Label
 var rack_view: Control
 var log_list: VBoxContainer
 var log_scroll: ScrollContainer
-var speed_button: Button
-var skip_button: Button
+var hint: Label
+var _taken_frame := -1
 var _roll_of: Dictionary = {}
 var _standing: Array = []
 var _timer := 0.0
@@ -71,22 +68,36 @@ func _ready() -> void:
 	log_list.name = "CalculationLog"
 	log_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	log_scroll.add_child(log_list)
-	var buttons := HBoxContainer.new()
-	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
-	buttons.add_theme_constant_override("separation", 12)
-	box.add_child(buttons)
-	speed_button = Button.new()
-	speed_button.name = "ScoreSpeed"
-	speed_button.custom_minimum_size = Vector2(150, 56)
-	speed_button.pressed.connect(_cycle_speed)
-	buttons.add_child(speed_button)
-	skip_button = Button.new()
-	skip_button.name = "SkipScoring"
-	skip_button.text = "Skip"
-	skip_button.custom_minimum_size = Vector2(150, 56)
-	skip_button.pressed.connect(skip)
-	buttons.add_child(skip_button)
-	_refresh_speed()
+	# UI-5 (owner, 2026-11-10): no Speed or Skip buttons. While the chain is still
+	# counting, a tap on the review (or the accept key) finishes it at once.
+	focus_mode = Control.FOCUS_ALL
+	hint = Label.new()
+	hint.name = "FinishHint"
+	hint.text = "Tap to finish"
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hint.add_theme_font_size_override("font_size", 16)
+	hint.add_theme_color_override("font_color", Color(1, 1, 1, 0.55))
+	hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(hint)
+
+## A press anywhere on the review finishes a reveal that is still counting. The
+## press is taken, so it never also lands on a chain line under the finger.
+func _input(event: InputEvent) -> void:
+	if not is_visible_in_tree(): return
+	var press: bool = (event is InputEventScreenTouch and event.pressed) or (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT)
+	if not press or not get_global_rect().has_point(event.position):
+		return
+	if playing:
+		_taken_frame = Engine.get_process_frames()
+		skip()
+		get_viewport().set_input_as_handled()
+	elif _taken_frame == Engine.get_process_frames():
+		get_viewport().set_input_as_handled() # the mouse press a touch also sends
+
+func _gui_input(event: InputEvent) -> void:
+	if playing and event.is_action_pressed("ui_accept"):
+		skip()
+		accept_event()
 
 ## UI-3: a shorter, centred review for portrait phones; the full size otherwise.
 func fit(portrait: bool) -> void:
@@ -97,9 +108,10 @@ func fit(portrait: bool) -> void:
 	log_scroll.custom_minimum_size.y = 72 if portrait else 150
 
 ## reports: the frame's LaneWorld reports, used only for roll attribution.
-func play(frame_steps: Array, reports: Array, title: String, play_speed: int) -> void:
+## `_pace` is accepted and ignored: the reveal has one pace since UI-5, and the art
+## journeys that replay a frame still pass the speed they used to choose.
+func play(frame_steps: Array, reports: Array, title: String, _pace: int = 1) -> void:
 	steps = frame_steps
-	speed = play_speed if play_speed in SPEEDS else 1
 	shown = 0
 	_timer = 0.0
 	playing = true
@@ -111,15 +123,15 @@ func play(frame_steps: Array, reports: Array, title: String, play_speed: int) ->
 	_standing = reports[-1].knockdown_log.standing.duplicate()
 	for child in log_list.get_children():
 		child.queue_free()
-	skip_button.disabled = false
-	_refresh_speed()
+	hint.modulate.a = 1.0
 	show()
+	if is_inside_tree() and get_viewport().gui_get_focus_owner() == null: grab_focus()
 	_reveal()
 
 func _process(delta: float) -> void:
 	if not playing:
 		return
-	_timer += delta * speed
+	_timer += delta
 	while playing and _timer >= STEP_SEC:
 		_timer -= STEP_SEC
 		_reveal()
@@ -203,7 +215,7 @@ func _finish() -> void:
 	if not playing:
 		return
 	playing = false
-	skip_button.disabled = true
+	hint.modulate.a = 0.0 # keeps its line, so the review does not jump
 	finished.emit()
 
 ## Counters show the numbers of the last revealed step, never recomputed ones.
@@ -221,14 +233,6 @@ func _refresh_counters() -> void:
 	counters.text = "%s Value\n× %s Mult" % [ScoreLog._n(now.pin_value), ScoreLog._n(now.mult)]
 	if now.score >= 0:
 		counters.text += "\n= %s" % ScoreLog._n(now.score)
-
-func _cycle_speed() -> void:
-	speed = SPEEDS[(SPEEDS.find(speed) + 1) % SPEEDS.size()]
-	_refresh_speed()
-	speed_changed.emit(speed)
-
-func _refresh_speed() -> void:
-	speed_button.text = "Speed %d×" % speed
 
 func current_pin() -> int:
 	return steps[shown - 1].pin if shown > 0 and playing else 0

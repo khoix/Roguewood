@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-11-10. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E21 IN_PROGRESS; E22–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). Wave 10 is merged by PR #22 (main `706767f`). **Wave 11 is closed** (see "Wave 11 closed"); PR #29 carries it to main. Wave 12 is claimed (see "Wave 12 claims") and opens when the owner merges. The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
+Updated: 2026-11-14. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E22 IN_PROGRESS; E23–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). Wave 10 is merged by PR #22 (main `706767f`). Wave 11 is merged by PR #29 (main `f65d16f`). **Wave 12 is closed** (see "Wave 12 closed"; the Neon League is live with its rivals and theme) and awaits its PR to main. **Wave 13 is claimed** (see "Wave 13 claims"). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
 
 ## Read first
 
@@ -71,11 +71,11 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E15 — Career persistence and unlock graph | DONE | Claude | main (PR #10) | 2cdedb1 (+ 8c19905); local suites and J01–J10 headless/rendered PASS; CI 40577363221 and 40581437392 PASS; ADR 010; E15 handoff |
 | E16 — Clubhouse and collection UI | DONE (core and E16-ART) | Claude core · Codex E16-ART | claude/roguewood-build · codex/roguewood-build | Core b01fb4d; CI 40616441249 PASS; J11; handoffs/E16.md (Art hand-off) |
 | E17 — Catalogue and unlock authoring batches | IN_PROGRESS (D01–D09 and L01 DONE; D01-ART to D04-ART DONE) | Claude definitions · Codex visual briefs | claude/roguewood-build · codex/roguewood-build | Split per batch; see Ownership |
-| E18 — Content mechanics batches | IN_PROGRESS (C01–C10 DONE) | Claude | claude/roguewood-build | C01: six D02 Charms; C02: transform primitive, Glass Pin and Glass Cutter; C03: five primitives, Crown Pin and the last five D02 Charms; C04: eight modifications; C05: House rules, lanes, two-rule champions; C06: tactical primitives and three cards; C07: shop upgrades and six House upgrades; C08–C10: 18 House items (DC-H1…H3); handoffs/E18-Cxx.md |
+| E18 — Content mechanics batches | IN_PROGRESS (C01–C16 DONE) | Claude | claude/roguewood-build | C01: six D02 Charms; C02: transform primitive, Glass Pin and Glass Cutter; C03: five primitives, Crown Pin and the last five D02 Charms; C04: eight modifications; C05: House rules, lanes, two-rule champions; C06: tactical primitives and three cards; C07: shop upgrades and six House upgrades; C08–C10: 18 House items (DC-H1…H3); handoffs/E18-Cxx.md |
 | E19 — Final item artwork batches | IN_PROGRESS (A01–A16 and AV-C03 DONE) | Codex | codex/roguewood-build | E13-S01, E17-D01 and E17-D02 identities; artwork set on the seven C01/C02 Charms and Glass Pin; C03 flags (A17) and D03 identities (A18) in Wave 5 |
 | E20 — Ability effects and audio batches | IN_PROGRESS (V01–V08, the House AV batches and AV-T01 DONE) | Codex | codex/roguewood-build | E13-S01's 23 abilities; V08: the eight C01/C02 items; C03's six in Wave 5 (V09) |
 | E21 — Rival presentation batches | IN_PROGRESS (R01, R02 DONE) | Codex | codex/roguewood-build | Later rivals after E17 defines them |
-| E22 — League theme integration batches | NOT_STARTED | Claude configuration and integration · Codex theme art | claude/roguewood-build · codex/roguewood-build | One League per roadmap step (docs/ROADMAP.md); L01 House in Waves 6–8 |
+| E22 — League theme integration batches | IN_PROGRESS (L01 House and L02 Neon live; Neon theme pending) | Claude configuration and integration · Codex theme art | claude/roguewood-build · codex/roguewood-build | One League per roadmap step (docs/ROADMAP.md); L01 House in Waves 6–8 |
 | E23 — Starting kits, mastery, difficulty, and endless | NOT_STARTED | Claude · Codex E23-ART | claude/roguewood-build · codex/roguewood-build | Kits per League bundle; tiers, medals and endless in Phase 4 |
 | E24 — Economy and procedural balance study | NOT_STARTED | Claude | claude/roguewood-build | See Ownership |
 | E25 — Onboarding and accessibility completion | NOT_STARTED | Claude core · Codex E25-ART | claude/roguewood-build · codex/roguewood-build | Split; see Ownership |
@@ -272,36 +272,113 @@ Open: Wave 10 is merged (PR #22, main `706767f`). Base: `claude/roguewood-build`
   - Codex's closing checks: unit, content, physics, JAVT01 and J02, headless and rendered, PASS on `59273da`; the physics digest `75d1a3c0…` is unchanged.
   - Since then only documentation changed (this record and docs/prompts/codex-wave12.md). CI runs on this commit.
 - **Not delivered in Wave 11:** the Neon rivals and theme (Codex), which the claim allowed to move; they are in Wave 12.
-- **Owner actions:** merge PR #29; decide the two interface questions in handoffs/UI-4.md; listen to the throw sounds and watch the charge collar on the phone (no phone or speaker trial has been run).
-- **Merge:** PR #29 (`claude/roguewood-build` into main), open.
+- **Owner decisions (2026-11-10):** yes to both interface questions in handoffs/UI-4.md; they are UI-5 in Wave 12. Added the same day: tapping a shop offer opens it large to read and confirm the purchase, and the frame review loses Speed and Skip. Also: the row of Sell buttons becomes one Sell control.
+- **Owner actions:** listen to the throw sounds and watch the charge collar on the phone (no phone or speaker trial has been run).
+- **Merge:** MERGED to main by PR #29 (`f65d16f`) after CI passed on `335ef53` (Bootstrap run 42735874994, both shards).
+
+## Wave 12 closed (coordinator, 2026-11-14)
+- **Contents** (all on `claude/roguewood-build` at the "Wave 12 closed" commit):
+  - Claude: UI-5 (`985e956`, `34a84bf`, `86ef216`), E18-C14, DC-N1 (`119ae77`, `7abcd34`), DC-N2 (`d0fa6d2`), E22-L02 (`0240fe7`, `d43a508`), the UI-5 follow-up (`71247f7`, `97d6c50`) and the live Neon theme with the champion's bar (`d19f9f7`, `a034d61`).
+  - Codex: UI-A3, E21-R05 to R07 and E22-L02-ART, with its closing index docs/handoffs/WAVE12-CODEX.md (`4476c5f`), merged at `79994bb`.
+- **Validation:**
+  - The full CI command list (222 commands: unit, content, integration, physics, smoke, export, the web journey, every journey headless and rendered, Codex's new art journeys and the art capture tools) PASS locally on `79994bb`, the merge of both agents' work. The physics digest `75d1a3c0…`, J03 560/240/70 and J05 21060 are unchanged.
+  - Since then only documentation changed (this record, the Wave 13 claims and docs/prompts/codex-wave13.md). CI runs on this commit.
+- **Not delivered in Wave 12:** Neon's other sixteen items (DC-N3 to N5, planned for Wave 13), lane and side reading and the one-throw hook tactic (no item yet needs them), and `league.spectral`, so the Neon title opens nothing yet. Sell rows are one per item, not grouped.
+- **Finding for E24:** in the strategy simulation an ordinary player's single-purpose build stalls at Division 2–3 in both Leagues; targets are unchanged.
+- **Owner actions:** play the Neon League on the phone; listen to its music; review the captures listed in docs/handoffs/WAVE12-CODEX.md (no phone or speaker trial has been run).
+- **Merge:** pending, by the PR from `claude/roguewood-build` to main.
+
+## Wave 13 claims (coordinator: Claude, 2026-11-14)
+Open once Wave 12 is merged. Base: `claude/roguewood-build` at the "Wave 12 closed" commit. Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave13.md). Scope: docs/ROADMAP.md, the Wave 13 row and "League template".
+- **Claude, in this order:**
+  1. **DC-N3 to DC-N5** (3 sessions, Medium): Neon's other sixteen items (one ball, one pin, nine Charms, three tactical cards and two shop upgrades; the plan is in handoffs/E17-L02.md), with the primitives they still need first (lane and side reading, the one-throw hook tactic). Each batch: definitions, mechanics through the real FrameBuilder and a native journey; the physics digest of existing fixtures must not change.
+  2. **E17-L03** (High): the Salvage League spec, as E17-L02 was for Neon.
+- **Codex:**
+  1. **AV-N1** (DC-N1's six items; J03C15) and **AV-N2** (DC-N2's six items; J03C16), with native checks, artwork flags, effects and sound.
+  2. **The tail of the Neon theme:** anything the live captures show is still developmental.
+  - AV-N3 onward follows DC-N3 to N5 as they land (Wave 14).
+- **Owner:** play the Neon League on the phone.
 
 ## Wave 12 claims (coordinator: Claude, 2026-11-10)
-Open once Wave 11 is merged. Base: `claude/roguewood-build` at the "Wave 11 closed" commit. Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave12.md). Scope: docs/ROADMAP.md, the Wave 12 row and "GUI review: UI-4".
+Open: Wave 11 is merged (PR #29, main `f65d16f`). Base: `claude/roguewood-build` at the "Wave 12 claims" commit (it adds UI-5 to the claims written at the close). Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave12.md). Scope: docs/ROADMAP.md, the Wave 12 row and "GUI review: UI-4".
 
 League template wave b (docs/ROADMAP.md), with one owner direction (2026-11-09): the wave ends with E22-L02, so the Neon League is live and playable early, with its first twelve items. The other sixteen join its pool as their batches land in Wave 13.
 - **Claude, in this order:**
-  1. **E18-C14** (High): the Neon primitives, each built and tested before the items that use it.
+  1. **UI-5** (High, 2 sessions; owner, 2026-11-10): the session menu, a leaner frame review and a shop that reads. First, so the owner can play it on the phone while the Neon work proceeds.
+     - **UI-5a, the match screen:**
+       - **One menu button** replaces the row of Restart, Clubhouse and Options on every match screen. It sits on the top bar and opens a sheet with those three, built as a list so more entries can join later (owner). The row it frees goes to the lane. Restart asks once before it discards an attempt (the coordinator's proposal; the owner can drop it).
+       - **Speed and Skip leave the frame review** (owner). A tap on the review, or the accept key, finishes the reveal at once, so it can still be hurried without a button; the reveal keeps its 1× pace (the coordinator's proposal for what replaces the buttons).
+     - **UI-5b, the shop:**
+       - **Tap an offer to open it** (owner): an overlay shows the card large, with its full rule text and price, and Buy and Back. Buying happens there, not on the first tap. An offer the player cannot afford or place opens too, with Buy off and the reason. A purchase that needs a choice (a slot, a pin, a replacement) goes on to the existing choice sheet.
+       - **Shop words:** the preview above the offers drops to two short lines (the next match and its target; the boss by name, with the rule behind its ⓘ as on the bar). The rack summary groups like pins ("10 Wood Pin").
+       - **One Sell control** (owner, 2026-11-10: the long row of Sell buttons is excessive; a drop-down sell menu was offered as one option). A single "Sell" button, showing how many things can be sold, opens a sheet that lists them in phone-size rows with their sale price; a tap sells one and the sheet stays open for the next. (Built without grouping like items: each row sells one particular card; see handoffs/UI-5.md.) It works as a drop-down does, but uses the shop's own choice sheet rather than the engine's small pop-up list, so it matches the offer overlay and is easy to hit with a thumb. The Charm-order moves, which sit in the same list today, go into that sheet under the Charms.
+     - The full sentences stay available to tools and tests, as `career_line` and the HUD's `info` do. Journeys that open Options, return to the Clubhouse, finish a reveal, buy or read the shop go through the new controls. That includes Codex's art journeys, which the coordinator edits for this and nothing else.
+     - Paths: src/bootstrap/bootstrap.gd, throw_lab.gd's layout and shop handlers, division_hud.gd, match_panels.gd, score_panel.gd, shop_panel.gd, card_inspector.gd (the overlay reuses its large card); the journeys' shared helpers; tools/capture_phone_tour.gd.
+     - Delivers: each part in both orientations, tour captures before and after for the owner, and the full matrix (every journey uses the session buttons, Skip or a purchase).
+  2. **E18-C14** (High): the Neon primitives, each built and tested before the items that use it.
      - `physics.gutter_rebound` (Bumper Guard, written in E17-D04).
      - Lane reading: conditions on the match's lane condition and on the half of the lane the ball rolled (Two-Tone's sides).
      - A ball property that keeps its hook through lane oil (Long Oil, and Oil Slick's halving).
      - A one-throw hook scale for a tactical card.
      - The session confirms this list against the item plan in handoffs/E17-L02.md before building; anything the first twelve items do not need waits for Wave 13.
      - Paths: src/rules/, src/simulation/, their tests (mechanics_c14_test.gd, physics_test.gd `_neon`). The physics digest of the existing fixtures must not change.
-  2. **DC-N1** (Medium): Neon items 1–6, the unlock spine. Definitions as E17-D12 and mechanics as E18-C15, in one session.
+  3. **DC-N1** (Medium): Neon items 1–6, the unlock spine. Definitions as E17-D12 and mechanics as E18-C15, in one session.
      - The two boss balls (Slick: the ball whose hook holds through long oil; Laser Lena: the laser-straight precision ball), the boss pin (DJ Flicker: it rewards sweet or perfect rolls), the champion's Charm, the Neon title's ball modification, and Bumper Guard.
-  3. **DC-N2** (Medium): Neon items 7–12, the opening pool. Definitions as E17-D13 and mechanics as E18-C16.
+  4. **DC-N2** (Medium): Neon items 7–12, the opening pool. Definitions as E17-D13 and mechanics as E18-C16.
      - The initial ball (pays for a curved strike), the initial pin (pays when a curved ball knocks it down), the hook-control ball modification, the pin modification (a light for the pin a curved ball meets first), and two initial Charms (curve Mult, straight Value).
-  4. **E22-L02** (High): the Neon League live.
+  5. **E22-L02** (High): the Neon League live.
      - The League on the League Board, open from the start; its gates, title and the Neon Kit registered; content set `--content=neon`; the lane pool and feature lanes from neon.json; specialist weights; provisional targets checked with the strategy simulation.
      - J22L02: one full seeded Neon attempt through native input, headless and rendered, in CI.
      - Codex's rivals and theme bind by ID and can follow; until then the developmental presentation stays, marked.
-     - This is the claim that carries into Wave 13 if the wave runs long.
+     - This is the claim that carries into Wave 13 if the wave runs long. With UI-5 at two sessions the wave holds six Claude sessions against the usual three, so expect it to carry.
 - **Codex:**
   1. **UI-A3** (Medium, first): numerals that cannot be read as letters. In Pixelify Sans 5 is almost S and 2 is close to Z (handoffs/UI-4.md). Patched digits or a second face for numbers (the font is OFL); shown on the score slip, the frame review, prices and the tuning page. Paths: assets/ui/fonts/ and its docs; Claude wires a second face in house_ui_theme.gd if that is the choice.
   2. **E21-R05, R06, R07** (3 sessions, High): Slick, Laser Lena and DJ Flicker, each with portrait, idle, entrance, six reactions, defeat and reduced-motion versions, their rule badges (Oil Slick, Narrow Lane, Strobe), the champion's two-seal presentation, and their Clubhouse plaques. `--content=neon_c13` and J03C13 reach all three bosses. With them, the three House plaques still missing: `plaque.proprietor`, `plaque.old_lou`, `plaque.custodian_champion`.
   3. **E22-L02-ART** (High, 2 sessions): the Neon theme for eight Divisions: environment and signage, the Long Oil and Two-Tone lane looks, the Narrow Lane edge and rail (replacing the developmental guard lines), the Strobe ring, the music identity, the Neon frame-kit variant and flank backdrop, and `trophy.neon`.
   - **Wave 13:** AV-N1 and AV-N2 for the twelve items of DC-N1 and DC-N2.
-- **Owner:** decide the two interface questions in handoffs/UI-4.md; play the Neon League once E22-L02 lands.
+- **Owner:** play UI-5 on the phone when it lands; play the Neon League once E22-L02 lands.
+
+## Wave 12 progress (coordinator)
+- **UI-5 DONE** (handoffs/UI-5.md; `985e956`, `34a84bf`, `86ef216`), the owner's decisions of 2026-11-10:
+  - **UI-5a:** one menu button beside the top bar replaces Restart, Clubhouse and Options (Resume, Options, Clubhouse, Restart; `add_menu_entry` adds more; Restart asks once). The top bar moved into the freed row, so the lane is taller in both orientations. The frame review has no Speed or Skip: a tap on it, or the accept key, finishes the reveal.
+  - **UI-5b:** a tapped offer opens large with its full text and price, and Buy and Back; one "Sell" button opens a sheet of rows in place of a Sell button per item; the preview is one line; the rack summary names the commonest pin once.
+  - Journeys reach the menu and the Sell sheet, and press Buy, as a player does (`_reach` and `_confirm` in each base journey). J01, J03 and J05 check the new controls.
+  - Validation: the full CI command list (194 commands) PASS locally: 135 on `34a84bf`, and on `86ef216` the 59 that had failed or not run. The first run caught J12 and J12V01–V06 hanging (they replay a frame and still passed a speed to the frame review); `86ef216` fixes that by accepting the argument. The physics digest `75d1a3c0…` and J03 560/240/70 are unchanged. CI: Bootstrap run 42791634165 runs on `86ef216`.
+  - Not as claimed: Sell rows are one per item, not grouped (each row sells one particular card).
+- **For Codex:** `score_panel.play` ignores its fourth argument (the reveal has one pace); journeys that open Options, finish a reveal, buy or sell go through `_reach`, `_confirm` and `_focus_accept(lab.score_panel)`. Merge `origin/claude/roguewood-build` before adding or editing such a journey.
+- **E18-C14 DONE** (handoffs/E18-C14.md): the Neon primitives the first twelve items need.
+  - The gutter rebound (the tracker rules it, the lane mirrors the ball's sideways speed once; a roll carries `rebounded`), op `lose_mult` (Mult down, never below 1), a ball's `oil_hold`, a modification's hook scale, and the pin conditions `felled_curved` and `first_hit`. Contracts in docs/CONTRACTS.md.
+  - Lane and side reading and the one-throw hook tactic wait for Wave 13: no item among the first twelve needs them.
+  - Validation: unit (with a mutation check), content, physics (digest `75d1a3c0…` unchanged; the rebound, oil hold and hook scale rolled through real lanes), J02, J03, J03C04, J03C13, J06, J07, J09 and J22L01 headless, and the web journey PASS.
+  - No item uses them yet; DC-N1 plays the rebound natively.
+- **DC-N1 DONE** (handoffs/E18-C15.md; E17-D12 with E18-C15, `119ae77`): the first six Neon items.
+  - Oilskin Ball, Laser Ball, Tempo Pin, Neon Sign, Blacklight and Bumper Guard (E17-D04), each scored through the real FrameBuilder and played natively in J03C15, including a rebound re-simulated from the save after a mid-roll Continue.
+  - The five rewards are `initial` until E22-L02 registers their gates and assigns them (the registry refuses a gate nothing awards). Until then they are in every League's shop pool.
+  - Validation: 194 of the 196 CI commands PASS on `119ae77`. The two that failed were J08A02, headless and rendered: Codex's pin art journey allowed 20 rerolls to be offered three pins, and the Tempo Pin pushed them later in the seeded shop. `7abcd34` widens its bound and grant; both modes pass. The physics digest `75d1a3c0…`, J03 560/240/70 and J05 21060 are unchanged.
+  - **Hand-off to Codex (AV-N1, Wave 13):** the six items; J03C15 and its four captures.
+- **Codex's UI-A3, integrated** (merge of `05ff30d`; handoffs/UI-A3.md): the bundled font's 2 and 5 are redrawn so they cannot be read as Z and S; widths and every other glyph are unchanged, and no code changed. Unit, JUIA1 (both modes), and JUIA2, J03, J05 and J03C15 rendered PASS on the merge.
+- **A note for item batches:** a journey with a fixed reroll budget can fail when a batch grows a shop slot's pool. Give such loops room (as J08A02 now has) rather than tuning them to the seed.
+- **DC-N2 DONE** (handoffs/E18-C16.md; E17-D13 with E18-C16, `d0fa6d2`): Neon's opening pool, all initial from Division 1.
+  - Glow Ball, Prism Pin, Grip Tape, Spotlight, Afterimage and Laser Level, each scored through the real FrameBuilder and played natively in J03C16 (a curved spare, a timed curved strike that meets the head pin first, a straight strike).
+  - Twelve of Neon's 28 items are landed. Left for DC-N3 to N5 (Wave 13): one ball, one pin, nine Charms, three tactical cards and two shop upgrades.
+  - Validation: all 198 CI commands PASS on `d0fa6d2` (with Codex's UI-A3 merged). The physics digest `75d1a3c0…`, J03 560/240/70 and J05 21060 are unchanged.
+  - **Hand-off to Codex (AV-N2, Wave 13):** the six items; J03C16 and its four captures.
+- **E22-L02 DONE** (handoffs/E22-L02.md): the Neon League is live.
+  - The board lists House, Neon, then the campaign; Neon is open from the start. `--content=neon` loads it on the production catalogue and registry.
+  - Registered: `league.neon`, the four rival gates and the title. DC-N1's five rewards now wait for them (a fresh binder: 17 Locked, 74 Available). The Neon Kit is landed: two Hook, two Glow and two Spare Ball cards, $6 (a deck holds two copies of a card at most, so not the spec's three and three).
+  - New: a League's specialist weights (`specialists: {tags, weight}` in its spec; Neon doubles curve, hook, accuracy, precision and straight items within their category and rarity). A saved attempt restores its own League on Continue.
+  - J22L02 plays the whole League from the board, headless and rendered, in CI's game shard.
+  - The strategy simulation takes `--content=neon` (and `house`): Neon's targets are no harder than House's, and in both an ordinary player's single-purpose build stalls at Division 2–3. A finding for E24; targets unchanged.
+  - Validation: all 200 CI commands PASS locally on `0240fe7`. The physics digest `75d1a3c0…` is unchanged.
+  - Not done: no Neon theme or rival art yet (Codex); `league.spectral` is not registered, so the title opens nothing yet.
+  - **Hand-off to Codex (E22-L02-ART):** the League is playable to bind against; throw_lab loads a theme only for the `house` set today.
+- **UI-5 follow-up** (owner's screenshot, 2026-11-11; handoffs/UI-5.md, "Follow-up"): the top bar no longer runs under the session menu button (it fits its second row, and a two-rule badge makes portrait's bar a line taller); Next Rack is at the bottom edge, below the frame review, in both orientations; a rival's bubble no longer covers the hand's first line. J03C13 and J08 check the new layout. All 200 CI commands PASS locally on `71247f7`; the physics digest `75d1a3c0…` is unchanged.
+- **Codex's Wave 12 art, integrated** (merge of `2671841`, clean): UI-A3, E21-R05 (Slick, and the three missing House plaques), E21-R06 (Laser Lena), E21-R07's assets (DJ Flicker and the champion) and the Neon theme's 43 assets (handoffs/E21-R05.md to R07.md, E22-L02-ART.md).
+  - **The Neon theme is bound live** (handoffs/E22-L02.md, "The Neon theme, bound live"): rooms and the Championship stage, lane finishes, music, the Neon frame kit on an attempt's screens and the flank backdrop. J22L02 and league_neon_test check them.
+  - **The champion's bar** (Codex's blocker): its height now follows the badge's real size, which differs by machine (handoffs/UI-5.md, second follow-up).
+  - Validation: all 214 CI commands (Codex's seven new art journeys included) PASS locally on `d19f9f7`; the physics digest `75d1a3c0…` is unchanged. A small follow-up after it (the hand is re-placed when the bar's height changes, and portrait's speech bubble is 8 px shorter so it covers only the info row) passes J22L02 and J03C13 in both modes, J08, J06, J22L01, J21R05, J21R06 and unit.
+  - **Still Codex's:** enable the Strobe badge binding; register J21R07, J21R07DJ and the rule-art journey; add live theme captures; then report. The wave closes after that merge and a full matrix.
+- **Codex's final checkpoint, merged** (`4476c5f` at `79994bb`): the Strobe seal, J21R07, J21R07DJ, J22L02RULEART and J22L02LIVEART. See "Wave 12 closed".
 
 ## Wave 10 closed (coordinator, 2026-11-07)
 - **Contents** (all on `claude/roguewood-build` at the "Wave 10 closed" commit):

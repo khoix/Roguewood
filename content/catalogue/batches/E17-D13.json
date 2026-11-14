@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "batch": "E17-D13",
+  "status": "landed",
+  "note": "Neon League items, batch 2 of 5 (DC-N2): the opening pool. A ball, a pin, a ball modification, a pin modification and two Charms, all initial from Division 1, written and landed together by E18-C16. Prism Pin and Spotlight use E18-C14's pin conditions and Grip Tape its hook scale; the others use existing rule pieces. Amounts and prices are provisional (E24).",
+  "definitions": [],
+  "landed": [
+    {
+      "id": "ball.glow",
+      "landed_in": "E18-C16",
+      "design": {
+        "trigger": "Thrown with this ball: +5 Mult when the frame is a strike and a roll in it was curved. It hooks as the House Ball does.",
+        "primitives": [],
+        "pool": "Shop ball slot; initial pool from Division 1.",
+        "presentation_needs": "A ball that leaves a short light trail only on a charged, curved roll; the Mult shows in the explanation.",
+        "asset_ids": {
+          "icon": "icon.ball.glow",
+          "card": "card.ball.glow",
+          "in_play": "in_play.ball.glow",
+          "rarity_treatment": "rarity_treatment.ball.glow",
+          "activation": "activation.ball.glow",
+          "sound": "sound.ball.glow",
+          "reduced_motion": "reduced_motion.ball.glow"
+        }
+      }
+    },
+    {
+      "id": "pin.prism",
+      "landed_in": "E18-C16",
+      "design": {
+        "trigger": "When a curved roll knocks it down: +25 Value. Knocked down by a straight roll, or left standing, it gives nothing.",
+        "primitives": [
+          "condition.felled_curved"
+        ],
+        "pool": "Shop pin slot; initial pool from Division 1.",
+        "presentation_needs": "A faceted pin that splits light when a curved ball takes it; it stays dull for a straight one.",
+        "asset_ids": {
+          "icon": "icon.pin.prism",
+          "card": "card.pin.prism",
+          "in_play": "in_play.pin.prism",
+          "rarity_treatment": "rarity_treatment.pin.prism",
+          "activation": "activation.pin.prism",
+          "sound": "sound.pin.prism",
+          "reduced_motion": "reduced_motion.pin.prism"
+        }
+      }
+    },
+    {
+      "id": "ball_mod.grip_tape",
+      "landed_in": "E18-C16",
+      "design": {
+        "trigger": "Attached to one ball card: every roll thrown with that card hooks 1.4 times as far for the same charge, on top of the ball's own hook. It answers Long Oil and Oil Slick.",
+        "primitives": [
+          "physics.mod_spin_response"
+        ],
+        "pool": "Shop modification slot; initial pool from Division 1. One modification per ball.",
+        "presentation_needs": "A badge on the host card and a taped band on the host in play; the aim guide bends further while it is armed.",
+        "asset_ids": {
+          "icon": "icon.ball_mod.grip_tape",
+          "card": "card.ball_mod.grip_tape",
+          "rarity_treatment": "rarity_treatment.ball_mod.grip_tape",
+          "activation": "activation.ball_mod.grip_tape",
+          "sound": "sound.ball_mod.grip_tape",
+          "reduced_motion": "reduced_motion.ball_mod.grip_tape"
+        }
+      }
+    },
+    {
+      "id": "pin_mod.spotlight",
+      "landed_in": "E18-C16",
+      "design": {
+        "trigger": "Attached to one rack position: +3 Mult when its pin is the first one a curved roll's ball knocks down directly. Nothing if another pin is met first, or the roll was straight.",
+        "primitives": [
+          "condition.first_hit",
+          "condition.felled_curved"
+        ],
+        "pool": "Shop modification slot; initial pool from Division 1. One modification per rack position.",
+        "presentation_needs": "A small lamp on the host pin that snaps on when the curved ball reaches it first; the host's own silhouette stays readable.",
+        "asset_ids": {
+          "icon": "icon.pin_mod.spotlight",
+          "card": "card.pin_mod.spotlight",
+          "rarity_treatment": "rarity_treatment.pin_mod.spotlight",
+          "activation": "activation.pin_mod.spotlight",
+          "sound": "sound.pin_mod.spotlight",
+          "reduced_motion": "reduced_motion.pin_mod.spotlight"
+        }
+      }
+    },
+    {
+      "id": "charm.afterimage",
+      "landed_in": "E18-C16",
+      "design": {
+        "trigger": "×1.5 Mult on a spare when a roll in the frame was curved. Nothing on a strike, an open frame or a straight spare.",
+        "primitives": [],
+        "pool": "Shop Charm slot; initial pool from Division 1.",
+        "presentation_needs": "A doubled, offset outline of the ball that resolves on a curved spare.",
+        "asset_ids": {
+          "icon": "icon.charm.afterimage",
+          "card": "card.charm.afterimage",
+          "rarity_treatment": "rarity_treatment.charm.afterimage",
+          "activation": "activation.charm.afterimage",
+          "sound": "sound.charm.afterimage",
+          "reduced_motion": "reduced_motion.charm.afterimage"
+        }
+      }
+    },
+    {
+      "id": "charm.laser_level",
+      "landed_in": "E18-C16",
+      "design": {
+        "trigger": "In a frame with no curved roll: +5 Value for each pin knocked down. Any curved roll in the frame gives nothing.",
+        "primitives": [],
+        "pool": "Shop Charm slot; initial pool from Division 1.",
+        "presentation_needs": "A level's bubble that sits centred and a line that counts the pins of a straight frame.",
+        "asset_ids": {
+          "icon": "icon.charm.laser_level",
+          "card": "card.charm.laser_level",
+          "rarity_treatment": "rarity_treatment.charm.laser_level",
+          "activation": "activation.charm.laser_level",
+          "sound": "sound.charm.laser_level",
+          "reduced_motion": "reduced_motion.charm.laser_level"
+        }
+      }
+    }
+  ]
+}

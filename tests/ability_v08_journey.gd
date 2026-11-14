@@ -183,7 +183,7 @@ func _controls(scored: Dictionary) -> void:
  await _wait_for(func(): return lab.motion.abilities.glyph.style!=null and lab.motion.abilities.glyph.style.item_id in wanted and lab.motion.abilities.glyph.still and lab.motion.abilities.glyph.age<0.1,"static actual V08 replay",1800)
  await _capture("stage%d_reduced"%stage)
  played=sound.played
- await _focus_accept(lab.score_panel.skip_button)
+ await _focus_accept(lab.score_panel)
  _check(not lab.score_panel.playing and sound.played==played,"native Skip is silent")
  _check(JSON.stringify([lab.total_score,lab.run.to_dict(),scored.result])==invariant,"presentation controls never mutate bank, inventory or stream")
  lab.score_panel.finished.connect(lab._on_scored)

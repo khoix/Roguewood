@@ -134,6 +134,10 @@ static func validate_spec(spec: Variant, roster_data: Dictionary, catalogue: Dic
 		errors.append_array(_kit(kit, items, label))
 	if spec.get("kits", []).is_empty():
 		errors.append(label + ": a League lists its kits")
+	if spec.has("specialists"):
+		var specialists: Dictionary = spec.specialists
+		if specialists.get("tags", []).is_empty() or float(specialists.get("weight", 0)) <= 0.0:
+			errors.append(label + ": specialists name their tags and a weight above zero")
 	var championship: Dictionary = spec.get("championship", {})
 	if championship.get("gates", []).is_empty():
 		errors.append(label + ": the championship names its gates")

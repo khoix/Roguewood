@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "batch": "E17-D12",
+  "status": "landed",
+  "note": "Neon League items, batch 1 of 5 (DC-N1): the unlock spine. Two boss balls, the boss pin, the champion's Charm and the title's ball modification, written and landed together by E18-C15 with Bumper Guard (E17-D04). Oilskin Ball uses E18-C14's oil hold; the others use existing rule pieces. Each is a rival's or the title's reward: they landed as initial items, and E22-L02 registered their gates and assigned them, as E22-L01 did for House. Amounts and prices are provisional (E24).",
+  "definitions": [],
+  "landed": [
+    {
+      "id": "ball.oilskin",
+      "landed_in": "E18-C15",
+      "design": {
+        "trigger": "Rolls on every lane as if it were House Oil: Long Oil and Two-Tone change nothing for it. It hooks 1.3 times as far as the House Ball. Boss rules still apply.",
+        "primitives": [
+          "physics.oil_hold"
+        ],
+        "pool": "Shop ball slot once gate.slick_cleared is earned (Slick's first-clear reward; assigned by E22-L02).",
+        "presentation_needs": "A slick, beaded surface that reads at lane distance; on Long Oil or Two-Tone a short cue shows the oil leaving it untouched.",
+        "asset_ids": {
+          "icon": "icon.ball.oilskin",
+          "card": "card.ball.oilskin",
+          "in_play": "in_play.ball.oilskin",
+          "rarity_treatment": "rarity_treatment.ball.oilskin",
+          "activation": "activation.ball.oilskin",
+          "sound": "sound.ball.oilskin",
+          "reduced_motion": "reduced_motion.ball.oilskin"
+        }
+      }
+    },
+    {
+      "id": "ball.laser",
+      "landed_in": "E18-C15",
+      "design": {
+        "trigger": "Thrown with this ball, a roll gives +3 Mult for each roll in the frame graded sweet or perfect. It hooks a quarter as far as the House Ball.",
+        "primitives": [],
+        "pool": "Shop ball slot once gate.laser_lena_cleared is earned (Laser Lena's first-clear reward; assigned by E22-L02).",
+        "presentation_needs": "A thin beam line along its path on a sweet or perfect release; the count of accurate rolls shows in the explanation.",
+        "asset_ids": {
+          "icon": "icon.ball.laser",
+          "card": "card.ball.laser",
+          "in_play": "in_play.ball.laser",
+          "rarity_treatment": "rarity_treatment.ball.laser",
+          "activation": "activation.ball.laser",
+          "sound": "sound.ball.laser",
+          "reduced_motion": "reduced_motion.ball.laser"
+        }
+      }
+    },
+    {
+      "id": "pin.tempo",
+      "landed_in": "E18-C15",
+      "design": {
+        "trigger": "When it is knocked down it gives +20 Value for each roll in the frame graded sweet or perfect; nothing if no roll was.",
+        "primitives": [],
+        "pool": "Shop pin slot once gate.dj_flicker_cleared is earned (DJ Flicker's first-clear reward; assigned by E22-L02).",
+        "presentation_needs": "A pin with a level-meter band that lights one or two bars with the frame's accurate rolls; dark on a clean or missed frame.",
+        "asset_ids": {
+          "icon": "icon.pin.tempo",
+          "card": "card.pin.tempo",
+          "in_play": "in_play.pin.tempo",
+          "rarity_treatment": "rarity_treatment.pin.tempo",
+          "activation": "activation.pin.tempo",
+          "sound": "sound.pin.tempo",
+          "reduced_motion": "reduced_motion.pin.tempo"
+        }
+      }
+    },
+    {
+      "id": "charm.neon_sign",
+      "landed_in": "E18-C15",
+      "design": {
+        "trigger": "In a frame with a curved roll, +4 Mult for each roll graded sweet or perfect. A straight frame, or no accurate roll, gives nothing.",
+        "primitives": [],
+        "pool": "Shop Charm slot once gate.neon_champion_cleared is earned (the Neon Champion's first-clear reward; assigned by E22-L02).",
+        "presentation_needs": "A tube sign that lights one or two letters with the accurate rolls of a curved frame; unlit otherwise.",
+        "asset_ids": {
+          "icon": "icon.charm.neon_sign",
+          "card": "card.charm.neon_sign",
+          "rarity_treatment": "rarity_treatment.charm.neon_sign",
+          "activation": "activation.charm.neon_sign",
+          "sound": "sound.charm.neon_sign",
+          "reduced_motion": "reduced_motion.charm.neon_sign"
+        }
+      }
+    },
+    {
+      "id": "ball_mod.blacklight",
+      "landed_in": "E18-C15",
+      "design": {
+        "trigger": "Attached to one ball card: when a roll thrown with that card makes a curved strike, ×1.5 Mult. Nothing on a spare, an open frame or a straight strike.",
+        "primitives": [],
+        "pool": "Shop modification slot from Division 2 once gate.neon_champion is earned (the Neon League title's reward; assigned by E22-L02). One modification per ball.",
+        "presentation_needs": "A badge on the host card and a violet glow on the host in play that flares on a curved strike; the host's own marking stays readable.",
+        "asset_ids": {
+          "icon": "icon.ball_mod.blacklight",
+          "card": "card.ball_mod.blacklight",
+          "rarity_treatment": "rarity_treatment.ball_mod.blacklight",
+          "activation": "activation.ball_mod.blacklight",
+          "sound": "sound.ball_mod.blacklight",
+          "reduced_motion": "reduced_motion.ball_mod.blacklight"
+        }
+      }
+    }
+  ]
+}

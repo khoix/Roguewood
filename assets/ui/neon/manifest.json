@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "frames": {
+    "ui.neon.hud": {
+      "path": "res://assets/ui/neon/hud.tres",
+      "source_px": [
+        64,
+        64
+      ],
+      "slice_px": 12,
+      "content_inset_px": 20,
+      "minimum_px": [
+        40,
+        40
+      ]
+    },
+    "ui.neon.shop": {
+      "path": "res://assets/ui/neon/shop.tres",
+      "source_px": [
+        64,
+        64
+      ],
+      "slice_px": 16,
+      "content_inset_px": 24,
+      "minimum_px": [
+        48,
+        48
+      ]
+    },
+    "ui.neon.slip": {
+      "path": "res://assets/ui/neon/slip.tres",
+      "source_px": [
+        64,
+        64
+      ],
+      "slice_px": 12,
+      "content_inset_px": 20,
+      "minimum_px": [
+        40,
+        40
+      ]
+    },
+    "ui.neon.menu": {
+      "path": "res://assets/ui/neon/menu.tres",
+      "source_px": [
+        64,
+        64
+      ],
+      "slice_px": 16,
+      "content_inset_px": 24,
+      "minimum_px": [
+        48,
+        48
+      ]
+    },
+    "ui.neon.panel": {
+      "path": "res://assets/ui/neon/panel.tres",
+      "source_px": [
+        64,
+        64
+      ],
+      "slice_px": 12,
+      "content_inset_px": 20,
+      "minimum_px": [
+        40,
+        40
+      ]
+    }
+  },
+  "ornaments": [
+    "res://assets/ui/neon/corner.svg",
+    "res://assets/ui/neon/divider.svg"
+  ],
+  "font": "res://assets/ui/fonts/PixelifySans.ttf"
+}

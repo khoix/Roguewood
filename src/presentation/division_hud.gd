@@ -265,7 +265,9 @@ func layout(top: float, bubble_top: float) -> void:
 
 ## UI-2: the top bar at `bar_rect` (two rows in portrait) and the reaction bubble
 ## over the rival's panel at `bubble`.
-func layout_regions(bar_rect: Rect2, bubble: Rect2, portrait: bool, slim: bool = false) -> void:
+## `sheet_top` (UI-5): the introduction and result sheets start below the session
+## menu button, which stays in reach over them.
+func layout_regions(bar_rect: Rect2, bubble: Rect2, portrait: bool, slim: bool = false, sheet_top: float = -1.0) -> void:
 	side_box.vertical = false
 	# Portrait: title and money on top, score, frames and the rule badge below.
 	# Landscape: one row.
@@ -284,7 +286,11 @@ func layout_regions(bar_rect: Rect2, bubble: Rect2, portrait: bool, slim: bool =
 	badges.visible = not slim
 	money_slot.visible = not slim
 	frames_label.visible = not slim
-	score_label.add_theme_font_size_override("font_size", 22 if slim else 28)
+	_bar_width = bar_rect.size.x
+	_bar_portrait = portrait
+	_set_badge()
+	_bar_slim = slim
+	_fit_bar()
 	# A phone's slim bar has no room for the Division or the rival; a wide one has.
 	_slim = slim and bar_rect.size.x < 400.0
 	title_label.text = _titles[1 if _slim else 0]
@@ -295,22 +301,84 @@ func layout_regions(bar_rect: Rect2, bubble: Rect2, portrait: bool, slim: bool =
 	bar.position = bar_rect.position
 	bar.size = Vector2.ZERO
 	bar.size = bar_rect.size
+	_fit_bar() # again with the title in place
+	bar.size = Vector2.ZERO
+	bar.size = bar_rect.size
 	rule_panel.offset_top = bar_rect.end.y + 8.0
 	rule_panel.offset_bottom = bar_rect.end.y + 8.0
 	reaction.position = bubble.position
 	reaction.custom_minimum_size = Vector2(bubble.size.x, 0)
 	reaction.size = Vector2(bubble.size.x, 0)
-	reaction_portrait.custom_minimum_size = Vector2(56, 56) if not portrait else Vector2(64, 64)
+	# Portrait: the bubble covers the info row and no more (it used to run over the
+	# top of the hand under it), so its portrait and text are sized to that row.
+	reaction_portrait.custom_minimum_size = Vector2(56, 56) if not portrait else Vector2(40, 40)
+	if portrait != _reaction_portrait:
+		_reaction_portrait = portrait
+		reaction.add_theme_stylebox_override("panel", UiTheme.frame("panel", 14.0, 8.0 if portrait else 10.0))
 	reaction_text.custom_minimum_size.x = maxf(bubble.size.x - 28.0 - reaction_portrait.custom_minimum_size.x - 10.0, 80.0)
-	reaction_text.add_theme_font_size_override("font_size", 20 if portrait else 17)
+	reaction_text.add_theme_font_size_override("font_size", 18 if portrait else 17)
 	for sheet in [intro, result]:
-		sheet.offset_top = bar_rect.position.y
+		sheet.offset_top = sheet_top if sheet_top >= 0.0 else bar_rect.position.y
 		sheet.offset_left = 12.0
 		sheet.offset_right = -12.0
 		sheet.offset_bottom = -12.0
 	if result.visible and not is_equal_approx(result.size.x, _result_width):
 		_result_width = result.size.x
 		_fit_result()
+
+## The bar never grows past its region (it would run under the session menu
+## button): a long score, frame count and two-rule badge step down in size until
+## the row fits, and as a last resort the frame count is cut short.
+const BAR_STEPS := [[28, 18, 18], [28, 16, 16], [26, 15, 16], [24, 15, 15], [22, 14, 15], [20, 14, 14]] # score, frames, badge
+var _bar_width := 0.0
+var _bar_slim := false
+
+var _reaction_portrait := false
+var _badge_raw := ""
+var _bar_portrait := true
+## Portrait stacks a champion's two rules; landscape has room for one line.
+func _set_badge() -> void:
+	badge.text = _badge_raw.replace(" + ", " +\n") if _bar_portrait else _badge_raw
+
+## Lines the rule badge takes on a portrait bar: two for a champion's two rules.
+func badge_lines() -> int:
+	return _badge_raw.count(" + ") + 1
+
+## How much taller than its usual two rows portrait's bar must be for the badge as
+## it really measures: a stacked two-rule badge, or one whose ⓘ falls back to a
+## taller system font on another machine. The lab reserves this much more.
+const BAR_USUAL := 106.0 # frame, the money row, the gap and a 40 px badge row
+func bar_extra() -> float:
+	if _badge_raw.is_empty():
+		return 0.0
+	var rows: float = bar.get_theme_stylebox("panel").get_minimum_size().y + money.get_parent().custom_minimum_size.y + 2.0
+	return maxf(0.0, ceilf(rows + badge.get_parent().get_combined_minimum_size().y - BAR_USUAL))
+
+func _fit_bar() -> void:
+	if _bar_width <= 0.0:
+		return
+	var row: Control = score_label.get_parent()
+	var room: float = _bar_width - bar.get_theme_stylebox("panel").get_minimum_size().x
+	frames_label.clip_text = false
+	frames_label.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
+	for step in BAR_STEPS.slice(4 if _bar_slim else 0):
+		score_label.add_theme_font_size_override("font_size", step[0])
+		frames_label.add_theme_font_size_override("font_size", step[1])
+		# A stacked two-rule badge is 16 at most, so the bar's extra height is fixed.
+		badge.add_theme_font_size_override("font_size", mini(step[2], 16) if badge.text.contains("\n") else step[2])
+		# Measured here: a Label's own minimum size lags a font change by a frame.
+		var need := 0.0
+		for child in row.get_children():
+			if not child.visible: continue
+			if need > 0.0: need += row.get_theme_constant("separation")
+			if child is Label and not child.clip_text:
+				need += child.get_theme_font("font").get_string_size(child.text, HORIZONTAL_ALIGNMENT_LEFT, -1, child.get_theme_font_size("font_size")).x
+			else:
+				need += child.get_combined_minimum_size().x
+		if need <= room:
+			return
+	frames_label.clip_text = true
+	frames_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 
 func _bar_label(parent: Control, node_name: String, font_size: int, color: Color) -> Label:
 	var label := Label.new()
@@ -333,8 +401,10 @@ func show_match(view: Dictionary) -> void:
 	title_label.text = _titles[1 if _slim else 0]
 	score_label.text = view.get("score", "")
 	frames_label.text = view.get("frames", "")
-	badge.text = view.badge.replace(" + ", " +\n")
+	_badge_raw = view.badge
+	_set_badge()
 	badge.visible = not view.badge.is_empty()
+	_fit_bar()
 	rule_text.text = view.rule_text
 	if badge.visible == false:
 		rule_panel.hide()
@@ -454,13 +524,14 @@ func _reward(parent: Node) -> TextureRect:
 
 ## Adjacent, stable rule seals; inspectable text remains on the existing button.
 func show_extra_rule_badges(rules: Array) -> void:
-	extra_rule_badges.visible = badge.visible and not rules.is_empty()
+	extra_rule_badges.visible = badge.visible and rules.any(func(r): return RivalArt.rule_badge(r) != null)
 	if extra_rule_badges.get_meta("rules", []) == rules: return
 	extra_rule_badges.set_meta("rules", rules.duplicate())
 	for child in extra_rule_badges.get_children():
 		extra_rule_badges.remove_child(child)
 		child.queue_free()
 	for rule in rules:
+		if RivalArt.rule_badge(rule) == null: continue # no seal art yet: no empty slot on the bar
 		var seal := TextureRect.new()
 		seal.texture = RivalArt.rule_badge(rule)
 		seal.custom_minimum_size = Vector2(32, 32)

@@ -223,11 +223,16 @@ static func summary(item: Dictionary, names: Dictionary = {}) -> Dictionary:
 	var effects: Array = item.get("effects", [])
 	var physics: Dictionary = item.get("physics", {})
 	var pick: Dictionary = {}
-	for op in ["multiply_mult", "add_mult", "payout", "retrigger", "add_value"]:
+	for op in ["multiply_mult", "add_mult", "payout", "retrigger", "add_value", "lose_mult"]:
 		for effect in effects:
 			if effect.op == op and pick.is_empty():
 				pick = effect
-	if pick.is_empty():
+	if pick.is_empty() or pick.op == "lose_mult":
+		# E18-C14: what a card does to its roll leads; a Mult loss is its cost, never its headline.
+		if physics.get("gutter_rebound", false):
+			return {"icon": category_icon(id), "hint": "Gutter rebound", "detail": "Once a frame"}
+		if physics.get("oil_hold", false) and not physics.has("spin_response"):
+			return {"icon": category_icon(id), "hint": "Holds its hook", "detail": "On any oil"}
 		if physics.has("spin_response"):
 			return {"icon": category_icon(id), "hint": "Hook ×%s" % String.num(physics.spin_response, 2), "detail": ("Mass ×%s" % String.num(physics.mass_scale, 2)) if physics.has("mass_scale") else "Spin response"}
 		if id == "ball.house":

@@ -87,6 +87,9 @@ static func steps(result: Dictionary, frame: Dictionary, names: Dictionary = {},
 					"multiply_mult":
 						step.text = "%s %s%s Mult" % [owner, TIMES, amount]
 						step.symbol = TIMES
+					"lose_mult":
+						step.text = "%s −%s Mult (never below 1)" % [owner, amount]
+						step.symbol = "−"
 				if event.has("count"):
 					step.text += " (%d × %s%s%s)" % [int(event.count), ADD if event.op != "multiply_mult" else TIMES, _n(event.base), _per_text(String(event.per), names)]
 				if event.has("condition"):
@@ -189,6 +192,7 @@ static func item_text(item: Dictionary, names: Dictionary = {}) -> String:
 			"add_value": text = "+%s Value" % amount
 			"add_mult": text = "+%s Mult" % amount
 			"multiply_mult": text = "×%s Mult" % amount
+			"lose_mult": text = "−%s Mult, never below 1," % amount
 			"payout": text = "+$%s" % amount
 			"retrigger": text = "Retriggers the first pin it hits directly"
 			"grow_value": text = "grows +%s" % amount
@@ -237,6 +241,9 @@ static func condition_text(condition: Dictionary, facts: Dictionary = {}, names:
 					parts.append("match score under half the target" if v else "not behind")
 			"last_fallen":
 				parts.append("fell last" if v == "self" else "%s fell last" % names.get(v, v))
+			"rebounded": parts.append("rebounded off the gutter" if v else "no rebound")
+			"felled_curved": parts.append("knocked down by a curved roll" if v else "knocked down by a straight roll")
+			"first_hit": parts.append("the first pin the ball hit" if v else "not the first pin hit")
 	return ", ".join(parts)
 
 static func _per_text(per: String, names: Dictionary) -> String:

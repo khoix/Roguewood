@@ -29,14 +29,23 @@ extends RefCounted
 ##   owner pin fell last; a pin item id: the pin that fell last is that item);
 ## - per `accurate` (rolls graded sweet or perfect) and `fallen_at:7,8,9,10` (fallen pins
 ##   at the listed positions).
+##
+## E18-C14 adds, all optional:
+## - roll `rebounded`: the roll rebounded off the gutter edge (Bumper Guard);
+## - op `lose_mult`: Mult falls by the amount, never below 1 (and never rises);
+## - conditions `rebounded` (on a roll's own effects: that roll rebounded; elsewhere:
+##   any roll did), `felled_curved` (a pin's own effects: the roll that knocked it
+##   down was curved) and `first_hit` (a pin's own effects: it was the first pin that
+##   roll's ball knocked down directly).
 const SCOPES = ["roll", "frame", "match", "run"]
 const OPS = ["add_value", "add_mult", "multiply_mult", "payout", "grow_value"]
-const V2_OPS = ["retrigger", "transform"]
+const V2_OPS = ["retrigger", "transform", "lose_mult"]
 const GRADES = {"miss": 0, "clean": 0, "sweet": 1, "perfect": 2}
 const MAX_SAFE_SCORE = 9007199254740991.0
 const MAX_RETRIGGERS := 8
 const HOUSE := "ball.house"
-const CONDITIONS := ["category", "match_frame", "standing_count", "curved", "all_house", "streak_min", "leave_min", "behind", "last_fallen"]
+const CONDITIONS := ["category", "match_frame", "standing_count", "curved", "all_house", "streak_min", "leave_min", "behind", "last_fallen",
+	"rebounded", "felled_curved", "first_hit"]
 const PER_KINDS := ["growth", "retriggers", "fallen", "standing", "accurate", "fallen_at"]
 const DEFERRED := ["payout", "grow_value", "transform"]
 
@@ -69,7 +78,10 @@ static func resolve(frame: Dictionary) -> Dictionary:
 		"curved": rolls.any(func(r): return bool(r.get("curved", false))), "all_house": rolls.all(func(r): return r.ball_id == HOUSE),
 		"streak": int(context.get("strike_streak", 0)) + 1 if category == "strike" else 0, "retriggers": 0, "fallen": {}, "standing": {},
 		"leave": 10 - rolls[0].fallen_positions.size(), "behind": match_target > 0 and int(context.get("match_score", 0)) * 2 < match_target,
-		"last_fallen": last_fallen, "last_item": "", "accurate": rolls.filter(func(r): return GRADES[r.accuracy] > 0).size(), "fallen_at": fallen}
+		"last_fallen": last_fallen, "last_item": "", "accurate": rolls.filter(func(r): return GRADES[r.accuracy] > 0).size(), "fallen_at": fallen,
+		"rolls": {}}
+	for roll in rolls:
+		facts.rolls[int(roll.roll_index)] = {"curved": bool(roll.get("curved", false)), "rebounded": bool(roll.get("rebounded", false)), "first_direct": int(roll.get("first_direct", 0))}
 	for pin in pins:
 		var bucket: Dictionary = facts.fallen if fallen.has(int(pin.position)) else facts.standing
 		bucket[pin.item_id] = int(bucket.get(pin.item_id, 0)) + 1
@@ -149,6 +161,15 @@ static func _holds(effect: Dictionary, facts: Dictionary, owner: Dictionary = {}
 			"last_fallen":
 				var last: int = facts.last_fallen
 				if last == 0 or (int(owner.get("position", 0)) != last if wanted == "self" else facts.last_item != wanted): return false
+			"rebounded":
+				var did: bool = bool(facts.rolls.get(int(owner.roll_index), {}).get("rebounded", false)) if owner.has("roll_index") \
+					else facts.rolls.values().any(func(r): return r.rebounded)
+				if did != bool(wanted): return false
+			"felled_curved", "first_hit":
+				# A pin's own facts: the roll that knocked the owner down.
+				var by: Dictionary = facts.rolls.get(int(facts.fallen_at.get(int(owner.get("position", 0)), 0)), {})
+				var holds: bool = not by.is_empty() and (bool(by.curved) if key == "felled_curved" else int(by.first_direct) == int(owner.get("position", 0)))
+				if holds != bool(wanted): return false
 	return true
 
 ## The count a `per` effect scales by, from this frame's facts or its owner.
@@ -208,6 +229,7 @@ static func _apply_effects(state: Dictionary, owner: Dictionary, trigger: String
 			"add_value": state.value += event.amount
 			"add_mult": state.mult += event.amount
 			"multiply_mult": state.mult *= event.amount
+			"lose_mult": state.mult = minf(state.mult, maxf(state.mult - event.amount, 1.0))
 		event["pin_value"] = state.value
 		event["mult"] = state.mult
 		state.events.append(event)
@@ -267,7 +289,9 @@ static func validate(frame: Dictionary) -> Array[String]:
 		if not roll is Dictionary:
 			errors.append("roll must be an object")
 			continue
-		_unknown_keys(roll, ["roll_index", "ball_id", "fallen_positions", "accuracy", "effects"] + (["first_direct", "curved", "last_fallen"] if v2 else []), errors)
+		_unknown_keys(roll, ["roll_index", "ball_id", "fallen_positions", "accuracy", "effects"] + (["first_direct", "curved", "last_fallen", "rebounded"] if v2 else []), errors)
+		if roll.has("rebounded") and typeof(roll.rebounded) != TYPE_BOOL:
+			errors.append("rebounded must be a boolean")
 		for key in ["first_direct", "last_fallen"]:
 			if not _integer_between(roll.get(key, 0), 0, 10):
 				errors.append("%s must be 0..10" % key)
@@ -347,15 +371,18 @@ static func _validate_owner(owner: Dictionary, id_key: String, prefix: String, t
 						errors.append("condition.%s out of range" % key)
 				if c.has("last_fallen") and not (c.last_fallen is String and c.last_fallen == "self" and prefix == "pin.") and not _valid_id(c.last_fallen, "pin."):
 					errors.append("condition.last_fallen is \"self\" on a pin (it fell last) or a pin item id")
-				for key in ["curved", "all_house", "behind"]:
+				for key in ["curved", "all_house", "behind", "rebounded", "felled_curved", "first_hit"]:
 					if c.has(key) and typeof(c[key]) != TYPE_BOOL:
 						errors.append("condition.%s must be a boolean" % key)
+				for key in ["felled_curved", "first_hit"]:
+					if c.has(key) and (prefix != "pin." or effect.get("trigger") != "fallen"):
+						errors.append("condition.%s belongs to a pin's fallen effects" % key)
 		if effect.has("per"):
 			var per: Variant = effect.per
 			var kind: String = String(per).get_slice(":", 0) if per is String else ""
 			if kind not in PER_KINDS or not _valid_per(String(per)):
 				errors.append("unsupported per count")
-			elif effect.get("op") in ["multiply_mult", "payout"]:
+			elif effect.get("op") in ["multiply_mult", "payout", "lose_mult"]:
 				errors.append("only additions and growth scale per count")
 		if not effect.get("scope") in SCOPES:
 			errors.append("unsupported effect scope")

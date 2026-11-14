@@ -7,7 +7,10 @@ extends SceneTree
 ## buys, places, orders and throws towards one build; baselines buy nothing or buy
 ## at random. It measures whether distinct builds can win the slice and how they
 ## score, not feel or fun: that needs human play on a device.
-## Usage: godot --headless --script res://tools/slice_strategies.gd -- [--runs=N] [--out=path] [--unlocked]
+## E22-L02: `--content=neon` plays the eight-Division Neon League with its kit, its
+## specialist weights and two Neon builds; its rules shift the model as NEON_MODEL
+## says. The slice's numbers are unchanged by this.
+## Usage: godot --headless --script res://tools/slice_strategies.gd -- [--runs=N] [--out=path] [--unlocked] [--content=neon]
 const ContentSet = preload("res://src/rules/content_set.gd")
 const League = preload("res://src/rules/league_run.gd")
 const RunInventory = preload("res://src/rules/run_inventory.gd")
@@ -45,6 +48,20 @@ const STRATEGIES := {
 	"random_buyer": {"pins": {}, "charms": [], "balls": [], "spin": false, "plan": "strike", "random": true},
 }
 
+## Neon builds, played with the House builds that still apply in the Neon League.
+const NEON_STRATEGIES := {
+	"neon_curve": {"pins": {"pin.prism": [1, 2, 3, 5, 4, 6]}, "charms": ["charm.afterimage", "charm.flat_bonus", "charm.neon_sign", "charm.hook_artist", "charm.finisher"],
+		"balls": ["ball.glow", "ball.hook", "ball.house"], "spin": true, "plan": "strike"},
+	"neon_straight": {"pins": {"pin.ruby": [1, 2, 3, 5, 4, 6], "pin.tempo": [4, 6]}, "charms": ["charm.laser_level", "charm.flat_bonus", "charm.finisher", "charm.turkey_club", "charm.last_chance"],
+		"balls": ["ball.laser", "ball.house"], "spin": false, "plan": "strike"},
+}
+const NEON_SHARED := ["strike_chain", "house_only", "random_buyer"]
+## How Neon's rules shift the ordinary-player model (synthetic, provisional): Oil
+## Slick halves what a curve adds; Narrow Lane costs every first roll some strikes;
+## under Strobe a release is graded one step worse.
+const NEON_MODEL := {"oil_slick_curve_scale": 0.5, "narrow_lane_strike": -0.05, "strobe_grades": ["miss", "miss", "clean", "clean", "sweet"]}
+const NEON_GATES := ["gate.slick_cleared", "gate.laser_lena_cleared", "gate.dj_flicker_cleared", "gate.neon_champion_cleared", "gate.neon_champion"]
+
 func _init() -> void:
 	var runs := 400
 	var out := ""
@@ -52,7 +69,10 @@ func _init() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--runs="): runs = int(arg.get_slice("=", 1))
 		if arg.begins_with("--out="): out = arg.get_slice("=", 1)
-	var report := simulate(runs, unlocked)
+	var set_id := "slice"
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--content="): set_id = arg.get_slice("=", 1)
+	var report := simulate(runs, unlocked, set_id)
 	print(JSON.stringify(report.summary, "  "))
 	if not out.is_empty():
 		var file := FileAccess.open(out, FileAccess.WRITE)
@@ -60,17 +80,34 @@ func _init() -> void:
 	print("ROGUEWOOD_SLICE_SIM_OK")
 	quit(0)
 
-static func simulate(runs: int, unlocked: bool = false) -> Dictionary:
-	var content := ContentSet.load_set("slice")
+static func strategies(set_id: String) -> Dictionary:
+	if set_id != "neon":
+		return STRATEGIES
+	var out: Dictionary = NEON_STRATEGIES.duplicate()
+	for name in NEON_SHARED:
+		out[name] = STRATEGIES[name]
+	return out
+
+static func simulate(runs: int, unlocked: bool = false, set_id: String = "slice") -> Dictionary:
+	var content := ContentSet.load_set(set_id)
+	var match_count := 0
+	for d in content.divisions:
+		match_count += d.matches.size()
 	var summary := {"runs": runs, "career_unlocks": unlocked, "targets": content.divisions.map(func(d): return d.matches.map(func(m): return int(m.target))),
 		"outcome_model": {"strike": STRIKE, "ball_strike": BALL_STRIKE, "curve_strike": CURVE_STRIKE, "hook_overcurve": HOOK_OVERCURVE,
 			"anchor_strike": ANCHOR_STRIKE, "pocket": POCKET, "spare": SPARE, "leave_one": LEAVE_ONE, "first_roll_count": "6-9 uniform", "accuracy": GRADES},
 		"strategies": {}}
-	for name in STRATEGIES:
+	if set_id == "neon":
+		summary["content"] = set_id
+		summary["neon_model"] = NEON_MODEL
+	var all: Dictionary = strategies(set_id)
+	for name in all:
 		var stats := {"won": 0, "d1": 0, "matches": [], "frames": 0, "frame_scores": [], "non_strike_scores": [], "strike_scores": [],
-			"money_end": [], "bought": {}, "reached": [0, 0, 0, 0, 0, 0, 0]}
+			"money_end": [], "bought": {}, "reached": []}
+		stats.reached.resize(match_count + 1)
+		stats.reached.fill(0)
 		for seed_value in range(1, runs + 1):
-			_attempt(name, seed_value, content, unlocked, stats)
+			_attempt(name, all[name], seed_value, content, unlocked, stats)
 		var bought: Array = stats.bought.keys()
 		bought.sort_custom(func(a, b): return stats.bought[a] > stats.bought[b])
 		summary.strategies[name] = {"win_rate": snappedf(float(stats.won) / runs, 0.001), "division1_clear_rate": snappedf(float(stats.d1) / runs, 0.001),
@@ -81,8 +118,7 @@ static func simulate(runs: int, unlocked: bool = false) -> Dictionary:
 	return {"summary": summary}
 
 ## One attempt: shop between matches, deck frames, synthetic pinfall, real scoring.
-static func _attempt(name: String, seed_value: int, content: Dictionary, unlocked: bool, stats: Dictionary) -> void:
-	var strategy: Dictionary = STRATEGIES[name]
+static func _attempt(name: String, strategy: Dictionary, seed_value: int, content: Dictionary, unlocked: bool, stats: Dictionary) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash([seed_value, "pinfall"]) # the same throws for every strategy on a seed
 	var policy := RandomNumberGenerator.new()
@@ -90,8 +126,9 @@ static func _attempt(name: String, seed_value: int, content: Dictionary, unlocke
 	var catalogue: Dictionary = content.catalogue
 	var run = RunInventory.create(catalogue, content.kit.pins, content.kit.deck, int(content.kit.money))
 	var shop = Shop.create(catalogue, hash([seed_value, "shop"]))
+	shop.specialists = content.get("specialists", {})
 	if unlocked:
-		shop.unlocked = ["gate.surveyor_cleared", "gate.custodian_cleared"]
+		shop.unlocked = NEON_GATES.duplicate() if content.id == "neon" else ["gate.surveyor_cleared", "gate.custodian_cleared"]
 	var deck = Deck.create_with(run.deck_cards(), seed_value)
 	var league = League.create(content.divisions)
 	var won_matches := 0
@@ -115,8 +152,8 @@ static func _attempt(name: String, seed_value: int, content: Dictionary, unlocke
 					plan = "strike" # nothing pays for a leave yet
 				if RivalRules.bank(league.rules(), {"score": 1, "category": "open"}).score == 0:
 					plan = "strike" # Clean Sweep: a leave banks nothing, so clear the rack
-				var fallen := _pinfall(rng, roll_index, rack, ball.item_id, spin, plan, run)
-				reports.append(_report(roll_index, fallen, rack, ball.item_id, spin, rng))
+				var fallen := _pinfall(rng, roll_index, rack, ball.item_id, spin, plan, run, league.rules())
+				reports.append(_report(roll_index, fallen, rack, ball.item_id, spin, rng, league.rules()))
 				rack = rack.filter(func(p): return p not in fallen)
 				if rack.is_empty() or roll_index == 2:
 					break
@@ -175,7 +212,7 @@ static func _pick_ball(strategy: Dictionary, deck, policy: RandomNumberGenerator
 	return {"uid": "", "item_id": "ball.house"}
 
 ## Seeded pinfall for one roll: which racked pins fall, first direct hit first.
-static func _pinfall(rng: RandomNumberGenerator, roll_index: int, rack: Array, ball: String, spin: float, plan: String, run) -> Array:
+static func _pinfall(rng: RandomNumberGenerator, roll_index: int, rack: Array, ball: String, spin: float, plan: String, run, rules: Array = []) -> Array:
 	var order: Array = rack.duplicate()
 	for i in range(order.size() - 1, 0, -1):
 		var j := rng.randi_range(0, i)
@@ -192,7 +229,11 @@ static func _pinfall(rng: RandomNumberGenerator, roll_index: int, rack: Array, b
 		for p in ALL:
 			anchors += _anchor(run, p)
 		var curved := Lane.is_curved(spin)
-		var chance: float = STRIKE + (BALL_STRIKE.get(ball, 0.0) if ball != "ball.hook" or curved else 0.0) + (CURVE_STRIKE if curved else 0.0) + ANCHOR_STRIKE * anchors
+		var curve_scale: float = NEON_MODEL.oil_slick_curve_scale if "boss_rule.oil_slick" in rules else 1.0
+		var hook_bonus: float = BALL_STRIKE.get(ball, 0.0) * (curve_scale if ball == "ball.hook" else 1.0)
+		var chance: float = STRIKE + (hook_bonus if ball != "ball.hook" or curved else 0.0) + (CURVE_STRIKE * curve_scale if curved else 0.0) + ANCHOR_STRIKE * anchors
+		if "boss_rule.narrow_lane" in rules:
+			chance += NEON_MODEL.narrow_lane_strike
 		if ball == "ball.hook" and curved and rng.randf() < HOOK_OVERCURVE:
 			return order.slice(0, rng.randi_range(3, 6))
 		if plan == "strike" and rng.randf() < chance:
@@ -207,13 +248,14 @@ static func _pinfall(rng: RandomNumberGenerator, roll_index: int, rack: Array, b
 static func _anchor(run, position: int) -> int:
 	return 1 if run.rack[position].item_id == "pin.anchor" else 0
 
-static func _report(roll_index: int, fallen: Array, racked: Array, ball: String, spin: float, rng: RandomNumberGenerator) -> Dictionary:
+static func _report(roll_index: int, fallen: Array, racked: Array, ball: String, spin: float, rng: RandomNumberGenerator, rules: Array = []) -> Dictionary:
 	var id := "sim-%d-%d" % [roll_index, fallen.size()]
 	var knockdowns: Array = []
 	for i in fallen.size():
 		knockdowns.append({"position": fallen[i], "sequence": i + 1, "tick": 100 + i, "cause": "ball" if i == 0 else "pin",
 			"source_position": 0 if i == 0 else fallen[0], "chain_depth": 1 if i == 0 else 2, "reason": "tilt"})
-	var accuracy: String = GRADES[rng.randi_range(0, GRADES.size() - 1)]
+	var grades: Array = NEON_MODEL.strobe_grades if "boss_rule.strobe" in rules else GRADES
+	var accuracy: String = grades[rng.randi_range(0, GRADES.size() - 1)]
 	return {"launch": {"schema_version": 1, "launch_id": id, "ball_id": ball, "roll_index": roll_index, "start_x": 0.0, "direction_x": 0.0,
 			"direction_forward": 1.0, "power": 0.5, "spin": spin, "target_x": 0.11, "ring_radius": 0.3},
 		"roll_result": {"schema_version": 1, "launch_id": id, "ball_id": ball, "roll_index": roll_index, "fallen_positions": fallen, "accuracy": accuracy},

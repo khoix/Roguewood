@@ -94,6 +94,10 @@ jobs:
           xvfb-run -a python3 tools/qa.py e2e --journey J03C05 --rendered
           python3 tools/qa.py e2e --journey J03C13
           xvfb-run -a python3 tools/qa.py e2e --journey J03C13 --rendered
+          python3 tools/qa.py e2e --journey J03C15
+          xvfb-run -a python3 tools/qa.py e2e --journey J03C15 --rendered
+          python3 tools/qa.py e2e --journey J03C16
+          xvfb-run -a python3 tools/qa.py e2e --journey J03C16 --rendered
           python3 tools/qa.py e2e --journey J03C06
           xvfb-run -a python3 tools/qa.py e2e --journey J03C06 --rendered
           python3 tools/qa.py e2e --journey J03C07
@@ -108,6 +112,8 @@ jobs:
           xvfb-run -a python3 tools/qa.py e2e --journey J03C11 --rendered
           python3 tools/qa.py e2e --journey J22L01
           xvfb-run -a python3 tools/qa.py e2e --journey J22L01 --rendered
+          python3 tools/qa.py e2e --journey J22L02
+          xvfb-run -a python3 tools/qa.py e2e --journey J22L02 --rendered
           python3 tools/qa.py e2e --journey J11
           xvfb-run -a python3 tools/qa.py e2e --journey J11 --rendered
           python3 tools/qa.py e2e --journey J12
@@ -292,6 +298,46 @@ jobs:
         run: |
           python3 tools/qa.py e2e --journey JUIA1
           xvfb-run -a python3 tools/qa.py e2e --journey JUIA1 --rendered
+      - name: Slick and missing House plaque art (E21-R05)
+        if: matrix.shard == 'art'
+        run: |
+          python3 tools/qa.py e2e --journey J21R05C
+          xvfb-run -a python3 tools/qa.py e2e --journey J21R05C --rendered
+          python3 tools/qa.py e2e --journey J21R05
+          xvfb-run -a python3 tools/qa.py e2e --journey J21R05 --rendered
+      - name: Laser Lena rival art (E21-R06)
+        if: matrix.shard == 'art'
+        run: |
+          python3 tools/qa.py e2e --journey J21R06C
+          xvfb-run -a python3 tools/qa.py e2e --journey J21R06C --rendered
+          python3 tools/qa.py e2e --journey J21R06
+          xvfb-run -a python3 tools/qa.py e2e --journey J21R06 --rendered
+      - name: DJ Flicker and Neon Champion art (E21-R07)
+        if: matrix.shard == 'art'
+        run: |
+          python3 tools/qa.py e2e --journey J21R07C
+          xvfb-run -a python3 tools/qa.py e2e --journey J21R07C --rendered
+      - name: Neon environment and signage art (E22-L02-ART session 1)
+        if: matrix.shard == 'art'
+        run: |
+          python3 tools/qa.py e2e --journey J22L02ENV
+          xvfb-run -a python3 tools/qa.py e2e --journey J22L02ENV --rendered
+      - name: Neon lane finishes and theme kit (E22-L02-ART session 2)
+        if: matrix.shard == 'art'
+        run: |
+          python3 tools/qa.py e2e --journey J22L02ART
+          xvfb-run -a python3 tools/qa.py e2e --journey J22L02ART --rendered
+      - name: Final Neon rival and live theme art (Wave 12)
+        if: matrix.shard == 'art'
+        run: |
+          python3 tools/qa.py e2e --journey J21R07
+          xvfb-run -a python3 tools/qa.py e2e --journey J21R07 --rendered
+          python3 tools/qa.py e2e --journey J21R07DJ
+          xvfb-run -a python3 tools/qa.py e2e --journey J21R07DJ --rendered
+          python3 tools/qa.py e2e --journey J22L02RULEART
+          xvfb-run -a python3 tools/qa.py e2e --journey J22L02RULEART --rendered
+          python3 tools/qa.py e2e --journey J22L02LIVEART
+          xvfb-run -a python3 tools/qa.py e2e --journey J22L02LIVEART --rendered
       - name: Preserve journey diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -370,4 +416,8 @@ jobs:
             artifacts/av-c04-b/
             artifacts/av-c04-c/
             artifacts/e22-l01-art/
+            artifacts/e22-l02-art/
+            artifacts/e21-r05/
+            artifacts/e21-r06/
+            artifacts/e21-r07/
           if-no-files-found: warn
