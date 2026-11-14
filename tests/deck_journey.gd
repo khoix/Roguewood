@@ -60,9 +60,41 @@ func _action(action: String, times: int = 1) -> void:
 			Input.parse_input_event(event)
 			await process_frame
 
+## UI-5: what a player does first to reach a control that sits behind another:
+## open the session menu or the shop's Sell sheet, or close a sheet that is in the way.
+func _reach(control: Control) -> void:
+	if scene == null: return
+	if scene.session_menu.is_ancestor_of(control) and not scene.session_menu.visible:
+		scene.menu_button.grab_focus()
+		await _action("ui_accept")
+	var shop: Control = scene.lab.shop_panel if scene.lab != null else null
+	if shop == null or not shop.is_visible_in_tree(): return
+	if shop.sell_sheet.is_ancestor_of(control):
+		if not shop.sell_sheet.visible:
+			shop.sell_open.grab_focus()
+			await _action("ui_accept")
+			await process_frame
+	elif shop.sell_sheet.visible:
+		shop.sell_close.grab_focus()
+		await _action("ui_accept")
+	if shop.offer_sheet.visible and not shop.offer_sheet.is_ancestor_of(control):
+		shop.offer_back.grab_focus()
+		await _action("ui_accept")
+
+## UI-5b: a tapped offer opens large; a player then presses Buy (or Back when it
+## cannot be bought).
+func _confirm(control) -> void: # untyped: a pressed row may already be freed
+	if scene == null or scene.lab == null or not is_instance_valid(control): return
+	var shop: Control = scene.lab.shop_panel
+	if shop.offer_sheet.visible and control in shop.offer_buttons:
+		(shop.offer_back if shop.buy_button.disabled else shop.buy_button).grab_focus()
+		await _action("ui_accept")
+
 func _focus_accept(control: Control) -> void:
+	await _reach(control)
 	control.grab_focus()
 	await _action("ui_accept")
+	await _confirm(control)
 
 func _window(canvas: Vector2) -> Vector2:
 	return root.get_screen_transform() * canvas
@@ -71,6 +103,7 @@ func _window(canvas: Vector2) -> Vector2:
 func _tap(control: Control) -> void:
 	# A player scrolls a control into view before tapping it (UI-3's portrait shop
 	# scrolls under its pinned actions).
+	await _reach(control)
 	var scroll: Node = control.get_parent()
 	while scroll != null and not (scroll is ScrollContainer): scroll = scroll.get_parent()
 	if scroll != null and not (scroll as Control).get_global_rect().encloses(control.get_global_rect()):
@@ -85,6 +118,7 @@ func _tap(control: Control) -> void:
 		event.pressed = pressed
 		Input.parse_input_event(event)
 		await process_frame
+	await _confirm(control)
 
 func _click(control: Control) -> void:
 	var at := control.get_global_rect().get_center()
@@ -171,7 +205,7 @@ func _aim() -> void:
 ## Scoring must equal an independent resolution with the cards the journey played.
 func _verify_frame(label: String, expect_names: Array) -> void:
 	await _wait_for(func(): return lab.state == "scoring", label + " scoring starts", ROLL_FRAMES)
-	await _focus_accept(lab.score_panel.skip_button)
+	await _focus_accept(lab.score_panel)
 	await _wait_for(func(): return lab.state == "frame_done", label + " scoring finishes", ROLL_FRAMES)
 	_check(lab.frame_tactics == tactics, label + " lab recorded the played tactical cards")
 	var built: Dictionary = FrameBuilder.build(FrameBuilder.lab_loadout(), catalogue, lab.frame_reports, tactics)

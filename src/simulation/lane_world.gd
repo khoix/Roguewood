@@ -33,7 +33,14 @@ var physics: Dictionary = {}
 ## (Oil Slick) scales the side spin, gutter_edge (Narrow Lane) is where a ball
 ## becomes a gutter ball, zone_scale (Strobe) narrows the ring's grades. Empty keeps
 ## the standard lane exactly.
+## E18-C14 adds what the thrown card brings to its own roll (ItemPhysics.roll_rules):
+## gutter_rebound (Bumper Guard: one rebound off the gutter edge), spin_scale (a
+## modification's hook multiplier) and oil_hold (a ball that meets every lane as
+## House Oil).
 var rules: Dictionary = {}
+## The rebound mirrors the ball's sideways speed, as a bumper does; this is the least
+## it comes back with (m/s), so a ball creeping over the edge still returns.
+const REBOUND_SPEED := 0.15
 ## Narrow Lane's rail speed (m/s): a ball ruled into the gutter is carried into it,
 ## so it never rolls on to pins that cannot count.
 const RAIL_SPEED := 1.2
@@ -241,11 +248,11 @@ func _apply_launch() -> void:
 	# True forward roll plus side rotation about the travel axis (positive hooks right);
 	# a ball's spin response scales the side spin its charge produces.
 	# Oil Slick halves the hook the charge produces; the committed spin is unchanged.
-	var hook := float(profile.get("spin_response", 1.0)) * float(rules.get("hook_scale", 1.0))
+	var hook := float(profile.get("spin_response", 1.0)) * float(rules.get("hook_scale", 1.0)) * float(rules.get("spin_scale", 1.0))
 	ball.angular_velocity = Vector3.UP.cross(velocity) / Lane.BALL_RADIUS + direction * Lane.side_spin(launch.spin) * hook
 	for position in pins:
 		pins[position].freeze = false
-	tracker = Tracker.new(pins.keys(), gutter_edge())
+	tracker = Tracker.new(pins.keys(), gutter_edge(), 1 if bool(rules.get("gutter_rebound", false)) else 0)
 	state = "rolling"
 
 func _physics_process(_delta: float) -> void:
@@ -255,8 +262,21 @@ func _physics_process(_delta: float) -> void:
 	elif state == "rolling" and tracker.step(observe()):
 		_finish()
 	if state == "rolling":
+		_rebound()
 		_rail()
 		_oil_pattern()
+
+## Bumper Guard: the tracker ruled a rebound at the gutter edge. The ball keeps its
+## speed down the lane and its sideways speed is mirrored (at least REBOUND_SPEED),
+## before it can sink into the channel (deterministic, once per roll).
+func _rebound() -> void:
+	var side := tracker.take_rebound()
+	if side == 0.0:
+		return
+	var velocity := ball.linear_velocity
+	velocity.x = -side * maxf(absf(velocity.x), REBOUND_SPEED)
+	velocity.y = maxf(velocity.y, 0.0)
+	ball.linear_velocity = velocity
 
 ## Narrow Lane: once the ball is ruled a gutter ball inside the physical lane, the
 ## rail carries it sideways into the gutter (deterministic, once per roll).
@@ -271,7 +291,7 @@ func _rail() -> void:
 var lane_condition := "lane.house"
 
 func _oil_pattern() -> void:
-	var friction := Lane.ball_friction(-ball.global_position.z, lane_condition, ball.global_position.x)
+	var friction := Lane.ball_friction(-ball.global_position.z, "lane.house" if bool(rules.get("oil_hold", false)) else lane_condition, ball.global_position.x)
 	if friction != _zone_friction:
 		_zone_friction = friction
 		_ball_material.friction = friction
@@ -338,6 +358,8 @@ func _finish() -> void:
 		"rack_after": {"schema_version": 1, "standing": resolve_overlaps(survivors)},
 		"final_state": final_state,
 	}
+	if tracker.rebounded:
+		report.knockdown_log["rebounded"] = true # only when it happened: older logs stay as they were
 	for position in pins:
 		pins[position].freeze = true
 	ball.freeze = true

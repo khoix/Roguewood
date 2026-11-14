@@ -15,6 +15,19 @@ ROOT = Path(__file__).resolve().parents[1]
 VERSION = (ROOT / ".godot-version").read_text().strip()
 # journey -> script, success marker, artifact directory, rendered captures, timeout, extra engine flags
 JOURNEYS = {
+    "J21R07": ("res://tests/flicker_art_journey.gd", "ROGUEWOOD_J03C13_OK", "artifacts/e21-r07/champion", tuple("dj_flicker_champion_" + s for s in ["intro", "landscape", "normal", "reduced", "reaction", "defeated"]) + ("champion_seals", "c13_oil_slick", "c13_narrow_lane", "c13_champion"), 900, ["--fixed-fps", "60"]),
+    "J21R07DJ": ("res://tests/flicker_regular_art_journey.gd", "ROGUEWOOD_J03C13_OK", "artifacts/e21-r07/regular", tuple("dj_flicker_" + s for s in ["intro", "landscape", "normal", "reduced", "reaction", "defeated"]) + ("c13_oil_slick", "c13_narrow_lane"), 900, ["--fixed-fps", "60"]),
+    "J22L02RULEART": ("res://tests/neon_rule_art_journey.gd", "ROGUEWOOD_J03C13_OK", "artifacts/e22-l02-art/rules", ("c13_oil_slick", "c13_narrow_lane", "c13_champion") + tuple("c13_" + rule + "_art_" + mode for rule in ["narrow_lane", "champion"] for mode in ["normal", "reduced", "landscape"]), 900, ["--fixed-fps", "60"]),
+    "J22L02LIVEART": ("res://tests/neon_live_art_journey.gd", "ROGUEWOOD_J22L02_OK", "artifacts/e22-l02-art/live", tuple("live_d%02d_opener" % i for i in range(1,9)) + ("live_d02_feature", "live_d03_feature", "live_d08_boss", "live_champion_normal", "live_champion_landscape", "j22n_champion", "j22n_title", "j22n_attempt2"), 1800, ["--fixed-fps", "60"]),
+    "J22L02ART": ("res://tests/neon_theme_journey.gd", "ROGUEWOOD_NEON_THEME_OK", "artifacts/e22-l02-art/theme",
+        ("house_oil", "long_oil", "two_tone", "lane_reduced", "kit_reduced", "kit_reduced_later", "kit_normal", "kit_drift", "kit_landscape", "lane_landscape"), 240, ["--fixed-fps", "60"]),
+    "J22L02ENV": ("res://tests/neon_environment_journey.gd", "ROGUEWOOD_NEON_ENVIRONMENT_OK", "artifacts/e22-l02-art/environment",
+        tuple("division_%02d" % i for i in range(1,9)) + ("championship", "reduced", "landscape", "contact"), 180, ["--fixed-fps", "60"]),
+    "J21R07C": ("res://tests/flicker_art_contact.gd", "ROGUEWOOD_FLICKER_CONTACT_OK", "artifacts/e21-r07/contact", ("normal", "reduced", "champion_normal", "champion_reduced"), 180, ["--fixed-fps", "60"]),
+    "J21R06": ("res://tests/lena_art_journey.gd", "ROGUEWOOD_J03C13_OK", "artifacts/e21-r06/native", ("laser_lena_intro", "laser_lena_landscape", "laser_lena_normal", "laser_lena_reduced", "laser_lena_reaction", "laser_lena_defeated", "c13_oil_slick", "c13_narrow_lane", "c13_champion"), 900, ["--fixed-fps", "60"]),
+    "J21R06C": ("res://tests/lena_art_contact.gd", "ROGUEWOOD_LENA_CONTACT_OK", "artifacts/e21-r06/contact", ("normal", "reduced"), 180, ["--fixed-fps", "60"]),
+    "J21R05": ("res://tests/slick_art_journey.gd", "ROGUEWOOD_J03C13_OK", "artifacts/e21-r05/native", ("slick_intro", "slick_landscape", "slick_normal", "slick_reduced", "slick_reaction", "slick_defeated", "c13_oil_slick", "c13_narrow_lane", "c13_champion"), 900, ["--fixed-fps", "60"]),
+    "J21R05C": ("res://tests/slick_art_contact.gd", "ROGUEWOOD_SLICK_CONTACT_OK", "artifacts/e21-r05/contact", ("normal", "reduced"), 180, ["--fixed-fps", "60"]),
     "JAVT01": ("res://tests/throw_charge_art_journey.gd", "ROGUEWOOD_THROW_CHARGE_ART_OK", "artifacts/av-t01", tuple(f"{v}_{r}_{s}" for v in ["depth", "flat"] for r in ["normal", "motion", "flash"] for s in ["charging", "ready", "full"]) + ("disabled",), 240, ["--fixed-fps", "60"]),
     "JAVH4BC": ("res://tests/house_cleanup_contact.gd", "ROGUEWOOD_H4B_CONTACT_OK", "artifacts/av-h4-b/contact", ("contact", "motion", "counted"), 180, ["--fixed-fps", "60"]),
     "JAVH4AC": ("res://tests/house_tactical_contact.gd", "ROGUEWOOD_H4A_CONTACT_OK", "artifacts/av-h4-a/contact", ("contact", "motion", "counted"), 180, ["--fixed-fps", "60"]),
@@ -59,6 +72,8 @@ JOURNEYS = {
         ("glass_shop", "glass_inventory", "glass_rack", "glass_rack_detail", "glass_reduced", "glass_landscape", "glass_break", "glass_break_detail", "glass_binder", "glass_restored", "glass_next_rack"), 900, ["--fixed-fps", "60"]),
     "J03C02": ("res://tests/glass_c02_journey.gd", "ROGUEWOOD_J03C02_OK", "artifacts/e18-c02", ("c02_breaks", "c02_reloaded", "c02_second"), 600, ["--fixed-fps", "60"]),
     "J03C05": ("res://tests/house_c05_journey.gd", "ROGUEWOOD_J03C05_OK", "artifacts/e18-c05", ("c05_house_rules", "c05_champion", "c05_house_pins"), 900, ["--fixed-fps", "60"]),
+    "J03C16": ("res://tests/neon_c16_journey.gd", "ROGUEWOOD_J03C16_OK", "artifacts/e18-c16", ("c16_shop", "c16_spare", "c16_glow_strike", "c16_straight"), 900, ["--fixed-fps", "60"]),
+    "J03C15": ("res://tests/neon_c15_journey.gd", "ROGUEWOOD_J03C15_OK", "artifacts/e18-c15", ("c15_shop", "c15_rebound", "c15_curved_strike", "c15_laser"), 900, ["--fixed-fps", "60"]),
     "J03C13": ("res://tests/neon_c13_journey.gd", "ROGUEWOOD_J03C13_OK", "artifacts/e18-c13", ("c13_oil_slick", "c13_narrow_lane", "c13_champion"), 900, ["--fixed-fps", "60"]),
     "J03C06": ("res://tests/tactics_c06_journey.gd", "ROGUEWOOD_J03C06_OK", "artifacts/e18-c06", ("c06_shop", "c06_reserve_call", "c06_nudge", "c06_feature_frame", "c06_rule_waiver", "c06_surveyor"), 900, ["--fixed-fps", "60"]),
     "J03C07": ("res://tests/upgrades_c07_journey.gd", "ROGUEWOOD_J03C07_OK", "artifacts/e18-c07", ("c07_license", "c07_upgrades", "c07_feature_shop", "c07_division_two"), 900, ["--fixed-fps", "60"]),
@@ -67,6 +82,7 @@ JOURNEYS = {
     "J03C10": ("res://tests/house_c10_journey.gd", "ROGUEWOOD_J03C10_OK", "artifacts/e18-c10", ("c10_shop", "c10_strike", "c10_spare", "c10_open", "c10_jar"), 900, ["--fixed-fps", "60"]),
     "J03C11": ("res://tests/house_c11_journey.gd", "ROGUEWOOD_J03C11_OK", "artifacts/e18-c11", ("c11_shop", "c11_called_shot", "c11_double_take", "c11_spare", "c11_lucky_seven"), 900, ["--fixed-fps", "60"]),
     "J22L01": ("res://tests/house_league_journey.gd", "ROGUEWOOD_J22L01_OK", "artifacts/e22-l01", ("j22_champion", "j22_title", "j22_tournament"), 1800, ["--fixed-fps", "60"]),
+    "J22L02": ("res://tests/neon_league_journey.gd", "ROGUEWOOD_J22L02_OK", "artifacts/e22-l02", ("j22n_champion", "j22n_title", "j22n_attempt2"), 1800, ["--fixed-fps", "60"]),
     "J03C04": ("res://tests/mods_c04_journey.gd", "ROGUEWOOD_J03C04_OK", "artifacts/e18-c04", ("c04_shop", "c04_strike", "c04_open"), 900, ["--fixed-fps", "60"]),
     "J03C03": ("res://tests/crown_c03_journey.gd", "ROGUEWOOD_J03C03_OK", "artifacts/e18-c03", ("c03_split", "c03_strike"), 600, ["--fixed-fps", "60"]),
     "J03C01": ("res://tests/charm_c01_journey.gd", "ROGUEWOOD_J03C01_OK", "artifacts/e18-c01", ("c01_strike", "c01_streak", "c01_spare", "c01_open"), 600, ["--fixed-fps", "60"]),
@@ -139,8 +155,11 @@ JOURNEYS["J12"] = ("res://tests/dense_ability_journey.gd", "ROGUEWOOD_DENSE_ABIL
 # Content set per journey (E13, ADR 008): mechanism journeys keep the lab fixtures;
 # the shell journey and J06 stage 1 play the production slice (the game's default).
 CONTENT = {"J03C05": "house_c05", "J09": "slice", "J02": "lab", "J03": "lab", "J04": "lab", "J05": "lab", "J07": "lab", "J08": "lab"}
-CONTENT.update({"J21R03": "house_c05", "J21R04": "house_c05", "J22L01": "house"})
+CONTENT.update({"J21R03": "house_c05", "J21R04": "house_c05", "J22L01": "house", "J22L02": "house"})
 CONTENT.update({"J03C13": "neon_c13"})
+CONTENT.update({"J21R05": "neon_c13"})
+CONTENT.update({"J21R06": "neon_c13"})
+CONTENT.update({"J21R07": "neon_c13", "J21R07DJ": "neon_c13", "J22L02RULEART": "neon_c13", "J22L02LIVEART": "house"})
 # Multi-stage journeys whose stages are different scripts, content and save
 # directories: J06 plays the slice's two Divisions, then the E09 lab Division.
 STAGE_RUNS = {"J06": [("res://tests/slice_journey.gd", "slice"), ("res://tests/division_journey.gd", "lab")]}

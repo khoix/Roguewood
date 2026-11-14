@@ -1,0 +1,28 @@
+E22-L02-ART session 2. Original authored work for Roguewood.
+
+Procedural/vector sources:
+- tools/author_neon_theme.py: five stepped rail-corner UI frames and two
+  ornaments; exact material resources; original synthesized music composition.
+- assets/leagues/neon/lane.gdshader: world-space wood/oil/matte hatch finish.
+- assets/leagues/neon/rule_overlay.gd: brass/enamel edge rail and timing bands.
+- assets/ui/backdrops/neon.gd: quiet architectural flank traces, static reduction.
+No external images, recordings, samples, fonts or melody sources introduced.
+The existing bundled Roguewood Numerals font is reused; its OFL ledger remains.
+
+Music: music.league.neon.circuit, 16 bars, 112 BPM, 34.285714 seconds,
+stereo 22050 Hz 16-bit PCM. New D-minor-centred chord/motif arrangement with
+FM pluck, detuned sine pad, bass, synthesized kick and seeded noise percussion.
+Circular voice tails and three echo taps cross the loop seam. Peak 0.65,
+RMS 0.136494, maximum seam delta 0.007593. SHA256:
+91411dab4c524e654e7351c077e4231aa789a593f5e480284995fa579e7ef2cd
+
+Trophy: original OpenAI image generation, no external reference. Initial PNG
+retained unaltered at assets/clubhouse/sources/E22-L02-trophy-initial.png:
+a98b18a7662afac8ace6f992cd990150063701ed73adba02c82fb68f60dad486
+Corrected source shipped unaltered at assets/clubhouse/trophy.neon.png:
+f9c796a125bb155b2f11bd158c6a65fedacd8712d98f6d948838d5675e933fae
+Actual final PNG: 1254 x 1254 RGBA. No cropping or resampling after generation.
+Initial generation prompt:
+Original finished Roguewood NEON LEAGUE CHAMPIONSHIP TROPHY, a single collectible game asset centered on a fully transparent background. Square image. Premium crisp deliberate pixel-art clusters, front three-quarter view, no text, no letters, no numbers, no logo, no floor or shadow outside the object. A heavy stepped dark walnut and brass pedestal supports a sculpted gold bowling pin inside TWO OFFSET OPEN ORBITAL ARCS: one cyan enamel arc curving around the left and behind the pin, one violet enamel arc on the right, a small dark violet bowling ball with exactly three inset finger holes seated at the foot of the pin. The arcs evoke controlled bowling curves and precision; a small angular brass crown fans above the pin. Broad clean silhouette legible at 64 pixels, rich selective ivory highlights, cyan and violet enamel inlays rather than bloom, strong dark outlines, substantial aged brass structure. No cup handles, no generic sports cup. Complete trophy with generous transparent margin on all sides, fully visible crown and base. Cohesive with a late-night walnut, petrol and brass bowling club.
+Corrective image-edit prompt (referenced only the initial generated trophy):
+Preserve this exact original pixel-art Neon bowling trophy identity and materials. Correct only its framing: show the entire crown tip and all stepped base edges uncut, fit the whole trophy comfortably inside a square transparent image with at least 12% fully transparent empty margin above the crown, below the base, and on both sides. The crown must not touch the canvas edge. Keep the cyan and violet orbital arcs, gold pin, three-hole violet ball, walnut base and crisp pixel-art clusters. No lettering, no floor, no new objects or background. Deliver with a transparent background.

@@ -105,6 +105,8 @@ static func build(loadout: Dictionary, catalogue: Dictionary, reports: Array, ex
 		rolls.append({"roll_index": int(result.roll_index), "ball_id": ball.id, "fallen_positions": result.fallen_positions.duplicate(),
 			"accuracy": result.accuracy, "effects": effects, "first_direct": first_direct(report.knockdown_log), "last_fallen": last_fallen(report.knockdown_log),
 			"curved": Lane.is_curved(float(report.launch.spin))})
+		if bool(report.knockdown_log.get("rebounded", false)):
+			rolls[-1]["rebounded"] = true
 	var charms: Array = []
 	var charm_growth: Array = loadout.get("charm_growth", [])
 	for i in loadout.charms.size():

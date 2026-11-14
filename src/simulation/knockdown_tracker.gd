@@ -38,9 +38,20 @@ var _last_ball: Variant = null
 ## gutter_edge: how far from the centre a ball that has touched no pin becomes a
 ## gutter ball (the lane's edge; Narrow Lane, E17-L02, moves it two boards in).
 var gutter_edge := Lane.LANE_HALF_WIDTH
+## E18-C14 (`physics.gutter_rebound`, Bumper Guard): how many times this roll a ball
+## that reaches the gutter edge before touching a pin rebounds instead of being a
+## gutter ball. The tracker only decides and records it; the lane world turns the
+## ball (take_rebound). For REBOUND_GRACE ticks afterwards the ball may still be
+## over the edge on its way back; if it is still out after that, it is a gutter ball.
+const REBOUND_GRACE := 24
+var rebounds_left := 0
+var rebounded := false
+var _rebound_side := 0.0
+var _grace := 0
 
-func _init(standing_positions: Array, edge: float = Lane.LANE_HALF_WIDTH) -> void:
+func _init(standing_positions: Array, edge: float = Lane.LANE_HALF_WIDTH, rebounds: int = 0) -> void:
 	gutter_edge = edge
+	rebounds_left = rebounds
 	for position in standing_positions:
 		positions.append(int(position))
 	positions.sort()
@@ -85,8 +96,15 @@ func step(observation: Dictionary) -> bool:
 func _track_ball(ball: Dictionary) -> void:
 	var x := float(ball.x)
 	var f := float(ball.f)
-	if not ball_touched_pins and f > 0.0 and f < Lane.PIT_F and absf(x) > gutter_edge:
-		gutter = true
+	_grace = maxi(_grace - 1, 0)
+	if not ball_touched_pins and not gutter and f > 0.0 and f < Lane.PIT_F and absf(x) > gutter_edge and _grace == 0:
+		if rebounds_left > 0:
+			rebounds_left -= 1
+			rebounded = true
+			_rebound_side = signf(x)
+			_grace = REBOUND_GRACE
+		else:
+			gutter = true
 	if _last_ball != null and not target_crossed and _last_ball.f < Lane.TARGET_PLANE_F and f >= Lane.TARGET_PLANE_F:
 		var t: float = (Lane.TARGET_PLANE_F - _last_ball.f) / (f - _last_ball.f)
 		target_crossed = true
@@ -95,6 +113,12 @@ func _track_ball(ball: Dictionary) -> void:
 	_stalled = _stalled + 1 if float(ball.speed) < 0.05 else 0
 	if f > Lane.PIT_F + Lane.BALL_RADIUS or float(ball.y) < -0.15 or _stalled >= BALL_STALL_TICKS:
 		ball_done = true
+
+## The side (-1 or 1) the ball must be turned back from, once per rebound; 0 otherwise.
+func take_rebound() -> float:
+	var side := _rebound_side
+	_rebound_side = 0.0
+	return side
 
 func _attribute(pin: Dictionary, contacts: Array, disturbed: Dictionary) -> void:
 	if "ball" in contacts:

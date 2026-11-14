@@ -2,7 +2,7 @@ extends SceneTree
 ## J03 scoring journey (E06): strike, spare and open frames played through real
 ## input (focused Options toggles, keyboard steps on the assist sliders and Throw),
 ## then checked against an independent FrameRules resolution: banked score, ordered
-## calculation log, per-roll pin attribution, speed and skip, and running totals.
+## calculation log, per-roll pin attribution, finishing the reveal by tap or key, and running totals.
 ## Assist steps and reduced motion (steady clean-only ring) make every launch exact;
 ## the outcomes come from the deterministic physics. Run with --fixed-fps 60.
 const Contracts = preload("res://src/contracts/contracts.gd")
@@ -51,9 +51,41 @@ func _action(action: String, times: int = 1) -> void:
 			Input.parse_input_event(event)
 			await process_frame
 
+## UI-5: what a player does first to reach a control that sits behind another:
+## open the session menu or the shop's Sell sheet, or close a sheet that is in the way.
+func _reach(control: Control) -> void:
+	if scene == null: return
+	if scene.session_menu.is_ancestor_of(control) and not scene.session_menu.visible:
+		scene.menu_button.grab_focus()
+		await _action("ui_accept")
+	var shop: Control = scene.lab.shop_panel if scene.lab != null else null
+	if shop == null or not shop.is_visible_in_tree(): return
+	if shop.sell_sheet.is_ancestor_of(control):
+		if not shop.sell_sheet.visible:
+			shop.sell_open.grab_focus()
+			await _action("ui_accept")
+			await process_frame
+	elif shop.sell_sheet.visible:
+		shop.sell_close.grab_focus()
+		await _action("ui_accept")
+	if shop.offer_sheet.visible and not shop.offer_sheet.is_ancestor_of(control):
+		shop.offer_back.grab_focus()
+		await _action("ui_accept")
+
+## UI-5b: a tapped offer opens large; a player then presses Buy (or Back when it
+## cannot be bought).
+func _confirm(control) -> void: # untyped: a pressed row may already be freed
+	if scene == null or scene.lab == null or not is_instance_valid(control): return
+	var shop: Control = scene.lab.shop_panel
+	if shop.offer_sheet.visible and control in shop.offer_buttons:
+		(shop.offer_back if shop.buy_button.disabled else shop.buy_button).grab_focus()
+		await _action("ui_accept")
+
 func _focus_accept(control: Control) -> void:
+	await _reach(control)
 	control.grab_focus()
 	await _action("ui_accept")
+	await _confirm(control)
 
 ## Moves a focused slider to value with ui_left/ui_right presses only.
 func _slide(slider: HSlider, value: float) -> void:
@@ -151,9 +183,18 @@ func _strike_frame() -> void:
 		await _capture("scoring")
 		var panel: Control = lab.score_panel
 		_check(panel.playing and panel.displayed().score == -1, "score counts up step by step before banking")
-		await _focus_accept(panel.speed_button)
-		await _focus_accept(panel.speed_button)
-		_check(panel.speed == 4 and lab.settings.score_speed == 4, "speed cycles to 4× and is kept"))
+		# UI-5: no Speed or Skip buttons; a tap on the review finishes the reveal.
+		_check(panel.find_child("ScoreSpeed", true, false) == null and panel.find_child("SkipScoring", true, false) == null and panel.hint.modulate.a > 0.5,
+			"the review has no Speed or Skip button, and says a tap finishes it")
+		var at := root.get_screen_transform() * panel.get_global_rect().get_center()
+		for pressed in [true, false]:
+			var touch := InputEventScreenTouch.new()
+			touch.index = 0
+			touch.position = at
+			touch.pressed = pressed
+			Input.parse_input_event(touch)
+			await process_frame
+		_check(not panel.playing and panel.displayed().score >= 0, "a tap on the review finishes the reveal"))
 	await _capture("strike")
 	await _next_frame()
 
@@ -162,9 +203,9 @@ func _spare_frame() -> void:
 	await _throw(0.0, 0.0, 0.6)
 	await _verify_frame("spare", "spare", func():
 		var panel: Control = lab.score_panel
-		_check(panel.speed == 4, "speed preference carries to the next frame")
-		await _focus_accept(panel.skip_button)
-		_check(not panel.playing, "Skip reveals the whole calculation"))
+		_check(panel.playing, "the next frame's reveal counts step by step again")
+		await _focus_accept(panel)
+		_check(not panel.playing, "the accept key finishes the reveal too"))
 	await _capture("spare")
 	await _next_frame()
 

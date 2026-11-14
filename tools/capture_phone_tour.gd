@@ -48,6 +48,11 @@ func _action(action: String, times: int = 1) -> void:
 			await process_frame
 
 func _press(control: Control) -> void:
+	if scene.session_menu.is_ancestor_of(control) and not scene.session_menu.visible:
+		scene.menu_button.grab_focus()
+		await _action("ui_accept")
+		await _settle(6)
+		await _capture("menu")
 	control.grab_focus()
 	await _action("ui_accept")
 
@@ -161,7 +166,7 @@ func _run() -> void:
 	await _wait_for(func(): return lab.state == "scoring", ROLL_FRAMES)
 	await _settle(50)
 	await _capture("scoring")
-	await _press(lab.score_panel.skip_button)
+	await _press(lab.score_panel)
 	await _wait_for(func(): return lab.state == "frame_done", ROLL_FRAMES)
 	await _settle()
 	await _capture("frame_done")
@@ -179,6 +184,17 @@ func _run() -> void:
 		if lab.shop_panel.offer_buttons.size() > 0:
 			await _tap(lab.shop_panel.button_for_offer(0))
 			await _settle()
+			await _capture("offer")
+			await _press(lab.shop_panel.offer_back)
+			if not lab.shop_panel.sell_open.disabled:
+				await _tap(lab.shop_panel.sell_open)
+				await _settle()
+				await _capture("sell")
+				await _press(lab.shop_panel.sell_close)
+			await _tap(lab.shop_panel.button_for_offer(0))
+			await _settle()
+			if not lab.shop_panel.buy_button.disabled: await _press(lab.shop_panel.buy_button)
+			await _settle()
 			await _capture("shop_after_buy")
 			if lab.shop_panel.choice_sheet.visible:
 				await _press(lab.shop_panel.cancel_choice)
@@ -193,7 +209,7 @@ func _run() -> void:
 	await _capture("roll2_aim")
 	await _throw(GUTTER)
 	await _wait_for(func(): return lab.state == "scoring", ROLL_FRAMES)
-	await _press(lab.score_panel.skip_button)
+	await _press(lab.score_panel)
 	await _wait_for(func(): return lab.state == "frame_done", ROLL_FRAMES)
 	await _settle()
 	await _capture("open_frame")
@@ -207,7 +223,7 @@ func _run() -> void:
 		await _aim()
 		if lab.state == "aim" and lab.roll_index == 2: await _throw(GUTTER)
 		await _wait_for(func(): return lab.state == "scoring", ROLL_FRAMES)
-		await _press(lab.score_panel.skip_button)
+		await _press(lab.score_panel)
 		await _wait_for(func(): return lab.state == "frame_done", ROLL_FRAMES)
 	await _wait_for(func(): return lab.hud.result.visible, 120)
 	await _settle(30)

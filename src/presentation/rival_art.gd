@@ -26,6 +26,6 @@ static func portrait(id: String, state: String) -> Texture2D:
 
 ## Rule artwork is independent of portrait identity (champions carry two rules).
 static func rule_badge(rule: String) -> Texture2D:
-	if rule in ["boss_rule.house_rules", "boss_rule.house_pins"]:
+	if rule in ["boss_rule.house_rules", "boss_rule.house_pins", "boss_rule.oil_slick", "boss_rule.narrow_lane", "boss_rule.strobe"]:
 		return load("res://assets/rivals/rules/" + rule.trim_prefix("boss_rule.") + ".svg")
 	return preload("res://src/presentation/item_assets.gd").slot(rule, "in_play") as Texture2D

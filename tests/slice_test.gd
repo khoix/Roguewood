@@ -126,9 +126,9 @@ static func _catalogue_counts(catalogue: Dictionary, failures: Array[String]) ->
 		_expect(entry.completeness.authored and entry.completeness.mechanics and not entry.completeness.integrated,
 			"%s: authored and implemented, not yet integrated" % entry.id, failures)
 		_expect(_art_flags_backed(entry), "%s: art/effects flags are backed by existing assets" % entry.id, failures)
-	_expect(by.ball.size() == 4 + 2 and by.pin.size() == 6 + 1 + 1 + 2 and by.charm.size() == 12 + 6 + 1 + 5 + 6 + 6 + 2 + 2 and by.boss_rule.size() == 2 + 2 + 3 and by.kit.size() == 1 + 1
+	_expect(by.ball.size() == 4 + 2 + 2 + 1 and by.pin.size() == 6 + 1 + 1 + 2 + 1 + 1 and by.charm.size() == 12 + 6 + 1 + 5 + 6 + 6 + 2 + 2 + 1 + 2 and by.ball_mod.size() == 4 + 2 + 1 and by.pin_mod.size() == 4 + 1 and by.boss_rule.size() == 2 + 2 + 3 and by.kit.size() == 1 + 1 + 1
 		and by.lane_condition.size() == 2 + 2,
-		"E13-S01 (four balls, six pins, twelve Charms, two boss rules, one kit), E18-C01's six Charms, E18-C02's Glass Pin and Glass Cutter, E18-C03's Crown Pin and five Charms, E18-C05's House Rules and House Pins (and two lanes), E18-C08's and C09's twelve House Charms, E18-C10's two balls, two pins and two Charms, E18-C11's two Charms, E22-L01's Tournament Kit, E18-C13's three Neon rules and two Neon lanes", failures)
+		"E13-S01 (four balls, six pins, twelve Charms, two boss rules, one kit), E18-C01's six Charms, E18-C02's Glass Pin and Glass Cutter, E18-C03's Crown Pin and five Charms, E18-C05's House Rules and House Pins (and two lanes), E18-C08's and C09's twelve House Charms, E18-C10's two balls, two pins and two Charms, E18-C11's two Charms, E22-L01's Tournament Kit, E18-C13's three Neon rules and two Neon lanes, E18-C15's two balls, a pin, a Charm and two ball modifications, E18-C16's ball, pin, two modifications and two Charms", failures)
 
 ## A set artwork flag needs its card, icon, rarity treatment and reduced-motion
 ## slots (plus in_play for balls and pins); a set effects_audio flag needs the

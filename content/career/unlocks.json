@@ -16,6 +16,18 @@
       }
     },
     {
+      "id": "league.neon",
+      "name": "Neon League",
+      "content_set": "neon",
+      "access": [],
+      "championship": {
+        "gates": [
+          "gate.neon_champion"
+        ],
+        "text": "Neon League champion trophy for the Clubhouse shelf."
+      }
+    },
+    {
       "id": "league.house_campaign",
       "name": "House Campaign",
       "content_set": "campaign",
@@ -64,6 +76,31 @@
       "id": "gate.house_campaign_champion",
       "kind": "championship",
       "name": "House Campaign champion"
+    },
+    {
+      "id": "gate.slick_cleared",
+      "kind": "boss",
+      "name": "Slick cleared"
+    },
+    {
+      "id": "gate.laser_lena_cleared",
+      "kind": "boss",
+      "name": "Laser Lena cleared"
+    },
+    {
+      "id": "gate.dj_flicker_cleared",
+      "kind": "boss",
+      "name": "DJ Flicker cleared"
+    },
+    {
+      "id": "gate.neon_champion_cleared",
+      "kind": "boss",
+      "name": "The Neon champion cleared"
+    },
+    {
+      "id": "gate.neon_champion",
+      "kind": "championship",
+      "name": "Neon League champion"
     },
     {
       "id": "gate.mastery_spare_hand",

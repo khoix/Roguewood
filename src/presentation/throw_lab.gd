@@ -78,7 +78,7 @@ const DECK_VIEW_F := Lane.HEAD_PIN_F - 4.0
 const MAX_HELD_BACK := 1.3 # metres a held ball may come back toward the player
 const PORTRAIT_HAND_HEIGHT := 300.0 # UI-3: the fanned hand panel at the thumbs
 const PORTRAIT_CARD_HEIGHT := 230.0
-const TOP_UI_HEIGHT := 96.0 # session bar band; touches there are never throws
+const TOP_UI_HEIGHT := 12.0 # the top margin; the bar below it is one of the HUD's blocking controls
 const RING_COLORS := {"clean": Color(1.0, 1.0, 1.0), "sweet": Color(0.3, 0.95, 0.85), "perfect": Color(1.0, 0.8, 0.2)}
 
 var state := "aim"
@@ -99,6 +99,9 @@ var trial_log_path := "user://throw_trials.jsonl"
 var lane: LaneWorld
 var status: Label
 var next_rack: Button
+const NEXT_RACK_HEIGHT := 72.0
+var _bar_extra := 0.0 # extra height of portrait's top bar (DivisionHud.bar_extra)
+var _score_top := 450.0 # where the frame review starts (set by the layout)
 var settings_panel: SettingsPanel
 var assist_panel: AssistPanel
 var score_panel: ScorePanel
@@ -122,6 +125,10 @@ var panels: Control # UI-2 match panels: slip, rival, Charms, fold toggles
 var regions: Dictionary = {} # UI-2 screen regions (MatchPanels.compute)
 var _ball_line := 0.0 # the aim layout's ball line (the roll view never moves the camera)
 var _compact := false
+## UI-5: the shell's own controls over the lab (the session menu button), which a
+## touch never throws through; and its menu, which pauses the lab's input while open.
+var chrome: Array = []
+var input_paused := false
 ## UI-3: the player-facing prompt (the hint lines of `status`, which keeps the full
 ## sentence for tools and tests); it sits above the hand, out of the pins' way.
 var prompt: Label
@@ -151,7 +158,7 @@ var frame_actions: Array = [] # E18-C06: instant tactics played this frame (Tact
 var tactic_sheet: Control
 var _tactic: Dictionary = {} # the instant tactic being chosen: {uid, item_id, kind, values, ...}
 var _tactic_note := ""
-var league_theme: Node # E22-L01: the League's environment, lane surfaces and music (the House League only)
+var league_theme: Node # E22-L01: the League's environment, lane surfaces, music and backdrop (House and Neon)
 var match_number := 1
 var match_frame := 1
 var _equipment_model := ""
@@ -201,7 +208,7 @@ func _ready() -> void:
 	backdrop = load("res://assets/ui/backdrops/house.gd").new()
 	backdrop.name = "Backdrop"
 	backdrop.option = 1
-	backdrop.reduced = bool(settings.get("reduced_motion", false))
+	backdrop.reduced = bool(settings.get("reduced_motion", false)) or bool(settings.get("reduced_flash", false))
 	backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(backdrop)
 	var container := SubViewportContainer.new()
@@ -270,17 +277,31 @@ func _ready() -> void:
 	if not content.errors.is_empty():
 		push_error("Content set %s invalid: %s" % [content.id, str(content.errors)])
 	_catalogue = content.catalogue
-	if content.get("id", "") == "house":
+	if content.get("id", "") in ["house", "neon"]:
 		league_theme = LeagueTheme.for_league(content.get("league_id", ""))
 		if league_theme != null:
 			add_child(league_theme)
 			league_theme.play_music()
+			# A League's own backdrop replaces the House sky behind the lane.
+			var flank: Control = league_theme.flank()
+			if flank != null:
+				flank.name = "Backdrop"
+				flank.reduced = backdrop.reduced
+				flank.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				flank.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+				var at := backdrop.get_index()
+				remove_child(backdrop)
+				backdrop.free()
+				backdrop = flank
+				add_child(backdrop)
+				move_child(backdrop, at)
 	for entry in _catalogue.items:
 		_names[entry.id] = entry.name
 	run = RunInventory.create(_catalogue, content.kit.pins, content.kit.deck, int(content.kit.money))
 	# E18-C02: after-bank chances (Glass breaking) use the attempt's effects stream.
 	run.seed_effects(equipment_seed, int(content.campaign.rng.states.effects) if content.id == "campaign" else 0)
 	shop = Shop.create(_catalogue, int(content.campaign.rng.states.shops) if content.id == "campaign" else hash([equipment_seed, "shop"])) # its own stream, never the deck's
+	shop.specialists = content.get("specialists", {})
 	var blank := CareerProfile.fresh()
 	for key in blank:
 		if not career.has(key):
@@ -300,7 +321,6 @@ func _ready() -> void:
 	score_panel.offset_right = -16.0
 	score_panel.offset_bottom = -16.0
 	score_panel.finished.connect(_on_scored)
-	score_panel.speed_changed.connect(func(speed): settings.score_speed = speed)
 	score_panel.hide()
 	add_child(score_panel)
 	card_hand = CardHand.new()
@@ -614,7 +634,7 @@ func _refresh_hand() -> void:
 	var rect: Rect2 = regions.get("hand", Rect2(16, size.y - 300, size.x - 32, 284))
 	if portrait and state == "frame_done":
 		var top: float = regions.charms.end.y + 8.0
-		rect = Rect2(rect.position.x, top, rect.size.x, maxf(next_rack.position.y - 8.0 - top, 200.0))
+		rect = Rect2(rect.position.x, top, rect.size.x, maxf(_score_top - 8.0 - top, 200.0))
 	card_hand.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	card_hand.grow_vertical = Control.GROW_DIRECTION_END
 	card_hand.position = rect.position
@@ -740,9 +760,24 @@ func ring_color() -> Color:
 func lane_rules() -> Dictionary:
 	return RivalRules.lane_rules(active_rules())
 
-func _arm_lane_rules() -> void:
+## What the rules in force and the thrown card change in the next roll. `thrown`
+## ({ball_id, mod}) is a committed launch's card on resume; otherwise the armed card.
+func _arm_lane_rules(thrown: Dictionary = {}) -> void:
 	if lane != null:
 		lane.rules = lane_rules()
+		lane.rules.merge(card_rules(thrown))
+
+## E18-C14: what the card brings to its own roll (ItemPhysics.roll_rules): a ball
+## that holds its hook through oil, a modification's rebound or hook scale. Bumper
+## Guard's rebound is once a frame, so a second roll after a rebound has none.
+func card_rules(thrown: Dictionary = {}) -> Dictionary:
+	if run == null: return {}
+	var ball_id: String = String(thrown.get("ball_id", armed_ball_id()))
+	var mod_id: String = String(thrown.get("mod", run.card_mod(armed_ball) if not armed_ball.is_empty() and equipment != null and equipment.MODEL == "deck" else ""))
+	if not RivalRules.ball_allowed(active_rules(), ball_id):
+		return {} # House Rules throws the House Ball in the card's place
+	var used: bool = frame_reports.any(func(r): return bool(r.knockdown_log.get("rebounded", false)))
+	return ItemPhysics.roll_rules(run.item(ball_id), run.item(mod_id) if not mod_id.is_empty() else {}, used)
 
 ## Strobe's narrowed ring zones (1.0 otherwise), for the ring's colour.
 func zone_scale() -> float:
@@ -750,9 +785,10 @@ func zone_scale() -> float:
 
 ## Oil Slick's halved hook (1.0 otherwise), for the aim guide's bend.
 func hook_scale() -> float:
-	return float(lane_rules().get("hook_scale", 1.0))
+	return float(lane_rules().get("hook_scale", 1.0)) * float(card_rules().get("spin_scale", 1.0))
 
 func _input(event: InputEvent) -> void:
+	if input_paused: return
 	if inspector and inspector.visible: return
 	if event is InputEventScreenTouch:
 		if event.pressed and state == "aim" and _touch == -1 and _target_touch == -1 and not _over_ui(event.position):
@@ -859,7 +895,9 @@ func _commit(launch: Dictionary, source: String) -> void:
 ## Resume a committed launch after a restart: the same launch, in the same rack,
 ## with the cards already spent. There is no way to throw it again differently.
 func _resume_commit(pending: Dictionary) -> void:
-	_arm_lane_rules()
+	# The same card physics as when it was thrown, from the saved input.
+	var saved: Dictionary = pending.get("input", {}).get("equipment", {})
+	_arm_lane_rules({"ball_id": String(pending.launch.get("ball_id", HOUSE)), "mod": String(saved.get("mod", "")) if saved.get("mod") != null else ""})
 	var errors := lane.commit(pending.launch)
 	if not errors.is_empty():
 		push_error("Saved launch rejected on resume: " + str(errors))
@@ -1006,7 +1044,7 @@ func _score_frame() -> void:
 	state = "scoring"
 	_update_status()
 	score_panel.reduced_motion = settings.reduced_motion or settings.reduced_flash
-	score_panel.play(steps, frame_reports, title, int(settings.score_speed))
+	score_panel.play(steps, frame_reports, title)
 
 func _on_scored() -> void:
 	var scored: Dictionary = scored_frames[-1]
@@ -1260,6 +1298,7 @@ func _restore(payload: Dictionary) -> void:
 		_save_career()
 	run = parts.run
 	shop = parts.shop
+	shop.specialists = content.get("specialists", {})
 	division = parts.division
 	divisions = division.specs
 	equipment = parts.equipment
@@ -1299,7 +1338,7 @@ func _restore(payload: Dictionary) -> void:
 				"match_over": last.match_over, "match_won": last.match_won, "title": last.title})
 			state = "scoring"
 			_replay_only = true
-			score_panel.play(last.steps, frame_reports, last.title, int(settings.score_speed))
+			score_panel.play(last.steps, frame_reports, last.title)
 			score_panel.skip()
 		"shop":
 			state = "shop"
@@ -1436,6 +1475,20 @@ func _next_match_preview() -> String:
 		text += "\nDivision boss target %d · %s" % [int(next.boss.target), _lane_text(next.boss.get("lane_condition", ""))]
 	return text
 
+## UI-5b: the shop's one-line preview. The boss's rule is behind the ⓘ on the bar.
+func _next_match_short() -> String:
+	if division.practice:
+		return "Next: a practice match"
+	var next: Dictionary = division.upcoming()
+	var where := "Division %d " % int(next.division) if division.division_count() > 1 else ""
+	var text := "Next: %s%s · target %d" % [where, next.match.name, int(next.match.target)]
+	if not next.rival.is_empty():
+		text += " · " + String(next.rival.name)
+	var lane_id := String(next.match.get("lane_condition", ""))
+	if lane_id.begins_with("lane_condition.") and lane_id != "lane_condition.house_oil":
+		text += " · " + _lane_text(lane_id)
+	return text
+
 ## A readable name for an owned place, with its modification.
 func _ref_label(ref: String) -> String:
 	var entry = run.entry_at(ref)
@@ -1494,12 +1547,31 @@ func _refresh_shop() -> void:
 		var status := ""
 		if offer_state != "buy":
 			status = "SOLD" if offer_state == "sold" else text.get_slice("  (", 1).trim_suffix(")").to_upper()
-		offers.append({"text": text, "state": offer_state, "item_id": offer.item_id, "price": offer.price, "status": status, "slot": slot_name, "name": item.name}) # item_id: presentation art (Codex Wave 1 request)
+		# UI-5b: the opened offer shows its kind, its full rule text and why it cannot be bought.
+		var detail: String = _effect_text(item)
+		if not String(item.get("downside", "")).is_empty():
+			detail += "\nTradeoff: " + String(item.downside)
+		var reason := ""
+		if offer_state in ["poor", "blocked"]:
+			reason = String(shop.plan(index, run).reason)
+		offers.append({"text": text, "state": offer_state, "item_id": offer.item_id, "price": offer.price, "status": status, "slot": slot_name, "name": item.name,
+			"kind": "%s · %s" % [slot_name, String(item.rarity).capitalize()], "detail": detail, "reason": reason}) # item_id: presentation art (Codex Wave 1 request)
 	var pins: Array = []
 	for position in range(1, 11):
 		var pin: Dictionary = run.rack[position]
 		pins.append("%d %s%s" % [position, _names.get(pin.item_id, ""), "+" + _names.get(pin.mod, "") if not String(pin.mod).is_empty() else ""])
+	# UI-5b: the commonest pin is named once with its count; the others keep their positions.
+	var counts: Dictionary = {}
+	for entry in pins:
+		var kind: String = entry.substr(entry.find(" ") + 1)
+		counts[kind] = int(counts.get(kind, 0)) + 1
+	var common := ""
+	for kind in counts:
+		if common.is_empty() or counts[kind] > counts[common]: common = kind
 	var rack_text := "Rack: " + ", ".join(pins)
+	if not common.is_empty() and counts[common] >= 3:
+		var others: Array = pins.filter(func(entry): return entry.substr(entry.find(" ") + 1) != common)
+		rack_text = "Rack: " + (("all %d %s" % [counts[common], common]) if others.is_empty() else ", ".join(others) + ", the other %d %s" % [counts[common], common])
 	var reserves: Array = run.reserves.map(func(e): return "empty" if e == null else _names.get(e.item_id, ""))
 	rack_text += "\nReserves: " + ", ".join(reserves) + " · Charms %d/%d · Deck %d/%d" % [run.charms.size(), RunInventory.CHARM_SLOTS, run.cards.size(), RunInventory.DECK_CAP]
 	if not run.upgrades.is_empty():
@@ -1510,12 +1582,12 @@ func _refresh_shop() -> void:
 	var sellables: Array = []
 	for owned in run.entries():
 		if run.can_sell(owned.ref):
-			sellables.append({"ref": owned.ref, "label": "Sell %s +$%d" % [_ref_label(owned.ref), run.sale_value(owned.ref)]})
+			sellables.append({"ref": owned.ref, "label": "%s  +$%d" % [_ref_label(owned.ref), run.sale_value(owned.ref)]}) # the sheet's title says Sell
 	var summary := "Match %d paid: payout $%d · interest $%d (on $%d held) · item income $%d" % [settlement.match, settlement.payout,
 		settlement.interest, settlement.balance_before, settlement.item_income]
 	if Upgrades.owned(run, "interest_cap"):
 		summary += " · Savings Book: interest cap $%d" % (Economy.INTEREST_CAP + Upgrades.INTEREST_BONUS)
-	shop_panel.show_view({"title": "Pro Shop", "summary": summary, "preview": _next_match_preview(), "money": run.money, "offers": offers,
+	shop_panel.show_view({"title": "Pro Shop", "summary": summary, "preview": _next_match_preview(), "preview_short": _next_match_short(), "money": run.money, "offers": offers,
 		"reroll_cost": shop.reroll_cost(run), "can_reroll": run.money >= shop.reroll_cost(run),
 		"removal_price": Economy.REMOVAL_PRICE, "can_remove": run.money >= Economy.REMOVAL_PRICE and not run.cards.is_empty(),
 		"rack": rack_text, "charm_moves": charm_moves, "sellables": sellables,
@@ -1564,7 +1636,7 @@ func _over_ui(position: Vector2) -> bool:
 	if position.y < TOP_UI_HEIGHT:
 		return true
 	var global := get_global_transform() * position
-	for control in [settings_panel, assist_panel, next_rack, card_hand, shop_panel, inspector] + (hud.blocking_controls() if hud else []) + (panels.blocking_controls() if panels else []):
+	for control in [settings_panel, assist_panel, next_rack, card_hand, shop_panel, inspector] + chrome + (hud.blocking_controls() if hud else []) + (panels.blocking_controls() if panels else []):
 		if control.visible and control.get_global_rect().has_point(global):
 			return true
 	return false
@@ -1794,6 +1866,9 @@ func _refresh_hud() -> void:
 			view.badge = "Boss: %s ⓘ" % rival.name
 		view.rule_text = "%s — target %d in two frames.\n%s\nFirst clear: %s" % [rival.name, int(boss.target), RivalRules.summaries(_rival_rules(rival)), reward]
 	hud.show_match(view)
+	if size.y >= size.x and not _compact and not is_equal_approx(hud.bar_extra(), _bar_extra):
+		_layout_resolution() # a two-rule badge makes portrait's bar a line taller
+		_refresh_hand() # the hand was placed against the old rows
 	_refresh_panels()
 	if state in ["shop", "division_over"] or not division.is_boss() or reactions.visible_at(_clock_usec).is_empty():
 		hud.hide_reaction()
@@ -1821,35 +1896,46 @@ func _layout_resolution() -> void:
 	var left_hand: bool = settings.get("handedness", "right") == "left"
 	# UI-3 roll view: once the ball is away, the hand and details leave and the bar slims.
 	var compact: bool = state in ["rolling", "result", "scoring"]
-	var aim_layout := MatchPanels.compute(size, left_hand, PORTRAIT_HAND_HEIGHT)
+	# Portrait's bar is as tall as its badge needs (measured outside the roll view,
+	# so the ball's line never moves while a ball is away).
+	if not compact:
+		_bar_extra = hud.bar_extra() if portrait else 0.0
+	var aim_layout := MatchPanels.compute(size, left_hand, PORTRAIT_HAND_HEIGHT, false, _bar_extra)
 	_ball_line = aim_layout.ball_y
 	regions = MatchPanels.compute(size, left_hand, PORTRAIT_HAND_HEIGHT, true) if compact else aim_layout
 	if compact != _compact:
 		_compact = compact
 		chrome_compact_changed.emit(compact)
-	hud.layout_regions(regions.top_bar, regions.bubble, portrait and not compact, compact)
+	hud.layout_regions(regions.top_bar, regions.bubble, portrait and not compact, compact, MatchPanels.menu_rect(size).end.y + 8.0)
 	panels.apply(regions, state not in ["shop", "intro", "division_over"])
 	panels.hand_toggle.text = "Hand %d" % (card_hand.buttons.size() if card_hand else 0)
 	_place_prompt()
 	var inner: float = 12.0 if portrait else regions.hand.size.x + 40.0
 	score_panel.offset_left = inner
 	score_panel.offset_right = -inner
-	# Portrait (UI-3): the score fills the lower part; when the frame is done, Next
-	# Rack sits just above it and the hand (to keep a card) above that.
-	var score_top := maxf(530.0, size.y - 600.0) if portrait else size.y - 556.0
+	# The frame review fills the lower part and stops above the action row at the
+	# bottom edge, where Next Rack appears once the frame is done (owner, 2026-11-11:
+	# the button belongs at the bottom, not between the hand and the review). In
+	# portrait the hand (to keep a card) sits above the review.
+	var action := Rect2(inner, size.y - 12.0 - NEXT_RACK_HEIGHT, size.x - 2.0 * inner, NEXT_RACK_HEIGHT)
+	if not portrait:
+		action = Rect2(size.x / 2.0 - 180.0, action.position.y, 360.0, NEXT_RACK_HEIGHT)
+	var score_top := maxf(450.0, size.y - 680.0) if portrait else maxf(size.y - 636.0, regions.top_bar.end.y + 8.0)
+	_score_top = score_top
 	score_panel.offset_top = score_top - size.y
-	score_panel.offset_bottom = -12.0
+	score_panel.offset_bottom = action.position.y - 8.0 - size.y
 	score_panel.fit(portrait)
 	shop_panel.offset_top = regions.top_bar.end.y + 12.0
 	if state == "shop" and shop_panel._shelf.visible != (not portrait):
 		_refresh_shop.call_deferred() # the shop reflows between its two layouts
 	next_rack.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	# Portrait: between the raised hand (keep a card) and the score; landscape: centre bottom.
-	next_rack.position = Vector2(size.x / 2 - 160, score_top - 76.0) if portrait else Vector2(size.x / 2 - 160, size.y - 100)
+	next_rack.custom_minimum_size = action.size
+	next_rack.position = action.position
+	next_rack.size = action.size
 	# The settings page fits the screen and scrolls (UI-3): the full width in
-	# portrait, a centred column in landscape, below the session buttons.
+	# portrait, a centred column in landscape, below the session menu button.
 	settings_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
-	settings_panel.offset_top = 72.0 if portrait else 96.0
+	settings_panel.offset_top = MatchPanels.menu_rect(size).end.y + 8.0
 	settings_panel.offset_bottom = -12.0
 	if portrait:
 		settings_panel.offset_left = 12.0
@@ -1897,7 +1983,8 @@ func _place_prompt() -> void:
 			rect.size.x = maxf((assist_panel.position.x if beside else size.x - assist_panel.get_rect().end.x) - rect.position.x - 8.0, 120.0)
 			if not beside: rect.position.x = assist_panel.get_rect().end.x + 8.0
 	prompt.text = "\n".join(lines)
-	prompt.visible = state not in ["shop", "intro", "division_over"] and not prompt.text.is_empty()
+	# Frame done: the review says it all, and Next Rack takes the bottom edge.
+	prompt.visible = state not in ["shop", "intro", "division_over", "frame_done"] and not prompt.text.is_empty()
 	prompt.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	prompt.custom_minimum_size = Vector2(rect.size.x, 0)
 	prompt.size = Vector2(rect.size.x, 0)

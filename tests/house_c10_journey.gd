@@ -285,7 +285,7 @@ func _jar_lifecycle() -> void:
 	await _throw(LEAVE)
 	if await _second_roll(): await _throw(CLEANUP)
 	await _wait_for(func(): return lab.state == "scoring","jar Skip ready",ROLL_FRAMES)
-	await _focus_accept(lab.score_panel.skip_button)
+	await _focus_accept(lab.score_panel)
 	await _wait_for(func(): return lab.state == "frame_done","jar Skip completes")
 	_check(lab.motion.spare_jar.count == 3 and lab.motion.spare_jar.state.added == 1,"Skip reveals growth exactly once")
 	_check(lab.motion.spare_jar.score_marks.drop_age >= 2.0,"Skip suppresses the pin drop")
