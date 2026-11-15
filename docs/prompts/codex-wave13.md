@@ -21,6 +21,8 @@ Already changed by the coordinator (UI-6), before you start:
 
 Neon theme tail (Medium): anything the live captures (J22L02LIVEART, J22L02 rendered) still show as developmental.
 
+UI-A4 (Medium; added by the owner, 2026-11-15): the brand art. Its own prompt is docs/prompts/codex-wave13-ui-a4.md; do it after AV-N2, or first if the owner asks.
+
 Ownership and limits:
 - Never edit src/rules/, src/simulation/, src/persistence/, src/career/, src/procedural/, src/content/ or src/input/; content/leagues/; content/catalogue.json outside your own items' `assets` slots and flags; export_presets.cfg or project.godot.
 - Claude's concurrent work this wave: DC-N3 to DC-N5 (Neon's other sixteen items and the primitives they need: src/rules/, src/simulation/, content/catalogue.json, new journeys), then E17-L03 (the Salvage spec). Their art is Wave 14; do not start it.

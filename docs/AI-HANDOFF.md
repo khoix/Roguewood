@@ -296,6 +296,7 @@ Open: Wave 12 is merged (PR #30, main `cd1cfc9`). Base: `claude/roguewood-build`
 - **Codex:**
   1. **AV-N1** (DC-N1's six items; J03C15) and **AV-N2** (DC-N2's six items; J03C16), with native checks, artwork flags, effects and sound.
   2. **The tail of the Neon theme:** anything the live captures show is still developmental.
+  3. **UI-A4** (Medium; owner, 2026-11-15): Roguewood's brand art in place of UI-7's provisional images, at the same paths: a logo for the title screen, the app icon (the source of the favicon and the apple-touch-icon), the boot splash, and optional title key art. No subtitle; the title keeps one action. Brief: handoffs/UI-7.md, "For Codex"; prompt: docs/prompts/codex-wave13-ui-a4.md.
   - AV-N3 onward follows DC-N3 to N5 as they land (Wave 14).
 - **Owner:** play the Neon League on the phone.
 
@@ -309,12 +310,18 @@ Open: Wave 12 is merged (PR #30, main `cd1cfc9`). Base: `claude/roguewood-build`
   - **For Codex:** the font gained glyphs only (every existing outline and width is identical); merge `origin/claude/roguewood-build` before any font work. The equipment strip is a flow container now, and hosted slots show the identity only, 44 px square. Any of the 18 symbols may be redrawn in patch_symbols.py.
   - New checks: unit (the font covers every character in src/ and content/; rings ride the fanned face; the art-to-come mark), J11 (the footer keeps its height and the grid its place) and J22L02 (five Charms in the rail, on the screen, in equal slots; the slip's chain uncut).
   - Validation: unit; J22L02 (both modes), J03C13, J03C10, J03C16, J11, J11ART and JUIA2 rendered; J08 and J02 headless: PASS. The phone tour was captured before and after at 780×1688. The full matrix: see the next line.
-  - Full matrix: all 222 CI commands PASS locally on `333c0af` (two of them, J22L02RULEART and J22L02LIVEART rendered, re-run in a clean worktree at `9d677c4` because the working tree changed while they ran). The physics digest `75d1a3c0…` is unchanged. Early merge: PR #31 (open).
+  - Full matrix: all 222 CI commands PASS locally on `333c0af` (two of them, J22L02RULEART and J22L02LIVEART rendered, re-run in a clean worktree at `9d677c4` because the working tree changed while they ran). The physics digest `75d1a3c0…` is unchanged. MERGED to main by PR #31 (`fda0617`, 2026-11-15) with DC-N3, after CI passed on `0d23600` (Bootstrap run 43669785967); Bootstrap also passed on main (run 43680123897). UI-7 (`3585eb7`) came after that merge.
 - **DC-N3 DONE** (handoffs/E18-C17.md; E17-D14 with E18-C17): the rest of Neon's opening pool, with the two primitives the plan left for Wave 13.
   - Side reading (`left_side`: the ball left of the centre board at 34 ft, logged only when true), lane reading (the frame context's `lane_condition` and condition `lane`) and a tactical card's one-throw hook (`spin_response`). Contracts in docs/CONTRACTS.md.
   - Dry Side, Lane Reader, Hook Shot, Line Call, Bounce Back and Straight Money, all initial from Division 1, each scored through the real FrameBuilder and played natively in J03C17.
   - Eighteen of Neon's 28 items are landed and its initial pool is complete. Left for DC-N4 and N5: two shop upgrades and the eight mastery items with their objectives.
   - **Hand-off to Codex (AV-N3, Wave 14):** the six items; J03C17 and its five captures.
+- **UI-7 DONE** (handoffs/UI-7.md), the owner's play notes of 2026-11-15, ahead of DC-N4:
+  - **A title screen** opens the game: the House hall at night, the ROGUEWOOD wordmark, the House Ball rolling, "Tap to start". A tap, click, key or gamepad button opens the Clubhouse; reduced motion keeps it still. It shows when the shell is the running scene (the real game); journeys that embed the shell open at the Clubhouse as before. J01, the web journey and the phone tour pass it with real input.
+  - **The loading screen** is a Roguewood boot splash in place of Godot's logo, with a brass progress bar on the web page.
+  - **Icons:** a project icon, from which the Web export writes the favicon and the 180 × 180 apple-touch-icon; the page head adds a theme colour and the home-screen name.
+  - **Provisional art**, composed from Codex's House Ball and House backdrop and the bundled font (tools/author_brand.py; ASSET-LEDGER.md, "UI-7"). **For Codex:** a logo, an app icon, a boot splash and optional title key art at the same paths (proposed UI-A4).
+  - Validation: J01 headless and rendered (the title first, passed with the accept key); the web journey in headless Chromium (the favicon, the 180 × 180 apple-touch-icon, the splash on the night background, the theme colour and home-screen name, a tap on the title opening the Clubhouse, then the throw, save and reload as before); unit, content, smoke, export, J02, J03 (560/240/70), J05 (21060), J07, J11, J22L02, J11ART and JUIA1 rendered: PASS. The phone tour now starts at the title (31 captures).
   - Validation: unit (mechanics_c17_test; counts 47 Charms, 8 tactical cards, a fresh binder 17 Locked and 80 Available), content, integration, physics (the side flag on real rolls; digest `75d1a3c0…` unchanged), J03C17 headless and rendered, and J03 (560/240/70), J05 (21060), J03C11, J03C15, J03C16, J06, J11, J22L01 and J22L02 headless: PASS. The full matrix runs at the wave's close.
 
 ## Wave 12 claims (coordinator: Claude, 2026-11-10)
