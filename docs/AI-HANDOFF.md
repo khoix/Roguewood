@@ -346,7 +346,7 @@ Open: Wave 12 is merged (PR #30, main `cd1cfc9`). Base: `claude/roguewood-build`
   - Open, from Codex: the landscape phone tour prints a one-resource shutdown warning after finishing (a capture tool, not a test).
 - **UI-8 DONE** (handoffs/UI-8.md), the owner's play notes of 2026-11-15, before the wave closes:
   - **Board width:** the board's column keeps the page's width whatever League is chosen.
-  - **Keep section:** choosing a card to keep, the hand has no Cycle or Inspect button and its cards fill the section; a long press or a double tap inspects (the double tap anywhere).
+  - **Keep section:** choosing a card to keep, the hand has no Cycle or Inspect button and its cards fill the section; a long press or, in that section only, a double tap inspects.
   - **Frame log:** its text is sized to the review's width.
   - **Top bar:** the session menu button sits inside it, so the bar spans the screen.
   - **Binder:** the categories are tabs; a tapped card opens a preview over the page (UI-6's footer is gone); a drag that starts on a card scrolls the page.

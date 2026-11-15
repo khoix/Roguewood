@@ -29,9 +29,10 @@ var actions: BoxContainer
 var header: HBoxContainer
 const FAN_OVERLAP := 0.3 # of a card's width
 ## UI-8 (owner's play notes, 2026-11-15): choosing a card to keep after a frame, the
-## hand has no Cycle or Inspect button; the cards fan the whole section. Inspection
-## everywhere: a long press, or two quick taps on the same card (the second tap
-## undoes the first, so the card's state is as it was).
+## hand has no Cycle or Inspect button; the cards fan the whole section, and two quick
+## taps on the same card inspect it (the second tap undoes the first, so the keep
+## choice is as it was). Elsewhere a quick tap-tap arms and disarms a card, so only a
+## long press inspects there.
 var keep_mode := false
 const DOUBLE_TAP_MSEC := 350
 var _last_tap := {"uid": "", "at": -100000}
@@ -115,7 +116,7 @@ func show_cards(cards: Array, marks: Dictionary, header: String, cycle_supported
 					return
 				card_pressed.emit(uid)
 				var now := Time.get_ticks_msec()
-				if _last_tap.uid == uid and now - int(_last_tap.at) <= DOUBLE_TAP_MSEC:
+				if keep_mode and _last_tap.uid == uid and now - int(_last_tap.at) <= DOUBLE_TAP_MSEC:
 					_last_tap = {"uid": "", "at": -100000}
 					inspect_requested.emit(card_data[uid], buttons[uid])
 				else:

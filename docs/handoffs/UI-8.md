@@ -16,7 +16,8 @@
 2. **The "keep a card?" section.**
    - **No buttons:** choosing a card to keep after a frame, the hand has no Cycle or Inspect button (`keep_mode`).
    - **Card size:** the cards are as tall as the section allows, and a fan with room to spare spreads out and centres across the section.
-   - **Inspecting:** a long press inspects, as before. A double tap on the same card within 0.35 s now also inspects, anywhere in the game. The second tap undoes the first, so the card's keep or arm state is as it was.
+   - **Inspecting:** a long press inspects, as before. In the keep section, a double tap on the same card within 0.35 s also inspects; the second tap undoes the first, so the keep choice is as it was.
+     - **Not while aiming:** there a quick tap-tap arms and disarms a card. The full matrix caught a double tap breaking that (J04), so only a long press inspects while aiming.
    - **The header** reads "Keep a card? (optional) · hold or double-tap to inspect".
 3. **The frame log** is sized to the review's width. The frame's longest line, measured at 21 px, is scaled to fill the room beside its icon, between 21 and 32 px; the icons scale with it. Lines too long for the minimum still wrap.
 4. **The menu button is inside the top bar.**
