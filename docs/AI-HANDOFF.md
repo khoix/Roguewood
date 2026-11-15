@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-11-15. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E22 IN_PROGRESS; E23–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). Wave 10 is merged by PR #22 (main `706767f`). Wave 11 is merged by PR #29 (main `f65d16f`). Wave 12 is merged by PR #30 (main `cd1cfc9`; the Neon League is live with its rivals and theme). **Wave 13 is closed except for UI-A5** (Codex's art-lead review of the title screen and icons; see "Wave 13 closed"); its PR to main waits for that and the owner's confirmation. **Wave 14 is claimed** (see "Wave 14 claims"). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
+Updated: 2026-11-15. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E22 IN_PROGRESS; E23–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). Wave 10 is merged by PR #22 (main `706767f`). Wave 11 is merged by PR #29 (main `f65d16f`). Wave 12 is merged by PR #30 (main `cd1cfc9`; the Neon League is live with its rivals and theme). **Wave 13 is closed** (see "Wave 13 closed"; all 28 Neon items are landed, and Codex's UI-A5 title review is merged); it awaits its PR to main. **Wave 14 is claimed** (see "Wave 14 claims"). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
 
 ## Read first
 
@@ -304,14 +304,17 @@ Open once Wave 13 is merged. Base: `claude/roguewood-build` at the "Wave 13 clos
 - **Owner:** play UI-8 on the phone, in particular dragging across Binder cards (no touchscreen in the test environment).
 
 ## Wave 13 closed (coordinator, 2026-11-15)
-**Reopened for one Codex item (owner, 2026-11-15):** UI-A5, below. The record stands for everything else. The PR to main waits for UI-A5, its merge, the affected checks and the owner's confirmation; the closing note then follows here.
+**UI-A5, added after the close's matrix (owner, 2026-11-15), is DONE and merged** (Codex `09f2816`; handoffs/UI-A5.md).
+- **What changed:** Codex reviewed the title and icons as art lead. It kept the icons, splash and palette, and refined the title's composition with gentle motion: a short entrance for the logo and ball, a slight parallax on the hall, breathing lamp light, a few motes of dust, and a small beat inside the existing fade when the player taps. Reduced motion is fully still.
+- **Code:** only src/bootstrap/title_screen.gd changed, besides docs and capture tools.
+- **Checks on the merge:** unit, J01 in both modes, the web journey, JUIA1 and JUIA2 in both modes, J11 and both phone tours: PASS.
 - **Contents** (all on `claude/roguewood-build` at the "Wave 13 closed" commit):
   - **Claude, merged early:** UI-6 and DC-N3 (PR #31, `fda0617`); UI-7 (PR #32, `82b9b2a`).
   - **Claude, not on main yet:**
     - DC-N4 (`2f95c13`) and DC-N5 (`2086e7d`): all 28 Neon items are landed;
     - UI-8 (`27debf5`, `482faad`);
     - the journeys' Begin press and `build/.gdignore` (`bd12b7b`).
-  - **Codex:** AV-N1, AV-N2, the Neon theme's tail and UI-A4 (`503dab6`, merged at `debb5e6`).
+  - **Codex:** AV-N1, AV-N2, the Neon theme's tail and UI-A4 (`503dab6`, merged at `debb5e6`); UI-A5 (`09f2816`, merged after the matrix).
 - **Validation:**
   - The full CI command list (240 commands: unit, content, integration, physics, smoke, export, the web journey, every journey headless and rendered, and the art tools) PASS locally on `482faad`, with three exceptions, each fixed in `bd12b7b` and re-run there, passing:
     - J03C04 in both modes waited on a boss introduction that no longer advances by itself; the shared aim helpers now press Begin.
