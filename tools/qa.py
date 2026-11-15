@@ -72,6 +72,7 @@ JOURNEYS = {
         ("glass_shop", "glass_inventory", "glass_rack", "glass_rack_detail", "glass_reduced", "glass_landscape", "glass_break", "glass_break_detail", "glass_binder", "glass_restored", "glass_next_rack"), 900, ["--fixed-fps", "60"]),
     "J03C02": ("res://tests/glass_c02_journey.gd", "ROGUEWOOD_J03C02_OK", "artifacts/e18-c02", ("c02_breaks", "c02_reloaded", "c02_second"), 600, ["--fixed-fps", "60"]),
     "J03C05": ("res://tests/house_c05_journey.gd", "ROGUEWOOD_J03C05_OK", "artifacts/e18-c05", ("c05_house_rules", "c05_champion", "c05_house_pins"), 900, ["--fixed-fps", "60"]),
+    "J03C18": ("res://tests/neon_c18_journey.gd", "ROGUEWOOD_J03C18_OK", "artifacts/e18-c18", ("c18_shop", "c18_controlled_curve"), 900, ["--fixed-fps", "60"]),
     "J03C17": ("res://tests/neon_c17_journey.gd", "ROGUEWOOD_J03C17_OK", "artifacts/e18-c17", ("c17_shop", "c17_line_call", "c17_dry_side", "c17_lane_reader", "c17_bounce_back"), 900, ["--fixed-fps", "60"]),
     "J03C16": ("res://tests/neon_c16_journey.gd", "ROGUEWOOD_J03C16_OK", "artifacts/e18-c16", ("c16_shop", "c16_spare", "c16_glow_strike", "c16_straight"), 900, ["--fixed-fps", "60"]),
     "J03C15": ("res://tests/neon_c15_journey.gd", "ROGUEWOOD_J03C15_OK", "artifacts/e18-c15", ("c15_shop", "c15_rebound", "c15_curved_strike", "c15_laser"), 900, ["--fixed-fps", "60"]),
@@ -155,7 +156,7 @@ JOURNEYS["J12"] = ("res://tests/dense_ability_journey.gd", "ROGUEWOOD_DENSE_ABIL
                     ("dense", "controls", "reduced", "landscape", "settlement"), 1200, ["--fixed-fps", "60"])
 # Content set per journey (E13, ADR 008): mechanism journeys keep the lab fixtures;
 # the shell journey and J06 stage 1 play the production slice (the game's default).
-CONTENT = {"J03C05": "house_c05", "J09": "slice", "J02": "lab", "J03": "lab", "J04": "lab", "J05": "lab", "J07": "lab", "J08": "lab"}
+CONTENT = {"J03C18": "neon", "J03C05": "house_c05", "J09": "slice", "J02": "lab", "J03": "lab", "J04": "lab", "J05": "lab", "J07": "lab", "J08": "lab"}
 CONTENT.update({"J21R03": "house_c05", "J21R04": "house_c05", "J22L01": "house", "J22L02": "house"})
 CONTENT.update({"J03C13": "neon_c13"})
 CONTENT.update({"J21R05": "neon_c13"})

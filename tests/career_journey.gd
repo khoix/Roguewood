@@ -120,7 +120,7 @@ func _lose() -> void:
 	await _wait_for(func(): return lab.hud.result.visible, "loss screen")
 
 func _stage_one() -> void:
-	_check(scene.career.attempts == 0 and scene.career_line.text.begins_with("Career: 0 rivals cleared · 0 championships · 0/3 mastery goals")
+	_check(scene.career.attempts == 0 and scene.career_line.text.begins_with("Career: 0 rivals cleared · 0 championships · 0/4 mastery goals")
 		and scene.career_line.text.contains("Goals: Spare Hand 0/10"), "a fresh Career: the menu shows the summary and three goals")
 	_check(scene.career_goals.get_child_count() == 3 and scene.career_goals.get_child(0).find_child("Count", true, false).text == "0/10",
 		"each goal on the board has a progress bar and its count")
@@ -221,5 +221,5 @@ func _stage_three() -> void:
 	_check(disk.unlocked == ["gate.surveyor_cleared"] and disk.mastery.is_empty(), "practice grants no unlocks")
 	await _focus_accept(scene.back)
 	await _wait_for(func(): return scene.screen == "menu", "Clubhouse again")
-	_check(scene.career_line.text.begins_with("Career: 1 rival cleared · 0 championships · 0/3 mastery goals · 3 attempts"), "the menu summary after three attempts")
+	_check(scene.career_line.text.begins_with("Career: 1 rival cleared · 0 championships · 0/4 mastery goals · 3 attempts"), "the menu summary after three attempts")
 	await _capture("career_menu")

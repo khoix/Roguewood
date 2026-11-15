@@ -126,6 +126,11 @@
       "id": "gate.mastery_mixed_rack",
       "kind": "mastery",
       "name": "Mixed Rack"
+    },
+    {
+      "id": "gate.mastery_controlled_curve",
+      "kind": "mastery",
+      "name": "Controlled Curve"
     }
   ],
   "objectives": [
@@ -167,6 +172,19 @@
         "gate.mastery_mixed_rack"
       ],
       "reward": "Mixed Rack ribbon for the trophy shelf; Keystone joins the shop pool from your next attempt."
+    },
+    {
+      "id": "mastery.controlled_curve",
+      "name": "Controlled Curve",
+      "text": "Strike with a curved roll released sweet or perfect three times in one attempt.",
+      "metric": "controlled_curves",
+      "threshold": 3,
+      "scope": "attempt",
+      "prerequisites": [],
+      "gates": [
+        "gate.mastery_controlled_curve"
+      ],
+      "reward": "Controlled Curve ribbon for the trophy shelf; Comet Ball, Metronome and Steady Hand join the shop pool from your next attempt."
     }
   ],
   "counters": {

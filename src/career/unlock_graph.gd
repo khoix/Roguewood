@@ -19,7 +19,7 @@ extends RefCounted
 ##   counter to each boss rule that is available from the start (never only behind
 ##   the rival it is needed to beat).
 ## Pure data: no scene, file writes or Career state.
-const METRICS := {"strikes": ["career", "attempt"], "spares": ["career", "attempt"], "curved_strikes": ["career", "attempt"], "pin_materials": ["attempt"]}
+const METRICS := {"strikes": ["career", "attempt"], "spares": ["career", "attempt"], "curved_strikes": ["career", "attempt"], "controlled_curves": ["career", "attempt"], "pin_materials": ["attempt"]}
 const KINDS := ["boss", "championship", "mastery"]
 const COSMETIC_MILESTONES := ["first_clears", "championships", "mastery"]
 

@@ -5740,6 +5740,278 @@
         "unlock_assigned": true,
         "integrated": false
       }
+    },
+    {
+      "id": "shop_upgrade.trade_in",
+      "name": "Trade-In",
+      "category": "shop_upgrade",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 4,
+      "resale_price": 2,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "It pays only when you sell, and a sale never returns more than you paid. Kept for the attempt; cannot be sold.",
+      "synergy_tags": [
+        "shop",
+        "sell",
+        "money"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "shop_upgrade.specialist_shelf",
+      "name": "Specialist Shelf",
+      "category": "shop_upgrade",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 6,
+      "resale_price": 3,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Only offered in a League with specialists, and the extra offer is always one of them: a curve, hook, accuracy or straight item, wanted or not. Cannot be sold.",
+      "synergy_tags": [
+        "shop",
+        "selection",
+        "specialist"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "ball.comet",
+      "name": "Comet Ball",
+      "category": "ball",
+      "rarity": "rare",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "mastery",
+        "prerequisites": [
+          "gate.mastery_controlled_curve"
+        ]
+      },
+      "earliest_division": 1,
+      "purchase_price": 8,
+      "resale_price": 4,
+      "effects": [
+        {
+          "op": "add_mult",
+          "amount": 6,
+          "trigger": "ball",
+          "scope": "roll",
+          "condition": {
+            "curved": true,
+            "accurate": true
+          }
+        }
+      ],
+      "physics": {
+        "spin_response": 1.2
+      },
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Its Mult needs both a curved roll and a sweet or perfect release; a straight or a sloppy throw earns nothing, and Strobe halves the sweet zone.",
+      "synergy_tags": [
+        "curve",
+        "accuracy",
+        "mult",
+        "hook"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.metronome",
+      "name": "Metronome",
+      "category": "charm",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "mastery",
+        "prerequisites": [
+          "gate.mastery_controlled_curve"
+        ]
+      },
+      "earliest_division": 1,
+      "purchase_price": 6,
+      "resale_price": 3,
+      "effects": [
+        {
+          "op": "multiply_mult",
+          "amount": 1.5,
+          "trigger": "charm",
+          "scope": "frame",
+          "condition": {
+            "category": [
+              "strike"
+            ],
+            "accurate": true
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Only a strike released sweet or perfect counts; a clean or missed release earns nothing, and under Strobe the zones are half their size.",
+      "synergy_tags": [
+        "accuracy",
+        "strike",
+        "mult",
+        "strobe"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "consumable.steady_hand",
+      "name": "Steady Hand",
+      "category": "consumable",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "mastery",
+        "prerequisites": [
+          "gate.mastery_controlled_curve"
+        ]
+      },
+      "earliest_division": 1,
+      "purchase_price": 5,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "multiply_mult",
+          "amount": 2,
+          "trigger": "ball",
+          "scope": "roll",
+          "condition": {
+            "curved": true,
+            "accurate": true
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 2,
+        "charges": 1,
+        "exhaustion": "consume"
+      },
+      "downside": "Spent with the throw whatever happens; it pays only for a curved roll released sweet or perfect.",
+      "synergy_tags": [
+        "tactical",
+        "curve",
+        "accuracy",
+        "mult"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
     }
   ]
 }

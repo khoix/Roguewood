@@ -73,8 +73,8 @@ static func _shipped_graphs(failures: Array[String]) -> void:
 		"The Proprietor unlocks House Special, Old Lou Wood Grain, and the House title the Tournament Kit", failures)
 	_expect(production.items_by_gate.get("gate.surveyor_cleared") == ["charm.encore"] and production.items_by_gate.get("gate.custodian_cleared") == ["charm.standing_order"],
 		"the slice's boss gates unlock Encore and Standing Order", failures)
-	_expect(production.objectives.size() == 3 and production.gates.size() == 15, "three mastery objectives and fifteen gates (five of them the Neon League's)", failures)
-	_expect(production.availability.charm == {"initial": 39, "locked": 8} and production.availability.pin == {"initial": 10, "locked": 2} and production.availability.ball == {"initial": 7, "locked": 2}, "availability report: 39 Charms initially, 8 locked; 10 pins, with Crown and Tempo locked; 7 balls, with Oilskin and Laser locked (the Neon rewards wait for their rivals, E22-L02)", failures)
+	_expect(production.objectives.size() == 4 and production.gates.size() == 16, "four mastery objectives and sixteen gates (six of them the Neon League's)", failures)
+	_expect(production.availability.charm == {"initial": 39, "locked": 9} and production.availability.pin == {"initial": 10, "locked": 2} and production.availability.ball == {"initial": 7, "locked": 3}, "availability report: 39 Charms initially, 9 locked; 10 pins, with Crown and Tempo locked; 7 balls, with Oilskin, Laser and Comet locked (the Neon rewards wait for their rivals, E22-L02)", failures)
 	var lab := ContentSet.career_graph(ContentSet.LAB_UNLOCKS)
 	_expect(lab.errors.is_empty() and lab.items_by_gate.get("gate.lab_rival") == ["pin.lab_lead"], "the lab fixture graph validates", failures)
 	_expect(Graph.build(_world().registry, _world().catalogue, _world().sources).errors.is_empty(), "the synthetic world validates", failures)
@@ -185,9 +185,9 @@ static func _mastery(failures: Array[String]) -> void:
 	Career.bank_frame(career, next, 2, _stats("strike", 0.6), ctx, objectives)
 	_expect(not career.mastery.has("mastery.true_curve") and Career.progress(career, curve, next) == 2, "two curved strikes in the new attempt", failures)
 	var goals := Career.goals(career, objectives, next)
-	_expect(goals.size() == 1 and goals[0].id == "mastery.true_curve" and goals[0].progress == 2, "goals list what is left, with progress", failures)
+	_expect(goals.map(func(g): return g.id) == ["mastery.true_curve", "mastery.controlled_curve"] and goals[0].progress == 2 and goals[1].progress == 0, "goals list what is left, with progress", failures)
 	Career.bank_frame(career, next, 3, _stats("strike", 0.6), ctx, objectives)
-	_expect(career.mastery.get("mastery.true_curve", {}).get("career_attempt") == next and Career.goals(career, objectives, next).is_empty(), "the third completes True Curve", failures)
+	_expect(career.mastery.get("mastery.true_curve", {}).get("career_attempt") == next and Career.goals(career, objectives, next).map(func(g): return g.id) == ["mastery.controlled_curve"], "the third completes True Curve", failures)
 	# An older attempt resumed after a newer one began counts from where it resumes.
 	Career.bank_frame(career, uid, 13, spare, ctx, objectives)
 	_expect(career.tally.uid == uid and career.totals.spares == 12, "a resumed older attempt keeps counting once per frame", failures)
