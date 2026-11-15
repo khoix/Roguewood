@@ -16,8 +16,9 @@ const SCHEMA_VERSION := 1
 const SLOTS := [["charm"], ["charm"], ["ball", "pin"], ["consumable"], ["pin_mod", "ball_mod"]]
 const EXTRA := 5 # Extra Shelf: any category the slots sell
 const LICENSE := 6
+const SPECIALIST := 7 # Specialist Shelf (E18-C18): any category, the League's specialist items only
 const EXTRA_CATEGORIES := ["charm", "ball", "pin", "consumable", "pin_mod", "ball_mod"]
-const SLOT_NAMES := ["Charm", "Charm", "Equipment", "Tactical", "Workshop", "Extra Shelf", "License"]
+const SLOT_NAMES := ["Charm", "Charm", "Equipment", "Tactical", "Workshop", "Extra Shelf", "License", "Specialist"]
 ## Provisional ordinary-shop rarity weights (percent). Legendary is reward-only.
 const RARITY_WEIGHTS := {"common": 55, "uncommon": 30, "rare": 12, "epic": 3, "legendary": 0}
 const RARITIES := ["common", "uncommon", "rare", "epic", "legendary"]
@@ -48,6 +49,8 @@ func ineligibility(item: Dictionary, inventory) -> String:
 		return "locked"
 	if int(item.earliest_division) > division:
 		return "later Division"
+	if Upgrades.kind(item.id) == "specialist_offer" and specialists.get("tags", []).is_empty():
+		return "no specialists in this League"
 	if inventory.owned_count(item.id) >= inventory.copy_limit(item.id):
 		return "owned limit"
 	if inventory.slot_kind(item.category) == "mod":
@@ -57,12 +60,17 @@ func ineligibility(item: Dictionary, inventory) -> String:
 		return "incompatible with owned items"
 	return ""
 
-func _pool(categories: Array, inventory, excluded: Array) -> Array:
+func _pool(categories: Array, inventory, excluded: Array, slot: int = -1) -> Array:
 	var pool: Array = []
 	for item in _catalogue.get("items", []):
-		if item.category in categories and item.id not in excluded and ineligibility(item, inventory).is_empty():
+		if item.category in categories and item.id not in excluded and ineligibility(item, inventory).is_empty() and (slot != SPECIALIST or is_specialist(item)):
 			pool.append(item)
 	return pool
+
+## An item carrying one of the League's specialist tags.
+func is_specialist(item: Dictionary) -> bool:
+	var tags: Array = specialists.get("tags", [])
+	return item.get("synergy_tags", []).any(func(t): return t in tags)
 
 ## New visit after a match: fresh offers, reroll price back to the base.
 func open_visit(inventory, at_division: int = 1) -> void:
@@ -100,10 +108,11 @@ func _generate(inventory, previous: Array) -> void:
 
 ## The ordinary slots, plus Extra Shelf's.
 func _slots(inventory) -> Array:
-	return range(SLOTS.size()) + ([EXTRA] if Upgrades.owned(inventory, "extra_offer") else [])
+	return range(SLOTS.size()) + ([EXTRA] if Upgrades.owned(inventory, "extra_offer") else []) \
+		+ ([SPECIALIST] if Upgrades.owned(inventory, "specialist_offer") and not specialists.get("tags", []).is_empty() else [])
 
 func _categories(slot: int) -> Array:
-	return EXTRA_CATEGORIES if slot == EXTRA else (["shop_upgrade"] if slot == LICENSE else SLOTS[slot])
+	return EXTRA_CATEGORIES if slot in [EXTRA, SPECIALIST] else (["shop_upgrade"] if slot == LICENSE else SLOTS[slot])
 
 func _price(item: Dictionary, inventory) -> int:
 	return Upgrades.price(int(item.get("purchase_price", 0)), inventory)
@@ -123,14 +132,14 @@ func reprice(inventory) -> void:
 func _pick_slot(slot: int, inventory, excluded: Array) -> Dictionary:
 	var categories: Array = []
 	for category in _categories(slot):
-		if not _pool([category], inventory, excluded).is_empty():
+		if not _pool([category], inventory, excluded, slot).is_empty():
 			categories.append(category)
 	var entry := {"visit": visit, "reroll": rerolls, "slot": slot, "category": "", "rarity": "", "eligible": 0, "item_id": ""}
 	if categories.is_empty():
 		selection_log.append(entry)
 		return {}
 	var category: String = categories[_rng.randi_range(0, categories.size() - 1)]
-	var pool := _pool([category], inventory, excluded)
+	var pool := _pool([category], inventory, excluded, slot)
 	var rarity := _roll_rarity(pool, Upgrades.rarity_weights(RARITY_WEIGHTS, inventory))
 	var choice := _weighted(pool.filter(func(i): return i.rarity == rarity))
 	entry.merge({"category": category, "rarity": rarity, "eligible": pool.size(), "item_id": choice.id}, true)

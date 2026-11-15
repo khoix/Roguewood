@@ -245,6 +245,7 @@ static func condition_text(condition: Dictionary, facts: Dictionary = {}, names:
 			"felled_curved": parts.append("knocked down by a curved roll" if v else "knocked down by a straight roll")
 			"first_hit": parts.append("the first pin the ball hit" if v else "not the first pin hit")
 			"left_side": parts.append("left of centre at 34 ft" if v else "right of centre at 34 ft")
+			"accurate": parts.append("sweet or perfect" if v else "not sweet or perfect")
 			"lane":
 				# The match's lane when the result knows it; otherwise the lanes it needs.
 				var lanes: Array = [facts.lane] if facts.has("lane") else v

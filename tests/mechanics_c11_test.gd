@@ -24,7 +24,7 @@ static func run() -> Array[String]:
 		"the five D10 items are in the catalogue with mechanics, in the initial pool", failures)
 	_expect(IDS.slice(0, 3).all(func(id): return Deck.kind(id) == "tactical" and Tactics.kind(id).is_empty() and items[id].limits.exhaustion == "consume"),
 		"the three cards are tactical cards played with a throw (not instant tactics), exhausted on use", failures)
-	_expect(catalogue.items.filter(func(i): return i.category == "consumable" and not String(i.id) in ["consumable.hook_shot", "consumable.line_call"]).size() == 6, "House's six tactical cards", failures)
+	_expect(catalogue.items.filter(func(i): return i.category == "consumable" and not String(i.id) in ["consumable.hook_shot", "consumable.line_call", "consumable.steady_hand"]).size() == 6, "House's six tactical cards", failures)
 	_cards(catalogue, failures)
 	_charms(catalogue, failures)
 	return failures

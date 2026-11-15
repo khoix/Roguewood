@@ -9,9 +9,15 @@ extends RefCounted
 ##   interest_cap (Savings Book):   the interest cap rises by $2.
 ##   extra_offer  (Extra Shelf):    the shop shows one more offer, of any category.
 ##   rarity_shift (Spotlight Sign): uncommon and rare offers come up more often.
+## E18-C18 (Neon):
+##   sell_bonus       (Trade-In):          a sale returns $1 more, never more than was paid.
+##   specialist_offer (Specialist Shelf):  one more offer, drawn from the League's
+##                    specialist items; never offered in a League without specialists.
 const Economy = preload("res://src/rules/economy.gd")
 const KINDS := {"shop_upgrade.punch_card": "free_reroll", "shop_upgrade.pin_caddy": "reserve_slot", "shop_upgrade.clearance_tag": "discount",
-	"shop_upgrade.savings_book": "interest_cap", "shop_upgrade.extra_shelf": "extra_offer", "shop_upgrade.spotlight_sign": "rarity_shift"}
+	"shop_upgrade.savings_book": "interest_cap", "shop_upgrade.extra_shelf": "extra_offer", "shop_upgrade.spotlight_sign": "rarity_shift",
+	"shop_upgrade.trade_in": "sell_bonus", "shop_upgrade.specialist_shelf": "specialist_offer"}
+const SELL_BONUS := 1
 const DISCOUNT := 1
 const MIN_PRICE := 1
 const INTEREST_BONUS := 2
@@ -30,6 +36,8 @@ static func describe(item_id: String) -> String:
 		"interest_cap": return "Interest cap $%d → $%d · kept" % [Economy.INTEREST_CAP, Economy.INTEREST_CAP + INTEREST_BONUS]
 		"extra_offer": return "+1 shop offer, any category · kept"
 		"rarity_shift": return "Rarer offers: uncommon %d%%, rare %d%% · kept" % [SPOTLIGHT_WEIGHTS.uncommon, SPOTLIGHT_WEIGHTS.rare]
+		"sell_bonus": return "Sales return $%d more · kept" % SELL_BONUS
+		"specialist_offer": return "+1 offer from the League's specialists · kept"
 	return ""
 
 ## True when the run owns an upgrade of this kind. inventory: a RunInventory (or null).
@@ -45,6 +53,13 @@ static func reroll_cost(rerolls: int, inventory) -> int:
 	if not owned(inventory, "free_reroll"):
 		return Economy.reroll_cost(rerolls)
 	return 0 if rerolls == 0 else Economy.reroll_cost(rerolls - 1)
+
+## A sale with Trade-In: $1 more, but never more than was paid (paid 0: kit and
+## reward items, whose base sale value takes the bonus).
+static func sale(value: int, paid: int, inventory) -> int:
+	if not owned(inventory, "sell_bonus"):
+		return value
+	return mini(value + SELL_BONUS, paid) if paid > 0 else value + SELL_BONUS
 
 static func interest(balance: int, inventory) -> int:
 	var cap: int = Economy.INTEREST_CAP + (INTEREST_BONUS if owned(inventory, "interest_cap") else 0)

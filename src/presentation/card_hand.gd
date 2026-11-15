@@ -28,6 +28,14 @@ var body: BoxContainer
 var actions: BoxContainer
 var header: HBoxContainer
 const FAN_OVERLAP := 0.3 # of a card's width
+## UI-8 (owner's play notes, 2026-11-15): choosing a card to keep after a frame, the
+## hand has no Cycle or Inspect button; the cards fan the whole section, and two quick
+## taps on the same card inspect it (the second tap undoes the first, so the keep
+## choice is as it was). Elsewhere a quick tap-tap arms and disarms a card, so only a
+## long press inspects there.
+var keep_mode := false
+const DOUBLE_TAP_MSEC := 350
+var _last_tap := {"uid": "", "at": -100000}
 
 func _ready() -> void:
 	name = "CardHand"
@@ -105,7 +113,14 @@ func show_cards(cards: Array, marks: Dictionary, header: String, cycle_supported
 					inspecting = false
 					inspect_button.text = "Inspect"
 					inspect_requested.emit(card_data[uid], buttons[uid])
-				else: card_pressed.emit(uid), CONNECT_DEFERRED)
+					return
+				card_pressed.emit(uid)
+				var now := Time.get_ticks_msec()
+				if keep_mode and _last_tap.uid == uid and now - int(_last_tap.at) <= DOUBLE_TAP_MSEC:
+					_last_tap = {"uid": "", "at": -100000}
+					inspect_requested.emit(card_data[uid], buttons[uid])
+				else:
+					_last_tap = {"uid": uid, "at": now}, CONNECT_DEFERRED)
 			# Long press opens inspection directly (UI-1).
 			button.long_pressed.connect(func(): inspect_requested.emit(card_data[uid], buttons[uid]))
 			cards_row.add_child(button)
@@ -130,6 +145,7 @@ func show_cards(cards: Array, marks: Dictionary, header: String, cycle_supported
 	_size_cards()
 	cycle_button.visible = cycle_supported
 	cycle_button.disabled = not (can_cycle and enabled)
+	actions.visible = not keep_mode
 
 func button_for(uid: String) -> Button:
 	return buttons.get(uid)
@@ -187,6 +203,13 @@ func _size_cards() -> void:
 	var want := _card_size()
 	var fan := mode == "fan"
 	var separation := -int(roundf(want.x * FAN_OVERLAP)) if fan else 8
+	# UI-8: when the cards are as tall as the section allows and the overlapped fan
+	# would leave room, it spreads (up to a small gap) and centres across the section.
+	var count_cards := cards_row.get_child_count()
+	if fan and count_cards > 1 and cards_row.size.x > 0.0:
+		var spread := floori((cards_row.size.x - 2.0 - count_cards * want.x) / (count_cards - 1))
+		separation = clampi(spread, separation, 16)
+	cards_row.alignment = FlowContainer.ALIGNMENT_CENTER if fan else FlowContainer.ALIGNMENT_BEGIN
 	if cards_row.get_theme_constant("h_separation") != separation:
 		cards_row.add_theme_constant_override("h_separation", separation)
 	var count := cards_row.get_child_count()

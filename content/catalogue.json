@@ -5740,6 +5740,587 @@
         "unlock_assigned": true,
         "integrated": false
       }
+    },
+    {
+      "id": "shop_upgrade.trade_in",
+      "name": "Trade-In",
+      "category": "shop_upgrade",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 4,
+      "resale_price": 2,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "It pays only when you sell, and a sale never returns more than you paid. Kept for the attempt; cannot be sold.",
+      "synergy_tags": [
+        "shop",
+        "sell",
+        "money"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "shop_upgrade.specialist_shelf",
+      "name": "Specialist Shelf",
+      "category": "shop_upgrade",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 6,
+      "resale_price": 3,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Only offered in a League with specialists, and the extra offer is always one of them: a curve, hook, accuracy or straight item, wanted or not. Cannot be sold.",
+      "synergy_tags": [
+        "shop",
+        "selection",
+        "specialist"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "ball.comet",
+      "name": "Comet Ball",
+      "category": "ball",
+      "rarity": "rare",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "mastery",
+        "prerequisites": [
+          "gate.mastery_controlled_curve"
+        ]
+      },
+      "earliest_division": 1,
+      "purchase_price": 8,
+      "resale_price": 4,
+      "effects": [
+        {
+          "op": "add_mult",
+          "amount": 6,
+          "trigger": "ball",
+          "scope": "roll",
+          "condition": {
+            "curved": true,
+            "accurate": true
+          }
+        }
+      ],
+      "physics": {
+        "spin_response": 1.2
+      },
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Its Mult needs both a curved roll and a sweet or perfect release; a straight or a sloppy throw earns nothing, and Strobe halves the sweet zone.",
+      "synergy_tags": [
+        "curve",
+        "accuracy",
+        "mult",
+        "hook"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.metronome",
+      "name": "Metronome",
+      "category": "charm",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "mastery",
+        "prerequisites": [
+          "gate.mastery_controlled_curve"
+        ]
+      },
+      "earliest_division": 1,
+      "purchase_price": 6,
+      "resale_price": 3,
+      "effects": [
+        {
+          "op": "multiply_mult",
+          "amount": 1.5,
+          "trigger": "charm",
+          "scope": "frame",
+          "condition": {
+            "category": [
+              "strike"
+            ],
+            "accurate": true
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Only a strike released sweet or perfect counts; a clean or missed release earns nothing, and under Strobe the zones are half their size.",
+      "synergy_tags": [
+        "accuracy",
+        "strike",
+        "mult",
+        "strobe"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "consumable.steady_hand",
+      "name": "Steady Hand",
+      "category": "consumable",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "mastery",
+        "prerequisites": [
+          "gate.mastery_controlled_curve"
+        ]
+      },
+      "earliest_division": 1,
+      "purchase_price": 5,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "multiply_mult",
+          "amount": 2,
+          "trigger": "ball",
+          "scope": "roll",
+          "condition": {
+            "curved": true,
+            "accurate": true
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 2,
+        "charges": 1,
+        "exhaustion": "consume"
+      },
+      "downside": "Spent with the throw whatever happens; it pays only for a curved roll released sweet or perfect.",
+      "synergy_tags": [
+        "tactical",
+        "curve",
+        "accuracy",
+        "mult"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "pin.compass",
+      "name": "Compass Pin",
+      "category": "pin",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "mastery",
+        "prerequisites": [
+          "gate.mastery_both_halves"
+        ]
+      },
+      "earliest_division": 1,
+      "purchase_price": 5,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "add_value",
+          "amount": 25,
+          "trigger": "fallen",
+          "scope": "frame",
+          "condition": {
+            "lane": [
+              "lane_condition.long_oil",
+              "lane_condition.two_tone",
+              "lane_condition.dry_backend"
+            ]
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "On House Oil, every opener and most matches, it is worth nothing when it falls, less than the Wood Pin it replaced.",
+      "synergy_tags": [
+        "lane",
+        "value",
+        "oil"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.split_pattern",
+      "name": "Split Pattern",
+      "category": "charm",
+      "rarity": "rare",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "mastery",
+        "prerequisites": [
+          "gate.mastery_both_halves"
+        ]
+      },
+      "earliest_division": 1,
+      "purchase_price": 8,
+      "resale_price": 4,
+      "effects": [
+        {
+          "op": "multiply_mult",
+          "amount": 2,
+          "trigger": "charm",
+          "scope": "frame",
+          "condition": {
+            "category": [
+              "strike"
+            ],
+            "lane": [
+              "lane_condition.two_tone"
+            ]
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Only a strike on Two-Tone counts, a feature or boss lane that comes up a few times a League; everywhere else it is an empty Charm slot.",
+      "synergy_tags": [
+        "lane",
+        "two_tone",
+        "strike",
+        "mult"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.dry_run",
+      "name": "Dry Run",
+      "category": "charm",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "mastery",
+        "prerequisites": [
+          "gate.mastery_both_halves"
+        ]
+      },
+      "earliest_division": 1,
+      "purchase_price": 6,
+      "resale_price": 3,
+      "effects": [
+        {
+          "op": "add_mult",
+          "amount": 1,
+          "trigger": "charm",
+          "scope": "frame",
+          "per": "fallen",
+          "condition": {
+            "left_side": true
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Only a frame with a roll left of the centre board at 34 ft counts, and a ball that stays right earns nothing however many pins fall.",
+      "synergy_tags": [
+        "lane",
+        "side",
+        "mult",
+        "two_tone"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.long_game",
+      "name": "Long Game",
+      "category": "charm",
+      "rarity": "rare",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "mastery",
+        "prerequisites": [
+          "gate.mastery_both_halves"
+        ]
+      },
+      "earliest_division": 1,
+      "purchase_price": 7,
+      "resale_price": 3,
+      "effects": [
+        {
+          "op": "multiply_mult",
+          "amount": 1.5,
+          "trigger": "charm",
+          "scope": "frame",
+          "condition": {
+            "category": [
+              "strike"
+            ],
+            "curved": true,
+            "lane": [
+              "lane_condition.long_oil"
+            ]
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "It needs a curved strike on Long Oil, where the hook is weakest; on any other lane, or with a straight strike, it does nothing.",
+      "synergy_tags": [
+        "lane",
+        "curve",
+        "strike",
+        "oil",
+        "mult"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.second_chance",
+      "name": "Second Chance",
+      "category": "charm",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "mastery",
+        "prerequisites": [
+          "gate.mastery_rebound_rescue"
+        ]
+      },
+      "earliest_division": 1,
+      "purchase_price": 6,
+      "resale_price": 3,
+      "effects": [
+        {
+          "op": "multiply_mult",
+          "amount": 1.5,
+          "trigger": "charm",
+          "scope": "frame",
+          "condition": {
+            "category": [
+              "strike",
+              "spare"
+            ],
+            "rebounded": true
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Only a spare or strike with a rebound off the gutter edge counts, and only Bumper Guard gives one: without it the Charm does nothing.",
+      "synergy_tags": [
+        "gutter",
+        "rebound",
+        "mult"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
     }
   ]
 }

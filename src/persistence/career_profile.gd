@@ -30,7 +30,7 @@ extends RefCounted
 ## Practice attempts record discoveries and practice records but never gameplay
 ## unlocks, mastery progress or championships.
 const SCHEMA_VERSION := 2
-const COUNTED := ["strikes", "spares", "curved_strikes"]
+const COUNTED := ["strikes", "spares", "curved_strikes", "controlled_curves", "rescues"]
 
 static func fresh() -> Dictionary:
 	return {"first_clears": {}, "unlocked": [], "awards": {}, "intros_seen": {}, "attempts": 0, "championships": {},
@@ -174,6 +174,10 @@ static func bank_frame(career: Dictionary, uid: int, frame_number: int, stats: D
 	for id in stats.get("materials", []):
 		if id not in tally.materials:
 			tally.materials.append(id)
+	# E18-C19: the halves of a Two-Tone lane struck from this attempt (older tallies have none).
+	for half in stats.get("halves", []):
+		if half not in tally.get("halves", []):
+			tally["halves"] = tally.get("halves", []) + [half]
 	for objective in objectives:
 		if career.mastery.has(objective.id) or not objective.prerequisites.all(func(g): return g in career.unlocked):
 			continue
@@ -195,11 +199,17 @@ static func progress(career: Dictionary, objective: Dictionary, uid: int) -> int
 		return 0
 	if objective.metric == "pin_materials":
 		return career.tally.materials.size()
+	if objective.metric == "two_tone_halves":
+		return career.tally.get("halves", []).size()
 	return int(career.tally.counts.get(objective.metric, 0))
 
 ## What one scored frame contributes: {strikes, spares, curved_strikes (a strike
-## whose first roll was curved), materials (distinct pin items knocked down)}.
-static func frame_stats(category: String, reports: Array, pins: Dictionary, curved: Callable) -> Dictionary:
+## whose first roll was curved), controlled_curves (such a strike released sweet or
+## perfect, E18-C18), materials (distinct pin items knocked down), and E18-C19's
+## rescues (a spare or strike with a roll that rebounded off the gutter edge) and
+## halves (a strike on Two-Tone: "left" or "right", the first roll's side at 34 ft)}.
+## `lane`: the match's lane condition.
+static func frame_stats(category: String, reports: Array, pins: Dictionary, curved: Callable, lane: String = "") -> Dictionary:
 	var materials: Array = []
 	for report in reports:
 		for position in report.roll_result.fallen_positions:
@@ -207,8 +217,15 @@ static func frame_stats(category: String, reports: Array, pins: Dictionary, curv
 			if not id.is_empty() and id not in materials:
 				materials.append(id)
 	var strike := category == "strike"
+	var curved_strike: bool = strike and not reports.is_empty() and curved.call(float(reports[0].launch.spin))
+	var controlled: bool = curved_strike and String(reports[0].roll_result.get("accuracy", "")) in ["sweet", "perfect"]
+	var rescued: bool = category in ["strike", "spare"] and reports.any(func(r): return bool(r.get("knockdown_log", {}).get("rebounded", false)))
+	var halves: Array = []
+	if strike and lane == "lane_condition.two_tone" and not reports.is_empty():
+		halves.append("left" if bool(reports[0].get("knockdown_log", {}).get("left_side", false)) else "right")
 	return {"strikes": 1 if strike else 0, "spares": 1 if category == "spare" else 0,
-		"curved_strikes": 1 if strike and not reports.is_empty() and curved.call(float(reports[0].launch.spin)) else 0, "materials": materials}
+		"curved_strikes": 1 if curved_strike else 0, "controlled_curves": 1 if controlled else 0, "materials": materials,
+		"rescues": 1 if rescued else 0, "halves": halves}
 
 ## Locked, Available, Discovered or Mastered (owned in a League win), per §16.
 static func collection_state(career: Dictionary, item: Dictionary) -> String:

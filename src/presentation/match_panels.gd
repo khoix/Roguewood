@@ -15,9 +15,12 @@ const PORTRAIT_MARGIN := 12.0
 const BALL_AT := 0.667 # of the lane region's height
 const BALL_AT_PORTRAIT := 0.76
 const INK := Color("101820")
-## UI-5: the session menu button sits at the top right, beside the top bar.
-const MENU_PORTRAIT := Vector2(56, 56)
-const MENU_LANDSCAPE := Vector2(64, 68)
+## UI-5: the session menu button. UI-8 (owner's play notes, 2026-11-15): it sits
+## inside the top bar's top-right corner, so the bar spans the screen; the bar's top
+## row keeps MENU_ROOM clear for it (DivisionHud.menu_room).
+const MENU_PORTRAIT := Vector2(52, 44)
+const MENU_LANDSCAPE := Vector2(56, 48)
+const MENU_INSET := Vector2(10, 8) # from the bar's top-right corner
 const MENU_GAP := 8.0
 const LANDSCAPE_TOP := 16.0
 
@@ -157,8 +160,12 @@ func _text(parent: Control, node_name: String, color: Color) -> Label:
 ## Where the shell puts the session menu button (UI-5); the top bar stops short of it.
 static func menu_rect(screen: Vector2) -> Rect2:
 	if screen.y >= screen.x:
-		return Rect2(screen.x - PORTRAIT_MARGIN - MENU_PORTRAIT.x, PORTRAIT_MARGIN, MENU_PORTRAIT.x, MENU_PORTRAIT.y)
-	return Rect2(screen.x - MARGIN - MENU_LANDSCAPE.x, LANDSCAPE_TOP, MENU_LANDSCAPE.x, MENU_LANDSCAPE.y)
+		return Rect2(screen.x - PORTRAIT_MARGIN - MENU_INSET.x - MENU_PORTRAIT.x, PORTRAIT_MARGIN + MENU_INSET.y, MENU_PORTRAIT.x, MENU_PORTRAIT.y)
+	return Rect2(screen.x - MARGIN - MENU_INSET.x - MENU_LANDSCAPE.x, LANDSCAPE_TOP + MENU_INSET.y + 2.0, MENU_LANDSCAPE.x, MENU_LANDSCAPE.y)
+
+## Width the bar's top row keeps clear at its right end for the button.
+static func menu_room(screen: Vector2) -> float:
+	return (MENU_PORTRAIT.x if screen.y >= screen.x else MENU_LANDSCAPE.x) + MENU_GAP
 
 ## `bar_extra`: added height for portrait's top bar when its rule badge takes two
 ## lines (a champion's two rules); everything below moves down with it.
@@ -173,7 +180,7 @@ static func compute(screen: Vector2, left_handed: bool, hand_height: float, comp
 		var m := PORTRAIT_MARGIN
 		# UI-5: the bar starts at the top (the session buttons are one menu button
 		# at its right), so the lane gains the row they took.
-		var bar_w := w - 2 * m - MENU_PORTRAIT.x - MENU_GAP
+		var bar_w := w - 2 * m # the menu button is inside the bar (UI-8)
 		r.top_bar = Rect2(m, m, bar_w, 100 + bar_extra)
 		var row_y := m + 108.0 + bar_extra
 		# The row is the slip and the rival; the Charms are a rail down the lane's
@@ -189,12 +196,12 @@ static func compute(screen: Vector2, left_handed: bool, hand_height: float, comp
 		r.bubble = Rect2(m, row_y, w - 2 * m, 0)
 		r.corridor = Rect2(w * 0.3, r.lane.position.y, w * 0.4, r.lane.size.y)
 		if compact:
-			r.top_bar = Rect2(m, m, bar_w, 52) # the menu button stays at the right
+			r.top_bar = Rect2(m, m, bar_w, 60) # tall enough for the menu button inside it
 			r.prompt = Rect2(m, h - 16, w - 2 * m, 0)
 	else:
 		var side := floorf(w * FLANK)
 		r.fold = w / h < FOLD_ASPECT or side < FLANK_MIN
-		r.top_bar = Rect2(MARGIN, LANDSCAPE_TOP, w - 2 * MARGIN - MENU_LANDSCAPE.x - MENU_GAP, 68)
+		r.top_bar = Rect2(MARGIN, LANDSCAPE_TOP, w - 2 * MARGIN, 68)
 		var top := LANDSCAPE_TOP + 84.0
 		if r.fold:
 			r.fold_bar = Rect2(MARGIN, LANDSCAPE_TOP + 72.0, w - 2 * MARGIN, 68)

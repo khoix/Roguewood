@@ -45,6 +45,9 @@ extends RefCounted
 ##   campaign's names for House Oil and Dry Backend, and read as those);
 ## - conditions `left_side` (on a roll's own effects: that roll; elsewhere: any roll)
 ##   and `lane` (a list of lane condition ids; the match's lane is one of them).
+##
+## E18-C18 adds condition `accurate` (on a roll's own effects: that roll was graded
+## sweet or perfect; elsewhere: any roll was).
 const SCOPES = ["roll", "frame", "match", "run"]
 const OPS = ["add_value", "add_mult", "multiply_mult", "payout", "grow_value"]
 const V2_OPS = ["retrigger", "transform", "lose_mult"]
@@ -53,7 +56,7 @@ const MAX_SAFE_SCORE = 9007199254740991.0
 const MAX_RETRIGGERS := 8
 const HOUSE := "ball.house"
 const CONDITIONS := ["category", "match_frame", "standing_count", "curved", "all_house", "streak_min", "leave_min", "behind", "last_fallen",
-	"rebounded", "felled_curved", "first_hit", "left_side", "lane"]
+	"rebounded", "felled_curved", "first_hit", "left_side", "lane", "accurate"]
 const LANE_ALIASES := {"lane.house": "lane_condition.house_oil", "lane.dry": "lane_condition.dry_backend"}
 const PER_KINDS := ["growth", "retriggers", "fallen", "standing", "accurate", "fallen_at"]
 const DEFERRED := ["payout", "grow_value", "transform"]
@@ -91,7 +94,7 @@ static func resolve(frame: Dictionary) -> Dictionary:
 		"rolls": {}, "lane": lane_id(String(context.get("lane_condition", "lane.house")))}
 	for roll in rolls:
 		facts.rolls[int(roll.roll_index)] = {"curved": bool(roll.get("curved", false)), "rebounded": bool(roll.get("rebounded", false)), "first_direct": int(roll.get("first_direct", 0)),
-			"left_side": bool(roll.get("left_side", false))}
+			"left_side": bool(roll.get("left_side", false)), "accurate": GRADES[roll.accuracy] > 0}
 	for pin in pins:
 		var bucket: Dictionary = facts.fallen if fallen.has(int(pin.position)) else facts.standing
 		bucket[pin.item_id] = int(bucket.get(pin.item_id, 0)) + 1
@@ -171,7 +174,7 @@ static func _holds(effect: Dictionary, facts: Dictionary, owner: Dictionary = {}
 			"last_fallen":
 				var last: int = facts.last_fallen
 				if last == 0 or (int(owner.get("position", 0)) != last if wanted == "self" else facts.last_item != wanted): return false
-			"rebounded", "left_side":
+			"rebounded", "left_side", "accurate":
 				var did: bool = bool(facts.rolls.get(int(owner.roll_index), {}).get(key, false)) if owner.has("roll_index") \
 					else facts.rolls.values().any(func(r): return r[key])
 				if did != bool(wanted): return false
@@ -392,7 +395,7 @@ static func _validate_owner(owner: Dictionary, id_key: String, prefix: String, t
 					errors.append("condition.last_fallen is \"self\" on a pin (it fell last) or a pin item id")
 				if c.has("lane") and (not c.lane is Array or c.lane.is_empty() or not c.lane.all(func(l): return _lane_name(l))):
 					errors.append("condition.lane lists lane condition ids")
-				for key in ["curved", "all_house", "behind", "rebounded", "felled_curved", "first_hit", "left_side"]:
+				for key in ["curved", "all_house", "behind", "rebounded", "felled_curved", "first_hit", "left_side", "accurate"]:
 					if c.has(key) and typeof(c[key]) != TYPE_BOOL:
 						errors.append("condition.%s must be a boolean" % key)
 				for key in ["felled_curved", "first_hit"]:

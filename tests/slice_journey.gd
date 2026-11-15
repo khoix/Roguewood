@@ -207,7 +207,11 @@ func _run() -> void:
 	quit(0 if failures.is_empty() else 1)
 
 func _aim() -> void:
-	await _wait_for(func(): return lab.state == "aim" and lab.lane.state == "ready", "aim", ROLL_FRAMES)
+	await _wait_for(func(): return (lab.state == "aim" and lab.lane.state == "ready") or (lab.state == "intro" and lab.hud.intro.visible), "aim", ROLL_FRAMES)
+	if lab.state == "intro":
+		# UI-8: a boss introduction waits for the player, who presses Begin.
+		await _focus_accept(lab.hud.intro_button)
+		await _wait_for(func(): return lab.state == "aim" and lab.lane.state == "ready", "aim after the introduction", ROLL_FRAMES)
 
 ## An assist throw; spin is left as it is unless given.
 func _throw(shot: Array, spin: float = 0.0, set_spin: bool = true) -> Dictionary:

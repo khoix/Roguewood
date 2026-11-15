@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-11-15. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E22 IN_PROGRESS; E23–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). Wave 10 is merged by PR #22 (main `706767f`). Wave 11 is merged by PR #29 (main `f65d16f`). Wave 12 is merged by PR #30 (main `cd1cfc9`; the Neon League is live with its rivals and theme). **Wave 13 is open** (see "Wave 13 claims" and "Wave 13 progress"): UI-6, the owner's play notes, is done. The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
+Updated: 2026-11-15. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E22 IN_PROGRESS; E23–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). Wave 10 is merged by PR #22 (main `706767f`). Wave 11 is merged by PR #29 (main `f65d16f`). Wave 12 is merged by PR #30 (main `cd1cfc9`; the Neon League is live with its rivals and theme). **Wave 13 is closed except for UI-A5** (Codex's art-lead review of the title screen and icons; see "Wave 13 closed"); its PR to main waits for that and the owner's confirmation. **Wave 14 is claimed** (see "Wave 14 claims"). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
 
 ## Read first
 
@@ -288,6 +288,43 @@ Open: Wave 10 is merged (PR #22, main `706767f`). Base: `claude/roguewood-build`
 - **Owner actions:** play the Neon League on the phone; listen to its music; review the captures listed in docs/handoffs/WAVE12-CODEX.md (no phone or speaker trial has been run).
 - **Merge:** MERGED to main by PR #30 (`cd1cfc9`, 2026-11-14) after CI passed on `53ba01c` (Bootstrap run 43613842320); Bootstrap also passed on main (run 43631722839).
 
+## Wave 14 claims (coordinator: Claude, 2026-11-15)
+Open once Wave 13 is merged. Base: `claude/roguewood-build` at the "Wave 13 closed" commit. Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave14.md). Scope: docs/ROADMAP.md, the Wave 14 row and "League template" (wave a for Salvage).
+- **Claude:**
+  1. **E17-L03** (High; moved from Wave 13 by the owner, 2026-11-15): the Salvage League spec, as E17-L02 was for Neon.
+     - The League's eight Divisions, its three rivals and champion, their rules, its lanes, kit, rewards and specialist tags.
+     - The 28-item plan for its batches, and the definitions the spec itself needs.
+  2. **Salvage's rules and lane conditions** (High, as E18-C13 was for Neon): built and tested before any item uses them.
+- **Codex:**
+  1. **AV-N3** (DC-N3's six items; J03C17).
+  2. **AV-N4** (DC-N4's five items and the Controlled Curve ribbon; J03C18).
+  3. **AV-N5** (DC-N5's five items and the Both Halves and Rebound Rescue ribbons; J03C19).
+  - Each with native checks, artwork and effects flags, sounds and reduced-motion versions, as AV-N1 and AV-N2 were.
+  - Salvage's rivals and theme follow its spec (Wave 15).
+- **Owner:** play UI-8 on the phone, in particular dragging across Binder cards (no touchscreen in the test environment).
+
+## Wave 13 closed (coordinator, 2026-11-15)
+**Reopened for one Codex item (owner, 2026-11-15):** UI-A5, below. The record stands for everything else. The PR to main waits for UI-A5, its merge, the affected checks and the owner's confirmation; the closing note then follows here.
+- **Contents** (all on `claude/roguewood-build` at the "Wave 13 closed" commit):
+  - **Claude, merged early:** UI-6 and DC-N3 (PR #31, `fda0617`); UI-7 (PR #32, `82b9b2a`).
+  - **Claude, not on main yet:**
+    - DC-N4 (`2f95c13`) and DC-N5 (`2086e7d`): all 28 Neon items are landed;
+    - UI-8 (`27debf5`, `482faad`);
+    - the journeys' Begin press and `build/.gdignore` (`bd12b7b`).
+  - **Codex:** AV-N1, AV-N2, the Neon theme's tail and UI-A4 (`503dab6`, merged at `debb5e6`).
+- **Validation:**
+  - The full CI command list (240 commands: unit, content, integration, physics, smoke, export, the web journey, every journey headless and rendered, and the art tools) PASS locally on `482faad`, with three exceptions, each fixed in `bd12b7b` and re-run there, passing:
+    - J03C04 in both modes waited on a boss introduction that no longer advances by itself; the shared aim helpers now press Begin.
+    - J01 collided with `qa.py web` re-exporting `build/web` while it imported (only in the local runner, which runs three at once); `build/` is now ignored by Godot.
+  - An earlier run on `27debf5` caught a double tap breaking a quick arm and disarm (J04); `482faad` limits the double tap to the keep section.
+  - The physics digest `75d1a3c0…`, J03 560/240/70 and J05 21060 are unchanged.
+  - Since then only documentation changed (this record, the Wave 14 claims, the roadmap and docs/prompts/codex-wave14.md). CI runs on this commit.
+- **Not delivered in Wave 13:** E17-L03, the Salvage spec, which the owner moved to Wave 14.
+- **Owner actions:**
+  - Play UI-8 on the phone, the Binder's drag-scroll in particular.
+  - Look at the Neon items' new art (AV-N1, AV-N2) and the brand art (UI-A4).
+- **Merge:** pending, by the PR from `claude/roguewood-build` to main.
+
 ## Wave 13 claims (coordinator: Claude, 2026-11-14)
 Open: Wave 12 is merged (PR #30, main `cd1cfc9`). Base: `claude/roguewood-build` at the "Wave 12 closed" commit. Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave13.md). Scope: docs/ROADMAP.md, the Wave 13 row and "League template".
 - **Claude, in this order:**
@@ -296,6 +333,7 @@ Open: Wave 12 is merged (PR #30, main `cd1cfc9`). Base: `claude/roguewood-build`
 - **Codex:**
   1. **AV-N1** (DC-N1's six items; J03C15) and **AV-N2** (DC-N2's six items; J03C16), with native checks, artwork flags, effects and sound.
   2. **The tail of the Neon theme:** anything the live captures show is still developmental.
+  4. **UI-A5** (Medium; owner, 2026-11-15, after the close's matrix): an art-lead review of the title screen and the icons (the favicon, the apple-touch-icon, the boot splash and the title's composition). Codex makes the adjustments it recommends and makes the title a little more dynamic (reduced motion stays still). Done in Codex's existing Wave 13 session. No subtitle, and one action on the title. Prompt: docs/prompts/codex-wave13-ui-a5.md.
   3. **UI-A4** (Medium; owner, 2026-11-15): Roguewood's brand art in place of UI-7's provisional images, at the same paths: a logo for the title screen, the app icon (the source of the favicon and the apple-touch-icon), the boot splash, and optional title key art. No subtitle; the title keeps one action. Brief: handoffs/UI-7.md, "For Codex"; prompt: docs/prompts/codex-wave13-ui-a4.md.
   - AV-N3 onward follows DC-N3 to N5 as they land (Wave 14).
 - **Owner:** play the Neon League on the phone.
@@ -316,13 +354,44 @@ Open: Wave 12 is merged (PR #30, main `cd1cfc9`). Base: `claude/roguewood-build`
   - Dry Side, Lane Reader, Hook Shot, Line Call, Bounce Back and Straight Money, all initial from Division 1, each scored through the real FrameBuilder and played natively in J03C17.
   - Eighteen of Neon's 28 items are landed and its initial pool is complete. Left for DC-N4 and N5: two shop upgrades and the eight mastery items with their objectives.
   - **Hand-off to Codex (AV-N3, Wave 14):** the six items; J03C17 and its five captures.
-- **UI-7 DONE** (handoffs/UI-7.md), the owner's play notes of 2026-11-15, ahead of DC-N4:
+- **UI-7 DONE** (handoffs/UI-7.md), the owner's play notes of 2026-11-15, ahead of DC-N4. MERGED to main by PR #32 (`82b9b2a`, 2026-11-15) after CI passed on `254a921` (Bootstrap run 43687571749, both shards):
   - **A title screen** opens the game: the House hall at night, the ROGUEWOOD wordmark, the House Ball rolling, "Tap to start". A tap, click, key or gamepad button opens the Clubhouse; reduced motion keeps it still. It shows when the shell is the running scene (the real game); journeys that embed the shell open at the Clubhouse as before. J01, the web journey and the phone tour pass it with real input.
   - **The loading screen** is a Roguewood boot splash in place of Godot's logo, with a brass progress bar on the web page.
   - **Icons:** a project icon, from which the Web export writes the favicon and the 180 × 180 apple-touch-icon; the page head adds a theme colour and the home-screen name.
-  - **Provisional art**, composed from Codex's House Ball and House backdrop and the bundled font (tools/author_brand.py; ASSET-LEDGER.md, "UI-7"). **For Codex:** a logo, an app icon, a boot splash and optional title key art at the same paths (proposed UI-A4).
+  - **Provisional art**, composed from Codex's House Ball and House backdrop and the bundled font (tools/author_brand.py; ASSET-LEDGER.md, "UI-7"). **For Codex:** UI-A4 (added to the Wave 13 claims by the owner, 2026-11-15): a logo, an app icon, a boot splash and optional title key art at the same paths; the title uses a logo and key art when present (`254a921`).
   - Validation: J01 headless and rendered (the title first, passed with the accept key); the web journey in headless Chromium (the favicon, the 180 × 180 apple-touch-icon, the splash on the night background, the theme colour and home-screen name, a tap on the title opening the Clubhouse, then the throw, save and reload as before); unit, content, smoke, export, J02, J03 (560/240/70), J05 (21060), J07, J11, J22L02, J11ART and JUIA1 rendered: PASS. The phone tour now starts at the title (31 captures).
   - Validation: unit (mechanics_c17_test; counts 47 Charms, 8 tactical cards, a fresh binder 17 Locked and 80 Available), content, integration, physics (the side flag on real rolls; digest `75d1a3c0…` unchanged), J03C17 headless and rendered, and J03 (560/240/70), J05 (21060), J03C11, J03C15, J03C16, J06, J11, J22L01 and J22L02 headless: PASS. The full matrix runs at the wave's close.
+
+- **DC-N4 DONE** (handoffs/E18-C18.md; E17-D15 with E18-C18): Neon's two shop upgrades and the Controlled Curve mastery.
+  - New pieces: condition `accurate`, the Career metric `controlled_curves`, and upgrade kinds `sell_bonus` and `specialist_offer` (a shop slot 7, "Specialist"). Contracts in docs/CONTRACTS.md.
+  - Trade-In and Specialist Shelf (initial); Comet Ball, Metronome and Steady Hand, unlocked by **Controlled Curve** (three curved strikes released sweet or perfect in one attempt). mechanics_c18_test; J03C18 plays them in the Neon League.
+  - 23 of Neon's 28 items are landed. Left for DC-N5: the mastery pin and four mastery Charms, with their objective. All three tactical cards are in.
+  - **Hand-off to Codex (AV-N4, Wave 14):** the five items and the Controlled Curve ribbon; J03C18 and its two captures.
+  - Validation: unit (mechanics_c18_test; counts 48 Charms, 10 balls, 9 tactical cards, 8 upgrades; a fresh binder 20 Locked and 82 Available; 4 objectives and 16 gates), content, integration, physics (digest `75d1a3c0…` unchanged), J03C18 headless and rendered, J03C07 (both modes), and J03 (560/240/70), J05 (21060), J06, J08A02, J09, J10, J11, J03C15, J03C16, J03C17, J22L01 and J22L02 headless: PASS.
+  - Two journeys updated for the shared catalogue: J03C07 (once every House upgrade is owned, Division 2's License now offers Trade-In; Specialist Shelf never appears without specialists) and J10 (the Career line reads "0/4 mastery goals").
+
+- **DC-N5 DONE** (handoffs/E18-C19.md; E17-D16 with E18-C19): Neon's last five items, all mastery rewards. **All 28 Neon items are landed.**
+  - Objectives: **Both Halves** (on Two-Tone, strike from each half in one attempt; metric `two_tone_halves`) unlocks Compass Pin, Split Pattern, Dry Run and Long Game; **Rebound Rescue** (three rebounds turned into a spare or strike, Career-wide; metric `rescues`) unlocks Second Chance.
+  - mechanics_c19_test; J03C19 plays all five natively (Two-Tone and Long Oil set by fixture in Practice; a Bumper Guard rescue made into a spare).
+  - **Hand-off to Codex (AV-N5, Wave 14):** the five items and the two ribbons; J03C19 and its four captures.
+  - Validation: unit (mechanics_c19_test; 52 Charms, 13 pins; a fresh binder 25 Locked and 82 Available; 6 objectives and 18 gates), content, integration, J03C19 headless and rendered, and J03 (560/240/70), J05 (21060), J03C07, J03C15, J03C17, J03C18, J06, J09, J10 (the Career line reads "0/6 mastery goals"), J11, J22L01 and J22L02 headless: PASS. The full matrix runs at the wave's close.
+- **Codex's Wave 13 work, integrated** (merge of `503dab6`; handoffs/WAVE13-CODEX.md): every Codex Wave 13 claim is DONE.
+  - **AV-N1 and AV-N2:** identity art, in-play looks, activation, sound and reduced-motion versions for the first twelve Neon items, with their artwork and effects flags. New journeys JAVN1, JAVN1C, JAVN1BC, JAVN2, JAVN2C and JAVN2BC run in the art shard.
+  - **E22-L02-ART tail:** authored kickback and cushion panels in Neon's rooms.
+  - **UI-A4:** Roguewood's logo, app icon and boot splash at UI-7's paths. The title shows the logo, and the favicon and apple-touch-icon come from the new icon; the House backdrop stays as the title art.
+  - One conflict, in tests/run_tests.gd: Codex's three art tests and the C18 and C19 mechanics tests are both kept.
+  - Validation on the merge: unit, content, physics (digest `75d1a3c0…` unchanged), J01 in both modes, the web journey, JAVN1 and JAVN2 in both modes, JAVN1C, JAVN1BC, JAVN2C and JAVN2BC rendered, J03C15 to J03C19 headless (J03C19 also rendered), J22L02 in both modes, J22L02LIVEART rendered, J03 (560/240/70), J05 (21060) and J11: PASS.
+  - Open, from Codex: the landscape phone tour prints a one-resource shutdown warning after finishing (a capture tool, not a test).
+- **UI-8 DONE** (handoffs/UI-8.md), the owner's play notes of 2026-11-15, before the wave closes:
+  - **Board width:** the board's column keeps the page's width whatever League is chosen.
+  - **Keep section:** choosing a card to keep, the hand has no Cycle or Inspect button and its cards fill the section; a long press or, in that section only, a double tap inspects.
+  - **Frame log:** its text is sized to the review's width.
+  - **Top bar:** the session menu button sits inside it, so the bar spans the screen.
+  - **Binder:** the categories are tabs; a tapped card opens a preview over the page (UI-6's footer is gone); a drag that starts on a card scrolls the page.
+  - **Boss introduction:** it waits for the player.
+  - **End screen:** sections (a headline, tiles, rewards, goals, match chips per Division, notes) in place of a wall of text.
+  - Validation: unit, J01, J03C13, J03C17 (both modes; the keep section and a double tap), J06 (the introduction waits seven seconds, then the button starts the match), J11 (the preview, the tabs and the scroll guard), J22L02 (both modes; the end screen's sections) and the phone tour in both orientations: PASS. The full matrix for the wave's close follows.
+- **Next (Claude):** see "Wave 13 closed" and "Wave 14 claims".
 
 ## Wave 12 claims (coordinator: Claude, 2026-11-10)
 Open: Wave 11 is merged (PR #29, main `f65d16f`). Base: `claude/roguewood-build` at the "Wave 12 claims" commit (it adds UI-5 to the claims written at the close). Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave12.md). Scope: docs/ROADMAP.md, the Wave 12 row and "GUI review: UI-4".

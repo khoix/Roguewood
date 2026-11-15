@@ -228,7 +228,7 @@ func sale_value(ref: String) -> int:
 	var value := Economy.sale_value(int(entry.paid), int(item(entry.item_id).get("resale_price", 0)))
 	if not String(entry.mod).is_empty():
 		value += Economy.sale_value(int(entry.mod_paid), int(item(entry.mod).get("resale_price", 0)))
-	return value
+	return Upgrades.sale(value, int(entry.paid) + int(entry.get("mod_paid", 0)), self) # Trade-In (E18-C18)
 
 ## Rack pins hold the lineup, so they are replaced or swapped, never sold empty.
 ## Shop upgrades are kept for the attempt.
