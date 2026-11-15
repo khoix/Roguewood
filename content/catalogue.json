@@ -5404,6 +5404,342 @@
         "unlock_assigned": true,
         "integrated": false
       }
+    },
+    {
+      "id": "charm.dry_side",
+      "name": "Dry Side",
+      "category": "charm",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 4,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "add_mult",
+          "amount": 4,
+          "trigger": "charm",
+          "scope": "frame",
+          "condition": {
+            "left_side": true
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Only a line left of the centre board at 34 ft counts; a ball that stays on the right, as most hooks into the pocket do, earns nothing.",
+      "synergy_tags": [
+        "lane",
+        "side",
+        "mult",
+        "two_tone"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.lane_reader",
+      "name": "Lane Reader",
+      "category": "charm",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 6,
+      "resale_price": 3,
+      "effects": [
+        {
+          "op": "multiply_mult",
+          "amount": 1.5,
+          "trigger": "charm",
+          "scope": "frame",
+          "condition": {
+            "category": [
+              "strike"
+            ],
+            "lane": [
+              "lane_condition.long_oil",
+              "lane_condition.two_tone",
+              "lane_condition.dry_backend"
+            ]
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Nothing on House Oil, which is every opener and most matches; it only pays on a feature or boss lane.",
+      "synergy_tags": [
+        "lane",
+        "strike",
+        "mult",
+        "oil"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "consumable.hook_shot",
+      "name": "Hook Shot",
+      "category": "consumable",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 3,
+      "resale_price": 1,
+      "effects": [],
+      "physics": {
+        "spin_response": 1.5
+      },
+      "limits": {
+        "max_owned": 2,
+        "charges": 1,
+        "exhaustion": "consume"
+      },
+      "downside": "One throw only, and a bigger hook is easier to miss with: under Narrow Lane it carries a wide line off the edge sooner.",
+      "synergy_tags": [
+        "tactical",
+        "curve",
+        "hook"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "consumable.line_call",
+      "name": "Line Call",
+      "category": "consumable",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 3,
+      "resale_price": 1,
+      "effects": [
+        {
+          "op": "add_mult",
+          "amount": 4,
+          "trigger": "ball",
+          "scope": "roll",
+          "condition": {
+            "curved": false
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 2,
+        "charges": 1,
+        "exhaustion": "consume"
+      },
+      "downside": "Any curved roll in the frame wastes it, the other roll of the frame included.",
+      "synergy_tags": [
+        "tactical",
+        "straight",
+        "mult"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.bounce_back",
+      "name": "Bounce Back",
+      "category": "charm",
+      "rarity": "common",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 4,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "payout",
+          "amount": 3,
+          "trigger": "charm",
+          "scope": "frame",
+          "condition": {
+            "rebounded": true
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Only a rebound off the gutter edge pays, and only Bumper Guard gives one: without it the Charm does nothing.",
+      "synergy_tags": [
+        "gutter",
+        "money",
+        "rebound"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "charm.straight_money",
+      "name": "Straight Money",
+      "category": "charm",
+      "rarity": "uncommon",
+      "pool_weight": 1,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 5,
+      "resale_price": 2,
+      "effects": [
+        {
+          "op": "payout",
+          "amount": 2,
+          "trigger": "charm",
+          "scope": "frame",
+          "condition": {
+            "category": [
+              "strike"
+            ],
+            "curved": false
+          }
+        }
+      ],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "A curved strike pays nothing, and so does every spare: it is money for a straight game only.",
+      "synergy_tags": [
+        "straight",
+        "money",
+        "precision",
+        "strike"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
     }
   ]
 }

@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "batch": "E17-D14",
+  "status": "landed",
+  "note": "Neon League items, batch 3 of 5 (DC-N3): the rest of the opening pool, written and landed together by E18-C17. Four Charms and two tactical cards, all initial from Division 1. Dry Side reads the side of the lane the ball rolled (roll.left_side), Lane Reader the match's lane (condition.lane) and Hook Shot is a one-throw hook scale (tactical.hook_scale); the others use existing rule pieces. Amounts and prices are provisional (E24).",
+  "definitions": [],
+  "landed": [
+    {
+      "id": "charm.dry_side",
+      "landed_in": "E18-C17",
+      "design": {
+        "trigger": "+4 Mult when a roll in the frame was left of the centre board where it crossed 34 ft (the line where Two-Tone's left oil ends). Nothing for a ball that stayed on the right.",
+        "primitives": [
+          "roll.left_side",
+          "condition.left_side"
+        ],
+        "pool": "Shop Charm slot; initial pool from Division 1.",
+        "presentation_needs": "A split lane strip, its left half lit, that marks the ball's side as it passes 34 ft; the Mult shows in the explanation.",
+        "asset_ids": {
+          "icon": "icon.charm.dry_side",
+          "card": "card.charm.dry_side",
+          "rarity_treatment": "rarity_treatment.charm.dry_side",
+          "activation": "activation.charm.dry_side",
+          "sound": "sound.charm.dry_side",
+          "reduced_motion": "reduced_motion.charm.dry_side"
+        }
+      }
+    },
+    {
+      "id": "charm.lane_reader",
+      "landed_in": "E18-C17",
+      "design": {
+        "trigger": "×1.5 Mult on a strike when the match's lane is not House Oil (Long Oil, Two-Tone or Dry Backend). Nothing on House Oil, and nothing on a spare or an open frame.",
+        "primitives": [
+          "context.lane_condition",
+          "condition.lane"
+        ],
+        "pool": "Shop Charm slot; initial pool from Division 1.",
+        "presentation_needs": "An oil-pattern chart that shows the match's lane and lights on a strike off House Oil.",
+        "asset_ids": {
+          "icon": "icon.charm.lane_reader",
+          "card": "card.charm.lane_reader",
+          "rarity_treatment": "rarity_treatment.charm.lane_reader",
+          "activation": "activation.charm.lane_reader",
+          "sound": "sound.charm.lane_reader",
+          "reduced_motion": "reduced_motion.charm.lane_reader"
+        }
+      }
+    },
+    {
+      "id": "consumable.hook_shot",
+      "landed_in": "E18-C17",
+      "design": {
+        "trigger": "Played with a throw: that roll's charge hooks 1.5× as far, on top of the ball and any modification. The card is spent with the throw, whatever it knocks down.",
+        "primitives": [
+          "tactical.hook_scale"
+        ],
+        "pool": "Shop tactical slot; initial pool from Division 1.",
+        "presentation_needs": "A curved arrow that stretches over the aim guide while the card is armed; the guide bends further.",
+        "asset_ids": {
+          "icon": "icon.consumable.hook_shot",
+          "card": "card.consumable.hook_shot",
+          "rarity_treatment": "rarity_treatment.consumable.hook_shot",
+          "activation": "activation.consumable.hook_shot",
+          "sound": "sound.consumable.hook_shot",
+          "reduced_motion": "reduced_motion.consumable.hook_shot"
+        }
+      }
+    },
+    {
+      "id": "consumable.line_call",
+      "landed_in": "E18-C17",
+      "design": {
+        "trigger": "Played with a throw: +4 Mult when no roll in the frame was curved. A curved roll in the frame, either one, and it gives nothing; the card is spent either way.",
+        "primitives": [],
+        "pool": "Shop tactical slot; initial pool from Division 1.",
+        "presentation_needs": "A straight chalk line drawn down the lane while the card is armed; it holds if the frame stays straight.",
+        "asset_ids": {
+          "icon": "icon.consumable.line_call",
+          "card": "card.consumable.line_call",
+          "rarity_treatment": "rarity_treatment.consumable.line_call",
+          "activation": "activation.consumable.line_call",
+          "sound": "sound.consumable.line_call",
+          "reduced_motion": "reduced_motion.consumable.line_call"
+        }
+      }
+    },
+    {
+      "id": "charm.bounce_back",
+      "landed_in": "E18-C17",
+      "design": {
+        "trigger": "+$3 after the frame banks when a roll in it rebounded off the gutter edge (Bumper Guard). Nothing in a frame without a rebound.",
+        "primitives": [],
+        "pool": "Shop Charm slot; initial pool from Division 1.",
+        "presentation_needs": "A coin that springs off a bumper when a rebound happens; the payout shows in the explanation.",
+        "asset_ids": {
+          "icon": "icon.charm.bounce_back",
+          "card": "card.charm.bounce_back",
+          "rarity_treatment": "rarity_treatment.charm.bounce_back",
+          "activation": "activation.charm.bounce_back",
+          "sound": "sound.charm.bounce_back",
+          "reduced_motion": "reduced_motion.charm.bounce_back"
+        }
+      }
+    },
+    {
+      "id": "charm.straight_money",
+      "landed_in": "E18-C17",
+      "design": {
+        "trigger": "+$2 after the frame banks when it is a strike with no curved roll. Nothing for a curved strike, a spare or an open frame.",
+        "primitives": [],
+        "pool": "Shop Charm slot; initial pool from Division 1.",
+        "presentation_needs": "A banknote folded into a straight crease; it pays out on a straight strike.",
+        "asset_ids": {
+          "icon": "icon.charm.straight_money",
+          "card": "card.charm.straight_money",
+          "rarity_treatment": "rarity_treatment.charm.straight_money",
+          "activation": "activation.charm.straight_money",
+          "sound": "sound.charm.straight_money",
+          "reduced_motion": "reduced_motion.charm.straight_money"
+        }
+      }
+    }
+  ]
+}

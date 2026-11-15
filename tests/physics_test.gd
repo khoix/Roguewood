@@ -201,7 +201,9 @@ func _neon(tree: SceneTree, fixtures: Array) -> void:
 		["neon.drift", rack_of([7]), drift, 0],
 		["neon.drift_narrow", rack_of([7]), drift, 0, narrow],
 		["neon.strobe", full, strobe_ring, 0, {"zone_scale": 0.5}],
-		["neon.strobe_off", full, strobe_ring, 0]])
+		["neon.strobe_off", full, strobe_ring, 0],
+		["neon.left_line", full, launch_of({"start_x": -0.5, "angle_deg": 0.0, "power": 0.6}, "left_line"), 0, {}, Lane.TWO_TONE],
+		["neon.right_line", full, launch_of({"start_x": 0.5, "angle_deg": 0.0, "power": 0.6}, "right_line"), 0, {}, Lane.TWO_TONE]])
 	var hook := func(key: String) -> float: return curve_of(results.get(key, {})) if results.has(key) else NAN
 	var base: float = hook.call("curve_right_50#0")
 	var left: float = hook.call("curve_left_50#0")
@@ -220,6 +222,11 @@ func _neon(tree: SceneTree, fixtures: Array) -> void:
 		var scale := 0.5 if key == "neon.strobe" else 1.0
 		_check(not r.is_empty() and r.roll_result.accuracy == Lane.grade_accuracy(r.knockdown_log.target_crossed, r.knockdown_log.target_offset - r.launch.target_x, r.launch.ring_radius, scale),
 			"%s grades with zone scale %.1f" % [key, scale])
+	# E18-C17: the log says when the ball was left of the centre board at 34 ft, and
+	# only then (so older logs and the digest are unchanged).
+	var left_log: Dictionary = results.get("neon.left_line", {}).get("knockdown_log", {})
+	var right_log: Dictionary = results.get("neon.right_line", {}).get("knockdown_log", {})
+	_check(left_log.get("left_side", false) == true and not right_log.is_empty() and not right_log.has("left_side"), "a line left of the centre board at 34 ft is logged as left_side; a right line is not")
 	print("PHYSICS neon slick=%.3f long_oil=%.3f base=%.3f two_tone_left=%.3f left=%.3f strobe=%s off=%s" % [hook.call("neon.slick"), hook.call("neon.long_oil"), base, hook.call("neon.two_tone_left"), left,
 		results.get("neon.strobe", {}).get("roll_result", {}).get("accuracy"), results.get("neon.strobe_off", {}).get("roll_result", {}).get("accuracy")])
 

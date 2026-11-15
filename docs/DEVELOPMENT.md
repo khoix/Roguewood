@@ -259,7 +259,7 @@ E18-C01 landed six D02 Charms (Pin Counter, Hot Streak, Last Stand, Tip Jar, Ban
 
 ## GUI review tour (UI-4)
 
-`tools/capture_phone_tour.gd` walks the real game at a phone-shaped window and saves a capture of every screen of a first attempt (the Clubhouse tabs, aim, Options, the roll view, scoring, the shop, the result). It asserts nothing; it exists so a person or an agent can look at every screen at the size a phone draws it. Journeys capture at 450×800; the tour's default is 780×1688, an iPhone 13 Pro's shape.
+`tools/capture_phone_tour.gd` walks the real game at a phone-shaped window and saves a capture of every screen of a first attempt (the title screen, the Clubhouse tabs, aim, Options, the roll view, scoring, the shop, the result). It asserts nothing; it exists so a person or an agent can look at every screen at the size a phone draws it. Journeys capture at 450×800; the tour's default is 780×1688, an iPhone 13 Pro's shape.
 
 ```sh
 xvfb-run -a -s "-screen 0 1700x3000x24" "$GODOT_BIN" --audio-driver Dummy --fixed-fps 60 --path . \

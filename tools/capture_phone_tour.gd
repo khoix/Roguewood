@@ -105,9 +105,15 @@ func _run() -> void:
 	if landscape: size = Vector2i(size.y, size.x)
 	DirAccess.make_dir_recursive_absolute(artifact_dir)
 	root.size = size
-	scene = load("res://src/bootstrap/bootstrap.tscn").instantiate()
-	root.add_child(scene)
+	# Started as the engine starts the game, so the title screen comes first (UI-7).
+	change_scene_to_file("res://src/bootstrap/bootstrap.tscn")
 	await _settle(30)
+	scene = current_scene
+	await _capture("title")
+	scene.title.start.grab_focus()
+	await _action("ui_accept")
+	await _wait_for(func(): return scene.screen == "menu" and not scene.title.visible)
+	await _settle(10)
 	# The Clubhouse: every tab, top and bottom.
 	await _capture("board")
 	var club: Control = scene.clubhouse

@@ -777,7 +777,8 @@ func card_rules(thrown: Dictionary = {}) -> Dictionary:
 	if not RivalRules.ball_allowed(active_rules(), ball_id):
 		return {} # House Rules throws the House Ball in the card's place
 	var used: bool = frame_reports.any(func(r): return bool(r.knockdown_log.get("rebounded", false)))
-	return ItemPhysics.roll_rules(run.item(ball_id), run.item(mod_id) if not mod_id.is_empty() else {}, used)
+	var tactic_id: String = String(thrown.get("tactical", _item_of(armed_tactical) if not armed_tactical.is_empty() else ""))
+	return ItemPhysics.roll_rules(run.item(ball_id), run.item(mod_id) if not mod_id.is_empty() else {}, used, run.item(tactic_id) if not tactic_id.is_empty() else {})
 
 ## Strobe's narrowed ring zones (1.0 otherwise), for the ring's colour.
 func zone_scale() -> float:
@@ -897,7 +898,8 @@ func _commit(launch: Dictionary, source: String) -> void:
 func _resume_commit(pending: Dictionary) -> void:
 	# The same card physics as when it was thrown, from the saved input.
 	var saved: Dictionary = pending.get("input", {}).get("equipment", {})
-	_arm_lane_rules({"ball_id": String(pending.launch.get("ball_id", HOUSE)), "mod": String(saved.get("mod", "")) if saved.get("mod") != null else ""})
+	_arm_lane_rules({"ball_id": String(pending.launch.get("ball_id", HOUSE)), "mod": String(saved.get("mod", "")) if saved.get("mod") != null else "",
+		"tactical": String(saved.get("tactical", "")) if saved.get("tactical") != null else ""})
 	var errors := lane.commit(pending.launch)
 	if not errors.is_empty():
 		push_error("Saved launch rejected on resume: " + str(errors))
@@ -994,7 +996,7 @@ func _advance() -> void:
 ## and the match score against its target (0 in Practice, which has none).
 func frame_context() -> Dictionary:
 	return {"match_frame": match_frame, "strike_streak": run.strike_streak, "match_score": division.match_score,
-		"match_target": 0 if division.practice else division.target()}
+		"match_target": 0 if division.practice else division.target(), "lane_condition": lane.lane_condition if lane != null else "lane.house"}
 
 ## Scores the completed frame from its roll reports and plays the explanation.
 func _score_frame() -> void:

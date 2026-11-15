@@ -38,6 +38,9 @@ func snapshot() -> Dictionary:
 	var to_window := view.get_final_transform()
 	var out := {"screen": shell.screen, "fps": Engine.get_frames_per_second(), "window": [view.get_visible_rect().size.x, view.get_visible_rect().size.y],
 		"saved": bool(shell._saved_attempt().ok)}
+	# UI-7: the title screen, while it is up (its start is the whole screen).
+	var title: Control = shell.title
+	out.title = {"visible": title != null and title.is_visible_in_tree(), "at": _point(to_window * title.get_global_rect().get_center()) if title != null else [0, 0]}
 	for pair in [["enter", shell.enter], ["continue", shell.continue_button]]:
 		var button: Button = pair[1]
 		out[pair[0]] = {"visible": button.is_visible_in_tree(), "at": _point(to_window * button.get_global_rect().get_center())}

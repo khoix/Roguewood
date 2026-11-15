@@ -1012,3 +1012,21 @@ JAVN1C, JAVN1BC, native shop/host/Binder/reward captures, and exact event
 projection tests. See `docs/handoffs/AV-N1.md` for final validation and limits.
 Captures are ignored output and never committed. AV-N2 and the theme tail
 remain separate work; this record does not mark them complete.
+
+## UI-7 — provisional brand images (coordinator, 2026-11-15)
+
+- `assets/brand/icon.png` (512×512, opaque) and `assets/brand/splash.png`
+  (720×560, opaque), written by `tools/author_brand.py`. The project icon becomes
+  the Web favicon and apple-touch-icon (180×180) at export; the splash is the
+  boot splash on the web loading page and at engine start-up, in place of
+  Godot's logo (owner's play notes, docs/handoffs/UI-7.md).
+- Sources, all already in the repository: the House Ball illustration
+  (`assets/items/balls/a01-source.png`, region 0,0–640,640, Codex, AV-H1) and the
+  bundled Pixelify Sans derivative (OFL 1.1, entries UI-A1, UI-A3 and UI-6). The
+  lane-wood boards, the lettering treatment (brass, ink outline, walnut shadow)
+  and the composition are drawn by the script. No donor image, font or generated
+  illustration is introduced.
+- The in-game title screen (`src/bootstrap/title_screen.gd`) composes Codex's House
+  Division 1 backdrop and the House Ball at runtime; it adds no asset.
+- Provisional: Codex's final logo, icon, splash and title key art replace these
+  by the same paths (handoff UI-7, "For Codex").
