@@ -293,7 +293,7 @@ Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build`
 - **Claude:**
   1. **E17-L03** (High; moved from Wave 13 by the owner, 2026-11-15): the Salvage League spec, as E17-L02 was for Neon.
      - The League's eight Divisions, its three rivals and champion, their rules, its lanes, kit, rewards and specialist tags.
-     - The 28-item plan for its batches, and the definitions the spec itself needs.
+     - The 33-item plan for its batches (the ROADMAP's Salvage bundle), and the definitions the spec itself needs.
   2. **Salvage's rules and lane conditions** (High, as E18-C13 was for Neon): built and tested before any item uses them.
 - **Codex:**
   1. **AV-N3** (DC-N3's six items; J03C17).
@@ -302,6 +302,10 @@ Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build`
   - Each with native checks, artwork and effects flags, sounds and reduced-motion versions, as AV-N1 and AV-N2 were.
   - Salvage's rivals and theme follow its spec (Wave 15).
 - **Owner:** play UI-8 on the phone, in particular dragging across Binder cards (no touchscreen in the test environment).
+
+## Wave 14 progress
+- **E17-L03 DONE** (handoffs/E17-L03.md): content/leagues/salvage.json (eight Divisions; Miser Moll, Grimewell and Scrapjack recurring; Scrapjack, Salvage Champion, with Rust plus Dull Pins on Grit; open from the start, opening Foundry); E17-D17 (Grit, Warped Boards, the Salvage Kit); the 33-item plan. `qa.py content` and `unit` PASS.
+- **Next (Claude):** Salvage's rules and lane conditions (Frugal House, Dull Pins, Rust; Grit, Warped Boards).
 
 ## Wave 13 closed (coordinator, 2026-11-15)
 **UI-A5, added after the close's matrix (owner, 2026-11-15), is DONE and merged** (Codex `09f2816`; handoffs/UI-A5.md).

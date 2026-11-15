@@ -1,0 +1,511 @@
+{
+  "schema_version": 1,
+  "id": "league.salvage",
+  "name": "Salvage League",
+  "batch": "E17-L03",
+  "status": "authored",
+  "note": "Salvage League spec (E17-L03): eight Divisions, open from the start like the House and Neon Leagues. Its pressure is the build itself: material interactions, modifications, and deciding what to repair or replace. Its bosses each take one support away (Miser Moll's Frugal House the payouts, Grimewell's Dull Pins half of every pin's Value, Scrapjack's Rust every modification), so Charms, Mult and strong base equipment are the counterplay. The champion is Scrapjack with Rust plus Dull Pins on Grit. Targets follow the House League's curve and are provisional until E24. Openers keep House Oil; features from Division 2 and bosses play the listed lane. The rivals' first-clear items are chosen in the Salvage item batches; their gates are named here and registered when the League goes live.",
+  "access": [],
+  "rivals_recur": true,
+  "lanes": [
+    "lane_condition.house_oil",
+    "lane_condition.grit",
+    "lane_condition.warped_boards"
+  ],
+  "specialists": {
+    "tags": [
+      "material",
+      "modification",
+      "repair",
+      "rack",
+      "economy"
+    ],
+    "weight": 2,
+    "note": "Provisional until E24: an item with one of these tags counts twice in the shop's pick within its category and rarity. Nothing is excluded."
+  },
+  "kits": [
+    {
+      "id": "kit.salvage",
+      "name": "Salvage Kit",
+      "unlock": "initial",
+      "pins": [
+        "pin.wood",
+        "pin.wood",
+        "pin.wood",
+        "pin.wood",
+        "pin.wood",
+        "pin.wood",
+        "pin.tin",
+        "pin.tin",
+        "pin.rubber",
+        "pin.rubber"
+      ],
+      "deck": [
+        "ball.hammer",
+        "ball.hammer",
+        "ball.hook",
+        "ball.hook",
+        "ball.spare_ball",
+        "ball.spare_ball"
+      ],
+      "money": 8
+    }
+  ],
+  "championship": {
+    "gates": [
+      "gate.salvage_champion"
+    ],
+    "opens": "league.foundry"
+  },
+  "divisions": [
+    {
+      "schema_version": 1,
+      "division": 1,
+      "name": "Salvage League · Division 1",
+      "frames_per_match": 2,
+      "matches": [
+        {
+          "id": "match.salvage_d1_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 300
+        },
+        {
+          "id": "match.salvage_d1_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 500
+        },
+        {
+          "id": "match.salvage_d1_boss",
+          "kind": "boss",
+          "name": "Boss",
+          "target": 800,
+          "rival": "rival.miser_moll",
+          "lanes": [
+            "lane_condition.house_oil"
+          ]
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.miser_moll",
+          "name": "Miser Moll",
+          "initials": "MM",
+          "rule": "boss_rule.frugal_house",
+          "intro": "Miser Moll keeps the till under the counter and the key on a string. Under Frugal House your items pay nothing in her match: Gold pins, Tip Jar and every other payout go quiet. Match pay and interest still come, and every point still counts, so bank the score and let the money wait.",
+          "first_clear": {
+            "unlocks": [
+              "gate.miser_moll_cleared"
+            ],
+            "text": "A Salvage item joins the shop pool from your next attempt."
+          },
+          "reactions": {
+            "entrance": "Every coin in this yard is spoken for, love. Yours included.",
+            "confident": "Nothing for nothing. That's the house rate.",
+            "impressed": "Hm. Scoring without a penny in it. Rare.",
+            "threatened": "Now that's a lot of points for a pauper.",
+            "defeated": "Take your clear, then. Mind it doesn't cost you.",
+            "victorious": "Broke and beaten. Come back when you've saved up."
+          }
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "division": 2,
+      "name": "Salvage League · Division 2",
+      "frames_per_match": 2,
+      "matches": [
+        {
+          "id": "match.salvage_d2_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 1100
+        },
+        {
+          "id": "match.salvage_d2_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 1600,
+          "lanes": [
+            "lane_condition.grit"
+          ]
+        },
+        {
+          "id": "match.salvage_d2_boss",
+          "kind": "boss",
+          "name": "Boss",
+          "target": 2400,
+          "rival": "rival.grimewell",
+          "lanes": [
+            "lane_condition.house_oil"
+          ]
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.grimewell",
+          "name": "Grimewell",
+          "initials": "GW",
+          "rule": "boss_rule.dull_pins",
+          "intro": "Grimewell never cleans a pin; he says the grime is character. Under Dull Pins every pin's Value is halved in his match, its own and any it copies. Charm Value and every Mult are untouched, so a Mult build shrugs the grime off.",
+          "first_clear": {
+            "unlocks": [
+              "gate.grimewell_cleared"
+            ],
+            "text": "A Salvage item joins the shop pool from your next attempt."
+          },
+          "reactions": {
+            "entrance": "Lovely and filthy, these. Just how I like 'em.",
+            "confident": "Half the shine, half the score.",
+            "impressed": "Didn't need the polish, did you.",
+            "threatened": "Here, who's been wiping my pins?",
+            "defeated": "Fine. Scrub 'em if you must. Take the lane.",
+            "victorious": "Grime wins again. It always does."
+          }
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "division": 3,
+      "name": "Salvage League · Division 3",
+      "frames_per_match": 2,
+      "matches": [
+        {
+          "id": "match.salvage_d3_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 2700
+        },
+        {
+          "id": "match.salvage_d3_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 3700,
+          "lanes": [
+            "lane_condition.warped_boards"
+          ]
+        },
+        {
+          "id": "match.salvage_d3_boss",
+          "kind": "boss",
+          "name": "Boss",
+          "target": 5000,
+          "rival": "rival.scrapjack",
+          "lanes": [
+            "lane_condition.warped_boards"
+          ]
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.scrapjack",
+          "name": "Scrapjack",
+          "initials": "SJ",
+          "rule": "boss_rule.rust",
+          "intro": "Scrapjack strips anything that isn't welded down. Under Rust every modification on your balls and pins is switched off for his match; the balls and pins under them still work, and Charms are untouched. A strong base ball or pin carries this lane.",
+          "first_clear": {
+            "unlocks": [
+              "gate.scrapjack_cleared"
+            ],
+            "text": "A Salvage item joins the shop pool from your next attempt."
+          },
+          "reactions": {
+            "entrance": "Nice bolt-ons. Shame about the rust.",
+            "confident": "See? Strip it back and there's nothing there.",
+            "impressed": "Hah. Bare metal and still rolling.",
+            "threatened": "Hold on, that one's not even modded.",
+            "defeated": "Clean work. The yard's yours.",
+            "victorious": "Rust takes everything in the end. Even you."
+          }
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "division": 4,
+      "name": "Salvage League · Division 4",
+      "frames_per_match": 2,
+      "matches": [
+        {
+          "id": "match.salvage_d4_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 5600
+        },
+        {
+          "id": "match.salvage_d4_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 7200,
+          "lanes": [
+            "lane_condition.grit"
+          ]
+        },
+        {
+          "id": "match.salvage_d4_boss",
+          "kind": "boss",
+          "name": "Boss",
+          "target": 9000,
+          "rival": "rival.miser_moll",
+          "lanes": [
+            "lane_condition.grit"
+          ]
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.miser_moll",
+          "name": "Miser Moll",
+          "initials": "MM",
+          "rule": "boss_rule.frugal_house",
+          "intro": "Miser Moll keeps the till under the counter and the key on a string. Under Frugal House your items pay nothing in her match: Gold pins, Tip Jar and every other payout go quiet. Match pay and interest still come, and every point still counts, so bank the score and let the money wait.",
+          "first_clear": {
+            "unlocks": [
+              "gate.miser_moll_cleared"
+            ],
+            "text": "A Salvage item joins the shop pool from your next attempt."
+          },
+          "reactions": {
+            "entrance": "Every coin in this yard is spoken for, love. Yours included.",
+            "confident": "Nothing for nothing. That's the house rate.",
+            "impressed": "Hm. Scoring without a penny in it. Rare.",
+            "threatened": "Now that's a lot of points for a pauper.",
+            "defeated": "Take your clear, then. Mind it doesn't cost you.",
+            "victorious": "Broke and beaten. Come back when you've saved up."
+          }
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "division": 5,
+      "name": "Salvage League · Division 5",
+      "frames_per_match": 2,
+      "matches": [
+        {
+          "id": "match.salvage_d5_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 10000
+        },
+        {
+          "id": "match.salvage_d5_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 12500,
+          "lanes": [
+            "lane_condition.warped_boards"
+          ]
+        },
+        {
+          "id": "match.salvage_d5_boss",
+          "kind": "boss",
+          "name": "Boss",
+          "target": 15000,
+          "rival": "rival.grimewell",
+          "lanes": [
+            "lane_condition.warped_boards"
+          ]
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.grimewell",
+          "name": "Grimewell",
+          "initials": "GW",
+          "rule": "boss_rule.dull_pins",
+          "intro": "Grimewell never cleans a pin; he says the grime is character. Under Dull Pins every pin's Value is halved in his match, its own and any it copies. Charm Value and every Mult are untouched, so a Mult build shrugs the grime off.",
+          "first_clear": {
+            "unlocks": [
+              "gate.grimewell_cleared"
+            ],
+            "text": "A Salvage item joins the shop pool from your next attempt."
+          },
+          "reactions": {
+            "entrance": "Lovely and filthy, these. Just how I like 'em.",
+            "confident": "Half the shine, half the score.",
+            "impressed": "Didn't need the polish, did you.",
+            "threatened": "Here, who's been wiping my pins?",
+            "defeated": "Fine. Scrub 'em if you must. Take the lane.",
+            "victorious": "Grime wins again. It always does."
+          }
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "division": 6,
+      "name": "Salvage League · Division 6",
+      "frames_per_match": 2,
+      "matches": [
+        {
+          "id": "match.salvage_d6_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 16500
+        },
+        {
+          "id": "match.salvage_d6_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 20000,
+          "lanes": [
+            "lane_condition.grit"
+          ]
+        },
+        {
+          "id": "match.salvage_d6_boss",
+          "kind": "boss",
+          "name": "Boss",
+          "target": 24000,
+          "rival": "rival.scrapjack",
+          "lanes": [
+            "lane_condition.grit"
+          ]
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.scrapjack",
+          "name": "Scrapjack",
+          "initials": "SJ",
+          "rule": "boss_rule.rust",
+          "intro": "Scrapjack strips anything that isn't welded down. Under Rust every modification on your balls and pins is switched off for his match; the balls and pins under them still work, and Charms are untouched. A strong base ball or pin carries this lane.",
+          "first_clear": {
+            "unlocks": [
+              "gate.scrapjack_cleared"
+            ],
+            "text": "A Salvage item joins the shop pool from your next attempt."
+          },
+          "reactions": {
+            "entrance": "Nice bolt-ons. Shame about the rust.",
+            "confident": "See? Strip it back and there's nothing there.",
+            "impressed": "Hah. Bare metal and still rolling.",
+            "threatened": "Hold on, that one's not even modded.",
+            "defeated": "Clean work. The yard's yours.",
+            "victorious": "Rust takes everything in the end. Even you."
+          }
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "division": 7,
+      "name": "Salvage League · Division 7",
+      "frames_per_match": 2,
+      "matches": [
+        {
+          "id": "match.salvage_d7_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 26000
+        },
+        {
+          "id": "match.salvage_d7_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 31500,
+          "lanes": [
+            "lane_condition.warped_boards"
+          ]
+        },
+        {
+          "id": "match.salvage_d7_boss",
+          "kind": "boss",
+          "name": "Boss",
+          "target": 38000,
+          "rival": "rival.miser_moll",
+          "lanes": [
+            "lane_condition.warped_boards"
+          ]
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.miser_moll",
+          "name": "Miser Moll",
+          "initials": "MM",
+          "rule": "boss_rule.frugal_house",
+          "intro": "Miser Moll keeps the till under the counter and the key on a string. Under Frugal House your items pay nothing in her match: Gold pins, Tip Jar and every other payout go quiet. Match pay and interest still come, and every point still counts, so bank the score and let the money wait.",
+          "first_clear": {
+            "unlocks": [
+              "gate.miser_moll_cleared"
+            ],
+            "text": "A Salvage item joins the shop pool from your next attempt."
+          },
+          "reactions": {
+            "entrance": "Every coin in this yard is spoken for, love. Yours included.",
+            "confident": "Nothing for nothing. That's the house rate.",
+            "impressed": "Hm. Scoring without a penny in it. Rare.",
+            "threatened": "Now that's a lot of points for a pauper.",
+            "defeated": "Take your clear, then. Mind it doesn't cost you.",
+            "victorious": "Broke and beaten. Come back when you've saved up."
+          }
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "division": 8,
+      "name": "Salvage League · Division 8",
+      "frames_per_match": 2,
+      "matches": [
+        {
+          "id": "match.salvage_d8_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 41000
+        },
+        {
+          "id": "match.salvage_d8_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 50000,
+          "lanes": [
+            "lane_condition.grit"
+          ]
+        },
+        {
+          "id": "match.salvage_d8_boss",
+          "kind": "boss",
+          "name": "Championship",
+          "target": 60000,
+          "rival": "rival.scrapjack_champion",
+          "lanes": [
+            "lane_condition.grit"
+          ]
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.scrapjack_champion",
+          "name": "Scrapjack, Salvage Champion",
+          "initials": "SJ",
+          "rule": "boss_rule.rust",
+          "extra_rules": [
+            "boss_rule.dull_pins"
+          ],
+          "of": "rival.scrapjack",
+          "intro": "Scrapjack takes the Salvage title night with Grimewell's grime on every pin, on the gritty lane. Under Rust your modifications are switched off, and under Dull Pins every pin's Value is halved. The grit slows the ball before it reaches the rack. Charms and their Mult, and a heavy base ball that carries through the pins, are what still work.",
+          "first_clear": {
+            "unlocks": [
+              "gate.salvage_champion_cleared"
+            ],
+            "text": "A Salvage reward joins the shop pool from your next attempt."
+          },
+          "reactions": {
+            "entrance": "Title night. Everything you own, stripped and filthy.",
+            "confident": "Bare and dull. That's all you've got left.",
+            "impressed": "You built something rust can't touch. Huh.",
+            "threatened": "No mods, no polish, and still coming?",
+            "defeated": "The yard's yours, champion. Keep it running.",
+            "victorious": "Scrap. All of it. Come back with something solid."
+          }
+        }
+      ]
+    }
+  ]
+}

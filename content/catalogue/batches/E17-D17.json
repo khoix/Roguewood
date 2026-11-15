@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "batch": "E17-D17",
+  "status": "authored",
+  "note": "The definitions the Salvage League spec (E17-L03) needs: its two lane conditions, Grit (lane.front_friction) and Warped Boards (lane.board_drift), and the Salvage Kit. The lanes' mechanics land with Salvage's rules and lanes (Wave 14, as E18-C13 did for Neon); the kit lands when the League goes live. Its three boss rules were written in E17-D03 (Frugal House, Dull Pins) and E17-D05 (Rust).",
+  "definitions": [
+    {
+      "item": {
+        "id": "lane_condition.grit",
+        "name": "Grit",
+        "category": "lane_condition",
+        "rarity": "common",
+        "pool_weight": 0,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 0,
+        "resale_price": 0,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "The ball loses speed on the gritty front of the lane and reaches the rack slower: light balls are deflected more and carry fewer pins.",
+        "synergy_tags": [
+          "material",
+          "power",
+          "salvage"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "Grit on the lane's front 30 ft (9.14 m) raises the ball's rolling friction there, so it reaches the oil's end and the pins with less speed. The oil, the hook and the backend are unchanged: a heavy ball or a harder throw carries through, and a light one is deflected more.",
+        "primitives": [
+          "lane.front_friction"
+        ],
+        "pool": "Lane condition: never in a shop; listed in a League's lane pool (Salvage League spec).",
+        "presentation_needs": "A visibly gritty, scuffed front section of the lane that ends at a clear line, readable from the behind-ball view without colour; the HUD and the shop's next-match preview name it.",
+        "asset_ids": {
+          "icon": "icon.lane_condition.grit",
+          "card": "card.lane_condition.grit",
+          "rarity_treatment": "rarity_treatment.lane_condition.grit",
+          "activation": "activation.lane_condition.grit",
+          "sound": "sound.lane_condition.grit",
+          "reduced_motion": "reduced_motion.lane_condition.grit"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "lane_condition.warped_boards",
+        "name": "Warped Boards",
+        "category": "lane_condition",
+        "rarity": "common",
+        "pool_weight": 0,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 0,
+        "resale_price": 0,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "A warped band of boards drifts the ball toward the right gutter: a line that is right on House Oil arrives right of the pocket here.",
+        "synergy_tags": [
+          "lane",
+          "side",
+          "salvage"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "Between 20 ft and 40 ft (6.10 m to 12.19 m) the boards are warped, and the ball drifts steadily toward the right while it crosses them. Its speed and hook are unchanged elsewhere: aiming left of the usual line, or a hook that curves back left, meets the pocket.",
+        "primitives": [
+          "lane.board_drift"
+        ],
+        "pool": "Lane condition: never in a shop; listed in a League's lane pool (Salvage League spec).",
+        "presentation_needs": "A band of visibly bowed, patched boards across the middle of the lane, readable without colour; the aim preview bends with the drift; the HUD and the shop's next-match preview name it.",
+        "asset_ids": {
+          "icon": "icon.lane_condition.warped_boards",
+          "card": "card.lane_condition.warped_boards",
+          "rarity_treatment": "rarity_treatment.lane_condition.warped_boards",
+          "activation": "activation.lane_condition.warped_boards",
+          "sound": "sound.lane_condition.warped_boards",
+          "reduced_motion": "reduced_motion.lane_condition.warped_boards"
+        }
+      }
+    },
+    {
+      "item": {
+        "id": "kit.salvage",
+        "name": "Salvage Kit",
+        "category": "kit",
+        "rarity": "common",
+        "pool_weight": 0,
+        "unlock": {
+          "kind": "initial",
+          "prerequisites": []
+        },
+        "earliest_division": 1,
+        "purchase_price": 0,
+        "resale_price": 0,
+        "effects": [],
+        "limits": {
+          "max_owned": 1,
+          "charges": 0,
+          "exhaustion": "none"
+        },
+        "downside": "A scrap rack: two Tin pins are worth half a Wood pin when they fall (though they pay for frames left standing), and two Rubber pins scatter unpredictably.",
+        "synergy_tags": [
+          "material",
+          "rack",
+          "salvage"
+        ],
+        "incompatibilities": [],
+        "assets": {
+          "icon": "",
+          "card": "",
+          "in_play": "",
+          "rarity_treatment": "",
+          "activation": "",
+          "sound": "",
+          "reduced_motion": ""
+        },
+        "completeness": {
+          "authored": true,
+          "mechanics": false,
+          "automated_validation": false,
+          "artwork": false,
+          "effects_audio": false,
+          "unlock_assigned": true,
+          "integrated": false
+        }
+      },
+      "design": {
+        "trigger": "Start a Salvage League attempt with a scrap rack of six Wood, two Tin and two Rubber pins, a deck of two Hammer Balls, two Hook Balls and two Spare Balls (the House Ball is always available) and $8.",
+        "primitives": [
+          "kit.loadout"
+        ],
+        "pool": "Starting kit: chosen on the League Board for the Salvage League; available from the start, as the League is.",
+        "presentation_needs": "A kit card of mismatched, repaired pins and a dented Hammer Ball; the binder shows its loadout.",
+        "asset_ids": {
+          "icon": "icon.kit.salvage",
+          "card": "card.kit.salvage",
+          "rarity_treatment": "rarity_treatment.kit.salvage",
+          "activation": "activation.kit.salvage",
+          "sound": "sound.kit.salvage",
+          "reduced_motion": "reduced_motion.kit.salvage"
+        }
+      }
+    }
+  ],
+  "landed": []
+}
