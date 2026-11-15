@@ -1,13 +1,17 @@
 # Wave 13 — Codex completion index
 
 State: DONE for all current Codex Wave 13 claims: AV-N1, AV-N2, E22-L02-ART
-(theme tail) and UI-A4. Stop here; no AV-N3 or Salvage art was started.
+(theme tail), UI-A4 and the owner's UI-A5 extension. Stop here; no AV-N3 or
+Salvage art was started.
 
 Branch: codex/roguewood-build. AV-N1's initial checkpoint is bd084d4. Coordinator
 UI-6 333c0af was merged at 7dcb506; later DC-N3/UI-7/UI-A4 claim 254a921 was merged
 with merge commit 81cda95. No rebase, force-push, main push or PR. The delivery
 SHA is the commit containing this completed index (reported with the final push).
 The coordinator owns central state and the sole integration path to main.
+UI-A5 subsequently merged coordinator da92784 (UI-8 and Wave 13 close records,
+including required 47db070) with merge commit 4a2b542. Earlier delivery 503dab6
+is preserved; the latest delivery adds only UI-A5's scoped presentation/docs.
 
 ## Delivered batches
 
@@ -29,6 +33,11 @@ The coordinator owns central state and the sole integration path to main.
   No subtitle or title-flow changes. The existing authored House title backdrop
   remains. Source icon 111430 bytes; exported favicon 118732 bytes.
   [UI-A4.md](UI-A4.md).
+- **UI-A5 (High, owner extension):** refined title composition and night fade,
+  gentle logo/ball entrance, lamp breath/dust/parallax and a small tap response
+  within the original 0.3 s exit. Fully still reduced motion and immediate input.
+  Reviewed and retained the existing logo, icon, splash and #0b1116 colour.
+  [UI-A5.md](UI-A5.md).
 
 Original sources, exact image-generation prompts, synthesis recipes and hashes
 are in docs/art/ASSET-LEDGER.md and the batch briefs. No captures are committed.
@@ -61,6 +70,14 @@ phone, hardware-audio or device-performance trial is claimed.
   `75d1a3c0ceb2f8e458f7788de7e938de194633c1720aca1488b68a21eb310c6f`.
   J03 remains 560/240/70; J05 21060. J03C15 banks 70/1650/1200; J03C16
   1012/2015/720. Resource/audio/brand regeneration is byte-identical.
+- UI-A5 after merge 4a2b542: unit, J01/JUIA1/JUIA2 headless and rendered,
+  qa.py web PASS. Both phone tours completed 31 captures with exit 0; both
+  emitted the previously noted ObjectDB/one-resource shutdown diagnostic.
+  Standalone native motion/input/reduced/reopen/resize checks pass in both
+  orientations. Actual light/dark Chromium tab review and 180/32/16 icon
+  studies completed; iPhone home-screen mask/size review is simulated.
+  Evidence: artifacts/ui-a5/checks/{results,platform-results}.json and
+  icons-final.log; native review.json in title-{portrait,landscape}/.
 
 Local evidence: artifacts/wave13/av-n1/ (original matrix and resume/), av-n2/
 (results.json), theme-tail/complete/ (final live art), theme-tail/final/ (J22L02),
@@ -93,11 +110,18 @@ All paths below are local ignored output. Full indexes are in the batch handoffs
   artifacts/ui-a4/tour-{portrait,landscape}/01_title.png;
   artifacts/ui-a4/brand/icon_sizes.png and icon_{180,32,16}.png.
 - **Audio:** assets/audio/sound.<stable-item-id>.wav for all twelve items.
+- **UI-A5 title/motion:** artifacts/ui-a5/tour-{portrait,landscape}/01_title.png;
+  title-{portrait,landscape}/motion.mp4 (five seconds), tap_beat.png,
+  reduced_early.png / reduced_late.png. These last directories are also under
+  artifacts/ui-a5/. Web loading/title are the e26-w01 captures above.
+- **UI-A5 icons:** artifacts/ui-a5/icons/tabs_{light,dark}.png,
+  sizes_{light,dark}.png (180/32/16 px), iphone_simulated_{light,dark}.png.
+  Actual browser chrome and explicitly labelled iPhone size/mask simulation.
 
 ## Coordinator / resume
 
 Merge this completed checkpoint into claude/roguewood-build, then run the normal
 integration CI and update central claims. Optional capture-tool follow-up is the
-landscape tour's shutdown warning recorded in UI-A4. No unfinished Codex Wave 13
+tour shutdown diagnostic recorded in UI-A4 and UI-A5. No unfinished Codex Wave 13
 art claim remains. The next item art batch is AV-N3 in Wave 14, proposed High
 effort after its coordinator claim; do not begin it from this checkpoint.

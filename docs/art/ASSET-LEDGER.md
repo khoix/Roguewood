@@ -1100,3 +1100,20 @@ The UI-7 provisional icon/splash are superseded at the same paths. Its source
 record above remains historical. author_brand.py no longer regenerates provisional
 images. No bootstrap, project, export or UI code changes for this batch. Capture
 index and actual validation: docs/handoffs/UI-A4.md. No captures committed.
+
+## UI-A5 — title composition and motion review
+
+Codex, 2026-11-15. Original presentation code in src/bootstrap/title_screen.gd:
+subtle logo/ball entrance, bounded backdrop parallax, two faint lamp pools,
+twelve dust marks, a petrol ball halo and a small tap response. The radial
+64×64 texture is generated at runtime from an original gradient and reused;
+no external imagery, particle asset, shader, font, recording or license added.
+The existing House backdrop/ball and UI-A4 logo remain the visual sources.
+The UI-A4 icon/logo/splash files and their SHA256 values above are unchanged;
+no new raster illustration or exporter modification was necessary.
+
+Original reproducible review tools: docs/art/ui/capture_ui_a5.gd and
+review_ui_a5.mjs. The latter uses actual exported PNGs in actual light/dark
+Chromium chrome and labelled iPhone size/mask simulations, not hardware captures.
+Brief: docs/art/ui/UI-A5.md. Decisions, verification and ignored capture index:
+docs/handoffs/UI-A5.md. No screenshots or rendered captures committed.

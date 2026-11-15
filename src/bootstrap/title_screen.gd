@@ -5,8 +5,8 @@ extends Control
 ## tap, a click, a key or a gamepad button starts; the Clubhouse is underneath.
 ## Reduced motion keeps the ball and the prompt still. A view only: the shell
 ## decides when it shows and what follows (`started`).
-## Provisional art (docs/handoffs/UI-7.md): Codex's House backdrop and House Ball
-## with the bundled font as lettering, until Codex's logo and key art land.
+## UI-A5: a restrained entrance and living night hall, using UI-A4's brand art.
+## The first input always works; reduced motion is a completely static layout.
 signal started
 
 const FONT = preload("res://assets/ui/fonts/PixelifySans.ttf")
@@ -37,6 +37,56 @@ var start: Button
 var shade: TextureRect
 var _clock := 0.0
 var _leaving := false
+var _leave_clock := 0.0
+var _fade: Tween
+var _ball_origin := Vector2.ZERO
+var _mark_origin := Vector2.ZERO
+var _hall_origin := Vector2.ZERO
+var atmosphere: HallAtmosphere
+
+## Twelve tiny dust marks and two cached radial light pools. No particles,
+## shaders, blur passes, random allocations or independent processing nodes.
+class HallAtmosphere extends Control:
+	var hall: TextureRect
+	var hero: TextureRect
+	var clock := 0.0
+	var still := true
+	var light: GradientTexture2D
+	func _ready() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var ramp := Gradient.new()
+		ramp.set_color(0, Color.WHITE)
+		ramp.set_color(1, Color(1, 1, 1, 0))
+		light = GradientTexture2D.new()
+		light.gradient = ramp
+		light.width = 64
+		light.height = 64
+		light.fill = GradientTexture2D.FILL_RADIAL
+		light.fill_from = Vector2(0.5, 0.5)
+		light.fill_to = Vector2(1.0, 0.5)
+	func _hall_point(uv: Vector2) -> Vector2:
+		var source := hall.texture.get_size()
+		var covered := source * maxf(hall.size.x / source.x, hall.size.y / source.y)
+		return hall.position + (hall.size - covered) * 0.5 + covered * uv
+	func _draw() -> void:
+		if light == null or hall == null: return
+		var t := 0.0 if still else clock
+		var unit := minf(size.x, size.y) / 540.0
+		for side in [0.14, 0.86]:
+			var at := _hall_point(Vector2(side, 0.42))
+			var radius := 90.0 * unit
+			var breath := 0.045 + 0.008 * sin(t * 0.7 + side * 4.0)
+			draw_texture_rect(light, Rect2(at - Vector2.ONE * radius, Vector2.ONE * radius * 2.0), false, Color(0.91, 0.74, 0.44, breath))
+		for i in 12:
+			var phase := fposmod(float(i) * 0.618 + t * 0.012, 1.0)
+			var x := 0.28 + fposmod(float(i) * 0.173, 0.44) + sin(t * 0.22 + i) * 0.003
+			var at := _hall_point(Vector2(x, 0.18 + (1.0 - phase) * 0.38)).round()
+			var alpha := sin(phase * PI) * 0.24
+			draw_rect(Rect2(at, Vector2.ONE * maxf(1.0, roundf(unit * 1.5))), Color(0.96, 0.90, 0.80, alpha))
+		# A quiet petrol halo separates the ball's dark edge from the night.
+		var center := hero.position + hero.size * 0.5
+		var halo := hero.size * 1.35
+		draw_texture_rect(light, Rect2(center - halo * 0.5, halo), false, Color(0.15, 0.34, 0.37, 0.12))
 
 func _ready() -> void:
 	name = "TitleScreen"
@@ -62,6 +112,9 @@ func _ready() -> void:
 	var gradient := Gradient.new()
 	gradient.set_color(0, Color(NIGHT, 0.0))
 	gradient.set_color(1, NIGHT)
+	# Reach opaque night before the moving backdrop's lower edge, including
+	# overscan. Otherwise a thin strip of wood can peek below the gradient.
+	gradient.add_point(0.88, NIGHT)
 	var ramp := GradientTexture2D.new()
 	ramp.gradient = gradient
 	ramp.fill_from = Vector2(0, 0)
@@ -103,6 +156,13 @@ func _ready() -> void:
 	ball.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	ball.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(ball)
+	atmosphere = HallAtmosphere.new()
+	atmosphere.name = "HallAtmosphere"
+	atmosphere.hall = backdrop
+	atmosphere.hero = ball
+	atmosphere.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(atmosphere)
+	move_child(atmosphere, shade.get_index())
 	prompt = Label.new()
 	prompt.name = "Prompt"
 	prompt.add_theme_color_override("font_color", IVORY)
@@ -130,9 +190,13 @@ func _ready() -> void:
 
 ## Show it, with keyboard and gamepad focus on the start.
 func open(reduced: bool) -> void:
+	if _fade != null and _fade.is_valid(): _fade.kill()
 	reduced_motion = reduced
 	_leaving = false
+	_clock = 0.0
+	_leave_clock = 0.0
 	modulate.a = 1.0
+	set_process(not reduced_motion)
 	show()
 	_layout()
 	start.grab_focus()
@@ -150,12 +214,18 @@ func begin() -> void:
 	if reduced_motion or not is_inside_tree():
 		_finish()
 		return
-	var fade := create_tween()
-	fade.tween_property(self, "modulate:a", 0.0, FADE)
-	fade.tween_callback(_finish)
+	_leave_clock = 0.0
+	# A tiny acknowledgement happens inside the existing 0.3 s, never before
+	# accepting input. No extra wait, flash, audio gate or second action.
+	_fade = create_tween()
+	_fade.tween_interval(0.045)
+	_fade.tween_property(self, "modulate:a", 0.0, FADE - 0.045)
+	_fade.tween_callback(_finish)
 
 func _finish() -> void:
+	if not _leaving: return
 	hide()
+	set_process(false)
 	started.emit()
 
 func _layout() -> void:
@@ -184,23 +254,44 @@ func _layout() -> void:
 		logo.size = band
 		logo.position = Vector2((w - band.x) * 0.5, top - mark * 0.4)
 		ball.position.y = logo.position.y + band.y + h * 0.03
-	prompt.position = Vector2(0, h * (0.74 if portrait else 0.8))
+	prompt.position = Vector2(0, h * (0.68 if portrait else 0.80))
 	prompt.size = Vector2(w, 48)
 	# The hall fills the top of the screen (all of it in landscape); the shade blends
 	# its lower edge into the night.
-	var hall_h := h * (0.62 if portrait else 1.0)
-	backdrop.position = Vector2.ZERO
-	backdrop.size = Vector2(w, hall_h)
-	shade.position = Vector2(0, hall_h * 0.55)
-	shade.size = Vector2(w, hall_h * 0.45 + 2.0)
+	var hall_h := h * (0.70 if portrait else 1.0)
+	# Six pixels of overscan contain the entire four-pixel parallax excursion.
+	_hall_origin = Vector2(-6, -6)
+	backdrop.position = _hall_origin
+	backdrop.size = Vector2(w + 12, hall_h + 12)
+	shade.position = Vector2(0, hall_h * 0.52)
+	shade.size = Vector2(w, hall_h * 0.48 + 18.0)
+	_ball_origin = ball.position
+	_mark_origin = logo.position if logo != null else wordmark.position
+	if logo != null: logo.pivot_offset = logo.size * 0.5
+	_apply_motion()
 
 
 func _process(delta: float) -> void:
 	if not visible: return
 	_clock += delta
-	if reduced_motion:
-		ball.rotation = 0.0
-		prompt.modulate.a = 1.0
-		return
-	ball.rotation = _clock * 0.6 # a slow roll
-	prompt.modulate.a = 0.55 + 0.45 * (0.5 + 0.5 * cos(_clock * TAU / 1.6))
+	if _leaving: _leave_clock += delta
+	_apply_motion()
+
+func _apply_motion() -> void:
+	if atmosphere == null: return
+	var t := 0.0 if reduced_motion else _clock
+	var settle := 0.0 if reduced_motion else pow(1.0 - clampf(t / 0.7, 0.0, 1.0), 3.0)
+	var unit := minf(size.x, size.y) / 540.0
+	var beat := sin(clampf(_leave_clock / 0.16, 0.0, 1.0) * PI) if _leaving and not reduced_motion else 0.0
+	ball.position = _ball_origin + Vector2(-18, 8) * settle * unit
+	ball.rotation = 0.0 if reduced_motion else -0.16 * settle + t * 0.075
+	ball.scale = Vector2.ONE * (1.0 + beat * 0.025)
+	var mark: Control = logo if logo != null else wordmark
+	mark.position = _mark_origin + Vector2(0, -8 * settle * unit)
+	mark.scale = Vector2.ONE * (1.0 + beat * 0.012)
+	mark.modulate = Color(1, 1, 1, 1.0 - settle * 0.1)
+	prompt.modulate.a = 1.0 if reduced_motion else 0.90 + 0.10 * cos(t * TAU / 3.6)
+	backdrop.position = _hall_origin if reduced_motion else _hall_origin + Vector2(sin(t * 0.18) * 3.0, sin(t * 0.13) * 1.5)
+	atmosphere.clock = t
+	atmosphere.still = reduced_motion
+	atmosphere.queue_redraw()
