@@ -2,7 +2,7 @@ extends Control
 ## Observes the real lab; never writes physics, equipment, frame reports or scores.
 const ItemAssets = preload("res://src/presentation/item_assets.gd")
 var lab: Control
-var equipment_art: HBoxContainer
+var equipment_art: FlowContainer
 var sound: Node
 var abilities: Node
 var house_counts: Node

@@ -108,10 +108,29 @@ func _check_stage(division: int, m: Dictionary) -> void:
 		_check(_lane_visual() == "lane_visual." + lane, "Division %d %s: the %s finish (%s)" % [division, m.kind, lane, _lane_visual()])
 	if m.kind == "opener":
 		_check(lane == "lane.house", "Division %d's opener keeps House Oil" % division)
+		if division >= 2:
+			for i in 3: await process_frame # the strip shows itself on its own frame
+			_check_rail(division)
 	if m.kind == "boss":
 		var rules: Array = lab.active_rules()
 		_check(lab.division.rival().id == m.rival and RULES[m.rival].all(func(r): return r in rules),
 			"Division %d boss: %s under %s (%s)" % [division, m.rival, str(RULES[m.rival]), str(rules)])
+
+## UI-6: with the build's five Charms, portrait's rail holds every one on the
+## screen, between the info row and the hand, and the slip shows its whole chain.
+func _check_rail(division: int) -> void:
+	var rail: Control = lab.panels.charms
+	var slots: Array = lab.motion.equipment_art.get_children()
+	var screen := Rect2(Vector2.ZERO, lab.size)
+	_check(rail.visible and lab.panels.charm_count.text == "%d/5" % BUILD.size() and slots.size() == BUILD.size()
+		and slots.all(func(s): return s.is_visible_in_tree() and screen.encloses(s.get_global_rect()) and is_equal_approx(s.size.x, slots[0].size.x) and is_equal_approx(s.size.y, slots[0].size.y)),
+		"Division %d: the rail shows all %d Charms on the screen, in equal slots (%s; %d slots, strip %s, reaction %s, review %s, options %s, state %s)" % [division, BUILD.size(), str(rail.get_global_rect()),
+			slots.size(), str(lab.motion.equipment_art.visible), str(lab.hud.reaction.visible), str(lab.score_panel.visible), str(lab.settings_panel.visible), lab.state])
+	_check(rail.global_position.y >= lab.panels.rival.get_global_rect().end.y and rail.get_global_rect().end.y <= lab.card_hand.global_position.y and rail.get_global_rect().end.x <= lab.size.x,
+		"Division %d: the rail sits between the info row and the hand (%s; hand at %s)" % [division, str(rail.get_global_rect()), str(lab.card_hand.global_position.y)])
+	var slip: Label = lab.panels.slip_text
+	var chain_width := slip.get_theme_font("font").get_string_size(slip.text, HORIZONTAL_ALIGNMENT_LEFT, -1, slip.get_theme_font_size("font_size")).x
+	_check(slip.text.contains("=") and chain_width <= slip.size.x, "Division %d: the slip shows its whole chain: %s (%s of %s px)" % [division, slip.text, str(chain_width), str(slip.size.x)])
 
 func _resumed_ok() -> bool:
 	return scene.content.id == "neon" and scene.league.selected == 1 and scene.session.league_id == "league.neon" and lab.league_theme != null and UiTheme.kit_id() == "neon"

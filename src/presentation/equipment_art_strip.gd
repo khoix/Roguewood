@@ -1,13 +1,26 @@
-extends HBoxContainer
+extends HFlowContainer
 ## Read-only visual inventory. Ordering comes from RunInventory; never handles input.
+## A flow, so it wraps to the room its host gives it: one column in portrait's rail,
+## rows in landscape's Charms panel.
 const Assets = preload("res://src/presentation/item_assets.gd")
 var lab: Control
 var _signature := ""
+const SLOT := 44.0
 
 func _ready() -> void:
 	name = "EquipmentArtStrip"
 	mouse_filter = MOUSE_FILTER_IGNORE
-	add_theme_constant_override("separation", 8)
+	add_theme_constant_override("h_separation", 4)
+	add_theme_constant_override("v_separation", 4)
+
+static func _plain_frame() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("101820")
+	style.border_color = Color("c4b59c")
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(8)
+	style.set_content_margin_all(6)
+	return style
 
 func _process(_delta: float) -> void:
 	if lab.run == null: return
@@ -27,11 +40,17 @@ func _process(_delta: float) -> void:
 			# Reuse that identity in the hand-free inventory without inventing an ID.
 			if texture == null and String(id).begins_with("charm."):
 				texture = Assets.slot(id, "icon") as Texture2D
+			# A Charm whose art is still to come keeps its slot: the Charm mark, dimmed
+			# (coordinator: an owned Charm must never be missing from the inventory).
+			var pending := texture == null and String(id).begins_with("charm.")
+			if pending: texture = load("res://assets/ui/cards/charm.svg")
 			if texture == null: continue
 			var panel := PanelContainer.new()
 			panel.name = id.replace(".", "_")
 			panel.mouse_filter = MOUSE_FILTER_IGNORE
-			panel.add_theme_stylebox_override("panel", Assets.slot(id, "rarity_treatment"))
+			panel.set_meta("art_pending", pending)
+			var frame := Assets.slot(id, "rarity_treatment") as StyleBox
+			panel.add_theme_stylebox_override("panel", frame if frame != null else _plain_frame())
 			var box := VBoxContainer.new()
 			box.name = "Body"
 			box.mouse_filter = MOUSE_FILTER_IGNORE
@@ -44,6 +63,7 @@ func _process(_delta: float) -> void:
 			art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 			art.custom_minimum_size = Vector2(48, 48)
 			art.mouse_filter = MOUSE_FILTER_IGNORE
+			if pending: art.modulate = Color(1, 1, 1, 0.45)
 			box.add_child(art)
 			var label := Label.new()
 			label.text = String(lab.run.item(id).name).replace(" ", "\n")
@@ -58,8 +78,12 @@ func _process(_delta: float) -> void:
 	for panel in get_children():
 		var body: Node = panel.get_node_or_null("Body")
 		if body == null: continue
-		(body.get_node("Identity") as Control).custom_minimum_size = Vector2(32, 32) if hosted else Vector2(48, 48)
+		# Hosted, every slot is 44 px square whatever its rarity frame's margins.
+		var frame := (panel as Control).get_theme_stylebox("panel").get_minimum_size()
+		(body.get_node("Identity") as Control).custom_minimum_size = Vector2(maxf(SLOT - frame.x, 20.0), maxf(SLOT - frame.y, 20.0)) if hosted else Vector2(48, 48)
+		# Hosted, only the identity shows: a name or a counter under it (the Spare
+		# Jar's) would make every slot in the rail as tall as the tallest.
 		for child in body.get_children():
-			if child is Label: child.visible = not hosted
+			if child.name != "Identity": child.visible = not hosted
 	if not hosted:
 		position = Vector2(maxf(16, (lab.size.x - get_combined_minimum_size().x) * 0.5), lab.status.position.y + lab.status.size.y + 12)
