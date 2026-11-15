@@ -1030,3 +1030,73 @@ remain separate work; this record does not mark them complete.
   Division 1 backdrop and the House Ball at runtime; it adds no asset.
 - Provisional: Codex's final logo, icon, splash and title key art replace these
   by the same paths (handoff UI-7, "For Codex").
+
+## AV-N2 — Neon next six items (Wave 13)
+
+Codex, 2026-11-15. Original project artwork, generated with OpenAI image generation;
+no reference images, external assets, donor recordings or new third-party licenses.
+Exact prompts and identity contract: docs/art/briefs/AV-N2.md and AV-N2-{A,B}-prompt.txt.
+Source PNGs are shipped unchanged; padded AtlasTexture regions select subjects.
+
+| Source | Dimensions | SHA256 |
+|---|---|---|
+| assets/items/neon/source.AV-N2-A.png | 2172×724 RGBA | `5ed8590339c66d2d0aa45c30cd23b7c423b78969d88ebf1697977fbd28aa4e00` |
+| assets/items/neon/source.AV-N2-B.png | 2172×724 RGBA | `b091370126c289b7f9b571ab949d4d92e4aa64a7668a6bc7b5dfe7f170bb7a3f` |
+
+Original code/resources: tools/author_neon_n2_items.py, identity_n2.gdshader,
+overlay_n2.gd and the scoped presentation observers/glyphs. Seven slots for
+ball.glow, pin.prism, ball_mod.grip_tape, pin_mod.spotlight, charm.afterimage and
+charm.laser_level. Reduced identities reuse the unchanged atlas. No font edits.
+
+Original deterministic author_foley.py synthesis: mono 16-bit PCM, 22050 Hz,
+0.32 s, peak 0.48, existing four-voice mixer. No sampled audio.
+
+| Audio in assets/audio/ | Material, pitch | SHA256 |
+|---|---|---|
+| sound.ball.glow.wav | glass, 520 Hz | `e6746ced219e7479b8c50d0ee8cba9456751773abafc0e92f400508262d54392` |
+| sound.pin.prism.wav | glass, 960 Hz | `3365434aa03af1424680ba5c94e847a403cd3dd9b7677b025e67c44dbde9504e` |
+| sound.ball_mod.grip_tape.wav | cloth, 280 Hz | `beb9cee1abb710d2569563011237a77035633e09c07e19a7dfd45d578b699895` |
+| sound.pin_mod.spotlight.wav | wood, 790 Hz | `ffe79c9dc1fbce6434b47b30e28909af8b80f15343238910b84cd986ffda102a` |
+| sound.charm.afterimage.wav | swish, 620 Hz | `6341c36896c0845823cb2694448ab03332bf988382f114db7900fa7c9bd7ea89` |
+| sound.charm.laser_level.wav | wood, 430 Hz | `7c239f5f62e5d3c08f3f16a22c9a43152ddbd87ef7c8a69331eaf14cde063690` |
+
+Evidence: JAVN2 extends J03C16, JAVN2C/JAVN2BC contacts, native shop/Binder/host,
+real physical and paid cues. Validation and limits: docs/handoffs/AV-N2.md.
+No captures committed.
+
+## E22-L02-ART — Wave 13 theme tail
+
+Codex, 2026-11-15. Original procedural shader and resource, no external image
+or license: assets/leagues/neon/pin_deck.gdshader and pin_deck.tres. Static dark
+indigo acoustic/enamel panels, restrained brass edges/fasteners and a cyan inlay
+replace plain kickback/cushion materials only in the live Neon League. No new
+geometry, collision, animation, lights or rule data. The House finish is preserved.
+Native J22L02LIVEART adds normal/reduced physical pin-deck captures; the original
+24-match path and independent banks remain. See handoffs/E22-L02-ART.md.
+
+- pin_deck.gdshader: SHA256 `3def075d4cf2c2b6718477d297f6fe3f25ba6217760c458bc933bd19eb79d7f5`.
+- pin_deck.tres: SHA256 `91ce0a63ab33052d3847ca628d9dcb9b16b27772ef08f75351c1db8f5f881aa8`.
+
+## UI-A4 — final Roguewood brand art
+
+Codex, 2026-11-15. Two original OpenAI-generated illustrations with no reference
+images, donor art, external brand or new third-party license. Exact prompts:
+docs/art/ui/UI-A4-logo-prompt.txt and UI-A4-icon-prompt.txt; brief: UI-A4.md.
+Immutable source PNGs are retained. The logo export is byte-identical. The
+requested author_brand.py exporter sizes the icon to 512 square, quantizes to an
+opaque 32-colour palette for the favicon budget, and centres the wordmark over
+exact #0b1116 for the splash. No new font or glyph is introduced. The existing
+House title backdrop/ball remain; optional title key art was not needed.
+
+| File in assets/brand/ | Format / dimensions | SHA256 |
+|---|---|---|
+| source.logo.png | RGBA 2172×724 | `c0d65d4486f23077eb1cc569ef84830c05e9bbfca0b65f7a4fce50804a7d1a19` |
+| source.icon.png | RGB 1254×1254 | `ec5395a7f83a7e7f4dc7acf240a16834c0f1d29f034c6da242ab4697fde1868a` |
+| logo.png | RGBA 2172×724 | `c0d65d4486f23077eb1cc569ef84830c05e9bbfca0b65f7a4fce50804a7d1a19` |
+| icon.png | RGB 512×512 | `0b092a8e63b874e2e21a89abe4039b23fe2dd3d828552d95e4df0c8597d6fef0` |
+| splash.png | RGB 720×560 | `db3ca5069f0d940817a8d0e5db8be5138e4639585d3d9ec59aeb4a55c5b00f84` |
+
+The UI-7 provisional icon/splash are superseded at the same paths. Its source
+record above remains historical. author_brand.py no longer regenerates provisional
+images. No bootstrap, project, export or UI code changes for this batch. Capture
+index and actual validation: docs/handoffs/UI-A4.md. No captures committed.

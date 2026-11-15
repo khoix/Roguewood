@@ -1,99 +1,53 @@
-"""UI-7: provisional brand images, built from art already in the repository.
-Usage: python3 tools/author_brand.py   (needs Pillow; writes assets/brand/)
+"""UI-A4 production exports from immutable original illustrations.
 
-- icon.png (512x512, opaque): the project icon. Godot's Web export makes the
-  favicon (index.icon.png) and the apple-touch-icon (180x180) from it, and the
-  desktop builds use it as the window icon. Full-bleed and opaque, because iOS
-  fills transparency with black and rounds the corners itself.
-- splash.png (720x560, opaque): the boot splash: the web page's loading screen
-  and the engine's own start-up image, in place of Godot's logo.
-
-Sources (no new illustration): the House Ball card art (assets/items/balls/
-a01-source.png, Codex, AV-H1) and the bundled Pixelify Sans derivative
-(assets/ui/fonts/PixelifySans.ttf, OFL 1.1). The lane-wood boards and the
-lettering treatment are drawn here. Final brand art (logo, icon, splash, title
-key art) is Codex's; these stand in until it lands (docs/handoffs/UI-7.md).
+Usage: python3 tools/author_brand.py [--previews]
+Needs Pillow. No provisional House-ball crop or font wordmark is regenerated.
+source.logo.png and source.icon.png are original OpenAI-generated artwork;
+exact prompts and hashes: docs/art/ui/UI-A4.md, docs/art/ASSET-LEDGER.md.
+This script only performs the requested size/format exports and splash assembly.
 """
 from pathlib import Path
-from PIL import Image, ImageDraw, ImageFont
+import argparse
+import shutil
+from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "assets/brand"
-FONT = ROOT / "assets/ui/fonts/PixelifySans.ttf"
-BALL = ROOT / "assets/items/balls/a01-source.png"
-INK = (16, 24, 32)          # #101820, the House ink
-NIGHT = (11, 17, 22)        # #0b1116, the splash and title background
-BRASS = (231, 188, 112)     # #e7bc70
-WALNUT = (87, 58, 46)       # #573a2e
-BOARDS = [(196, 138, 79), (184, 125, 68), (201, 146, 86), (178, 119, 64)]
-SEAM = (122, 74, 38)
-
-
-def ball(size: int) -> Image.Image:
-    """The House Ball illustration, cropped to the ball (its card has a shadow
-    fragment under it) and scaled to `size`."""
-    source = Image.open(BALL).convert("RGBA").crop((0, 0, 640, 640))
-    alpha = source.getchannel("A").point(lambda a: 255 if a > 160 else 0)
-    box = alpha.crop((0, 0, 640, 600)).getbbox()  # the ball only, above the shadow
-    side = max(box[2] - box[0], box[3] - box[1])
-    cx, cy = (box[0] + box[2]) // 2, (box[1] + box[3]) // 2
-    crop = source.crop((cx - side // 2, cy - side // 2, cx + side // 2, cy + side // 2))
-    return crop.resize((size, size), Image.LANCZOS)
-
-
-def wood(size: int) -> Image.Image:
-    """Lane boards in a pixel grid: eight boards across, drawn small and enlarged."""
-    small = Image.new("RGB", (64, 64))
-    draw = ImageDraw.Draw(small)
-    for board in range(8):
-        draw.rectangle((board * 8, 0, board * 8 + 7, 63), fill=BOARDS[board % len(BOARDS)])
-        draw.line((board * 8, 0, board * 8, 63), fill=SEAM)
-        for y in (13 + board * 7 % 23, 41 + board * 5 % 17):  # a few grain marks
-            draw.point((board * 8 + 3, y), fill=SEAM)
-            draw.point((board * 8 + 4, y + 1), fill=SEAM)
-    return small.resize((size, size), Image.NEAREST)
-
-
-def icon() -> Image.Image:
-    out = wood(512)
-    shadow = Image.new("RGBA", (512, 512), (0, 0, 0, 0))
-    ImageDraw.Draw(shadow).ellipse((62, 82, 470, 490), fill=(40, 22, 10, 110))
-    out = Image.alpha_composite(out.convert("RGBA"), shadow)
-    out.alpha_composite(ball(416), (48, 44))
-    return out.convert("RGB")
-
-
-def wordmark(text: str, size: int) -> Image.Image:
-    """The title in Pixelify Sans Bold: brass, an ink outline, a walnut drop shadow."""
-    font = ImageFont.truetype(str(FONT), size)
-    try:
-        font.set_variation_by_axes([700])
-    except OSError:
-        pass  # a static build of the font: regular weight
-    pixel = max(1, round(size * 0.091))  # one font pixel
-    left, top, right, bottom = font.getbbox(text, stroke_width=pixel)
-    w, h = right - left + pixel * 2, bottom - top + pixel * 2
-    out = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(out)
-    origin = (-left, -top)
-    draw.text((origin[0] + pixel, origin[1] + pixel), text, font=font, fill=WALNUT, stroke_width=pixel, stroke_fill=WALNUT)
-    draw.text(origin, text, font=font, fill=BRASS, stroke_width=pixel, stroke_fill=INK)
-    return out
-
-
-def splash() -> Image.Image:
-    out = Image.new("RGBA", (720, 560), NIGHT + (255,))
-    out.alpha_composite(ball(260), (230, 40))
-    mark = wordmark("ROGUEWOOD", 88)
-    out.alpha_composite(mark, ((720 - mark.width) // 2, 340))
-    return out.convert("RGB")
+NIGHT = (11, 17, 22)
 
 
 def main() -> None:
-    OUT.mkdir(parents=True, exist_ok=True)
-    icon().save(OUT / "icon.png", optimize=True)
-    splash().save(OUT / "splash.png", optimize=True)
-    print("wrote", OUT / "icon.png", "and", OUT / "splash.png")
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--previews", action="store_true")
+    args = parser.parse_args()
+    logo = Image.open(OUT / "source.logo.png").convert("RGBA")
+    source = Image.open(OUT / "source.icon.png").convert("RGB")
+    assert source.width == source.height
+    assert logo.getchannel("A").getextrema() == (0, 255)
+    shutil.copyfile(OUT / "source.logo.png", OUT / "logo.png")
+    # Bounded palette keeps the full-size favicon below 150 KB. Opaque PNG
+    # avoids iOS adding an unwanted black transparency background.
+    icon = source.resize((512, 512), Image.Resampling.LANCZOS)
+    icon = icon.quantize(colors=32, method=Image.Quantize.MEDIANCUT).convert("RGB")
+    icon.save(OUT / "icon.png", optimize=True)
+    assert (OUT / "icon.png").stat().st_size < 150_000
+    splash = Image.new("RGBA", (720, 560), NIGHT + (255,))
+    fitted = logo.resize((680, round(680 * logo.height / logo.width)), Image.Resampling.LANCZOS)
+    splash.alpha_composite(fitted, ((720 - fitted.width) // 2, (560 - fitted.height) // 2))
+    splash.convert("RGB").save(OUT / "splash.png", optimize=True)
+    if args.previews:
+        dest = ROOT / "artifacts/ui-a4/brand"
+        dest.mkdir(parents=True, exist_ok=True)
+        sheet = Image.new("RGB", (640, 300), NIGHT)
+        draw = ImageDraw.Draw(sheet)
+        for size, x in [(180, 30), (32, 290), (16, 430)]:
+            small = icon.resize((size, size), Image.Resampling.LANCZOS)
+            small.save(dest / f"icon_{size}.png")
+            sheet.paste(small, (x, 60))
+            draw.text((x, 30), f"{size} px (actual size)", fill=(244, 230, 205))
+        sheet.save(dest / "icon_sizes.png")
+    for name in ("logo.png", "icon.png", "splash.png"):
+        print(name, Image.open(OUT / name).size, (OUT / name).stat().st_size)
 
 
 if __name__ == "__main__":

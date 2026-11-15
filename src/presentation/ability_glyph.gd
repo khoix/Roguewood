@@ -31,6 +31,7 @@ func _draw() -> void:
 	var t: float = 0.5 if still else clampf(age / style.duration,0,1)
 	var ink: Color = style.ink
 	if preload("res://src/presentation/neon_item_glyph.gd").draw_cue(self,c,t,ink): return
+	if preload("res://src/presentation/neon_n2_glyph.gd").draw_cue(self,c,t,ink): return
 	if _draw_house_cleanup(c,t,ink): return
 	if _draw_house_tacticals(c,t,ink): return
 	if _draw_house_keepsakes(c,t,ink): return

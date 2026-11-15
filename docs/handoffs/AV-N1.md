@@ -1,6 +1,6 @@
 # AV-N1 — Oilskin, Laser, Tempo, Neon Sign, Blacklight, Bumper Guard
 
-State: implementation complete; verification IN_PROGRESS (two rendered regression failures; see below).
+State: DONE (implementation and verification).
 Branch: `codex/roguewood-build`. Base: merge `7dcb506` of coordinator UI-6
 `333c0af`, including main's Wave 12 merge `cd1cfc9`. No rebase, force-push,
 main push or pull request.
@@ -39,7 +39,7 @@ Hashes and permission/provenance record: `docs/art/ASSET-LEDGER.md`.
 
 ## Verification
 
-Pinned Godot 4.5.2, Linux Compatibility / Mesa llvmpipe, Xorg dummy display :99,
+Pinned Godot 4.5.2, Linux Compatibility / Mesa llvmpipe, Xorg dummy display :100 (MIT-SHM disabled),
 LP_NUM_THREADS=2, writable XDG directories under /tmp. No device trial claimed.
 
 Unit and content PASS with flags enabled. Unit projection cases cover actual
@@ -54,25 +54,19 @@ skipping it, then adds an Oilskin throw and six Binder visits. Original banks:
 Oilskin frame banks 520, independently checked. JAVN1C and JAVN1BC exercise
 canonical cards, 44px icons/reduced identities, normal cues and 0/1/2 specimens.
 
-Regression checkpoint: 163 of 165 commands PASS. This includes all headless
-art journeys, the named game regressions in both modes except J03C15 rendered,
-and every rendered art journey except JAVC04B. The two failures are NOT waived:
+Regression matrix: all 165 checks now PASS. The original concurrent run passed
+163; the two failures were preserved and rerun successfully on resume:
 
-- JAVC04B rendered: exceeded its 900 s timeout during the concurrent matrix.
-- J03C15 rendered: XServer `BadShmSeg (invalid shared segment parameter)`.
+- JAVC04B rendered: PASS at its unchanged 900 s timeout.
+- J03C15 rendered: PASS on display :100 with MIT-SHM disabled (sandbox processes
+  have separate IPC namespaces; the earlier display emitted BadShmSeg).
 
-JAVN1 rendered also passed separately, including its final host/Binder captures.
-Unit/content passed separately with final flags. J03 remains 560/240/70 and
-J05 21060. Native art is delivered, but this handoff does not call final
-verification DONE while the two regressions remain unresolved. The final
-read-only attribution guard and effects-off flare guard should be covered by
-a fresh JAVN1 rendered run when resuming (the matrix's JAVN1 headless passes).
+Post-merge unit/content and a fresh JAVN1 rendered PASS, including the final
+attribution/effects-off guards and all host/Binder/reward captures. No assertion
+or timeout was weakened. J03 remains 560/240/70 and J05 21060. Resume logs are
+artifacts/wave13/av-n1/resume/, with the original failure logs retained there.
+The coordinator's 254a921 was merged with merge commit 81cda95; no rebase.
 
-Resume: use a display with MIT-SHM disabled (sandbox commands use separate IPC
-namespaces) and rerun JAVC04B/J03C15 rendered sequentially before diagnosing a
-code regression. Preserve existing failure logs. Do not increase timeouts or
-remove assertions to get a pass. Then rerun unit/content and JAVN1 rendered on
-the exact final tree, inspect captures, update this status and push.
 Machine-readable local evidence: `artifacts/wave13/av-n1/{commands,results}.json`
 and individual logs. New QA registrations, CI steps and run_tests.gd are
 add-only. Every new CI art step is guarded by `if: matrix.shard == 'art'`.
@@ -107,12 +101,12 @@ Oilskin's extra native frame is House Oil. Cross-oil physics is the existing
 coordinator test suite's evidence; the presentation reads the same oil-hold
 flag on every lane. No phone hardware or physical audio playback is claimed.
 
-Delivered for coordinator review, with final verification still open:
+Delivered with implementation and verification complete:
 all six identities, host appearances, effects/sounds, flags and art journeys.
 The coordinator owns central AI-HANDOFF updates and the sole merge path to main.
 
-## Resume exactly here
+## Wave status
 
-This is the permitted early Wave 13 checkpoint. AV-N2 and the Neon theme tail
-are NOT_STARTED, not silently deferred as finished. See WAVE13-CODEX.md for
-those exact next steps. Do not start AV-N3 or Salvage art in this wave.
+AV-N1 is DONE. AV-N2 is implemented with final checks in progress; the Neon theme
+tail and newly claimed UI-A4 follow. See WAVE13-CODEX.md. Stop before AV-N3 or
+Salvage art. The coordinator owns central state and integration to main.

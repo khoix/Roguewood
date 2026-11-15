@@ -102,3 +102,47 @@ Claude owns the post-merge full integration matrix.
 Merge the final Codex checkpoint, run the full matrix, then record Wave 12
 closed. All assets/hooks are delivered; no further authoring session needed.
 Stop at Wave 12. No AV-N1/AV-N2, PR or main push.
+
+## Wave 13 tail (2026-11-15, Codex, Medium effort)
+
+State: DONE (implementation and verification). The Wave 12
+record above is preserved. Coordinator 254a921 is merged at 81cda95.
+
+Fresh J22L02LIVEART and J22L02 rendered passed before this tail. Rooms/signage,
+Long Oil/Two-Tone, rival seals, Champion portrait/landscape, earned trophy and
+flank remain authored and bound. AV-N1/N2 fill the twelve item identities; the
+live starting Glow cards now show their final art instead of the category mark.
+
+One remaining plain element was the native kickback/rear-cushion surface. The
+Neon theme now applies pin_deck.tres / pin_deck.gdshader to those three existing
+meshes: static indigo acoustic/enamel panels, restrained brass edges/fasteners,
+a cyan inlay. No animation, lights, geometry, collision, physics materials or
+lane-condition data changes. House retains its current surfaces. Original shader
+source and hashes are in ASSET-LEDGER.md; no generated or third-party image.
+
+J22L02LIVEART retains all original matches, banks and captures and adds
+live_pin_deck_normal / live_pin_deck_reduced during real rolls. A unit case
+checks House isolation and identical body transform, collision shape/material
+references and child count. The first test exposed that opener rolls can use
+lane.house instead of a named finish: the cosmetic wall binding now runs before
+the optional lane-surface lookup. No condition alias or gameplay field changed.
+The original failed logs are preserved, not waived.
+
+Final unit/content PASS. Corrected J22L02LIVEART and the original J22L02 PASS
+headless and rendered, retaining all 24 matches, independent banks, save/resume,
+Champion/title/trophy and attempt-2 reward checks. Physics digest remains
+75d1a3c0ceb2f8e458f7788de7e938de194633c1720aca1488b68a21eb310c6f.
+
+Evidence: artifacts/wave13/theme-tail/complete/J22L02LIVEART-{headless,rendered}.log;
+final/J22L02-{headless,rendered}.log; retry/unit.log and final/content.log.
+The render observer awaits its capture outside SceneTree._process so that the
+engine's process callback always returns synchronously; the initial premature
+exit logs are preserved under final/ and retry/. No failure was waived.
+
+Reviewed live_pin_deck_normal / live_pin_deck_reduced PNGs under
+artifacts/e22-l02-art/live/rendered/, plus live_d02_feature, live_d03_feature,
+live_champion_normal, live_champion_landscape, j22n_champion and j22n_attempt2.
+The normal physical view now has authored dark panels behind the ivory pins;
+reduced mode keeps the finish static in its fixed wide camera. Existing theme
+bindings remain intact; the two optional ornaments still need no consumer.
+No captures committed. No hook request. WAVE13-CODEX.md is the wave index.

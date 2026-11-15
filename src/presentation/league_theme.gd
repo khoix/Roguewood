@@ -55,6 +55,7 @@ func show_stage(viewport: SubViewport, division: int, championship: bool) -> voi
 
 ## Applies the lane condition's surface material to the lane's cosmetic mesh.
 func dress_lane(lane_world: Node3D, condition: String) -> String:
+	_dress_pin_deck(lane_world)
 	var visual := ""
 	for l in manifest.get("lanes", []):
 		if l.condition_id == condition:
@@ -70,6 +71,19 @@ func dress_lane(lane_world: Node3D, condition: String) -> String:
 			child.material_override = material
 			child.set_meta("lane_visual", visual)
 	return visual
+
+## Wave 13 tail: finish the remaining plain Neon pin-deck walls. Only the
+## pre-existing visible meshes change; the bodies/shapes/materials stay intact.
+func _dress_pin_deck(lane_world: Node3D) -> void:
+	if manifest.get("league_id", "") != "league.neon": return
+	var finish: Material = preload("res://assets/leagues/neon/pin_deck.tres")
+	for wall in lane_world.get_children():
+		if not wall is StaticBody3D: continue
+		if not (String(wall.name).begins_with("Kickback") or wall.name == "Cushion"): continue
+		for child in wall.get_children():
+			if child is MeshInstance3D:
+				child.material_override = finish
+				child.set_meta("neon_pin_deck", true)
 
 ## The League's own backdrop for the space beside the lane (E22-L02), or null when
 ## it keeps the House sky. The node has a `reduced` property, as the House one has.
