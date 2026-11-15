@@ -1,0 +1,5 @@
+# Optional build-specific analysis helpers; not needed by physics.py or its tests.
+pyelftools==0.33
+capstone==5.0.9
+unicorn==2.1.4
+UnityPy==1.25.4

@@ -1,0 +1,41 @@
+{
+  "version": "0.435.2",
+  "version_code": "2026110702",
+  "acquired_utc": "2026-11-15",
+  "source": "https://d.apkpure.com/b/XAPK/com.nianticlabs.pokemongo?version=latest",
+  "architecture": "arm64-v8a",
+  "metadata_version": 39,
+  "artifacts": [
+    {
+      "path": "input/pokemon-go.xapk",
+      "bytes": 177540757,
+      "sha256": "263a13d63ba0fbf64d4fb9d332ee6facb589fb8fe751b4307981378fb402516e"
+    },
+    {
+      "path": "input/extracted/com.nianticlabs.pokemongo.apk",
+      "bytes": 78678716,
+      "sha256": "50ece1d0df02e2d9d1f84db826f4d9ebe48f24c91da84a44933da5eea7cec785"
+    },
+    {
+      "path": "input/extracted/config.arm64_v8a.apk",
+      "bytes": 98855474,
+      "sha256": "3970486b1e032736b9955976c432f980209b0000e82ebff647e8e0a4e0949be3"
+    },
+    {
+      "path": "input/extracted/libil2cpp.so",
+      "bytes": 252860264,
+      "sha256": "992f53afcd1711324f7adacf34d28229b77e1e8bcca715ffa8df0392c5c56fe5"
+    },
+    {
+      "path": "input/extracted/global-metadata.dat",
+      "bytes": 35983304,
+      "sha256": "9c0ea108d5b477b3f98d666136ae48329b7ac75db4fdde860e0b6c37e4f8d5b1"
+    }
+  ],
+  "tools": {
+    "REA": "6.9.0",
+    "Ghidra": "12.2",
+    "UnityPy": "1.25.4",
+    "Il2CppDumper": "6.7.46 (failed: unsupported metadata v39)"
+  }
+}

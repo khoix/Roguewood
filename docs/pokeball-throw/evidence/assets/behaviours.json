@@ -1,0 +1,30 @@
+[
+  {
+    "asset": "sharedassets1.assets",
+    "id": 111909,
+    "script_file": 1,
+    "script_id": 2806,
+    "bytes": 336
+  },
+  {
+    "asset": "sharedassets1.assets",
+    "id": 112101,
+    "script_file": 1,
+    "script_id": 6731,
+    "bytes": 76
+  },
+  {
+    "asset": "sharedassets1.assets",
+    "id": 118341,
+    "script_file": 1,
+    "script_id": 2806,
+    "bytes": 304
+  },
+  {
+    "asset": "sharedassets1.assets",
+    "id": 119485,
+    "script_file": 1,
+    "script_id": 2806,
+    "bytes": 304
+  }
+]

@@ -1,0 +1,19 @@
+{
+  "python_behavior_tests": {
+    "passed": 7,
+    "failed": 0,
+    "command": "python3 -m unittest -v test_physics.py"
+  },
+  "native_arm64_cases": 12,
+  "native_scope": "Only target-speed arithmetic; Unity gravity and libm mocked",
+  "unity_engine_validation": "Not performed",
+  "gameplay_trace_validation": "Not performed",
+  "repository_packaging_verification": {
+    "python": "3.12.14",
+    "python_behavior_tests_passed": 7,
+    "native_arm64_cases_rerun": 12,
+    "native_max_absolute_error": 2.6417559e-06,
+    "python_syntax": "passed",
+    "json_evidence": "passed"
+  }
+}

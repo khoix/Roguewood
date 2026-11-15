@@ -1,0 +1,68 @@
+{
+  "source": "sharedassets1.assets:111909 (Pokeball)",
+  "values": {
+    "CurveballModifier": {
+      "value": [
+        5.0,
+        0.25,
+        0.25
+      ],
+      "serialized_offset": "0x60"
+    },
+    "MinSpinParticleAmount": {
+      "value": 0.4000000059604645,
+      "serialized_offset": "0x6c"
+    },
+    "MaxAngularVelocity": {
+      "value": 50.0,
+      "serialized_offset": "0x70"
+    },
+    "DragSnapSpeed": {
+      "value": 16.0,
+      "serialized_offset": "0x74"
+    },
+    "OvershootCorrection": {
+      "value": 0.800000011920929,
+      "serialized_offset": "0x78"
+    },
+    "UndershootCorrection": {
+      "value": 0.15000000596046448,
+      "serialized_offset": "0x7c"
+    },
+    "MinLaunchAngle": {
+      "value": 36.0,
+      "serialized_offset": "0x80"
+    },
+    "MaxLaunchAngle": {
+      "value": 45.0,
+      "serialized_offset": "0x84"
+    },
+    "MaxLaunchAngleHeight": {
+      "value": 1.5,
+      "serialized_offset": "0x88"
+    },
+    "MaxLaunchSpeed": {
+      "value": 15.0,
+      "serialized_offset": "0x8c"
+    },
+    "LaunchSpeedThreshold": {
+      "value": 0.20000000298023224,
+      "serialized_offset": "0x90"
+    },
+    "LaunchVelocityMultiplier": {
+      "value": [
+        1.0,
+        4.0
+      ],
+      "serialized_offset": "0x94"
+    },
+    "FlyTimeoutDuration": {
+      "value": 3.0,
+      "serialized_offset": "0x9c"
+    },
+    "BelowGroundFlyTimeoutSeconds": {
+      "value": 1.0,
+      "serialized_offset": "0xa0"
+    }
+  }
+}

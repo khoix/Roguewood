@@ -1,0 +1,278 @@
+[
+  {
+    "id": 3774,
+    "type": "GameObject",
+    "tree": {
+      "m_Component": [
+        {
+          "component": {
+            "m_FileID": 0,
+            "m_PathID": 39489
+          }
+        },
+        {
+          "component": {
+            "m_FileID": 0,
+            "m_PathID": 113235
+          }
+        },
+        {
+          "component": {
+            "m_FileID": 0,
+            "m_PathID": 112101
+          }
+        },
+        {
+          "component": {
+            "m_FileID": 0,
+            "m_PathID": 113444
+          }
+        },
+        {
+          "component": {
+            "m_FileID": 0,
+            "m_PathID": 111568
+          }
+        }
+      ],
+      "m_Layer": 0,
+      "m_Name": "EncounterGestureHandler",
+      "m_Tag": 0,
+      "m_IsActive": true
+    }
+  },
+  {
+    "id": 4090,
+    "type": "GameObject",
+    "tree": {
+      "m_Component": [
+        {
+          "component": {
+            "m_FileID": 0,
+            "m_PathID": 39247
+          }
+        },
+        {
+          "component": {
+            "m_FileID": 0,
+            "m_PathID": 42583
+          }
+        },
+        {
+          "component": {
+            "m_FileID": 0,
+            "m_PathID": 42323
+          }
+        },
+        {
+          "component": {
+            "m_FileID": 0,
+            "m_PathID": 43583
+          }
+        },
+        {
+          "component": {
+            "m_FileID": 0,
+            "m_PathID": 111909
+          }
+        },
+        {
+          "component": {
+            "m_FileID": 0,
+            "m_PathID": 113427
+          }
+        },
+        {
+          "component": {
+            "m_FileID": 0,
+            "m_PathID": 42399
+          }
+        }
+      ],
+      "m_Layer": 8,
+      "m_Name": "Pokeball",
+      "m_Tag": 0,
+      "m_IsActive": true
+    }
+  },
+  {
+    "id": 7046,
+    "type": "GameObject",
+    "tree": {
+      "m_Component": [
+        {
+          "component": {
+            "m_FileID": 0,
+            "m_PathID": 39673
+          }
+        },
+        {
+          "component": {
+            "m_FileID": 0,
+            "m_PathID": 42905
+          }
+        },
+        {
+          "component": {
+            "m_FileID": 0,
+            "m_PathID": 42336
+          }
+        },
+        {
+          "component": {
+            "m_FileID": 0,
+            "m_PathID": 43589
+          }
+        },
+        {
+          "component": {
+            "m_FileID": 0,
+            "m_PathID": 42421
+          }
+        },
+        {
+          "component": {
+            "m_FileID": 0,
+            "m_PathID": 118341
+          }
+        },
+        {
+          "component": {
+            "m_FileID": 0,
+            "m_PathID": 116345
+          }
+        }
+      ],
+      "m_Layer": 11,
+      "m_Name": "PokeballTheirs",
+      "m_Tag": 0,
+      "m_IsActive": true
+    }
+  },
+  {
+    "id": 8526,
+    "type": "GameObject",
+    "tree": {
+      "m_Component": [
+        {
+          "component": {
+            "m_FileID": 0,
+            "m_PathID": 39679
+          }
+        },
+        {
+          "component": {
+            "m_FileID": 0,
+            "m_PathID": 42737
+          }
+        },
+        {
+          "component": {
+            "m_FileID": 0,
+            "m_PathID": 42342
+          }
+        },
+        {
+          "component": {
+            "m_FileID": 0,
+            "m_PathID": 43592
+          }
+        },
+        {
+          "component": {
+            "m_FileID": 0,
+            "m_PathID": 42433
+          }
+        },
+        {
+          "component": {
+            "m_FileID": 0,
+            "m_PathID": 119485
+          }
+        },
+        {
+          "component": {
+            "m_FileID": 0,
+            "m_PathID": 118289
+          }
+        }
+      ],
+      "m_Layer": 11,
+      "m_Name": "PokeballMine",
+      "m_Tag": 0,
+      "m_IsActive": true
+    }
+  },
+  {
+    "id": 42323,
+    "type": "Rigidbody",
+    "tree": {
+      "m_GameObject": {
+        "m_FileID": 0,
+        "m_PathID": 4090
+      },
+      "m_Mass": 1.0,
+      "m_LinearDamping": 0.0,
+      "m_AngularDamping": 1.0,
+      "m_CenterOfMass": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "m_InertiaTensor": {
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
+      },
+      "m_InertiaRotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 1.0
+      },
+      "m_IncludeLayers": {
+        "m_Bits": 0
+      },
+      "m_ExcludeLayers": {
+        "m_Bits": 0
+      },
+      "m_ImplicitCom": true,
+      "m_ImplicitTensor": true,
+      "m_UseGravity": false,
+      "m_IsKinematic": false,
+      "m_Interpolate": 0,
+      "m_Constraints": 0,
+      "m_CollisionDetection": 3
+    }
+  },
+  {
+    "id": 43583,
+    "type": "SphereCollider",
+    "tree": {
+      "m_GameObject": {
+        "m_FileID": 0,
+        "m_PathID": 4090
+      },
+      "m_Material": {
+        "m_FileID": 0,
+        "m_PathID": 2333
+      },
+      "m_IncludeLayers": {
+        "m_Bits": 0
+      },
+      "m_ExcludeLayers": {
+        "m_Bits": 0
+      },
+      "m_LayerOverridePriority": 0,
+      "m_IsTrigger": false,
+      "m_ProvidesContacts": false,
+      "m_Enabled": true,
+      "m_Radius": 0.05999999865889549,
+      "m_Center": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    }
+  }
+]

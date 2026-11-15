@@ -1,0 +1,197 @@
+{
+  "scope": "Emulate only the recovered ballistic arithmetic, with mocked Unity/libm calls.\n\nNo APK installation/execution, device or network. ARM64 instructions at\n0xacd7bf4..0xacd7c78 are run in Unicorn. External calls return supplied gravity,\ncosf and tanf. This validates the pure math, not scene inputs or full gameplay.\n",
+  "cases": [
+    {
+      "angle": 36,
+      "ball": [
+        0,
+        1,
+        0
+      ],
+      "target": [
+        0,
+        1,
+        4
+      ],
+      "native_arm64": 6.423346042633057,
+      "reconstruction": 6.423346436551125,
+      "absolute_error": 3.9391806794242257e-07
+    },
+    {
+      "angle": 36,
+      "ball": [
+        0,
+        1,
+        0
+      ],
+      "target": [
+        1,
+        2,
+        6
+      ],
+      "native_arm64": 9.047833442687988,
+      "reconstruction": 9.047833971146398,
+      "absolute_error": 5.284584094766842e-07
+    },
+    {
+      "angle": 36,
+      "ball": [
+        0,
+        1,
+        0
+      ],
+      "target": [
+        -0.5,
+        0.25,
+        3
+      ],
+      "native_arm64": 4.929754734039307,
+      "reconstruction": 4.929754417181307,
+      "absolute_error": 3.168579993939602e-07
+    },
+    {
+      "angle": 36,
+      "ball": [
+        0,
+        1,
+        0
+      ],
+      "target": [
+        0,
+        8,
+        1
+      ],
+      "native_arm64": 14.18373966217041,
+      "reconstruction": 14.183739419780684,
+      "absolute_error": 2.423897260683816e-07
+    },
+    {
+      "angle": 40.5,
+      "ball": [
+        0,
+        1,
+        0
+      ],
+      "target": [
+        0,
+        1,
+        4
+      ],
+      "native_arm64": 6.303104877471924,
+      "reconstruction": 6.303105047142269,
+      "absolute_error": 1.696703453291093e-07
+    },
+    {
+      "angle": 40.5,
+      "ball": [
+        0,
+        1,
+        0
+      ],
+      "target": [
+        1,
+        2,
+        6
+      ],
+      "native_arm64": 8.693827629089355,
+      "reconstruction": 8.693827495013744,
+      "absolute_error": 1.3407561105793775e-07
+    },
+    {
+      "angle": 40.5,
+      "ball": [
+        0,
+        1,
+        0
+      ],
+      "target": [
+        -0.5,
+        0.25,
+        3
+      ],
+      "native_arm64": 4.929560661315918,
+      "reconstruction": 4.929560294803572,
+      "absolute_error": 3.6651234580631353e-07
+    },
+    {
+      "angle": 40.5,
+      "ball": [
+        0,
+        1,
+        0
+      ],
+      "target": [
+        0,
+        8,
+        1
+      ],
+      "native_arm64": 21.011478424072266,
+      "reconstruction": 21.011478728705665,
+      "absolute_error": 3.0463339939501566e-07
+    },
+    {
+      "angle": 45,
+      "ball": [
+        0,
+        1,
+        0
+      ],
+      "target": [
+        0,
+        1,
+        4
+      ],
+      "native_arm64": 6.264184474945068,
+      "reconstruction": 6.26418403931963,
+      "absolute_error": 4.3562543794450903e-07
+    },
+    {
+      "angle": 45,
+      "ball": [
+        0,
+        1,
+        0
+      ],
+      "target": [
+        1,
+        2,
+        6
+      ],
+      "native_arm64": 8.496025085449219,
+      "reconstruction": 8.496025090095143,
+      "absolute_error": 4.645924533974721e-09
+    },
+    {
+      "angle": 45,
+      "ball": [
+        0,
+        1,
+        0
+      ],
+      "target": [
+        -0.5,
+        0.25,
+        3
+      ],
+      "native_arm64": 4.979309558868408,
+      "reconstruction": 4.979309456082678,
+      "absolute_error": 1.0278573014943504e-07
+    },
+    {
+      "angle": 45,
+      "ball": [
+        0,
+        1,
+        0
+      ],
+      "target": [
+        0,
+        8,
+        1
+      ],
+      "native_arm64": 83.07743072509766,
+      "reconstruction": 83.0774280833418,
+      "absolute_error": 2.641755855847805e-06
+    }
+  ]
+}

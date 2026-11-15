@@ -1,0 +1,10 @@
+__pycache__/
+.venv/
+/input/
+/trajectory.csv
+/evidence/metadata.json
+/evidence/method-map.json
+/evidence/types.json
+/evidence/signatures.tsv
+/evidence/assembly/
+/evidence/assets/*.bin
