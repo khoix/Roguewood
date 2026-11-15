@@ -30,15 +30,22 @@ var selected_item := ""
 var tab_buttons: Dictionary = {}
 var pages: Dictionary = {}
 var records_label: Label
+var board_panel: Control # the shell's League panel (adopt_board)
+const BOARD_MAX := 720.0
 var latest_label: Label
 var binder_counts: Label # the full sentence (read by tools and tests); the tiles show it
 var binder_stats: HBoxContainer
 var _narrow := false
 var _fit_width := 0.0
-var binder_filters: HFlowContainer
+var binder_filters: HBoxContainer
+var binder_tabs: ScrollContainer
+var binder_preview: Control
+var preview_panel: PanelContainer
+var preview_close: Button
+var _press_scroll := 0
+const SCROLL_SLOP := 12
 var binder_grid: HFlowContainer
 var binder_detail: Label
-var binder_footer: PanelContainer
 const GRID_PAD := 4
 var binder_art: CenterContainer
 var trophy_grid: HFlowContainer
@@ -115,6 +122,7 @@ func _init() -> void:
 
 ## Narrow (phone) or wide: the tab words, then the visible page is laid out again.
 func _fit() -> void:
+	_fit_board()
 	var narrow := size.x > 0.0 and size.x < NARROW
 	for tab in TABS:
 		tab_buttons[tab].text = TAB_NAMES[tab].get_slice(" ", TAB_NAMES[tab].get_slice_count(" ") - 1) if narrow else TAB_NAMES[tab]
@@ -190,6 +198,18 @@ func _heading(parent: Node, text: String) -> void:
 func adopt_board(panel: Control) -> void:
 	var holder: CenterContainer = pages.board.get_node("BoardHolder")
 	holder.add_child(panel)
+	board_panel = panel
+	_fit_board()
+
+## UI-8 (owner's play notes, 2026-11-15): the board's column is the page's width
+## (at most BOARD_MAX), whatever League is chosen; before, it shrank to its widest
+## line, so choosing Neon (one short kit name) narrowed the whole page.
+func _fit_board() -> void:
+	if board_panel == null or size.x <= 0.0: return
+	board_panel.custom_minimum_size.x = minf(size.x - 32.0 - 12.0, BOARD_MAX)
+	for child in board_panel.get_children():
+		if child is OptionButton:
+			child.clip_text = true # a long kit or League name is cut, never widens the column
 
 func _build_board() -> void:
 	var holder := CenterContainer.new()
@@ -204,34 +224,27 @@ func _build_board() -> void:
 	latest_label = _label(notes, "LatestUnlocks")
 
 func _build_binder() -> void:
-	_heading(pages.binder, "Collection binder")
 	binder_counts = _label(pages.binder, "BinderCounts")
 	binder_counts.hide()
 	binder_stats = HBoxContainer.new()
 	binder_stats.name = "BinderStats"
 	binder_stats.add_theme_constant_override("separation", 8)
 	pages.binder.add_child(binder_stats)
-	binder_filters = HFlowContainer.new()
+	# UI-8 (owner's play notes, 2026-11-15): the categories are tabs, in one strip
+	# under the Clubhouse tabs that stays in place while the grid scrolls and slides
+	# sideways when it is wider than the screen.
+	binder_tabs = ScrollContainer.new()
+	binder_tabs.name = "BinderTabs"
+	binder_tabs.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	binder_tabs.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
+	binder_tabs.custom_minimum_size.y = 52
+	var column: Node = pages.binder.get_parent().get_parent()
+	column.add_child(binder_tabs)
+	column.move_child(binder_tabs, pages.binder.get_parent().get_index())
+	binder_filters = HBoxContainer.new()
 	binder_filters.name = "BinderFilters"
-	binder_filters.add_theme_constant_override("h_separation", 8)
-	binder_filters.add_theme_constant_override("v_separation", 8)
-	pages.binder.add_child(binder_filters)
-	# The chosen item's detail is a footer below the scrolling page (owner's play
-	# notes, 2026-11-14): it stays in view wherever the grid is scrolled, and it is
-	# as tall as the longest description, so choosing a card never moves the grid.
-	binder_footer = PanelContainer.new()
-	binder_footer.name = "BinderFooter"
-	binder_footer.add_theme_stylebox_override("panel", Art.panel_style(Color("16242b"), Color("2f474f")))
-	pages.binder.get_parent().get_parent().add_child(binder_footer)
-	var detail := HBoxContainer.new()
-	detail.name = "BinderDetail"
-	detail.add_theme_constant_override("separation", 12)
-	binder_footer.add_child(detail)
-	binder_art = CenterContainer.new()
-	binder_art.name = "BinderArt"
-	detail.add_child(binder_art)
-	binder_detail = _label(detail, "BinderText")
-	binder_detail.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	binder_filters.add_theme_constant_override("separation", 2)
+	binder_tabs.add_child(binder_filters)
 	# Margins keep a card's focus ring inside the page's clip; the rows leave room
 	# for the state tab above a card (DISCOVERED, MASTERED).
 	var grid_margin := MarginContainer.new()
@@ -246,8 +259,67 @@ func _build_binder() -> void:
 	binder_grid.add_theme_constant_override("v_separation", 30)
 	grid_margin.add_child(binder_grid)
 	var note := _label(pages.binder, "BinderNote", 18)
-	note.text = "The binder keeps each item's history. A new attempt never starts with an item."
+	note.text = "The binder keeps each item's history. A new attempt never starts with an item. Tap a card to see it."
 	note.add_theme_color_override("font_color", Color("9aa8a6"))
+	_build_preview()
+
+## UI-8: a tapped card opens over the page: its picture, its Career state and
+## history, and Close. A tap outside the panel, Close or Escape closes it.
+func _build_preview() -> void:
+	binder_preview = Control.new()
+	binder_preview.name = "BinderPreview"
+	binder_preview.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	binder_preview.mouse_filter = Control.MOUSE_FILTER_STOP
+	binder_preview.hide()
+	add_child(binder_preview)
+	var shade := ColorRect.new()
+	shade.color = Color(0.02, 0.03, 0.07, 0.86)
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	shade.gui_input.connect(func(event):
+		if event is InputEventMouseButton and event.pressed: close_preview())
+	binder_preview.add_child(shade)
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	binder_preview.add_child(center)
+	preview_panel = PanelContainer.new()
+	preview_panel.name = "PreviewPanel"
+	preview_panel.add_theme_stylebox_override("panel", Art.panel_style(Color("16242b"), Color("d8b873"), 2))
+	center.add_child(preview_panel)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 14)
+	preview_panel.add_child(box)
+	binder_art = CenterContainer.new()
+	binder_art.name = "BinderArt"
+	box.add_child(binder_art)
+	binder_detail = _label(box, "BinderText")
+	binder_detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	preview_close = Button.new()
+	preview_close.name = "BinderPreviewClose"
+	preview_close.text = "Close"
+	preview_close.custom_minimum_size = Vector2(0, 56)
+	Art.button_style(preview_close)
+	preview_close.pressed.connect(close_preview)
+	box.add_child(preview_close)
+
+func open_preview() -> void:
+	binder_preview.show()
+	_place_preview()
+	preview_close.grab_focus()
+
+func close_preview() -> void:
+	if not binder_preview.visible: return
+	binder_preview.hide()
+	var card := entry_button(selected_item)
+	if card != null: card.grab_focus()
+
+func _place_preview() -> void:
+	binder_detail.custom_minimum_size = Vector2(minf(size.x - 48.0, 560.0) - 24.0, 0)
+
+func _unhandled_input(event: InputEvent) -> void:
+	if binder_preview != null and binder_preview.visible and event.is_action_pressed("ui_cancel"):
+		close_preview()
+		get_viewport().set_input_as_handled()
 
 func _build_trophies() -> void:
 	_heading(pages.trophies, "Trophy shelf")
@@ -277,7 +349,8 @@ func show_tab(tab: String) -> void:
 	for name_key in TABS:
 		pages[name_key].get_parent().visible = name_key == tab
 		tab_buttons[name_key].set_pressed_no_signal(name_key == tab)
-	binder_footer.visible = tab == "binder"
+	binder_tabs.visible = tab == "binder"
+	if tab != "binder": close_preview()
 	refresh()
 
 ## Rebuilds the visible page from the Career and graph.
@@ -319,8 +392,8 @@ func _refresh_binder() -> void:
 		filter.text = Model.CATEGORY_NAMES.get(key, "All")
 		filter.toggle_mode = true
 		filter.button_pressed = key == category
-		Art.button_style(filter)
-		filter.custom_minimum_size = Vector2(0, 52)
+		_tab_style(filter)
+		filter.mouse_filter = Control.MOUSE_FILTER_PASS # a drag along the strip slides it
 		filter.pressed.connect(func(): _filter(key))
 		binder_filters.add_child(filter)
 	_clear(binder_grid)
@@ -333,6 +406,7 @@ func _refresh_binder() -> void:
 		var room := size.x - 32.0 - 12.0 - 2.0 * GRID_PAD # the page margins, the scroll bar and the grid's own
 		var width := floorf((room - 16.0) / 3.0)
 		card_size = Vector2(width, floorf(width * 214.0 / 150.0))
+	var page: ScrollContainer = pages.binder.get_parent()
 	for entry in shown:
 		# UI-1: binder entries are the playing cards themselves, with their Career state.
 		var card := CardView.new()
@@ -346,37 +420,68 @@ func _refresh_binder() -> void:
 		card.toggle_mode = true
 		card.button_pressed = entry.id == selected_item
 		card.custom_minimum_size = card_size
-		card.pressed.connect(func(): _select(entry.id))
+		# UI-8: a finger that lands on a card and moves scrolls the page; the card does
+		# not tilt, and the tap that turned into a scroll opens nothing.
+		card.mouse_filter = Control.MOUSE_FILTER_PASS
+		card.tilt_enabled = false
+		card.button_down.connect(func(): _press_scroll = page.scroll_vertical)
+		card.pressed.connect(func():
+			if absi(page.scroll_vertical - _press_scroll) > SCROLL_SLOP:
+				card.set_pressed_no_signal(entry.id == selected_item) # a scroll, not a choice
+				return
+			_select(entry.id))
 		binder_grid.add_child(card)
 	_clear(binder_art)
 	binder_detail.text = ""
-	var art_size := 96 if _narrow else 150
-	binder_detail.add_theme_font_size_override("font_size", 18 if _narrow else FONT_SIZE)
+	binder_detail.add_theme_font_size_override("font_size", 20 if _narrow else FONT_SIZE)
 	for entry in shown:
 		if entry.id == selected_item:
-			var picture := Art.slot(entry.asset, art_size, entry.state != "locked")
+			var picture := Art.slot(entry.asset, 220 if _narrow else 260, entry.state != "locked")
 			if entry.state == "mastered": Art.mastered_finish(picture)
 			binder_art.add_child(picture)
 			binder_detail.text = Model.inspect(entry, catalogue)
-	# One height for every item on show: the tallest description at this width.
-	var font := binder_detail.get_theme_font("font")
-	var font_size := binder_detail.get_theme_font_size("font_size")
-	var text_width := maxf(size.x - 32.0 - 2.0 * 12.0 - art_size - 12.0, 120.0)
-	var tallest := float(art_size)
-	for entry in shown:
-		tallest = maxf(tallest, font.get_multiline_string_size(Model.inspect(entry, catalogue), HORIZONTAL_ALIGNMENT_LEFT, text_width, font_size).y)
-	binder_detail.custom_minimum_size = Vector2(0, ceilf(tallest))
 
-## The grid is rebuilt on every choice; keyboard focus follows the chosen control.
+## A tab: flat, with a brass underline when chosen.
+func _tab_style(tab: Button) -> void:
+	var idle := StyleBoxFlat.new()
+	idle.bg_color = Color(0, 0, 0, 0)
+	idle.border_color = Color("2f474f")
+	idle.border_width_bottom = 2
+	idle.set_content_margin_all(10)
+	idle.content_margin_left = 14
+	idle.content_margin_right = 14
+	var chosen := idle.duplicate()
+	chosen.bg_color = Color("1d3138")
+	chosen.border_color = Color("d8b873")
+	chosen.border_width_bottom = 4
+	chosen.corner_radius_top_left = 6
+	chosen.corner_radius_top_right = 6
+	var hover := idle.duplicate()
+	hover.border_color = Color("697a7b")
+	for key in ["normal", "disabled"]:
+		tab.add_theme_stylebox_override(key, idle)
+	tab.add_theme_stylebox_override("hover", hover)
+	for key in ["pressed", "hover_pressed"]:
+		tab.add_theme_stylebox_override(key, chosen)
+	tab.add_theme_color_override("font_color", Color("9aa8a6"))
+	tab.add_theme_color_override("font_pressed_color", Color("f0d99b"))
+	tab.add_theme_color_override("font_hover_pressed_color", Color("f0d99b"))
+	tab.add_theme_font_size_override("font_size", 20)
+	tab.custom_minimum_size = Vector2(0, 48)
+
+## A tapped card is chosen and opens in the preview; keyboard focus follows it.
 func _select(item_id: String) -> void:
 	selected_item = item_id
 	_refresh_binder()
-	entry_button(item_id).grab_focus()
+	open_preview()
 
 func _filter(key: String) -> void:
 	category = key
+	close_preview()
 	_refresh_binder()
-	filter_button(key).grab_focus()
+	var tab := filter_button(key)
+	tab.grab_focus()
+	binder_tabs.ensure_control_visible(tab)
 
 func entry_button(item_id: String) -> Button:
 	return binder_grid.get_node_or_null("Binder_" + item_id.replace(".", "_"))

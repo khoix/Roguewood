@@ -254,8 +254,12 @@ func _second_attempt() -> void:
 	await _win_early("feature", 500, ["The Custodian"])
 	await _focus_accept(lab.shop_panel.continue_button)
 	await _wait_for(func(): return lab.state == "intro", "boss introduction again")
-	_check(lab.hud.intro_remaining <= 2.0 and not lab.hud.intro_body.text.contains(lab.division.rival().intro), "a repeat introduction is shortened")
-	await _wait_for(func(): return lab.state == "aim" and not lab.hud.intro.visible, "the short introduction advances on its own", 300)
+	_check(not lab.hud.intro_body.text.contains(lab.division.rival().intro), "a repeat introduction is shortened")
+	# UI-8: the introduction waits for the player (it used to advance on its own).
+	for i in 420: await process_frame
+	_check(lab.state == "intro" and lab.hud.intro.visible, "seven seconds later the introduction is still up, waiting for the player")
+	await _focus_accept(lab.hud.intro_button)
+	await _wait_for(func(): return lab.state == "aim" and not lab.hud.intro.visible, "the button starts the boss match", 300)
 	await _throw(STRIKE)
 	await _scored()
 	await _focus_accept(lab.next_rack)

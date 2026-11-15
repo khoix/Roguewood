@@ -614,7 +614,7 @@ func _refresh_hand() -> void:
 	if equipment.MODEL == "deck":
 		header = "Draw %d · Discard %d · Used %d" % [counts.draw, counts.discard, counts.exhausted]
 		if state == "frame_done":
-			header = "Keep a card? (optional)" if not division.match_over() else "Match over — the deck recombines and reshuffles"
+			header = "Keep a card? (optional) · hold or double-tap to inspect" if not division.match_over() else "Match over — the deck recombines and reshuffles"
 		elif cycling:
 			header = "Cycle: tap a card to discard it and draw one"
 	else:
@@ -624,17 +624,20 @@ func _refresh_hand() -> void:
 	# UI-2: portrait fans the hand at the thumbs (above the score once a frame is
 	# done); landscape lays it in the hand flank, folded away on narrow screens.
 	var portrait := size.y >= size.x
-	card_hand.max_card_height = (140.0 if state == "frame_done" else PORTRAIT_CARD_HEIGHT) if portrait else 400.0
+	var rect: Rect2 = regions.get("hand", Rect2(16, size.y - 300, size.x - 32, 284))
+	if portrait and state == "frame_done":
+		var top: float = regions.rival.end.y + 8.0
+		rect = Rect2(rect.position.x, top, rect.size.x, maxf(_score_top - 8.0 - top, 200.0))
+	# UI-8: choosing a card to keep, the hand has no Cycle or Inspect button and its
+	# cards are as tall as the section allows (the header, the frame, the fan's drop).
+	card_hand.keep_mode = state == "frame_done"
+	card_hand.max_card_height = (maxf(rect.size.y - 96.0, 140.0) if state == "frame_done" else PORTRAIT_CARD_HEIGHT) if portrait else 400.0
 	card_hand.show_cards(cards, marks, header, equipment.MODEL == "deck", state == "aim" and equipment.can_cycle(), choosing)
 	card_hand.cycle_button.text = "Cancel" if cycling else "Cycle"
 	# The roll view (UI-3): the hand leaves once the ball is away, and while the ball
 	# is held, so the whole lower screen is room to swirl (owner, 2026-11-08).
 	card_hand.visible = state not in ["holding", "rolling", "result", "scoring", "shop", "intro", "division_over"] and (portrait or not regions.get("fold", false) or panels.show_hand)
 	card_hand.set_mode("fan" if portrait else "flank", settings.handedness == "left")
-	var rect: Rect2 = regions.get("hand", Rect2(16, size.y - 300, size.x - 32, 284))
-	if portrait and state == "frame_done":
-		var top: float = regions.rival.end.y + 8.0
-		rect = Rect2(rect.position.x, top, rect.size.x, maxf(_score_top - 8.0 - top, 200.0))
 	card_hand.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	card_hand.grow_vertical = Control.GROW_DIRECTION_END
 	card_hand.position = rect.position
@@ -1223,14 +1226,45 @@ func _show_result() -> void:
 			lines.append("Career progress kept: %d rival(s) cleared." % career.first_clears.size())
 		if CareerProfile.record_items(career, _owned_ids(), career_attempt):
 			_save_career()
-	lines.append_array(_career_lines())
+	var career_lines := _career_lines()
+	lines.append_array(career_lines)
 	lines.append("Attempt %d · total %d · $%d left" % [attempt, total_score, run.money])
-	_result_view = {"title": title, "body": "\n".join(lines), "won": division.outcome == "won"}
+	_result_view = {"title": title, "body": "\n".join(lines), "won": division.outcome == "won", "sections": _result_sections(lines, career_lines, last)}
 	_checkpoint("division_over")
-	hud.show_result(title, _result_view.body, _result_view.won, _retry_label())
+	hud.show_result(title, _result_view.body, _result_view.won, _retry_label(), _result_view.sections)
 	hud.endless_button.visible = _can_endless()
 	_update_status()
 	attempt_finished.emit(division.outcome)
+
+## UI-8: the result sheet's sections (DivisionHud._build_sections), from the same
+## facts as its full text: the outcome in one line, the attempt's numbers, every
+## match, what was won or kept, the goals in progress and the small print.
+func _result_sections(lines: Array, career_lines: Array, last: Dictionary) -> Dictionary:
+	var won: bool = division.outcome == "won"
+	var highlights: Array = []
+	var notes: Array = []
+	for line in lines:
+		var text := String(line)
+		if text.begins_with("First clear:") or text.begins_with("Champion"):
+			highlights.append(text)
+		elif text.begins_with("Rule in force:") or text.begins_with("Already cleared") or text.begins_with("Career progress kept") or text.begins_with("Campaign seed"):
+			notes.append(text)
+	for line in career_lines:
+		var text := String(line)
+		if text.begins_with("Mastery complete") or text.begins_with("Unlocked") or text.begins_with("Earned"):
+			highlights.append(text)
+		elif text.begins_with("Practice:"):
+			notes.append(text)
+	var reached := "D%d/%d" % [division.division_number(), division.division_count()] if division.division_count() > 1 else String(last.kind).capitalize()
+	var place: String = "Division" if division.division_count() == 1 else String(content.get("name", "League"))
+	return {
+		"headline": ("%s cleared!" % place) if won else "Attempt over",
+		"subtitle": ("%s defeated." % division.rival().name) if won else "%s lost · scored %d of the %d target." % [String(last.kind).capitalize(), int(last.score), int(last.target)],
+		"stats": [[str(total_score), "Total"], [reached, "Reached"], ["$%d" % run.money, "Left"], [str(attempt), "Attempt"]],
+		"matches": division.results.map(func(r): return {"division": int(r.get("division", 1)), "kind": String(r.kind), "score": int(r.score), "target": int(r.target), "won": bool(r.won)}),
+		"highlights": highlights,
+		"goals": CareerProfile.goals(career, career_graph.get("objectives", []), career_attempt).map(func(g): return {"name": g.name, "progress": int(g.progress), "threshold": int(g.threshold)}),
+		"notes": notes}
 
 ## What this attempt changed in the Career, and up to three goals in progress (§16):
 ## unlocks join the pool from the next attempt, never this one.
@@ -1352,7 +1386,7 @@ func _restore(payload: Dictionary) -> void:
 		"division_over":
 			state = "division_over"
 			_result_view = lab.result
-			hud.show_result(_result_view.title, _result_view.body, _result_view.won, _retry_label())
+			hud.show_result(_result_view.title, _result_view.body, _result_view.won, _retry_label(), _result_view.get("sections", {}))
 			hud.endless_button.visible = _can_endless()
 	_update_status()
 	money_changed.emit(run.money)
@@ -1908,7 +1942,7 @@ func _layout_resolution() -> void:
 	if compact != _compact:
 		_compact = compact
 		chrome_compact_changed.emit(compact)
-	hud.layout_regions(regions.top_bar, regions.bubble, portrait and not compact, compact, MatchPanels.menu_rect(size).end.y + 8.0)
+	hud.layout_regions(regions.top_bar, regions.bubble, portrait and not compact, compact, MatchPanels.menu_rect(size).end.y + 8.0, MatchPanels.menu_room(size))
 	panels.rail_hidden = state == "frame_done" # the hand and the review take its place
 	panels.apply(regions, state not in ["shop", "intro", "division_over"])
 	panels.hand_toggle.text = "Hand %d" % (card_hand.buttons.size() if card_hand else 0)

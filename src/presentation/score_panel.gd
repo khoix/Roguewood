@@ -29,6 +29,12 @@ var _roll_of: Dictionary = {}
 var _standing: Array = []
 var _timer := 0.0
 var _skipping := false
+## UI-8 (owner's play notes, 2026-11-15): the log's text is sized to the review's
+## width (the longest line of the frame fills it, between these sizes) instead of a
+## fixed 21 px that left half the panel empty.
+const LOG_MIN := 21
+const LOG_MAX := 32
+var log_font := LOG_MIN
 
 func _ready() -> void:
 	name = "ScorePanel"
@@ -68,6 +74,7 @@ func _ready() -> void:
 	log_list.name = "CalculationLog"
 	log_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	log_scroll.add_child(log_list)
+	log_scroll.resized.connect(_fit_log)
 	# UI-5 (owner, 2026-11-10): no Speed or Skip buttons. While the chain is still
 	# counting, a tap on the review (or the accept key) finishes it at once.
 	focus_mode = Control.FOCUS_ALL
@@ -123,6 +130,7 @@ func play(frame_steps: Array, reports: Array, title: String, _pace: int = 1) -> 
 	_standing = reports[-1].knockdown_log.standing.duplicate()
 	for child in log_list.get_children():
 		child.queue_free()
+	_fit_log()
 	hint.modulate.a = 1.0
 	show()
 	if is_inside_tree() and get_viewport().gui_get_focus_owner() == null: grab_focus()
@@ -172,9 +180,7 @@ func _chain_line(step: Dictionary) -> Button:
 	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	line.icon = load(ICONS + _chain_icon(step) + ".svg")
-	line.add_theme_constant_override("icon_max_width", 24)
-	line.add_theme_constant_override("h_separation", 10)
-	line.add_theme_font_size_override("font_size", 21)
+	_style_line(line)
 	for key in ["normal", "hover", "pressed", "disabled", "focus", "hover_pressed"]:
 		line.add_theme_stylebox_override(key, StyleBoxEmpty.new())
 	var color := Color("f4e6cd")
@@ -187,6 +193,27 @@ func _chain_line(step: Dictionary) -> Button:
 	for key in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_disabled_color", "font_hover_pressed_color"]:
 		line.add_theme_color_override(key, color)
 	return line
+
+func _style_line(line: Button) -> void:
+	line.add_theme_constant_override("icon_max_width", int(round(log_font * 1.15)))
+	line.add_theme_constant_override("h_separation", 10)
+	line.add_theme_font_size_override("font_size", log_font)
+
+## The log's size for this frame: the longest line, measured at LOG_MIN, scaled to
+## the room beside its icon; lines already shown follow.
+func _fit_log() -> void:
+	if steps.is_empty() or log_scroll == null or log_scroll.size.x <= 0.0: return
+	var font := get_theme_default_font()
+	var longest := 1.0
+	for step in steps:
+		var text: String = "%s  %s" % [step.symbol, step.text] if not String(step.get("symbol", "")).is_empty() else String(step.text)
+		longest = maxf(longest, font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, LOG_MIN).x)
+	var room := log_scroll.size.x - 16.0 - 10.0 - 24.0 # scroll bar, separation, icon
+	var wanted := clampi(int(floor(LOG_MIN * room / longest)), LOG_MIN, LOG_MAX)
+	if wanted == log_font: return
+	log_font = wanted
+	for line in log_list.get_children():
+		if line is Button: _style_line(line)
 
 ## The card icon for a chain step (docs/art/ui: the score/category masters).
 static func _chain_icon(step: Dictionary) -> String:

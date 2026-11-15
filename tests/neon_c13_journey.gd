@@ -87,8 +87,11 @@ func _champion() -> void:
 	await process_frame
 	await process_frame
 	var bar: Rect2 = lab.hud.bar.get_global_rect()
-	_check(lab.hud.badge.text.contains("\n") and bar.end.x <= lab.regions.top_bar.end.x + 0.5 and not bar.intersects(scene.menu_button.get_global_rect())
-		and bar.end.y <= lab.panels.slip.get_global_rect().position.y, "the two-rule bar stays clear of the menu button and the info row (%s)" % str(bar))
+	# UI-8: the menu button sits inside the bar's corner; the bar's contents keep clear of it.
+	var menu: Rect2 = scene.menu_button.get_global_rect()
+	var clear: bool = [lab.hud.badge, lab.hud.money.get_parent(), lab.hud.title_label, lab.hud.score_label].all(func(c): return not c.get_global_rect().intersects(menu))
+	_check(lab.hud.badge.text.contains("\n") and bar.end.x <= lab.regions.top_bar.end.x + 0.5 and bar.encloses(menu) and clear
+		and bar.end.y <= lab.panels.slip.get_global_rect().position.y, "the two-rule bar holds the menu button in its corner, its contents clear of it, and stays above the info row (%s, %s)" % [str(bar), str(menu)])
 	_check(lab.card_hand.get_global_rect().position.y >= lab.panels.slip.get_global_rect().end.y or lab.card_hand.get_global_rect().position.y > lab.size.y * 0.5,
 		"the hand keeps below the moved info row")
 	# The badge's ⓘ can fall back to a taller system font on another machine (Codex

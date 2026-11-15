@@ -344,7 +344,16 @@ Open: Wave 12 is merged (PR #30, main `cd1cfc9`). Base: `claude/roguewood-build`
   - One conflict, in tests/run_tests.gd: Codex's three art tests and the C18 and C19 mechanics tests are both kept.
   - Validation on the merge: unit, content, physics (digest `75d1a3c0…` unchanged), J01 in both modes, the web journey, JAVN1 and JAVN2 in both modes, JAVN1C, JAVN1BC, JAVN2C and JAVN2BC rendered, J03C15 to J03C19 headless (J03C19 also rendered), J22L02 in both modes, J22L02LIVEART rendered, J03 (560/240/70), J05 (21060) and J11: PASS.
   - Open, from Codex: the landscape phone tour prints a one-resource shutdown warning after finishing (a capture tool, not a test).
-- **Next (Claude):** E17-L03, the Salvage spec (High). Codex's next item art, AV-N3 to AV-N5 for DC-N3 to N5, is Wave 14.
+- **UI-8 DONE** (handoffs/UI-8.md), the owner's play notes of 2026-11-15, before the wave closes:
+  - **Board width:** the board's column keeps the page's width whatever League is chosen.
+  - **Keep section:** choosing a card to keep, the hand has no Cycle or Inspect button and its cards fill the section; a long press or a double tap inspects (the double tap anywhere).
+  - **Frame log:** its text is sized to the review's width.
+  - **Top bar:** the session menu button sits inside it, so the bar spans the screen.
+  - **Binder:** the categories are tabs; a tapped card opens a preview over the page (UI-6's footer is gone); a drag that starts on a card scrolls the page.
+  - **Boss introduction:** it waits for the player.
+  - **End screen:** sections (a headline, tiles, rewards, goals, match chips per Division, notes) in place of a wall of text.
+  - Validation: unit, J01, J03C13, J03C17 (both modes; the keep section and a double tap), J06 (the introduction waits seven seconds, then the button starts the match), J11 (the preview, the tabs and the scroll guard), J22L02 (both modes; the end screen's sections) and the phone tour in both orientations: PASS. The full matrix for the wave's close follows.
+- **Next (Claude):** close Wave 13 (the full matrix). E17-L03, the Salvage spec (High), moves to Wave 14 (owner, 2026-11-15). Codex's next item art, AV-N3 to AV-N5 for DC-N3 to N5, is Wave 14.
 
 ## Wave 12 claims (coordinator: Claude, 2026-11-10)
 Open: Wave 11 is merged (PR #29, main `f65d16f`). Base: `claude/roguewood-build` at the "Wave 12 claims" commit (it adds UI-5 to the claims written at the close). Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave12.md). Scope: docs/ROADMAP.md, the Wave 12 row and "GUI review: UI-4".
