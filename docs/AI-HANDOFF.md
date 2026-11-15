@@ -300,6 +300,7 @@ Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build`
   2. **AV-N4** (DC-N4's five items and the Controlled Curve ribbon; J03C18).
   3. **AV-N5** (DC-N5's five items and the Both Halves and Rebound Rescue ribbons; J03C19).
   - Each with native checks, artwork and effects flags, sounds and reduced-motion versions, as AV-N1 and AV-N2 were.
+  4. **UI-A6** (added by the owner's play notes of 2026-11-15; prompt docs/prompts/codex-wave14-ui-a6.md): a themed pin deck for every League. The House League's kickbacks and cushion are still plain, because the pin-deck finish is applied only to Neon. Make the hook manifest-driven and give the House League its finish.
   - Salvage's rivals and theme follow its spec (Wave 15).
 - **Owner:** play UI-8 on the phone, in particular dragging across Binder cards (no touchscreen in the test environment).
 
@@ -311,7 +312,13 @@ Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build`
   - **Catalogue:** the five land in it.
   - **New journey:** J03C20 on the `salvage_c20` fixture.
   - **Checks:** `unit`, `content`, `physics` (digest `75d1a3c0…` unchanged), `slice`, J03C13, and J03C20 headless and rendered: PASS.
-- **Claude's Wave 14 claims are done.** Next: Codex's AV-N3 to AV-N5, then the full matrix and the "Wave 14 closed" commit.
+- **UI-9 DONE** (handoffs/UI-9.md): the owner's Wave 13 play notes of 2026-11-15.
+  - **Clubhouse:** the board redesigned under the game's logo; Trophies and Goals scroll from any row.
+  - **Boss introduction:** reads as parts.
+  - **Keep section:** cards fill it.
+  - **Frame log:** no longer wraps once scaled.
+  - **The bare House pin deck** is art: Codex's UI-A6.
+- **Claude's Wave 14 claims are done.** Next: Codex's AV-N3 to AV-N5 and UI-A6, then the full matrix and the "Wave 14 closed" commit.
 
 ## Wave 13 closed (coordinator, 2026-11-15)
 **UI-A5, added after the close's matrix (owner, 2026-11-15), is DONE and merged** (Codex `09f2816`; handoffs/UI-A5.md).
