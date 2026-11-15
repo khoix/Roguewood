@@ -35,6 +35,8 @@ const SETS := {
 	"house_c05": {"catalogue": "res://content/catalogue.json", "league": "res://content/fixtures/house_c05_league.json", "unlocks": "res://content/fixtures/house_c05_unlocks.json"},
 	# J03C13 only (E18-C13): the Neon rules and lanes on three short Divisions.
 	"neon_c13": {"catalogue": "res://content/catalogue.json", "league": "res://content/fixtures/neon_c13_league.json", "unlocks": "res://content/fixtures/neon_c13_unlocks.json"},
+	# J03C20 only (E18-C20): the Salvage rules and lanes on three short Divisions.
+	"salvage_c20": {"catalogue": "res://content/catalogue.json", "league": "res://content/fixtures/salvage_c20_league.json", "unlocks": "res://content/fixtures/salvage_c20_unlocks.json"},
 }
 ## Lab starting kit (fixture items, not the production kit): ten Wood pins and a deck
 ## of two copies of three lab ball types plus one tactical card.

@@ -305,7 +305,13 @@ Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build`
 
 ## Wave 14 progress
 - **E17-L03 DONE** (handoffs/E17-L03.md): content/leagues/salvage.json (eight Divisions; Miser Moll, Grimewell and Scrapjack recurring; Scrapjack, Salvage Champion, with Rust plus Dull Pins on Grit; open from the start, opening Foundry); E17-D17 (Grit, Warped Boards, the Salvage Kit); the 33-item plan. `qa.py content` and `unit` PASS.
-- **Next (Claude):** Salvage's rules and lane conditions (Frugal House, Dull Pins, Rust; Grit, Warped Boards).
+- **E18-C20 DONE** (handoffs/E18-C20.md), Salvage's rules and lanes:
+  - **Rules:** Frugal House keeps item payouts; Dull Pins halves every Value a pin adds; Rust switches modifications off.
+  - **Lanes:** Grit drags the ball on the front 30 ft; Warped Boards pushes it right between 20 and 40 ft.
+  - **Catalogue:** the five land in it.
+  - **New journey:** J03C20 on the `salvage_c20` fixture.
+  - **Checks:** `unit`, `content`, `physics` (digest `75d1a3c0…` unchanged), `slice`, J03C13, and J03C20 headless and rendered: PASS.
+- **Claude's Wave 14 claims are done.** Next: Codex's AV-N3 to AV-N5, then the full matrix and the "Wave 14 closed" commit.
 
 ## Wave 13 closed (coordinator, 2026-11-15)
 **UI-A5, added after the close's matrix (owner, 2026-11-15), is DONE and merged** (Codex `09f2816`; handoffs/UI-A5.md).

@@ -1846,7 +1846,7 @@ func _compose_status() -> void:
 			if not RivalRules.ball_allowed(active_rules(), "ball.hook"):
 				status.text += "\nHouse Rules: only the House Ball may be thrown; tactical cards are allowed."
 			for rule in active_rules():
-				if RivalRules.kind(rule) in ["hook_scale", "lane_width", "ring_scale"]:
+				if RivalRules.kind(rule) in ["hook_scale", "lane_width", "ring_scale", "no_item_income", "pin_value_scale", "no_mods"]:
 					status.text += "\n" + RivalRules.summary(rule).replace(" — ", ": ")
 			if lane != null and lane.lane_condition.begins_with("lane_condition.") and lane.lane_condition != "lane_condition.house_oil":
 				status.text += "\nLane: %s" % _lane_text(lane.lane_condition)

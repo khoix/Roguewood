@@ -192,3 +192,14 @@ When E18 lands an authored item, it moves to `content/catalogue.json` and its de
 - **Frame v2:** condition `accurate` (on a roll's own effects: that roll was graded sweet or perfect; elsewhere: any roll was).
 - **Career metric `controlled_curves`** (career or attempt scope): a strike whose first roll was curved and graded sweet or perfect. Older Careers read 0.
 - **Shop upgrades:** `sell_bonus` (Trade-In: a sale returns $1 more, never more than was paid; kit and reward items take the bonus on their base sale value) and `specialist_offer` (Specialist Shelf: one more offer, slot 7 "Specialist", of any category but only items carrying the League's specialist tags; never offered in a League without specialists).
+
+
+**E18-C20 (the Salvage rules and lanes):**
+- **Frame v2:** context `pin_value_scale` (a number, 0 < scale ≤ 1; FrameBuilder copies it below 1). Every `add_value` whose source is a pin is scaled and rounded down per effect, copies and retriggers included; the event keeps `dulled_from`. Ball and Charm Value and every Mult are unchanged.
+- **Boss rules:** `RivalRules` maps `boss_rule.frugal_house` (`no_item_income`), `boss_rule.dull_pins` (`pin_value_scale`) and `boss_rule.rust` (`no_mods`).
+  - `paid(rules, result)` returns `{result, kept}`, the result without payouts under Frugal House.
+  - `frame_context(rules, context)` adds Dull Pins' scale.
+  - `frame_loadout` drops `pin_mods` under Rust.
+  - `mods_off(rules)` tells the lab to play no ball modification, in the scoring or the roll.
+- **Lane conditions:** `LaneSpec.lane_force(condition, f, x, velocity, mass)`. Grit: −1.0 N per m/s of horizontal velocity before 9.144 m. Warped Boards: +0.12 m/s² × mass toward +x from 6.096 to 12.192 m. Zero off the lane surface and for a ball with `oil_hold`. The oil is unchanged.
+- **Score steps:** a payout step under Frugal House may carry `struck: true`.

@@ -1,0 +1,185 @@
+{
+  "schema_version": 1,
+  "id": "league.salvage_c20",
+  "name": "Salvage League (E18-C20 fixture)",
+  "batch": "E18-C20",
+  "note": "Test fixture for J03C20 only (--content=salvage_c20): Miser Moll (Frugal House) on Warped Boards, Grimewell (Dull Pins) on Grit, then the Salvage champion (Rust plus Dull Pins) on Grit, with a scrap rack (Tin in the corners) and low targets so assist strikes reach every boss (Division 1 has three frames a match, so its boss match can spend one on a gutter frame). The rivals are salvage.json's, without Career rewards. Not a League players see; the real Salvage League goes live after its item batches.",
+  "kit": {
+    "id": "kit.house",
+    "name": "House Kit",
+    "pins": [
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.tin",
+      "pin.wood",
+      "pin.wood",
+      "pin.tin"
+    ],
+    "deck": [
+      "ball.hook",
+      "ball.hook",
+      "ball.hammer",
+      "ball.hammer",
+      "ball.echo",
+      "ball.echo"
+    ],
+    "money": 6
+  },
+  "divisions": [
+    {
+      "schema_version": 1,
+      "division": 1,
+      "name": "Salvage fixture · Division 1",
+      "frames_per_match": 3,
+      "matches": [
+        {
+          "id": "match.c20_d1_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 100
+        },
+        {
+          "id": "match.c20_d1_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 150
+        },
+        {
+          "id": "match.c20_d1_boss",
+          "kind": "boss",
+          "name": "Boss",
+          "target": 200,
+          "rival": "rival.miser_moll",
+          "lane_condition": "lane_condition.warped_boards"
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.miser_moll",
+          "name": "Miser Moll",
+          "initials": "MM",
+          "rule": "boss_rule.frugal_house",
+          "intro": "Miser Moll keeps the till under the counter and the key on a string. Under Frugal House your items pay nothing in her match: Gold pins, Tip Jar and every other payout go quiet. Match pay and interest still come, and every point still counts, so bank the score and let the money wait.",
+          "reactions": {
+            "entrance": "Every coin in this yard is spoken for, love. Yours included.",
+            "confident": "Nothing for nothing. That's the house rate.",
+            "impressed": "Hm. Scoring without a penny in it. Rare.",
+            "threatened": "Now that's a lot of points for a pauper.",
+            "defeated": "Take your clear, then. Mind it doesn't cost you.",
+            "victorious": "Broke and beaten. Come back when you've saved up."
+          },
+          "first_clear": {
+            "unlocks": [],
+            "text": "Fixture League: no Career reward."
+          }
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "division": 2,
+      "name": "Salvage fixture · Division 2",
+      "frames_per_match": 2,
+      "matches": [
+        {
+          "id": "match.c20_d2_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 250
+        },
+        {
+          "id": "match.c20_d2_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 300
+        },
+        {
+          "id": "match.c20_d2_boss",
+          "kind": "boss",
+          "name": "Boss",
+          "target": 350,
+          "rival": "rival.grimewell",
+          "lane_condition": "lane_condition.grit"
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.grimewell",
+          "name": "Grimewell",
+          "initials": "GW",
+          "rule": "boss_rule.dull_pins",
+          "intro": "Grimewell never cleans a pin; he says the grime is character. Under Dull Pins every pin's Value is halved in his match, its own and any it copies. Charm Value and every Mult are untouched, so a Mult build shrugs the grime off.",
+          "reactions": {
+            "entrance": "Lovely and filthy, these. Just how I like 'em.",
+            "confident": "Half the shine, half the score.",
+            "impressed": "Didn't need the polish, did you.",
+            "threatened": "Here, who's been wiping my pins?",
+            "defeated": "Fine. Scrub 'em if you must. Take the lane.",
+            "victorious": "Grime wins again. It always does."
+          },
+          "first_clear": {
+            "unlocks": [],
+            "text": "Fixture League: no Career reward."
+          }
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "division": 3,
+      "name": "Salvage fixture · Division 3",
+      "frames_per_match": 2,
+      "matches": [
+        {
+          "id": "match.c20_d3_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 400
+        },
+        {
+          "id": "match.c20_d3_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 450
+        },
+        {
+          "id": "match.c20_d3_boss",
+          "kind": "boss",
+          "name": "Championship",
+          "target": 500,
+          "rival": "rival.scrapjack_champion",
+          "lane_condition": "lane_condition.grit"
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.scrapjack_champion",
+          "name": "Scrapjack, Salvage Champion",
+          "initials": "SJ",
+          "rule": "boss_rule.rust",
+          "extra_rules": [
+            "boss_rule.dull_pins"
+          ],
+          "of": "rival.scrapjack",
+          "intro": "Scrapjack takes the Salvage title night with Grimewell's grime on every pin, on the gritty lane. Under Rust your modifications are switched off, and under Dull Pins every pin's Value is halved. The grit slows the ball before it reaches the rack. Charms and their Mult, and a heavy base ball that carries through the pins, are what still work.",
+          "reactions": {
+            "entrance": "Title night. Everything you own, stripped and filthy.",
+            "confident": "Bare and dull. That's all you've got left.",
+            "impressed": "You built something rust can't touch. Huh.",
+            "threatened": "No mods, no polish, and still coming?",
+            "defeated": "The yard's yours, champion. Keep it running.",
+            "victorious": "Scrap. All of it. Come back with something solid."
+          },
+          "first_clear": {
+            "unlocks": [],
+            "text": "Fixture League: no Career reward."
+          }
+        }
+      ]
+    }
+  ]
+}

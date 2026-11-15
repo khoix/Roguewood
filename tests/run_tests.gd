@@ -46,7 +46,7 @@ func _initialize() -> void:
 		# The C05 and C13 fixture registries are production's plus their own League
 		# (J03C05 and J03C13 only).
 		var live: Dictionary = Contracts.read_json(content_set.UNLOCKS)
-		for fixture_name in ["house_c05_unlocks.json", "neon_c13_unlocks.json"]:
+		for fixture_name in ["house_c05_unlocks.json", "neon_c13_unlocks.json", "salvage_c20_unlocks.json"]:
 			var fixture: Dictionary = Contracts.read_json("res://content/fixtures/" + fixture_name)
 			for key in live:
 				if key not in ["batch", "note", "leagues"] and fixture.get(key) != live[key]:
