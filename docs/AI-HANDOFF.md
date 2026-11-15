@@ -309,7 +309,13 @@ Open: Wave 12 is merged (PR #30, main `cd1cfc9`). Base: `claude/roguewood-build`
   - **For Codex:** the font gained glyphs only (every existing outline and width is identical); merge `origin/claude/roguewood-build` before any font work. The equipment strip is a flow container now, and hosted slots show the identity only, 44 px square. Any of the 18 symbols may be redrawn in patch_symbols.py.
   - New checks: unit (the font covers every character in src/ and content/; rings ride the fanned face; the art-to-come mark), J11 (the footer keeps its height and the grid its place) and J22L02 (five Charms in the rail, on the screen, in equal slots; the slip's chain uncut).
   - Validation: unit; J22L02 (both modes), J03C13, J03C10, J03C16, J11, J11ART and JUIA2 rendered; J08 and J02 headless: PASS. The phone tour was captured before and after at 780×1688. The full matrix: see the next line.
-  - Full matrix: running on this commit when it was pushed; its result is recorded in the commit that follows.
+  - Full matrix: all 222 CI commands PASS locally on `333c0af` (two of them, J22L02RULEART and J22L02LIVEART rendered, re-run in a clean worktree at `9d677c4` because the working tree changed while they ran). The physics digest `75d1a3c0…` is unchanged. Early merge: PR #31 (open).
+- **DC-N3 DONE** (handoffs/E18-C17.md; E17-D14 with E18-C17): the rest of Neon's opening pool, with the two primitives the plan left for Wave 13.
+  - Side reading (`left_side`: the ball left of the centre board at 34 ft, logged only when true), lane reading (the frame context's `lane_condition` and condition `lane`) and a tactical card's one-throw hook (`spin_response`). Contracts in docs/CONTRACTS.md.
+  - Dry Side, Lane Reader, Hook Shot, Line Call, Bounce Back and Straight Money, all initial from Division 1, each scored through the real FrameBuilder and played natively in J03C17.
+  - Eighteen of Neon's 28 items are landed and its initial pool is complete. Left for DC-N4 and N5: two shop upgrades and the eight mastery items with their objectives.
+  - **Hand-off to Codex (AV-N3, Wave 14):** the six items; J03C17 and its five captures.
+  - Validation: unit (mechanics_c17_test; counts 47 Charms, 8 tactical cards, a fresh binder 17 Locked and 80 Available), content, integration, physics (the side flag on real rolls; digest `75d1a3c0…` unchanged), J03C17 headless and rendered, and J03 (560/240/70), J05 (21060), J03C11, J03C15, J03C16, J06, J11, J22L01 and J22L02 headless: PASS. The full matrix runs at the wave's close.
 
 ## Wave 12 claims (coordinator: Claude, 2026-11-10)
 Open: Wave 11 is merged (PR #29, main `f65d16f`). Base: `claude/roguewood-build` at the "Wave 12 claims" commit (it adds UI-5 to the claims written at the close). Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave12.md). Scope: docs/ROADMAP.md, the Wave 12 row and "GUI review: UI-4".

@@ -126,6 +126,9 @@
     },
     "rebounded": {
       "type": "boolean"
+    },
+    "left_side": {
+      "type": "boolean"
     }
   },
   "required": [

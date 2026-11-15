@@ -360,6 +360,8 @@ func _finish() -> void:
 	}
 	if tracker.rebounded:
 		report.knockdown_log["rebounded"] = true # only when it happened: older logs stay as they were
+	if tracker.left_side:
+		report.knockdown_log["left_side"] = true # likewise only when true
 	for position in pins:
 		pins[position].freeze = true
 	ball.freeze = true

@@ -194,6 +194,17 @@
                     },
                     "first_hit": {
                       "type": "boolean"
+                    },
+                    "left_side": {
+                      "type": "boolean"
+                    },
+                    "lane": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "string",
+                        "pattern": "^(lane\\.house|lane\\.dry|lane_condition\\.[a-z][a-z0-9_]*)$"
+                      }
                     }
                   },
                   "required": [],

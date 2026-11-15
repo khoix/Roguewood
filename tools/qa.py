@@ -72,6 +72,7 @@ JOURNEYS = {
         ("glass_shop", "glass_inventory", "glass_rack", "glass_rack_detail", "glass_reduced", "glass_landscape", "glass_break", "glass_break_detail", "glass_binder", "glass_restored", "glass_next_rack"), 900, ["--fixed-fps", "60"]),
     "J03C02": ("res://tests/glass_c02_journey.gd", "ROGUEWOOD_J03C02_OK", "artifacts/e18-c02", ("c02_breaks", "c02_reloaded", "c02_second"), 600, ["--fixed-fps", "60"]),
     "J03C05": ("res://tests/house_c05_journey.gd", "ROGUEWOOD_J03C05_OK", "artifacts/e18-c05", ("c05_house_rules", "c05_champion", "c05_house_pins"), 900, ["--fixed-fps", "60"]),
+    "J03C17": ("res://tests/neon_c17_journey.gd", "ROGUEWOOD_J03C17_OK", "artifacts/e18-c17", ("c17_shop", "c17_line_call", "c17_dry_side", "c17_lane_reader", "c17_bounce_back"), 900, ["--fixed-fps", "60"]),
     "J03C16": ("res://tests/neon_c16_journey.gd", "ROGUEWOOD_J03C16_OK", "artifacts/e18-c16", ("c16_shop", "c16_spare", "c16_glow_strike", "c16_straight"), 900, ["--fixed-fps", "60"]),
     "J03C15": ("res://tests/neon_c15_journey.gd", "ROGUEWOOD_J03C15_OK", "artifacts/e18-c15", ("c15_shop", "c15_rebound", "c15_curved_strike", "c15_laser"), 900, ["--fixed-fps", "60"]),
     "J03C13": ("res://tests/neon_c13_journey.gd", "ROGUEWOOD_J03C13_OK", "artifacts/e18-c13", ("c13_oil_slick", "c13_narrow_lane", "c13_champion"), 900, ["--fixed-fps", "60"]),

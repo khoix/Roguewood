@@ -20,9 +20,10 @@ static func pin(item: Dictionary) -> Dictionary:
 ## - a ball with `oil_hold` meets every lane as House Oil;
 ## - a ball modification with `gutter_rebound` gives the roll one rebound off the
 ##   gutter edge, unless the frame has used it (`rebound_used`);
-## - a ball modification's `spin_response` scales the hook the charge produces.
+## - a ball modification's `spin_response` scales the hook the charge produces;
+## - E18-C17: so does a tactical card's played with the throw (Hook Shot), on top.
 ## An empty result changes nothing.
-static func roll_rules(ball_item: Dictionary, mod_item: Dictionary = {}, rebound_used: bool = false) -> Dictionary:
+static func roll_rules(ball_item: Dictionary, mod_item: Dictionary = {}, rebound_used: bool = false, tactic_item: Dictionary = {}) -> Dictionary:
 	var out := {}
 	if bool(ball_item.get("physics", {}).get("oil_hold", false)):
 		out["oil_hold"] = true
@@ -31,6 +32,9 @@ static func roll_rules(ball_item: Dictionary, mod_item: Dictionary = {}, rebound
 		out["gutter_rebound"] = true
 	if mod.has("spin_response"):
 		out["spin_scale"] = float(mod.spin_response)
+	var tactic: Dictionary = tactic_item.get("physics", {})
+	if tactic.has("spin_response"):
+		out["spin_scale"] = float(out.get("spin_scale", 1.0)) * float(tactic.spin_response)
 	return out
 
 ## The profile table for one roll: every catalogue ball by id, and the racked pins

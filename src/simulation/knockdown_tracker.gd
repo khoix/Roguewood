@@ -46,6 +46,10 @@ var gutter_edge := Lane.LANE_HALF_WIDTH
 const REBOUND_GRACE := 24
 var rebounds_left := 0
 var rebounded := false
+## E18-C17: the ball was left of the centre board where it crossed 34 ft (the line
+## where Two-Tone's left oil ends), on any lane.
+var left_side := false
+var _side_read := false
 var _rebound_side := 0.0
 var _grace := 0
 
@@ -105,6 +109,9 @@ func _track_ball(ball: Dictionary) -> void:
 			_grace = REBOUND_GRACE
 		else:
 			gutter = true
+	if _last_ball != null and not _side_read and _last_ball.f < Lane.TWO_TONE_LEFT_END_F and f >= Lane.TWO_TONE_LEFT_END_F:
+		_side_read = true
+		left_side = lerpf(_last_ball.x, x, (Lane.TWO_TONE_LEFT_END_F - _last_ball.f) / (f - _last_ball.f)) < 0.0 and not gutter
 	if _last_ball != null and not target_crossed and _last_ball.f < Lane.TARGET_PLANE_F and f >= Lane.TARGET_PLANE_F:
 		var t: float = (Lane.TARGET_PLANE_F - _last_ball.f) / (f - _last_ball.f)
 		target_crossed = true
