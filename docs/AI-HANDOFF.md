@@ -324,9 +324,12 @@ Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build`
   - **What:** the held ball's spin is a flywheel with momentum, driven by the area the finger's path sweeps. The tuning page picks A (the swing plus a flywheel; the default), B (spin in place) or the earlier orbit charge.
   - **Checks:** `unit` (new `_flywheel` cases for A and B), J02 headless and rendered (wind up, pause, curve; B under the finger), J01, J06, J08, JAVT01 and `web`: PASS.
   - **Waiting on:** the owner's phone trial to choose A or B and set the values.
+- **AV-T02 DONE and merged** (Codex `991bfd1`, merge `d079607`; handoffs/AV-T02.md):
+  - **What:** the spinning held ball gets streak rings that grow with spin, a steady full-charge seal and stationary sparkles, for both spin models and both views. JAVT01 adds B's captures.
+  - **Checks on the merge:** `unit`, `content`, `physics` (digest `75d1a3c0…`), JAVT01 and J02 headless and rendered, and J08: PASS.
 - **Claude's Wave 14 claims are done.** Next:
   - the owner's E05-R5 phone trial;
-  - Codex's AV-N3 to AV-N5, UI-A6 and AV-T02;
+  - Codex's AV-N3 to AV-N5 and UI-A6 (AV-T02 is merged);
   - then the full matrix and the "Wave 14 closed" commit.
 
 ## Wave 13 closed (coordinator, 2026-11-15)
