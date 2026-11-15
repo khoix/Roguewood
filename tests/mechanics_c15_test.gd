@@ -23,8 +23,8 @@ static func run() -> Array[String]:
 	var items := {}
 	for item in catalogue.items:
 		items[item.id] = item
-	_expect(IDS.all(func(id): return items.has(id) and items[id].completeness.mechanics and not items[id].completeness.artwork and not items[id].completeness.effects_audio),
-		"the six items are in the catalogue with mechanics; their art flags wait for Codex", failures)
+	_expect(IDS.all(func(id): return items.has(id) and items[id].completeness.mechanics and items[id].completeness.artwork and items[id].completeness.effects_audio),
+		"the six items have mechanics and AV-N1 artwork/effects evidence", failures)
 	# E22-L02 registered the Neon gates and moved the five rewards onto them.
 	var gates := {"ball.oilskin": "gate.slick_cleared", "ball.laser": "gate.laser_lena_cleared", "pin.tempo": "gate.dj_flicker_cleared",
 		"charm.neon_sign": "gate.neon_champion_cleared", "ball_mod.blacklight": "gate.neon_champion"}

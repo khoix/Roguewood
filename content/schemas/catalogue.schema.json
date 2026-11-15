@@ -198,6 +198,9 @@
                     "left_side": {
                       "type": "boolean"
                     },
+                    "accurate": {
+                      "type": "boolean"
+                    },
                     "lane": {
                       "type": "array",
                       "minItems": 1,

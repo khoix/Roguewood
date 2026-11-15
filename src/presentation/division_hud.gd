@@ -12,8 +12,6 @@ signal endless_pressed
 signal retry_pressed
 signal menu_pressed
 
-const INTRO_FIRST_SEC := 6.0
-const INTRO_REPEAT_SEC := 2.0
 
 var bar: PanelContainer
 var info: Label
@@ -50,7 +48,6 @@ var score_label: Label
 var frames_label: Label
 var _top_row: HBoxContainer
 var _bottom_row: HBoxContainer
-var intro_remaining := 0.0
 
 ## A developmental rival badge: a coloured disc, initials and a mood mouth.
 class Portrait extends Control:
@@ -112,6 +109,11 @@ func _ready() -> void:
 	info.visible = false
 	row.add_child(info)
 	title_label = _bar_label(row, "MatchTitle", 20, UiTheme.IVORY)
+	# UI-8: room at the top row's right end for the session menu button, which sits
+	# inside the bar's corner (its width is set with the layout).
+	menu_room = Control.new()
+	menu_room.name = "MenuRoom"
+	menu_room.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	title_label.clip_text = true
@@ -207,8 +209,21 @@ func _ready() -> void:
 	result_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	result_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	result_box.add_child(result_scroll)
-	result_body = _label(result_scroll, "ResultBody", 22)
+	# UI-8 (owner's play notes, 2026-11-15: the end screen read as a wall of text):
+	# sections under the title (a one-line outcome, stat tiles, each Division's
+	# matches as chips, rewards, goals with bars, notes). `result_body` keeps the full
+	# text for tools and tests, and shows only for a save older than the sections.
+	result_sections = VBoxContainer.new()
+	result_sections.name = "ResultSections"
+	result_sections.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	result_sections.add_theme_constant_override("separation", 14)
+	result_scroll.add_child(result_sections)
+	result_body = _label(result_sections, "ResultBody", 22)
 	result_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	result_view = VBoxContainer.new()
+	result_view.name = "ResultView"
+	result_view.add_theme_constant_override("separation", 14)
+	result_sections.add_child(result_view)
 	endless_button = _button(result_box, "ContinueEndless", "Continue Endless", func(): endless_pressed.emit())
 	endless_button.hide()
 	retry_button = _button(result_box, "RetryDivision", "Retry Division", func(): retry_pressed.emit())
@@ -267,7 +282,7 @@ func layout(top: float, bubble_top: float) -> void:
 ## over the rival's panel at `bubble`.
 ## `sheet_top` (UI-5): the introduction and result sheets start below the session
 ## menu button, which stays in reach over them.
-func layout_regions(bar_rect: Rect2, bubble: Rect2, portrait: bool, slim: bool = false, sheet_top: float = -1.0) -> void:
+func layout_regions(bar_rect: Rect2, bubble: Rect2, portrait: bool, slim: bool = false, sheet_top: float = -1.0, menu_width: float = 0.0) -> void:
 	side_box.vertical = false
 	# Portrait: title and money on top, score, frames and the rule badge below.
 	# Landscape: one row.
@@ -275,11 +290,15 @@ func layout_regions(bar_rect: Rect2, bubble: Rect2, portrait: bool, slim: bool =
 	var money_slot: Control = money.get_parent()
 	for node in [score_label, frames_label, badges, money_slot]:
 		node.get_parent().remove_child(node)
+	if menu_room.get_parent() != null:
+		menu_room.get_parent().remove_child(menu_room)
 	if portrait:
 		_top_row.add_child(money_slot)
 		for node in [score_label, frames_label, badges]: _bottom_row.add_child(node)
 	else:
 		for node in [score_label, frames_label, badges, money_slot]: _top_row.add_child(node)
+	_top_row.add_child(menu_room)
+	menu_room.custom_minimum_size = Vector2(menu_width, 0)
 	_bottom_row.visible = portrait
 	badge.custom_minimum_size = Vector2(0, 40)
 	# The roll view's slim bar: the match and its score only.
@@ -330,6 +349,9 @@ func layout_regions(bar_rect: Rect2, bubble: Rect2, portrait: bool, slim: bool =
 ## button): a long score, frame count and two-rule badge step down in size until
 ## the row fits, and as a last resort the frame count is cut short.
 const BAR_STEPS := [[28, 18, 18], [28, 16, 16], [26, 15, 16], [24, 15, 15], [22, 14, 15], [20, 14, 14]] # score, frames, badge
+var result_sections: VBoxContainer
+var result_view: VBoxContainer
+var menu_room: Control
 var _bar_width := 0.0
 var _bar_slim := false
 
@@ -430,8 +452,9 @@ func _portrait(portrait: Portrait, rival: Dictionary, mood: String) -> void:
 	portrait.age = 0
 	portrait.queue_redraw()
 
-## The rival's entrance. Skippable at once; it advances on its own after a few
-## seconds (shorter once the rival has been met). Reduced motion: no fade.
+## The rival's entrance. It stays until the player presses its button (UI-8, owner's
+## play notes, 2026-11-15: it used to advance on its own after a few seconds); a rival
+## already met gets the short version. Reduced motion: no fade.
 func show_intro(rival: Dictionary, target: int, rule_summary: String, reward: String, seen_before: bool) -> void:
 	_portrait(intro_portrait, rival, "entrance")
 	intro_reward.texture = ItemArt.slot(RivalArt.entry(rival.get("id", "")).get("reward", ""), "icon")
@@ -444,7 +467,6 @@ func show_intro(rival: Dictionary, target: int, rule_summary: String, reward: St
 	if not seen_before:
 		body = rival.intro + "\n\n" + body + "\n\n“%s”" % rival.reactions.get("entrance", "")
 	intro_body.text = body
-	intro_remaining = INTRO_REPEAT_SEC if seen_before else INTRO_FIRST_SEC
 	intro.show()
 	intro.modulate.a = 1.0
 	if not reduced_motion:
@@ -463,10 +485,6 @@ func _process(delta: float) -> void:
 	result_portrait.custom_minimum_size = Vector2(48,48) if compact else Vector2(96,96)
 	result.get_child(0).add_theme_constant_override("separation",4 if compact else 12)
 	for portrait in [intro_portrait, reaction_portrait, result_portrait]: portrait.still = reduced_motion
-	if intro.visible:
-		intro_remaining -= delta
-		if intro_remaining <= 0.0:
-			_finish_intro()
 
 func _finish_intro() -> void:
 	if not intro.visible:
@@ -474,13 +492,16 @@ func _finish_intro() -> void:
 	intro.hide()
 	intro_done.emit()
 
-func show_result(title: String, body: String, won: bool, retry_label: String = "Retry Division") -> void:
+func show_result(title: String, body: String, won: bool, retry_label: String = "Retry Division", sections: Dictionary = {}) -> void:
 	_portrait(result_portrait, current_rival, "defeated" if won else "victorious")
 	result_portrait.visible = result_portrait.texture != null
 	result_reward.texture = ItemArt.slot(RivalArt.entry(current_rival.get("id", "")).get("reward", ""), "icon")
 	result_reward.visible = won and result_reward.texture != null
 	result_title.text = title
 	result_body.text = body
+	result_body.visible = sections.is_empty()
+	result_title.visible = sections.is_empty() # the sections carry a shorter headline
+	_build_sections(sections, won)
 	_fit_result()
 	retry_button.text = "New Attempt" if won else retry_label
 	endless_button.hide()
@@ -490,7 +511,7 @@ func show_result(title: String, body: String, won: bool, retry_label: String = "
 ## The result reads as one centred block: the body takes the height its text needs
 ## (scrolling only when the sheet cannot hold it), not all the height there is.
 func _fit_result() -> void:
-	var scroll: ScrollContainer = result_body.get_parent()
+	var scroll: ScrollContainer = result_sections.get_parent()
 	var box: VBoxContainer = scroll.get_parent()
 	scroll.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	for i in 2:
@@ -501,7 +522,165 @@ func _fit_result() -> void:
 			if child != scroll and (child as Control).visible:
 				others += (child as Control).get_combined_minimum_size().y + box.get_theme_constant("separation")
 		var room := maxf(result.size.y - 32.0 - others, 80.0)
-		scroll.custom_minimum_size.y = minf(result_body.get_combined_minimum_size().y, room)
+		scroll.custom_minimum_size.y = minf(result_sections.get_combined_minimum_size().y, room)
+
+const WON := Color("95d9cb")
+const LOST := Color("e08a7a")
+const NOTE := Color("9aa8a6")
+
+## sections: {subtitle, stats: [[value, caption]], matches: [{division, kind, score,
+## target, won}], highlights: [text], goals: [{name, progress, threshold}], notes: [text]}.
+func _build_sections(sections: Dictionary, won: bool) -> void:
+	for child in result_view.get_children():
+		result_view.remove_child(child)
+		child.queue_free()
+	result_view.visible = not sections.is_empty()
+	if sections.is_empty(): return
+	var headline := _label(result_view, "ResultHeadline", 34)
+	headline.text = String(sections.get("headline", ""))
+	var subtitle := _label(result_view, "ResultSubtitle", 22)
+	subtitle.text = String(sections.get("subtitle", ""))
+	subtitle.add_theme_color_override("font_color", WON if won else LOST)
+	var tiles := HBoxContainer.new()
+	tiles.name = "ResultStats"
+	tiles.add_theme_constant_override("separation", 8)
+	result_view.add_child(tiles)
+	for stat in sections.get("stats", []):
+		tiles.add_child(_tile(String(stat[0]), String(stat[1])))
+	var highlights: Array = sections.get("highlights", [])
+	if not highlights.is_empty():
+		_section_heading("Rewards" if won else "Kept")
+		for text in highlights:
+			var line := _label(result_view, "ResultHighlight", 19)
+			line.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+			line.text = "◆  " + String(text)
+			line.add_theme_color_override("font_color", UiTheme.BRASS)
+	var goals: Array = sections.get("goals", [])
+	if not goals.is_empty():
+		_section_heading("Goals")
+		for goal in goals:
+			result_view.add_child(_goal_row(goal))
+	var matches: Array = sections.get("matches", [])
+	if not matches.is_empty():
+		_section_heading("Matches")
+		var grid := VBoxContainer.new()
+		grid.name = "ResultMatches"
+		grid.add_theme_constant_override("separation", 6)
+		result_view.add_child(grid)
+		# One header row names the match kinds; each Division's chips follow it.
+		var kinds: Array = []
+		for m in matches:
+			if String(m.get("kind", "")) not in kinds: kinds.append(String(m.get("kind", "")))
+		var head := HBoxContainer.new()
+		head.add_theme_constant_override("separation", 6)
+		grid.add_child(head)
+		var corner := Control.new()
+		corner.custom_minimum_size.x = 44
+		head.add_child(corner)
+		for kind in kinds:
+			var label := Label.new()
+			label.text = kind.capitalize()
+			label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			label.add_theme_font_size_override("font_size", 16)
+			label.add_theme_color_override("font_color", NOTE)
+			head.add_child(label)
+		var rows := {}
+		for m in matches:
+			var key := int(m.get("division", 1))
+			if not rows.has(key):
+				var row := HBoxContainer.new()
+				row.add_theme_constant_override("separation", 6)
+				grid.add_child(row)
+				var label := Label.new()
+				label.text = "D%d" % key
+				label.custom_minimum_size.x = 44
+				label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+				label.add_theme_font_size_override("font_size", 18)
+				label.add_theme_color_override("font_color", NOTE)
+				row.add_child(label)
+				rows[key] = row
+			rows[key].add_child(_match_chip(m))
+	for text in sections.get("notes", []):
+		var note := _label(result_view, "ResultNote", 16)
+		note.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+		note.text = String(text)
+		note.add_theme_color_override("font_color", NOTE)
+
+func _section_heading(text: String) -> void:
+	var heading := _label(result_view, "ResultHeading", 20)
+	heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	heading.text = text.to_upper()
+	heading.add_theme_color_override("font_color", UiTheme.SEA_GLASS)
+
+static func _flat(fill: Color, border: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = fill
+	style.border_color = border
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(6)
+	style.set_content_margin_all(6)
+	return style
+
+func _tile(value: String, caption: String) -> Control:
+	var tile := PanelContainer.new()
+	tile.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	tile.add_theme_stylebox_override("panel", _flat(Color("16242b"), Color("2f474f")))
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 0)
+	tile.add_child(box)
+	var number := Label.new()
+	number.text = value
+	number.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	number.add_theme_font_size_override("font_size", 26)
+	number.add_theme_color_override("font_color", UiTheme.IVORY)
+	box.add_child(number)
+	var label := Label.new()
+	label.text = caption
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 15)
+	label.add_theme_color_override("font_color", NOTE)
+	box.add_child(label)
+	return tile
+
+func _match_chip(m: Dictionary) -> Control:
+	var won: bool = bool(m.get("won", false))
+	var chip := PanelContainer.new()
+	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	chip.add_theme_stylebox_override("panel", _flat(Color("1b3330") if won else Color("3a2224"), WON if won else LOST))
+	var label := Label.new()
+	label.text = "%s  %d / %d" % ["✓" if won else "✗", int(m.get("score", 0)), int(m.get("target", 0))]
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 15)
+	label.add_theme_color_override("font_color", UiTheme.IVORY)
+	chip.add_child(label)
+	return chip
+
+func _goal_row(goal: Dictionary) -> Control:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	var name_label := Label.new()
+	name_label.text = String(goal.get("name", ""))
+	name_label.custom_minimum_size.x = 170
+	name_label.add_theme_font_size_override("font_size", 18)
+	row.add_child(name_label)
+	var bar := ProgressBar.new()
+	bar.show_percentage = false
+	bar.max_value = maxi(int(goal.get("threshold", 1)), 1)
+	bar.value = mini(int(goal.get("progress", 0)), int(bar.max_value))
+	bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	bar.custom_minimum_size.y = 14
+	bar.add_theme_stylebox_override("background", _flat(Color("0d161b"), Color("2f474f")))
+	var fill := _flat(UiTheme.BRASS, UiTheme.BRASS)
+	fill.set_content_margin_all(0)
+	bar.add_theme_stylebox_override("fill", fill)
+	row.add_child(bar)
+	var count := Label.new()
+	count.text = "%d/%d" % [mini(int(goal.get("progress", 0)), int(goal.get("threshold", 1))), int(goal.get("threshold", 1))]
+	count.add_theme_font_size_override("font_size", 18)
+	row.add_child(count)
+	return row
 
 func hide_result() -> void:
 	result.hide()

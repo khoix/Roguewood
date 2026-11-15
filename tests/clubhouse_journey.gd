@@ -84,32 +84,45 @@ func _back_to_clubhouse() -> void:
 func _stage_one_clubhouse() -> void:
 	var club = scene.clubhouse
 	await _tab("binder", true)
-	_check(club.binder_counts.text == "17 Locked · 80 Available · 0 Discovered · 0 Mastered", "a fresh binder: %s" % club.binder_counts.text)
+	_check(club.binder_counts.text == "25 Locked · 82 Available · 0 Discovered · 0 Mastered", "a fresh binder: %s" % club.binder_counts.text)
 	var tiles: Array = club.binder_stats.get_children().map(func(t): return t.get_child(0).get_child(0).text + " " + t.get_child(0).get_child(1).text)
 	_check(" · ".join(tiles) == club.binder_counts.text, "the binder's tiles show the same counts: %s" % str(tiles))
 	var cards: Array = club.binder_grid.get_children()
 	_check(is_equal_approx(cards[2].global_position.y, cards[0].global_position.y) and not is_equal_approx(cards[3].global_position.y, cards[0].global_position.y)
 		and cards[2].get_global_rect().end.x <= club.size.x, "a phone's binder is three cards across")
 	await _focus_accept(club.filter_button("charm"))
-	_check(club.category == "charm" and club.binder_grid.get_child_count() == 47, "the Charms filter shows the forty-seven Charms")
+	_check(club.category == "charm" and club.binder_grid.get_child_count() == 52, "the Charms filter shows the fifty-two Charms")
 	var encore := await _card("charm.encore")
 	_check(encore.state == "locked" and club.selected_item == "charm.encore" and club.binder_detail.text.contains("Unlock: Beat The Surveyor (House League)")
 		and club.binder_art.get_child(0) is TextureRect and club.binder_art.get_child(0).texture == load(encore.asset), "inspecting Encore: Locked, the rival that unlocks it, actual catalogue artwork")
-	# UI-6: the chosen item's description is a footer below the scrolling page. It
-	# stays in view, and choosing an item with a longer or shorter description never
-	# moves the grid; the chosen card's ring is inside the page's clip.
+	# UI-8: a tapped card opens in a preview over the page; Close returns to the grid,
+	# which has not moved. The categories are tabs above the scrolling page.
 	var scroll: ScrollContainer = club.pages.binder.get_parent()
 	var grid_y: float = club.binder_grid.global_position.y - scroll.scroll_vertical
-	var footer_height: float = club.binder_footer.size.y
 	var chosen: Control = club.entry_button("charm.encore")
-	_check(club.binder_footer.visible and club.binder_footer.get_global_rect().end.y <= club.size.y and club.binder_footer.global_position.y >= scroll.get_global_rect().end.y - 1.0
-		and club.binder_footer.is_ancestor_of(club.binder_detail), "the Binder's description is a footer below the scrolling page")
+	_check(club.binder_preview.visible and club.binder_preview.is_ancestor_of(club.binder_detail) and club.binder_preview.is_ancestor_of(club.binder_art)
+		and club.preview_close.has_focus(), "the tapped card opens in the preview, its picture and history over the page")
+	_check(club.binder_tabs.visible and club.binder_tabs.get_global_rect().end.y <= scroll.global_position.y + 1.0 and club.filter_button("charm").button_pressed,
+		"the categories are tabs above the scrolling page, Charms chosen")
 	_check(chosen.global_position.x - 3.0 >= scroll.global_position.x and chosen.get_global_rect().end.x + 3.0 <= scroll.get_global_rect().end.x,
 		"the page's edges leave room for the chosen card's ring: %s in %s" % [str(chosen.get_global_rect()), str(scroll.get_global_rect())])
+	await _capture("clubhouse_preview")
+	await _focus_accept(club.preview_close)
+	_check(not club.binder_preview.visible and chosen.has_focus(), "Close returns to the chosen card")
 	var other: Dictionary = await _card("charm.flat_bonus")
-	_check(other.state != "locked" and club.selected_item == "charm.flat_bonus" and club.binder_detail.text != "" and is_equal_approx(club.binder_footer.size.y, footer_height),
-		"choosing another item changes the description, not the footer's height (%s, %s)" % [str(club.binder_footer.size.y), str(footer_height)])
-	_check(is_equal_approx(club.binder_grid.global_position.y - scroll.scroll_vertical, grid_y), "the grid does not move when the description changes")
+	_check(other.state != "locked" and club.selected_item == "charm.flat_bonus" and club.binder_detail.text != "" and club.binder_preview.visible,
+		"choosing another card opens its preview")
+	_check(is_equal_approx(club.binder_grid.global_position.y - scroll.scroll_vertical, grid_y), "the grid does not move")
+	await _focus_accept(club.preview_close)
+	# A finger that lands on a card and drags scrolls the page: the cards pass the drag
+	# on, never tilt, and a press that ended in a scroll opens nothing.
+	var card: Control = club.entry_button("charm.flat_bonus")
+	_check(card.mouse_filter == Control.MOUSE_FILTER_PASS and not card.tilt_enabled, "binder cards pass a drag to the page and do not tilt")
+	card.button_down.emit()
+	scroll.scroll_vertical += 120
+	card.pressed.emit()
+	_check(not club.binder_preview.visible and club.selected_item == "charm.flat_bonus", "a press that turned into a scroll opens no preview")
+	scroll.scroll_vertical = 0
 	encore = await _card("charm.encore")
 	await _capture("clubhouse_locked")
 	await _tab("goals")

@@ -161,6 +161,13 @@ func _title() -> void:
 	await _wait_for(func(): return lab.hud.result.visible, "victory screen")
 	var career: Dictionary = scene.career
 	_check(lab.hud.result_title.text.contains("Neon League cleared") and lab.hud.result_body.text.contains("D8 Boss"), "the victory lists the League's Divisions")
+	# UI-8: the end screen reads as sections: a headline, tiles, rewards, goals, and
+	# one row of match chips per Division under a header row.
+	var view: Control = lab.hud.result_view
+	var matches: Control = view.find_child("ResultMatches", true, false)
+	_check(view.visible and not lab.hud.result_body.visible and view.find_child("ResultHeadline", true, false).text == "Neon League cleared!"
+		and view.find_child("ResultStats", true, false).get_child_count() == 4 and matches != null and matches.get_child_count() == 9
+		and view.find_children("ResultHighlight", "", true, false).size() >= 1, "the end screen is sections: headline, four tiles, rewards and eight Division rows")
 	_check(RULES.keys().all(func(r): return career.first_clears.has(r)), "Slick, Laser Lena, DJ Flicker and the champion are first clears")
 	_check(GATES.all(func(g): return g in career.unlocked) and int(career.championships.get("league.neon", {}).get("wins", 0)) == 1
 		and not career.championships.has("league.house"), "the four rival gates and the Neon title are in the Career; the House title is not")

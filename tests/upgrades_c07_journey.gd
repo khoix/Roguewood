@@ -165,8 +165,10 @@ func _surveyor() -> void:
 	_check(boss.match_won and lab.division.division_cleared(), "The Surveyor is beaten")
 	await _to_shop("division cleared")
 	var index := _license_index()
-	_check(index >= 0 and lab.shop.offers[index].division == 2 and lab.shop.offers[index].item_id.is_empty() and _button(index).text.begins_with("License\nNothing available"),
-		"Division 2's License offer is redrawn, and offers nothing once every House upgrade is owned")
+	# E18-C18: Neon's Trade-In shares the catalogue; Specialist Shelf is never offered
+	# in a League without specialists, so it is the only upgrade left.
+	_check(index >= 0 and lab.shop.offers[index].division == 2 and lab.shop.offers[index].item_id == "shop_upgrade.trade_in" and _button(index).text.begins_with("License"),
+		"Division 2's License offer is redrawn, and once every House upgrade is owned it offers Trade-In, never Specialist Shelf (%s)" % lab.shop.offers[index].item_id)
 	await _capture("c07_division_two")
 
 func _capture(label: String) -> void:

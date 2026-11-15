@@ -52,6 +52,8 @@ var _ring: Control
 ## True while the item has no illustration yet: the face shows its category mark,
 ## dimmed, with "ART TO COME" (art batches follow the item batches).
 var art_pending := false
+## UI-8: off in the Binder, where a finger on a card scrolls the page.
+var tilt_enabled := true
 var _back: TextureRect
 var _parts: Dictionary = {}
 var _hint := ""
@@ -211,7 +213,7 @@ func deal_in(delay: float = 0.0) -> void:
 
 ## Tilt toward a point (card-local), at most 6°, settling in 150 ms on release.
 func tilt_toward(local: Vector2) -> void:
-	if reduced_motion: return
+	if reduced_motion or not tilt_enabled: return
 	var x := clampf((local.x / maxf(size.x, 1.0) - 0.5) * 2.0, -1.0, 1.0)
 	_face.rotation = fan_angle + deg_to_rad(6.0) * x
 

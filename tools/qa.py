@@ -12,9 +12,19 @@ ROOT = Path(__file__).resolve().parents[1]
 # journey screenshot before each subsequent check (and on resumed workspaces).
 (ROOT / "artifacts").mkdir(exist_ok=True)
 (ROOT / "artifacts/.gdignore").touch()
+# The Web export (build/web) is output too: an import running beside `qa.py web`
+# must not pick up its images while the export replaces them.
+(ROOT / "build").mkdir(exist_ok=True)
+(ROOT / "build/.gdignore").touch()
 VERSION = (ROOT / ".godot-version").read_text().strip()
 # journey -> script, success marker, artifact directory, rendered captures, timeout, extra engine flags
 JOURNEYS = {
+    "JAVN2": ("res://tests/neon_n2_art_journey.gd", "ROGUEWOOD_J03C16_OK", "artifacts/av-n2/native", ("c16_shop", "c16_spare", "c16_glow_strike", "c16_straight", "n2_glow_trail", "n2_spotlight_hit", "n2_grip_hook_reduced", "n2_host_grip") + tuple("n2_"+id+"_paid" for id in ["glow", "prism", "spotlight", "afterimage", "laser_level"]) + tuple("n2_"+place+"_"+id.replace(".","_") for place in ["shop","binder"] for id in ["ball.glow","pin.prism","ball_mod.grip_tape","pin_mod.spotlight","charm.afterimage","charm.laser_level"]), 900, ["--fixed-fps", "60"]),
+    "JAVN2C": ("res://tests/neon_n2_contact.gd", "ROGUEWOOD_NEON_N1_CONTACT_OK", "artifacts/av-n2/contact", ("count_0", "count_1", "count_2", "motion"), 180, ["--fixed-fps", "60"]),
+    "JAVN2BC": ("res://tests/neon_n2_contact_b.gd", "ROGUEWOOD_NEON_N1_CONTACT_OK", "artifacts/av-n2/contact-b", ("count_0", "count_1", "count_2", "motion"), 180, ["--fixed-fps", "60"]),
+    "JAVN1BC": ("res://tests/neon_n1_contact_b.gd", "ROGUEWOOD_NEON_N1_CONTACT_OK", "artifacts/av-n1/contact-b", ("count_0", "count_1", "count_2", "motion"), 180, ["--fixed-fps", "60"]),
+    "JAVN1": ("res://tests/neon_n1_art_journey.gd", "ROGUEWOOD_J03C15_OK", "artifacts/av-n1/native", ("c15_shop", "c15_rebound", "c15_curved_strike", "c15_laser", "n1_laser_beam", "n1_laser_paid", "n1_tempo_paid", "n1_rebound_live", "n1_oil_hold", "n1_neon_sign_paid", "n1_blacklight_paid", "n1_bumper_guard_paid", "n1_host_blacklight", "n1_host_bumper_guard") + tuple("n1_" + place + "_" + item.replace(".", "_") for place in ["shop", "binder"] for item in ["ball.oilskin", "ball.laser", "pin.tempo", "charm.neon_sign", "ball_mod.blacklight", "ball_mod.bumper_guard"]), 900, ["--fixed-fps", "60"]),
+    "JAVN1C": ("res://tests/neon_n1_contact.gd", "ROGUEWOOD_NEON_N1_CONTACT_OK", "artifacts/av-n1/contact", ("count_0", "count_1", "count_2", "motion"), 180, ["--fixed-fps", "60"]),
     "J21R07": ("res://tests/flicker_art_journey.gd", "ROGUEWOOD_J03C13_OK", "artifacts/e21-r07/champion", tuple("dj_flicker_champion_" + s for s in ["intro", "landscape", "normal", "reduced", "reaction", "defeated"]) + ("champion_seals", "c13_oil_slick", "c13_narrow_lane", "c13_champion"), 900, ["--fixed-fps", "60"]),
     "J21R07DJ": ("res://tests/flicker_regular_art_journey.gd", "ROGUEWOOD_J03C13_OK", "artifacts/e21-r07/regular", tuple("dj_flicker_" + s for s in ["intro", "landscape", "normal", "reduced", "reaction", "defeated"]) + ("c13_oil_slick", "c13_narrow_lane"), 900, ["--fixed-fps", "60"]),
     "J22L02RULEART": ("res://tests/neon_rule_art_journey.gd", "ROGUEWOOD_J03C13_OK", "artifacts/e22-l02-art/rules", ("c13_oil_slick", "c13_narrow_lane", "c13_champion") + tuple("c13_" + rule + "_art_" + mode for rule in ["narrow_lane", "champion"] for mode in ["normal", "reduced", "landscape"]), 900, ["--fixed-fps", "60"]),
@@ -72,6 +82,8 @@ JOURNEYS = {
         ("glass_shop", "glass_inventory", "glass_rack", "glass_rack_detail", "glass_reduced", "glass_landscape", "glass_break", "glass_break_detail", "glass_binder", "glass_restored", "glass_next_rack"), 900, ["--fixed-fps", "60"]),
     "J03C02": ("res://tests/glass_c02_journey.gd", "ROGUEWOOD_J03C02_OK", "artifacts/e18-c02", ("c02_breaks", "c02_reloaded", "c02_second"), 600, ["--fixed-fps", "60"]),
     "J03C05": ("res://tests/house_c05_journey.gd", "ROGUEWOOD_J03C05_OK", "artifacts/e18-c05", ("c05_house_rules", "c05_champion", "c05_house_pins"), 900, ["--fixed-fps", "60"]),
+    "J03C19": ("res://tests/neon_c19_journey.gd", "ROGUEWOOD_J03C19_OK", "artifacts/e18-c19", ("c19_shop", "c19_two_tone", "c19_long_oil", "c19_rescue"), 900, ["--fixed-fps", "60"]),
+    "J03C18": ("res://tests/neon_c18_journey.gd", "ROGUEWOOD_J03C18_OK", "artifacts/e18-c18", ("c18_shop", "c18_controlled_curve"), 900, ["--fixed-fps", "60"]),
     "J03C17": ("res://tests/neon_c17_journey.gd", "ROGUEWOOD_J03C17_OK", "artifacts/e18-c17", ("c17_shop", "c17_line_call", "c17_dry_side", "c17_lane_reader", "c17_bounce_back"), 900, ["--fixed-fps", "60"]),
     "J03C16": ("res://tests/neon_c16_journey.gd", "ROGUEWOOD_J03C16_OK", "artifacts/e18-c16", ("c16_shop", "c16_spare", "c16_glow_strike", "c16_straight"), 900, ["--fixed-fps", "60"]),
     "J03C15": ("res://tests/neon_c15_journey.gd", "ROGUEWOOD_J03C15_OK", "artifacts/e18-c15", ("c15_shop", "c15_rebound", "c15_curved_strike", "c15_laser"), 900, ["--fixed-fps", "60"]),
@@ -153,9 +165,12 @@ JOURNEYS["J12V07"] = ("res://tests/ability_journey.gd", "ROGUEWOOD_ABILITY_OK", 
                        ("ball_hook_activation", "charm_hook_artist_activation", "ball_hammer_activation", "pin_rubber_activation", "pin_wood_activation", "pin_ruby_activation", "resolved", "reduced", "landscape"), 1200, ["--fixed-fps", "60"])
 JOURNEYS["J12"] = ("res://tests/dense_ability_journey.gd", "ROGUEWOOD_DENSE_ABILITY_OK", "artifacts/e20-dense/native",
                     ("dense", "controls", "reduced", "landscape", "settlement"), 1200, ["--fixed-fps", "60"])
+# Wave 13 theme tail adds normal/reduced native pin-deck captures; retain all prior captures.
+_neon_live = JOURNEYS["J22L02LIVEART"]
+JOURNEYS["J22L02LIVEART"] = _neon_live[:3] + (_neon_live[3] + ("live_pin_deck_normal", "live_pin_deck_reduced"),) + _neon_live[4:]
 # Content set per journey (E13, ADR 008): mechanism journeys keep the lab fixtures;
 # the shell journey and J06 stage 1 play the production slice (the game's default).
-CONTENT = {"J03C05": "house_c05", "J09": "slice", "J02": "lab", "J03": "lab", "J04": "lab", "J05": "lab", "J07": "lab", "J08": "lab"}
+CONTENT = {"J03C18": "neon", "J03C05": "house_c05", "J09": "slice", "J02": "lab", "J03": "lab", "J04": "lab", "J05": "lab", "J07": "lab", "J08": "lab"}
 CONTENT.update({"J21R03": "house_c05", "J21R04": "house_c05", "J22L01": "house", "J22L02": "house"})
 CONTENT.update({"J03C13": "neon_c13"})
 CONTENT.update({"J21R05": "neon_c13"})

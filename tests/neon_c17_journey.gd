@@ -64,6 +64,17 @@ func _run() -> void:
 	_check(not _logged("Dry Side") and not _logged("Lane Reader") and not _logged("Bounce Back"), "Dry Side, Lane Reader and Bounce Back stay silent")
 	_check(lab.run.money >= money + 2, "Straight Money's $2 reaches the wallet ($%d to $%d)" % [money, lab.run.money])
 	_check(cards.line_call in lab.equipment.exhausted, "the Line Call card is spent for the attempt")
+	# UI-8: choosing a card to keep, the hand has no Cycle or Inspect button and its
+	# cards fill the section; two quick taps open the inspector and change nothing.
+	_check(lab.card_hand.keep_mode and not lab.card_hand.actions.visible and lab.card_hand.buttons.values().all(func(b): return b.size.y > 150.0),
+		"the keep section has no buttons, and its cards are larger (%s)" % str(lab.card_hand.buttons.values().map(func(b): return b.size.y)))
+	var first: Button = lab.card_hand.buttons.values()[0]
+	var kept: String = lab.keep_card
+	await _tap(first)
+	await _tap(first)
+	_check(lab.inspector.visible and lab.keep_card == kept, "a double tap opens the inspector and leaves the keep choice as it was")
+	lab.inspector.dismiss()
+	await process_frame
 	await _capture("c17_line_call")
 	await _focus_accept(lab.next_rack)
 	# Match 2 frame 2: Hook Shot with the plain Hook card, curved from the left.

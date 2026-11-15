@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "batch": "E17-D15",
+  "status": "landed",
+  "note": "Neon League items, batch 4 of 5 (DC-N4), written and landed together by E18-C18: Neon's two shop upgrades (initial) and the three items of the Controlled Curve mastery (three curved strikes released sweet or perfect in one attempt). Comet Ball, Metronome and Steady Hand read condition.accurate; Trade-In and Specialist Shelf are new upgrade kinds. Amounts and prices are provisional (E24).",
+  "definitions": [],
+  "landed": [
+    {
+      "id": "shop_upgrade.trade_in",
+      "landed_in": "E18-C18",
+      "design": {
+        "trigger": "Kept for the attempt: every sale returns $1 more than its usual sale value, but never more than the item cost (kit and reward items, which cost nothing, take the $1 on their base value).",
+        "primitives": [
+          "upgrade.sell_bonus"
+        ],
+        "pool": "License offer; initial pool from Division 1.",
+        "presentation_needs": "A pawn ticket with a brass $1 stamp; the Sell rows show the raised value.",
+        "asset_ids": {
+          "icon": "icon.shop_upgrade.trade_in",
+          "card": "card.shop_upgrade.trade_in",
+          "rarity_treatment": "rarity_treatment.shop_upgrade.trade_in",
+          "activation": "activation.shop_upgrade.trade_in",
+          "sound": "sound.shop_upgrade.trade_in",
+          "reduced_motion": "reduced_motion.shop_upgrade.trade_in"
+        }
+      }
+    },
+    {
+      "id": "shop_upgrade.specialist_shelf",
+      "landed_in": "E18-C18",
+      "design": {
+        "trigger": "Kept for the attempt: the shop shows one more offer, of any category, drawn only from items carrying the League's specialist tags (in Neon: curve, hook, accuracy, precision, straight).",
+        "primitives": [
+          "upgrade.specialist_offer"
+        ],
+        "pool": "License offer, in a League with specialist weights (Neon); initial pool from Division 1.",
+        "presentation_needs": "A neon-edged shelf bracket; the Specialist offer is marked in the shop.",
+        "asset_ids": {
+          "icon": "icon.shop_upgrade.specialist_shelf",
+          "card": "card.shop_upgrade.specialist_shelf",
+          "rarity_treatment": "rarity_treatment.shop_upgrade.specialist_shelf",
+          "activation": "activation.shop_upgrade.specialist_shelf",
+          "sound": "sound.shop_upgrade.specialist_shelf",
+          "reduced_motion": "reduced_motion.shop_upgrade.specialist_shelf"
+        }
+      }
+    },
+    {
+      "id": "ball.comet",
+      "landed_in": "E18-C18",
+      "design": {
+        "trigger": "Thrown with it: +6 Mult when its roll is graded sweet or perfect and a roll in the frame was curved. It hooks 1.2× as far as the House Ball.",
+        "primitives": [
+          "condition.accurate"
+        ],
+        "pool": "Shop ball slot, from the next attempt after the Controlled Curve mastery.",
+        "presentation_needs": "A ball with a short comet tail that flares only on an accurate curved release.",
+        "asset_ids": {
+          "icon": "icon.ball.comet",
+          "card": "card.ball.comet",
+          "in_play": "in_play.ball.comet",
+          "rarity_treatment": "rarity_treatment.ball.comet",
+          "activation": "activation.ball.comet",
+          "sound": "sound.ball.comet",
+          "reduced_motion": "reduced_motion.ball.comet"
+        }
+      }
+    },
+    {
+      "id": "charm.metronome",
+      "landed_in": "E18-C18",
+      "design": {
+        "trigger": "×1.5 Mult on a strike when a roll in the frame was graded sweet or perfect. Nothing on a spare, an open frame, or a strike with a clean or missed release.",
+        "primitives": [
+          "condition.accurate"
+        ],
+        "pool": "Shop Charm slot, from the next attempt after the Controlled Curve mastery.",
+        "presentation_needs": "A ticking metronome whose arm stops on the beat when the release is accurate.",
+        "asset_ids": {
+          "icon": "icon.charm.metronome",
+          "card": "card.charm.metronome",
+          "rarity_treatment": "rarity_treatment.charm.metronome",
+          "activation": "activation.charm.metronome",
+          "sound": "sound.charm.metronome",
+          "reduced_motion": "reduced_motion.charm.metronome"
+        }
+      }
+    },
+    {
+      "id": "consumable.steady_hand",
+      "landed_in": "E18-C18",
+      "design": {
+        "trigger": "Played with a throw: ×2 Mult when that roll is graded sweet or perfect and a roll in the frame was curved. The card is spent with the throw either way.",
+        "primitives": [
+          "condition.accurate"
+        ],
+        "pool": "Shop tactical slot, from the next attempt after the Controlled Curve mastery.",
+        "presentation_needs": "A chalked hand that steadies over the ball while armed; it glows on an accurate curved release.",
+        "asset_ids": {
+          "icon": "icon.consumable.steady_hand",
+          "card": "card.consumable.steady_hand",
+          "rarity_treatment": "rarity_treatment.consumable.steady_hand",
+          "activation": "activation.consumable.steady_hand",
+          "sound": "sound.consumable.steady_hand",
+          "reduced_motion": "reduced_motion.consumable.steady_hand"
+        }
+      }
+    }
+  ]
+}

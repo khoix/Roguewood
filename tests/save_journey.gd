@@ -167,7 +167,11 @@ func _continue(phase: String) -> void:
 	await _settings()
 
 func _aim() -> void:
-	await _wait_for(func(): return lab.state == "aim" and lab.lane.state == "ready", "aim", ROLL_FRAMES)
+	await _wait_for(func(): return (lab.state == "aim" and lab.lane.state == "ready") or (lab.state == "intro" and lab.hud.intro.visible), "aim", ROLL_FRAMES)
+	if lab.state == "intro":
+		# UI-8: a boss introduction waits for the player, who presses Begin.
+		await _focus_accept(lab.hud.intro_button)
+		await _wait_for(func(): return lab.state == "aim" and lab.lane.state == "ready", "aim after the introduction", ROLL_FRAMES)
 
 func _throw_start(shot: Array) -> void:
 	await _aim()

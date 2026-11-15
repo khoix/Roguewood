@@ -33,14 +33,26 @@ static func project(frame: Dictionary, event: Dictionary, facts: Dictionary = {}
 	elif id == "ball.workhorse": eligible = phase == "ball" and op == "add_value" and float(event.get("amount",0)) != 0
 	elif id == "pin.oak": eligible = phase == "fallen" and op == "add_value"
 	elif id == "pin.tin": eligible = (phase == "fallen" and op == "add_value") or (phase == "after_bank" and op == "payout")
+	elif id == "ball.laser": eligible = phase == "ball" and op == "add_mult" and float(event.get("amount",0)) > 0
+	elif id == "pin.tempo": eligible = phase == "fallen" and op == "add_value" and float(event.get("amount",0)) > 0
+	elif id == "ball.glow": eligible = phase == "ball" and op == "add_mult" and float(event.get("amount",0)) > 0
+	elif id == "pin.prism": eligible = phase == "fallen" and op == "add_value" and float(event.get("amount",0)) > 0
 	if eligible:
 		out.append({"id":id,"key":key,"phase":phase,"count":int(event.get("count",0)),
 			"amount":float(event.get("amount",0)),
 			"streak":int(frame.get("context",{}).get("strike_streak",0))+1 if id == "charm.hot_streak" else 0})
+		if id == "charm.laser_level":
+			out[-1]["positions"] = preload("res://src/presentation/house_tactical_events.gd").fallen_positions(frame)
+		if id == "pin.prism":
+			out[-1]["position"] = int(source.get_slice(":",1))
 		if id == "charm.cleanup_crew":
 			out[-1]["leave"] = int(facts.get("leave",0))
 			out[-1]["required"] = int(event.get("condition",{}).get("leave_min",2))
 			out[-1]["positions"] = range(1,11).filter(func(p): return p not in frame.rolls[0].fallen_positions)
+		if id in ["ball.laser", "pin.tempo", "charm.neon_sign"]:
+			out[-1]["accurate"] = int(facts.get("accurate",0))
+			out[-1]["grades"] = frame.get("rolls",[]).map(func(r): return r.accuracy)
+			out[-1]["position"] = int(source.get_slice(":",1)) if id == "pin.tempo" else 0
 		if id == "charm.lucky_seven":
 			var down: int = preload("res://src/presentation/house_tactical_events.gd").fallen_positions(frame).size()
 			out[-1]["down"] = down
