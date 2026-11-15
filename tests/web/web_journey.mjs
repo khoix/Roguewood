@@ -1,6 +1,7 @@
 // JW01 (E26-W01): the Web export end to end in headless Chromium.
 // Loads the exported page with ?qa=1 (src/platform/web_qa.gd prints status lines),
-// enters the League, throws with a real mouse drag on the ball (touch emulation),
+// checks the Roguewood loading screen, favicon and apple-touch-icon (UI-7), taps
+// through the title screen, enters the League, throws with a real mouse drag on the ball (touch emulation),
 // waits for the roll to settle and the attempt save, reloads the page, and
 // continues the saved attempt. Records load time, frame rate and download size.
 // Usage: node tests/web/web_journey.mjs <url> <artifact-dir> [--inject-failure]
@@ -51,32 +52,76 @@ async function waitFor(pred, label, ms = 60000) {
 }
 const click = async (at) => { await page.mouse.click(at[0], at[1]); };
 
-async function load(label) {
+// Width and height of a PNG served at `href` (from its IHDR chunk).
+async function pngSize(href) {
+  const response = await page.request.get(new URL(href, page.url()).href);
+  const body = await response.body();
+  if (!response.ok() || body.length < 24 || body.toString("latin1", 1, 4) !== "PNG") return null;
+  return [body.readUInt32BE(16), body.readUInt32BE(20)];
+}
+
+// The page loads with the Roguewood splash; the title screen comes up, and a tap on
+// it opens the Clubhouse. `tap` is false only to look at the title first.
+async function load(label, tap = true) {
   status = null;
   const start = Date.now();
   await page.goto(url, { waitUntil: "load" });
-  const s = await waitFor((s) => s.screen === "menu", `${label}: menu`, 120000);
+  // While the engine loads, the page shows its own loading screen (gone once the
+  // engine starts, so it is read now).
+  const head = await page.evaluate(() => {
+    const splash = document.querySelector("#status-splash");
+    const overlay = document.querySelector("#status");
+    return {
+      icon: document.querySelector('link[rel="icon"]')?.getAttribute("href"),
+      touch: document.querySelector('link[rel="apple-touch-icon"]')?.getAttribute("href"),
+      splash: splash?.getAttribute("src"), splashClass: splash?.className || "",
+      statusColor: overlay ? getComputedStyle(overlay).backgroundColor : "",
+      theme: document.querySelector('meta[name="theme-color"]')?.getAttribute("content"),
+      homeName: document.querySelector('meta[name="apple-mobile-web-app-title"]')?.getAttribute("content"),
+      title: document.title,
+    };
+  });
+  if (!tap) await page.screenshot({ path: path.join(outDir, "web_loading.png") });
+  let s = await waitFor((s) => s.screen === "title" && s.title.visible, `${label}: title screen`, 120000);
   const seconds = (Date.now() - start) / 1000;
-  log.push(`INFO ${label}: menu after ${seconds.toFixed(1)} s`);
-  return { s, seconds };
+  log.push(`INFO ${label}: title after ${seconds.toFixed(1)} s`);
+  if (tap) {
+    await page.waitForTimeout(300);
+    await click(s.title.at);
+    s = await waitFor((s) => s.screen === "menu", `${label}: the tap opens the Clubhouse`, 15000);
+  }
+  return { s, seconds, head };
 }
 
 try {
-  const first = await load("first load");
-  check(first.s.enter.visible && !first.s.saved, "first load: a fresh menu with Enter League and no saved attempt");
+  // UI-7: the loading screen, the favicon and the apple-touch-icon are Roguewood's.
+  const titled = await load("first load", false);
+  const before = await audioStates();
+  const head = titled.head;
+  const favicon = head.icon ? await pngSize(head.icon) : null;
+  const touch = head.touch ? await pngSize(head.touch) : null;
+  const splash = head.splash ? await pngSize(head.splash) : null;
+  check(favicon && favicon[0] === favicon[1] && favicon[0] >= 192 && head.icon === "index.icon.png", `the favicon is the project icon, square (${head.icon} ${favicon})`);
+  check(touch && touch[0] === 180 && touch[1] === 180, `the apple-touch-icon is 180 x 180 (${head.touch} ${touch})`);
+  check(splash && splash[0] === 720 && splash[1] === 560 && head.splashClass.includes("fullsize--false") && head.statusColor === "rgb(11, 17, 22)",
+    `the loading screen is the Roguewood splash on the night background (${head.splash} ${splash}, ${head.splashClass}, ${head.statusColor})`);
+  check(head.theme === "#0b1116" && head.homeName === "Roguewood" && head.title === "Roguewood", `theme colour, home-screen name and page title (${JSON.stringify(head)})`);
+  await page.screenshot({ path: path.join(outDir, "web_title.png") });
+  // The browser's first tap, on the title, is the user gesture that lets audio start.
+  await click(titled.s.title.at);
+  const first = { s: await waitFor((s) => s.screen === "menu", "first load: the tap opens the Clubhouse", 15000) };
+  check(first.s.enter.visible && !first.s.saved, "first load: a tap on the title opens a fresh menu with Enter League and no saved attempt");
   log.push(`INFO downloaded ${(bytes / 1048576).toFixed(1)} MB (uncompressed transfer as served)`);
   const touchAction = await page.$eval("canvas", (c) => getComputedStyle(c).touchAction);
   check(touchAction === "none", `the canvas blocks browser scrolling and zooming (touch-action ${touchAction})`);
 
-  // The browser's first click is the user gesture that lets audio start.
-  const before = await audioStates();
   await click(first.s.enter.at);
   await page.waitForTimeout(500);
   const after = await audioStates();
   // Headless Chromium does not enforce the autoplay block, so only "running after the
   // first tap" is asserted; real browsers start suspended and Godot resumes on input.
   log.push(`INFO audio contexts before the first tap: ${before.join(",") || "none"}`);
-  check(after.some((st) => st === "running"), `audio is running after the first tap (${after.join(",")})`);
+  check(after.some((st) => st === "running"), `audio is running after the first taps (${after.join(",")})`);
   let s = await waitFor((s) => s.screen === "session" && s.state === "aim", "lab ready to aim");
   await page.screenshot({ path: path.join(outDir, "web_aim.png") });
 

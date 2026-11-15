@@ -315,6 +315,12 @@ Open: Wave 12 is merged (PR #30, main `cd1cfc9`). Base: `claude/roguewood-build`
   - Dry Side, Lane Reader, Hook Shot, Line Call, Bounce Back and Straight Money, all initial from Division 1, each scored through the real FrameBuilder and played natively in J03C17.
   - Eighteen of Neon's 28 items are landed and its initial pool is complete. Left for DC-N4 and N5: two shop upgrades and the eight mastery items with their objectives.
   - **Hand-off to Codex (AV-N3, Wave 14):** the six items; J03C17 and its five captures.
+- **UI-7 DONE** (handoffs/UI-7.md), the owner's play notes of 2026-11-15, ahead of DC-N4:
+  - **A title screen** opens the game: the House hall at night, the ROGUEWOOD wordmark, the House Ball rolling, "Tap to start". A tap, click, key or gamepad button opens the Clubhouse; reduced motion keeps it still. It shows when the shell is the running scene (the real game); journeys that embed the shell open at the Clubhouse as before. J01, the web journey and the phone tour pass it with real input.
+  - **The loading screen** is a Roguewood boot splash in place of Godot's logo, with a brass progress bar on the web page.
+  - **Icons:** a project icon, from which the Web export writes the favicon and the 180 × 180 apple-touch-icon; the page head adds a theme colour and the home-screen name.
+  - **Provisional art**, composed from Codex's House Ball and House backdrop and the bundled font (tools/author_brand.py; ASSET-LEDGER.md, "UI-7"). **For Codex:** a logo, an app icon, a boot splash and optional title key art at the same paths (proposed UI-A4).
+  - Validation: J01 headless and rendered (the title first, passed with the accept key); the web journey in headless Chromium (the favicon, the 180 × 180 apple-touch-icon, the splash on the night background, the theme colour and home-screen name, a tap on the title opening the Clubhouse, then the throw, save and reload as before); unit, content, smoke, export, J02, J03 (560/240/70), J05 (21060), J07, J11, J22L02, J11ART and JUIA1 rendered: PASS. The phone tour now starts at the title (31 captures).
   - Validation: unit (mechanics_c17_test; counts 47 Charms, 8 tactical cards, a fresh binder 17 Locked and 80 Available), content, integration, physics (the side flag on real rolls; digest `75d1a3c0…` unchanged), J03C17 headless and rendered, and J03 (560/240/70), J05 (21060), J03C11, J03C15, J03C16, J06, J11, J22L01 and J22L02 headless: PASS. The full matrix runs at the wave's close.
 
 ## Wave 12 claims (coordinator: Claude, 2026-11-10)

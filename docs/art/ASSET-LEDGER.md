@@ -965,3 +965,21 @@ glyph by glyph against the UI-A3 file). The font remains OFL 1.1 with OFL.txt
 intact. The symbols have one weight (no variation deltas).
 Source (UI-A3) SHA256: `9e38d077f2679e2f7587b360ae3afbd97b03e84baf87a827ab1ef231971b9f68`.
 Patched SHA256: `ff4b5f8d9f8a4ad875c4b1ff02c31961f0c1f54a9aaee43e97a7a673fbae170e`.
+
+## UI-7 — provisional brand images (coordinator, 2026-11-15)
+
+- `assets/brand/icon.png` (512×512, opaque) and `assets/brand/splash.png`
+  (720×560, opaque), written by `tools/author_brand.py`. The project icon becomes
+  the Web favicon and apple-touch-icon (180×180) at export; the splash is the
+  boot splash on the web loading page and at engine start-up, in place of
+  Godot's logo (owner's play notes, docs/handoffs/UI-7.md).
+- Sources, all already in the repository: the House Ball illustration
+  (`assets/items/balls/a01-source.png`, region 0,0–640,640, Codex, AV-H1) and the
+  bundled Pixelify Sans derivative (OFL 1.1, entries UI-A1, UI-A3 and UI-6). The
+  lane-wood boards, the lettering treatment (brass, ink outline, walnut shadow)
+  and the composition are drawn by the script. No donor image, font or generated
+  illustration is introduced.
+- The in-game title screen (`src/bootstrap/title_screen.gd`) composes Codex's House
+  Division 1 backdrop and the House Ball at runtime; it adds no asset.
+- Provisional: Codex's final logo, icon, splash and title key art replace these
+  by the same paths (handoff UI-7, "For Codex").

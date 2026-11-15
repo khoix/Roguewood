@@ -1,5 +1,7 @@
 extends SceneTree
 ## Drives focused native buttons through InputEventAction; no direct callbacks.
+## UI-7: the game is started as the engine starts it (the shell becomes the current
+## scene), so the title screen comes first and is passed with real input.
 var failures: Array[String] = []
 var artifact_dir := ""
 var scene: Control
@@ -38,10 +40,17 @@ func _accept() -> void:
 func _run() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--artifact-dir="): artifact_dir = arg.trim_prefix("--artifact-dir=")
-	scene = load("res://src/bootstrap/bootstrap.tscn").instantiate()
-	root.add_child(scene)
+	change_scene_to_file("res://src/bootstrap/bootstrap.tscn")
 	await process_frame
+	await process_frame
+	scene = current_scene
+	await _wait_for(func(): return scene.screen == "title" and scene.title.visible and scene.title.start.has_focus(), "title screen with Start focused")
+	await _capture("title")
+	if scene.title == null or scene.title.wordmark.text != "ROGUEWOOD" or not scene.title.prompt.visible: failures.append("the title screen lacks its wordmark or prompt")
+	if scene.enter.has_focus(): failures.append("Enter League has focus behind the title")
+	await _accept()
 	await _wait_for(func(): return scene.enter.has_focus(), "menu focus")
+	if scene.title.visible or scene.screen != "menu": failures.append("accept did not leave the title for the Clubhouse")
 	await _capture("menu")
 	if scene.screen != "menu" or not scene.enter.has_focus(): failures.append("menu missing or Enter League unfocused")
 	await _accept()

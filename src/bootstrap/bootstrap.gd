@@ -12,6 +12,7 @@ const ContentSet = preload("res://src/rules/content_set.gd")
 const UnlockGraph = preload("res://src/career/unlock_graph.gd")
 const Clubhouse = preload("res://src/clubhouse/clubhouse.gd")
 const MatchPanels = preload("res://src/presentation/match_panels.gd")
+const TitleScreen = preload("res://src/bootstrap/title_screen.gd")
 var session: Dictionary = {}
 var screen := "menu"
 var heading: Label
@@ -46,6 +47,9 @@ var _menu_sheet: PanelContainer
 var league_sets: Array = [] # content set behind each League choice
 ## The Clubhouse (E16): the home screen; its League Board holds the panel below.
 var clubhouse: Clubhouse
+## UI-7: the title screen over the Clubhouse when the game starts (null when the
+## shell is embedded by a journey or tool, which opens at the Clubhouse).
+var title: Control
 ## E10 saves: user://saves, or --save-dir=<path> for tests.
 var store: RefCounted
 var continue_button: Button
@@ -138,6 +142,8 @@ func _ready() -> void:
 	_viewport_layout()
 	enter.pressed.connect(_start_session)
 	_show_menu()
+	if show_title_on_start():
+		_open_title()
 	# E26-W01: browser QA status, only in a Web build opened with ?qa=1.
 	if WebQA.requested():
 		var qa := WebQA.new()
@@ -147,6 +153,23 @@ func _ready() -> void:
 	if "--bootstrap-smoke" in OS.get_cmdline_user_args():
 		print("ROGUEWOOD_BOOT_OK")
 		get_tree().quit(0)
+
+## The title opens the game when this shell is the running scene (the real game,
+## desktop or web; J01 and the phone tour start it the same way). A journey or tool
+## that embeds the shell as a child opens at the Clubhouse, as before.
+func show_title_on_start() -> bool:
+	return get_tree().current_scene == self
+
+func _open_title() -> void:
+	title = TitleScreen.new()
+	add_child(title)
+	title.started.connect(_title_done)
+	screen = "title"
+	title.open(bool(throw_settings.get("reduced_motion", false)))
+
+func _title_done() -> void:
+	screen = "menu"
+	(continue_button if continue_button.visible else enter).grab_focus()
 
 func _button(parent: Node, label: String, node_name: String, width: float) -> Button:
 	var button := Button.new()
