@@ -72,11 +72,12 @@ func _run() -> void:
 	# full fan; and a log scaled above its minimum never wraps a line.
 	await process_frame
 	var hand_cards: Array = lab.card_hand.buttons.values()
-	var tallest: float = lab.card_hand.size.y - lab.card_hand.keep_reserve()
+	var tallest: float = lab.card_hand.custom_minimum_size.y - lab.card_hand.keep_reserve()
 	var fan_width: float = lab.card_hand.cards_row.size.x
 	var spans: Rect2 = hand_cards.map(func(b): return b.get_global_rect()).reduce(func(a, r): return a.merge(r))
 	_check(hand_cards.all(func(b): return b.size.y >= tallest - 2.0) or spans.size.x >= fan_width - 12.0,
 		"keep cards fill the section's height (%.0f of %.0f) or its width" % [hand_cards[0].size.y, tallest])
+	_check(not lab.card_hand.get_global_rect().intersects(lab.score_panel.get_global_rect()), "the keep section stays above the review")
 	var panel = lab.score_panel
 	var wrapped: Array = panel.log_list.get_children().filter(func(l): return l is Button and l.size.y > panel.log_font * 2.0)
 	_check(panel.log_font == panel.LOG_MIN or wrapped.is_empty(), "a log scaled to %d px wraps no line (%d wrap)" % [panel.log_font, wrapped.size()])

@@ -175,8 +175,11 @@ func _process(_delta: float) -> void:
 ## height less its chrome (the header as it reads now).
 func _tallest() -> float:
 	var tallest := max_card_height
-	if keep_mode and size.y > 0.0:
-		tallest = minf(tallest, maxf(size.y - keep_reserve(), 120.0))
+	# The section the lab gives the hand, not its own size: that grows with its
+	# content, and the cards would feed back into a section that runs past it.
+	var section := custom_minimum_size.y if custom_minimum_size.y > 0.0 else size.y
+	if keep_mode and section > 0.0:
+		tallest = minf(tallest, maxf(section - keep_reserve(), 120.0))
 	return tallest
 
 func _card_size() -> Vector2:
