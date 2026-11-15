@@ -152,10 +152,13 @@ static func _catalogue(items: Array, version: int, errors: Array[String]) -> voi
 			var uses_v2: bool = item.has("physics") or item.effects.any(func(e): return e.has("condition") or e.has("per") or e.op in V2_OPS or e.trigger in V2_TRIGGERS)
 			if uses_v2: errors.append(item.id + ": conditions, scaling, retriggers, growth and physics need catalogue v2")
 		if item.has("physics"):
-			# E18-C14: a ball modification may carry what it brings to its ball's roll.
-			if item.category not in ["ball", "pin", "ball_mod"]: errors.append(item.id + ": only balls, pins and ball modifications have physics profiles")
+			# E18-C14: a ball modification may carry what it brings to its ball's roll;
+			# E18-C17: a tactical card played with a throw may scale that roll's hook.
+			if item.category not in ["ball", "pin", "ball_mod", "consumable"]: errors.append(item.id + ": only balls, pins, ball modifications and tactical cards have physics profiles")
 			if item.category == "ball_mod" and item.physics.keys().any(func(k): return k not in ["gutter_rebound", "spin_response"]):
 				errors.append(item.id + ": a ball modification's physics is gutter_rebound or spin_response")
+			if item.category == "consumable" and item.physics.keys().any(func(k): return k != "spin_response"):
+				errors.append(item.id + ": a tactical card's physics is spin_response")
 			if item.physics.has("oil_hold") and item.category != "ball": errors.append(item.id + ": only a ball holds its hook through oil")
 			if item.physics.has("gutter_rebound") and item.category != "ball_mod": errors.append(item.id + ": the gutter rebound belongs to a ball modification")
 			if item.category == "pin" and item.physics.has("spin_response"): errors.append(item.id + ": pins have no spin response")

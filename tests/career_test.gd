@@ -74,7 +74,7 @@ static func _shipped_graphs(failures: Array[String]) -> void:
 	_expect(production.items_by_gate.get("gate.surveyor_cleared") == ["charm.encore"] and production.items_by_gate.get("gate.custodian_cleared") == ["charm.standing_order"],
 		"the slice's boss gates unlock Encore and Standing Order", failures)
 	_expect(production.objectives.size() == 3 and production.gates.size() == 15, "three mastery objectives and fifteen gates (five of them the Neon League's)", failures)
-	_expect(production.availability.charm == {"initial": 35, "locked": 8} and production.availability.pin == {"initial": 10, "locked": 2} and production.availability.ball == {"initial": 7, "locked": 2}, "availability report: 35 Charms initially, 8 locked; 10 pins, with Crown and Tempo locked; 7 balls, with Oilskin and Laser locked (the Neon rewards wait for their rivals, E22-L02)", failures)
+	_expect(production.availability.charm == {"initial": 39, "locked": 8} and production.availability.pin == {"initial": 10, "locked": 2} and production.availability.ball == {"initial": 7, "locked": 2}, "availability report: 39 Charms initially, 8 locked; 10 pins, with Crown and Tempo locked; 7 balls, with Oilskin and Laser locked (the Neon rewards wait for their rivals, E22-L02)", failures)
 	var lab := ContentSet.career_graph(ContentSet.LAB_UNLOCKS)
 	_expect(lab.errors.is_empty() and lab.items_by_gate.get("gate.lab_rival") == ["pin.lab_lead"], "the lab fixture graph validates", failures)
 	_expect(Graph.build(_world().registry, _world().catalogue, _world().sources).errors.is_empty(), "the synthetic world validates", failures)

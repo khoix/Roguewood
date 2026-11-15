@@ -38,6 +38,8 @@ var _fit_width := 0.0
 var binder_filters: HFlowContainer
 var binder_grid: HFlowContainer
 var binder_detail: Label
+var binder_footer: PanelContainer
+const GRID_PAD := 4
 var binder_art: CenterContainer
 var trophy_grid: HFlowContainer
 var goals_list: VBoxContainer
@@ -214,19 +216,35 @@ func _build_binder() -> void:
 	binder_filters.add_theme_constant_override("h_separation", 8)
 	binder_filters.add_theme_constant_override("v_separation", 8)
 	pages.binder.add_child(binder_filters)
+	# The chosen item's detail is a footer below the scrolling page (owner's play
+	# notes, 2026-11-14): it stays in view wherever the grid is scrolled, and it is
+	# as tall as the longest description, so choosing a card never moves the grid.
+	binder_footer = PanelContainer.new()
+	binder_footer.name = "BinderFooter"
+	binder_footer.add_theme_stylebox_override("panel", Art.panel_style(Color("16242b"), Color("2f474f")))
+	pages.binder.get_parent().get_parent().add_child(binder_footer)
 	var detail := HBoxContainer.new()
 	detail.name = "BinderDetail"
-	detail.add_theme_constant_override("separation", 16)
-	pages.binder.add_child(detail)
+	detail.add_theme_constant_override("separation", 12)
+	binder_footer.add_child(detail)
 	binder_art = CenterContainer.new()
 	binder_art.name = "BinderArt"
 	detail.add_child(binder_art)
 	binder_detail = _label(detail, "BinderText")
+	binder_detail.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	# Margins keep a card's focus ring inside the page's clip; the rows leave room
+	# for the state tab above a card (DISCOVERED, MASTERED).
+	var grid_margin := MarginContainer.new()
+	grid_margin.name = "BinderGridMargin"
+	for side in ["left", "right", "bottom"]:
+		grid_margin.add_theme_constant_override("margin_" + side, GRID_PAD)
+	grid_margin.add_theme_constant_override("margin_top", 16)
+	pages.binder.add_child(grid_margin)
 	binder_grid = HFlowContainer.new()
 	binder_grid.name = "BinderGrid"
 	binder_grid.add_theme_constant_override("h_separation", 8)
-	binder_grid.add_theme_constant_override("v_separation", 8)
-	pages.binder.add_child(binder_grid)
+	binder_grid.add_theme_constant_override("v_separation", 30)
+	grid_margin.add_child(binder_grid)
 	var note := _label(pages.binder, "BinderNote", 18)
 	note.text = "The binder keeps each item's history. A new attempt never starts with an item."
 	note.add_theme_color_override("font_color", Color("9aa8a6"))
@@ -259,6 +277,7 @@ func show_tab(tab: String) -> void:
 	for name_key in TABS:
 		pages[name_key].get_parent().visible = name_key == tab
 		tab_buttons[name_key].set_pressed_no_signal(name_key == tab)
+	binder_footer.visible = tab == "binder"
 	refresh()
 
 ## Rebuilds the visible page from the Career and graph.
@@ -311,7 +330,7 @@ func _refresh_binder() -> void:
 	# A phone fits three cards across the page exactly; wider screens keep 150 px cards.
 	var card_size := Vector2(150, 214)
 	if _narrow:
-		var room := size.x - 32.0 - 12.0 # the page margins and the scroll bar
+		var room := size.x - 32.0 - 12.0 - 2.0 * GRID_PAD # the page margins, the scroll bar and the grid's own
 		var width := floorf((room - 16.0) / 3.0)
 		card_size = Vector2(width, floorf(width * 214.0 / 150.0))
 	for entry in shown:
@@ -331,12 +350,22 @@ func _refresh_binder() -> void:
 		binder_grid.add_child(card)
 	_clear(binder_art)
 	binder_detail.text = ""
+	var art_size := 96 if _narrow else 150
+	binder_detail.add_theme_font_size_override("font_size", 18 if _narrow else FONT_SIZE)
 	for entry in shown:
 		if entry.id == selected_item:
-			var picture := Art.slot(entry.asset, 120 if _narrow else 150, entry.state != "locked")
+			var picture := Art.slot(entry.asset, art_size, entry.state != "locked")
 			if entry.state == "mastered": Art.mastered_finish(picture)
 			binder_art.add_child(picture)
 			binder_detail.text = Model.inspect(entry, catalogue)
+	# One height for every item on show: the tallest description at this width.
+	var font := binder_detail.get_theme_font("font")
+	var font_size := binder_detail.get_theme_font_size("font_size")
+	var text_width := maxf(size.x - 32.0 - 2.0 * 12.0 - art_size - 12.0, 120.0)
+	var tallest := float(art_size)
+	for entry in shown:
+		tallest = maxf(tallest, font.get_multiline_string_size(Model.inspect(entry, catalogue), HORIZONTAL_ALIGNMENT_LEFT, text_width, font_size).y)
+	binder_detail.custom_minimum_size = Vector2(0, ceilf(tallest))
 
 ## The grid is rebuilt on every choice; keyboard focus follows the chosen control.
 func _select(item_id: String) -> void:

@@ -32,6 +32,13 @@ var charms: PanelContainer
 var charm_icons: HFlowContainer
 var charm_count: Label
 var charm_heading: Label
+var charm_head: BoxContainer
+## Portrait's Charm rail leaves while a frame is reviewed: the hand and the review
+## take the whole screen below the info row then (the lab sets this before apply).
+var rail_hidden := false
+const RAIL_WIDTH := 52.0
+var _charm_frame: StyleBox
+var _charm_plate: StyleBoxFlat
 var fold_bar: PanelContainer
 var hand_toggle: Button
 var details_toggle: Button
@@ -58,29 +65,41 @@ func _ready() -> void:
 	rival_portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	rival_row.add_child(rival_portrait)
 	rival_text = _text(rival_row, "RivalText", UiTheme.IVORY)
+	# The Charms: a heading with the slot count, then the identities, which wrap to
+	# the room they have (rows in landscape's panel, one column in portrait's rail).
 	charms = _panel("CharmsRow", "panel")
-	var charm_row := HBoxContainer.new()
-	charm_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	charm_row.add_theme_constant_override("separation", 10)
-	charms.add_child(charm_row)
+	_charm_frame = charms.get_theme_stylebox("panel")
+	_charm_plate = StyleBoxFlat.new()
+	_charm_plate.bg_color = Color(0.06, 0.09, 0.12, 0.6)
+	_charm_plate.set_corner_radius_all(8)
+	_charm_plate.set_content_margin_all(4)
+	var charm_col := VBoxContainer.new()
+	charm_col.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	charm_col.add_theme_constant_override("separation", 6)
+	charms.add_child(charm_col)
+	charm_head = BoxContainer.new()
+	charm_head.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	charm_head.add_theme_constant_override("separation", 2)
+	charm_col.add_child(charm_head)
 	var heading := Label.new()
 	charm_heading = heading
 	heading.text = "CHARMS"
 	heading.add_theme_color_override("font_color", UiTheme.BRASS)
 	heading.add_theme_font_size_override("font_size", 18)
-	charm_row.add_child(heading)
+	heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	charm_head.add_child(heading)
+	charm_count = Label.new()
+	charm_count.name = "CharmCount"
+	charm_count.add_theme_font_size_override("font_size", 18)
+	charm_count.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	charm_head.add_child(charm_count)
 	charm_icons = HFlowContainer.new()
 	charm_icons.name = "CharmIcons"
 	charm_icons.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	charm_icons.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	charm_icons.add_theme_constant_override("h_separation", 8)
 	charm_icons.add_theme_constant_override("v_separation", 6)
-	charm_row.add_child(charm_icons)
-	charm_count = Label.new()
-	charm_count.name = "CharmCount"
-	charm_count.add_theme_font_size_override("font_size", 18)
-	charm_count.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	charm_row.add_child(charm_count)
+	charm_col.add_child(charm_icons)
 	fold_bar = _panel("FoldBar", "hud")
 	fold_bar.mouse_filter = Control.MOUSE_FILTER_PASS
 	var fold_row := HBoxContainer.new()
@@ -157,12 +176,12 @@ static func compute(screen: Vector2, left_handed: bool, hand_height: float, comp
 		var bar_w := w - 2 * m - MENU_PORTRAIT.x - MENU_GAP
 		r.top_bar = Rect2(m, m, bar_w, 100 + bar_extra)
 		var row_y := m + 108.0 + bar_extra
-		var inner := w - 2 * m - 16
-		var slip_w := floorf(inner * 0.32)
-		var rival_w := floorf(inner * 0.38)
+		# The row is the slip and the rival; the Charms are a rail down the lane's
+		# right flank, where six of them fit (in the row, three ran off the screen).
+		var slip_w := floorf((w - 2 * m - 8) * 0.52)
 		r.slip = Rect2(m, row_y, slip_w, 56)
-		r.rival = Rect2(m + slip_w + 8, row_y, rival_w, 56)
-		r.charms = Rect2(r.rival.end.x + 8, row_y, w - m - r.rival.end.x - 8, 56)
+		r.rival = Rect2(m + slip_w + 8, row_y, w - 2 * m - 8 - slip_w, 56)
+		r.charms = Rect2(w - m - RAIL_WIDTH, row_y + 64, RAIL_WIDTH, 0) # as tall as its Charms
 		r.hand = Rect2(m, h - m - hand_height, w - 2 * m, hand_height)
 		r.lane = Rect2(m, row_y + 64, w - 2 * m, r.hand.position.y - 8 - row_y - 64)
 		r.prompt = Rect2(m, r.hand.position.y - 8, w - 2 * m, 0) # bottom edge
@@ -206,17 +225,27 @@ func apply(layout: Dictionary, playing: bool) -> void:
 	if fold:
 		_place(fold_bar, layout.fold_bar)
 	var details_shown: bool = playing and (not fold or show_details) and not layout.get("compact", false)
+	var portrait: bool = layout.portrait
+	charms.add_theme_stylebox_override("panel", _charm_plate if portrait else _charm_frame)
+	charm_head.vertical = portrait
+	charm_heading.text = "Charms" if portrait else "CHARMS"
+	charm_heading.add_theme_font_size_override("font_size", 13 if portrait else 18)
+	charm_heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER if portrait else HORIZONTAL_ALIGNMENT_LEFT
+	charm_count.add_theme_font_size_override("font_size", 16 if portrait else 18)
+	charm_count.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER if portrait else HORIZONTAL_ALIGNMENT_RIGHT
 	for pair in [[slip, "slip"], [rival, "rival"], [charms, "charms"]]:
 		pair[0].visible = details_shown
 		_place(pair[0], layout[pair[1]])
-	var portrait: bool = layout.portrait
+	if portrait:
+		charms.visible = details_shown and not rail_hidden
+	if _strip is FlowContainer:
+		_strip.alignment = FlowContainer.ALIGNMENT_CENTER if portrait else FlowContainer.ALIGNMENT_BEGIN
 	rival_portrait.custom_minimum_size = Vector2(34, 34) if portrait else Vector2(64, 64)
 	slip_text.add_theme_font_size_override("font_size", 18 if portrait else 20)
 	rival_text.add_theme_font_size_override("font_size", 15 if portrait else 18)
 	slip_text.max_lines_visible = 2 if portrait else 4
 	rival_text.max_lines_visible = 2 if portrait else 4
 	slip_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER if portrait else HORIZONTAL_ALIGNMENT_LEFT
-	charm_heading.visible = not portrait # portrait shows the icons and count only
 
 func _place(control: Control, rect: Rect2) -> void:
 	control.set_anchors_preset(Control.PRESET_TOP_LEFT)
@@ -274,6 +303,8 @@ func show_charms(item_ids: Array, slots: int, names: Dictionary) -> void:
 				tag.name = "Charm_" + String(id).replace(".", "_")
 				tag.text = names.get(id, id)
 				tag.add_theme_font_size_override("font_size", 14)
+				tag.clip_text = true # portrait's rail is narrow; a fixture's name is cut, not the rail widened
+				tag.custom_minimum_size = Vector2(RAIL_WIDTH - 8.0, 0)
 				tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
 				charm_icons.add_child(tag)
 				continue
@@ -296,6 +327,7 @@ func host_equipment_strip(strip: Control) -> void:
 	charm_icons.get_parent().set_meta("hosts_equipment_strip", true)
 	charm_icons.get_parent().add_child(strip)
 	charm_icons.get_parent().move_child(strip, charm_icons.get_index())
+	strip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_strip = strip
 
 var _strip: Control
@@ -303,6 +335,10 @@ var _strip: Control
 func _process(_delta: float) -> void:
 	if _strip != null:
 		charm_icons.visible = _strip.get_child_count() == 0
+	if regions.get("portrait", false) and charms.visible:
+		# The rail is as tall as its Charms and hangs from the row's right end.
+		charms.reset_size()
+		charms.position.x = regions.charms.end.x - charms.size.x
 
 ## Controls that take touches (the lab never starts a throw over them).
 func blocking_controls() -> Array:

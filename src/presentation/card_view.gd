@@ -48,6 +48,10 @@ const MATERIALS := "res://assets/ui/materials/manifest.json"
 const REST_PHASE := 0.42
 static var _manifest: Dictionary = {}
 var _face: Control
+var _ring: Control
+## True while the item has no illustration yet: the face shows its category mark,
+## dimmed, with "ART TO COME" (art batches follow the item batches).
+var art_pending := false
 var _back: TextureRect
 var _parts: Dictionary = {}
 var _hint := ""
@@ -69,13 +73,8 @@ func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	for key in ["normal", "hover", "pressed", "disabled", "hover_pressed"]:
 		add_theme_stylebox_override(key, StyleBoxEmpty.new())
-	var focus := StyleBoxFlat.new()
-	focus.draw_center = false
-	focus.border_color = SEA_GLASS
-	focus.set_border_width_all(3)
-	focus.set_corner_radius_all(16)
-	focus.set_expand_margin_all(4)
-	add_theme_stylebox_override("focus", focus)
+	# The focus ring is drawn with the face (_draw_ring), so it turns with a fanned card.
+	add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 	# The accessible label stays in `text`; the face draws the visible card.
 	for key in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_disabled_color", "font_hover_pressed_color"]:
 		add_theme_color_override(key, Color.TRANSPARENT)
@@ -95,7 +94,7 @@ func _init() -> void:
 	_back.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_back.visible = false
 	add_child(_back)
-	for key in ["frame", "art", "sheen", "badge", "rule_icon", "name", "hint", "detail", "rarity", "hatch", "stamp", "price", "tag"]:
+	for key in ["frame", "art", "pending", "sheen", "badge", "rule_icon", "name", "hint", "detail", "rarity", "hatch", "stamp", "price", "tag"]:
 		var node: Control
 		if key in ["frame", "art", "badge", "rule_icon"]:
 			var image := TextureRect.new()
@@ -123,6 +122,17 @@ func _init() -> void:
 		_parts[key] = node
 	art = _parts.art
 	sheen = _parts.sheen
+	_parts.pending.text = "ART TO COME"
+	_parts.pending.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	# Selection and focus rings: the face's last child, so they lift, turn and tilt with it.
+	_ring = Control.new()
+	_ring.name = "Ring"
+	_ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_ring.draw.connect(_draw_ring)
+	_face.add_child(_ring)
+	focus_entered.connect(_ring.queue_redraw)
+	focus_exited.connect(_ring.queue_redraw)
+	toggled.connect(func(_on): _ring.queue_redraw())
 	resized.connect(_layout)
 	button_down.connect(_on_down)
 	button_up.connect(func(): _press_started = 0; _settle())
@@ -144,6 +154,10 @@ func set_item(id: String, names: Dictionary = {}, title: String = "", fallback_a
 	_parts.art.texture = ItemAssets.slot(id, "card") as Texture2D
 	if _parts.art.texture == null:
 		_parts.art.texture = fallback_art # lab fixtures have no catalogue art
+	art_pending = _parts.art.texture == null
+	if art_pending:
+		_parts.art.texture = load(DIR + category_icon(id) + ".svg")
+	_parts.art.modulate = Color(1, 1, 1, 0.3) if art_pending else Color.WHITE
 	icon = ItemAssets.slot(id, "icon") as Texture2D
 	_parts.badge.texture = load(DIR + category_icon(id) + ".svg")
 	if names.is_empty():
@@ -303,10 +317,13 @@ func _layout() -> void:
 	if compact:
 		# Small hand cards: a taller name banner and art filling the face down to the rarity line.
 		place.call("name", Rect2(12, 6, 186, 36))
-		place.call("art", Rect2(15, 44, 180, 210))
+		place.call("art", Rect2(15, 44, 180, 210) if not art_pending else Rect2(55, 99, 100, 100))
 	else:
 		place.call("name", Rect2(18, 10, 174, 28))
-		place.call("art", Rect2(15, 41, 180, 181))
+		place.call("art", Rect2(15, 41, 180, 181) if not art_pending else Rect2(60, 76, 90, 90))
+	place.call("pending", Rect2(15, 178, 180, 24))
+	_ring.position = Vector2.ZERO
+	_ring.size = r.size
 	_parts.tag.position = Vector2(r.size.x * 0.5 - 48.0, -24.0)
 	_parts.tag.size = Vector2(96, 22)
 	_font(_parts.name, 20 * s, 12, INK)
@@ -316,6 +333,7 @@ func _layout() -> void:
 	_font(_parts.stamp, 30 * s, 14, Color("b8322a"))
 	_font(_parts.price, 20 * s, 12, BRASS)
 	_font(_parts.tag, 14, 14, INK)
+	_font(_parts.pending, 13 * s, 9, Color(SEA_GLASS, 0.55))
 	for key in ["rule_icon", "hint", "detail"]:
 		_parts[key].visible = not compact and face_up
 	_refresh()
@@ -336,6 +354,7 @@ func _refresh() -> void:
 	# Compact cards use a different art recess: the canonical mask does not fit, so
 	# the material is off there (UI-A2). Common is matte everywhere.
 	sheen.visible = not compact and rarity != "common"
+	_parts.pending.visible = art_pending and not compact
 	_parts.hatch.visible = state in ["locked", "unaffordable", "sold"]
 	_parts.hatch.color = Color(0.06, 0.09, 0.12, 0.45 if state == "unaffordable" else 0.72)
 	_parts.stamp.visible = state in ["sold", "locked"]
@@ -364,17 +383,34 @@ func _refresh() -> void:
 	if lifted != _lift:
 		_lift = lifted
 		_face.position.y = _rest_y()
+	_ring.queue_redraw()
 	queue_redraw()
 
+## Armed or tactic: a 3 px sea-glass ring on the card's own edge; kept or chosen
+## (a pressed toggle): brass. Keyboard and gamepad focus adds a thin ring just
+## outside it. Both are drawn on the face, inside its transform, so they follow a
+## fanned card and never spill far enough to be clipped by a scrolling page.
+func _draw_ring() -> void:
+	var chosen := state == "keep" or (toggle_mode and button_pressed)
+	var radius := int(round(14.0 * _face.size.x / NATIVE.x))
+	if state in ["armed", "tactic"] or chosen:
+		_ring.draw_style_box(_ring_style(BRASS if chosen else SEA_GLASS, 3, radius), Rect2(Vector2.ZERO, _face.size))
+	if has_focus():
+		_ring.draw_style_box(_ring_style(SEA_GLASS, 2, radius + 3), Rect2(Vector2.ZERO, _face.size).grow(3.0))
+
+static func _ring_style(color: Color, width: int, radius: int) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.draw_center = false
+	style.border_color = color
+	style.set_border_width_all(width)
+	style.set_corner_radius_all(radius)
+	style.anti_aliasing = false
+	return style
+
 func _draw() -> void:
-	# Armed or tactic: a 3 px sea-glass outline around the face (UI-A1 states).
-	if (state in ["armed", "tactic", "keep"] or (toggle_mode and button_pressed)) and face_up:
-		var r := card_rect()
-		r.position.y = _rest_y()
-		if fan_angle != 0.0:
-			draw_set_transform(r.get_center(), fan_angle)
-			r.position = -r.size * 0.5
-		draw_rect(r.grow(3.0), BRASS if state == "keep" or (toggle_mode and button_pressed) else SEA_GLASS, false, 3.0)
+	# A face-down card has no face to carry the ring.
+	if not face_up and has_focus():
+		draw_style_box(_ring_style(SEA_GLASS, 2, 10), card_rect().grow(3.0))
 
 ## The UI-A2 material for a League and rarity, from the manifest (unprovided
 ## Leagues fall back to House). Always a fresh duplicate, so cards never share one.

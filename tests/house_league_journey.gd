@@ -87,7 +87,7 @@ func _division(division: int) -> void:
 			await _focus_accept(lab.hud.intro_button)
 			await _aim()
 		var boss: bool = m.kind == "boss"
-		_check_stage(division, m)
+		await _check_stage(division, m) # the Neon journey's waits a frame for the Charm rail
 		await _play_match(division, m)
 		if division == 1 and index == 0:
 			await _seat_build()

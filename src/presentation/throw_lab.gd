@@ -633,7 +633,7 @@ func _refresh_hand() -> void:
 	card_hand.set_mode("fan" if portrait else "flank", settings.handedness == "left")
 	var rect: Rect2 = regions.get("hand", Rect2(16, size.y - 300, size.x - 32, 284))
 	if portrait and state == "frame_done":
-		var top: float = regions.charms.end.y + 8.0
+		var top: float = regions.rival.end.y + 8.0
 		rect = Rect2(rect.position.x, top, rect.size.x, maxf(_score_top - 8.0 - top, 200.0))
 	card_hand.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	card_hand.grow_vertical = Control.GROW_DIRECTION_END
@@ -777,7 +777,8 @@ func card_rules(thrown: Dictionary = {}) -> Dictionary:
 	if not RivalRules.ball_allowed(active_rules(), ball_id):
 		return {} # House Rules throws the House Ball in the card's place
 	var used: bool = frame_reports.any(func(r): return bool(r.knockdown_log.get("rebounded", false)))
-	return ItemPhysics.roll_rules(run.item(ball_id), run.item(mod_id) if not mod_id.is_empty() else {}, used)
+	var tactic_id: String = String(thrown.get("tactical", _item_of(armed_tactical) if not armed_tactical.is_empty() else ""))
+	return ItemPhysics.roll_rules(run.item(ball_id), run.item(mod_id) if not mod_id.is_empty() else {}, used, run.item(tactic_id) if not tactic_id.is_empty() else {})
 
 ## Strobe's narrowed ring zones (1.0 otherwise), for the ring's colour.
 func zone_scale() -> float:
@@ -897,7 +898,8 @@ func _commit(launch: Dictionary, source: String) -> void:
 func _resume_commit(pending: Dictionary) -> void:
 	# The same card physics as when it was thrown, from the saved input.
 	var saved: Dictionary = pending.get("input", {}).get("equipment", {})
-	_arm_lane_rules({"ball_id": String(pending.launch.get("ball_id", HOUSE)), "mod": String(saved.get("mod", "")) if saved.get("mod") != null else ""})
+	_arm_lane_rules({"ball_id": String(pending.launch.get("ball_id", HOUSE)), "mod": String(saved.get("mod", "")) if saved.get("mod") != null else "",
+		"tactical": String(saved.get("tactical", "")) if saved.get("tactical") != null else ""})
 	var errors := lane.commit(pending.launch)
 	if not errors.is_empty():
 		push_error("Saved launch rejected on resume: " + str(errors))
@@ -994,7 +996,7 @@ func _advance() -> void:
 ## and the match score against its target (0 in Practice, which has none).
 func frame_context() -> Dictionary:
 	return {"match_frame": match_frame, "strike_streak": run.strike_streak, "match_score": division.match_score,
-		"match_target": 0 if division.practice else division.target()}
+		"match_target": 0 if division.practice else division.target(), "lane_condition": lane.lane_condition if lane != null else "lane.house"}
 
 ## Scores the completed frame from its roll reports and plays the explanation.
 func _score_frame() -> void:
@@ -1907,6 +1909,7 @@ func _layout_resolution() -> void:
 		_compact = compact
 		chrome_compact_changed.emit(compact)
 	hud.layout_regions(regions.top_bar, regions.bubble, portrait and not compact, compact, MatchPanels.menu_rect(size).end.y + 8.0)
+	panels.rail_hidden = state == "frame_done" # the hand and the review take its place
 	panels.apply(regions, state not in ["shop", "intro", "division_over"])
 	panels.hand_toggle.text = "Hand %d" % (card_hand.buttons.size() if card_hand else 0)
 	_place_prompt()

@@ -37,6 +37,14 @@ extends RefCounted
 ##   any roll did), `felled_curved` (a pin's own effects: the roll that knocked it
 ##   down was curved) and `first_hit` (a pin's own effects: it was the first pin that
 ##   roll's ball knocked down directly).
+##
+## E18-C17 adds, all optional:
+## - roll `left_side`: the ball was on the bowler's left of the centre board where it
+##   crossed 34 ft, the line where Two-Tone's left oil ends (the knockdown log's flag);
+## - context `lane_condition`: the match's lane ("lane.house" and "lane.dry" are the
+##   campaign's names for House Oil and Dry Backend, and read as those);
+## - conditions `left_side` (on a roll's own effects: that roll; elsewhere: any roll)
+##   and `lane` (a list of lane condition ids; the match's lane is one of them).
 const SCOPES = ["roll", "frame", "match", "run"]
 const OPS = ["add_value", "add_mult", "multiply_mult", "payout", "grow_value"]
 const V2_OPS = ["retrigger", "transform", "lose_mult"]
@@ -45,7 +53,8 @@ const MAX_SAFE_SCORE = 9007199254740991.0
 const MAX_RETRIGGERS := 8
 const HOUSE := "ball.house"
 const CONDITIONS := ["category", "match_frame", "standing_count", "curved", "all_house", "streak_min", "leave_min", "behind", "last_fallen",
-	"rebounded", "felled_curved", "first_hit"]
+	"rebounded", "felled_curved", "first_hit", "left_side", "lane"]
+const LANE_ALIASES := {"lane.house": "lane_condition.house_oil", "lane.dry": "lane_condition.dry_backend"}
 const PER_KINDS := ["growth", "retriggers", "fallen", "standing", "accurate", "fallen_at"]
 const DEFERRED := ["payout", "grow_value", "transform"]
 
@@ -79,9 +88,10 @@ static func resolve(frame: Dictionary) -> Dictionary:
 		"streak": int(context.get("strike_streak", 0)) + 1 if category == "strike" else 0, "retriggers": 0, "fallen": {}, "standing": {},
 		"leave": 10 - rolls[0].fallen_positions.size(), "behind": match_target > 0 and int(context.get("match_score", 0)) * 2 < match_target,
 		"last_fallen": last_fallen, "last_item": "", "accurate": rolls.filter(func(r): return GRADES[r.accuracy] > 0).size(), "fallen_at": fallen,
-		"rolls": {}}
+		"rolls": {}, "lane": lane_id(String(context.get("lane_condition", "lane.house")))}
 	for roll in rolls:
-		facts.rolls[int(roll.roll_index)] = {"curved": bool(roll.get("curved", false)), "rebounded": bool(roll.get("rebounded", false)), "first_direct": int(roll.get("first_direct", 0))}
+		facts.rolls[int(roll.roll_index)] = {"curved": bool(roll.get("curved", false)), "rebounded": bool(roll.get("rebounded", false)), "first_direct": int(roll.get("first_direct", 0)),
+			"left_side": bool(roll.get("left_side", false))}
 	for pin in pins:
 		var bucket: Dictionary = facts.fallen if fallen.has(int(pin.position)) else facts.standing
 		bucket[pin.item_id] = int(bucket.get(pin.item_id, 0)) + 1
@@ -136,7 +146,7 @@ static func resolve(frame: Dictionary) -> Dictionary:
 		"mult": state.mult, "score": score, "events": state.events, "future_effects": state.future,
 		"strike_streak": facts.streak, "retriggers": facts.retriggers,
 		"facts": {"leave": facts.leave, "last_fallen": facts.last_fallen, "accurate": facts.accurate, "behind": facts.behind,
-			"match_score": int(context.get("match_score", 0)), "match_target": match_target}}
+			"match_score": int(context.get("match_score", 0)), "match_target": match_target, "lane": facts.lane}}
 
 ## Every condition key must hold for this frame.
 static func _holds(effect: Dictionary, facts: Dictionary, owner: Dictionary = {}) -> bool:
@@ -161,16 +171,22 @@ static func _holds(effect: Dictionary, facts: Dictionary, owner: Dictionary = {}
 			"last_fallen":
 				var last: int = facts.last_fallen
 				if last == 0 or (int(owner.get("position", 0)) != last if wanted == "self" else facts.last_item != wanted): return false
-			"rebounded":
-				var did: bool = bool(facts.rolls.get(int(owner.roll_index), {}).get("rebounded", false)) if owner.has("roll_index") \
-					else facts.rolls.values().any(func(r): return r.rebounded)
+			"rebounded", "left_side":
+				var did: bool = bool(facts.rolls.get(int(owner.roll_index), {}).get(key, false)) if owner.has("roll_index") \
+					else facts.rolls.values().any(func(r): return r[key])
 				if did != bool(wanted): return false
+			"lane":
+				if facts.lane not in wanted.map(func(l): return lane_id(String(l))): return false
 			"felled_curved", "first_hit":
 				# A pin's own facts: the roll that knocked the owner down.
 				var by: Dictionary = facts.rolls.get(int(facts.fallen_at.get(int(owner.get("position", 0)), 0)), {})
 				var holds: bool = not by.is_empty() and (bool(by.curved) if key == "felled_curved" else int(by.first_direct) == int(owner.get("position", 0)))
 				if holds != bool(wanted): return false
 	return true
+
+## A lane condition's catalogue id (the campaign's short names read as theirs).
+static func lane_id(lane: String) -> String:
+	return LANE_ALIASES.get(lane, lane)
 
 ## The count a `per` effect scales by, from this frame's facts or its owner.
 static func _count(per: String, owner: Dictionary, facts: Dictionary) -> int:
@@ -249,7 +265,9 @@ static func validate(frame: Dictionary) -> Array[String]:
 		if not context is Dictionary:
 			errors.append("frame.context must be an object")
 		else:
-			_unknown_keys(context, ["match_frame", "strike_streak", "match_score", "match_target"], errors)
+			_unknown_keys(context, ["match_frame", "strike_streak", "match_score", "match_target", "lane_condition"], errors)
+			if context.has("lane_condition") and not _lane_name(context.lane_condition):
+				errors.append("context.lane_condition must be a lane condition id")
 			for key in ["match_score", "match_target"]:
 				if not _integer_between(context.get(key, 0), 0, 1000000000000):
 					errors.append("context.%s must be a whole score" % key)
@@ -289,9 +307,10 @@ static func validate(frame: Dictionary) -> Array[String]:
 		if not roll is Dictionary:
 			errors.append("roll must be an object")
 			continue
-		_unknown_keys(roll, ["roll_index", "ball_id", "fallen_positions", "accuracy", "effects"] + (["first_direct", "curved", "last_fallen", "rebounded"] if v2 else []), errors)
-		if roll.has("rebounded") and typeof(roll.rebounded) != TYPE_BOOL:
-			errors.append("rebounded must be a boolean")
+		_unknown_keys(roll, ["roll_index", "ball_id", "fallen_positions", "accuracy", "effects"] + (["first_direct", "curved", "last_fallen", "rebounded", "left_side"] if v2 else []), errors)
+		for flag in ["rebounded", "left_side"]:
+			if roll.has(flag) and typeof(roll[flag]) != TYPE_BOOL:
+				errors.append("%s must be a boolean" % flag)
 		for key in ["first_direct", "last_fallen"]:
 			if not _integer_between(roll.get(key, 0), 0, 10):
 				errors.append("%s must be 0..10" % key)
@@ -371,7 +390,9 @@ static func _validate_owner(owner: Dictionary, id_key: String, prefix: String, t
 						errors.append("condition.%s out of range" % key)
 				if c.has("last_fallen") and not (c.last_fallen is String and c.last_fallen == "self" and prefix == "pin.") and not _valid_id(c.last_fallen, "pin."):
 					errors.append("condition.last_fallen is \"self\" on a pin (it fell last) or a pin item id")
-				for key in ["curved", "all_house", "behind", "rebounded", "felled_curved", "first_hit"]:
+				if c.has("lane") and (not c.lane is Array or c.lane.is_empty() or not c.lane.all(func(l): return _lane_name(l))):
+					errors.append("condition.lane lists lane condition ids")
+				for key in ["curved", "all_house", "behind", "rebounded", "felled_curved", "first_hit", "left_side"]:
 					if c.has(key) and typeof(c[key]) != TYPE_BOOL:
 						errors.append("condition.%s must be a boolean" % key)
 				for key in ["felled_curved", "first_hit"]:
@@ -413,6 +434,9 @@ static func _number(value: Variant) -> bool:
 
 static func _integer_between(value: Variant, low: int, high: int) -> bool:
 	return _number(value) and value == floor(value) and value >= low and value <= high
+
+static func _lane_name(value: Variant) -> bool:
+	return value is String and (LANE_ALIASES.has(value) or RegEx.create_from_string("^lane_condition\\.[a-z][a-z0-9_]*$").search(value) != null)
 
 static func _valid_id(value: Variant, prefix: String) -> bool:
 	if not value is String or not value.begins_with(prefix):
