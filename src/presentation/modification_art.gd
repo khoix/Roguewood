@@ -60,7 +60,9 @@ static func dress(body,mod:String,host:String) -> void:
  if current!=null and current.item_id==mod and current.host_id==host:return
  if current!=null:body.remove_child(current);current.queue_free()
  if Assets.slot(mod,"icon")==null:return
- var overlay:=Overlay.new();overlay.item_id=mod;overlay.host_id=host;body.add_child(overlay)
+ var resource=Assets.slot(mod,"in_play")
+ var overlay=resource.instantiate() if resource is PackedScene else Overlay.new()
+ overlay.item_id=mod;overlay.host_id=host;body.add_child(overlay)
 static func _badge(parent:Control,id:String,extent:int) -> void:
  var node:=parent.get_node_or_null("ModificationBadge") as TextureRect
  var texture:=Assets.slot(id,"icon") as Texture2D

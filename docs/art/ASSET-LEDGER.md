@@ -965,3 +965,50 @@ glyph by glyph against the UI-A3 file). The font remains OFL 1.1 with OFL.txt
 intact. The symbols have one weight (no variation deltas).
 Source (UI-A3) SHA256: `9e38d077f2679e2f7587b360ae3afbd97b03e84baf87a827ab1ef231971b9f68`.
 Patched SHA256: `ff4b5f8d9f8a4ad875c4b1ff02c31961f0c1f54a9aaee43e97a7a673fbae170e`.
+
+## AV-N1 — Neon first six items (Wave 13)
+
+Codex, original project artwork, 2026-11-14 (owner timezone). Inputs: coordinator
+UI-6 `333c0af`, E18-C15, E17-D12 and Bumper Guard's E17-D04 brief. Detailed
+identity/activation/source contract: `docs/art/briefs/AV-N1.md`.
+
+Two original OpenAI image-generation atlases, no reference images or third-party
+assets, logos or licenses. Both are 2172×724 RGBA. They are shipped byte-for-byte
+as generated; AtlasTexture views select padded alpha bounds, with no image edits.
+The exact prompts are `docs/art/briefs/AV-N1-{A,B}-prompt.txt`.
+
+| Source | Subjects | SHA256 |
+|---|---|---|
+| assets/items/neon/source.AV-N1-A.png | Oilskin Ball, Laser Ball, Tempo Pin | `23c50261dd0db812ab9680607bbcbe5d2034a812e34661563e68b3ed2fd09d96` |
+| assets/items/neon/source.AV-N1-B.png | Neon Sign, Blacklight, Bumper Guard | `83a47bd15e820dd0266515349cbfdbb5dc46ae4a3ba40ffae0651f4bed60f7b5` |
+
+Resource author: Codex. `tools/author_neon_items.py` declares the atlas regions,
+rarity resources and activation recipes by stable item ID. Original authored
+`assets/items/neon/identity.gdshader` and `overlay.gd` provide the physical
+markings and cosmetic attachments. Original presentation code reads existing
+launch, target-crossing, rebound and resolver data; no simulation edits.
+
+Slots filled for each of `ball.oilskin`, `ball.laser`, `pin.tempo`,
+`charm.neon_sign`, `ball_mod.blacklight`, `ball_mod.bumper_guard`: card, icon,
+in_play, rarity_treatment, activation, sound, reduced_motion. Only these six
+entries' assets and artwork/effects_audio flags change. The static reduced
+identity shares the unchanged source illustration. No font or glyph edits.
+
+Audio is original deterministic synthesis through the existing
+`tools/author_foley.py`, not sampled music or recordings: 0.32 s mono 16-bit PCM,
+22050 Hz, normalized peak 0.48; the existing four-voice mixer limits it further.
+
+| Audio in assets/audio/ | Material, pitch | SHA256 |
+|---|---|---|
+| sound.ball.oilskin.wav | swish, 410 Hz | `b973ee70da9a362483da73b63c5e42a0a1aac9670b7e076a00eb49e005fc2630` |
+| sound.ball.laser.wav | glass, 760 Hz | `b924298070ac39d0b7ca474e113a60a876abd2d19d598d879470423589504fbd` |
+| sound.pin.tempo.wav | wood, 640 Hz | `0ecb903f553822480046aa3007f22c93701a5fa92be7a9394ed9566337713ca4` |
+| sound.charm.neon_sign.wav | glass, 880 Hz | `bb9753bc0eb1acbddd1ec9c4573112fce2810bfd88ed9bc361b94c79803b1ae8` |
+| sound.ball_mod.blacklight.wav | glass, 330 Hz | `42adf35164f037f89091212e257c0656dde9e071ff6d0acf5e07468b71246ca6` |
+| sound.ball_mod.bumper_guard.wav | rubber, 145 Hz | `5c3e191bab5036e0dafa27db48f89ad6910b2d39be23133ac3365d6403a69ca5` |
+
+Evidence: JAVN1 (extends J03C15 with the original banks and replay intact),
+JAVN1C, JAVN1BC, native shop/host/Binder/reward captures, and exact event
+projection tests. See `docs/handoffs/AV-N1.md` for final validation and limits.
+Captures are ignored output and never committed. AV-N2 and the theme tail
+remain separate work; this record does not mark them complete.

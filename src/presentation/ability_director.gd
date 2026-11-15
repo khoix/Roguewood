@@ -22,6 +22,7 @@ var growth_label: Label
 var growth_row: HBoxContainer
 var tactical_hand: TextureRect
 var tactical_grey: ShaderMaterial
+var neon: Node2D
 func _ready() -> void:
 	name = "AbilityDirector"
 	marquee = TextureRect.new()
@@ -71,6 +72,10 @@ func _ready() -> void:
 	tactical_hand.hide()
 	tactical_grey = ShaderMaterial.new()
 	tactical_grey.shader = preload("res://assets/effects/house_tactical_miss.gdshader")
+	neon = preload("res://src/presentation/neon_item_presentation.gd").new()
+	neon.lab = lab
+	neon.director = self
+	lab.motion.add_child(neon)
 func _process(_delta: float) -> void:
 	if lab.run != null:
 		marquee.visible = lab.run.charms.any(func(e): return e.item_id == "charm.opening_act")
