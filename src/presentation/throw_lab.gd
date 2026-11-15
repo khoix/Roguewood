@@ -633,7 +633,7 @@ func _refresh_hand() -> void:
 	card_hand.set_mode("fan" if portrait else "flank", settings.handedness == "left")
 	var rect: Rect2 = regions.get("hand", Rect2(16, size.y - 300, size.x - 32, 284))
 	if portrait and state == "frame_done":
-		var top: float = regions.charms.end.y + 8.0
+		var top: float = regions.rival.end.y + 8.0
 		rect = Rect2(rect.position.x, top, rect.size.x, maxf(_score_top - 8.0 - top, 200.0))
 	card_hand.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	card_hand.grow_vertical = Control.GROW_DIRECTION_END
@@ -1907,6 +1907,7 @@ func _layout_resolution() -> void:
 		_compact = compact
 		chrome_compact_changed.emit(compact)
 	hud.layout_regions(regions.top_bar, regions.bubble, portrait and not compact, compact, MatchPanels.menu_rect(size).end.y + 8.0)
+	panels.rail_hidden = state == "frame_done" # the hand and the review take its place
 	panels.apply(regions, state not in ["shop", "intro", "division_over"])
 	panels.hand_toggle.text = "Hand %d" % (card_hand.buttons.size() if card_hand else 0)
 	_place_prompt()

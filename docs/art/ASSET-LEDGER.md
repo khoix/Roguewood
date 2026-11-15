@@ -948,3 +948,20 @@ art extension. No new image, font, audio source, license or asset hash is
 introduced by this integration. The manifest and its authoring script now mark
 delivery integrated. Final evidence and local capture index: WAVE12-CODEX.md,
 E21-R07.md and E22-L02-ART.md under docs/handoffs/.
+
+## UI-6 — interface symbols in the bundled font (coordinator, 2026-11-14)
+
+`assets/ui/fonts/PixelifySans.ttf` (the OFL 1.1 derivative recorded under UI-A3,
+family **Roguewood Numerals**) gains 18 glyphs the interface used but the font
+lacked: U+25A0, U+2161, U+25C6, U+2726, U+265B, U+24D8, U+25CB, U+2192, U+2193,
+U+25B6, U+25C0, U+2715, U+2717, U+2713, U+21BB, U+21BA, U+230A and U+230B. A
+browser has no system font to borrow them from, so the web build drew a box for
+each (owner's play notes, docs/handoffs/UI-6.md).
+
+Each is original pixel work by the coordinator on the font's own grid, written by
+`docs/art/ui/patch_symbols.py`; no donor font or generated image is used. Every
+existing outline, advance width and character mapping is unchanged (checked
+glyph by glyph against the UI-A3 file). The font remains OFL 1.1 with OFL.txt
+intact. The symbols have one weight (no variation deltas).
+Source (UI-A3) SHA256: `9e38d077f2679e2f7587b360ae3afbd97b03e84baf87a827ab1ef231971b9f68`.
+Patched SHA256: `ff4b5f8d9f8a4ad875c4b1ff02c31961f0c1f54a9aaee43e97a7a673fbae170e`.

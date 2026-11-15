@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-11-14. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E22 IN_PROGRESS; E23–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). Wave 10 is merged by PR #22 (main `706767f`). Wave 11 is merged by PR #29 (main `f65d16f`). **Wave 12 is closed** (see "Wave 12 closed"; the Neon League is live with its rivals and theme) and awaits its PR to main. **Wave 13 is claimed** (see "Wave 13 claims"). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
+Updated: 2026-11-15. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E22 IN_PROGRESS; E23–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). Wave 10 is merged by PR #22 (main `706767f`). Wave 11 is merged by PR #29 (main `f65d16f`). Wave 12 is merged by PR #30 (main `cd1cfc9`; the Neon League is live with its rivals and theme). **Wave 13 is open** (see "Wave 13 claims" and "Wave 13 progress"): UI-6, the owner's play notes, is done. The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
 
 ## Read first
 
@@ -286,10 +286,10 @@ Open: Wave 10 is merged (PR #22, main `706767f`). Base: `claude/roguewood-build`
 - **Not delivered in Wave 12:** Neon's other sixteen items (DC-N3 to N5, planned for Wave 13), lane and side reading and the one-throw hook tactic (no item yet needs them), and `league.spectral`, so the Neon title opens nothing yet. Sell rows are one per item, not grouped.
 - **Finding for E24:** in the strategy simulation an ordinary player's single-purpose build stalls at Division 2–3 in both Leagues; targets are unchanged.
 - **Owner actions:** play the Neon League on the phone; listen to its music; review the captures listed in docs/handoffs/WAVE12-CODEX.md (no phone or speaker trial has been run).
-- **Merge:** pending, by the PR from `claude/roguewood-build` to main.
+- **Merge:** MERGED to main by PR #30 (`cd1cfc9`, 2026-11-14) after CI passed on `53ba01c` (Bootstrap run 43613842320); Bootstrap also passed on main (run 43631722839).
 
 ## Wave 13 claims (coordinator: Claude, 2026-11-14)
-Open once Wave 12 is merged. Base: `claude/roguewood-build` at the "Wave 12 closed" commit. Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave13.md). Scope: docs/ROADMAP.md, the Wave 13 row and "League template".
+Open: Wave 12 is merged (PR #30, main `cd1cfc9`). Base: `claude/roguewood-build` at the "Wave 12 closed" commit. Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave13.md). Scope: docs/ROADMAP.md, the Wave 13 row and "League template".
 - **Claude, in this order:**
   1. **DC-N3 to DC-N5** (3 sessions, Medium): Neon's other sixteen items (one ball, one pin, nine Charms, three tactical cards and two shop upgrades; the plan is in handoffs/E17-L02.md), with the primitives they still need first (lane and side reading, the one-throw hook tactic). Each batch: definitions, mechanics through the real FrameBuilder and a native journey; the physics digest of existing fixtures must not change.
   2. **E17-L03** (High): the Salvage League spec, as E17-L02 was for Neon.
@@ -298,6 +298,18 @@ Open once Wave 12 is merged. Base: `claude/roguewood-build` at the "Wave 12 clos
   2. **The tail of the Neon theme:** anything the live captures show is still developmental.
   - AV-N3 onward follows DC-N3 to N5 as they land (Wave 14).
 - **Owner:** play the Neon League on the phone.
+
+## Wave 13 progress (coordinator)
+- **UI-6 DONE** (handoffs/UI-6.md), the owner's play notes of 2026-11-14 on the Neon League, ahead of the claims:
+  - **Boxes for symbols:** the font lacked 18 characters the interface uses (rarity seals, ⓘ, arrows, ✓ and others); a browser cannot borrow them as a desktop does. They are in the font now (docs/art/ui/patch_symbols.py; ASSET-LEDGER.md, "UI-6"), and a unit test fails on any character the font lacks.
+  - **Charms off the screen:** portrait's Charms are a rail down the lane's right flank; the slip and rival share the row, so the score line is no longer cut. A Charm without art keeps a slot.
+  - **Rings:** a card's selection and focus rings are drawn on its face, so they turn with a fanned card and are not clipped in the Binder.
+  - **Binder:** the chosen item's description is a footer that stays in view and never moves the grid; state tabs no longer cover the row above.
+  - **Cards without art** (the twelve Neon items, Codex's AV-N1 and AV-N2) show their category mark and "ART TO COME".
+  - **For Codex:** the font gained glyphs only (every existing outline and width is identical); merge `origin/claude/roguewood-build` before any font work. The equipment strip is a flow container now, and hosted slots show the identity only, 44 px square. Any of the 18 symbols may be redrawn in patch_symbols.py.
+  - New checks: unit (the font covers every character in src/ and content/; rings ride the fanned face; the art-to-come mark), J11 (the footer keeps its height and the grid its place) and J22L02 (five Charms in the rail, on the screen, in equal slots; the slip's chain uncut).
+  - Validation: unit; J22L02 (both modes), J03C13, J03C10, J03C16, J11, J11ART and JUIA2 rendered; J08 and J02 headless: PASS. The phone tour was captured before and after at 780×1688. The full matrix: see the next line.
+  - Full matrix: running on this commit when it was pushed; its result is recorded in the commit that follows.
 
 ## Wave 12 claims (coordinator: Claude, 2026-11-10)
 Open: Wave 11 is merged (PR #29, main `f65d16f`). Base: `claude/roguewood-build` at the "Wave 12 claims" commit (it adds UI-5 to the claims written at the close). Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave12.md). Scope: docs/ROADMAP.md, the Wave 12 row and "GUI review: UI-4".
