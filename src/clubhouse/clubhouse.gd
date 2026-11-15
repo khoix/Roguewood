@@ -52,6 +52,7 @@ var trophy_grid: HFlowContainer
 var goals_list: VBoxContainer
 var goals_message: Label
 const LOGO_PATH := "res://assets/brand/logo.png"
+const FOOTER_TEXT := "Roguewood 2026 | khoix"
 var logo: TextureRect
 var league_cards: VBoxContainer
 var unlock_list: VBoxContainer
@@ -438,6 +439,49 @@ func _build_board() -> void:
 	notes.add_child(unlock_list)
 	latest_label = _label(notes, "LatestUnlocks")
 	latest_label.hide()
+	pages.board.add_child(_footer())
+
+## UI-10 (owner's play notes, 2026-11-15): a small footer at the bottom of the
+## board, like a trademark line: a short brass rule, then "Roguewood 2026 | khoix".
+func _footer() -> Control:
+	var footer := VBoxContainer.new()
+	footer.name = "BoardFooter"
+	footer.alignment = BoxContainer.ALIGNMENT_CENTER
+	footer.add_theme_constant_override("separation", 6)
+	footer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var space := Control.new()
+	space.custom_minimum_size.y = 18
+	footer.add_child(space)
+	var rule := HBoxContainer.new()
+	rule.name = "FooterRule"
+	rule.alignment = BoxContainer.ALIGNMENT_CENTER
+	rule.add_theme_constant_override("separation", 8)
+	for part in ["line", "mark", "line"]:
+		if part == "mark":
+			var mark := Label.new()
+			mark.text = "◆"
+			mark.add_theme_font_size_override("font_size", 10)
+			mark.add_theme_color_override("font_color", Color("8a6a32"))
+			rule.add_child(mark)
+		else:
+			var line := ColorRect.new()
+			line.color = Color("4a3c24")
+			line.custom_minimum_size = Vector2(56, 1)
+			line.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			rule.add_child(line)
+	footer.add_child(rule)
+	var credit := Label.new()
+	credit.name = "FooterCredit"
+	credit.text = FOOTER_TEXT
+	credit.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	credit.add_theme_font_size_override("font_size", 13)
+	credit.add_theme_color_override("font_color", Color("6f7c7b"))
+	footer.add_child(credit)
+	var bottom := Control.new()
+	bottom.custom_minimum_size.y = 4
+	footer.add_child(bottom)
+	return footer
 
 func _build_binder() -> void:
 	binder_counts = _label(pages.binder, "BinderCounts")

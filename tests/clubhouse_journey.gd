@@ -51,6 +51,9 @@ func _ui9_board() -> void:
 	var action: Button = scene.continue_button if scene.continue_button.visible else scene.enter
 	var brass: StyleBox = action.get_theme_stylebox("normal")
 	_check(brass is StyleBoxFlat and (brass as StyleBoxFlat).bg_color.is_equal_approx(Color("d8b873")), "the action to take is the brass button")
+	var footer: Control = club.pages.board.get_node_or_null("BoardFooter")
+	_check(footer != null and footer.get_index() == club.pages.board.get_child_count() - 1 and footer.find_child("FooterCredit", true, false).text == "Roguewood 2026 | khoix"
+		and footer.find_child("FooterRule", true, false) != null, "UI-10: the board ends with a short rule and the footer line")
 	_check(club.league_cards.get_child_count() == club.records_label.text.split("\n").size() and club.records_label.visible == false,
 		"each League's record is a card (%d)" % club.league_cards.get_child_count())
 
