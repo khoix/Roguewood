@@ -7,6 +7,7 @@ extends Control
 const RivalArt = preload("res://src/presentation/rival_art.gd")
 const UiTheme = preload("res://src/presentation/house_ui_theme.gd")
 const ItemArt = preload("res://src/presentation/item_assets.gd")
+const RivalRules = preload("res://src/rules/rival_rules.gd")
 signal intro_done
 signal endless_pressed
 signal retry_pressed
@@ -185,17 +186,7 @@ func _ready() -> void:
 	reaction_text.custom_minimum_size = Vector2(320, 0)
 	reaction_text.add_theme_font_size_override("font_size", 20)
 	reaction_row.add_child(reaction_text)
-	intro = _sheet("RivalIntro")
-	var intro_box: VBoxContainer = intro.get_child(0)
-	intro_portrait = Portrait.new()
-	intro_portrait.custom_minimum_size = Vector2(180, 180)
-	intro_portrait.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	intro_box.add_child(intro_portrait)
-	intro_portrait.texture_filter = TEXTURE_FILTER_NEAREST
-	intro_reward = _reward(intro_box)
-	intro_title = _label(intro_box, "IntroTitle", 34)
-	intro_body = _label(intro_box, "IntroBody", 22)
-	intro_button = _button(intro_box, "IntroBegin", "Begin", func(): _finish_intro())
+	_build_intro()
 	result = _sheet("AttemptResult")
 	var result_box: VBoxContainer = result.get_child(0)
 	result_portrait = Portrait.new()
@@ -264,6 +255,181 @@ func _sheet(node_name: String) -> PanelContainer:
 	box.add_theme_constant_override("separation", 18)
 	sheet.add_child(box)
 	return sheet
+
+## UI-9 (owner's play notes, 2026-11-15): the introduction reads as parts, not a
+## paragraph. Who: a kicker (Boss or Championship, the Division), the rival's name,
+## the portrait and their line in a speech bubble. What: one card per rule (its
+## seal, its name, what it does), the match's figures (target, frames, lane), the
+## first-clear reward, and the rival's story behind "Scouting report". Portrait
+## stacks the two; landscape sets them side by side. The full text stays in
+## intro_body, hidden, for tools and tests.
+var intro_columns: BoxContainer
+var intro_kicker: Label
+var intro_quote: PanelContainer
+var intro_quote_text: Label
+var intro_rules: VBoxContainer
+var intro_facts: HBoxContainer
+var intro_reward_text: Label
+var intro_story_button: Button
+var intro_story: Label
+var intro_scroll: ScrollContainer
+
+func _build_intro() -> void:
+	intro = _sheet("RivalIntro")
+	var intro_box: VBoxContainer = intro.get_child(0)
+	intro_box.add_theme_constant_override("separation", 12)
+	intro_scroll = ScrollContainer.new()
+	intro_scroll.name = "IntroScroll"
+	intro_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	intro_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
+	intro_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	intro_box.add_child(intro_scroll)
+	var centre := VBoxContainer.new()
+	centre.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	centre.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	centre.alignment = BoxContainer.ALIGNMENT_CENTER
+	intro_scroll.add_child(centre)
+	intro_columns = BoxContainer.new()
+	intro_columns.name = "IntroColumns"
+	intro_columns.vertical = true
+	intro_columns.alignment = BoxContainer.ALIGNMENT_CENTER
+	intro_columns.add_theme_constant_override("separation", 14)
+	centre.add_child(intro_columns)
+	var who := VBoxContainer.new()
+	who.name = "IntroWho"
+	who.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	who.alignment = BoxContainer.ALIGNMENT_CENTER
+	who.add_theme_constant_override("separation", 6)
+	intro_columns.add_child(who)
+	intro_kicker = _label(who, "IntroKicker", 16)
+	intro_kicker.add_theme_color_override("font_color", UiTheme.BRASS)
+	intro_title = _label(who, "IntroTitle", 34)
+	intro_portrait = Portrait.new()
+	intro_portrait.custom_minimum_size = Vector2(160, 160)
+	intro_portrait.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	intro_portrait.texture_filter = TEXTURE_FILTER_NEAREST
+	who.add_child(intro_portrait)
+	intro_quote = PanelContainer.new()
+	intro_quote.name = "IntroQuote"
+	intro_quote.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	var bubble := StyleBoxFlat.new()
+	bubble.bg_color = Color("f1e6cc")
+	bubble.set_corner_radius_all(14)
+	bubble.content_margin_left = 16
+	bubble.content_margin_right = 16
+	bubble.content_margin_top = 8
+	bubble.content_margin_bottom = 8
+	intro_quote.add_theme_stylebox_override("panel", bubble)
+	who.add_child(intro_quote)
+	intro_quote_text = _label(intro_quote, "IntroQuoteText", 19)
+	intro_quote_text.add_theme_color_override("font_color", Color("2a2016"))
+	var what := VBoxContainer.new()
+	what.name = "IntroWhat"
+	what.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	what.alignment = BoxContainer.ALIGNMENT_CENTER
+	what.add_theme_constant_override("separation", 10)
+	intro_columns.add_child(what)
+	intro_rules = VBoxContainer.new()
+	intro_rules.name = "IntroRules"
+	intro_rules.add_theme_constant_override("separation", 8)
+	what.add_child(intro_rules)
+	intro_facts = HBoxContainer.new()
+	intro_facts.name = "IntroFacts"
+	intro_facts.add_theme_constant_override("separation", 8)
+	what.add_child(intro_facts)
+	var reward_row := HBoxContainer.new()
+	reward_row.name = "IntroRewardRow"
+	reward_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	reward_row.add_theme_constant_override("separation", 10)
+	what.add_child(reward_row)
+	intro_reward = _reward(reward_row)
+	intro_reward_text = _label(reward_row, "IntroReward", 17)
+	intro_reward_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	intro_reward_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	intro_reward_text.add_theme_color_override("font_color", Color("cfe3d6"))
+	intro_story_button = Button.new()
+	intro_story_button.name = "IntroStoryToggle"
+	intro_story_button.flat = true
+	intro_story_button.text = "Scouting report +"
+	intro_story_button.add_theme_font_size_override("font_size", 18)
+	intro_story_button.add_theme_color_override("font_color", UiTheme.BRASS)
+	intro_story_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	intro_story_button.pressed.connect(func(): _toggle_story())
+	what.add_child(intro_story_button)
+	intro_story = _label(what, "IntroStory", 18)
+	intro_story.add_theme_color_override("font_color", Color("c9d3cf"))
+	intro_story.hide()
+	intro_body = _label(intro_box, "IntroBody", 22)
+	intro_body.hide() # UI-9: the full text, for tools and tests
+	intro_button = _button(intro_box, "IntroBegin", "Begin", func(): _finish_intro())
+
+func _toggle_story() -> void:
+	intro_story.visible = not intro_story.visible
+	intro_story_button.text = "Scouting report −" if intro_story.visible else "Scouting report +"
+
+## One rule as a card: its seal, its name and what it does.
+func _rule_card(rule: String) -> Control:
+	var card := PanelContainer.new()
+	card.name = "Rule_" + rule.trim_prefix("boss_rule.")
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("0d181d")
+	style.border_color = UiTheme.BRASS
+	style.border_width_left = 4
+	style.set_corner_radius_all(6)
+	style.set_content_margin_all(10)
+	card.add_theme_stylebox_override("panel", style)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	card.add_child(row)
+	var seal := TextureRect.new()
+	seal.name = "Seal"
+	seal.texture = RivalArt.rule_badge(rule)
+	seal.custom_minimum_size = Vector2(44, 44)
+	seal.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	seal.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	seal.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	seal.visible = seal.texture != null
+	row.add_child(seal)
+	var text := VBoxContainer.new()
+	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text.add_theme_constant_override("separation", 2)
+	row.add_child(text)
+	var summary := RivalRules.summary(rule)
+	var parts := summary.split(" — ", true, 1)
+	var title := _label(text, "RuleName", 21)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	title.text = parts[0]
+	title.add_theme_color_override("font_color", UiTheme.BRASS)
+	var effect := _label(text, "RuleEffect", 18)
+	effect.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	effect.text = parts[1].capitalize().substr(0, 1) + parts[1].substr(1) if parts.size() > 1 else ""
+	effect.visible = parts.size() > 1
+	return card
+
+## A figure of the match: its value over a small caption.
+func _fact(value: String, caption: String) -> Control:
+	var chip := PanelContainer.new()
+	chip.name = "Fact_" + caption.replace(" ", "")
+	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("13232a")
+	style.border_color = Color("3a5158")
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(6)
+	style.set_content_margin_all(6)
+	chip.add_theme_stylebox_override("panel", style)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 0)
+	chip.add_child(box)
+	var number := _label(box, "Value", 22)
+	number.text = value
+	number.add_theme_color_override("font_color", Color("f0d99b"))
+	number.autowrap_mode = TextServer.AUTOWRAP_OFF
+	number.clip_text = true
+	var what := _label(box, "Caption", 13)
+	what.text = caption.to_upper()
+	what.add_theme_color_override("font_color", Color("9aa8a6"))
+	return chip
 
 ## Places the bar under the session controls; the bubble sits below the status.
 func layout(top: float, bubble_top: float) -> void:
@@ -455,18 +621,43 @@ func _portrait(portrait: Portrait, rival: Dictionary, mood: String) -> void:
 ## The rival's entrance. It stays until the player presses its button (UI-8, owner's
 ## play notes, 2026-11-15: it used to advance on its own after a few seconds); a rival
 ## already met gets the short version. Reduced motion: no fade.
-func show_intro(rival: Dictionary, target: int, rule_summary: String, reward: String, seen_before: bool) -> void:
+## `match_info` (UI-9): {rules (ids), frames, lane (its name, "" for House Oil), kicker}.
+func show_intro(rival: Dictionary, target: int, rule_summary: String, reward: String, seen_before: bool, match_info: Dictionary = {}) -> void:
 	_portrait(intro_portrait, rival, "entrance")
 	intro_reward.texture = ItemArt.slot(RivalArt.entry(rival.get("id", "")).get("reward", ""), "icon")
 	intro_reward.visible = intro_reward.texture != null
 	intro_button.icon = RivalArt.rule_badge(rival.get("rule", ""))
 	intro_button.expand_icon = true
 	intro_button.add_theme_constant_override("icon_max_width",32)
-	intro_title.text = "Boss: %s" % rival.name
-	var body := "Posted target %d in two frames.\n%s\nFirst clear: %s" % [target, rule_summary, reward]
+	intro_title.text = String(rival.name)
+	var frames := int(match_info.get("frames", 2))
+	var frames_words := {1: "one frame", 2: "two frames", 3: "three frames"}
+	var body := "Posted target %d in %s.\n%s\nFirst clear: %s" % [target, frames_words.get(frames, "%d frames" % frames), rule_summary, reward]
 	if not seen_before:
 		body = rival.intro + "\n\n" + body + "\n\n“%s”" % rival.reactions.get("entrance", "")
 	intro_body.text = body
+	intro_kicker.text = String(match_info.get("kicker", "Boss match")).to_upper()
+	intro_quote_text.text = "“%s”" % rival.reactions.get("entrance", "")
+	intro_quote.visible = not String(rival.reactions.get("entrance", "")).is_empty()
+	for child in intro_rules.get_children():
+		intro_rules.remove_child(child)
+		child.queue_free()
+	var rules: Array = match_info.get("rules", [rival.get("rule", "")] + rival.get("extra_rules", []))
+	for rule in rules:
+		if not String(rule).is_empty(): intro_rules.add_child(_rule_card(rule))
+	for child in intro_facts.get_children():
+		intro_facts.remove_child(child)
+		child.queue_free()
+	intro_facts.add_child(_fact(str(target), "Target"))
+	intro_facts.add_child(_fact(str(frames), "Frames"))
+	if not String(match_info.get("lane", "")).is_empty():
+		intro_facts.add_child(_fact(String(match_info.lane), "Lane"))
+	intro_reward_text.text = "First clear: " + reward
+	intro_story.text = String(rival.get("intro", ""))
+	intro_story.visible = false
+	intro_story_button.text = "Scouting report +"
+	intro_story_button.visible = not intro_story.text.is_empty()
+	intro_scroll.scroll_vertical = 0
 	intro.show()
 	intro.modulate.a = 1.0
 	if not reduced_motion:
@@ -476,12 +667,13 @@ func show_intro(rival: Dictionary, target: int, rule_summary: String, reward: St
 
 func _process(delta: float) -> void:
 	var compact := size.x > size.y
-	intro_portrait.custom_minimum_size = Vector2(48,48) if compact else Vector2(180,180)
-	intro_reward.visible = intro_reward.texture != null and not compact
+	# UI-9: landscape sets who and what side by side; portrait stacks them.
+	intro_columns.vertical = not compact
+	intro_portrait.custom_minimum_size = Vector2(120,120) if compact else Vector2(160,160)
 	intro_button.custom_minimum_size.y = 52 if compact else 72
-	intro.get_child(0).add_theme_constant_override("separation", 4 if compact else 12)
-	intro_body.add_theme_font_size_override("font_size", 16 if compact else 22)
-	intro_title.add_theme_font_size_override("font_size", 24 if compact else 34)
+	intro.get_child(0).add_theme_constant_override("separation", 6 if compact else 12)
+	intro_title.add_theme_font_size_override("font_size", 28 if compact else 34)
+	intro_quote_text.custom_minimum_size.x = minf(maxf(intro.size.x * (0.4 if compact else 0.8) - 40.0, 160.0), 460.0)
 	result_portrait.custom_minimum_size = Vector2(48,48) if compact else Vector2(96,96)
 	result.get_child(0).add_theme_constant_override("separation",4 if compact else 12)
 	for portrait in [intro_portrait, reaction_portrait, result_portrait]: portrait.still = reduced_motion

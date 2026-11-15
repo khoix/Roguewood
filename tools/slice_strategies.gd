@@ -157,13 +157,13 @@ static func _attempt(name: String, strategy: Dictionary, seed_value: int, conten
 				rack = rack.filter(func(p): return p not in fallen)
 				if rack.is_empty() or roll_index == 2:
 					break
-			var built := Builder.build(RivalRules.frame_loadout(league.rules(), run.loadout()), catalogue, reports, {}, {"match_frame": match_frame, "strike_streak": run.strike_streak,
-				"match_score": league.match_score, "match_target": league.target()})
+			var built := Builder.build(RivalRules.frame_loadout(league.rules(), run.loadout()), catalogue, reports, {}, RivalRules.frame_context(league.rules(), {"match_frame": match_frame, "strike_streak": run.strike_streak,
+				"match_score": league.match_score, "match_target": league.target()}))
 			var result := Rules.resolve(built.frame)
 			if not result.ok:
 				push_error("slice sim frame refused: %s" % str(result.errors))
 				return
-			run.credit_frame(result, built.frame)
+			run.credit_frame(RivalRules.paid(league.rules(), result).result, built.frame)
 			run.apply_frame(result, built.frame)
 			var banked: int = RivalRules.bank(league.rules(), result).score
 			league.record_frame(banked)

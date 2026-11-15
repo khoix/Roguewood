@@ -51,6 +51,10 @@ var binder_art: CenterContainer
 var trophy_grid: HFlowContainer
 var goals_list: VBoxContainer
 var goals_message: Label
+const LOGO_PATH := "res://assets/brand/logo.png"
+var logo: TextureRect
+var league_cards: VBoxContainer
+var unlock_list: VBoxContainer
 
 func _init() -> void:
 	name = "Clubhouse"
@@ -75,28 +79,48 @@ func _init() -> void:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 12)
 	margin.add_child(column)
-	var masthead := HBoxContainer.new()
-	masthead.alignment = BoxContainer.ALIGNMENT_CENTER
-	masthead.add_theme_constant_override("separation", 16)
+	# UI-9 (owner's play notes, 2026-11-15): the game's logo heads the Clubhouse, in
+	# place of the club sign and "THE CLUBHOUSE".
+	var masthead := CenterContainer.new()
+	masthead.name = "Masthead"
 	column.add_child(masthead)
-	masthead.add_child(Art.slot("deco.club_sign", 56))
-	var club_title := Label.new()
-	club_title.text = "THE CLUBHOUSE"
-	club_title.add_theme_font_size_override("font_size", 28)
-	masthead.add_child(club_title)
-	# One row of four equal tabs in both orientations (a phone shortens "League Board").
+	if ResourceLoader.exists(LOGO_PATH):
+		logo = TextureRect.new()
+		logo.name = "ClubhouseLogo"
+		logo.texture = load(LOGO_PATH)
+		logo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		logo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		logo.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+		logo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		logo.custom_minimum_size = Vector2(240, 80)
+		masthead.add_child(logo)
+	else:
+		var wordmark := Label.new()
+		wordmark.name = "ClubhouseWordmark"
+		wordmark.text = "ROGUEWOOD"
+		wordmark.add_theme_font_size_override("font_size", 40)
+		masthead.add_child(wordmark)
+	# One row of four equal tabs in both orientations (a phone shortens "League Board"):
+	# a segmented strip, so they read as places to go, not as the board's tiles.
+	var track := PanelContainer.new()
+	track.name = "ClubhouseTabTrack"
+	var track_style := Art.panel_style(Color("0b1519"), Color("2f474f"), 1)
+	track_style.set_corner_radius_all(10)
+	track_style.set_content_margin_all(4)
+	track.add_theme_stylebox_override("panel", track_style)
+	column.add_child(track)
 	var bar := HBoxContainer.new()
 	bar.name = "ClubhouseTabs"
 	bar.alignment = BoxContainer.ALIGNMENT_CENTER
-	bar.add_theme_constant_override("separation", 8)
-	column.add_child(bar)
+	bar.add_theme_constant_override("separation", 4)
+	track.add_child(bar)
 	for tab in TABS:
 		var button := Button.new()
 		button.name = "Tab" + tab.capitalize()
 		button.text = TAB_NAMES[tab]
 		button.toggle_mode = true
-		Art.button_style(button)
-		button.custom_minimum_size = Vector2(0, 56)
+		segment_style(button)
+		button.custom_minimum_size = Vector2(0, 52)
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.pressed.connect(func(): show_tab(tab))
 		bar.add_child(button)
@@ -106,6 +130,7 @@ func _init() -> void:
 		scroll.name = "Page" + tab.capitalize()
 		scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER # UI-9: a finger scrolls; no bar
 		column.add_child(scroll)
 		var body := VBoxContainer.new()
 		body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -124,6 +149,9 @@ func _init() -> void:
 func _fit() -> void:
 	_fit_board()
 	var narrow := size.x > 0.0 and size.x < NARROW
+	if logo != null:
+		# A short screen (a phone on its side) keeps the logo small, so the play card fits.
+		logo.custom_minimum_size = Vector2(216, 72) if narrow else (Vector2(180, 60) if size.y < 800.0 else Vector2(270, 90))
 	for tab in TABS:
 		tab_buttons[tab].text = TAB_NAMES[tab].get_slice(" ", TAB_NAMES[tab].get_slice_count(" ") - 1) if narrow else TAB_NAMES[tab]
 		tab_buttons[tab].add_theme_font_size_override("font_size", 20 if narrow else FONT_SIZE)
@@ -152,6 +180,177 @@ static func stat_tile(value: String, caption: String) -> Control:
 		label.add_theme_color_override("font_color", row[2])
 		box.add_child(label)
 	return tile
+
+## UI-9 (owner's play notes, 2026-11-15): the board's parts each get their own look,
+## so a control never reads as a stat. The Career is a scoreboard (one panel, its
+## columns divided by rules); the tabs are a segmented strip; a choice is an inset
+## field under its caption; the action is a brass button.
+static func score_column(value: String, caption: String, first: bool) -> Control:
+	var column := PanelContainer.new()
+	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0, 0, 0, 0)
+	style.border_color = Color("3a5158")
+	style.border_width_left = 0 if first else 1
+	style.content_margin_top = 4
+	style.content_margin_bottom = 4
+	column.add_theme_stylebox_override("panel", style)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 0)
+	column.add_child(box)
+	for row in [[value, 28, Color("f0d99b")], [caption.to_upper(), 13, Color("9aa8a6")]]:
+		var label := Label.new()
+		label.text = row[0]
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.add_theme_font_size_override("font_size", row[1])
+		label.add_theme_color_override("font_color", row[2])
+		box.add_child(label)
+	return column
+
+## The scoreboard's frame: a dark plate with a brass rule along its top.
+static func scoreboard_style() -> StyleBoxFlat:
+	var style := Art.panel_style(Color("0e1a1f"), Color("2f474f"), 1)
+	style.border_color = Color("2f474f")
+	style.border_width_top = 3
+	style.set_corner_radius_all(8)
+	style.set_content_margin_all(8)
+	return style
+
+## A section's caption: small capitals in brass over a thin rule.
+static func caption(text: String, node_name: String = "Caption") -> Label:
+	var label := Label.new()
+	label.name = node_name
+	label.text = text.to_upper()
+	label.add_theme_font_size_override("font_size", 15)
+	label.add_theme_color_override("font_color", Color("d8b873"))
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return label
+
+## A segment of the tab strip: quiet until chosen, then a lit plate with brass words.
+static func segment_style(button: Button) -> void:
+	var idle := StyleBoxFlat.new()
+	idle.bg_color = Color(0, 0, 0, 0)
+	idle.set_corner_radius_all(8)
+	idle.set_content_margin_all(8)
+	var hover := idle.duplicate()
+	hover.bg_color = Color("16262d")
+	var chosen := idle.duplicate()
+	chosen.bg_color = Color("244047")
+	chosen.border_color = Color("d8b873")
+	chosen.border_width_bottom = 3
+	var focus := idle.duplicate()
+	focus.draw_center = false
+	focus.border_color = Color("fff1c9")
+	focus.set_border_width_all(2)
+	for key in ["normal", "disabled"]: button.add_theme_stylebox_override(key, idle)
+	button.add_theme_stylebox_override("hover", hover)
+	for key in ["pressed", "hover_pressed"]: button.add_theme_stylebox_override(key, chosen)
+	button.add_theme_stylebox_override("focus", focus)
+	button.add_theme_color_override("font_color", Color("9aa8a6"))
+	button.add_theme_color_override("font_hover_color", Color("e6dcc4"))
+	for key in ["font_pressed_color", "font_hover_pressed_color"]: button.add_theme_color_override(key, Color("f0d99b"))
+
+## The board's action: a brass plate with dark words and a pressed lip.
+static func primary_style(button: Button) -> void:
+	var normal := StyleBoxFlat.new()
+	normal.bg_color = Color("d8b873")
+	normal.border_color = Color("8a6a32")
+	normal.border_width_bottom = 5
+	normal.border_width_top = 1
+	normal.border_width_left = 1
+	normal.border_width_right = 1
+	normal.set_corner_radius_all(10)
+	normal.set_content_margin_all(12)
+	normal.shadow_color = Color(0, 0, 0, 0.35)
+	normal.shadow_size = 4
+	normal.shadow_offset = Vector2(0, 3)
+	var hover := normal.duplicate()
+	hover.bg_color = Color("e7c985")
+	var pressed := normal.duplicate()
+	pressed.bg_color = Color("c3a15e")
+	pressed.border_width_bottom = 2
+	pressed.content_margin_top = 15
+	var disabled := normal.duplicate()
+	disabled.bg_color = Color("4d4a3f")
+	disabled.border_color = Color("33312a")
+	var focus := StyleBoxFlat.new()
+	focus.draw_center = false
+	focus.border_color = Color("fff1c9")
+	focus.set_border_width_all(3)
+	focus.set_corner_radius_all(12)
+	focus.set_expand_margin_all(4)
+	for pair in [["normal", normal], ["hover", hover], ["pressed", pressed], ["hover_pressed", pressed], ["disabled", disabled], ["focus", focus]]:
+		button.add_theme_stylebox_override(pair[0], pair[1])
+	for key in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_hover_pressed_color"]:
+		button.add_theme_color_override(key, Color("1c140a"))
+	button.add_theme_color_override("font_disabled_color", Color("9a968a"))
+	button.add_theme_font_size_override("font_size", 26)
+
+## A second action beside the brass one: brass words on a brass outline.
+static func secondary_style(button: Button) -> void:
+	var normal := StyleBoxFlat.new()
+	normal.bg_color = Color("0e1a1f")
+	normal.border_color = Color("d8b873")
+	normal.set_border_width_all(2)
+	normal.set_corner_radius_all(10)
+	normal.set_content_margin_all(10)
+	var hover := normal.duplicate()
+	hover.bg_color = Color("1d3036")
+	var focus := StyleBoxFlat.new()
+	focus.draw_center = false
+	focus.border_color = Color("fff1c9")
+	focus.set_border_width_all(3)
+	focus.set_corner_radius_all(12)
+	focus.set_expand_margin_all(4)
+	for pair in [["normal", normal], ["hover", hover], ["pressed", hover], ["hover_pressed", hover], ["disabled", normal], ["focus", focus]]:
+		button.add_theme_stylebox_override(pair[0], pair[1])
+	for key in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_hover_pressed_color"]:
+		button.add_theme_color_override(key, Color("f0d99b"))
+	button.add_theme_font_size_override("font_size", 22)
+
+## A choice (the League, the kit): an inset field with a brass edge on its left.
+static func selector_style(option: OptionButton) -> void:
+	var normal := StyleBoxFlat.new()
+	normal.bg_color = Color("0a1418")
+	normal.border_color = Color("3a5158")
+	normal.set_border_width_all(1)
+	normal.set_corner_radius_all(6)
+	normal.content_margin_left = 20
+	normal.content_margin_right = 12
+	normal.content_margin_top = 10
+	normal.content_margin_bottom = 10
+	var hover := normal.duplicate()
+	hover.bg_color = Color("12232a")
+	var focus := normal.duplicate()
+	focus.draw_center = false
+	focus.border_color = Color("fff1c9")
+	focus.set_border_width_all(2)
+	for pair in [["normal", normal], ["hover", hover], ["pressed", hover], ["hover_pressed", hover], ["disabled", normal], ["focus", focus]]:
+		option.add_theme_stylebox_override(pair[0], pair[1])
+	if option.get_node_or_null("BrassEdge") == null:
+		var edge := ColorRect.new()
+		edge.name = "BrassEdge"
+		edge.color = Color("d8b873")
+		edge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		edge.set_anchors_preset(Control.PRESET_LEFT_WIDE)
+		edge.offset_left = 0
+		edge.offset_right = 6
+		edge.offset_top = 0
+		edge.offset_bottom = 0
+		option.add_child(edge)
+	for key in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_hover_pressed_color"]:
+		option.add_theme_color_override(key, Color("f4e9cf"))
+	option.add_theme_font_size_override("font_size", 22)
+	option.custom_minimum_size.y = 56
+
+## UI-9: a finger that lands on a row, a picture or a button and drags scrolls the
+## page (UI-8 did this for the Binder's cards). Buttons still take a tap.
+static func drag_through(node: Node) -> void:
+	for child in node.get_children():
+		if child is Control and (child is BaseButton or child is Range or child.mouse_filter == Control.MOUSE_FILTER_STOP):
+			child.mouse_filter = Control.MOUSE_FILTER_PASS
+		drag_through(child)
 
 ## A goal's progress: a bar with its count.
 static func progress_row(progress: int, threshold: int, note: String = "") -> Control:
@@ -206,7 +405,7 @@ func adopt_board(panel: Control) -> void:
 ## line, so choosing Neon (one short kit name) narrowed the whole page.
 func _fit_board() -> void:
 	if board_panel == null or size.x <= 0.0: return
-	board_panel.custom_minimum_size.x = minf(size.x - 32.0 - 12.0, BOARD_MAX)
+	board_panel.custom_minimum_size.x = minf(size.x - 32.0, BOARD_MAX)
 	for child in board_panel.get_children():
 		if child is OptionButton:
 			child.clip_text = true # a long kit or League name is cut, never widens the column
@@ -216,12 +415,29 @@ func _build_board() -> void:
 	holder.name = "BoardHolder"
 	pages.board.add_child(holder)
 	var notes := VBoxContainer.new()
-	notes.add_theme_constant_override("separation", 12)
+	notes.name = "BoardNotes"
+	notes.add_theme_constant_override("separation", 10)
 	pages.board.add_child(notes)
-	_heading(notes, "League records")
+	# UI-9: each League's record is a card (its trophy, its name, four figures), and
+	# each unlock a row (the item's picture, its name, how it was won). The full
+	# sentences stay in records_label and latest_label for tools and tests, hidden.
+	notes.add_child(caption("League records", "RecordsCaption"))
+	league_cards = VBoxContainer.new()
+	league_cards.name = "LeagueCards"
+	league_cards.add_theme_constant_override("separation", 8)
+	notes.add_child(league_cards)
 	records_label = _label(notes, "LeagueRecords")
-	_heading(notes, "Latest unlocks")
+	records_label.hide()
+	var gap := Control.new()
+	gap.custom_minimum_size.y = 6
+	notes.add_child(gap)
+	notes.add_child(caption("Latest unlocks", "UnlocksCaption"))
+	unlock_list = VBoxContainer.new()
+	unlock_list.name = "UnlockList"
+	unlock_list.add_theme_constant_override("separation", 8)
+	notes.add_child(unlock_list)
 	latest_label = _label(notes, "LatestUnlocks")
+	latest_label.hide()
 
 func _build_binder() -> void:
 	binder_counts = _label(pages.binder, "BinderCounts")
@@ -322,7 +538,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 func _build_trophies() -> void:
-	_heading(pages.trophies, "Trophy shelf")
+	pages.trophies.add_child(caption("Trophy shelf", "TrophyCaption")) # UI-9: the tab names the page
 	trophy_grid = HFlowContainer.new()
 	trophy_grid.name = "TrophyGrid"
 	trophy_grid.alignment = FlowContainer.ALIGNMENT_CENTER
@@ -331,7 +547,7 @@ func _build_trophies() -> void:
 	pages.trophies.add_child(trophy_grid)
 
 func _build_goals() -> void:
-	_heading(pages.goals, "Mastery goals")
+	pages.goals.add_child(caption("Mastery goals", "GoalsCaption"))
 	var hint := _label(pages.goals, "GoalsHint")
 	hint.text = "Follow up to three. They show on the League Board and after every attempt; practice does not count."
 	hint.add_theme_font_size_override("font_size", 18)
@@ -364,9 +580,121 @@ func refresh() -> void:
 		"goals": _refresh_goals()
 
 func _refresh_board() -> void:
-	records_label.text = "\n".join(Model.board(career, graph).map(func(row): return Model.record_line(row) + ("" if row.access.is_empty() else " · " + row.access)))
+	var rows: Array = Model.board(career, graph)
+	records_label.text = "\n".join(rows.map(func(row): return Model.record_line(row) + ("" if row.access.is_empty() else " · " + row.access)))
 	var latest: Array = Model.latest(career, graph)
 	latest_label.text = "\n".join(latest.map(func(l): return l.text)) if not latest.is_empty() else "No unlocks yet. Beat a rival for the first time to add an item to the pool."
+	_clear(league_cards)
+	for row in rows:
+		league_cards.add_child(_league_card(row))
+	_clear(unlock_list)
+	for entry in latest:
+		unlock_list.add_child(_unlock_row(entry))
+	if latest.is_empty():
+		var empty := _label(unlock_list, "NoUnlocks", 18)
+		empty.text = latest_label.text
+		empty.add_theme_color_override("font_color", Color("9aa8a6"))
+	drag_through(pages.board.get_node("BoardNotes"))
+
+## One League's record: its trophy (lit once won), its name and titles, and its best
+## figures, or "not played yet", or what opens it.
+func _league_card(row: Dictionary) -> Control:
+	var card := PanelContainer.new()
+	card.name = "League_" + String(row.id).replace(".", "_")
+	var style := Art.panel_style(Color("13232a"), Color("2f474f"), 1)
+	style.set_corner_radius_all(8)
+	style.set_content_margin_all(10)
+	card.add_theme_stylebox_override("panel", style)
+	var line := HBoxContainer.new()
+	line.add_theme_constant_override("separation", 12)
+	card.add_child(line)
+	var trophy := Art.slot(row.trophy, 56 if _narrow else 64, int(row.titles) > 0)
+	trophy.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	line.add_child(trophy)
+	var text := VBoxContainer.new()
+	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text.add_theme_constant_override("separation", 4)
+	line.add_child(text)
+	var head := HBoxContainer.new()
+	text.add_child(head)
+	var name_label := _label(head, "Name", 22)
+	name_label.custom_minimum_size.x = 100
+	name_label.text = row.name
+	name_label.add_theme_color_override("font_color", Color("f4e9cf"))
+	if int(row.titles) > 0:
+		var titles := Label.new()
+		titles.name = "Titles"
+		titles.text = "◆ %d title%s" % [int(row.titles), "" if int(row.titles) == 1 else "s"]
+		titles.add_theme_font_size_override("font_size", 17)
+		titles.add_theme_color_override("font_color", Color("f0d99b"))
+		head.add_child(titles)
+	if not String(row.access).is_empty():
+		var locked := _label(text, "Access", 17)
+		locked.custom_minimum_size.x = 100
+		locked.text = row.access
+		locked.add_theme_color_override("font_color", Color(1.0, 0.75, 0.5))
+	elif int(row.attempts) == 0 and int(row.practice_best_frame) == 0:
+		var fresh := _label(text, "NotPlayed", 17)
+		fresh.custom_minimum_size.x = 100
+		fresh.text = "Not played yet"
+		fresh.add_theme_color_override("font_color", Color("9aa8a6"))
+	else:
+		var figures := HBoxContainer.new()
+		figures.name = "Figures"
+		figures.add_theme_constant_override("separation", 4)
+		text.add_child(figures)
+		for pair in [[str(row.attempts), "attempts" if int(row.attempts) != 1 else "attempt"], ["D%d" % int(row.best_division), "best"], [str(row.best_total), "top total"], [str(row.best_frame), "top frame"]]:
+			var cell := VBoxContainer.new()
+			cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			cell.add_theme_constant_override("separation", -2)
+			figures.add_child(cell)
+			var value := Label.new()
+			value.text = pair[0]
+			value.add_theme_font_size_override("font_size", 20)
+			value.add_theme_color_override("font_color", Color("f0d99b"))
+			cell.add_child(value)
+			var what := Label.new()
+			what.text = pair[1].to_upper()
+			what.add_theme_font_size_override("font_size", 12)
+			what.add_theme_color_override("font_color", Color("9aa8a6"))
+			cell.add_child(what)
+		if int(row.practice_best_frame) > 0:
+			var practice := _label(text, "Practice", 15)
+			practice.custom_minimum_size.x = 100
+			practice.text = "Practice best frame %d" % int(row.practice_best_frame)
+			practice.add_theme_color_override("font_color", Color("9aa8a6"))
+	return card
+
+## One unlock: the item's picture, its name, and how it was won.
+func _unlock_row(entry: Dictionary) -> Control:
+	var row := PanelContainer.new()
+	row.name = "Unlock_" + String(entry.gate).replace(".", "_")
+	var style := Art.panel_style(Color("101e24"), Color("24383f"), 1)
+	style.set_corner_radius_all(8)
+	style.set_content_margin_all(8)
+	row.add_theme_stylebox_override("panel", style)
+	var line := HBoxContainer.new()
+	line.add_theme_constant_override("separation", 12)
+	row.add_child(line)
+	if not String(entry.get("asset", "")).is_empty():
+		var picture := Art.slot(entry.asset, 52)
+		picture.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		line.add_child(picture)
+	var text := VBoxContainer.new()
+	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text.alignment = BoxContainer.ALIGNMENT_CENTER
+	text.add_theme_constant_override("separation", 2)
+	line.add_child(text)
+	var what := _label(text, "What", 20)
+	what.custom_minimum_size.x = 100
+	var names: Array = entry.get("item_names", [])
+	what.text = ", ".join(names) if not names.is_empty() else String(entry.name)
+	what.add_theme_color_override("font_color", Color("f0d99b"))
+	var how := _label(text, "How", 16)
+	how.custom_minimum_size.x = 100
+	how.text = String(entry.get("how", "")) + (" · in the shop from your next attempt" if not names.is_empty() else "")
+	how.add_theme_color_override("font_color", Color("9aa8a6"))
+	return row
 
 func _clear(container: Node) -> void:
 	for child in container.get_children():
@@ -403,7 +731,7 @@ func _refresh_binder() -> void:
 	# A phone fits three cards across the page exactly; wider screens keep 150 px cards.
 	var card_size := Vector2(150, 214)
 	if _narrow:
-		var room := size.x - 32.0 - 12.0 - 2.0 * GRID_PAD # the page margins, the scroll bar and the grid's own
+		var room := size.x - 32.0 - 2.0 * GRID_PAD # the page margins and the grid's own (UI-9: no scroll bar)
 		var width := floorf((room - 16.0) / 3.0)
 		card_size = Vector2(width, floorf(width * 214.0 / 150.0))
 	var page: ScrollContainer = pages.binder.get_parent()
@@ -522,12 +850,13 @@ func _refresh_trophies() -> void:
 		bottom_space.custom_minimum_size.y = 12
 		box.add_child(bottom_space)
 		trophy_grid.add_child(box)
+	drag_through(trophy_grid)
 
 ## A phone's shelf: one full-width row per trophy, the art beside its name and detail.
 func _trophy_row(slot: Dictionary) -> Control:
 	var row := PanelContainer.new()
 	row.name = "Trophy_" + slot.id.replace(".", "_")
-	row.custom_minimum_size = Vector2(maxf(size.x - 32.0 - 12.0, 240.0), 0)
+	row.custom_minimum_size = Vector2(maxf(size.x - 32.0, 240.0), 0)
 	row.add_theme_stylebox_override("panel", Art.panel_style(Color("1c2d32"), Color("77684c"), 2))
 	var line := HBoxContainer.new()
 	line.add_theme_constant_override("separation", 12)
@@ -586,9 +915,17 @@ func _refresh_goals() -> void:
 		track.disabled = goal.done
 		track.toggle_mode = true
 		track.set_pressed_no_signal(goal.tracked)
-		track.pressed.connect(func(): _toggle(goal.id))
+		# UI-9: a drag that starts on the button scrolls the page and follows nothing.
+		var page: ScrollContainer = pages.goals.get_parent()
+		track.button_down.connect(func(): _press_scroll = page.scroll_vertical)
+		track.pressed.connect(func():
+			if absi(page.scroll_vertical - _press_scroll) > SCROLL_SLOP:
+				track.set_pressed_no_signal(goal.tracked)
+				return
+			_toggle(goal.id))
 		head.add_child(track)
 		goals_list.add_child(row)
+	drag_through(goals_list)
 
 func track_button(objective_id: String) -> Button:
 	var row := goals_list.get_node_or_null("Goal_" + objective_id.replace(".", "_"))

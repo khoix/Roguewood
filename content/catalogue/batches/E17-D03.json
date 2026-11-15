@@ -2,7 +2,7 @@
   "schema_version": 1,
   "batch": "E17-D03",
   "status": "authored",
-  "note": "Boss rules (9). Each needs a rule primitive in rival_rules.gd (E18) and a rival identity (E17 League batches, E21). Counter tags are in content/career/unlocks.json. Nothing here is in content/catalogue.json until E18. E18-C05 landed boss_rule.house_rules. E18-C13 (the rules of E17-L02) landed Oil Slick and Narrow Lane.",
+  "note": "Boss rules (9). Each needs a rule primitive in rival_rules.gd (E18) and a rival identity (E17 League batches, E21). Counter tags are in content/career/unlocks.json. Nothing here is in content/catalogue.json until E18. E18-C05 landed boss_rule.house_rules. E18-C13 (the rules of E17-L02) landed Oil Slick and Narrow Lane. E18-C20 (the rules of E17-L03) landed Frugal House and Dull Pins.",
   "definitions": [
     {
       "item": {
@@ -65,70 +65,6 @@
           "activation": "activation.boss_rule.heavy_set",
           "sound": "sound.boss_rule.heavy_set",
           "reduced_motion": "reduced_motion.boss_rule.heavy_set"
-        }
-      }
-    },
-    {
-      "item": {
-        "id": "boss_rule.frugal_house",
-        "name": "Frugal House",
-        "category": "boss_rule",
-        "rarity": "common",
-        "pool_weight": 0,
-        "unlock": {
-          "kind": "initial",
-          "prerequisites": []
-        },
-        "earliest_division": 1,
-        "purchase_price": 0,
-        "resale_price": 0,
-        "effects": [],
-        "limits": {
-          "max_owned": 1,
-          "charges": 0,
-          "exhaustion": "none"
-        },
-        "downside": "No item income during the boss match.",
-        "synergy_tags": [
-          "baseline",
-          "mult",
-          "value"
-        ],
-        "incompatibilities": [],
-        "assets": {
-          "icon": "",
-          "card": "",
-          "in_play": "",
-          "rarity_treatment": "",
-          "activation": "",
-          "sound": "",
-          "reduced_motion": ""
-        },
-        "completeness": {
-          "authored": true,
-          "mechanics": false,
-          "automated_validation": false,
-          "artwork": false,
-          "effects_audio": false,
-          "unlock_assigned": true,
-          "integrated": false
-        }
-      },
-      "design": {
-        "trigger": "During the boss match, pin, ball and Charm payouts pay nothing (Gold pins, Gold Ball, Tip Jar, Gold Rush's money). Match payout, interest and scoring are unchanged. The suppressed amount is shown in the log.",
-        "primitives": [
-          "rule.no_item_income"
-        ],
-        "pool": "Boss rule: never in a shop; assigned to rivals by League specs (E17 League batch, E21).",
-        "counterplay": "Scoring strength over economy, and money saved before the boss match.",
-        "presentation_needs": "A closed till motif; suppressed payouts show as struck-through $ amounts.",
-        "asset_ids": {
-          "icon": "icon.boss_rule.frugal_house",
-          "card": "card.boss_rule.frugal_house",
-          "rarity_treatment": "rarity_treatment.boss_rule.frugal_house",
-          "activation": "activation.boss_rule.frugal_house",
-          "sound": "sound.boss_rule.frugal_house",
-          "reduced_motion": "reduced_motion.boss_rule.frugal_house"
         }
       }
     },
@@ -323,70 +259,6 @@
           "reduced_motion": "reduced_motion.boss_rule.mult_cap"
         }
       }
-    },
-    {
-      "item": {
-        "id": "boss_rule.dull_pins",
-        "name": "Dull Pins",
-        "category": "boss_rule",
-        "rarity": "common",
-        "pool_weight": 0,
-        "unlock": {
-          "kind": "initial",
-          "prerequisites": []
-        },
-        "earliest_division": 1,
-        "purchase_price": 0,
-        "resale_price": 0,
-        "effects": [],
-        "limits": {
-          "max_owned": 1,
-          "charges": 0,
-          "exhaustion": "none"
-        },
-        "downside": "Pins give half their Value in the boss match.",
-        "synergy_tags": [
-          "mult",
-          "charm",
-          "strike"
-        ],
-        "incompatibilities": [],
-        "assets": {
-          "icon": "",
-          "card": "",
-          "in_play": "",
-          "rarity_treatment": "",
-          "activation": "",
-          "sound": "",
-          "reduced_motion": ""
-        },
-        "completeness": {
-          "authored": true,
-          "mechanics": false,
-          "automated_validation": false,
-          "artwork": false,
-          "effects_audio": false,
-          "unlock_assigned": true,
-          "integrated": false
-        }
-      },
-      "design": {
-        "trigger": "During the boss match every Value a pin adds (its own and copied or retriggered pin effects) is halved, rounded down per effect. Charm Value and Mult from any source are unchanged.",
-        "primitives": [
-          "rule.pin_value_scale"
-        ],
-        "pool": "Boss rule: never in a shop; assigned to rivals by League specs (E17 League batch, E21).",
-        "counterplay": "Mult builds: Charms (Flat Bonus, Finisher, Pin Counter), Ruby pins' Mult.",
-        "presentation_needs": "Pins drawn with a matte, dull finish; halved Value steps marked in the log.",
-        "asset_ids": {
-          "icon": "icon.boss_rule.dull_pins",
-          "card": "card.boss_rule.dull_pins",
-          "rarity_treatment": "rarity_treatment.boss_rule.dull_pins",
-          "activation": "activation.boss_rule.dull_pins",
-          "sound": "sound.boss_rule.dull_pins",
-          "reduced_motion": "reduced_motion.boss_rule.dull_pins"
-        }
-      }
     }
   ],
   "landed": [
@@ -450,6 +322,48 @@
           "activation": "activation.boss_rule.narrow_lane",
           "sound": "sound.boss_rule.narrow_lane",
           "reduced_motion": "reduced_motion.boss_rule.narrow_lane"
+        }
+      }
+    },
+    {
+      "id": "boss_rule.frugal_house",
+      "landed_in": "E18-C20",
+      "design": {
+        "trigger": "During the boss match, pin, ball and Charm payouts pay nothing (Gold pins, Gold Ball, Tip Jar, Gold Rush's money). Match payout, interest and scoring are unchanged. The suppressed amount is shown in the log.",
+        "primitives": [
+          "rule.no_item_income"
+        ],
+        "pool": "Boss rule: never in a shop; assigned to rivals by League specs (E17 League batch, E21).",
+        "counterplay": "Scoring strength over economy, and money saved before the boss match.",
+        "presentation_needs": "A closed till motif; suppressed payouts show as struck-through $ amounts.",
+        "asset_ids": {
+          "icon": "icon.boss_rule.frugal_house",
+          "card": "card.boss_rule.frugal_house",
+          "rarity_treatment": "rarity_treatment.boss_rule.frugal_house",
+          "activation": "activation.boss_rule.frugal_house",
+          "sound": "sound.boss_rule.frugal_house",
+          "reduced_motion": "reduced_motion.boss_rule.frugal_house"
+        }
+      }
+    },
+    {
+      "id": "boss_rule.dull_pins",
+      "landed_in": "E18-C20",
+      "design": {
+        "trigger": "During the boss match every Value a pin adds (its own and copied or retriggered pin effects) is halved, rounded down per effect. Charm Value and Mult from any source are unchanged.",
+        "primitives": [
+          "rule.pin_value_scale"
+        ],
+        "pool": "Boss rule: never in a shop; assigned to rivals by League specs (E17 League batch, E21).",
+        "counterplay": "Mult builds: Charms (Flat Bonus, Finisher, Pin Counter), Ruby pins' Mult.",
+        "presentation_needs": "Pins drawn with a matte, dull finish; halved Value steps marked in the log.",
+        "asset_ids": {
+          "icon": "icon.boss_rule.dull_pins",
+          "card": "card.boss_rule.dull_pins",
+          "rarity_treatment": "rarity_treatment.boss_rule.dull_pins",
+          "activation": "activation.boss_rule.dull_pins",
+          "sound": "sound.boss_rule.dull_pins",
+          "reduced_motion": "reduced_motion.boss_rule.dull_pins"
         }
       }
     }

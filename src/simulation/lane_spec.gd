@@ -140,6 +140,32 @@ static func oil_end(condition: String = "lane.house", x: float = 0.0) -> float:
 		return TWO_TONE_LEFT_END_F
 	return OIL_END_F
 
+## Salvage lane conditions (E18-C20) push on the ball instead of moving the oil.
+## Grit drags it on the front 30 ft: a force against its travel of GRIT_DRAG newtons
+## per m/s, so it loses about GRIT_DRAG / mass m/s of speed for every metre of grit
+## (the House ball about 1.4 m/s across the grit, a heavier ball less). Warped Boards
+## pushes it toward the right gutter between 20 and 40 ft at WARP_DRIFT m/s², whatever
+## its mass. The oil, its friction and the hook are unchanged, so House Oil is exact.
+const GRIT := "lane_condition.grit"
+const WARPED_BOARDS := "lane_condition.warped_boards"
+const GRIT_END_F := 9.144 # 30 ft
+const GRIT_DRAG := 1.0 # N per m/s
+const WARP_START_F := 6.096 # 20 ft
+const WARP_END_F := 12.192 # 40 ft
+const WARP_DRIFT := 0.12 # m/s² toward +x (the bowler's right)
+
+## The lane condition's push on a ball at forward distance f and lane offset x, moving
+## at `velocity` (m/s, world axes), of the given mass (kg). Zero off the lane's
+## surface (a ball in a gutter) and outside the condition's zone.
+static func lane_force(condition: String, f: float, x: float, velocity: Vector3, mass: float) -> Vector3:
+	if absf(x) > LANE_HALF_WIDTH:
+		return Vector3.ZERO
+	if condition == GRIT and f < GRIT_END_F:
+		return -Vector3(velocity.x, 0.0, velocity.z) * GRIT_DRAG
+	if condition == WARPED_BOARDS and f >= WARP_START_F and f < WARP_END_F:
+		return Vector3(WARP_DRIFT * mass, 0.0, 0.0)
+	return Vector3.ZERO
+
 static func ball_friction(f: float, condition: String = "lane.house", x: float = 0.0) -> float:
 	if f >= DECK_ZONE_F:
 		return BALL_PIN_FRICTION

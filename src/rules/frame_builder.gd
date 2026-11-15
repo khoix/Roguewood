@@ -123,6 +123,8 @@ static func build(loadout: Dictionary, catalogue: Dictionary, reports: Array, ex
 			frame_context[key] = int(context[key])
 	if context.has("lane_condition"):
 		frame_context["lane_condition"] = String(context.lane_condition)
+	if context.has("pin_value_scale") and float(context.pin_value_scale) < 1.0:
+		frame_context["pin_value_scale"] = float(context.pin_value_scale)
 	var frame := {"schema_version": 2, "pins": pins, "rolls": rolls, "charms": charms, "context": frame_context}
 	if errors.is_empty():
 		errors.append_array(Rules.validate(frame))

@@ -4598,6 +4598,140 @@
       }
     },
     {
+      "id": "boss_rule.frugal_house",
+      "name": "Frugal House",
+      "category": "boss_rule",
+      "rarity": "common",
+      "pool_weight": 0,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 0,
+      "resale_price": 0,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "No item income during the boss match.",
+      "synergy_tags": [
+        "baseline",
+        "mult",
+        "value"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "boss_rule.dull_pins",
+      "name": "Dull Pins",
+      "category": "boss_rule",
+      "rarity": "common",
+      "pool_weight": 0,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 0,
+      "resale_price": 0,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Pins give half their Value in the boss match.",
+      "synergy_tags": [
+        "mult",
+        "charm",
+        "strike"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "boss_rule.rust",
+      "name": "Rust",
+      "category": "boss_rule",
+      "rarity": "common",
+      "pool_weight": 0,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 0,
+      "resale_price": 0,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "Every modification is switched off for the boss match.",
+      "synergy_tags": [
+        "modification",
+        "salvage"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
       "id": "lane_condition.long_oil",
       "name": "Long Oil",
       "category": "lane_condition",
@@ -4666,6 +4800,96 @@
         "curve",
         "positional",
         "neon"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "lane_condition.grit",
+      "name": "Grit",
+      "category": "lane_condition",
+      "rarity": "common",
+      "pool_weight": 0,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 0,
+      "resale_price": 0,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "The ball loses speed on the gritty front of the lane and reaches the rack slower: light balls are deflected more and carry fewer pins.",
+      "synergy_tags": [
+        "material",
+        "power",
+        "salvage"
+      ],
+      "incompatibilities": [],
+      "assets": {
+        "icon": "",
+        "card": "",
+        "in_play": "",
+        "rarity_treatment": "",
+        "activation": "",
+        "sound": "",
+        "reduced_motion": ""
+      },
+      "completeness": {
+        "authored": true,
+        "mechanics": true,
+        "automated_validation": true,
+        "artwork": false,
+        "effects_audio": false,
+        "unlock_assigned": true,
+        "integrated": false
+      }
+    },
+    {
+      "id": "lane_condition.warped_boards",
+      "name": "Warped Boards",
+      "category": "lane_condition",
+      "rarity": "common",
+      "pool_weight": 0,
+      "unlock": {
+        "kind": "initial",
+        "prerequisites": []
+      },
+      "earliest_division": 1,
+      "purchase_price": 0,
+      "resale_price": 0,
+      "effects": [],
+      "limits": {
+        "max_owned": 1,
+        "charges": 0,
+        "exhaustion": "none"
+      },
+      "downside": "A warped band of boards drifts the ball toward the right gutter: a line that is right on House Oil arrives right of the pocket here.",
+      "synergy_tags": [
+        "lane",
+        "side",
+        "salvage"
       ],
       "incompatibilities": [],
       "assets": {

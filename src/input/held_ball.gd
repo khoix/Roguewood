@@ -13,6 +13,23 @@ extends RefCounted
 ##
 ## Letting go flicks the ball: the finger's flick sets direction and power, and a
 ## share of the ball's own swinging velocity is added as a nudge.
+##
+## E05-R5 (owner, 2026-11-15): the flywheel. The ball's spin becomes its own state,
+## with momentum, apart from where the ball sits (`spin_model` picks it):
+## - 0 "orbit" (E05-R4): the charge is how fast the ball swings round the finger;
+## - 1 "swing + flywheel" (option A): the ragdoll swing places the ball, the flywheel
+##   charges it;
+## - 2 "spin in place" (option B): the ball stays under the finger and the flywheel
+##   charges it.
+## The flywheel is kicked by the finger's motion: the signed area of the triangle
+## through the finger's path now, half a window ago and a window ago (clockwise on
+## screen positive). That area grows with the finger's speed and with how sharply its
+## path bends, so a brisk, tight circle spins the ball up, a slow or straight motion
+## adds almost nothing, and circling the other way brakes it, then reverses it. Points
+## are taken along the path by time, so the frame rate does not change the reading.
+## The spin keeps turning when the finger stops, and loses half its speed every
+## `flywheel_half_life` seconds; it never passes `flywheel_max`. The charge is the spin
+## against that maximum, and the ball is drawn turning at exactly that spin.
 ## Positions are viewport-normalized (units of the shorter side, y down like screen
 ## space). Times are microseconds taken from the input events themselves, so a low
 ## frame rate does not change how a gesture reads. Values in `tuning` are
@@ -63,7 +80,24 @@ const DEFAULTS := {
 	# Flicks within this many degrees of straight up throw exactly straight.
 	"straight_zone_deg": 2.0,
 	"sensitivity": 1.0,
+	# E05-R5, the flywheel (provisional until the owner's phone trial). 0 orbit (R4),
+	# 1 swing + flywheel (A), 2 spin in place (B).
+	"spin_model": 1.0,
+	# The ball's own spin at full charge (rad/s; about 4.8 turns a second).
+	"flywheel_max": 30.0,
+	# Spin added per second per unit of swept area (shorter sides squared). A finger
+	# circling 0.06 of the screen's shorter side across reaches curve-ready at about two
+	# loops a second and full charge at about three, in about a second.
+	"flywheel_gain": 100000.0,
+	# Seconds for the spin to lose half its speed once the finger stops driving it.
+	"flywheel_half_life": 0.6,
+	# The window the three path points span (milliseconds).
+	"flywheel_window_ms": 70.0,
+	# A vibration (ms) at each full turn of a ball spinning past the curve threshold;
+	# 0 is off.
+	"spin_tick_ms": 0.0,
 }
+const SPIN_MODELS := ["Orbit (E05-R4)", "Swing + flywheel (A)", "Spin in place (B)"]
 const REST_REACH := 0.75 # the pin's rest length, as a share of orbit_cap
 ## Shorter sides per second. Sensitivity scales the throw's power; above x1 it also
 ## lets gentler flicks throw, but below x1 it never turns a flick into a cancel (the
@@ -103,6 +137,8 @@ var orbit_radius := 0.0
 ## a ball pinned off-centre turns with its pin.
 var body_angle := 0.0
 var swirling := false
+## E05-R5: the flywheel's spin (rad/s, clockwise on screen positive).
+var spin_rate := 0.0
 var turn_deg := 0.0 # total signed turning of the ball about the finger, for logs
 var _usec := 0
 var _finger_velocity := Vector2.ZERO
@@ -126,6 +162,10 @@ func begin(position: Vector2, usec: int) -> void:
 	orbit_radius = 0.2 * _rest()
 	body_angle = 0.0
 	swirling = false
+	spin_rate = 0.0
+	if _model() == 2:
+		ball = position # spin in place: the ball sits under the finger
+		orbit_radius = 0.0
 	turn_deg = 0.0
 	_usec = usec
 	_interval = 16667.0
@@ -171,8 +211,19 @@ func tick(usec: int) -> void:
 func cancel() -> void:
 	active = false
 
-## Signed curve charge now: the ball's turning about the finger against full charge.
+## The spin model in force: 0 orbit (R4), 1 swing + flywheel, 2 spin in place.
+func _model() -> int:
+	return clampi(int(round(float(tuning.get("spin_model", 1.0)))), 0, 2)
+
+## True when the flywheel sets the charge (options A and B).
+func flywheel() -> bool:
+	return _model() != 0
+
+## Signed curve charge now: the ball's turning about the finger against full charge
+## (R4), or the flywheel's spin against its maximum (R5).
 func charge() -> float:
+	if flywheel():
+		return clampf(spin_rate / maxf(float(tuning.flywheel_max), 0.001), -1.0, 1.0)
 	if not swirling or signf(orbit_speed) != signf(_swirl_sign()):
 		return 0.0
 	return clampf(orbit_speed / float(tuning.full_charge_speed), -1.0, 1.0)
@@ -219,7 +270,7 @@ func release(position: Vector2, usec: int) -> Dictionary:
 			start = entry
 	var place := ball
 	# The ball's own swing at release, relative to the finger, scaled down: a nudge.
-	var nudge := (ball_velocity - _finger_velocity) * float(tuning.orbit_nudge) if swirling else Vector2.ZERO
+	var nudge := (ball_velocity - _finger_velocity) * float(tuning.orbit_nudge) if swirling and _model() != 2 else Vector2.ZERO
 	cancel()
 	var seconds: float = (usec - start[0]) / 1000000.0
 	var result := {"committed": false, "anchor": start[1], "placement": place, "turn_deg": turn_deg, "spin": spin, "charge": raw}
@@ -281,6 +332,11 @@ func _advance(usec: int) -> void:
 	var half_life := maxf(float(tuning.swirl_half_life), 0.01)
 	var turned := 0.0
 	var now := _usec
+	var model := _model()
+	var window := int(maxf(float(tuning.flywheel_window_ms), 10.0) * 1000.0)
+	var spin_cap := maxf(float(tuning.flywheel_max), 0.001)
+	var spin_gain := float(tuning.flywheel_gain)
+	var spin_half_life := maxf(float(tuning.flywheel_half_life), 0.01)
 	while now < usec:
 		var step := mini(MAX_STEP_USEC, usec - now)
 		var dt := step / 1000000.0
@@ -288,6 +344,20 @@ func _advance(usec: int) -> void:
 		var before_pivot := pivot
 		pivot = _finger_at(now)
 		_finger_velocity = (pivot - before_pivot) / dt
+		if model != 0:
+			# The flywheel: kicked by the area the finger's path sweeps over the window,
+			# slowed by its own drag, never past its maximum.
+			var a := _finger_at(now - window)
+			var b := _finger_at(now - window / 2)
+			var area := (b - a).cross(pivot - a) * 0.5
+			spin_rate += spin_gain * area * dt
+			spin_rate *= pow(0.5, dt / spin_half_life)
+			spin_rate = clampf(spin_rate, -spin_cap, spin_cap)
+			body_angle += spin_rate * dt
+			if model == 2:
+				ball = pivot
+				ball_velocity = _finger_velocity
+				continue
 		var rel := ball - pivot
 		var length := maxf(rel.length(), 1e-6)
 		var n := rel / length
@@ -313,7 +383,8 @@ func _advance(usec: int) -> void:
 			rel = ball - pivot
 		var d_angle := wrapf(rel.angle() - before_angle, -PI, PI)
 		turned += d_angle
-		body_angle += d_angle
+		if model == 0:
+			body_angle += d_angle
 		# The charge follows the ball's turning about the finger, smoothed so a sway
 		# (back and forth) cancels out and only rotation builds it.
 		orbit_speed += (d_angle / dt - orbit_speed) * (1.0 - exp(-dt / smooth))

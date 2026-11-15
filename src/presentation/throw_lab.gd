@@ -120,6 +120,7 @@ var _flick := Held.new()
 var _event_clock := not ("--script" in OS.get_cmdline_args())
 var _cues_fired: Dictionary = {}
 var _spin_angle := 0.0
+var _spin_turns := 0 # E05-R5: full turns of the held flywheel, for the optional tick
 var backdrop: Control
 var panels: Control # UI-2 match panels: slip, rival, Charms, fold toggles
 var regions: Dictionary = {} # UI-2 screen regions (MatchPanels.compute)
@@ -631,7 +632,10 @@ func _refresh_hand() -> void:
 	# UI-8: choosing a card to keep, the hand has no Cycle or Inspect button and its
 	# cards are as tall as the section allows (the header, the frame, the fan's drop).
 	card_hand.keep_mode = state == "frame_done"
-	card_hand.max_card_height = (maxf(rect.size.y - 96.0, 140.0) if state == "frame_done" else PORTRAIT_CARD_HEIGHT) if portrait else 400.0
+	# UI-9: keeping a card, the hand itself takes off its chrome (padding, the header
+	# as it reads then, the fan's drop: CardHand.keep_reserve), so the cards take the
+	# rest of the section's height.
+	card_hand.max_card_height = (rect.size.y if state == "frame_done" else PORTRAIT_CARD_HEIGHT) if portrait else 400.0
 	card_hand.show_cards(cards, marks, header, equipment.MODEL == "deck", state == "aim" and equipment.can_cycle(), choosing)
 	card_hand.cycle_button.text = "Cancel" if cycling else "Cycle"
 	# The roll view (UI-3): the hand leaves once the ball is away, and while the ball
@@ -779,6 +783,8 @@ func card_rules(thrown: Dictionary = {}) -> Dictionary:
 	var mod_id: String = String(thrown.get("mod", run.card_mod(armed_ball) if not armed_ball.is_empty() and equipment != null and equipment.MODEL == "deck" else ""))
 	if not RivalRules.ball_allowed(active_rules(), ball_id):
 		return {} # House Rules throws the House Ball in the card's place
+	if RivalRules.mods_off(active_rules()):
+		mod_id = "" # Rust: the modification does nothing in the roll either
 	var used: bool = frame_reports.any(func(r): return bool(r.knockdown_log.get("rebounded", false)))
 	var tactic_id: String = String(thrown.get("tactical", _item_of(armed_tactical) if not armed_tactical.is_empty() else ""))
 	return ItemPhysics.roll_rules(run.item(ball_id), run.item(mod_id) if not mod_id.is_empty() else {}, used, run.item(tactic_id) if not tactic_id.is_empty() else {})
@@ -807,6 +813,7 @@ func _input(event: InputEvent) -> void:
 				_flick.begin(_normalized(event.position), _input_usec())
 				_cues_fired = {}
 				_spin_angle = 0.0
+				_spin_turns = 0
 				state = "holding"
 				_update_status()
 			elif _in_target_zone(event.position):
@@ -1005,12 +1012,14 @@ func frame_context() -> Dictionary:
 func _score_frame() -> void:
 	var extras := {}
 	for roll in [1, 2]:
-		var played: Array = ([frame_mods[roll]] if frame_mods.has(roll) else []) + frame_tactics.get(roll, [])
+		# Rust switches the ball modification off (RivalRules.mods_off); the card still plays.
+		var played: Array = ([frame_mods[roll]] if frame_mods.has(roll) and not RivalRules.mods_off(active_rules()) else []) + frame_tactics.get(roll, [])
 		if not played.is_empty():
 			extras[roll] = played
-	# House Pins scores every racked pin as plain Wood (RivalRules.frame_loadout);
-	# a Rule Waiver suspends the rival's rules for the frame (active_rules).
-	var built := FrameBuilder.build(RivalRules.frame_loadout(active_rules(), run.loadout()), _catalogue, frame_reports, extras, frame_context())
+	# House Pins scores every racked pin as plain Wood and Rust drops the pin
+	# modifications (RivalRules.frame_loadout); Dull Pins halves pin Value
+	# (frame_context); a Rule Waiver suspends the rival's rules for the frame (active_rules).
+	var built := FrameBuilder.build(RivalRules.frame_loadout(active_rules(), run.loadout()), _catalogue, frame_reports, extras, RivalRules.frame_context(active_rules(), frame_context()))
 	var result := Rules.resolve(built.frame) if built.ok else {"ok": false, "errors": built.errors}
 	if not result.ok:
 		push_error("Frame could not be scored: " + str(result.errors))
@@ -1023,7 +1032,14 @@ func _score_frame() -> void:
 	var banked: Dictionary = RivalRules.bank(active_rules(), result)
 	for note in banked.notes:
 		steps.append({"phase": "rule", "symbol": "✕", "pin": 0, "text": note, "pin_value": steps[-1].pin_value, "mult": steps[-1].mult, "score": banked.score})
-	var income := run.credit_frame(result, built.frame)
+	# Frugal House: the payouts stay in the explanation, marked as kept by the house.
+	var paid: Dictionary = RivalRules.paid(active_rules(), result)
+	if int(paid.kept) > 0:
+		for step in steps:
+			if step.phase == "after_bank" and String(step.text).contains("+$"):
+				step.text += " · kept by the house (Frugal House)"
+				step["struck"] = true
+	var income := run.credit_frame(paid.result, built.frame)
 	var grown: Array = run.apply_frame(result, built.frame) # growth and the strike streak, banked with the frame
 	for change in run.transformed: # rolled once on the effects stream; saved with the frame below
 		steps.append({"phase": "rule", "symbol": "✕", "pin": int(change.position), "pin_value": steps[-1].pin_value, "mult": steps[-1].mult, "score": banked.score,
@@ -1167,7 +1183,14 @@ func _show_intro() -> void:
 	_save_career()
 	state = "intro"
 	_checkpoint("intro")
-	hud.show_intro(rival, division.target(), RivalRules.summaries(_rival_rules(rival)), rival.first_clear.text, seen)
+	var lane_name := ""
+	if lane != null and lane.lane_condition.begins_with("lane_condition.") and lane.lane_condition != "lane_condition.house_oil":
+		lane_name = _lane_text(lane.lane_condition)
+	var kicker := "Championship" if String(division.current().get("name", "")) == "Championship" else "Boss match"
+	if division.division_count() > 1:
+		kicker += " · Division %d of %d" % [division.division_number(), division.division_count()]
+	hud.show_intro(rival, division.target(), RivalRules.summaries(_rival_rules(rival)), rival.first_clear.text, seen,
+		{"rules": _rival_rules(rival), "frames": division.frames_per_match(), "lane": lane_name, "kicker": kicker})
 	_update_status()
 
 func _on_intro_done() -> void:
@@ -1752,6 +1775,15 @@ func _draw_held_ball(delta: float) -> void:
 		var lean := clampf(_flick.ball_velocity.x * 0.25, -0.35, 0.35)
 		var pitch := clampf(-_flick.ball_velocity.y * 0.15, -0.3, 0.3)
 		lane.aim_ball.basis = Basis(Vector3.BACK, -lean) * Basis(Vector3.RIGHT, pitch) * Basis(Vector3.FORWARD, _spin_angle)
+	# E05-R5: an optional tick at each full turn of a flywheel spinning past the curve
+	# threshold, like a ratchet (spin_tick_ms on the tuning page; 0 is off).
+	var turns := int(floor(absf(_flick.body_angle) / TAU))
+	if _flick.flywheel() and turns != _spin_turns:
+		_spin_turns = turns
+		var tick_ms := int(_flick.tuning.get("spin_tick_ms", 0.0))
+		if tick_ms > 0 and curve_ready() and settings.get("haptics", true):
+			throw_cue.emit("throw.spin_tick", charge)
+			Input.vibrate_handheld(tick_ms)
 	for cue in [["throw.charge", absf(charge) >= 0.05, 0], ["throw.curve_ready", curve_ready(), 25], ["throw.full_charge", full_charge(), 45]]:
 		if cue[1] and not _cues_fired.has(cue[0]):
 			_cues_fired[cue[0]] = true
@@ -1835,7 +1867,7 @@ func _compose_status() -> void:
 			if not RivalRules.ball_allowed(active_rules(), "ball.hook"):
 				status.text += "\nHouse Rules: only the House Ball may be thrown; tactical cards are allowed."
 			for rule in active_rules():
-				if RivalRules.kind(rule) in ["hook_scale", "lane_width", "ring_scale"]:
+				if RivalRules.kind(rule) in ["hook_scale", "lane_width", "ring_scale", "no_item_income", "pin_value_scale", "no_mods"]:
 					status.text += "\n" + RivalRules.summary(rule).replace(" — ", ": ")
 			if lane != null and lane.lane_condition.begins_with("lane_condition.") and lane.lane_condition != "lane_condition.house_oil":
 				status.text += "\nLane: %s" % _lane_text(lane.lane_condition)
@@ -1957,7 +1989,9 @@ func _layout_resolution() -> void:
 	var action := Rect2(inner, size.y - 12.0 - NEXT_RACK_HEIGHT, size.x - 2.0 * inner, NEXT_RACK_HEIGHT)
 	if not portrait:
 		action = Rect2(size.x / 2.0 - 180.0, action.position.y, 360.0, NEXT_RACK_HEIGHT)
-	var score_top := maxf(450.0, size.y - 680.0) if portrait else maxf(size.y - 636.0, regions.top_bar.end.y + 8.0)
+	# UI-9: on a tall phone the review starts a little lower (620 from the bottom, was
+	# 680), so the keep section above it has room for bigger cards; the log scrolls.
+	var score_top := maxf(450.0, size.y - 620.0) if portrait else maxf(size.y - 636.0, regions.top_bar.end.y + 8.0)
 	_score_top = score_top
 	score_panel.offset_top = score_top - size.y
 	score_panel.offset_bottom = action.position.y - 8.0 - size.y

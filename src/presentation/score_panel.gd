@@ -195,12 +195,19 @@ func _chain_line(step: Dictionary) -> Button:
 	return line
 
 func _style_line(line: Button) -> void:
-	line.add_theme_constant_override("icon_max_width", int(round(log_font * 1.15)))
-	line.add_theme_constant_override("h_separation", 10)
+	line.add_theme_constant_override("icon_max_width", int(round(log_font * ICON_SCALE)))
+	line.add_theme_constant_override("h_separation", int(LOG_SEPARATION))
 	line.add_theme_font_size_override("font_size", log_font)
 
 ## The log's size for this frame: the longest line, measured at LOG_MIN, scaled to
 ## the room beside its icon; lines already shown follow.
+## UI-9 (owner's play notes, 2026-11-15): the icon grows with the font (ICON_SCALE),
+## so it is solved together with the text: at size s a line takes
+## s × (longest / LOG_MIN + ICON_SCALE) plus the separation. Before, the icon was
+## budgeted at a fixed 24 px, so a scaled-up longest line ran past the room and wrapped.
+const ICON_SCALE := 1.15
+const LOG_SEPARATION := 10.0
+const LOG_SLACK := 6.0 # glyph rounding at larger sizes; a line must never wrap at the chosen size
 func _fit_log() -> void:
 	if steps.is_empty() or log_scroll == null or log_scroll.size.x <= 0.0: return
 	var font := get_theme_default_font()
@@ -208,8 +215,8 @@ func _fit_log() -> void:
 	for step in steps:
 		var text: String = "%s  %s" % [step.symbol, step.text] if not String(step.get("symbol", "")).is_empty() else String(step.text)
 		longest = maxf(longest, font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, LOG_MIN).x)
-	var room := log_scroll.size.x - 16.0 - 10.0 - 24.0 # scroll bar, separation, icon
-	var wanted := clampi(int(floor(LOG_MIN * room / longest)), LOG_MIN, LOG_MAX)
+	var room := log_scroll.size.x - 16.0 - LOG_SEPARATION - LOG_SLACK # the scroll bar's room and the icon's separation
+	var wanted := clampi(int(floor(room / (longest / LOG_MIN + ICON_SCALE))), LOG_MIN, LOG_MAX)
 	if wanted == log_font: return
 	log_font = wanted
 	for line in log_list.get_children():

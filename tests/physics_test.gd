@@ -38,7 +38,7 @@ func _check(condition: bool, label: String) -> void:
 	if not condition:
 		failures.append(label)
 
-func _simulate(tree: SceneTree, key: String, rack: Dictionary, launch: Dictionary, idle_ticks: int, rules: Dictionary = {}, condition: String = "lane.house") -> void:
+func _simulate(tree: SceneTree, key: String, rack: Dictionary, launch: Dictionary, idle_ticks: int, rules: Dictionary = {}, condition: String = "lane.house", item_physics: Dictionary = {}) -> void:
 	_active += 1
 	var viewport := SubViewport.new()
 	viewport.own_world_3d = true
@@ -48,7 +48,7 @@ func _simulate(tree: SceneTree, key: String, rack: Dictionary, launch: Dictionar
 	viewport.add_child(world)
 	world.rules = rules
 	world.lane_condition = condition
-	world.setup(rack)
+	world.setup(rack, null, item_physics)
 	for i in idle_ticks:
 		await tree.physics_frame
 	var errors: Array[String] = world.commit(launch)
@@ -59,6 +59,8 @@ func _simulate(tree: SceneTree, key: String, rack: Dictionary, launch: Dictionar
 		ticks += 1
 	_check(world.state == "finished", key + " finished within tick limit")
 	results[key] = world.report.duplicate(true)
+	if world.tracker != null: # E18-C20: when the ball first met a pin (not in the digest)
+		results[key]["first_contact_tick"] = world.tracker.first_contact_tick
 	viewport.queue_free()
 	_active -= 1
 
@@ -66,7 +68,7 @@ func _run_jobs(tree: SceneTree, jobs: Array) -> void:
 	for job in jobs:
 		while _active >= CONCURRENT:
 			await tree.physics_frame
-		_simulate(tree, job[0], job[1], job[2], job[3], job[4] if job.size() > 4 else {}, job[5] if job.size() > 5 else "lane.house")
+		_simulate(tree, job[0], job[1], job[2], job[3], job[4] if job.size() > 4 else {}, job[5] if job.size() > 5 else "lane.house", job[6] if job.size() > 6 else {})
 	while _active > 0:
 		await tree.physics_frame
 
@@ -110,6 +112,7 @@ func run(tree: SceneTree, report_path: String) -> Array[String]:
 			_check(results.get("pocket@idle%d" % idle, {}).get(key) == results.get("pocket#0", {}).get(key), "aim delay %d ticks cannot change %s" % [idle, key])
 	await _second_roll_round_trip(tree, fixtures)
 	await _neon(tree, fixtures)
+	await _salvage(tree, fixtures)
 	await _cards(tree, fixtures)
 	var report := {"engine": Engine.get_version_info().string, "physics_engine": ProjectSettings.get_setting("physics/3d/physics_engine"),
 		"ticks_per_second": Engine.physics_ticks_per_second, "simulations": results.size(), "elapsed_ms": Time.get_ticks_msec() - started,
@@ -229,6 +232,46 @@ func _neon(tree: SceneTree, fixtures: Array) -> void:
 	_check(left_log.get("left_side", false) == true and not right_log.is_empty() and not right_log.has("left_side"), "a line left of the centre board at 34 ft is logged as left_side; a right line is not")
 	print("PHYSICS neon slick=%.3f long_oil=%.3f base=%.3f two_tone_left=%.3f left=%.3f strobe=%s off=%s" % [hook.call("neon.slick"), hook.call("neon.long_oil"), base, hook.call("neon.two_tone_left"), left,
 		results.get("neon.strobe", {}).get("roll_result", {}).get("accuracy"), results.get("neon.strobe_off", {}).get("roll_result", {}).get("accuracy")])
+
+## E18-C20: Grit slows the ball before the rack, and a heavier ball loses less;
+## Warped Boards pushes a straight line right. Both repeat exactly, and a ball that
+## meets every lane as House Oil (oil_hold) rolls as on House Oil.
+func _salvage(tree: SceneTree, fixtures: Array) -> void:
+	var by := {}
+	for fixture in fixtures:
+		by[fixture.id] = fixture
+	var full: Dictionary = rack_of(by.pocket.rack)
+	var heavy := {"balls": {"ball.house": {"mass_scale": 1.6, "spin_response": 1.0}}}
+	var slow := launch_of({"start_x": 0.25, "angle_deg": -0.6, "power": 0.0}, "slow")
+	var line := launch_of({"start_x": 0.0, "angle_deg": 0.0, "power": 0.5}, "line")
+	await _run_jobs(tree, [
+		["salvage.house", full, launch_of(by.pocket, "house"), 0],
+		["salvage.grit", full, launch_of(by.pocket, "grit"), 0, {}, Lane.GRIT],
+		["salvage.grit#1", full, launch_of(by.pocket, "grit"), 0, {}, Lane.GRIT],
+		["salvage.heavy_house", full, launch_of(by.pocket, "heavy"), 0, {}, "lane.house", heavy],
+		["salvage.heavy_grit", full, launch_of(by.pocket, "heavy_grit"), 0, {}, Lane.GRIT, heavy],
+		["salvage.slow_grit", full, slow, 0, {}, Lane.GRIT],
+		["salvage.held_grit", full, launch_of(by.pocket, "held"), 0, {"oil_hold": true}, Lane.GRIT],
+		["salvage.line", full, line, 0],
+		["salvage.warped", full, line, 0, {}, Lane.WARPED_BOARDS],
+		["salvage.warped#1", full, line, 0, {}, Lane.WARPED_BOARDS],
+		["salvage.held_warped", full, line, 0, {"oil_hold": true}, Lane.WARPED_BOARDS]])
+	var contact := func(key: String) -> int: return int(results.get(key, {}).get("first_contact_tick", -1))
+	var offset := func(key: String) -> float: return float(results.get(key, {}).get("knockdown_log", {}).get("target_offset", NAN)) * Lane.LANE_HALF_WIDTH
+	var lost: int = contact.call("salvage.grit") - contact.call("salvage.house")
+	var heavy_lost: int = contact.call("salvage.heavy_grit") - contact.call("salvage.heavy_house")
+	_check(contact.call("salvage.house") > 0 and lost >= 6, "Grit slows the ball before the rack (%d ticks later)" % lost)
+	_check(heavy_lost > 0 and heavy_lost < lost, "a heavier ball loses less to Grit (%d ticks against %d)" % [heavy_lost, lost])
+	_check(results.get("salvage.grit", {}).get("final_state") == results.get("salvage.grit#1", {}).get("final_state"), "Grit rolls repeat exactly")
+	_check(contact.call("salvage.slow_grit") > 0 and results.get("salvage.slow_grit", {}).get("knockdown_log", {}).get("target_crossed") == true, "the slowest throw still reaches the rack through Grit")
+	_check(results.get("salvage.held_grit", {}).get("final_state") == results.get("salvage.house", {}).get("final_state"), "an oil-holding ball meets Grit as House Oil")
+	var drift: float = offset.call("salvage.warped") - offset.call("salvage.line")
+	_check(drift > 0.05 and drift < 0.3, "Warped Boards pushes a straight line right (%.3f m at the pins)" % drift)
+	_check(results.get("salvage.warped", {}).get("final_state") == results.get("salvage.warped#1", {}).get("final_state"), "Warped Boards rolls repeat exactly")
+	_check(results.get("salvage.held_warped", {}).get("final_state") == results.get("salvage.line", {}).get("final_state"), "an oil-holding ball meets Warped Boards as House Oil")
+	print("PHYSICS salvage grit_ticks=+%d heavy=+%d slow_contact=%d warped_drift=%.3f fallen house=%s grit=%s line=%s warped=%s" % [lost, heavy_lost, contact.call("salvage.slow_grit"), drift,
+		str(results.get("salvage.house", {}).get("roll_result", {}).get("fallen_positions")), str(results.get("salvage.grit", {}).get("roll_result", {}).get("fallen_positions")),
+		str(results.get("salvage.line", {}).get("roll_result", {}).get("fallen_positions")), str(results.get("salvage.warped", {}).get("roll_result", {}).get("fallen_positions"))])
 
 ## Survivor racks persist as JSON (E10); a round trip must not change roll two.
 func _second_roll_round_trip(tree: SceneTree, fixtures: Array) -> void:

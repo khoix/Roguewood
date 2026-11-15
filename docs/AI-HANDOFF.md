@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-11-15. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E22 IN_PROGRESS; E23–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). Wave 10 is merged by PR #22 (main `706767f`). Wave 11 is merged by PR #29 (main `f65d16f`). Wave 12 is merged by PR #30 (main `cd1cfc9`; the Neon League is live with its rivals and theme). **Wave 13 is closed** (see "Wave 13 closed"; all 28 Neon items are landed, and Codex's UI-A5 title review is merged); it awaits its PR to main. **Wave 14 is claimed** (see "Wave 14 claims"). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
+Updated: 2026-11-15. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E22 IN_PROGRESS; E23–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). Wave 10 is merged by PR #22 (main `706767f`). Wave 11 is merged by PR #29 (main `f65d16f`). Wave 12 is merged by PR #30 (main `cd1cfc9`; the Neon League is live with its rivals and theme). Wave 13 is merged by PR #33 (main `4aefda6`; all 28 Neon items, Codex's Neon art and the Roguewood brand). **Wave 14 is open** (see "Wave 14 claims"). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
 
 ## Read first
 
@@ -289,19 +289,48 @@ Open: Wave 10 is merged (PR #22, main `706767f`). Base: `claude/roguewood-build`
 - **Merge:** MERGED to main by PR #30 (`cd1cfc9`, 2026-11-14) after CI passed on `53ba01c` (Bootstrap run 43613842320); Bootstrap also passed on main (run 43631722839).
 
 ## Wave 14 claims (coordinator: Claude, 2026-11-15)
-Open once Wave 13 is merged. Base: `claude/roguewood-build` at the "Wave 13 closed" commit. Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave14.md). Scope: docs/ROADMAP.md, the Wave 14 row and "League template" (wave a for Salvage).
+Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build` at the "Wave 13 closed" commit or later. Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave14-session.md, a new session from 2026-11-15 with AV-T02 first; it replaces codex-wave14.md). Scope: docs/ROADMAP.md, the Wave 14 row and "League template" (wave a for Salvage).
 - **Claude:**
   1. **E17-L03** (High; moved from Wave 13 by the owner, 2026-11-15): the Salvage League spec, as E17-L02 was for Neon.
      - The League's eight Divisions, its three rivals and champion, their rules, its lanes, kit, rewards and specialist tags.
-     - The 28-item plan for its batches, and the definitions the spec itself needs.
+     - The 33-item plan for its batches (the ROADMAP's Salvage bundle), and the definitions the spec itself needs.
   2. **Salvage's rules and lane conditions** (High, as E18-C13 was for Neon): built and tested before any item uses them.
+  3. **E05-R5, the flywheel spin** (High; owner, 2026-11-15): the rotation while charging a curve, after the mobile ball-throwing reference. Codex's reconstruction (PR #35) is reference only and stays unmerged until this is confirmed. Build both options to choose on the phone: A (the swing plus a flywheel) and B (spin in place).
 - **Codex:**
   1. **AV-N3** (DC-N3's six items; J03C17).
   2. **AV-N4** (DC-N4's five items and the Controlled Curve ribbon; J03C18).
   3. **AV-N5** (DC-N5's five items and the Both Halves and Rebound Rescue ribbons; J03C19).
   - Each with native checks, artwork and effects flags, sounds and reduced-motion versions, as AV-N1 and AV-N2 were.
+  4. **UI-A6** (added by the owner's play notes of 2026-11-15; prompt docs/prompts/codex-wave14-ui-a6.md): a themed pin deck for every League. The House League's kickbacks and cushion are still plain, because the pin-deck finish is applied only to Neon. Make the hook manifest-driven and give the House League its finish.
+  5. **AV-T02** (owner, 2026-11-15; prompt docs/prompts/codex-wave14-av-t02.md): the spinning held ball's look for the flywheel. Readable spin at every speed, a clear full state, reduced motion still.
   - Salvage's rivals and theme follow its spec (Wave 15).
 - **Owner:** play UI-8 on the phone, in particular dragging across Binder cards (no touchscreen in the test environment).
+
+## Wave 14 progress
+- **E17-L03 DONE** (handoffs/E17-L03.md): content/leagues/salvage.json (eight Divisions; Miser Moll, Grimewell and Scrapjack recurring; Scrapjack, Salvage Champion, with Rust plus Dull Pins on Grit; open from the start, opening Foundry); E17-D17 (Grit, Warped Boards, the Salvage Kit); the 33-item plan. `qa.py content` and `unit` PASS.
+- **E18-C20 DONE** (handoffs/E18-C20.md), Salvage's rules and lanes:
+  - **Rules:** Frugal House keeps item payouts; Dull Pins halves every Value a pin adds; Rust switches modifications off.
+  - **Lanes:** Grit drags the ball on the front 30 ft; Warped Boards pushes it right between 20 and 40 ft.
+  - **Catalogue:** the five land in it.
+  - **New journey:** J03C20 on the `salvage_c20` fixture.
+  - **Checks:** `unit`, `content`, `physics` (digest `75d1a3c0…` unchanged), `slice`, J03C13, and J03C20 headless and rendered: PASS.
+- **UI-9 DONE** (handoffs/UI-9.md): the owner's Wave 13 play notes of 2026-11-15.
+  - **Clubhouse:** the board redesigned under the game's logo; Trophies and Goals scroll from any row.
+  - **Boss introduction:** reads as parts.
+  - **Keep section:** cards fill it.
+  - **Frame log:** no longer wraps once scaled.
+  - **The bare House pin deck** is art: Codex's UI-A6.
+- **E05-R5 DONE** (handoffs/E05-R5.md; ADR 011, "Revision: the flywheel"):
+  - **What:** the held ball's spin is a flywheel with momentum, driven by the area the finger's path sweeps. The tuning page picks A (the swing plus a flywheel; the default), B (spin in place) or the earlier orbit charge.
+  - **Checks:** `unit` (new `_flywheel` cases for A and B), J02 headless and rendered (wind up, pause, curve; B under the finger), J01, J06, J08, JAVT01 and `web`: PASS.
+  - **Waiting on:** the owner's phone trial to choose A or B and set the values.
+- **AV-T02 DONE and merged** (Codex `991bfd1`, merge `d079607`; handoffs/AV-T02.md):
+  - **What:** the spinning held ball gets streak rings that grow with spin, a steady full-charge seal and stationary sparkles, for both spin models and both views. JAVT01 adds B's captures.
+  - **Checks on the merge:** `unit`, `content`, `physics` (digest `75d1a3c0…`), JAVT01 and J02 headless and rendered, and J08: PASS.
+- **Claude's Wave 14 claims are done.** Next:
+  - the owner's E05-R5 phone trial;
+  - Codex's AV-N3 to AV-N5 and UI-A6 (AV-T02 is merged);
+  - then the full matrix and the "Wave 14 closed" commit.
 
 ## Wave 13 closed (coordinator, 2026-11-15)
 **UI-A5, added after the close's matrix (owner, 2026-11-15), is DONE and merged** (Codex `09f2816`; handoffs/UI-A5.md).
@@ -326,7 +355,7 @@ Open once Wave 13 is merged. Base: `claude/roguewood-build` at the "Wave 13 clos
 - **Owner actions:**
   - Play UI-8 on the phone, the Binder's drag-scroll in particular.
   - Look at the Neon items' new art (AV-N1, AV-N2) and the brand art (UI-A4).
-- **Merge:** pending, by the PR from `claude/roguewood-build` to main.
+- **Merge:** MERGED to main by PR #33 (`4aefda6`, 2026-11-15) after CI passed on `117d345` (both shards).
 
 ## Wave 13 claims (coordinator: Claude, 2026-11-14)
 Open: Wave 12 is merged (PR #30, main `cd1cfc9`). Base: `claude/roguewood-build` at the "Wave 12 closed" commit. Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave13.md). Scope: docs/ROADMAP.md, the Wave 13 row and "League template".
