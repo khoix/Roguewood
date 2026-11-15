@@ -12,6 +12,10 @@ ROOT = Path(__file__).resolve().parents[1]
 # journey screenshot before each subsequent check (and on resumed workspaces).
 (ROOT / "artifacts").mkdir(exist_ok=True)
 (ROOT / "artifacts/.gdignore").touch()
+# The Web export (build/web) is output too: an import running beside `qa.py web`
+# must not pick up its images while the export replaces them.
+(ROOT / "build").mkdir(exist_ok=True)
+(ROOT / "build/.gdignore").touch()
 VERSION = (ROOT / ".godot-version").read_text().strip()
 # journey -> script, success marker, artifact directory, rendered captures, timeout, extra engine flags
 JOURNEYS = {
