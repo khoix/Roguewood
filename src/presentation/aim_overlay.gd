@@ -55,6 +55,7 @@ func _draw() -> void:
 func charge_pose() -> Dictionary:
 	return {"center": get_global_transform().affine_inverse() * lab.ball_screen_position(),
 		"radius": lab._ball_screen_radius(),
+		"spin_blur": 0.0 if lab.settings.reduced_motion or lab.settings.get("reduced_flash", false) else smoothstep(0.0, 24.0, absf(lab._flick.spin_rate)),
 		"state": "disabled" if lab.spin_disabled() else ("full" if lab.full_charge() else ("ready" if lab.curve_ready() else "charging")),
 		"reduced": lab.settings.reduced_motion or lab.settings.get("reduced_flash", false)}
 
@@ -67,6 +68,21 @@ func _draw_charge() -> void:
 	var color := Color("53687c")
 	if pose.state == "ready": color = Color("64dacb") if lab.held_charge() > 0 else Color("ee9476")
 	if pose.state == "full": color = Color("f5cb69")
+	# AV-T02: continuous, stationary envelopes avoid temporal aliasing. The
+	# swept arc grows with the actual flywheel, including its coast after input.
+	var blur: float = pose.spin_blur
+	if blur > 0.001:
+		for band in 3:
+			var radius := r * (0.87 + band * 0.045)
+			var sweep := lerpf(0.15, TAU, blur)
+			var start := -PI / 2 + band * TAU / 3
+			var wash := Color(color, (0.12 + blur * 0.18) / (1.0 + band * 0.3))
+			draw_arc(center, radius, start, start + sweep, 64, wash, unit * (1.0 + blur * 2.0), true)
+	if pose.state == "full":
+		# A solid brass seal is distinct from the stepped curve-ready sparkle;
+		# it does not pulse, including under either accessibility reduction.
+		draw_arc(center, r * 1.36, 0.0, TAU, 96, ink, unit * 5, true)
+		draw_arc(center, r * 1.36, 0.0, TAU, 96, color, unit * 2, true)
 	# Twelve inset enamel teeth retain a readable silhouette without bloom.
 	var count := ceili(absf(lab.held_charge()) * 12.0)
 	for i in 12:
@@ -78,9 +94,8 @@ func _draw_charge() -> void:
 		draw_colored_polygon(points, color if i < count else ink)
 		draw_line(points[1], points[2], color.lightened(0.3) if i < count else Color("53687c"), unit)
 	if pose.state in ["ready", "full"]:
-		# No independent orbit clock: the accents turn with the actual pinned body.
-		# Both accessibility switches freeze this decorative layer completely.
-		var turn: float = 0.0 if pose.reduced else lab._spin_angle
+		# Stationary glints remain legible at five revolutions per second.
+		var turn := 0.0
 		for i in (6 if pose.state == "full" else 3):
 			var a := turn + i * TAU / (6 if pose.state == "full" else 3)
 			var p := center + Vector2.from_angle(a) * r * 1.55

@@ -241,6 +241,13 @@ JOURNEYS["J03C11"] = (*JOURNEYS["J03C11"][:3], JOURNEYS["J03C11"][3] + ("h4_call
 JOURNEYS["J03C11"] = (*JOURNEYS["J03C11"][:3], JOURNEYS["J03C11"][3] + ("h4_cleanup_crew", "h4_lucky_seven"), *JOURNEYS["J03C11"][4:])
 
 
+# AV-T02 retains A captures and adds the spin-in-place matrix.
+_avt02 = JOURNEYS["JAVT01"]
+JOURNEYS["JAVT01"] = (*_avt02[:3], _avt02[3] + tuple(
+    f"model2_{v}_{r}_{s}" for v in ["depth", "flat"]
+    for r in ["normal", "motion", "flash"] for s in ["charging", "ready", "full"]
+), *_avt02[4:])
+
 def engine():
     executable = os.environ.get("GODOT_BIN") or shutil.which("godot") or shutil.which("godot4")
     if not executable:

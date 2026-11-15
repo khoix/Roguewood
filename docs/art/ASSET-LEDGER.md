@@ -1117,3 +1117,16 @@ review_ui_a5.mjs. The latter uses actual exported PNGs in actual light/dark
 Chromium chrome and labelled iPhone size/mask simulations, not hardware captures.
 Brief: docs/art/ui/UI-A5.md. Decisions, verification and ignored capture index:
 docs/handoffs/UI-A5.md. No screenshots or rendered captures committed.
+
+## AV-T02 — held flywheel spin envelope (2026-11-15)
+
+Original procedural presentation geometry authored by Codex in
+`src/presentation/aim_overlay.gd`: three speed-dependent swept arcs resolve
+into continuous rings; a steady brass full-charge seal complements the
+existing enamel meter and stationary stepped glints. No external source,
+image, audio, font or licensed asset added. No catalogue asset slots changed.
+The envelope reads the live flywheel spin; reduced motion/flash suppress it.
+Existing AV-T01 sound cues and the coordinator's body rotation remain intact.
+Native evidence: extended JAVT01, A/B × depth/flat × normal/motion/flash,
+rest/curve-ready/full; capture paths in the AV-T02 handoff. Captures are ignored
+artifacts, never source assets.

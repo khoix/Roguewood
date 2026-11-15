@@ -12,12 +12,14 @@ func _run() -> void:
 	await _wait_for(func(): return scene.lab != null and scene.lab.state == "aim", "lab")
 	lab = scene.lab
 	lab.throw_cue.connect(func(id, charge): cues.append([id, charge]))
-	for view in ["depth", "flat"]:
-		for reduction in ["normal", "motion", "flash"]:
-			lab.settings.spin_view = view
-			lab.settings.reduced_motion = reduction == "motion"
-			lab.settings.reduced_flash = reduction == "flash"
-			await _hold_states(view + "_" + reduction)
+	for model in [1, 2]:
+		lab._flick.tuning.spin_model = model
+		for view in ["depth", "flat"]:
+			for reduction in ["normal", "motion", "flash"]:
+				lab.settings.spin_view = view
+				lab.settings.reduced_motion = reduction == "motion"
+				lab.settings.reduced_flash = reduction == "flash"
+				await _hold_states(("" if model == 1 else "model2_") + view + "_" + reduction)
 	# Select the existing slice boss as an art fixture, then drive the hold normally.
 	lab.division.active.match_index = 2
 	_check(lab.spin_disabled(), "fixture has Dead Straight")
@@ -51,6 +53,7 @@ func _hold_states(label: String) -> void:
 	_check(lab.state == "holding", "real touch holds the ball")
 	var overlay: Control = lab.get_node("AimOverlay")
 	_check(overlay.charge_pose().state == "charging", "dim charging collar")
+	_check(overlay.charge_pose().spin_blur == 0.0, "rest has no streak")
 	await _capture(label + "_charging")
 	var center := at + Vector2(0,-30)
 	var angle := PI/2
@@ -65,11 +68,21 @@ func _hold_states(label: String) -> void:
 		_check((overlay.get_global_transform() * pose.center).distance_to(lab.ball_screen_position()) < 0.01, "effect tracks screen ball")
 		_check(absf(pose.radius - lab._ball_screen_radius()) < 0.01, "effect uses rendered radius")
 		_check(pose.reduced == (lab.settings.reduced_motion or lab.settings.reduced_flash), "either reduction freezes decoration")
+		_check(pose.spin_blur == 0.0 if pose.reduced else pose.spin_blur >= 0.0 and pose.spin_blur <= 1.0, "bounded spin envelope; disabled under reduction")
+		if pose.state == "full" and not pose.reduced:
+			_check(pose.spin_blur > 0.9, "full spin resolves into rings")
 		if pose.state in ["ready", "full"] and not captured.has(pose.state):
 			captured[pose.state] = true
 			await _capture(label + "_" + pose.state)
 	_check(captured.has("ready") and captured.has("full"), label + " reaches both charge levels")
 	for id in ["throw.charge", "throw.curve_ready", "throw.full_charge"]:
 		_check(cues.filter(func(c): return c[0] == id).size() == 1, label + " once per hold: " + id)
+	var wound: float = overlay.charge_pose().spin_blur
+	for i in 18: await process_frame
+	var coast: float = overlay.charge_pose().spin_blur
+	if not overlay.charge_pose().reduced:
+		_check(coast > 0.0 and coast < wound, "streak follows flywheel coast after finger stops")
+	if lab.settings.reduced_motion:
+		_check(lab.lane.aim_ball.basis.orthonormalized().is_equal_approx(Basis.IDENTITY), "reduced motion keeps the ball still")
 	await _touch(at, false, true)
 	_check(lab.state == "aim", "cancel returns to aim")
