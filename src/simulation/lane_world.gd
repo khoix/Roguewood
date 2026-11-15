@@ -265,6 +265,7 @@ func _physics_process(_delta: float) -> void:
 		_rebound()
 		_rail()
 		_oil_pattern()
+		_lane_push()
 
 ## Bumper Guard: the tracker ruled a rebound at the gutter edge. The ball keeps its
 ## speed down the lane and its sideways speed is mirrored (at least REBOUND_SPEED),
@@ -295,6 +296,15 @@ func _oil_pattern() -> void:
 	if friction != _zone_friction:
 		_zone_friction = friction
 		_ball_material.friction = friction
+
+## Grit and Warped Boards (E18-C20): the lane's push for this step (none on House
+## Oil, or for a ball that meets every lane as House Oil).
+func _lane_push() -> void:
+	if bool(rules.get("oil_hold", false)):
+		return
+	var force := Lane.lane_force(lane_condition, -ball.global_position.z, ball.global_position.x, ball.linear_velocity, ball.mass)
+	if force != Vector3.ZERO:
+		ball.apply_central_force(force)
 
 func observe() -> Dictionary:
 	var contacts := {}

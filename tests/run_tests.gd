@@ -46,7 +46,7 @@ func _initialize() -> void:
 		# The C05 and C13 fixture registries are production's plus their own League
 		# (J03C05 and J03C13 only).
 		var live: Dictionary = Contracts.read_json(content_set.UNLOCKS)
-		for fixture_name in ["house_c05_unlocks.json", "neon_c13_unlocks.json"]:
+		for fixture_name in ["house_c05_unlocks.json", "neon_c13_unlocks.json", "salvage_c20_unlocks.json"]:
 			var fixture: Dictionary = Contracts.read_json("res://content/fixtures/" + fixture_name)
 			for key in live:
 				if key not in ["batch", "note", "leagues"] and fixture.get(key) != live[key]:
@@ -75,7 +75,7 @@ func _initialize() -> void:
 		failures.append_array(load("res://tests/neon_n1_art_test.gd").run())
 		failures.append_array(load("res://tests/neon_n2_art_test.gd").run())
 		failures.append_array(load("res://tests/neon_pin_deck_art_test.gd").run())
-		for path in ["res://tests/rules_test.gd", "res://tests/simulation_test.gd", "res://tests/input_test.gd", "res://tests/held_ball_test.gd", "res://tests/card_view_test.gd", "res://tests/scoring_test.gd", "res://tests/deck_test.gd", "res://tests/economy_test.gd", "res://tests/division_test.gd", "res://tests/save_test.gd", "res://tests/slice_test.gd", "res://tests/campaign_generator_test.gd", "res://tests/campaign_integration_test.gd", "res://tests/career_test.gd", "res://tests/clubhouse_test.gd", "res://tests/authored_test.gd", "res://tests/mechanics_c02_test.gd", "res://tests/mechanics_c03_test.gd", "res://tests/mechanics_c04_test.gd", "res://tests/league_spec_test.gd", "res://tests/mechanics_c05_test.gd", "res://tests/mechanics_c06_test.gd", "res://tests/mechanics_c07_test.gd", "res://tests/mechanics_c08_test.gd", "res://tests/mechanics_c09_test.gd", "res://tests/mechanics_c10_test.gd", "res://tests/mechanics_c11_test.gd", "res://tests/mechanics_c13_test.gd", "res://tests/mechanics_c14_test.gd", "res://tests/mechanics_c15_test.gd", "res://tests/mechanics_c16_test.gd", "res://tests/mechanics_c17_test.gd", "res://tests/mechanics_c18_test.gd", "res://tests/mechanics_c19_test.gd", "res://tests/league_house_test.gd", "res://tests/league_neon_test.gd"]:
+		for path in ["res://tests/rules_test.gd", "res://tests/simulation_test.gd", "res://tests/input_test.gd", "res://tests/held_ball_test.gd", "res://tests/card_view_test.gd", "res://tests/scoring_test.gd", "res://tests/deck_test.gd", "res://tests/economy_test.gd", "res://tests/division_test.gd", "res://tests/save_test.gd", "res://tests/slice_test.gd", "res://tests/campaign_generator_test.gd", "res://tests/campaign_integration_test.gd", "res://tests/career_test.gd", "res://tests/clubhouse_test.gd", "res://tests/authored_test.gd", "res://tests/mechanics_c02_test.gd", "res://tests/mechanics_c03_test.gd", "res://tests/mechanics_c04_test.gd", "res://tests/league_spec_test.gd", "res://tests/mechanics_c05_test.gd", "res://tests/mechanics_c06_test.gd", "res://tests/mechanics_c07_test.gd", "res://tests/mechanics_c08_test.gd", "res://tests/mechanics_c09_test.gd", "res://tests/mechanics_c10_test.gd", "res://tests/mechanics_c11_test.gd", "res://tests/mechanics_c13_test.gd", "res://tests/mechanics_c14_test.gd", "res://tests/mechanics_c15_test.gd", "res://tests/mechanics_c16_test.gd", "res://tests/mechanics_c17_test.gd", "res://tests/mechanics_c18_test.gd", "res://tests/mechanics_c19_test.gd", "res://tests/mechanics_c20_test.gd", "res://tests/league_house_test.gd", "res://tests/league_neon_test.gd"]:
 			var suite = load(path)
 			if suite == null:
 				failures.append("Missing tests: " + path)

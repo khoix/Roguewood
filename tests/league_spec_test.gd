@@ -5,7 +5,7 @@ extends RefCounted
 ## rivals for a League, seven Divisions, a falling boss target, a lane outside the
 ## pool, a champion with another League's rule, a missing reaction, an unknown kit.
 ## The D05 boss rules' counter tags are met by an initially available item.
-## E17-L02 adds the Neon League spec (_neon).
+## E17-L02 adds the Neon League spec (_neon); E17-L03 the Salvage League spec (_salvage).
 const Leagues = preload("res://src/content/league_specs.gd")
 const Authored = preload("res://src/content/authored_batches.gd")
 const ContentSet = preload("res://src/rules/content_set.gd")
@@ -30,6 +30,7 @@ static func run() -> Array[String]:
 	_spec_refusals(house, roster, ahead, failures)
 	_counters(catalogue, failures)
 	_neon(specs, roster, ahead, catalogue, failures)
+	_salvage(specs, roster, ahead, catalogue, failures)
 	return failures
 
 ## E17-L02: the Neon League spec. Eight Divisions, open from the start, its three
@@ -70,6 +71,51 @@ static func _neon(specs: Array, roster: Dictionary, ahead: Dictionary, catalogue
 	copy.divisions[3].matches[1].lanes = ["lane_condition.dry_backend"]
 	_expect(Leagues.validate_spec(copy, roster, ahead, "neon.json").any(func(e): return e.contains("feature plays lanes from the League's pool")),
 		"a feature lane outside the pool is refused", failures)
+
+## E17-L03: the Salvage League spec. Eight Divisions, open from the start, Miser
+## Moll, Grimewell and Scrapjack recurring and Scrapjack as champion with Rust plus
+## Dull Pins on Grit; its two lanes (Grit, Warped Boards) on features from Division 2
+## and on bosses from Division 3; the Salvage Kit racks only items available from the
+## start; the title opens the Foundry League.
+static func _salvage(specs: Array, roster: Dictionary, ahead: Dictionary, catalogue: Dictionary, failures: Array[String]) -> void:
+	var found: Array = specs.filter(func(s): return s.data.get("id") == "league.salvage")
+	_expect(found.size() == 1, "content/leagues/salvage.json is the Salvage League spec", failures)
+	if found.is_empty():
+		return
+	var salvage: Dictionary = found[0].data
+	var errors := Leagues.validate_spec(salvage, roster, ahead, "salvage.json")
+	_expect(errors.is_empty(), "the Salvage spec validates: %s" % str(errors), failures)
+	var bosses: Array = salvage.divisions.map(func(d): return String(d.matches[2].rival))
+	_expect(bosses == ["rival.miser_moll", "rival.grimewell", "rival.scrapjack", "rival.miser_moll", "rival.grimewell", "rival.scrapjack", "rival.miser_moll", "rival.scrapjack_champion"],
+		"Miser Moll, Grimewell and Scrapjack recur, and Scrapjack is the champion: %s" % str(bosses), failures)
+	var champion: Dictionary = salvage.divisions[7].rivals[0]
+	_expect(champion.rule == "boss_rule.rust" and champion.extra_rules == ["boss_rule.dull_pins"] and salvage.divisions[7].matches[2].name == "Championship"
+		and salvage.divisions[7].matches[2].lanes == ["lane_condition.grit"],
+		"the champion plays Rust plus Dull Pins on Grit in the Championship", failures)
+	_expect(salvage.access.is_empty() and salvage.championship.opens == "league.foundry" and salvage.championship.gates == ["gate.salvage_champion"],
+		"Salvage is open from the start, and its title opens the Foundry League", failures)
+	_expect(salvage.lanes == ["lane_condition.house_oil", "lane_condition.grit", "lane_condition.warped_boards"]
+		and salvage.divisions.slice(1).all(func(d): return d.matches[1].has("lanes")) and salvage.divisions.all(func(d): return not d.matches[0].has("lanes"))
+		and salvage.divisions.slice(2).all(func(d): return d.matches[2].lanes[0] != "lane_condition.house_oil"),
+		"Grit and Warped Boards join House Oil; features from Division 2 and bosses from Division 3 play a Salvage lane, openers keep House Oil", failures)
+	var house: Dictionary = specs.filter(func(s): return s.data.id == "league.house")[0].data
+	_expect(salvage.divisions.map(func(d): return d.matches.map(func(m): return int(m.target))) == house.divisions.map(func(d): return d.matches.map(func(m): return int(m.target))),
+		"Salvage's targets follow the House League's curve (provisional until E24)", failures)
+	var items := {}
+	for item in ahead.items:
+		items[item.id] = item
+	var kit: Dictionary = salvage.kits[0]
+	_expect(salvage.kits.size() == 1 and kit.id == "kit.salvage" and kit.unlock == "initial" and items.get("kit.salvage", {}).get("category") == "kit"
+		and kit.pins.size() == 10 and kit.deck.size() == 6
+		and (kit.pins + kit.deck).all(func(id): return catalogue.items.any(func(i): return i.id == id and i.unlock.kind == "initial")),
+		"the Salvage Kit is initial and racks only shipped items available from the start", failures)
+	for lane in ["lane_condition.grit", "lane_condition.warped_boards"]:
+		_expect(items.get(lane, {}).get("category") == "lane_condition", "%s is an authored lane condition" % lane, failures)
+	for rule in ["boss_rule.frugal_house", "boss_rule.dull_pins", "boss_rule.rust"]:
+		_expect(items.get(rule, {}).get("category") == "boss_rule", "%s is an authored boss rule" % rule, failures)
+	var copy: Dictionary = salvage.duplicate(true)
+	copy.divisions[5].matches[2].rival = "rival.slick"
+	_expect(not Leagues.validate_spec(copy, roster, ahead, "salvage.json").is_empty(), "another League's rival as a Salvage boss is refused", failures)
 
 static func _expect(condition: bool, label: String, failures: Array[String]) -> void:
 	if not condition:

@@ -88,6 +88,7 @@ JOURNEYS = {
     "J03C16": ("res://tests/neon_c16_journey.gd", "ROGUEWOOD_J03C16_OK", "artifacts/e18-c16", ("c16_shop", "c16_spare", "c16_glow_strike", "c16_straight"), 900, ["--fixed-fps", "60"]),
     "J03C15": ("res://tests/neon_c15_journey.gd", "ROGUEWOOD_J03C15_OK", "artifacts/e18-c15", ("c15_shop", "c15_rebound", "c15_curved_strike", "c15_laser"), 900, ["--fixed-fps", "60"]),
     "J03C13": ("res://tests/neon_c13_journey.gd", "ROGUEWOOD_J03C13_OK", "artifacts/e18-c13", ("c13_oil_slick", "c13_narrow_lane", "c13_champion"), 900, ["--fixed-fps", "60"]),
+    "J03C20": ("res://tests/salvage_c20_journey.gd", "ROGUEWOOD_J03C20_OK", "artifacts/e18-c20", ("c20_frugal_house", "c20_dull_pins", "c20_champion"), 900, ["--fixed-fps", "60"]),
     "J03C06": ("res://tests/tactics_c06_journey.gd", "ROGUEWOOD_J03C06_OK", "artifacts/e18-c06", ("c06_shop", "c06_reserve_call", "c06_nudge", "c06_feature_frame", "c06_rule_waiver", "c06_surveyor"), 900, ["--fixed-fps", "60"]),
     "J03C07": ("res://tests/upgrades_c07_journey.gd", "ROGUEWOOD_J03C07_OK", "artifacts/e18-c07", ("c07_license", "c07_upgrades", "c07_feature_shop", "c07_division_two"), 900, ["--fixed-fps", "60"]),
     "J03C08": ("res://tests/house_c08_journey.gd", "ROGUEWOOD_J03C08_OK", "artifacts/e18-c08", ("c08_shop", "c08_strike", "c08_open", "c08_holdouts"), 900, ["--fixed-fps", "60"]),
@@ -173,6 +174,7 @@ JOURNEYS["J22L02LIVEART"] = _neon_live[:3] + (_neon_live[3] + ("live_pin_deck_no
 CONTENT = {"J03C18": "neon", "J03C05": "house_c05", "J09": "slice", "J02": "lab", "J03": "lab", "J04": "lab", "J05": "lab", "J07": "lab", "J08": "lab"}
 CONTENT.update({"J21R03": "house_c05", "J21R04": "house_c05", "J22L01": "house", "J22L02": "house"})
 CONTENT.update({"J03C13": "neon_c13"})
+CONTENT.update({"J03C20": "salvage_c20"})
 CONTENT.update({"J21R05": "neon_c13"})
 CONTENT.update({"J21R06": "neon_c13"})
 CONTENT.update({"J21R07": "neon_c13", "J21R07DJ": "neon_c13", "J22L02RULEART": "neon_c13", "J22L02LIVEART": "house"})

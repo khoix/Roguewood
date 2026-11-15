@@ -27,6 +27,7 @@ func _run() -> void:
 	_check(tabs.all(func(b): return is_equal_approx(b.global_position.y, tabs[0].global_position.y) and b.get_global_rect().end.x <= scene.clubhouse.size.x and b.size.y >= 52),
 		"the four tabs share one row on a phone")
 	_check(scene.career_stats.get_child_count() == 4 and not scene.career_line.visible, "the League Board shows the Career as four tiles")
+	_ui9_board()
 	match stage:
 		1: await _stage_one_clubhouse()
 		2: await _stage_two_clubhouse()
@@ -34,6 +35,54 @@ func _run() -> void:
 	if not failures.is_empty() and lab != null: await _capture("clubhouse_failure")
 	if failures.is_empty(): print("ROGUEWOOD_J11_OK" if stage == 2 else "ROGUEWOOD_J11_STAGE%d_OK" % stage)
 	quit(0 if failures.is_empty() else 1)
+
+## UI-9 (owner's play notes, 2026-11-15): the logo heads the Clubhouse; the pages
+## scroll without a bar; the Career is one scoreboard; the choices sit under
+## captions on a play card and the action is the brass button; each League is a card.
+func _ui9_board() -> void:
+	var club = scene.clubhouse
+	var logo: Control = club.find_child("ClubhouseLogo", true, false)
+	_check(logo != null and logo.visible and logo.get_global_rect().end.y <= club.tab_buttons.board.get_global_rect().position.y and club.find_child("ClubhouseWordmark", true, false) == null,
+		"the game's logo heads the Clubhouse, above the tabs")
+	_check(club.pages.values().all(func(p): return p.get_parent().vertical_scroll_mode == ScrollContainer.SCROLL_MODE_SHOW_NEVER), "no page shows a scroll bar")
+	var play: Control = scene.find_child("PlayCard", true, false)
+	_check(play != null and play.is_ancestor_of(scene.league) and play.is_ancestor_of(scene.kit) and play.is_ancestor_of(scene.enter)
+		and scene.league.get_node_or_null("BrassEdge") != null, "the League and kit choices and the action sit on the play card")
+	var action: Button = scene.continue_button if scene.continue_button.visible else scene.enter
+	var brass: StyleBox = action.get_theme_stylebox("normal")
+	_check(brass is StyleBoxFlat and (brass as StyleBoxFlat).bg_color.is_equal_approx(Color("d8b873")), "the action to take is the brass button")
+	_check(club.league_cards.get_child_count() == club.records_label.text.split("\n").size() and club.records_label.visible == false,
+		"each League's record is a card (%d)" % club.league_cards.get_child_count())
+
+## UI-9: on the Trophies and Goals pages a finger that lands on a row or a button
+## drags the page; a Follow press that ended in a scroll follows nothing.
+func _ui9_scroll() -> void:
+	var club = scene.clubhouse
+	await _tab("trophies")
+	var stops := func(root_node: Node) -> bool:
+		for node in root_node.find_children("*", "Control", true, false):
+			if (node as Control).mouse_filter == Control.MOUSE_FILTER_STOP: return true
+		return false
+	_check(club.trophy_grid.get_child_count() > 0 and not stops.call(club.trophy_grid), "no trophy row stops a drag")
+	await _tab("goals")
+	_check(club.goals_list.get_child_count() > 0 and not stops.call(club.goals_list), "no goal row or button stops a drag")
+	var page: ScrollContainer = club.pages.goals.get_parent()
+	var first: Dictionary = {"id": ""}
+	for row in club.goals_list.get_children():
+		var button: Button = row.find_child("Track", true, false)
+		if not button.disabled and not button.button_pressed:
+			first.id = String(row.name).trim_prefix("Goal_")
+			break
+	var track: Button = club.goals_list.get_node("Goal_" + first.id).find_child("Track", true, false)
+	var before: int = scene.career.get("tracked", []).size()
+	track.button_down.emit()
+	page.scroll_vertical += 200
+	await process_frame
+	track.pressed.emit()
+	await process_frame
+	_check(scene.career.get("tracked", []).size() == before, "a Follow press that ended in a scroll follows nothing")
+	page.scroll_vertical = 0
+	await _tab("board")
 
 func _capture(label: String) -> void:
 	var club = scene.clubhouse
@@ -151,6 +200,7 @@ func _stage_one_clubhouse() -> void:
 	_check(_earned("league.house") and _earned("rival.surveyor") and _earned("rival.custodian") and _earned("deco.club_sign") and _earned("deco.trophy_case")
 		and not _earned("league.house_campaign") and not _earned("deco.lane_trim"), "the title, both plaques and two decorations are on the shelf")
 	await _capture("clubhouse_trophies")
+	await _ui9_scroll()
 
 func _stage_two_clubhouse() -> void:
 	var club = scene.clubhouse

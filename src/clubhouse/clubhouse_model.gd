@@ -205,8 +205,17 @@ static func latest(career: Dictionary, graph: Dictionary, limit: int = 3) -> Arr
 		var how := source_text(graph, source)
 		var text: String = "%s: %s join%s the shop pool from your next attempt." % [how, ", ".join(names), "s" if names.size() == 1 else ""] \
 			if not names.is_empty() else "%s: %s." % [how, graph.get("gates", {}).get(gate, {}).get("name", gate)]
-		out.append({"gate": gate, "name": graph.get("gates", {}).get(gate, {}).get("name", gate), "text": text})
+		# UI-9: the board shows each unlock as its items' pictures and names over how it was won.
+		out.append({"gate": gate, "name": graph.get("gates", {}).get(gate, {}).get("name", gate), "text": text, "items": items.duplicate(), "item_names": names, "how": how,
+			"asset": _item_card(graph, items[0]) if not items.is_empty() else ""})
 	return out
+
+static func _item_card(graph: Dictionary, id: String) -> String:
+	for item in graph.get("catalogue", {}).get("items", []):
+		if item.id == id:
+			var card: String = String(item.get("assets", {}).get("card", ""))
+			return card if not card.is_empty() else asset_id("card", id)
+	return asset_id("card", id)
 
 static func _item_name(graph: Dictionary, id: String) -> String:
 	for item in graph.get("catalogue", {}).get("items", []):
