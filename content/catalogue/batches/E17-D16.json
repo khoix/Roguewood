@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "batch": "E17-D16",
+  "status": "landed",
+  "note": "Neon League items, batch 5 of 5 (DC-N5), written and landed together by E18-C19: the last five mastery items. Both Halves (strike from each half of a Two-Tone lane in one attempt) unlocks Compass Pin, Split Pattern, Dry Run and Long Game; Rebound Rescue (three spares or strikes rescued by a rebound across the Career) unlocks Second Chance. New Career metrics two_tone_halves and rescues; the items use E18-C14 and C17 pieces. Amounts and prices are provisional (E24).",
+  "definitions": [],
+  "landed": [
+    {
+      "id": "pin.compass",
+      "landed_in": "E18-C19",
+      "design": {
+        "trigger": "When it is knocked down on a lane that is not House Oil (Long Oil, Two-Tone or Dry Backend): +25 Value. On House Oil it gives nothing.",
+        "primitives": [
+          "condition.lane"
+        ],
+        "pool": "Shop pin slot, from the next attempt after the Both Halves mastery.",
+        "presentation_needs": "A pin with a compass rose on its neck whose needle swings to the match's lane; it lights off House Oil.",
+        "asset_ids": {
+          "icon": "icon.pin.compass",
+          "card": "card.pin.compass",
+          "in_play": "in_play.pin.compass",
+          "rarity_treatment": "rarity_treatment.pin.compass",
+          "activation": "activation.pin.compass",
+          "sound": "sound.pin.compass",
+          "reduced_motion": "reduced_motion.pin.compass"
+        }
+      }
+    },
+    {
+      "id": "charm.split_pattern",
+      "landed_in": "E18-C19",
+      "design": {
+        "trigger": "×2 Mult on a strike when the match's lane is Two-Tone. Nothing on any other lane, and nothing on a spare or an open frame.",
+        "primitives": [
+          "condition.lane"
+        ],
+        "pool": "Shop Charm slot, from the next attempt after the Both Halves mastery.",
+        "presentation_needs": "A two-coloured oil chart, dry half and oiled half, that snaps together on a Two-Tone strike.",
+        "asset_ids": {
+          "icon": "icon.charm.split_pattern",
+          "card": "card.charm.split_pattern",
+          "rarity_treatment": "rarity_treatment.charm.split_pattern",
+          "activation": "activation.charm.split_pattern",
+          "sound": "sound.charm.split_pattern",
+          "reduced_motion": "reduced_motion.charm.split_pattern"
+        }
+      }
+    },
+    {
+      "id": "charm.dry_run",
+      "landed_in": "E18-C19",
+      "design": {
+        "trigger": "+1 Mult per pin down in the frame when a roll in it was left of the centre board at 34 ft. Nothing when every roll stayed on the right.",
+        "primitives": [
+          "condition.left_side"
+        ],
+        "pool": "Shop Charm slot, from the next attempt after the Both Halves mastery.",
+        "presentation_needs": "Chalk tally marks on the dry left boards, one per pin down.",
+        "asset_ids": {
+          "icon": "icon.charm.dry_run",
+          "card": "card.charm.dry_run",
+          "rarity_treatment": "rarity_treatment.charm.dry_run",
+          "activation": "activation.charm.dry_run",
+          "sound": "sound.charm.dry_run",
+          "reduced_motion": "reduced_motion.charm.dry_run"
+        }
+      }
+    },
+    {
+      "id": "charm.long_game",
+      "landed_in": "E18-C19",
+      "design": {
+        "trigger": "×1.5 Mult on a strike with a curved roll when the match's lane is Long Oil. Nothing on another lane, or for a straight strike.",
+        "primitives": [
+          "condition.lane"
+        ],
+        "pool": "Shop Charm slot, from the next attempt after the Both Halves mastery.",
+        "presentation_needs": "A long oil streak that the ball's arc bends around at 47 ft, lit on a Long Oil curved strike.",
+        "asset_ids": {
+          "icon": "icon.charm.long_game",
+          "card": "card.charm.long_game",
+          "rarity_treatment": "rarity_treatment.charm.long_game",
+          "activation": "activation.charm.long_game",
+          "sound": "sound.charm.long_game",
+          "reduced_motion": "reduced_motion.charm.long_game"
+        }
+      }
+    },
+    {
+      "id": "charm.second_chance",
+      "landed_in": "E18-C19",
+      "design": {
+        "trigger": "×1.5 Mult on a strike or spare when a roll in the frame rebounded off the gutter edge (Bumper Guard). Nothing in a frame without a rebound, or an open frame.",
+        "primitives": [],
+        "pool": "Shop Charm slot, from the next attempt after the Rebound Rescue mastery.",
+        "presentation_needs": "A bumper that flips a scorecard over to a fresh line when a rebound becomes a spare or strike.",
+        "asset_ids": {
+          "icon": "icon.charm.second_chance",
+          "card": "card.charm.second_chance",
+          "rarity_treatment": "rarity_treatment.charm.second_chance",
+          "activation": "activation.charm.second_chance",
+          "sound": "sound.charm.second_chance",
+          "reduced_motion": "reduced_motion.charm.second_chance"
+        }
+      }
+    }
+  ]
+}

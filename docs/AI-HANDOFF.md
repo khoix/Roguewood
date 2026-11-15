@@ -316,7 +316,7 @@ Open: Wave 12 is merged (PR #30, main `cd1cfc9`). Base: `claude/roguewood-build`
   - Dry Side, Lane Reader, Hook Shot, Line Call, Bounce Back and Straight Money, all initial from Division 1, each scored through the real FrameBuilder and played natively in J03C17.
   - Eighteen of Neon's 28 items are landed and its initial pool is complete. Left for DC-N4 and N5: two shop upgrades and the eight mastery items with their objectives.
   - **Hand-off to Codex (AV-N3, Wave 14):** the six items; J03C17 and its five captures.
-- **UI-7 DONE** (handoffs/UI-7.md), the owner's play notes of 2026-11-15, ahead of DC-N4:
+- **UI-7 DONE** (handoffs/UI-7.md), the owner's play notes of 2026-11-15, ahead of DC-N4. PR #32 (open), after CI passed on `254a921` (Bootstrap run 43687571749, both shards):
   - **A title screen** opens the game: the House hall at night, the ROGUEWOOD wordmark, the House Ball rolling, "Tap to start". A tap, click, key or gamepad button opens the Clubhouse; reduced motion keeps it still. It shows when the shell is the running scene (the real game); journeys that embed the shell open at the Clubhouse as before. J01, the web journey and the phone tour pass it with real input.
   - **The loading screen** is a Roguewood boot splash in place of Godot's logo, with a brass progress bar on the web page.
   - **Icons:** a project icon, from which the Web export writes the favicon and the 180 × 180 apple-touch-icon; the page head adds a theme colour and the home-screen name.
@@ -331,6 +331,13 @@ Open: Wave 12 is merged (PR #30, main `cd1cfc9`). Base: `claude/roguewood-build`
   - **Hand-off to Codex (AV-N4, Wave 14):** the five items and the Controlled Curve ribbon; J03C18 and its two captures.
   - Validation: unit (mechanics_c18_test; counts 48 Charms, 10 balls, 9 tactical cards, 8 upgrades; a fresh binder 20 Locked and 82 Available; 4 objectives and 16 gates), content, integration, physics (digest `75d1a3c0…` unchanged), J03C18 headless and rendered, J03C07 (both modes), and J03 (560/240/70), J05 (21060), J06, J08A02, J09, J10, J11, J03C15, J03C16, J03C17, J22L01 and J22L02 headless: PASS.
   - Two journeys updated for the shared catalogue: J03C07 (once every House upgrade is owned, Division 2's License now offers Trade-In; Specialist Shelf never appears without specialists) and J10 (the Career line reads "0/4 mastery goals").
+
+- **DC-N5 DONE** (handoffs/E18-C19.md; E17-D16 with E18-C19): Neon's last five items, all mastery rewards. **All 28 Neon items are landed.**
+  - Objectives: **Both Halves** (on Two-Tone, strike from each half in one attempt; metric `two_tone_halves`) unlocks Compass Pin, Split Pattern, Dry Run and Long Game; **Rebound Rescue** (three rebounds turned into a spare or strike, Career-wide; metric `rescues`) unlocks Second Chance.
+  - mechanics_c19_test; J03C19 plays all five natively (Two-Tone and Long Oil set by fixture in Practice; a Bumper Guard rescue made into a spare).
+  - **Hand-off to Codex (AV-N5, Wave 14):** the five items and the two ribbons; J03C19 and its four captures.
+  - Validation: unit (mechanics_c19_test; 52 Charms, 13 pins; a fresh binder 25 Locked and 82 Available; 6 objectives and 18 gates), content, integration, J03C19 headless and rendered, and J03 (560/240/70), J05 (21060), J03C07, J03C15, J03C17, J03C18, J06, J09, J10 (the Career line reads "0/6 mastery goals"), J11, J22L01 and J22L02 headless: PASS. The full matrix runs at the wave's close.
+- **Next (Claude):** E17-L03, the Salvage spec (High).
 
 ## Wave 12 claims (coordinator: Claude, 2026-11-10)
 Open: Wave 11 is merged (PR #29, main `f65d16f`). Base: `claude/roguewood-build` at the "Wave 12 claims" commit (it adds UI-5 to the claims written at the close). Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave12.md). Scope: docs/ROADMAP.md, the Wave 12 row and "GUI review: UI-4".

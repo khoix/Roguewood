@@ -1030,7 +1030,7 @@ func _score_frame() -> void:
 	total_score += int(banked.score)
 	# E15: the frame counts toward Career records and mastery once, saved before the
 	# attempt's frame_done checkpoint (a crash between them cannot count it twice).
-	var stats := CareerProfile.frame_stats(result.category, frame_reports, run.loadout().pins, func(spin): return Lane.is_curved(spin))
+	var stats := CareerProfile.frame_stats(result.category, frame_reports, run.loadout().pins, func(spin): return Lane.is_curved(spin), lane.lane_condition)
 	var counted: Dictionary = CareerProfile.bank_frame(career, career_attempt, frame_number, stats, {"league": _league_key(),
 		"practice": division.practice, "division": division.division_number(), "total": total_score, "frame_score": int(banked.score)},
 		career_graph.get("objectives", []))
