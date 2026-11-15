@@ -316,7 +316,7 @@ Open: Wave 12 is merged (PR #30, main `cd1cfc9`). Base: `claude/roguewood-build`
   - Dry Side, Lane Reader, Hook Shot, Line Call, Bounce Back and Straight Money, all initial from Division 1, each scored through the real FrameBuilder and played natively in J03C17.
   - Eighteen of Neon's 28 items are landed and its initial pool is complete. Left for DC-N4 and N5: two shop upgrades and the eight mastery items with their objectives.
   - **Hand-off to Codex (AV-N3, Wave 14):** the six items; J03C17 and its five captures.
-- **UI-7 DONE** (handoffs/UI-7.md), the owner's play notes of 2026-11-15, ahead of DC-N4. PR #32 (open), after CI passed on `254a921` (Bootstrap run 43687571749, both shards):
+- **UI-7 DONE** (handoffs/UI-7.md), the owner's play notes of 2026-11-15, ahead of DC-N4. MERGED to main by PR #32 (`82b9b2a`, 2026-11-15) after CI passed on `254a921` (Bootstrap run 43687571749, both shards):
   - **A title screen** opens the game: the House hall at night, the ROGUEWOOD wordmark, the House Ball rolling, "Tap to start". A tap, click, key or gamepad button opens the Clubhouse; reduced motion keeps it still. It shows when the shell is the running scene (the real game); journeys that embed the shell open at the Clubhouse as before. J01, the web journey and the phone tour pass it with real input.
   - **The loading screen** is a Roguewood boot splash in place of Godot's logo, with a brass progress bar on the web page.
   - **Icons:** a project icon, from which the Web export writes the favicon and the 180 × 180 apple-touch-icon; the page head adds a theme colour and the home-screen name.
