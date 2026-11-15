@@ -289,7 +289,7 @@ Open: Wave 10 is merged (PR #22, main `706767f`). Base: `claude/roguewood-build`
 - **Merge:** MERGED to main by PR #30 (`cd1cfc9`, 2026-11-14) after CI passed on `53ba01c` (Bootstrap run 43613842320); Bootstrap also passed on main (run 43631722839).
 
 ## Wave 14 claims (coordinator: Claude, 2026-11-15)
-Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build` at the "Wave 13 closed" commit or later. Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave14.md). Scope: docs/ROADMAP.md, the Wave 14 row and "League template" (wave a for Salvage).
+Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build` at the "Wave 13 closed" commit or later. Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave14-session.md, a new session from 2026-11-15 with AV-T02 first; it replaces codex-wave14.md). Scope: docs/ROADMAP.md, the Wave 14 row and "League template" (wave a for Salvage).
 - **Claude:**
   1. **E17-L03** (High; moved from Wave 13 by the owner, 2026-11-15): the Salvage League spec, as E17-L02 was for Neon.
      - The League's eight Divisions, its three rivals and champion, their rules, its lanes, kit, rewards and specialist tags.
