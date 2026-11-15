@@ -2,71 +2,8 @@
   "schema_version": 1,
   "batch": "E17-D05",
   "status": "authored",
-  "note": "E17-L01's definitions: the nine new boss rules that complete the 20 (one per rival in content/leagues/rivals.json), House's second kit and House's two lane conditions (formalising the campaign fixtures). Each rule needs a rule primitive in rival_rules.gd (E18); the House ones land in E18-C05. Nothing here is in content/catalogue.json until E18. E18-C05 landed boss_rule.house_pins, lane_condition.house_oil, lane_condition.dry_backend. E18-C13 (the rules of E17-L02) landed boss_rule.strobe.",
+  "note": "E17-L01's definitions: the nine new boss rules that complete the 20 (one per rival in content/leagues/rivals.json), House's second kit and House's two lane conditions (formalising the campaign fixtures). Each rule needs a rule primitive in rival_rules.gd (E18); the House ones land in E18-C05. Nothing here is in content/catalogue.json until E18. E18-C05 landed boss_rule.house_pins, lane_condition.house_oil, lane_condition.dry_backend. E18-C13 (the rules of E17-L02) landed boss_rule.strobe. E18-C20 (the rules of E17-L03) landed Rust.",
   "definitions": [
-    {
-      "item": {
-        "id": "boss_rule.rust",
-        "name": "Rust",
-        "category": "boss_rule",
-        "rarity": "common",
-        "pool_weight": 0,
-        "unlock": {
-          "kind": "initial",
-          "prerequisites": []
-        },
-        "earliest_division": 1,
-        "purchase_price": 0,
-        "resale_price": 0,
-        "effects": [],
-        "limits": {
-          "max_owned": 1,
-          "charges": 0,
-          "exhaustion": "none"
-        },
-        "downside": "Every modification is switched off for the boss match.",
-        "synergy_tags": [
-          "modification",
-          "salvage"
-        ],
-        "incompatibilities": [],
-        "assets": {
-          "icon": "",
-          "card": "",
-          "in_play": "",
-          "rarity_treatment": "",
-          "activation": "",
-          "sound": "",
-          "reduced_motion": ""
-        },
-        "completeness": {
-          "authored": true,
-          "mechanics": false,
-          "automated_validation": false,
-          "artwork": false,
-          "effects_audio": false,
-          "unlock_assigned": true,
-          "integrated": false
-        }
-      },
-      "design": {
-        "trigger": "For every frame of the boss match, all attached ball and pin modifications are switched off: their effects and payouts do not apply. The host items work as normal and the modifications return afterwards.",
-        "primitives": [
-          "rule.no_mods"
-        ],
-        "pool": "Boss rule: never in a shop; used by its rival in the Salvage League spec (docs/ROADMAP.md).",
-        "counterplay": "Lean on base materials and Charms: Ruby and Gold pins, Pin Counter, Flat Bonus.",
-        "presentation_needs": "Rust creeps over every modification badge without covering the host; the rule badge shows a rusted bolt.",
-        "asset_ids": {
-          "icon": "icon.boss_rule.rust",
-          "card": "card.boss_rule.rust",
-          "rarity_treatment": "rarity_treatment.boss_rule.rust",
-          "activation": "activation.boss_rule.rust",
-          "sound": "sound.boss_rule.rust",
-          "reduced_motion": "reduced_motion.boss_rule.rust"
-        }
-      }
-    },
     {
       "item": {
         "id": "boss_rule.court_order",
@@ -548,6 +485,27 @@
           "activation": "activation.boss_rule.strobe",
           "sound": "sound.boss_rule.strobe",
           "reduced_motion": "reduced_motion.boss_rule.strobe"
+        }
+      }
+    },
+    {
+      "id": "boss_rule.rust",
+      "landed_in": "E18-C20",
+      "design": {
+        "trigger": "For every frame of the boss match, all attached ball and pin modifications are switched off: their effects and payouts do not apply. The host items work as normal and the modifications return afterwards.",
+        "primitives": [
+          "rule.no_mods"
+        ],
+        "pool": "Boss rule: never in a shop; used by its rival in the Salvage League spec (docs/ROADMAP.md).",
+        "counterplay": "Lean on base materials and Charms: Ruby and Gold pins, Pin Counter, Flat Bonus.",
+        "presentation_needs": "Rust creeps over every modification badge without covering the host; the rule badge shows a rusted bolt.",
+        "asset_ids": {
+          "icon": "icon.boss_rule.rust",
+          "card": "card.boss_rule.rust",
+          "rarity_treatment": "rarity_treatment.boss_rule.rust",
+          "activation": "activation.boss_rule.rust",
+          "sound": "sound.boss_rule.rust",
+          "reduced_motion": "reduced_motion.boss_rule.rust"
         }
       }
     }

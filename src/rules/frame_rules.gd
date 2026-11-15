@@ -48,6 +48,11 @@ extends RefCounted
 ##
 ## E18-C18 adds condition `accurate` (on a roll's own effects: that roll was graded
 ## sweet or perfect; elsewhere: any roll was).
+##
+## E18-C20 adds context `pin_value_scale` (Dull Pins, 0 < scale <= 1): every Value a
+## pin adds (its own effects, its modification's, and copies or retriggers of them)
+## is scaled and rounded down per effect; the event keeps the full amount as
+## `dulled_from`. Charm and ball Value and every Mult are unchanged.
 const SCOPES = ["roll", "frame", "match", "run"]
 const OPS = ["add_value", "add_mult", "multiply_mult", "payout", "grow_value"]
 const V2_OPS = ["retrigger", "transform", "lose_mult"]
@@ -91,7 +96,7 @@ static func resolve(frame: Dictionary) -> Dictionary:
 		"streak": int(context.get("strike_streak", 0)) + 1 if category == "strike" else 0, "retriggers": 0, "fallen": {}, "standing": {},
 		"leave": 10 - rolls[0].fallen_positions.size(), "behind": match_target > 0 and int(context.get("match_score", 0)) * 2 < match_target,
 		"last_fallen": last_fallen, "last_item": "", "accurate": rolls.filter(func(r): return GRADES[r.accuracy] > 0).size(), "fallen_at": fallen,
-		"rolls": {}, "lane": lane_id(String(context.get("lane_condition", "lane.house")))}
+		"rolls": {}, "lane": lane_id(String(context.get("lane_condition", "lane.house"))), "pin_value_scale": float(context.get("pin_value_scale", 1.0))}
 	for roll in rolls:
 		facts.rolls[int(roll.roll_index)] = {"curved": bool(roll.get("curved", false)), "rebounded": bool(roll.get("rebounded", false)), "first_direct": int(roll.get("first_direct", 0)),
 			"left_side": bool(roll.get("left_side", false)), "accurate": GRADES[roll.accuracy] > 0}
@@ -233,6 +238,9 @@ static func _apply_effects(state: Dictionary, owner: Dictionary, trigger: String
 			event["per"] = effect.per
 			event["count"] = count
 			event["base"] = amount
+		if op == "add_value" and source.begins_with("pin:") and float(state.facts.pin_value_scale) < 1.0:
+			event["dulled_from"] = event.amount
+			event.amount = floorf(float(event.amount) * float(state.facts.pin_value_scale))
 		if effect.has("condition"):
 			event["condition"] = effect.condition.duplicate(true)
 		if effect.has("into"):
@@ -268,7 +276,9 @@ static func validate(frame: Dictionary) -> Array[String]:
 		if not context is Dictionary:
 			errors.append("frame.context must be an object")
 		else:
-			_unknown_keys(context, ["match_frame", "strike_streak", "match_score", "match_target", "lane_condition"], errors)
+			_unknown_keys(context, ["match_frame", "strike_streak", "match_score", "match_target", "lane_condition", "pin_value_scale"], errors)
+			if context.has("pin_value_scale") and not (_number(context.pin_value_scale) and float(context.pin_value_scale) > 0.0 and float(context.pin_value_scale) <= 1.0):
+				errors.append("context.pin_value_scale must be a number in (0, 1]")
 			if context.has("lane_condition") and not _lane_name(context.lane_condition):
 				errors.append("context.lane_condition must be a lane condition id")
 			for key in ["match_score", "match_target"]:

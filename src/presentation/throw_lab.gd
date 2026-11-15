@@ -779,6 +779,8 @@ func card_rules(thrown: Dictionary = {}) -> Dictionary:
 	var mod_id: String = String(thrown.get("mod", run.card_mod(armed_ball) if not armed_ball.is_empty() and equipment != null and equipment.MODEL == "deck" else ""))
 	if not RivalRules.ball_allowed(active_rules(), ball_id):
 		return {} # House Rules throws the House Ball in the card's place
+	if RivalRules.mods_off(active_rules()):
+		mod_id = "" # Rust: the modification does nothing in the roll either
 	var used: bool = frame_reports.any(func(r): return bool(r.knockdown_log.get("rebounded", false)))
 	var tactic_id: String = String(thrown.get("tactical", _item_of(armed_tactical) if not armed_tactical.is_empty() else ""))
 	return ItemPhysics.roll_rules(run.item(ball_id), run.item(mod_id) if not mod_id.is_empty() else {}, used, run.item(tactic_id) if not tactic_id.is_empty() else {})
@@ -1005,12 +1007,14 @@ func frame_context() -> Dictionary:
 func _score_frame() -> void:
 	var extras := {}
 	for roll in [1, 2]:
-		var played: Array = ([frame_mods[roll]] if frame_mods.has(roll) else []) + frame_tactics.get(roll, [])
+		# Rust switches the ball modification off (RivalRules.mods_off); the card still plays.
+		var played: Array = ([frame_mods[roll]] if frame_mods.has(roll) and not RivalRules.mods_off(active_rules()) else []) + frame_tactics.get(roll, [])
 		if not played.is_empty():
 			extras[roll] = played
-	# House Pins scores every racked pin as plain Wood (RivalRules.frame_loadout);
-	# a Rule Waiver suspends the rival's rules for the frame (active_rules).
-	var built := FrameBuilder.build(RivalRules.frame_loadout(active_rules(), run.loadout()), _catalogue, frame_reports, extras, frame_context())
+	# House Pins scores every racked pin as plain Wood and Rust drops the pin
+	# modifications (RivalRules.frame_loadout); Dull Pins halves pin Value
+	# (frame_context); a Rule Waiver suspends the rival's rules for the frame (active_rules).
+	var built := FrameBuilder.build(RivalRules.frame_loadout(active_rules(), run.loadout()), _catalogue, frame_reports, extras, RivalRules.frame_context(active_rules(), frame_context()))
 	var result := Rules.resolve(built.frame) if built.ok else {"ok": false, "errors": built.errors}
 	if not result.ok:
 		push_error("Frame could not be scored: " + str(result.errors))
@@ -1023,7 +1027,14 @@ func _score_frame() -> void:
 	var banked: Dictionary = RivalRules.bank(active_rules(), result)
 	for note in banked.notes:
 		steps.append({"phase": "rule", "symbol": "✕", "pin": 0, "text": note, "pin_value": steps[-1].pin_value, "mult": steps[-1].mult, "score": banked.score})
-	var income := run.credit_frame(result, built.frame)
+	# Frugal House: the payouts stay in the explanation, marked as kept by the house.
+	var paid: Dictionary = RivalRules.paid(active_rules(), result)
+	if int(paid.kept) > 0:
+		for step in steps:
+			if step.phase == "after_bank" and String(step.text).contains("+$"):
+				step.text += " · kept by the house (Frugal House)"
+				step["struck"] = true
+	var income := run.credit_frame(paid.result, built.frame)
 	var grown: Array = run.apply_frame(result, built.frame) # growth and the strike streak, banked with the frame
 	for change in run.transformed: # rolled once on the effects stream; saved with the frame below
 		steps.append({"phase": "rule", "symbol": "✕", "pin": int(change.position), "pin_value": steps[-1].pin_value, "mult": steps[-1].mult, "score": banked.score,
