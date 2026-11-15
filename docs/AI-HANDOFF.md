@@ -337,7 +337,14 @@ Open: Wave 12 is merged (PR #30, main `cd1cfc9`). Base: `claude/roguewood-build`
   - mechanics_c19_test; J03C19 plays all five natively (Two-Tone and Long Oil set by fixture in Practice; a Bumper Guard rescue made into a spare).
   - **Hand-off to Codex (AV-N5, Wave 14):** the five items and the two ribbons; J03C19 and its four captures.
   - Validation: unit (mechanics_c19_test; 52 Charms, 13 pins; a fresh binder 25 Locked and 82 Available; 6 objectives and 18 gates), content, integration, J03C19 headless and rendered, and J03 (560/240/70), J05 (21060), J03C07, J03C15, J03C17, J03C18, J06, J09, J10 (the Career line reads "0/6 mastery goals"), J11, J22L01 and J22L02 headless: PASS. The full matrix runs at the wave's close.
-- **Next (Claude):** E17-L03, the Salvage spec (High).
+- **Codex's Wave 13 work, integrated** (merge of `503dab6`; handoffs/WAVE13-CODEX.md): every Codex Wave 13 claim is DONE.
+  - **AV-N1 and AV-N2:** identity art, in-play looks, activation, sound and reduced-motion versions for the first twelve Neon items, with their artwork and effects flags. New journeys JAVN1, JAVN1C, JAVN1BC, JAVN2, JAVN2C and JAVN2BC run in the art shard.
+  - **E22-L02-ART tail:** authored kickback and cushion panels in Neon's rooms.
+  - **UI-A4:** Roguewood's logo, app icon and boot splash at UI-7's paths. The title shows the logo, and the favicon and apple-touch-icon come from the new icon; the House backdrop stays as the title art.
+  - One conflict, in tests/run_tests.gd: Codex's three art tests and the C18 and C19 mechanics tests are both kept.
+  - Validation on the merge: unit, content, physics (digest `75d1a3c0…` unchanged), J01 in both modes, the web journey, JAVN1 and JAVN2 in both modes, JAVN1C, JAVN1BC, JAVN2C and JAVN2BC rendered, J03C15 to J03C19 headless (J03C19 also rendered), J22L02 in both modes, J22L02LIVEART rendered, J03 (560/240/70), J05 (21060) and J11: PASS.
+  - Open, from Codex: the landscape phone tour prints a one-resource shutdown warning after finishing (a capture tool, not a test).
+- **Next (Claude):** E17-L03, the Salvage spec (High). Codex's next item art, AV-N3 to AV-N5 for DC-N3 to N5, is Wave 14.
 
 ## Wave 12 claims (coordinator: Claude, 2026-11-10)
 Open: Wave 11 is merged (PR #29, main `f65d16f`). Base: `claude/roguewood-build` at the "Wave 12 claims" commit (it adds UI-5 to the claims written at the close). Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave12.md). Scope: docs/ROADMAP.md, the Wave 12 row and "GUI review: UI-4".

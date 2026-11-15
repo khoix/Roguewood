@@ -966,6 +966,53 @@ intact. The symbols have one weight (no variation deltas).
 Source (UI-A3) SHA256: `9e38d077f2679e2f7587b360ae3afbd97b03e84baf87a827ab1ef231971b9f68`.
 Patched SHA256: `ff4b5f8d9f8a4ad875c4b1ff02c31961f0c1f54a9aaee43e97a7a673fbae170e`.
 
+## AV-N1 — Neon first six items (Wave 13)
+
+Codex, original project artwork, 2026-11-14 (owner timezone). Inputs: coordinator
+UI-6 `333c0af`, E18-C15, E17-D12 and Bumper Guard's E17-D04 brief. Detailed
+identity/activation/source contract: `docs/art/briefs/AV-N1.md`.
+
+Two original OpenAI image-generation atlases, no reference images or third-party
+assets, logos or licenses. Both are 2172×724 RGBA. They are shipped byte-for-byte
+as generated; AtlasTexture views select padded alpha bounds, with no image edits.
+The exact prompts are `docs/art/briefs/AV-N1-{A,B}-prompt.txt`.
+
+| Source | Subjects | SHA256 |
+|---|---|---|
+| assets/items/neon/source.AV-N1-A.png | Oilskin Ball, Laser Ball, Tempo Pin | `23c50261dd0db812ab9680607bbcbe5d2034a812e34661563e68b3ed2fd09d96` |
+| assets/items/neon/source.AV-N1-B.png | Neon Sign, Blacklight, Bumper Guard | `83a47bd15e820dd0266515349cbfdbb5dc46ae4a3ba40ffae0651f4bed60f7b5` |
+
+Resource author: Codex. `tools/author_neon_items.py` declares the atlas regions,
+rarity resources and activation recipes by stable item ID. Original authored
+`assets/items/neon/identity.gdshader` and `overlay.gd` provide the physical
+markings and cosmetic attachments. Original presentation code reads existing
+launch, target-crossing, rebound and resolver data; no simulation edits.
+
+Slots filled for each of `ball.oilskin`, `ball.laser`, `pin.tempo`,
+`charm.neon_sign`, `ball_mod.blacklight`, `ball_mod.bumper_guard`: card, icon,
+in_play, rarity_treatment, activation, sound, reduced_motion. Only these six
+entries' assets and artwork/effects_audio flags change. The static reduced
+identity shares the unchanged source illustration. No font or glyph edits.
+
+Audio is original deterministic synthesis through the existing
+`tools/author_foley.py`, not sampled music or recordings: 0.32 s mono 16-bit PCM,
+22050 Hz, normalized peak 0.48; the existing four-voice mixer limits it further.
+
+| Audio in assets/audio/ | Material, pitch | SHA256 |
+|---|---|---|
+| sound.ball.oilskin.wav | swish, 410 Hz | `b973ee70da9a362483da73b63c5e42a0a1aac9670b7e076a00eb49e005fc2630` |
+| sound.ball.laser.wav | glass, 760 Hz | `b924298070ac39d0b7ca474e113a60a876abd2d19d598d879470423589504fbd` |
+| sound.pin.tempo.wav | wood, 640 Hz | `0ecb903f553822480046aa3007f22c93701a5fa92be7a9394ed9566337713ca4` |
+| sound.charm.neon_sign.wav | glass, 880 Hz | `bb9753bc0eb1acbddd1ec9c4573112fce2810bfd88ed9bc361b94c79803b1ae8` |
+| sound.ball_mod.blacklight.wav | glass, 330 Hz | `42adf35164f037f89091212e257c0656dde9e071ff6d0acf5e07468b71246ca6` |
+| sound.ball_mod.bumper_guard.wav | rubber, 145 Hz | `5c3e191bab5036e0dafa27db48f89ad6910b2d39be23133ac3365d6403a69ca5` |
+
+Evidence: JAVN1 (extends J03C15 with the original banks and replay intact),
+JAVN1C, JAVN1BC, native shop/host/Binder/reward captures, and exact event
+projection tests. See `docs/handoffs/AV-N1.md` for final validation and limits.
+Captures are ignored output and never committed. AV-N2 and the theme tail
+remain separate work; this record does not mark them complete.
+
 ## UI-7 — provisional brand images (coordinator, 2026-11-15)
 
 - `assets/brand/icon.png` (512×512, opaque) and `assets/brand/splash.png`
@@ -983,3 +1030,73 @@ Patched SHA256: `ff4b5f8d9f8a4ad875c4b1ff02c31961f0c1f54a9aaee43e97a7a673fbae170
   Division 1 backdrop and the House Ball at runtime; it adds no asset.
 - Provisional: Codex's final logo, icon, splash and title key art replace these
   by the same paths (handoff UI-7, "For Codex").
+
+## AV-N2 — Neon next six items (Wave 13)
+
+Codex, 2026-11-15. Original project artwork, generated with OpenAI image generation;
+no reference images, external assets, donor recordings or new third-party licenses.
+Exact prompts and identity contract: docs/art/briefs/AV-N2.md and AV-N2-{A,B}-prompt.txt.
+Source PNGs are shipped unchanged; padded AtlasTexture regions select subjects.
+
+| Source | Dimensions | SHA256 |
+|---|---|---|
+| assets/items/neon/source.AV-N2-A.png | 2172×724 RGBA | `5ed8590339c66d2d0aa45c30cd23b7c423b78969d88ebf1697977fbd28aa4e00` |
+| assets/items/neon/source.AV-N2-B.png | 2172×724 RGBA | `b091370126c289b7f9b571ab949d4d92e4aa64a7668a6bc7b5dfe7f170bb7a3f` |
+
+Original code/resources: tools/author_neon_n2_items.py, identity_n2.gdshader,
+overlay_n2.gd and the scoped presentation observers/glyphs. Seven slots for
+ball.glow, pin.prism, ball_mod.grip_tape, pin_mod.spotlight, charm.afterimage and
+charm.laser_level. Reduced identities reuse the unchanged atlas. No font edits.
+
+Original deterministic author_foley.py synthesis: mono 16-bit PCM, 22050 Hz,
+0.32 s, peak 0.48, existing four-voice mixer. No sampled audio.
+
+| Audio in assets/audio/ | Material, pitch | SHA256 |
+|---|---|---|
+| sound.ball.glow.wav | glass, 520 Hz | `e6746ced219e7479b8c50d0ee8cba9456751773abafc0e92f400508262d54392` |
+| sound.pin.prism.wav | glass, 960 Hz | `3365434aa03af1424680ba5c94e847a403cd3dd9b7677b025e67c44dbde9504e` |
+| sound.ball_mod.grip_tape.wav | cloth, 280 Hz | `beb9cee1abb710d2569563011237a77035633e09c07e19a7dfd45d578b699895` |
+| sound.pin_mod.spotlight.wav | wood, 790 Hz | `ffe79c9dc1fbce6434b47b30e28909af8b80f15343238910b84cd986ffda102a` |
+| sound.charm.afterimage.wav | swish, 620 Hz | `6341c36896c0845823cb2694448ab03332bf988382f114db7900fa7c9bd7ea89` |
+| sound.charm.laser_level.wav | wood, 430 Hz | `7c239f5f62e5d3c08f3f16a22c9a43152ddbd87ef7c8a69331eaf14cde063690` |
+
+Evidence: JAVN2 extends J03C16, JAVN2C/JAVN2BC contacts, native shop/Binder/host,
+real physical and paid cues. Validation and limits: docs/handoffs/AV-N2.md.
+No captures committed.
+
+## E22-L02-ART — Wave 13 theme tail
+
+Codex, 2026-11-15. Original procedural shader and resource, no external image
+or license: assets/leagues/neon/pin_deck.gdshader and pin_deck.tres. Static dark
+indigo acoustic/enamel panels, restrained brass edges/fasteners and a cyan inlay
+replace plain kickback/cushion materials only in the live Neon League. No new
+geometry, collision, animation, lights or rule data. The House finish is preserved.
+Native J22L02LIVEART adds normal/reduced physical pin-deck captures; the original
+24-match path and independent banks remain. See handoffs/E22-L02-ART.md.
+
+- pin_deck.gdshader: SHA256 `3def075d4cf2c2b6718477d297f6fe3f25ba6217760c458bc933bd19eb79d7f5`.
+- pin_deck.tres: SHA256 `91ce0a63ab33052d3847ca628d9dcb9b16b27772ef08f75351c1db8f5f881aa8`.
+
+## UI-A4 — final Roguewood brand art
+
+Codex, 2026-11-15. Two original OpenAI-generated illustrations with no reference
+images, donor art, external brand or new third-party license. Exact prompts:
+docs/art/ui/UI-A4-logo-prompt.txt and UI-A4-icon-prompt.txt; brief: UI-A4.md.
+Immutable source PNGs are retained. The logo export is byte-identical. The
+requested author_brand.py exporter sizes the icon to 512 square, quantizes to an
+opaque 32-colour palette for the favicon budget, and centres the wordmark over
+exact #0b1116 for the splash. No new font or glyph is introduced. The existing
+House title backdrop/ball remain; optional title key art was not needed.
+
+| File in assets/brand/ | Format / dimensions | SHA256 |
+|---|---|---|
+| source.logo.png | RGBA 2172×724 | `c0d65d4486f23077eb1cc569ef84830c05e9bbfca0b65f7a4fce50804a7d1a19` |
+| source.icon.png | RGB 1254×1254 | `ec5395a7f83a7e7f4dc7acf240a16834c0f1d29f034c6da242ab4697fde1868a` |
+| logo.png | RGBA 2172×724 | `c0d65d4486f23077eb1cc569ef84830c05e9bbfca0b65f7a4fce50804a7d1a19` |
+| icon.png | RGB 512×512 | `0b092a8e63b874e2e21a89abe4039b23fe2dd3d828552d95e4df0c8597d6fef0` |
+| splash.png | RGB 720×560 | `db3ca5069f0d940817a8d0e5db8be5138e4639585d3d9ec59aeb4a55c5b00f84` |
+
+The UI-7 provisional icon/splash are superseded at the same paths. Its source
+record above remains historical. author_brand.py no longer regenerates provisional
+images. No bootstrap, project, export or UI code changes for this batch. Capture
+index and actual validation: docs/handoffs/UI-A4.md. No captures committed.
