@@ -333,7 +333,7 @@ Open: Wave 12 is merged (PR #30, main `cd1cfc9`). Base: `claude/roguewood-build`
 - **Codex:**
   1. **AV-N1** (DC-N1's six items; J03C15) and **AV-N2** (DC-N2's six items; J03C16), with native checks, artwork flags, effects and sound.
   2. **The tail of the Neon theme:** anything the live captures show is still developmental.
-  4. **UI-A5** (Medium; owner, 2026-11-15, after the close's matrix): an art-lead review of the title screen and the icons (the favicon, the apple-touch-icon, the boot splash and the title's composition). Codex makes the adjustments it recommends. No subtitle, and one action on the title. Prompt: docs/prompts/codex-wave13-ui-a5.md.
+  4. **UI-A5** (Medium; owner, 2026-11-15, after the close's matrix): an art-lead review of the title screen and the icons (the favicon, the apple-touch-icon, the boot splash and the title's composition). Codex makes the adjustments it recommends and makes the title a little more dynamic (reduced motion stays still). Done in Codex's existing Wave 13 session. No subtitle, and one action on the title. Prompt: docs/prompts/codex-wave13-ui-a5.md.
   3. **UI-A4** (Medium; owner, 2026-11-15): Roguewood's brand art in place of UI-7's provisional images, at the same paths: a logo for the title screen, the app icon (the source of the favicon and the apple-touch-icon), the boot splash, and optional title key art. No subtitle; the title keeps one action. Brief: handoffs/UI-7.md, "For Codex"; prompt: docs/prompts/codex-wave13-ui-a4.md.
   - AV-N3 onward follows DC-N3 to N5 as they land (Wave 14).
 - **Owner:** play the Neon League on the phone.
