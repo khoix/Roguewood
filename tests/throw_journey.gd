@@ -145,6 +145,7 @@ func _run() -> void:
 	await _replays(frame)
 	await _curves_and_target()
 	await _held_ball()
+	await _spin_models()
 	await _flat_spin()
 	await _mouse_throw()
 	await _assist_throw()
@@ -426,6 +427,68 @@ func _held_ball() -> void:
 	await _focus_accept(lab.settings_panel.tuning_box.get_node("CloseTuning"))
 	await _focus_accept(lab.settings_panel.close)
 	_check(not lab.settings_panel.visible, "settings close after tuning")
+
+## E05-R5 (owner, 2026-11-15): the flywheel. Swing + flywheel (A) is the default: a
+## brisk swirl winds the ball's own spin up, and it carries through a pause, so the
+## player can wind up, stop, then flick a curve. Spin in place (B), chosen on the
+## tuning page, keeps the ball under the finger and charges the same way.
+func _spin_models() -> void:
+	await _ready_to_throw()
+	_check(lab._flick.flywheel() and int(lab._flick.tuning.spin_model) == 1, "swing + flywheel (A) is the default spin model")
+	var radius := 40.0 * _px()
+	var at: Vector2 = lab.ball_screen_position()
+	var center := at + Vector2(0.0, -radius)
+	await _touch(at, true)
+	for i in 60:
+		var angle := deg_to_rad(90.0 + 21.0 * (i + 1))
+		var next := center + Vector2(cos(angle), sin(angle)) * radius
+		await _drag(next, next - at)
+		at = next
+	var wound: float = lab.held_charge()
+	for i in 18: await process_frame # the finger rests 0.3 s
+	var carried: float = lab.held_charge()
+	_check(wound > 0.6 and carried > 0.5 * wound and carried < wound and lab.curve_ready(), "a wound-up spin carries through a pause (%.2f to %.2f)" % [wound, carried])
+	for i in 8:
+		at += Vector2(0, -32) * _px()
+		await _drag(at, Vector2(0, -32) * _px())
+	await _touch(at, false)
+	_check(lab.state == "rolling" and Lane.is_curved(lab.lane.launch.spin) and lab.lane.launch.spin > 0.0, "the flick after the pause curves (spin %+.2f)" % lab.lane.launch.spin)
+	await _await_result("wound-up curve")
+	await _ready_to_throw()
+	await _focus_accept(scene.options)
+	await _focus_accept(lab.settings_panel.tuning_button)
+	var model: HSlider = lab.settings_panel.tuning_box.get_node("Tune_spin_model")
+	model.grab_focus()
+	await _ui("ui_right", 1)
+	_check(int(lab._flick.tuning.spin_model) == 2 and lab.settings_panel._tuning_labels.spin_model.text.contains("Spin in place (B)"), "the tuning page switches to spin in place (B)")
+	await _focus_accept(lab.settings_panel.tuning_box.get_node("CloseTuning"))
+	await _focus_accept(lab.settings_panel.close)
+	await _ready_to_throw()
+	at = lab.ball_screen_position()
+	center = at + Vector2(0.0, -radius)
+	await _touch(at, true)
+	var drift := 0.0
+	for i in 60:
+		var angle := deg_to_rad(90.0 + 21.0 * (i + 1))
+		var next := center + Vector2(cos(angle), sin(angle)) * radius
+		await _drag(next, next - at)
+		at = next
+		drift = maxf(drift, lab._flick.ball.distance_to(lab._flick.pivot))
+	_check(drift < 0.001 and lab.curve_ready(), "B: the ball spins under the finger, curve-ready (offset %.4f)" % drift)
+	await _capture("spin_in_place")
+	for i in 8:
+		at += Vector2(0, -32) * _px()
+		await _drag(at, Vector2(0, -32) * _px())
+	await _touch(at, false)
+	_check(lab.state == "rolling" and absf(lab.lane.launch.spin) > 0.6, "B: the flick curves (spin %+.2f)" % lab.lane.launch.spin)
+	await _await_result("spin in place")
+	await _ready_to_throw()
+	await _focus_accept(scene.options)
+	await _focus_accept(lab.settings_panel.tuning_button)
+	await _focus_accept(lab.settings_panel.tuning_box.get_node("ResetTuning"))
+	_check(int(lab._flick.tuning.spin_model) == 1, "Reset returns to swing + flywheel (A)")
+	await _focus_accept(lab.settings_panel.tuning_box.get_node("CloseTuning"))
+	await _focus_accept(lab.settings_panel.close)
 
 ## Flat spin (owner, 2026-11-08): the held ball never changes size on screen while
 ## it swirls, nor when the finger goes well below its start, and turns about the line

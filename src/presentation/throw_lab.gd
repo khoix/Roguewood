@@ -120,6 +120,7 @@ var _flick := Held.new()
 var _event_clock := not ("--script" in OS.get_cmdline_args())
 var _cues_fired: Dictionary = {}
 var _spin_angle := 0.0
+var _spin_turns := 0 # E05-R5: full turns of the held flywheel, for the optional tick
 var backdrop: Control
 var panels: Control # UI-2 match panels: slip, rival, Charms, fold toggles
 var regions: Dictionary = {} # UI-2 screen regions (MatchPanels.compute)
@@ -812,6 +813,7 @@ func _input(event: InputEvent) -> void:
 				_flick.begin(_normalized(event.position), _input_usec())
 				_cues_fired = {}
 				_spin_angle = 0.0
+				_spin_turns = 0
 				state = "holding"
 				_update_status()
 			elif _in_target_zone(event.position):
@@ -1773,6 +1775,15 @@ func _draw_held_ball(delta: float) -> void:
 		var lean := clampf(_flick.ball_velocity.x * 0.25, -0.35, 0.35)
 		var pitch := clampf(-_flick.ball_velocity.y * 0.15, -0.3, 0.3)
 		lane.aim_ball.basis = Basis(Vector3.BACK, -lean) * Basis(Vector3.RIGHT, pitch) * Basis(Vector3.FORWARD, _spin_angle)
+	# E05-R5: an optional tick at each full turn of a flywheel spinning past the curve
+	# threshold, like a ratchet (spin_tick_ms on the tuning page; 0 is off).
+	var turns := int(floor(absf(_flick.body_angle) / TAU))
+	if _flick.flywheel() and turns != _spin_turns:
+		_spin_turns = turns
+		var tick_ms := int(_flick.tuning.get("spin_tick_ms", 0.0))
+		if tick_ms > 0 and curve_ready() and settings.get("haptics", true):
+			throw_cue.emit("throw.spin_tick", charge)
+			Input.vibrate_handheld(tick_ms)
 	for cue in [["throw.charge", absf(charge) >= 0.05, 0], ["throw.curve_ready", curve_ready(), 25], ["throw.full_charge", full_charge(), 45]]:
 		if cue[1] and not _cues_fired.has(cue[0]):
 			_cues_fired[cue[0]] = true

@@ -135,3 +135,23 @@ After the phone trial the owner found the swing still stiff, and pointed at what
 - **Rolled back, then restored (2026-11-08/09):** on the phone the swing felt laggy in both views, so this was reverted (PR #27). The owner then found the cause: the phone was in Low Power Mode, which throttles the browser, so the frames that step the swing arrived late. With that understood, it is restored for evaluation.
 - **Flat spin made truly flat (2026-11-09):** the owner saw the flat-spun ball grow and shrink as the finger moved: below its start it had ridden the lane toward the camera. A ball kept at its own depth would sink under the boards there, so the held ball is now drawn nearer the camera than any of the lane (half the nearest depth at which the lane shows on screen) and scaled down by the same factor. It looks exactly like the ball at its place on the approach, follows the swing exactly on screen, never changes size and is never hidden by the lane. Releasing or cancelling puts it back at full size on the approach. J02 checks the on-screen radius through two brisk turns and a drag well below the start (no change beyond 2%; measured 33.3 px throughout), the single depth in front of the lane, the turn about the line of sight, and the full-size ball after a cancel.
 - **Owner's choice (2026-11-09):** with Low Power Mode off, the owner keeps the tuned values (50, 1.0, 0.05, ×0.4) and prefers depth spin, which is the default again; flat spin stays as an Options choice.
+
+## Revision: the flywheel (E05-R5, owner direction 2026-11-15)
+The owner asked for the feel of the rotation while charging a curve to follow the mobile ball-throwing reference. They had Codex's reconstruction of it reviewed for how the spin works; that reconstruction is reference only (PR #35, not merged), and nothing here copies its code or values.
+- **What changes:** the ball's spin becomes its own state, a flywheel with momentum, apart from where the ball sits. In R4 the charge was how fast the ball swung round the finger: a slow swirl still swung it, a gate (200° one way) kept sways out, and the charge collapsed within about 0.1 s once the finger stopped.
+- **The drive:** each 2 ms step adds `flywheel_gain × area` rad/s per second. The area is the signed area of the triangle through the finger's path now, half a window earlier and a window earlier (`flywheel_window_ms`, 70). The points are taken along the path by time, so the frame rate does not change the reading. The area grows with the finger's speed and with how sharply its path bends:
+  - a brisk, tight circle spins the ball up;
+  - a slow circle or straight motion adds (almost) nothing;
+  - a zigzag cancels itself;
+  - circling the other way brakes the spin, then reverses it.
+
+  No swirl gate is needed.
+- **Momentum:** the spin loses half its speed every `flywheel_half_life` (0.6 s) and never passes `flywheel_max` (30 rad/s, full charge). Steady circling settles at a spin set by the pace. A player can wind the ball up, stop, line up, then flick: the charge carries through the pause.
+- **What the player sees:** the charge is the spin against its maximum. The ball is drawn turning at exactly that spin (`body_angle`), and the meter, sparkle and cues follow it. An optional vibration tick at each full turn past the curve threshold (`spin_tick_ms`, off by default) is there to try on the phone.
+- **The two options**, for the owner to choose on the phone (Options → Throw tuning, "Spin model"):
+  - **A, swing + flywheel (default):** the R4 ragdoll swing still places the ball; the flywheel charges it.
+  - **B, spin in place:** the ball stays under the finger and spins there.
+  - **0, the R4 orbit charge:** kept for comparison.
+- **Unchanged:** the flick, the release window (the spin is read as it stood when the window opened, so the flick's own bend never charges it), the curve threshold (0.25, to be retuned on the phone), the launch contract, the hook physics, scoring and saves.
+- **Starting values, to be tuned on the phone:** with a finger circle 0.06 of the shorter side across, curve-ready comes at about two loops a second and full charge at about three, in about a second; a wider circle charges faster.
+- **Evidence:** held_ball_test and J02, listed in handoffs/E05-R5.md.
