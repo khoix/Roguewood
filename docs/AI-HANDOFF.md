@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-11-15. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E22 IN_PROGRESS; E23–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). Wave 10 is merged by PR #22 (main `706767f`). Wave 11 is merged by PR #29 (main `f65d16f`). Wave 12 is merged by PR #30 (main `cd1cfc9`; the Neon League is live with its rivals and theme). **Wave 13 is closed** (see "Wave 13 closed"; all 28 Neon items are landed, and Codex's UI-A5 title review is merged); it awaits its PR to main. **Wave 14 is claimed** (see "Wave 14 claims"). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
+Updated: 2026-11-15. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E22 IN_PROGRESS; E23–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). Wave 10 is merged by PR #22 (main `706767f`). Wave 11 is merged by PR #29 (main `f65d16f`). Wave 12 is merged by PR #30 (main `cd1cfc9`; the Neon League is live with its rivals and theme). Wave 13 is merged by PR #33 (main `4aefda6`; all 28 Neon items, Codex's Neon art and the Roguewood brand). **Wave 14 is open** (see "Wave 14 claims"). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
 
 ## Read first
 
@@ -289,7 +289,7 @@ Open: Wave 10 is merged (PR #22, main `706767f`). Base: `claude/roguewood-build`
 - **Merge:** MERGED to main by PR #30 (`cd1cfc9`, 2026-11-14) after CI passed on `53ba01c` (Bootstrap run 43613842320); Bootstrap also passed on main (run 43631722839).
 
 ## Wave 14 claims (coordinator: Claude, 2026-11-15)
-Open once Wave 13 is merged. Base: `claude/roguewood-build` at the "Wave 13 closed" commit. Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave14.md). Scope: docs/ROADMAP.md, the Wave 14 row and "League template" (wave a for Salvage).
+Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build` at the "Wave 13 closed" commit or later. Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave14.md). Scope: docs/ROADMAP.md, the Wave 14 row and "League template" (wave a for Salvage).
 - **Claude:**
   1. **E17-L03** (High; moved from Wave 13 by the owner, 2026-11-15): the Salvage League spec, as E17-L02 was for Neon.
      - The League's eight Divisions, its three rivals and champion, their rules, its lanes, kit, rewards and specialist tags.
@@ -326,7 +326,7 @@ Open once Wave 13 is merged. Base: `claude/roguewood-build` at the "Wave 13 clos
 - **Owner actions:**
   - Play UI-8 on the phone, the Binder's drag-scroll in particular.
   - Look at the Neon items' new art (AV-N1, AV-N2) and the brand art (UI-A4).
-- **Merge:** pending, by the PR from `claude/roguewood-build` to main.
+- **Merge:** MERGED to main by PR #33 (`4aefda6`, 2026-11-15) after CI passed on `117d345` (both shards).
 
 ## Wave 13 claims (coordinator: Claude, 2026-11-14)
 Open: Wave 12 is merged (PR #30, main `cd1cfc9`). Base: `claude/roguewood-build` at the "Wave 12 closed" commit. Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave13.md). Scope: docs/ROADMAP.md, the Wave 13 row and "League template".
