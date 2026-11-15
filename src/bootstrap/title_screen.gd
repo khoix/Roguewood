@@ -11,6 +11,11 @@ signal started
 
 const FONT = preload("res://assets/ui/fonts/PixelifySans.ttf")
 const BACKDROP = preload("res://assets/leagues/house/backdrop.league.house.division_01.tres")
+## UI-A4 (Codex): brand art, used when present, at fixed paths, so it needs no code.
+## The logo replaces the lettered wordmark (whose text stays for tools and tests);
+## the key art replaces the House backdrop.
+const LOGO_PATH := "res://assets/brand/logo.png"
+const KEY_ART_PATH := "res://assets/brand/title_art.png"
 const BALL_SOURCE = preload("res://assets/items/balls/a01-source.png")
 ## The House Ball alone (its card art has a shadow fragment below it), so it can roll.
 const BALL_REGION := Rect2(52, 45, 538, 538)
@@ -25,6 +30,7 @@ var reduced_motion := false
 var backdrop: TextureRect
 var wordmark: Label
 var ball: TextureRect
+var logo: TextureRect # null until Codex's logo lands
 var prompt: Label
 ## The whole screen is one button, so a tap anywhere, the accept key and focus all start.
 var start: Button
@@ -43,7 +49,7 @@ func _ready() -> void:
 	add_child(fill)
 	backdrop = TextureRect.new()
 	backdrop.name = "Backdrop"
-	backdrop.texture = BACKDROP
+	backdrop.texture = load(KEY_ART_PATH) if ResourceLoader.exists(KEY_ART_PATH) else BACKDROP
 	backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	backdrop.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	backdrop.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -78,6 +84,15 @@ func _ready() -> void:
 	wordmark.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	wordmark.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(wordmark)
+	if ResourceLoader.exists(LOGO_PATH):
+		logo = TextureRect.new()
+		logo.name = "Logo"
+		logo.texture = load(LOGO_PATH)
+		logo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		logo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		logo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(logo)
+		wordmark.hide()
 	ball = TextureRect.new()
 	ball.name = "Ball"
 	var cut := AtlasTexture.new()
@@ -163,6 +178,12 @@ func _layout() -> void:
 	ball.size = Vector2(ball_side, ball_side)
 	ball.pivot_offset = ball.size * 0.5
 	ball.position = Vector2((w - ball_side) * 0.5, top + mark * 1.6 + (h * 0.04))
+	if logo != null:
+		# The logo takes the wordmark's band and may be taller; the ball follows it.
+		var band := Vector2(w * (0.86 if portrait else 0.6), mark * 2.2)
+		logo.size = band
+		logo.position = Vector2((w - band.x) * 0.5, top - mark * 0.4)
+		ball.position.y = logo.position.y + band.y + h * 0.03
 	prompt.position = Vector2(0, h * (0.74 if portrait else 0.8))
 	prompt.size = Vector2(w, 48)
 	# The hall fills the top of the screen (all of it in landscape); the shade blends

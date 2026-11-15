@@ -24,12 +24,14 @@
 - **The title has one action.** Options and Continue stay in the Clubhouse, where they are now.
 - **Not checked:** the icon on a real iPhone home screen, and the favicon in a desktop browser tab. The web journey checks the files, sizes and links in headless Chromium.
 
-## For Codex (proposed: UI-A4, brand art)
-- **A logo** for the title screen, replacing the wordmark label. One bitmap or SVG, readable from 360 to 1280 px wide.
-- **An app icon** at 1024 × 1024, opaque and full-bleed, at `assets/brand/icon.png`. It must read at 16 px.
-- **A boot splash** at `assets/brand/splash.png`, opaque, on #0b1116 (or a new colour given to the coordinator).
-- **Optionally, title key art** in place of the House backdrop.
-- Same paths, so no code changes. J01 and JW01 check that the title, the splash and both icons are present, and their sizes.
+## For Codex (UI-A4, Wave 13; owner, 2026-11-15)
+- Prompt: docs/prompts/codex-wave13-ui-a4.md. Every piece goes at a fixed path, so no code changes are needed:
+  - **The logo:** `assets/brand/logo.png`. While it exists, the title shows it in place of the lettered wordmark (the label's text stays for tools and tests).
+  - **The app icon:** `assets/brand/icon.png`, 512 × 512 and opaque.
+  - **The boot splash:** `assets/brand/splash.png`, on #0b1116.
+  - **Optional key art:** `assets/brand/title_art.png`, in place of the House backdrop.
+- Owner's decisions: no subtitle, and the title keeps one action.
+- J01 and JW01 check that the title, the splash and both icons are present, and their sizes. The logo and key-art hooks were tried with a stand-in image (not committed).
 
 ## Validation
 See docs/AI-HANDOFF.md, "Wave 13 progress".
