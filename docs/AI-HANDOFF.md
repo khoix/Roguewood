@@ -303,6 +303,8 @@ Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build`
   - Each with native checks, artwork and effects flags, sounds and reduced-motion versions, as AV-N1 and AV-N2 were.
   4. **UI-A6** (added by the owner's play notes of 2026-11-15; prompt docs/prompts/codex-wave14-ui-a6.md): a themed pin deck for every League. The House League's kickbacks and cushion are still plain, because the pin-deck finish is applied only to Neon. Make the hook manifest-driven and give the House League its finish.
   5. **AV-T02** (owner, 2026-11-15; prompt docs/prompts/codex-wave14-av-t02.md): the spinning held ball's look for the flywheel. Readable spin at every speed, a clear full state, reduced motion still.
+  6. **AV-T03** (the owner's play notes, 2026-11-15; prompt docs/prompts/codex-wave14-av-t03.md; next after the item in hand): the charge feedback as a trail of colored particles behind the ball's path, growing with the charge, in place of the text tab and the fixed sparkles.
+  7. **UI-A7** (the same notes; prompt docs/prompts/codex-wave14-ui-a7.md; after AV-T03): the title's motion. No shifting or shaking; twinkling stars; plants in a light wind; a pixel-style 3D ball turning about Y. Optionally, the loader's sprites.
   - Salvage's rivals and theme follow its spec (Wave 15).
 - **Owner:** play UI-8 on the phone, in particular dragging across Binder cards (no touchscreen in the test environment).
 
@@ -332,9 +334,14 @@ Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build`
   - **CI:** passed on `ff615c2`.
   - **Note:** the two stray probe captures from `b4d195b` are deleted in the tree but stay in main's history.
   - **Still unmerged:** PR #35, the throw reconstruction, kept as reference until E05-R5 is confirmed on the phone.
+- **UI-10 DONE** (handoffs/UI-10.md), the owner's notes after PR #34:
+  - **Footer:** the board's footer ("Roguewood 2026 | khoix").
+  - **Loader:** the web loader as a pixel ball rolling to a pin that tips at 100% (tools/author_loader.py).
+  - **Checks:** `unit`, J11, J01 and `web`: PASS.
+  - **To Codex:** the charge particles (AV-T03) and the title's motion (UI-A7).
 - **Claude's Wave 14 claims are done.** Next:
   - the owner's E05-R5 phone trial;
-  - Codex's AV-N3 to AV-N5 and UI-A6 (AV-T02 is merged);
+  - Codex's AV-T03 and UI-A7 (next), AV-N3 to AV-N5 and UI-A6 (AV-T02 is merged);
   - then the full matrix and the "Wave 14 closed" commit.
 
 ## Wave 13 closed (coordinator, 2026-11-15)
