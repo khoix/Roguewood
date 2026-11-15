@@ -68,6 +68,18 @@ func _run() -> void:
 	# cards fill the section; two quick taps open the inspector and change nothing.
 	_check(lab.card_hand.keep_mode and not lab.card_hand.actions.visible and lab.card_hand.buttons.values().all(func(b): return b.size.y > 150.0),
 		"the keep section has no buttons, and its cards are larger (%s)" % str(lab.card_hand.buttons.values().map(func(b): return b.size.y)))
+	# UI-9: the cards take the section's height (less its chrome), or its width for a
+	# full fan; and a log scaled above its minimum never wraps a line.
+	await process_frame
+	var hand_cards: Array = lab.card_hand.buttons.values()
+	var tallest: float = lab.card_hand.size.y - lab.card_hand.keep_reserve()
+	var fan_width: float = lab.card_hand.cards_row.size.x
+	var spans: Rect2 = hand_cards.map(func(b): return b.get_global_rect()).reduce(func(a, r): return a.merge(r))
+	_check(hand_cards.all(func(b): return b.size.y >= tallest - 2.0) or spans.size.x >= fan_width - 12.0,
+		"keep cards fill the section's height (%.0f of %.0f) or its width" % [hand_cards[0].size.y, tallest])
+	var panel = lab.score_panel
+	var wrapped: Array = panel.log_list.get_children().filter(func(l): return l is Button and l.size.y > panel.log_font * 2.0)
+	_check(panel.log_font == panel.LOG_MIN or wrapped.is_empty(), "a log scaled to %d px wraps no line (%d wrap)" % [panel.log_font, wrapped.size()])
 	var first: Button = lab.card_hand.buttons.values()[0]
 	var kept: String = lab.keep_card
 	await _tap(first)

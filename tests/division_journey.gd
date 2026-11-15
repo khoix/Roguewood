@@ -212,6 +212,21 @@ func _first_attempt() -> void:
 	_check(lab.hud.intro_title.text.contains("The Custodian") and lab.hud.intro_body.text.contains("Posted target 800") and lab.hud.intro_body.text.contains("Clean Sweep")
 		and lab.hud.intro_body.text.contains(lab.division.rival().intro), "the introduction names the rival, target, rule and reward")
 	_check(lab.hud.reduced_motion and is_equal_approx(lab.hud.intro.modulate.a, 1.0), "reduced motion: the introduction appears without a fade")
+	# UI-9 (owner's play notes, 2026-11-15): the introduction reads as parts, and the
+	# rival's story waits behind "Scouting report".
+	var hud = lab.hud
+	_check(not hud.intro_body.visible and hud.intro_kicker.text.begins_with("BOSS MATCH") and hud.intro_title.text == "The Custodian"
+		and hud.intro_quote.visible and hud.intro_quote_text.text.contains(lab.division.rival().reactions.entrance), "the kicker, the name and the rival's line in a bubble")
+	var rule_card: Control = hud.intro_rules.get_child(0) if hud.intro_rules.get_child_count() == 1 else null
+	_check(rule_card != null and rule_card.find_child("RuleName", true, false).text == "Clean Sweep" and rule_card.find_child("RuleEffect", true, false).text.contains("open frames"),
+		"one card for Clean Sweep: its name and what it does")
+	var facts: Array = hud.intro_facts.get_children().map(func(f): return f.find_child("Value", true, false).text)
+	_check(facts.size() >= 2 and facts[0] == "800" and facts[1] == str(lab.division.frames_per_match()), "the match's figures: target 800 and its frames (%s)" % str(facts))
+	_check(hud.intro_reward_text.text.begins_with("First clear:") and not hud.intro_story.visible and hud.intro_story_button.visible, "the reward shows; the story waits")
+	await _focus_accept(hud.intro_story_button)
+	_check(hud.intro_story.visible and hud.intro_story.text == lab.division.rival().intro, "Scouting report opens the rival's story")
+	await _focus_accept(hud.intro_story_button)
+	_check(not hud.intro_story.visible, "and closes it")
 	await _capture("intro")
 	await _focus_accept(lab.hud.intro_button)
 	await _wait_for(func(): return lab.state == "aim" and not lab.hud.intro.visible, "intro skipped")

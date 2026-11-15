@@ -631,7 +631,10 @@ func _refresh_hand() -> void:
 	# UI-8: choosing a card to keep, the hand has no Cycle or Inspect button and its
 	# cards are as tall as the section allows (the header, the frame, the fan's drop).
 	card_hand.keep_mode = state == "frame_done"
-	card_hand.max_card_height = (maxf(rect.size.y - 96.0, 140.0) if state == "frame_done" else PORTRAIT_CARD_HEIGHT) if portrait else 400.0
+	# UI-9: keeping a card, the hand itself takes off its chrome (padding, the header
+	# as it reads then, the fan's drop: CardHand.keep_reserve), so the cards take the
+	# rest of the section's height.
+	card_hand.max_card_height = (rect.size.y if state == "frame_done" else PORTRAIT_CARD_HEIGHT) if portrait else 400.0
 	card_hand.show_cards(cards, marks, header, equipment.MODEL == "deck", state == "aim" and equipment.can_cycle(), choosing)
 	card_hand.cycle_button.text = "Cancel" if cycling else "Cycle"
 	# The roll view (UI-3): the hand leaves once the ball is away, and while the ball
@@ -1178,7 +1181,14 @@ func _show_intro() -> void:
 	_save_career()
 	state = "intro"
 	_checkpoint("intro")
-	hud.show_intro(rival, division.target(), RivalRules.summaries(_rival_rules(rival)), rival.first_clear.text, seen)
+	var lane_name := ""
+	if lane != null and lane.lane_condition.begins_with("lane_condition.") and lane.lane_condition != "lane_condition.house_oil":
+		lane_name = _lane_text(lane.lane_condition)
+	var kicker := "Championship" if String(division.current().get("name", "")) == "Championship" else "Boss match"
+	if division.division_count() > 1:
+		kicker += " · Division %d of %d" % [division.division_number(), division.division_count()]
+	hud.show_intro(rival, division.target(), RivalRules.summaries(_rival_rules(rival)), rival.first_clear.text, seen,
+		{"rules": _rival_rules(rival), "frames": division.frames_per_match(), "lane": lane_name, "kicker": kicker})
 	_update_status()
 
 func _on_intro_done() -> void:
@@ -1968,7 +1978,9 @@ func _layout_resolution() -> void:
 	var action := Rect2(inner, size.y - 12.0 - NEXT_RACK_HEIGHT, size.x - 2.0 * inner, NEXT_RACK_HEIGHT)
 	if not portrait:
 		action = Rect2(size.x / 2.0 - 180.0, action.position.y, 360.0, NEXT_RACK_HEIGHT)
-	var score_top := maxf(450.0, size.y - 680.0) if portrait else maxf(size.y - 636.0, regions.top_bar.end.y + 8.0)
+	# UI-9: on a tall phone the review starts a little lower (620 from the bottom, was
+	# 680), so the keep section above it has room for bigger cards; the log scrolls.
+	var score_top := maxf(450.0, size.y - 620.0) if portrait else maxf(size.y - 636.0, regions.top_bar.end.y + 8.0)
 	_score_top = score_top
 	score_panel.offset_top = score_top - size.y
 	score_panel.offset_bottom = action.position.y - 8.0 - size.y

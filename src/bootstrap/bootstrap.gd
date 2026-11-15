@@ -43,6 +43,7 @@ var career_graph: Dictionary = {}
 var career_line: Label # the full sentence (read by tools and tests); the tiles and bars show it
 var career_stats: HBoxContainer
 var career_goals: VBoxContainer
+var following: Label # UI-9: the caption over the followed goals
 var _menu_sheet: PanelContainer
 var league_sets: Array = [] # content set behind each League choice
 ## The Clubhouse (E16): the home screen; its League Board holds the panel below.
@@ -70,13 +71,19 @@ func _ready() -> void:
 	panel.custom_minimum_size = Vector2(460, 0)
 	panel.add_theme_constant_override("separation", 20)
 	clubhouse.adopt_board(panel)
+	# UI-9 (owner's play notes, 2026-11-15): the Clubhouse's logo names the game, so
+	# the board's own "Roguewood" heading is kept for tools but hidden.
 	heading = Label.new()
 	heading.text = "Roguewood"
 	heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	heading.add_theme_font_size_override("font_size", 48)
+	heading.hide()
 	panel.add_child(heading)
 	details = Label.new()
+	details.name = "BoardTagline"
 	details.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	details.add_theme_font_size_override("font_size", 18)
 	details.text = "The lanes are waiting."
 	panel.add_child(details)
 	content = ContentSet.load_set(ContentSet.requested())
@@ -92,15 +99,41 @@ func _ready() -> void:
 	career_line.custom_minimum_size = Vector2(460, 0)
 	career_line.hide()
 	panel.add_child(career_line)
-	# The Career at a glance: four tiles, then each followed goal with its progress.
+	# The Career at a glance: a scoreboard of four figures, then each followed goal
+	# with its progress (UI-9: one plate, so the figures never look like buttons).
+	var scoreboard := PanelContainer.new()
+	scoreboard.name = "CareerScoreboard"
+	scoreboard.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	scoreboard.add_theme_stylebox_override("panel", Clubhouse.scoreboard_style())
+	panel.add_child(scoreboard)
+	var plate := VBoxContainer.new()
+	plate.add_theme_constant_override("separation", 8)
+	scoreboard.add_child(plate)
 	career_stats = HBoxContainer.new()
 	career_stats.name = "CareerStats"
-	career_stats.add_theme_constant_override("separation", 8)
-	panel.add_child(career_stats)
+	career_stats.add_theme_constant_override("separation", 0)
+	plate.add_child(career_stats)
+	following = Clubhouse.caption("Following", "FollowingCaption")
+	plate.add_child(following)
 	career_goals = VBoxContainer.new()
 	career_goals.name = "CareerGoals"
 	career_goals.add_theme_constant_override("separation", 6)
-	panel.add_child(career_goals)
+	plate.add_child(career_goals)
+	# The play card: the choices under their captions, then the action.
+	var play := PanelContainer.new()
+	play.name = "PlayCard"
+	var play_style := StyleBoxFlat.new()
+	play_style.bg_color = Color("13232a")
+	play_style.border_color = Color("8a6a32")
+	play_style.set_border_width_all(2)
+	play_style.set_corner_radius_all(10)
+	play_style.set_content_margin_all(14)
+	play.add_theme_stylebox_override("panel", play_style)
+	panel.add_child(play)
+	var play_box := VBoxContainer.new()
+	play_box.name = "PlayBox"
+	play_box.add_theme_constant_override("separation", 6)
+	play.add_child(play_box)
 	league = OptionButton.new()
 	league.name = "LeagueChoice"
 	league.add_item(content.get("name", "House League"))
@@ -116,20 +149,34 @@ func _ready() -> void:
 		league.item_selected.connect(func(index):
 			content = ContentSet.load_set(league_sets[index])
 			_show_menu())
-	panel.add_child(league)
+	play_box.add_child(Clubhouse.caption("League", "LeagueCaption"))
+	play_box.add_child(league)
+	Clubhouse.selector_style(league)
+	league.clip_text = true # a long name is cut, never widens the column
+	var gap := Control.new()
+	gap.custom_minimum_size.y = 4
+	play_box.add_child(gap)
+	play_box.add_child(Clubhouse.caption("Kit", "KitCaption"))
 	kit = OptionButton.new()
 	kit.name = "KitChoice"
-	panel.add_child(kit)
+	play_box.add_child(kit)
+	Clubhouse.selector_style(kit)
+	kit.clip_text = true
 	_refresh_kits()
-	continue_button = _button(panel, "Continue Attempt", "ContinueAttempt", 460)
+	var room := Control.new()
+	room.custom_minimum_size.y = 8
+	play_box.add_child(room)
+	continue_button = _button(play_box, "Continue Attempt", "ContinueAttempt", 0)
 	continue_button.pressed.connect(_continue_attempt)
-	enter = _button(panel, "Enter League", "EnterLeague", 460)
+	enter = _button(play_box, "Enter League", "EnterLeague", 0)
+	for action in [continue_button, enter]:
+		action.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	notice = Label.new()
 	notice.name = "SaveNotice"
 	notice.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	notice.custom_minimum_size = Vector2(460, 0)
+	notice.custom_minimum_size = Vector2(200, 0)
 	notice.add_theme_color_override("font_color", Color(1.0, 0.75, 0.5))
-	panel.add_child(notice)
+	play_box.add_child(notice)
 	var save_dir := "user://saves"
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--save-dir="): save_dir = arg.trim_prefix("--save-dir=")
@@ -286,8 +333,10 @@ func _refresh_career_line() -> void:
 			box.remove_child(child)
 			child.queue_free()
 	var stats: Dictionary = CareerProfile.stats(career, career_graph.get("objectives", []))
-	for tile in [[str(stats.rivals), "Rivals beaten"], [str(stats.titles), "Titles"], ["%d/%d" % [stats.mastered, stats.goals], "Mastery"], [str(stats.attempts), "Attempts"]]:
-		career_stats.add_child(Clubhouse.stat_tile(tile[0], tile[1]))
+	var tiles := [[str(stats.rivals), "Rivals beaten"], [str(stats.titles), "Titles"], ["%d/%d" % [stats.mastered, stats.goals], "Mastery"], [str(stats.attempts), "Attempts"]]
+	for i in tiles.size():
+		career_stats.add_child(Clubhouse.score_column(tiles[i][0], tiles[i][1], i == 0))
+	following.visible = not goals.is_empty()
 	for goal in goals:
 		var row := HBoxContainer.new()
 		row.name = "Goal_" + String(goal.get("id", goal.name)).replace(".", "_")
@@ -426,12 +475,19 @@ func _show_menu() -> void:
 		continue_button.text = "Continue Attempt %d · match %d" % [int(saved.payload.attempt), int(saved.payload.lab.match_number)]
 	var notes: Array = [save_notice, saved.get("notice", "")].filter(func(n): return not n.is_empty())
 	notice.text = "\n".join(notes)
+	notice.visible = not notice.text.is_empty() # UI-9: no empty gap under the action
 	save_notice = ""
 	clubhouse.career = career
 	clubhouse.show()
 	clubhouse.show_tab("board")
 	session_menu.hide()
 	menu_button.hide()
+	# UI-9: the action to take is the brass one: Continue when an attempt is saved.
+	Clubhouse.primary_style(continue_button if saved.ok else enter)
+	Clubhouse.secondary_style(enter if saved.ok else continue_button)
+	for action in [continue_button, enter]:
+		action.custom_minimum_size.y = 68 if action == (continue_button if saved.ok else enter) else 56
+	details.add_theme_color_override("font_color", Color("9aa8a6") if details.text == "The lanes are waiting." else Color(1.0, 0.75, 0.5))
 	(continue_button if saved.ok else enter).grab_focus()
 
 ## E22-L01: the League's kits; one that waits for a gate (the Tournament Kit, the

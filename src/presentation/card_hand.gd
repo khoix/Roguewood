@@ -28,6 +28,7 @@ var body: BoxContainer
 var actions: BoxContainer
 var header: HBoxContainer
 const FAN_OVERLAP := 0.3 # of a card's width
+const KEEP_OVERLAP := 0.5 # the most a keep fan overlaps (UI-9)
 ## UI-8 (owner's play notes, 2026-11-15): choosing a card to keep after a frame, the
 ## hand has no Cycle or Inspect button; the cards fan the whole section, and two quick
 ## taps on the same card inspect it (the second tap undoes the first, so the keep
@@ -147,6 +148,16 @@ func show_cards(cards: Array, marks: Dictionary, header: String, cycle_supported
 	cycle_button.disabled = not (can_cycle and enabled)
 	actions.visible = not keep_mode
 
+## UI-9: the height the keep section needs besides its cards: the panel's padding,
+## the header line, the row's separation, the fan's drop at the outer cards and a
+## focus ring's margin.
+const FAN_DROP := 10.0
+func keep_reserve() -> float:
+	var panel := get_theme_stylebox("panel")
+	var pad := panel.get_margin(SIDE_TOP) + panel.get_margin(SIDE_BOTTOM) if panel != null else 20.0
+	var line := header.get_combined_minimum_size().y if header != null else 26.0 # two lines when the header wraps
+	return ceilf(pad + line + 6.0 + FAN_DROP + 8.0)
+
 func button_for(uid: String) -> Button:
 	return buttons.get(uid)
 
@@ -160,6 +171,14 @@ func _process(_delta: float) -> void:
 	if not is_equal_approx(size.y, want):
 		size.y = want
 
+## The tallest a card may be now: the lab's limit and, keeping a card, the section's
+## height less its chrome (the header as it reads now).
+func _tallest() -> float:
+	var tallest := max_card_height
+	if keep_mode and size.y > 0.0:
+		tallest = minf(tallest, maxf(size.y - keep_reserve(), 120.0))
+	return tallest
+
 func _card_size() -> Vector2:
 	var gap := 8.0
 	var count := maxi(buttons.size(), 1)
@@ -170,10 +189,14 @@ func _card_size() -> Vector2:
 			width = (width_available - gap) / 2.0
 		"fan":
 			width = width_available / (1.0 + (1.0 - FAN_OVERLAP) * (count - 1))
+			# UI-9: keeping a card, a full hand overlaps more (up to KEEP_OVERLAP) so the
+			# cards grow toward the section's height instead of leaving it half empty.
+			if keep_mode and count > 1:
+				width = minf(width_available / (1.0 + (1.0 - KEEP_OVERLAP) * (count - 1)), _tallest() / CardView.ASPECT)
 		_:
 			var per_row := count if size.x >= size.y * 1.4 or count <= 2 else ceili(count / 2.0)
 			width = (width_available - gap * (per_row - 1)) / per_row
-	width = minf(width, max_card_height / CardView.ASPECT)
+	width = minf(width, _tallest() / CardView.ASPECT)
 	return Vector2(floorf(width), floorf(width * CardView.ASPECT))
 
 ## UI-2 layout modes; `left_handed` puts the fan's thumb rail on the left.
@@ -208,7 +231,7 @@ func _size_cards() -> void:
 	var count_cards := cards_row.get_child_count()
 	if fan and count_cards > 1 and cards_row.size.x > 0.0:
 		var spread := floori((cards_row.size.x - 2.0 - count_cards * want.x) / (count_cards - 1))
-		separation = clampi(spread, separation, 16)
+		separation = clampi(spread, -int(roundf(want.x * (KEEP_OVERLAP if keep_mode else FAN_OVERLAP))), 16)
 	cards_row.alignment = FlowContainer.ALIGNMENT_CENTER if fan else FlowContainer.ALIGNMENT_BEGIN
 	if cards_row.get_theme_constant("h_separation") != separation:
 		cards_row.add_theme_constant_override("h_separation", separation)
@@ -219,4 +242,4 @@ func _size_cards() -> void:
 			button.custom_minimum_size = want
 		# A gentle arc: outer cards turn out and sit a little lower.
 		var t := (i - (count - 1) * 0.5) / maxf((count - 1) * 0.5, 1.0) if fan and count > 1 else 0.0
-		button.set_fan(6.0 * t, 10.0 * t * t)
+		button.set_fan(6.0 * t, FAN_DROP * t * t)
