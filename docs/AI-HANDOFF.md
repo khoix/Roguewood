@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-11-15. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E22 IN_PROGRESS; E23–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). Wave 10 is merged by PR #22 (main `706767f`). Wave 11 is merged by PR #29 (main `f65d16f`). Wave 12 is merged by PR #30 (main `cd1cfc9`; the Neon League is live with its rivals and theme). Wave 13 is merged by PR #33 (main `4aefda6`; all 28 Neon items, Codex's Neon art and the Roguewood brand). **Wave 14 is open** (see "Wave 14 claims"); its early merges are PR #34 (main `90f5003`: UI-9, E05-R5, Salvage's spec, rules and lanes, and Codex's AV-T02) and PR #36 (main `457875c`: UI-10, and Codex's AV-T03 and UI-A7). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
+Updated: 2026-11-15. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E22 IN_PROGRESS; E23–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). Wave 10 is merged by PR #22 (main `706767f`). Wave 11 is merged by PR #29 (main `f65d16f`). Wave 12 is merged by PR #30 (main `cd1cfc9`; the Neon League is live with its rivals and theme). Wave 13 is merged by PR #33 (main `4aefda6`; all 28 Neon items, Codex's Neon art and the Roguewood brand). **Wave 14 is open** (see "Wave 14 claims"); its early merges are PR #34 (main `90f5003`: UI-9, E05-R5, Salvage's spec, rules and lanes, and Codex's AV-T02) PR #36 (main `457875c`: UI-10, and Codex's AV-T03 and UI-A7) and PR #37 (main `2530367`: UI-11). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
 
 ## Read first
 
@@ -352,6 +352,7 @@ Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build`
   - **Sound:** music and sound-effects sliders.
   - **Checks:** `unit`, `web`, J06, J02 (both modes), J03C18, J12V08, J12, J12R01, JAVT01 and J22L02: PASS.
   - **Still waiting on art:** the four items without art (Specialist Shelf, Trade-In, Straight Money, Dry Side) are Codex's AV-N3 and AV-N4.
+- **PR #37 merged** (owner, 2026-11-16; main `2530367`, a merge of `5f38708`): UI-11. CI passed on `5f38708`. PR #35 (the throw reconstruction) is closed at the owner's request; its branch is for the owner to delete.
 - **Claude's Wave 14 claims are done.** Next:
   - Codex's AV-N3 to AV-N5 and UI-A6 (AV-T02, AV-T03 and UI-A7 are merged);
   - then the full matrix and the "Wave 14 closed" commit.
