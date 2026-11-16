@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-11-15. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E22 IN_PROGRESS; E23–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). Wave 10 is merged by PR #22 (main `706767f`). Wave 11 is merged by PR #29 (main `f65d16f`). Wave 12 is merged by PR #30 (main `cd1cfc9`; the Neon League is live with its rivals and theme). Wave 13 is merged by PR #33 (main `4aefda6`; all 28 Neon items, Codex's Neon art and the Roguewood brand). **Wave 14 is open** (see "Wave 14 claims"); its early merge is PR #34 (main `90f5003`: UI-9, E05-R5, Salvage's spec, rules and lanes, and Codex's AV-T02). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
+Updated: 2026-11-15. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E22 IN_PROGRESS; E23–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). Wave 10 is merged by PR #22 (main `706767f`). Wave 11 is merged by PR #29 (main `f65d16f`). Wave 12 is merged by PR #30 (main `cd1cfc9`; the Neon League is live with its rivals and theme). Wave 13 is merged by PR #33 (main `4aefda6`; all 28 Neon items, Codex's Neon art and the Roguewood brand). **Wave 14 is open** (see "Wave 14 claims"); its early merges are PR #34 (main `90f5003`: UI-9, E05-R5, Salvage's spec, rules and lanes, and Codex's AV-T02) and PR #36 (main `457875c`: UI-10, and Codex's AV-T03 and UI-A7). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
 
 ## Read first
 
@@ -343,6 +343,7 @@ Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build`
   - **AV-T03:** the text tab and fixed sparkles around the held ball are gone; colored particles trail the ball's path, growing with charge, in both spin models and views.
   - **UI-A7:** the title no longer shifts or shakes; stars twinkle, the plants sway, and the ball is a pixel-style 3D ball turning about Y. The loader sprites stay as UI-10 drew them.
   - **Checks on the merge:** `web`, `unit`, `content`, `physics` (digest `75d1a3c0…`), JAVT01, J02, J01, JUIA1 and JUIA2 headless and rendered, plus J08 and J11: PASS.
+- **PR #36 merged** (owner, 2026-11-16; main `457875c`, a merge of `20f2610`): UI-10, AV-T03 and UI-A7. CI passed on `20f2610`.
 - **Claude's Wave 14 claims are done.** Next:
   - the owner's E05-R5 phone trial;
   - Codex's AV-N3 to AV-N5 and UI-A6 (AV-T02, AV-T03 and UI-A7 are merged);
