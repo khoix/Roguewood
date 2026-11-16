@@ -107,7 +107,8 @@ func _ready() -> void:
 	reduced_flash = _toggle(box, "ReducedFlash", "Reduced flash (no impact accents)", "reduced_flash")
 	large_targets = _toggle(box, "LargeTargets", "Larger touch targets", "large_targets")
 	assist = _toggle(box, "AssistControls", "Assist controls (no gestures)", "assist")
-	haptics = _toggle(box, "Haptics", "Vibration on charge", "haptics")
+	# UI-11 (owner, 2026-11-16): no vibration toggle; the charge cues always vibrate
+	# where the device can (settings.haptics stays true).
 	tuning_button = Button.new()
 	tuning_button.name = "ThrowTuning"
 	tuning_button.text = "Throw tuning (test)…"
@@ -121,7 +122,8 @@ func _ready() -> void:
 	close = Button.new()
 	close.name = "CloseSettings"
 	close.text = "Done"
-	close.custom_minimum_size = Vector2(0, 64)
+	close.custom_minimum_size = Vector2(220, 64)
+	close.size_flags_horizontal = Control.SIZE_SHRINK_CENTER # UI-11: Done sits centred at the bottom
 	close.pressed.connect(hide)
 	box.add_child(close)
 	_build_tuning()

@@ -257,6 +257,12 @@ func _first_attempt() -> void:
 	_check(lab.hud.result_title.text.contains("Boss lost") and lab.hud.result_body.text.contains("Scored 560 of the 800 target")
 		and lab.hud.result_body.text.contains("Rule in force: Clean Sweep"), "the loss shows the unmet score and the rule")
 	_check(scene.career.first_clears.is_empty() and scene.session.outcome == "lost", "no reward for a loss")
+	# UI-11 (owner, 2026-11-16): a lost boss match ends on the rival's parting shot.
+	var view: Control = lab.hud.result_view
+	var headline: Label = view.find_child("ResultHeadline", true, false)
+	var subtitle: Label = view.find_child("ResultSubtitle", true, false)
+	_check(headline.text == "“%s”" % lab.division.rival().reactions.victorious and subtitle.text.begins_with("— %s" % lab.division.rival().name)
+		and not headline.text.contains("Attempt over"), "the end screen leads with the rival's parting shot (%s)" % headline.text)
 	await _capture("lost")
 	var old_id: int = lab.get_instance_id() # never capture the freed lab itself
 	await _focus_accept(lab.hud.retry_button)
@@ -309,6 +315,8 @@ func _third_attempt() -> void:
 	_check(lab.division.outcome == "lost" and lab.division.results[0].score == 140, "two open frames lose the opener (140 of 300)")
 	await _focus_accept(lab.next_rack)
 	await _wait_for(func(): return lab.hud.result.visible, "loss screen")
+	var opener_head: Label = lab.hud.result_view.find_child("ResultHeadline", true, false)
+	_check(opener_head != null and opener_head.text == "League's End", "UI-11: a loss with no rival reads League's End (%s)" % (opener_head.text if opener_head else ""))
 	_check(lab.hud.result_body.text.contains("Career progress kept: 1 rival(s) cleared") and scene.career.first_clears.has("rival.lab_custodian"), "a later loss keeps the first clear")
 	await _capture("lost_again")
 	await _focus_accept(lab.hud.menu_button)

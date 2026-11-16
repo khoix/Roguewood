@@ -1280,9 +1280,20 @@ func _result_sections(lines: Array, career_lines: Array, last: Dictionary) -> Di
 			notes.append(text)
 	var reached := "D%d/%d" % [division.division_number(), division.division_count()] if division.division_count() > 1 else String(last.kind).capitalize()
 	var place: String = "Division" if division.division_count() == 1 else String(content.get("name", "League"))
+	# UI-11 (owner's play notes, 2026-11-16): a lost attempt ends on the boss's own
+	# parting shot when a rival beat it, otherwise on "League's End"; never "Attempt over".
+	var lost := "%s lost · scored %d of the %d target." % [String(last.kind).capitalize(), int(last.score), int(last.target)]
+	var headline := ("%s cleared!" % place) if won else "League's End"
+	var quip := ""
+	if not won and String(last.kind) == "boss" and not division.rival().is_empty():
+		quip = String(division.rival().get("reactions", {}).get("victorious", ""))
+	if not quip.is_empty():
+		headline = "“%s”" % quip
+		lost = "— %s · %s" % [division.rival().name, lost]
 	return {
-		"headline": ("%s cleared!" % place) if won else "Attempt over",
-		"subtitle": ("%s defeated." % division.rival().name) if won else "%s lost · scored %d of the %d target." % [String(last.kind).capitalize(), int(last.score), int(last.target)],
+		"headline": headline,
+		"quip": not quip.is_empty(),
+		"subtitle": ("%s defeated." % division.rival().name) if won else lost,
 		"stats": [[str(total_score), "Total"], [reached, "Reached"], ["$%d" % run.money, "Left"], [str(attempt), "Attempt"]],
 		"matches": division.results.map(func(r): return {"division": int(r.get("division", 1)), "kind": String(r.kind), "score": int(r.score), "target": int(r.target), "won": bool(r.won)}),
 		"highlights": highlights,
@@ -1799,6 +1810,9 @@ func _draw_held_ball(delta: float) -> void:
 ## one orbit), at one size. Visual only: the launch is made exactly as in depth spin.
 ## Returns {position, scale}.
 const FLAT_NEAR := 0.5 # share of the nearest lane depth on screen the held ball is drawn at
+## UI-11 (owner's play notes, 2026-11-16): in flat spin the held ball is drawn this
+## much bigger, as if held closer to the player. Visual only.
+const FLAT_ZOOM := 1.5
 
 func _flat_held(place: Vector2, metres_per_norm: float) -> Dictionary:
 	var home := Lane.world(_hold_start_x * Lane.LANE_HALF_WIDTH, Lane.BALL_START_F, Lane.BALL_RADIUS + float(_flick.tuning.orbit_cap) * metres_per_norm)
@@ -1806,7 +1820,7 @@ func _flat_held(place: Vector2, metres_per_norm: float) -> Dictionary:
 	var local := at * Vector2(_viewport.size) / size
 	var depth := -(_camera.global_transform.affine_inverse() * home).z
 	var near := maxf(minf(depth, _nearest_lane_depth()) * FLAT_NEAR, _camera.near * 4.0)
-	return {"position": _camera.project_position(local, near), "scale": near / depth}
+	return {"position": _camera.project_position(local, near), "scale": near / depth * FLAT_ZOOM}
 
 ## The smallest view depth at which the lane's surface shows on screen: where the rays
 ## through the bottom corners and bottom centre of the view meet the lane.

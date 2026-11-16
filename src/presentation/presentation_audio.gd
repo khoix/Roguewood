@@ -18,11 +18,14 @@ var last_at := {}
 var panel: PanelContainer
 var mute_button: CheckButton
 var effects_button: CheckButton
-var volume_slider: HSlider
+var volume_slider: HSlider # sound effects
+var music_slider: HSlider
+var music_volume := 1.0 # of the League music's own level
 func _ready() -> void:
 	name = "PresentationAudio"
 	muted = lab.settings.get("sound_muted", false)
 	volume = lab.settings.get("sound_volume", 0.65)
+	music_volume = lab.settings.get("music_volume", 1.0)
 	enabled = lab.settings.get("ability_effects", true)
 	for i in 4:
 		var voice := AudioStreamPlayer.new()
@@ -32,16 +35,12 @@ func _ready() -> void:
 	var button := Button.new()
 	button.name = "SoundAndEffects"
 	button.text = "Sound & effects"
-	button.custom_minimum_size.y = 48
-	# UI-3 (Claude integration): the settings list sits inside a scroll container now.
+	button.custom_minimum_size.y = 56
+	# UI-11 (owner, 2026-11-16): Sound & effects is its own full-width row like the
+	# other settings, above Done, which stays centred at the bottom.
 	var options: VBoxContainer = lab.settings_panel.close.get_parent()
-	var row := HBoxContainer.new()
-	options.remove_child(lab.settings_panel.close)
-	options.add_child(row)
-	lab.settings_panel.close.custom_minimum_size.x = 160
-	row.add_child(lab.settings_panel.close)
-	button.custom_minimum_size.x = 160
-	row.add_child(button)
+	options.add_child(button)
+	options.move_child(button, lab.settings_panel.close.get_index())
 	button.pressed.connect(func(): panel.show(); mute_button.grab_focus())
 	panel = PanelContainer.new()
 	panel.name = "SoundEffectsPanel"
@@ -69,10 +68,24 @@ func _ready() -> void:
 	mute_button.custom_minimum_size.y = 48
 	mute_button.toggled.connect(func(value): muted = value; lab.settings["sound_muted"] = value; _mix())
 	box.add_child(mute_button)
+	# UI-11 (owner, 2026-11-16): music and sound effects each have a slider.
+	var music_label := Label.new()
+	music_label.text = "Music volume"
+	box.add_child(music_label)
+	music_slider = HSlider.new()
+	music_slider.name = "MusicVolume"
+	music_slider.min_value = 0
+	music_slider.max_value = 1
+	music_slider.step = 0.05
+	music_slider.value = music_volume
+	music_slider.custom_minimum_size.y = 48
+	music_slider.value_changed.connect(func(value): music_volume = value; lab.settings["music_volume"] = value; _mix())
+	box.add_child(music_slider)
 	var label := Label.new()
-	label.text = "Sound volume"
+	label.text = "Sound effects volume"
 	box.add_child(label)
 	volume_slider = HSlider.new()
+	volume_slider.name = "EffectsVolume"
 	volume_slider.min_value = 0
 	volume_slider.max_value = 1
 	volume_slider.step = 0.05
@@ -102,6 +115,18 @@ func _mix() -> void:
 	for voice in voices:
 		voice.volume_db = linear_to_db(maxf(0.0001, volume * 0.35))
 		if muted or volume == 0: voice.stop()
+	_mix_music()
+
+## The League's music: its own level times the music slider; Mute silences it too.
+func _mix_music() -> void:
+	var theme = lab.get("league_theme") if lab != null else null
+	if theme == null or theme.music == null: return
+	var level: float = 0.0 if muted else music_volume
+	var want: float = float(theme.MUSIC_DB) + linear_to_db(maxf(level, 0.0001))
+	if not is_equal_approx(theme.music.volume_db, want):
+		theme.music.volume_db = want
+
+
 func cue(id: String, stream: AudioStream, priority: int = 1) -> void:
 	var now := Time.get_ticks_msec()
 	if muted or volume <= 0 or stream == null or now - int(last_at.get(id,-1000)) < 85:
@@ -124,6 +149,7 @@ func cue(id: String, stream: AudioStream, priority: int = 1) -> void:
 
 func _process(_delta: float) -> void:
 	if not lab.settings_panel.visible: panel.hide()
+	_mix_music() # the music may start after the panel is built
 
 func _exit_tree() -> void:
 	# Release active mixer references before SceneTree teardown, including Dummy

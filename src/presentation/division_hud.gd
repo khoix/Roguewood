@@ -728,7 +728,8 @@ func _build_sections(sections: Dictionary, won: bool) -> void:
 		child.queue_free()
 	result_view.visible = not sections.is_empty()
 	if sections.is_empty(): return
-	var headline := _label(result_view, "ResultHeadline", 34)
+	# UI-11: a rival's parting shot is a quote, set a little smaller than a title.
+	var headline := _label(result_view, "ResultHeadline", 28 if bool(sections.get("quip", false)) else 34)
 	headline.text = String(sections.get("headline", ""))
 	var subtitle := _label(result_view, "ResultSubtitle", 22)
 	subtitle.text = String(sections.get("subtitle", ""))

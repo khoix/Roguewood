@@ -344,8 +344,15 @@ Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build`
   - **UI-A7:** the title no longer shifts or shakes; stars twinkle, the plants sway, and the ball is a pixel-style 3D ball turning about Y. The loader sprites stay as UI-10 drew them.
   - **Checks on the merge:** `web`, `unit`, `content`, `physics` (digest `75d1a3c0…`), JAVT01, J02, J01, JUIA1 and JUIA2 headless and rendered, plus J08 and J11: PASS.
 - **PR #36 merged** (owner, 2026-11-16; main `457875c`, a merge of `20f2610`): UI-10, AV-T03 and UI-A7. CI passed on `20f2610`.
+- **UI-11 DONE** (handoffs/UI-11.md), the owner's notes of 2026-11-16:
+  - **Throw:** spin model A confirmed; flat spin's held ball 1.5× bigger.
+  - **Loader:** it now animates even while stalled.
+  - **Settings:** no vibration toggle; Sound & effects on its own row; Done centred.
+  - **End screen:** a lost boss match ends on the rival's parting shot, otherwise "League's End".
+  - **Sound:** music and sound-effects sliders.
+  - **Checks:** `unit`, `web`, J06, J02 (both modes), J03C18, J12V08, J12, J12R01, JAVT01 and J22L02: PASS.
+  - **Still waiting on art:** the four items without art (Specialist Shelf, Trade-In, Straight Money, Dry Side) are Codex's AV-N3 and AV-N4.
 - **Claude's Wave 14 claims are done.** Next:
-  - the owner's E05-R5 phone trial;
   - Codex's AV-N3 to AV-N5 and UI-A6 (AV-T02, AV-T03 and UI-A7 are merged);
   - then the full matrix and the "Wave 14 closed" commit.
 
