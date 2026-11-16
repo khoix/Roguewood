@@ -5,7 +5,7 @@ extends Control
 ## tap, a click, a key or a gamepad button starts; the Clubhouse is underneath.
 ## Reduced motion keeps the ball and the prompt still. A view only: the shell
 ## decides when it shows and what follows (`started`).
-## UI-A5: a restrained entrance and living night hall, using UI-A4's brand art.
+## UI-A7: stationary architecture, local foliage/sky motion and a pixel 3D ball.
 ## The first input always works; reduced motion is a completely static layout.
 signal started
 
@@ -16,9 +16,6 @@ const BACKDROP = preload("res://assets/leagues/house/backdrop.league.house.divis
 ## the key art replaces the House backdrop.
 const LOGO_PATH := "res://assets/brand/logo.png"
 const KEY_ART_PATH := "res://assets/brand/title_art.png"
-const BALL_SOURCE = preload("res://assets/items/balls/a01-source.png")
-## The House Ball alone (its card art has a shadow fragment below it), so it can roll.
-const BALL_REGION := Rect2(52, 45, 538, 538)
 const NIGHT := Color("0b1116")
 const INK := Color("101820")
 const BRASS := Color("e7bc70")
@@ -43,9 +40,14 @@ var _ball_origin := Vector2.ZERO
 var _mark_origin := Vector2.ZERO
 var _hall_origin := Vector2.ZERO
 var atmosphere: HallAtmosphere
+var ball_view: SubViewport
+var ball_actor: Node3D
+var hall_material: ShaderMaterial
+const TURN_SECONDS := 18.0
 
-## Twelve tiny dust marks and two cached radial light pools. No particles,
-## shaders, blur passes, random allocations or independent processing nodes.
+
+## Two cached radial lamp pools and the hero halo. Local foliage and stars
+## animate in the hall material; there is no drifting dust or architecture.
 class HallAtmosphere extends Control:
 	var hall: TextureRect
 	var hero: TextureRect
@@ -72,17 +74,12 @@ class HallAtmosphere extends Control:
 		if light == null or hall == null: return
 		var t := 0.0 if still else clock
 		var unit := minf(size.x, size.y) / 540.0
-		for side in [0.14, 0.86]:
+		for side_index in 2:
+			var side := 0.14 if side_index == 0 else 0.86
 			var at := _hall_point(Vector2(side, 0.42))
 			var radius := 90.0 * unit
 			var breath := 0.045 + 0.008 * sin(t * 0.7 + side * 4.0)
 			draw_texture_rect(light, Rect2(at - Vector2.ONE * radius, Vector2.ONE * radius * 2.0), false, Color(0.91, 0.74, 0.44, breath))
-		for i in 12:
-			var phase := fposmod(float(i) * 0.618 + t * 0.012, 1.0)
-			var x := 0.28 + fposmod(float(i) * 0.173, 0.44) + sin(t * 0.22 + i) * 0.003
-			var at := _hall_point(Vector2(x, 0.18 + (1.0 - phase) * 0.38)).round()
-			var alpha := sin(phase * PI) * 0.24
-			draw_rect(Rect2(at, Vector2.ONE * maxf(1.0, roundf(unit * 1.5))), Color(0.96, 0.90, 0.80, alpha))
 		# A quiet petrol halo separates the ball's dark edge from the night.
 		var center := hero.position + hero.size * 0.5
 		var halo := hero.size * 1.35
@@ -105,6 +102,9 @@ func _ready() -> void:
 	backdrop.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	backdrop.modulate = Color(0.82, 0.82, 0.86)
 	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hall_material = ShaderMaterial.new()
+	hall_material.shader = preload("res://assets/brand/title_life.gdshader")
+	backdrop.material = hall_material
 	add_child(backdrop)
 	# The hall fades into the night below it, where the prompt sits.
 	shade = TextureRect.new()
@@ -112,8 +112,7 @@ func _ready() -> void:
 	var gradient := Gradient.new()
 	gradient.set_color(0, Color(NIGHT, 0.0))
 	gradient.set_color(1, NIGHT)
-	# Reach opaque night before the moving backdrop's lower edge, including
-	# overscan. Otherwise a thin strip of wood can peek below the gradient.
+	# Reach opaque night before the stationary hall's lower edge.
 	gradient.add_point(0.88, NIGHT)
 	var ramp := GradientTexture2D.new()
 	ramp.gradient = gradient
@@ -148,10 +147,36 @@ func _ready() -> void:
 		wordmark.hide()
 	ball = TextureRect.new()
 	ball.name = "Ball"
-	var cut := AtlasTexture.new()
-	cut.atlas = BALL_SOURCE
-	cut.region = BALL_REGION
-	ball.texture = cut
+	ball_view = SubViewport.new()
+	ball_view.name = "PixelBallViewport"
+	ball_view.size = Vector2i(96, 96)
+	ball_view.transparent_bg = true
+	ball_view.own_world_3d = true
+	ball_view.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	add_child(ball_view)
+	ball_actor = Node3D.new()
+	ball_view.add_child(ball_actor)
+	var dresser = preload("res://src/presentation/lane_dressing.gd").new()
+	dresser.dress_ball(ball_actor)
+	preload("res://src/presentation/item_assets.gd").dress_ball(ball_actor, "ball.house")
+	var camera := Camera3D.new()
+	camera.projection = Camera3D.PROJECTION_ORTHOGONAL
+	camera.size = 0.28
+	ball_view.add_child(camera)
+	camera.position = Vector3(0, 0.07, -0.6)
+	camera.look_at(Vector3.ZERO)
+	var light := DirectionalLight3D.new()
+	ball_view.add_child(light)
+	light.rotation_degrees = Vector3(-35, -30, 0)
+	light.light_energy = 1.2
+	var world := WorldEnvironment.new()
+	world.environment = Environment.new()
+	world.environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	world.environment.ambient_light_color = Color("b1c6cd")
+	world.environment.ambient_light_energy = 0.6
+	ball_view.add_child(world)
+	ball.texture = ball_view.get_texture()
+	ball.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	ball.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	ball.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	ball.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -196,6 +221,7 @@ func open(reduced: bool) -> void:
 	_clock = 0.0
 	_leave_clock = 0.0
 	modulate.a = 1.0
+	ball_view.render_target_update_mode = SubViewport.UPDATE_ONCE if reduced_motion else SubViewport.UPDATE_ALWAYS
 	set_process(not reduced_motion)
 	show()
 	_layout()
@@ -225,6 +251,7 @@ func begin() -> void:
 func _finish() -> void:
 	if not _leaving: return
 	hide()
+	ball_view.render_target_update_mode = SubViewport.UPDATE_DISABLED
 	set_process(false)
 	started.emit()
 
@@ -259,10 +286,10 @@ func _layout() -> void:
 	# The hall fills the top of the screen (all of it in landscape); the shade blends
 	# its lower edge into the night.
 	var hall_h := h * (0.70 if portrait else 1.0)
-	# Six pixels of overscan contain the entire four-pixel parallax excursion.
-	_hall_origin = Vector2(-6, -6)
+	# The architecture is stationary; only local foliage and sky pixels animate.
+	_hall_origin = Vector2.ZERO
 	backdrop.position = _hall_origin
-	backdrop.size = Vector2(w + 12, hall_h + 12)
+	backdrop.size = Vector2(w, hall_h)
 	shade.position = Vector2(0, hall_h * 0.52)
 	shade.size = Vector2(w, hall_h * 0.48 + 18.0)
 	_ball_origin = ball.position
@@ -284,14 +311,16 @@ func _apply_motion() -> void:
 	var unit := minf(size.x, size.y) / 540.0
 	var beat := sin(clampf(_leave_clock / 0.16, 0.0, 1.0) * PI) if _leaving and not reduced_motion else 0.0
 	ball.position = _ball_origin + Vector2(-18, 8) * settle * unit
-	ball.rotation = 0.0 if reduced_motion else -0.16 * settle + t * 0.075
+	ball.rotation = 0.0
+	ball_actor.rotation.y = t * TAU / TURN_SECONDS
 	ball.scale = Vector2.ONE * (1.0 + beat * 0.025)
 	var mark: Control = logo if logo != null else wordmark
 	mark.position = _mark_origin + Vector2(0, -8 * settle * unit)
 	mark.scale = Vector2.ONE * (1.0 + beat * 0.012)
 	mark.modulate = Color(1, 1, 1, 1.0 - settle * 0.1)
 	prompt.modulate.a = 1.0 if reduced_motion else 0.90 + 0.10 * cos(t * TAU / 3.6)
-	backdrop.position = _hall_origin if reduced_motion else _hall_origin + Vector2(sin(t * 0.18) * 3.0, sin(t * 0.13) * 1.5)
+	backdrop.position = _hall_origin
+	hall_material.set_shader_parameter("clock", t)
 	atmosphere.clock = t
 	atmosphere.still = reduced_motion
 	atmosphere.queue_redraw()

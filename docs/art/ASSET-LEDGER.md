@@ -1144,3 +1144,16 @@ cyan and brass mark building, curve-ready and full. Reduced flash caps alpha;
 reduced motion clears particles and relocates the former collar meter to a
 stationary lower-screen rail. Existing sound/vibration cues remain unchanged.
 Native evidence and capture index: docs/handoffs/AV-T03.md.
+
+## UI-A7 — local title motion and pixel 3D hero (2026-11-16)
+
+Original shader `assets/brand/title_life.gdshader` authored by Codex. Samples the
+existing House source.environment.png atlas, with bounded foliage displacement
+and sparse sky twinkle. Original title scene composition reuses House ball mesh,
+finger-hole geometry and identity material in a 96×96 transparent viewport.
+Existing UI-A4 logo/icon/splash and House sources remain byte-identical; no new
+illustration, external texture, audio, font or license. UI-10 loader sprite data
+and export head include unchanged. Source plan: docs/art/ui/UI-A7.md.
+Review tools: capture_ui_a7.gd and capture_ui_a7_loader.mjs in docs/art/ui/.
+Captures are ignored artifacts; provenance of reused art remains in its original
+ledger entries. Completion evidence and limits: docs/handoffs/UI-A7.md.
