@@ -353,6 +353,9 @@ Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build`
   - **Checks:** `unit`, `web`, J06, J02 (both modes), J03C18, J12V08, J12, J12R01, JAVT01 and J22L02: PASS.
   - **Still waiting on art:** the four items without art (Specialist Shelf, Trade-In, Straight Money, Dry Side) are Codex's AV-N3 and AV-N4.
 - **PR #37 merged** (owner, 2026-11-16; main `2530367`, a merge of `5f38708`): UI-11. CI passed on `5f38708`. PR #35 (the throw reconstruction) is closed at the owner's request; its branch is for the owner to delete.
+- **MUSIC-1 DONE** (handoffs/MUSIC-1.md), the owner's soundtrack made with Suno:
+  - **Tracks:** the Clubhouse, House, Neon and Championship tracks are seamless OGG loops, preferred over the themes' own loops. The Championship track plays at Division 8's title match, and the Clubhouse track on the title and board.
+  - **Checks:** `unit`, J11, J22L01, J22L02 and its live art, J01, J06, J07, J09, J10, J03C18 and `web`: PASS.
 - **Claude's Wave 14 claims are done.** Next:
   - Codex's AV-N3 to AV-N5 and UI-A6 (AV-T02, AV-T03 and UI-A7 are merged);
   - then the full matrix and the "Wave 14 closed" commit.

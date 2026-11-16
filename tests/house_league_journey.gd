@@ -104,6 +104,10 @@ func _check_stage(division: int, m: Dictionary) -> void:
 	var expected := _stage_id(division, boss and division == 8)
 	_check(lab.division.division_number() == division and lab.hud.info.text.contains("D%d/8" % division) and _environment() == expected,
 		"Division %d %s: HUD and environment %s (%s)" % [division, m.kind, expected, _environment()])
+	# The owner's soundtrack (2026-11-16): the House track, and the Championship's own.
+	var music: AudioStreamPlayer = lab.league_theme.music if lab.league_theme != null else null
+	var track := "championship.ogg" if boss and division == 8 else "house.ogg"
+	_check(music != null and music.playing and music.stream.resource_path.ends_with(track), "Division %d %s: the music is %s (%s)" % [division, m.kind, track, music.stream.resource_path if music else "none"])
 	if boss:
 		var lane: String = m.lane_condition
 		_check(lab.lane.lane_condition == lane and _lane_visual() == "lane_visual." + lane and lab.division.rival().id == m.rival,

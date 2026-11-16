@@ -1169,3 +1169,13 @@ of the original enamel supplies the reconstructed rear. View-space lamp/rim
 reflection treatment preserves the glossy identity while surface details turn.
 The larger 192×192 nearest-filtered viewport and tighter camera restore the
 original hero scale. See UI-A7.md for technical limits, validation and captures.
+
+## The owner's soundtrack (2026-11-16)
+Made by the repository owner with Suno and delivered as MP3s (originals in `assets/audio/music/source/`, kept out of Godot's import). `tools/author_soundtrack.py` cut each 3.5 s before its end (Suno fades out there) and crossfaded its last 2 s into its first 2 s, so each OGG loops seamlessly. The loudness is as delivered (about −16 LUFS). `src/presentation/soundtrack.gd` plays them: the Clubhouse track on the title and the board, each League's track in its attempts, and the Championship track at Division 8's title match. They take precedence over the theme loops of E22-L01-ART and E22-L02-ART, which remain the themes' own files.
+
+| File | Seconds | SHA-256 |
+|---|---|---|
+| clubhouse.ogg | 132.5 | `79230d7b4eb339b99563ffecc151e2bc8e29d2600550700f1a765339d197d051` |
+| house.ogg | 156.1 | `169634cd42552a52a6be84c41a55bf646931b8a4c316aed00b8add8a4fb9ffe8` |
+| neon.ogg | 159.4 | `a21d85d50d44a2e76485e59d6c23ecc501eaf4cce92bcde1a935dca00bfa303b` |
+| championship.ogg | 159.3 | `5a00e81e4086d3726a68803a5b62c22b8afe790b504400c75dec274a2c16a594` |
