@@ -14,6 +14,8 @@ const Clubhouse = preload("res://src/clubhouse/clubhouse.gd")
 const MatchPanels = preload("res://src/presentation/match_panels.gd")
 const TitleScreen = preload("res://src/bootstrap/title_screen.gd")
 const Soundtrack = preload("res://src/presentation/soundtrack.gd")
+const UiSounds = preload("res://src/presentation/ui_sounds.gd")
+const ClubOptions = preload("res://src/clubhouse/clubhouse_options.gd")
 var session: Dictionary = {}
 var screen := "menu"
 var heading: Label
@@ -44,6 +46,13 @@ var clubhouse_music: AudioStreamPlayer
 var _awaiting_title := false
 const TITLE_TAP_SOUND := "res://assets/audio/ui_title_start.wav"
 var tap_sound: AudioStreamPlayer
+## UI-12 (owner's play notes, 2026-11-16): button taps, and the Clubhouse's own menu.
+var ui_sounds: UiSounds
+var club_menu_button: Button
+var club_menu: Control
+var club_menu_list: VBoxContainer
+var club_options: ClubOptions
+var music_duck := 1.0 # the Clubhouse music eases to half under its Options
 ## Career record (E09), saved apart from attempts since E10 (career.json); E15
 ## (ADR 010) adds the validated unlock graph, records and mastery. Restart and
 ## retry keep it.
@@ -69,6 +78,9 @@ var save_notice := ""
 var content: Dictionary = {}
 
 func _ready() -> void:
+	ui_sounds = UiSounds.new()
+	ui_sounds.settings = throw_settings
+	add_child(ui_sounds)
 	_awaiting_title = show_title_on_start()
 	# UI-2: one House theme (frame kit, Pixelify Sans) for every screen.
 	theme = UiTheme.build()
@@ -195,6 +207,7 @@ func _ready() -> void:
 	clubhouse.graph = career_graph
 	clubhouse.career_changed.connect(_save_career)
 	_build_session_menu()
+	_build_club_menu()
 	resized.connect(_place_menu)
 	_viewport_layout()
 	enter.pressed.connect(_start_session)
@@ -240,7 +253,7 @@ func _exit_tree() -> void:
 	if tap_sound != null:
 		tap_sound.stop()
 		tap_sound.stream = null
-	if clubhouse_music == null and tap_sound == null: return
+	if clubhouse_music == null and tap_sound == null and ui_sounds.played == 0: return
 	if clubhouse_music != null:
 		clubhouse_music.stop()
 		clubhouse_music.stream = null
@@ -296,13 +309,7 @@ func _build_session_menu() -> void:
 	menu_button = Button.new()
 	menu_button.name = "SessionMenu"
 	menu_button.tooltip_text = "Menu"
-	menu_button.draw.connect(func():
-		var ink := UiTheme.IVORY
-		var w := menu_button.size.x
-		var h := menu_button.size.y
-		for i in 3:
-			var y := h * 0.5 + (i - 1) * 9.0
-			menu_button.draw_rect(Rect2(w * 0.5 - 12.0, y - 2.0, 24.0, 4.0), ink))
+	_draw_bars(menu_button)
 	menu_button.pressed.connect(open_menu)
 	menu_button.hide()
 	add_child(menu_button)
@@ -347,6 +354,83 @@ func _build_session_menu() -> void:
 			_restart_armed = true
 			reset.text = "Discard this run? Press again")
 
+## Three drawn bars on a menu button.
+static func _draw_bars(button: Button) -> void:
+	button.draw.connect(func():
+		var w := button.size.x
+		var h := button.size.y
+		for i in 3:
+			var y := h * 0.5 + (i - 1) * 9.0
+			button.draw_rect(Rect2(w * 0.5 - 12.0, y - 2.0, 24.0, 4.0), UiTheme.IVORY))
+
+## UI-12 (owner's play notes, 2026-11-16): the Clubhouse's menu, at its top right:
+## Options and Sound & effects (the same pages as in a match, on the same session
+## settings), then Close.
+func _build_club_menu() -> void:
+	club_menu_button = Button.new()
+	club_menu_button.name = "ClubhouseMenu"
+	club_menu_button.tooltip_text = "Menu"
+	club_menu_button.custom_minimum_size = Vector2(56, 56)
+	_draw_bars(club_menu_button)
+	club_menu_button.pressed.connect(open_club_menu)
+	add_child(club_menu_button)
+	club_menu = Control.new()
+	club_menu.name = "ClubhouseMenuSheet"
+	club_menu.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	club_menu.hide()
+	add_child(club_menu)
+	var dim := ColorRect.new()
+	dim.color = Color(0.03, 0.05, 0.08, 0.72)
+	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	dim.gui_input.connect(func(event):
+		if (event is InputEventMouseButton or event is InputEventScreenTouch) and event.pressed: close_club_menu())
+	club_menu.add_child(dim)
+	var centre := CenterContainer.new()
+	centre.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	centre.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	club_menu.add_child(centre)
+	var sheet := PanelContainer.new()
+	sheet.add_theme_stylebox_override("panel", UiTheme.frame("menu", 20.0, 18.0))
+	centre.add_child(sheet)
+	club_menu_list = VBoxContainer.new()
+	club_menu_list.name = "Entries"
+	club_menu_list.add_theme_constant_override("separation", 10)
+	sheet.add_child(club_menu_list)
+	var title_label := Label.new()
+	title_label.text = "Menu"
+	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_label.add_theme_font_size_override("font_size", 30)
+	club_menu_list.add_child(title_label)
+	for entry in [["Options", "ClubOptions", "options"], ["Sound & effects", "ClubSound", "sound"]]:
+		var page: String = entry[2]
+		var button := _button(club_menu_list, entry[0], entry[1], 320)
+		button.pressed.connect(func():
+			club_menu.hide()
+			club_options.open(page))
+	var close_button := _button(club_menu_list, "Close", "CloseClubMenu", 320)
+	close_button.pressed.connect(close_club_menu)
+	club_options = ClubOptions.new()
+	club_options.settings = throw_settings
+	add_child(club_options)
+	club_options.closed.connect(func(): if screen == "menu": club_menu_button.grab_focus())
+
+func open_club_menu() -> void:
+	if screen != "menu": return
+	club_menu.show()
+	club_menu_list.get_node("ClubOptions").grab_focus()
+
+func close_club_menu() -> void:
+	if not club_menu.visible: return
+	club_menu.hide()
+	club_menu_button.grab_focus()
+
+## The Clubhouse music eases to half while its Options are open (as a match's music does).
+func _process(delta: float) -> void:
+	if clubhouse_music == null or not clubhouse_music.playing: return
+	var dipped := club_options != null and club_options.is_open()
+	music_duck = move_toward(music_duck, 0.5 if dipped else 1.0, delta * 0.5 / 0.4)
+	clubhouse_music.volume_db = Soundtrack.level_db(throw_settings) + linear_to_db(music_duck)
+
 ## Adds an entry to the session menu and returns its button. `closes` entries close
 ## the menu before they act, so what they open is not under the sheet.
 func add_menu_entry(label: String, node_name: String, action: Callable, closes: bool = true) -> Button:
@@ -375,6 +459,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	if session_menu != null and session_menu.visible and event.is_action_pressed("ui_cancel"):
 		close_menu()
 		get_viewport().set_input_as_handled()
+	elif club_menu != null and club_menu.visible and event.is_action_pressed("ui_cancel"):
+		close_club_menu()
+		get_viewport().set_input_as_handled()
+	elif club_options != null and club_options.is_open() and event.is_action_pressed("ui_cancel"):
+		club_options.close()
+		get_viewport().set_input_as_handled()
 
 ## Beside the top bar, where MatchPanels leaves room for it.
 func _place_menu() -> void:
@@ -382,6 +472,9 @@ func _place_menu() -> void:
 	var rect := MatchPanels.menu_rect(size)
 	menu_button.position = rect.position
 	menu_button.size = rect.size
+	if club_menu_button != null:
+		club_menu_button.size = Vector2(56, 56)
+		club_menu_button.position = Vector2(size.x - 16.0 - 56.0, 16.0)
 
 ## The board's Career summary and followed goals.
 func _refresh_career_line() -> void:
@@ -473,6 +566,9 @@ func _begin_attempt(attempt: int, saved: Dictionary = {}) -> void:
 	details.text = "%s · %d Division%s" % [content.get("name", "House League"), content.divisions.size(), "" if content.divisions.size() == 1 else "s"]
 	if content.id == "campaign": details.text += " · Seed %d" % int(session.seed)
 	clubhouse.hide()
+	club_menu_button.hide()
+	club_menu.hide()
+	club_options.close()
 	_clear_lab()
 	# E22-L02: the League's frame kit for everything the attempt builds, and for the
 	# session menu over it. The lab's own Theme carries the kit to its buttons.
@@ -546,6 +642,7 @@ func _show_menu() -> void:
 	clubhouse.show_tab("board")
 	session_menu.hide()
 	menu_button.hide()
+	club_menu_button.show()
 	# UI-9: the action to take is the brass one: Continue when an attempt is saved.
 	Clubhouse.primary_style(continue_button if saved.ok else enter)
 	Clubhouse.secondary_style(enter if saved.ok else continue_button)
