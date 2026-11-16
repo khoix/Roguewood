@@ -2,7 +2,7 @@
 
 Source plan: preserve the authored House environment atlas, House ball material,
 and UI-A4 logo. No new external imagery or catalogue slots. Add an original
-local-motion shader and a bounded 96×96 3D viewport. Loader sprites remain UI-10's
+local-motion shader and a bounded 192×192 3D viewport (owner-corrected hero). Loader sprites remain UI-10's
 existing art; its element IDs and window.rwLoaderStart remain untouched.
 
 The hall is stationary. Four foliage regions in the first House atlas panel bend
@@ -13,11 +13,21 @@ the moon is excluded. Two faint lamp pools retain their slow breath. Moving dust
 and parallax are removed. This is a localized material treatment of existing
 foliage, not an additional illustrated plant layer.
 
-The hero uses the actual House ball presentation mesh/material and three dark
-finger-hole meshes, a fixed orthographic camera, ambient fill and one directional
-light. One Y-axis revolution takes 18 seconds. Its transparent 96×96 SubViewport
-is displayed with nearest filtering. No Z-axis sprite spin remains. The original
-brief entrance and tap beat remain; first input is accepted immediately.
+The hero uses the original title illustration (House ball crop in a01-source.png),
+projected onto a sphere through title_ball.gdshader. The front pose matches the
+owner's screenshot: holes upper-right, the diamond below center, teal/gold veining
+and bright top/cyan rim reflections. A camera size of 0.22 fills the title's ball
+box instead of the prior 0.28 framing. A 192×192 transparent viewport with nearest
+filtering retains the illustration's finish. No extra finger-hole meshes remain.
+The rear is reconstructed from an unmarked enamel field in that same illustration,
+with an angle-dependent blend; the single source image does not define a rear.
+The broad lamp highlight and cyan rim stay in view space while surface details
+turn. This is a stylized illustration-derived material, not an environment-map
+render. No source bitmap is edited or replaced.
+
+One Y-axis revolution still takes 18 seconds. The original entrance/tap beat remain;
+first input is accepted immediately. Prompt placement now reserves clearance below
+the larger ball on shorter screens.
 
 Reduced motion resets the Y angle and material clock, stops title processing,
 and renders the ball viewport once. Leaving the title disables its viewport.

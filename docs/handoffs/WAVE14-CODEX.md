@@ -47,3 +47,8 @@ regression matrix remains for subsequent items/integration.
 
 UI-A7 environment: Xorg :96; matching Playwright browser in /tmp/a7-browsers,
 web templates installed under the temporary XDG data directory. Logs /tmp/a7-*.log.
+
+UI-A7 owner correction: restored original illustrated ball design and reflective
+finish at larger scale. Latest captures are artifacts/ui-a7-revision/
+final-{portrait,landscape}/; see UI-A7.md's owner-correction section. Remaining
+item order is unchanged.

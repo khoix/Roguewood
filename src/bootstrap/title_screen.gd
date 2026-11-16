@@ -42,6 +42,7 @@ var _hall_origin := Vector2.ZERO
 var atmosphere: HallAtmosphere
 var ball_view: SubViewport
 var ball_actor: Node3D
+var ball_material: ShaderMaterial
 var hall_material: ShaderMaterial
 const TURN_SECONDS := 18.0
 
@@ -149,32 +150,32 @@ func _ready() -> void:
 	ball.name = "Ball"
 	ball_view = SubViewport.new()
 	ball_view.name = "PixelBallViewport"
-	ball_view.size = Vector2i(96, 96)
+	ball_view.size = Vector2i(192, 192)
 	ball_view.transparent_bg = true
 	ball_view.own_world_3d = true
 	ball_view.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	add_child(ball_view)
 	ball_actor = Node3D.new()
 	ball_view.add_child(ball_actor)
-	var dresser = preload("res://src/presentation/lane_dressing.gd").new()
-	dresser.dress_ball(ball_actor)
-	preload("res://src/presentation/item_assets.gd").dress_ball(ball_actor, "ball.house")
+	var shell := MeshInstance3D.new()
+	var sphere := SphereMesh.new()
+	sphere.radius = 0.108
+	sphere.height = 0.216
+	sphere.radial_segments = 64
+	sphere.rings = 32
+	shell.mesh = sphere
+	var enamel := ShaderMaterial.new()
+	enamel.shader = preload("res://assets/brand/title_ball.gdshader")
+	enamel.set_shader_parameter("illustration", preload("res://assets/items/balls/a01-source.png"))
+	ball_material = enamel
+	shell.material_override = enamel
+	ball_actor.add_child(shell)
 	var camera := Camera3D.new()
 	camera.projection = Camera3D.PROJECTION_ORTHOGONAL
-	camera.size = 0.28
+	camera.size = 0.22
 	ball_view.add_child(camera)
-	camera.position = Vector3(0, 0.07, -0.6)
+	camera.position = Vector3(0, 0, -0.6)
 	camera.look_at(Vector3.ZERO)
-	var light := DirectionalLight3D.new()
-	ball_view.add_child(light)
-	light.rotation_degrees = Vector3(-35, -30, 0)
-	light.light_energy = 1.2
-	var world := WorldEnvironment.new()
-	world.environment = Environment.new()
-	world.environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	world.environment.ambient_light_color = Color("b1c6cd")
-	world.environment.ambient_light_energy = 0.6
-	ball_view.add_child(world)
 	ball.texture = ball_view.get_texture()
 	ball.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	ball.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -281,7 +282,7 @@ func _layout() -> void:
 		logo.size = band
 		logo.position = Vector2((w - band.x) * 0.5, top - mark * 0.4)
 		ball.position.y = logo.position.y + band.y + h * 0.03
-	prompt.position = Vector2(0, h * (0.68 if portrait else 0.80))
+	prompt.position = Vector2(0, maxf(h * (0.68 if portrait else 0.80), ball.position.y + ball_side + h * 0.035))
 	prompt.size = Vector2(w, 48)
 	# The hall fills the top of the screen (all of it in landscape); the shade blends
 	# its lower edge into the night.
@@ -313,6 +314,7 @@ func _apply_motion() -> void:
 	ball.position = _ball_origin + Vector2(-18, 8) * settle * unit
 	ball.rotation = 0.0
 	ball_actor.rotation.y = t * TAU / TURN_SECONDS
+	ball_material.set_shader_parameter("turn", ball_actor.rotation.y)
 	ball.scale = Vector2.ONE * (1.0 + beat * 0.025)
 	var mark: Control = logo if logo != null else wordmark
 	mark.position = _mark_origin + Vector2(0, -8 * settle * unit)

@@ -1157,3 +1157,15 @@ and export head include unchanged. Source plan: docs/art/ui/UI-A7.md.
 Review tools: capture_ui_a7.gd and capture_ui_a7_loader.mjs in docs/art/ui/.
 Captures are ignored artifacts; provenance of reused art remains in its original
 ledger entries. Completion evidence and limits: docs/handoffs/UI-A7.md.
+
+
+### UI-A7 owner correction — original illustrated hero (2026-11-16)
+
+Original title-only shader assets/brand/title_ball.gdshader, authored by Codex.
+Reuses the immutable House-ball illustration in assets/items/balls/a01-source.png
+(crop 52,45,538,538). No new image generation, bitmap edits or external assets.
+A sphere projection restores the reference-facing details; an unmarked portion
+of the original enamel supplies the reconstructed rear. View-space lamp/rim
+reflection treatment preserves the glossy identity while surface details turn.
+The larger 192×192 nearest-filtered viewport and tighter camera restore the
+original hero scale. See UI-A7.md for technical limits, validation and captures.
