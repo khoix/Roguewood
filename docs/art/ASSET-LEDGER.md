@@ -1171,7 +1171,7 @@ The larger 192×192 nearest-filtered viewport and tighter camera restore the
 original hero scale. See UI-A7.md for technical limits, validation and captures.
 
 ## The owner's soundtrack (2026-11-16)
-Made by the repository owner with Suno and delivered as MP3s (originals in `assets/audio/music/source/`, kept out of Godot's import). `tools/author_soundtrack.py` cut each 3.5 s before its end (Suno fades out there) and crossfaded its last 2 s into its first 2 s, so each OGG loops seamlessly. The loudness is as delivered (about −16 LUFS). `src/presentation/soundtrack.gd` plays them: the Clubhouse track on the title and the board, each League's track in its attempts, and the Championship track at Division 8's title match. They take precedence over the theme loops of E22-L01-ART and E22-L02-ART, which remain the themes' own files.
+Made by the repository owner with Suno and delivered as MP3s (originals in `assets/audio/music/source/`, kept out of Godot's import). `tools/author_soundtrack.py` cut each 3.5 s before its end (Suno fades out there) and crossfaded its last 2 s into its first 2 s, so each OGG loops seamlessly. The loudness is as delivered (about −16 LUFS). `src/presentation/soundtrack.gd` plays them: the Clubhouse track on the title and the board, each League's track in its runs, and the Championship track at Division 8's title match. They take precedence over the theme loops of E22-L01-ART and E22-L02-ART, which remain the themes' own files.
 
 | File | Seconds | SHA-256 |
 |---|---|---|
@@ -1182,3 +1182,49 @@ Made by the repository owner with Suno and delivered as MP3s (originals in `asse
 
 ## The title's tap sound (2026-11-16, provisional)
 `assets/audio/ui_title_start.wav` (0.3 s): Codex's `ball_hammer.wav` mixed with `pin_wood.wav` 70 ms later (a ball meeting a pin), limited to 0.6 peak. ffmpeg, no outside source. SHA-256 `d672f034ca6c7201ac2be675ac2608a15779f23862357f147d454a9f9ff90a89`. A designed sound from Codex can replace it at the same path.
+
+## AV-N3 — Neon side, lane, hook and payout identities (2026-11-16)
+
+Six original identities in two generated transparent three-cell PNG atlases,
+created with the image-generation tool for this task. No external reference image,
+third-party mark or sampled audio. Exact prompts: docs/art/briefs/AV-N3-A-prompt.txt
+and AV-N3-B-prompt.txt. Sources are stored unchanged; author_neon_n3_items.py
+creates only AtlasTexture region views for card/icon/in_play/reduced_motion,
+rarity resources and activation recipes. Group A: Dry Side, Lane Reader, Hook Shot.
+Group B: Line Call, Bounce Back, Straight Money. No bitmap repainting or resampling.
+
+| Source | SHA-256 |
+|---|---|
+| source.AV-N3-A.png | `10decbdba32d861271e552de4f1aef63007cca20257c7e2fbaf18dc7193cb487` |
+| source.AV-N3-B.png | `b92bb3cb33f0dfef8397bb00b167b2470eae1156070b5bb074183335e0f60e96` |
+
+Original deterministic mono PCM foley, synthesized by tools/author_foley.py,
+seeded by each stable sound ID. All cues: 22050 Hz, 16-bit, 0.32 s, normalized
+peak 0.48. Reproduce with tools/author_neon_n3_items.py A and B. No recordings.
+
+| Sound ID | Material / frequency | SHA-256 |
+|---|---|---|
+| sound.charm.dry_side | wood / 640 Hz | `ac5c9863d3c1763f09575551ed835bd041f8693847f6b748503fb9fc420f6b30` |
+| sound.charm.lane_reader | glass / 830 Hz | `d4ce8caef1505763bfaf3b95a7b637e95bbc73e6836065340354d30b67c7d9dc` |
+| sound.consumable.hook_shot | swish / 470 Hz | `6a927933bb53b3622e0a36814fdc9659df4487dc4749bd8ee96c23be4baf065e` |
+| sound.consumable.line_call | cloth / 590 Hz | `8b952c88d1829c694a67369fefdbdadea1f0883b400e8a41fbac4d7bae9eb251` |
+| sound.charm.bounce_back | wood / 320 Hz | `665b8de87c840a03e07a3492bddd899cf7d935ea70cf6b6bf3b1a165649a1c81` |
+| sound.charm.straight_money | metal / 980 Hz | `2e6050d78d14f982d60bac81e9a02387b021ba692b5f72fe92d9a336e52a83c7` |
+
+Original procedural effect geometry in neon_n3_glyph.gd and
+neon_n3_presentation.gd, authored by Codex. Reuses the existing Pixelify Sans
+font (license already recorded). Static reduced-motion/flash cues retain amounts
+and measured side/lane information. Effects use existing resolver attribution,
+committed tactics and observed knockdown facts; no gameplay values altered.
+Bounce Back animates a coin along its return path; Straight Money raises a
+straight-creased banknote. Both freeze their geometry under reduced effects.
+Brief: docs/art/briefs/AV-N3.md. Native evidence and capture paths: AV-N3 handoff.
+
+## UI-12 button sounds (2026-11-16, provisional)
+Original deterministic mono PCM foley by tools/author_foley.py (wood material), no recordings or outside source. Played by `src/presentation/ui_sounds.gd` on every button press. Codex's final set (proposed AV-UI1, handoffs/UI-12.md) can replace them at the same paths.
+
+| File | Command | SHA-256 |
+|---|---|---|
+| ui_tap.wav | `author_foley.py ui_tap wood 1100 0.045` | `7c3e7681d9f042bf2996dfc91002ac97bf02fdf397f07a7e66baf2d9123ccd96` |
+| ui_select.wav | `author_foley.py ui_select wood 1500 0.035` | `644a5039a46c3b45c9cf4c6d35e59959ea30764951e05ddf9fbad627bce9403e` |
+| ui_back.wav | `author_foley.py ui_back wood 720 0.06` | `f7863214664f83bdc3b0ae9cdaa6d46f980b1e9c138a67b99d61da23dd586457` |

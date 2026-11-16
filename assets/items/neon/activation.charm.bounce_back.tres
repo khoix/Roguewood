@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+[ext_resource type="Script" path="res://src/presentation/ability_style.gd" id="1"]
+[resource]
+script = ExtResource("1")
+item_id = "charm.bounce_back"
+shape = "neon"
+ink = Color(0.49, 0.86, 0.95, 1)
+duration = 0.85
+priority = 3
