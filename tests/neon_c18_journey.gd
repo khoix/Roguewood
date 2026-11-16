@@ -76,6 +76,7 @@ func _run() -> void:
 	_check(int(scene.career.tally.counts.get("controlled_curves", 0)) == before + 1, "the Career counts one controlled curve towards the mastery")
 	_check(cards.steady in lab.equipment.exhausted, "the Steady Hand card is spent")
 	await _capture("c18_controlled_curve")
+	await _sound_sliders()
 	if "--inject-failure" in OS.get_cmdline_user_args(): _check(false, "Injected diagnostic failure")
 	if lab.league_theme != null and lab.league_theme.music != null:
 		lab.league_theme.music.stop() # the audio thread lets go of a playing loop after a few frames (as J22L02)
@@ -176,3 +177,33 @@ func _verify(label: String, scored: Dictionary, reports: Array, loadout: Diction
 	var out := await super._verify(label, scored, reports, loadout, context, extras)
 	print("J03C18 %s: %s" % [label, str(out.lines.filter(func(l): return N4_NAMES.any(func(n): return l.contains(n))))])
 	return out
+
+## UI-11 (owner, 2026-11-16): Options -> Sound & effects has a music slider and a
+## sound-effects slider; the music slider sets the League music's level, and Mute
+## silences the music too. Throw settings has no vibration toggle, and Done sits
+## centred below the Sound & effects row.
+func _sound_sliders() -> void:
+	var music: AudioStreamPlayer = lab.league_theme.music if lab.league_theme != null else null
+	_check(music != null and music.playing, "the Neon League's music is playing")
+	if music == null: return
+	await _focus_accept(scene.options)
+	var panel = lab.settings_panel
+	var sound_row: Button = panel.find_child("SoundAndEffects", true, false)
+	_check(panel.find_child("Haptics", true, false) == null and sound_row != null and sound_row.get_parent() == panel.close.get_parent()
+		and sound_row.get_index() == panel.close.get_index() - 1 and panel.close.size_flags_horizontal == Control.SIZE_SHRINK_CENTER,
+		"no vibration toggle; Sound & effects has its own row above a centred Done")
+	await _focus_accept(sound_row)
+	var sound = lab.motion.sound
+	var base: float = lab.league_theme.MUSIC_DB
+	sound.music_slider.value = 0.5
+	await process_frame
+	_check(absf(music.volume_db - (base + linear_to_db(0.5))) < 0.01 and absf(sound.volume_slider.value - 0.65) < 0.01, "the music slider sets the music to half (%.1f dB); effects stay at 0.65" % music.volume_db)
+	sound.mute_button.button_pressed = true
+	await process_frame
+	_check(music.volume_db < -60.0, "Mute silences the music too")
+	sound.mute_button.button_pressed = false
+	sound.music_slider.value = 1.0
+	await process_frame
+	_check(absf(music.volume_db - base) < 0.01, "back to the music's own level")
+	sound.panel.hide()
+	panel.hide()

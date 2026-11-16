@@ -54,7 +54,9 @@ PIN_COLORS = {"w": "#f1e6cc", "s": "#c9bfa6", "r": "#b0303a"}
 STYLE = (
     "#status-progress{opacity:0;}"
     "#rw-loader{position:absolute;left:0;right:0;bottom:12%;margin:0 auto;width:min(64%,440px);height:44px;display:none;pointer-events:none;}"
-    "#rw-track{position:absolute;left:0;right:0;bottom:0;height:6px;background:linear-gradient(90deg,#3a2a17,#7a5a32 40%,#e7bc70);border-radius:1px;box-shadow:0 1px 0 #0b1116;}"
+    "#rw-track{position:absolute;left:0;right:0;bottom:0;height:6px;background:linear-gradient(90deg,#3a2a17,#7a5a32 40%,#e7bc70);border-radius:1px;box-shadow:0 1px 0 #0b1116;overflow:hidden;}"
+    "#rw-track::after{content:'';position:absolute;top:0;bottom:0;width:30%;left:-30%;background:linear-gradient(90deg,transparent,rgba(255,240,200,.55),transparent);animation:rw-shine 1.4s linear infinite;}"
+    "@keyframes rw-shine{to{left:100%;}}"
     "#rw-ball{position:absolute;bottom:6px;left:0;width:28px;height:28px;image-rendering:pixelated;}"
     "#rw-pin{position:absolute;bottom:6px;right:0;width:16px;height:42px;image-rendering:pixelated;transform-origin:50% 100%;transition:transform .35s ease-in;}"
     "#rw-pin.down{transform:rotate(70deg) translate(6px,0);}"
@@ -67,7 +69,8 @@ SCRIPT = (
     "st.appendChild(lane);var ball=lane.querySelector('#rw-ball'),pin=lane.querySelector('#rw-pin'),t0=performance.now();"
     "function tick(now){var known=pr.hasAttribute('value')&&pr.max>0,f=known?Math.min(Math.max(pr.value/pr.max,0),1):((now-t0)/1800)%1;"
     "lane.style.display=getComputedStyle(pr).display==='none'?'none':'block';"
-    "var run=Math.max(lane.clientWidth-28-20,0);ball.style.transform='translateX('+(f*run).toFixed(1)+'px) rotate('+Math.round(f*900)+'deg)';"
+    "var run=Math.max(lane.clientWidth-28-20,0),t=(now-t0)/1000,bob=Math.abs(Math.sin(t*5))*3;"
+    "ball.style.transform='translate('+(f*run).toFixed(1)+'px,'+(-bob).toFixed(1)+'px) rotate('+Math.round(f*900+t*240)+'deg)';"
     "pin.classList.toggle('down',known&&f>=0.999);lane.dataset.progress=known?f.toFixed(3):'idle';requestAnimationFrame(tick);}"
     "requestAnimationFrame(tick);}"
     "window.rwLoaderStart=go;"
@@ -81,6 +84,7 @@ def main():
     head = match.group(1).replace('\\"', '"')
     head = re.sub(r"<script id=\"rw-loader-js\">.*?</script>", "", head)
     head = re.sub(r"#status-progress\{[^}]*\}", "", head)
+    head = re.sub(r"@keyframes rw-[a-z]+\{[^{}]*\{[^}]*\}\}", "", head)
     head = re.sub(r"#rw-[^{]*\{[^}]*\}", "", head)
     head = head.replace("</style>", STYLE + "</style>", 1)
     head += '<script id="rw-loader-js">' + SCRIPT + "</script>"

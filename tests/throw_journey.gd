@@ -528,8 +528,10 @@ func _flat_spin() -> void:
 	var size_spread: float = (radii.max() - radii.min()) / resting_radius
 	print("J02 flat spin: screen radius %.1f..%.1f px (resting %.1f), drawn depth %.3f..%.3f m, nearest lane %.3f m, ball %.0f px below its start" % [radii.min(), radii.max(), resting_radius,
 		depths.min(), depths.max(), lab._nearest_lane_depth(), lab.ball_screen_position().y - resting_y])
-	_check(lab.state == "holding" and size_spread < 0.02 and absf(radii[0] - resting_radius) / resting_radius < 0.02,
-		"the flat-spun ball keeps its size on screen through the swirl and below its start (spread %.1f%%)" % (size_spread * 100.0))
+	# UI-11 (owner, 2026-11-16): held in flat spin, the ball is drawn FLAT_ZOOM times
+	# bigger, as if held closer, and keeps that size through the swirl.
+	_check(lab.state == "holding" and size_spread < 0.02 * lab.FLAT_ZOOM and absf(radii[0] - resting_radius * lab.FLAT_ZOOM) / (resting_radius * lab.FLAT_ZOOM) < 0.02,
+		"the flat-spun ball is %.1fx bigger and keeps its size through the swirl and below its start (spread %.1f%%)" % [lab.FLAT_ZOOM, size_spread * 100.0])
 	_check(depths.max() - depths.min() < 0.002 and depths.max() < lab._nearest_lane_depth(), "it is drawn at one depth, in front of every part of the lane")
 	_check(lab.ball_screen_position().y > resting_y + 60.0, "below its start it follows the finger down")
 	var view := -cam.basis.z.normalized()
