@@ -28,6 +28,8 @@ func _run() -> void:
 		"the four tabs share one row on a phone")
 	_check(scene.career_stats.get_child_count() == 4 and not scene.career_line.visible, "the League Board shows the Career as four tiles")
 	_ui9_board()
+	# The owner's soundtrack (2026-11-16): the Clubhouse has its own music.
+	_check(scene.clubhouse_music != null and scene.clubhouse_music.playing and scene.clubhouse_music.stream.resource_path.ends_with("clubhouse.ogg"), "the Clubhouse music plays")
 	match stage:
 		1: await _stage_one_clubhouse()
 		2: await _stage_two_clubhouse()
@@ -214,6 +216,7 @@ func _stage_two_clubhouse() -> void:
 	await _tab("board")
 	scene.enter.grab_focus()
 	await _enter(scene.enter)
+	_check(not scene.clubhouse_music.playing, "the Clubhouse music stops when an attempt begins")
 	await _assist_on()
 	_check(lab.career_attempt == 2 and lab.shop.ineligibility(_encore(), lab.run).is_empty(), "attempt 2 has Encore in its pool")
 	await _strike_out()

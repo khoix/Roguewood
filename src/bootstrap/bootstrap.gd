@@ -13,6 +13,7 @@ const UnlockGraph = preload("res://src/career/unlock_graph.gd")
 const Clubhouse = preload("res://src/clubhouse/clubhouse.gd")
 const MatchPanels = preload("res://src/presentation/match_panels.gd")
 const TitleScreen = preload("res://src/bootstrap/title_screen.gd")
+const Soundtrack = preload("res://src/presentation/soundtrack.gd")
 var session: Dictionary = {}
 var screen := "menu"
 var heading: Label
@@ -35,6 +36,9 @@ var _restart_armed := false
 var lab: ThrowLab
 ## Throw settings shared by every session this run (persistence is E25).
 var throw_settings: Dictionary = {}
+## The owner's Clubhouse music (2026-11-16): the title and the Clubhouse between
+## attempts. A League's own music takes over during an attempt.
+var clubhouse_music: AudioStreamPlayer
 ## Career record (E09), saved apart from attempts since E10 (career.json); E15
 ## (ADR 010) adds the validated unlock graph, records and mastery. Restart and
 ## retry keep it.
@@ -207,12 +211,46 @@ func _ready() -> void:
 func show_title_on_start() -> bool:
 	return get_tree().current_scene == self
 
+## Plays the Clubhouse track (once started, it keeps its place) at the session's
+## Music level; a browser lets it sound from the first tap, which is the title's.
+func _play_clubhouse_music() -> void:
+	if not Soundtrack.has("clubhouse"): return
+	if clubhouse_music == null:
+		clubhouse_music = AudioStreamPlayer.new()
+		clubhouse_music.name = "ClubhouseMusic"
+		clubhouse_music.stream = Soundtrack.stream("clubhouse")
+		add_child(clubhouse_music)
+	clubhouse_music.volume_db = Soundtrack.level_db(throw_settings)
+	if not clubhouse_music.playing:
+		clubhouse_music.play()
+
+func _stop_clubhouse_music() -> void:
+	if clubhouse_music != null:
+		clubhouse_music.stop()
+
+## Lets go of the loop when the shell closes, so the audio thread holds no playback
+## at exit (as LeagueTheme does).
+func _exit_tree() -> void:
+	if clubhouse_music == null: return
+	clubhouse_music.stop()
+	clubhouse_music.stream = null
+	if AudioServer.get_driver_name() == "Dummy":
+		# As PresentationAudio: under the Dummy driver (journeys) the stopped playback
+		# is retired on the next mixer pass, so wait for an actual pass (bounded).
+		var stopped_at := Time.get_ticks_usec()
+		while Time.get_ticks_usec() - stopped_at < 1000000:
+			var sampled_at := Time.get_ticks_usec()
+			var since_mix := int(AudioServer.get_time_since_last_mix() * 1000000.0)
+			if sampled_at - since_mix > stopped_at: break
+			OS.delay_msec(1)
+
 func _open_title() -> void:
 	title = TitleScreen.new()
 	add_child(title)
 	title.started.connect(_title_done)
 	screen = "title"
 	title.open(bool(throw_settings.get("reduced_motion", false)))
+	_play_clubhouse_music()
 
 func _title_done() -> void:
 	screen = "menu"
@@ -396,6 +434,7 @@ func _continue_attempt() -> void:
 ## attempt 1 again; Retry and New Attempt begin the next one.
 ## A saved payload resumes that attempt instead of starting fresh.
 func _begin_attempt(attempt: int, saved: Dictionary = {}) -> void:
+	_stop_clubhouse_music()
 	if content.id == "campaign": content = ContentSet.load_set("campaign", int(saved.get("seed", attempt)))
 	if saved.is_empty():
 		content.kit = _chosen_kit()
@@ -453,6 +492,7 @@ func _on_frame_scored(scored: Dictionary) -> void:
 		session.division = lab.division.division_number()
 
 func _show_menu() -> void:
+	_play_clubhouse_music()
 	screen = "menu"
 	session = {}
 	details.text = "The lanes are waiting."
