@@ -199,7 +199,7 @@ func _style_line(line: Button) -> void:
 	line.add_theme_constant_override("h_separation", int(LOG_SEPARATION))
 	line.add_theme_font_size_override("font_size", log_font)
 
-## The log's size for this frame: the longest line, measured at LOG_MIN, scaled to
+## The log's size for this frame: the LOG_FIT_SHARE line, measured at LOG_MIN, scaled to
 ## the room beside its icon; lines already shown follow.
 ## UI-9 (owner's play notes, 2026-11-15): the icon grows with the font (ICON_SCALE),
 ## so it is solved together with the text: at size s a line takes
@@ -207,14 +207,20 @@ func _style_line(line: Button) -> void:
 ## budgeted at a fixed 24 px, so a scaled-up longest line ran past the room and wrapped.
 const ICON_SCALE := 1.15
 const LOG_SEPARATION := 10.0
-const LOG_SLACK := 6.0 # glyph rounding at larger sizes; a line must never wrap at the chosen size
+const LOG_SLACK := 6.0 # glyph rounding at larger sizes; a fitted line must never wrap at the chosen size
+## UI-12 (owner's play notes, 2026-11-16): sizing by the single longest line let one long
+## trigger line in a later frame shrink the whole log. The size now fits the line at this
+## share of the frame's lines (shortest first); the few longer lines wrap instead.
+const LOG_FIT_SHARE := 0.75
 func _fit_log() -> void:
 	if steps.is_empty() or log_scroll == null or log_scroll.size.x <= 0.0: return
 	var font := get_theme_default_font()
-	var longest := 1.0
+	var widths: Array[float] = []
 	for step in steps:
 		var text: String = "%s  %s" % [step.symbol, step.text] if not String(step.get("symbol", "")).is_empty() else String(step.text)
-		longest = maxf(longest, font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, LOG_MIN).x)
+		widths.append(font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, LOG_MIN).x)
+	widths.sort()
+	var longest := maxf(1.0, widths[int(floor((widths.size() - 1) * LOG_FIT_SHARE))])
 	var room := log_scroll.size.x - 16.0 - LOG_SEPARATION - LOG_SLACK # the scroll bar's room and the icon's separation
 	var wanted := clampi(int(floor(room / (longest / LOG_MIN + ICON_SCALE))), LOG_MIN, LOG_MAX)
 	if wanted == log_font: return

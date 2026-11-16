@@ -2863,7 +2863,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "Only the first reroll of a visit, and it never lowers the price of anything you buy. Kept for the attempt; cannot be sold.",
+      "downside": "Only the first reroll of a visit, and it never lowers the price of anything you buy. Kept for the run; cannot be sold.",
       "synergy_tags": [
         "shop",
         "reroll",
@@ -2908,7 +2908,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "Reserve pins do not score unless racked, so the slot only pays off with pin swaps or Reserve Call. Kept for the attempt; cannot be sold.",
+      "downside": "Reserve pins do not score unless racked, so the slot only pays off with pin swaps or Reserve Call. Kept for the run; cannot be sold.",
       "synergy_tags": [
         "capacity",
         "reserve",
@@ -2953,7 +2953,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "Saves $1 per purchase; it needs several purchases before it has paid for itself. Kept for the attempt; cannot be sold.",
+      "downside": "Saves $1 per purchase; it needs several purchases before it has paid for itself. Kept for the run; cannot be sold.",
       "synergy_tags": [
         "economy",
         "discount",
@@ -2998,7 +2998,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "Only pays when you hold $20 or more at the end of a match, which competes with buying now. Kept for the attempt; cannot be sold.",
+      "downside": "Only pays when you hold $20 or more at the end of a match, which competes with buying now. Kept for the run; cannot be sold.",
       "synergy_tags": [
         "economy",
         "interest",
@@ -3043,7 +3043,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "More choice, not cheaper choice: the extra offer costs full price and rerolls cost the same. Kept for the attempt; cannot be sold.",
+      "downside": "More choice, not cheaper choice: the extra offer costs full price and rerolls cost the same. Kept for the run; cannot be sold.",
       "synergy_tags": [
         "selection",
         "shop",
@@ -3088,7 +3088,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "Rarer offers usually cost more, and common staples appear less often. Kept for the attempt; cannot be sold.",
+      "downside": "Rarer offers usually cost more, and common staples appear less often. Kept for the run; cannot be sold.",
       "synergy_tags": [
         "selection",
         "rarity",
@@ -5667,20 +5667,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "icon": "res://assets/items/neon/icon.charm.dry_side.tres",
+        "card": "res://assets/items/neon/card.charm.dry_side.tres",
+        "in_play": "res://assets/items/neon/icon.charm.dry_side.tres",
+        "rarity_treatment": "res://assets/items/neon/rarity_treatment.charm.dry_side.tres",
+        "activation": "res://assets/items/neon/activation.charm.dry_side.tres",
+        "sound": "res://assets/audio/sound.charm.dry_side.wav",
+        "reduced_motion": "res://assets/items/neon/reduced_motion.charm.dry_side.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -5730,20 +5730,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "icon": "res://assets/items/neon/icon.charm.lane_reader.tres",
+        "card": "res://assets/items/neon/card.charm.lane_reader.tres",
+        "in_play": "res://assets/items/neon/icon.charm.lane_reader.tres",
+        "rarity_treatment": "res://assets/items/neon/rarity_treatment.charm.lane_reader.tres",
+        "activation": "res://assets/items/neon/activation.charm.lane_reader.tres",
+        "sound": "res://assets/audio/sound.charm.lane_reader.wav",
+        "reduced_motion": "res://assets/items/neon/reduced_motion.charm.lane_reader.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -5778,20 +5778,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "icon": "res://assets/items/neon/icon.consumable.hook_shot.tres",
+        "card": "res://assets/items/neon/card.consumable.hook_shot.tres",
+        "in_play": "res://assets/items/neon/icon.consumable.hook_shot.tres",
+        "rarity_treatment": "res://assets/items/neon/rarity_treatment.consumable.hook_shot.tres",
+        "activation": "res://assets/items/neon/activation.consumable.hook_shot.tres",
+        "sound": "res://assets/audio/sound.consumable.hook_shot.wav",
+        "reduced_motion": "res://assets/items/neon/reduced_motion.consumable.hook_shot.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -5833,20 +5833,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "icon": "res://assets/items/neon/icon.consumable.line_call.tres",
+        "card": "res://assets/items/neon/card.consumable.line_call.tres",
+        "in_play": "res://assets/items/neon/icon.consumable.line_call.tres",
+        "rarity_treatment": "res://assets/items/neon/rarity_treatment.consumable.line_call.tres",
+        "activation": "res://assets/items/neon/activation.consumable.line_call.tres",
+        "sound": "res://assets/audio/sound.consumable.line_call.wav",
+        "reduced_motion": "res://assets/items/neon/reduced_motion.consumable.line_call.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -5888,20 +5888,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "icon": "res://assets/items/neon/icon.charm.bounce_back.tres",
+        "card": "res://assets/items/neon/card.charm.bounce_back.tres",
+        "in_play": "res://assets/items/neon/icon.charm.bounce_back.tres",
+        "rarity_treatment": "res://assets/items/neon/rarity_treatment.charm.bounce_back.tres",
+        "activation": "res://assets/items/neon/activation.charm.bounce_back.tres",
+        "sound": "res://assets/audio/sound.charm.bounce_back.wav",
+        "reduced_motion": "res://assets/items/neon/reduced_motion.charm.bounce_back.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -5947,20 +5947,20 @@
       ],
       "incompatibilities": [],
       "assets": {
-        "icon": "",
-        "card": "",
-        "in_play": "",
-        "rarity_treatment": "",
-        "activation": "",
-        "sound": "",
-        "reduced_motion": ""
+        "icon": "res://assets/items/neon/icon.charm.straight_money.tres",
+        "card": "res://assets/items/neon/card.charm.straight_money.tres",
+        "in_play": "res://assets/items/neon/icon.charm.straight_money.tres",
+        "rarity_treatment": "res://assets/items/neon/rarity_treatment.charm.straight_money.tres",
+        "activation": "res://assets/items/neon/activation.charm.straight_money.tres",
+        "sound": "res://assets/audio/sound.charm.straight_money.wav",
+        "reduced_motion": "res://assets/items/neon/reduced_motion.charm.straight_money.tres"
       },
       "completeness": {
         "authored": true,
         "mechanics": true,
         "automated_validation": true,
-        "artwork": false,
-        "effects_audio": false,
+        "artwork": true,
+        "effects_audio": true,
         "unlock_assigned": true,
         "integrated": false
       }
@@ -5984,7 +5984,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "It pays only when you sell, and a sale never returns more than you paid. Kept for the attempt; cannot be sold.",
+      "downside": "It pays only when you sell, and a sale never returns more than you paid. Kept for the run; cannot be sold.",
       "synergy_tags": [
         "shop",
         "sell",

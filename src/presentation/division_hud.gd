@@ -695,7 +695,7 @@ func show_result(title: String, body: String, won: bool, retry_label: String = "
 	result_title.visible = sections.is_empty() # the sections carry a shorter headline
 	_build_sections(sections, won)
 	_fit_result()
-	retry_button.text = "New Attempt" if won else retry_label
+	retry_button.text = "New Run" if won else retry_label
 	endless_button.hide()
 	result.show()
 	retry_button.grab_focus()

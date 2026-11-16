@@ -110,7 +110,7 @@
             "unlocks": [
               "gate.surveyor_cleared"
             ],
-            "text": "Encore joins the shop pool from your next attempt."
+            "text": "Encore joins the shop pool from your next run."
           },
           "reactions": {
             "entrance": "Plumb, level, true. Show me a straight line.",
@@ -164,7 +164,7 @@
             "unlocks": [
               "gate.custodian_cleared"
             ],
-            "text": "Standing Order joins the shop pool from your next attempt."
+            "text": "Standing Order joins the shop pool from your next run."
           },
           "reactions": {
             "entrance": "Mind the corners. I only count what's cleared.",
@@ -218,7 +218,7 @@
             "unlocks": [
               "gate.proprietor_cleared"
             ],
-            "text": "House Special joins the shop pool from your next attempt."
+            "text": "House Special joins the shop pool from your next run."
           },
           "reactions": {
             "entrance": "House rules, friend. House Ball, house odds.",
@@ -271,7 +271,7 @@
             "unlocks": [
               "gate.old_lou_cleared"
             ],
-            "text": "Wood Grain joins the shop pool from your next attempt."
+            "text": "Wood Grain joins the shop pool from your next run."
           },
           "reactions": {
             "entrance": "Wood's wood, kid. Let's see your arm.",
@@ -324,7 +324,7 @@
             "unlocks": [
               "gate.surveyor_cleared"
             ],
-            "text": "Encore joins the shop pool from your next attempt."
+            "text": "Encore joins the shop pool from your next run."
           },
           "reactions": {
             "entrance": "Plumb, level, true. Show me a straight line.",
@@ -378,7 +378,7 @@
             "unlocks": [
               "gate.proprietor_cleared"
             ],
-            "text": "House Special joins the shop pool from your next attempt."
+            "text": "House Special joins the shop pool from your next run."
           },
           "reactions": {
             "entrance": "House rules, friend. House Ball, house odds.",
@@ -431,7 +431,7 @@
             "unlocks": [
               "gate.old_lou_cleared"
             ],
-            "text": "Wood Grain joins the shop pool from your next attempt."
+            "text": "Wood Grain joins the shop pool from your next run."
           },
           "reactions": {
             "entrance": "Wood's wood, kid. Let's see your arm.",

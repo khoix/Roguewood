@@ -77,7 +77,7 @@ func _buy_all() -> void:
 			var before: int = lab.run.money
 			await _tap(lab.shop_panel.button_for_offer(index))
 			await process_frame
-			_check(lab.shop_panel.choice_sheet.visible and lab.shop_panel.choice_list.get_child_count() == hosts.size(), "%s lists its %d eligible hosts" % [offer.item_id, hosts.size()])
+			_check(lab.shop_panel.choice_sheet.visible and lab.shop_panel.choice_count() == hosts.size(), "%s lists its %d eligible hosts" % [offer.item_id, hosts.size()])
 			await _tap(lab.shop_panel.choice_button(hosts.find(target)))
 			await process_frame
 			_check(lab.run.entry_at(target).mod == offer.item_id and lab.run.money == before - int(offer.price), "%s attached to %s for $%d" % [offer.item_id, target, offer.price])

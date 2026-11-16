@@ -364,6 +364,17 @@ jobs:
           xvfb-run -a python3 tools/qa.py e2e --journey JAVN2C --rendered
           python3 tools/qa.py e2e --journey JAVN2BC
           xvfb-run -a python3 tools/qa.py e2e --journey JAVN2BC --rendered
+      - name: Neon third six item art (AV-N3)
+        if: matrix.shard == 'art'
+        run: |
+          python3 tools/qa.py e2e --journey JAVN3
+          xvfb-run -a python3 tools/qa.py e2e --journey JAVN3 --rendered
+          python3 tools/qa.py e2e --journey JAVN3R
+          xvfb-run -a python3 tools/qa.py e2e --journey JAVN3R --rendered
+          python3 tools/qa.py e2e --journey JAVN3C
+          xvfb-run -a python3 tools/qa.py e2e --journey JAVN3C --rendered
+          python3 tools/qa.py e2e --journey JAVN3BC
+          xvfb-run -a python3 tools/qa.py e2e --journey JAVN3BC --rendered
       - name: Preserve journey diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -373,6 +384,7 @@ jobs:
             artifacts/e03/
             artifacts/av-n1/
             artifacts/av-n2/
+            artifacts/av-n3/
             artifacts/av-h3-a/
             artifacts/av-h3-b/
             artifacts/ui-a1/

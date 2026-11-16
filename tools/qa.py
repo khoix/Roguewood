@@ -256,6 +256,14 @@ JOURNEYS["JAVT01"] = (*_avt03[:3], _avt03[3] + tuple(
     for s in ["building", "swirl_130", "swirl_135", "swirl_140"]
 ), *_avt03[4:])
 
+# AV-N3 native art and reduced-motion evidence; original J03C17 retained.
+_n3_ids = ["charm.dry_side", "charm.lane_reader", "consumable.hook_shot", "consumable.line_call", "charm.bounce_back", "charm.straight_money"]
+_n3_caps = ("c17_shop", "c17_line_call", "c17_dry_side", "c17_lane_reader", "c17_bounce_back") + tuple("n3_"+key for key in ["side", "rescue", "hook", "lane", "hook_shot_armed", "line_call_armed", "dry_side_paid", "lane_reader_paid", "line_call_paid", "bounce_back_paid", "straight_money_paid"]) + tuple("n3_"+place+"_"+id.replace(".","_") for place in ["shop","binder"] for id in _n3_ids)
+JOURNEYS["JAVN3"] = ("res://tests/neon_n3_art_journey.gd", "ROGUEWOOD_J03C17_OK", "artifacts/av-n3/native", _n3_caps, 900, ["--fixed-fps", "60"])
+JOURNEYS["JAVN3R"] = ("res://tests/neon_n3_reduced_journey.gd", "ROGUEWOOD_J03C17_OK", "artifacts/av-n3/reduced", _n3_caps, 900, ["--fixed-fps", "60"])
+JOURNEYS["JAVN3C"] = ("res://tests/neon_n3_contact.gd", "ROGUEWOOD_NEON_N1_CONTACT_OK", "artifacts/av-n3/contact", ("count_0","count_1","count_2","motion"), 180, ["--fixed-fps","60"])
+JOURNEYS["JAVN3BC"] = ("res://tests/neon_n3_contact_b.gd", "ROGUEWOOD_NEON_N1_CONTACT_OK", "artifacts/av-n3/contact-b", ("count_0","count_1","count_2","motion"), 180, ["--fixed-fps","60"])
+
 def engine():
     executable = os.environ.get("GODOT_BIN") or shutil.which("godot") or shutil.which("godot4")
     if not executable:

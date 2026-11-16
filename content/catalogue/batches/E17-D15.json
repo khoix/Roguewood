@@ -2,14 +2,14 @@
   "schema_version": 1,
   "batch": "E17-D15",
   "status": "landed",
-  "note": "Neon League items, batch 4 of 5 (DC-N4), written and landed together by E18-C18: Neon's two shop upgrades (initial) and the three items of the Controlled Curve mastery (three curved strikes released sweet or perfect in one attempt). Comet Ball, Metronome and Steady Hand read condition.accurate; Trade-In and Specialist Shelf are new upgrade kinds. Amounts and prices are provisional (E24).",
+  "note": "Neon League items, batch 4 of 5 (DC-N4), written and landed together by E18-C18: Neon's two shop upgrades (initial) and the three items of the Controlled Curve mastery (three curved strikes released sweet or perfect in one run). Comet Ball, Metronome and Steady Hand read condition.accurate; Trade-In and Specialist Shelf are new upgrade kinds. Amounts and prices are provisional (E24).",
   "definitions": [],
   "landed": [
     {
       "id": "shop_upgrade.trade_in",
       "landed_in": "E18-C18",
       "design": {
-        "trigger": "Kept for the attempt: every sale returns $1 more than its usual sale value, but never more than the item cost (kit and reward items, which cost nothing, take the $1 on their base value).",
+        "trigger": "Kept for the run: every sale returns $1 more than its usual sale value, but never more than the item cost (kit and reward items, which cost nothing, take the $1 on their base value).",
         "primitives": [
           "upgrade.sell_bonus"
         ],
@@ -29,7 +29,7 @@
       "id": "shop_upgrade.specialist_shelf",
       "landed_in": "E18-C18",
       "design": {
-        "trigger": "Kept for the attempt: the shop shows one more offer, of any category, drawn only from items carrying the League's specialist tags (in Neon: curve, hook, accuracy, precision, straight).",
+        "trigger": "Kept for the run: the shop shows one more offer, of any category, drawn only from items carrying the League's specialist tags (in Neon: curve, hook, accuracy, precision, straight).",
         "primitives": [
           "upgrade.specialist_offer"
         ],

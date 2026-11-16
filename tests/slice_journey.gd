@@ -85,7 +85,7 @@ func _reach(control: Control) -> void:
 			shop.sell_open.grab_focus()
 			await _action("ui_accept")
 			await process_frame
-	elif shop.sell_sheet.visible:
+	elif shop.sell_sheet.visible and not shop.sell_confirm_sheet.is_ancestor_of(control):
 		shop.sell_close.grab_focus()
 		await _action("ui_accept")
 	if shop.offer_sheet.visible and not shop.offer_sheet.is_ancestor_of(control):
@@ -99,6 +99,11 @@ func _confirm(control) -> void: # untyped: a pressed row may already be freed
 	var shop: Control = scene.lab.shop_panel
 	if shop.offer_sheet.visible and control in shop.offer_buttons:
 		(shop.offer_back if shop.buy_button.disabled else shop.buy_button).grab_focus()
+		await _action("ui_accept")
+	# UI-12: a tap on a placement or Sell tile selects it; its Confirm finishes the tap.
+	var pending: Button = shop.pending_confirm(control)
+	if pending != null:
+		pending.grab_focus()
 		await _action("ui_accept")
 
 func _focus_accept(control: Control) -> void:
@@ -372,7 +377,7 @@ func _division_one() -> void:
 	var offers: Array = lab.shop.offers.duplicate(true)
 	await _focus_accept(scene.back)
 	await _wait_for(func(): return scene.screen == "menu" and scene.continue_button.visible and scene.continue_button.has_focus(), "Continue Attempt offered")
-	_check(scene.continue_button.text == "Continue Attempt 1 · match 3", "the menu offers the saved slice attempt")
+	_check(scene.continue_button.text == "Continue Run 1 · match 3", "the menu offers the saved slice attempt")
 	await _action("ui_accept")
 	await _wait_for(func(): return scene.lab != null and scene.lab.state == "shop", "the attempt resumes in the shop")
 	lab = scene.lab
@@ -419,7 +424,7 @@ func _division_two() -> void:
 	_check(lab.hud.result_title.text.contains("The Custodian defeated — House League cleared!") and lab.hud.result_body.text.contains("First clear: Standing Order")
 		and lab.hud.result_body.text.contains("D1 Boss") and lab.hud.result_body.text.contains("D2 Boss"), "the League victory lists both Divisions and banks the reward")
 	_check(scene.career.first_clears.has("rival.custodian") and scene.career.first_clears.has("rival.surveyor") and scene.session.outcome == "won"
-		and lab.hud.retry_button.text == "New Attempt", "both first clears are in the Career")
+		and lab.hud.retry_button.text == "New Run", "both first clears are in the Career")
 	await _capture("slice_won")
 
 func _second_attempt() -> void:

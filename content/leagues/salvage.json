@@ -98,7 +98,7 @@
             "unlocks": [
               "gate.miser_moll_cleared"
             ],
-            "text": "A Salvage item joins the shop pool from your next attempt."
+            "text": "A Salvage item joins the shop pool from your next run."
           },
           "reactions": {
             "entrance": "Every coin in this yard is spoken for, love. Yours included.",
@@ -154,7 +154,7 @@
             "unlocks": [
               "gate.grimewell_cleared"
             ],
-            "text": "A Salvage item joins the shop pool from your next attempt."
+            "text": "A Salvage item joins the shop pool from your next run."
           },
           "reactions": {
             "entrance": "Lovely and filthy, these. Just how I like 'em.",
@@ -210,7 +210,7 @@
             "unlocks": [
               "gate.scrapjack_cleared"
             ],
-            "text": "A Salvage item joins the shop pool from your next attempt."
+            "text": "A Salvage item joins the shop pool from your next run."
           },
           "reactions": {
             "entrance": "Nice bolt-ons. Shame about the rust.",
@@ -266,7 +266,7 @@
             "unlocks": [
               "gate.miser_moll_cleared"
             ],
-            "text": "A Salvage item joins the shop pool from your next attempt."
+            "text": "A Salvage item joins the shop pool from your next run."
           },
           "reactions": {
             "entrance": "Every coin in this yard is spoken for, love. Yours included.",
@@ -322,7 +322,7 @@
             "unlocks": [
               "gate.grimewell_cleared"
             ],
-            "text": "A Salvage item joins the shop pool from your next attempt."
+            "text": "A Salvage item joins the shop pool from your next run."
           },
           "reactions": {
             "entrance": "Lovely and filthy, these. Just how I like 'em.",
@@ -378,7 +378,7 @@
             "unlocks": [
               "gate.scrapjack_cleared"
             ],
-            "text": "A Salvage item joins the shop pool from your next attempt."
+            "text": "A Salvage item joins the shop pool from your next run."
           },
           "reactions": {
             "entrance": "Nice bolt-ons. Shame about the rust.",
@@ -434,7 +434,7 @@
             "unlocks": [
               "gate.miser_moll_cleared"
             ],
-            "text": "A Salvage item joins the shop pool from your next attempt."
+            "text": "A Salvage item joins the shop pool from your next run."
           },
           "reactions": {
             "entrance": "Every coin in this yard is spoken for, love. Yours included.",
@@ -494,7 +494,7 @@
             "unlocks": [
               "gate.salvage_champion_cleared"
             ],
-            "text": "A Salvage reward joins the shop pool from your next attempt."
+            "text": "A Salvage reward joins the shop pool from your next run."
           },
           "reactions": {
             "entrance": "Title night. Everything you own, stripped and filthy.",

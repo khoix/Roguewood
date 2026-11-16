@@ -162,7 +162,7 @@
     {
       "id": "mastery.true_curve",
       "name": "True Curve",
-      "text": "Strike with a curved roll three times in one attempt.",
+      "text": "Strike with a curved roll three times in one run.",
       "metric": "curved_strikes",
       "threshold": 3,
       "scope": "attempt",
@@ -170,12 +170,12 @@
       "gates": [
         "gate.mastery_true_curve"
       ],
-      "reward": "True Curve ribbon for the trophy shelf; Banana Ball and Spin Wax join the shop pool from your next attempt."
+      "reward": "True Curve ribbon for the trophy shelf; Banana Ball and Spin Wax join the shop pool from your next run."
     },
     {
       "id": "mastery.mixed_rack",
       "name": "Mixed Rack",
-      "text": "Knock down pins of three different materials in one attempt.",
+      "text": "Knock down pins of three different materials in one run.",
       "metric": "pin_materials",
       "threshold": 3,
       "scope": "attempt",
@@ -183,12 +183,12 @@
       "gates": [
         "gate.mastery_mixed_rack"
       ],
-      "reward": "Mixed Rack ribbon for the trophy shelf; Keystone joins the shop pool from your next attempt."
+      "reward": "Mixed Rack ribbon for the trophy shelf; Keystone joins the shop pool from your next run."
     },
     {
       "id": "mastery.controlled_curve",
       "name": "Controlled Curve",
-      "text": "Strike with a curved roll released sweet or perfect three times in one attempt.",
+      "text": "Strike with a curved roll released sweet or perfect three times in one run.",
       "metric": "controlled_curves",
       "threshold": 3,
       "scope": "attempt",
@@ -196,12 +196,12 @@
       "gates": [
         "gate.mastery_controlled_curve"
       ],
-      "reward": "Controlled Curve ribbon for the trophy shelf; Comet Ball, Metronome and Steady Hand join the shop pool from your next attempt."
+      "reward": "Controlled Curve ribbon for the trophy shelf; Comet Ball, Metronome and Steady Hand join the shop pool from your next run."
     },
     {
       "id": "mastery.both_halves",
       "name": "Both Halves",
-      "text": "On a Two-Tone lane, strike once from each half in one attempt: once with the ball left of centre at 34 ft, once right of it.",
+      "text": "On a Two-Tone lane, strike once from each half in one run: once with the ball left of centre at 34 ft, once right of it.",
       "metric": "two_tone_halves",
       "threshold": 2,
       "scope": "attempt",
@@ -209,7 +209,7 @@
       "gates": [
         "gate.mastery_both_halves"
       ],
-      "reward": "Both Halves ribbon for the trophy shelf; Compass Pin, Split Pattern, Dry Run and Long Game join the shop pool from your next attempt."
+      "reward": "Both Halves ribbon for the trophy shelf; Compass Pin, Split Pattern, Dry Run and Long Game join the shop pool from your next run."
     },
     {
       "id": "mastery.rebound_rescue",
@@ -222,7 +222,7 @@
       "gates": [
         "gate.mastery_rebound_rescue"
       ],
-      "reward": "Rebound Rescue ribbon for the trophy shelf; Second Chance joins the shop pool from your next attempt."
+      "reward": "Rebound Rescue ribbon for the trophy shelf; Second Chance joins the shop pool from your next run."
     }
   ],
   "counters": {

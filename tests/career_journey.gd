@@ -171,7 +171,7 @@ func _stage_two() -> void:
 	await _assist_on()
 	await _lose()
 	var body: String = lab.hud.result_body.text
-	_check(lab.division.outcome == "lost" and body.contains("Unlocked: Encore joins the shop pool from your next attempt.")
+	_check(lab.division.outcome == "lost" and body.contains("Unlocked: Encore joins the shop pool from your next run.")
 		and body.contains("Career progress kept: 1 rival(s) cleared") and body.contains("Goals: Spare Hand %d/10" % spares),
 		"the loss result names the unlock, the kept progress and the goals")
 	_check("gate.surveyor_cleared" in _disk().unlocked, "losing later keeps the unlock on disk")
@@ -221,5 +221,5 @@ func _stage_three() -> void:
 	_check(disk.unlocked == ["gate.surveyor_cleared"] and disk.mastery.is_empty(), "practice grants no unlocks")
 	await _focus_accept(scene.back)
 	await _wait_for(func(): return scene.screen == "menu", "Clubhouse again")
-	_check(scene.career_line.text.begins_with("Career: 1 rival cleared · 0 championships · 0/6 mastery goals · 3 attempts"), "the menu summary after three attempts")
+	_check(scene.career_line.text.begins_with("Career: 1 rival cleared · 0 championships · 0/6 mastery goals · 3 runs"), "the menu summary after three attempts")
 	await _capture("career_menu")
