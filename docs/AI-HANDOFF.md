@@ -365,7 +365,10 @@ Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build`
   - **Wording:** "attempt" reads "run" everywhere a player sees it, and Try Again is New Run.
   - **Tally log:** sized by most of its lines, so a later frame no longer shrinks it.
   - **Shop:** placing an item shows a tappable rack map with each pin's art and modification, then Confirm; Sell shows item tiles that open to a Sell confirmation.
-  - **Checks:** `unit`, `content`, J05 (both modes), J11, J03C17, J03C18, J01, J06, J10 and J03C07: PASS; the full local matrix: see below.
+  - **Checks:** `unit`, `content`, J05 (both modes), J11, J03C17, J03C18, J01, J06, J10 and J03C07: PASS. The full local matrix passed (241/241) on `68b8244`.
+- **AV-N3 DONE and merged** (Codex `06b7772`, merge `4bd6942`; handoffs/AV-N3.md): the art, sounds and effects for Dry Side, Lane Reader, Hook Shot, Line Call, Bounce Back and Straight Money.
+  - **Merge:** one conflict, in the asset ledger; both sections were kept, and the UI-12 button sounds were added.
+  - **Checks on the merge:** `unit`, `content`, J03C17, J22L02, and JAVN3, JAVN3R, JAVN3C and JAVN3BC in both modes: PASS.
 - **Claude's Wave 14 claims are done.** Next:
   - Codex's AV-N3 to AV-N5 and UI-A6 (AV-T02, AV-T03 and UI-A7 are merged);
   - then the full matrix and the "Wave 14 closed" commit.
