@@ -8,6 +8,9 @@ extends Control
 ## UI-A7: stationary architecture, local foliage/sky motion and a pixel 3D ball.
 ## The first input always works; reduced motion is a completely static layout.
 signal started
+## The moment of the tap (the owner, 2026-11-16: a sound on the tap); `started`
+## follows once the 0.3 s fade ends.
+signal tapped
 
 const FONT = preload("res://assets/ui/fonts/PixelifySans.ttf")
 const BACKDROP = preload("res://assets/leagues/house/backdrop.league.house.division_01.tres")
@@ -238,6 +241,7 @@ func _unhandled_input(event: InputEvent) -> void:
 func begin() -> void:
 	if _leaving: return
 	_leaving = true
+	tapped.emit()
 	if reduced_motion or not is_inside_tree():
 		_finish()
 		return
@@ -268,7 +272,8 @@ func _layout() -> void:
 	wordmark.add_theme_constant_override("shadow_offset_y", int(round(mark * 0.09)))
 	wordmark.add_theme_constant_override("shadow_outline_size", int(round(mark * 0.18)))
 	prompt.add_theme_font_size_override("font_size", 32)
-	prompt.text = "Tap to start" if DisplayServer.is_touchscreen_available() or OS.has_feature("web") else "Click or press any key"
+	# The owner (2026-11-16): "Tap to Play".
+	prompt.text = "Tap to Play" if DisplayServer.is_touchscreen_available() or OS.has_feature("web") else "Click or press any key to Play"
 	var ball_side := minf(w * 0.42, h * 0.24) if portrait else minf(h * 0.3, w * 0.2)
 	var top := h * (0.28 if portrait else 0.16)
 	wordmark.position = Vector2(0, top)

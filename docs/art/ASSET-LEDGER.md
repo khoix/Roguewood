@@ -1179,3 +1179,6 @@ Made by the repository owner with Suno and delivered as MP3s (originals in `asse
 | house.ogg | 156.1 | `169634cd42552a52a6be84c41a55bf646931b8a4c316aed00b8add8a4fb9ffe8` |
 | neon.ogg | 159.4 | `a21d85d50d44a2e76485e59d6c23ecc501eaf4cce92bcde1a935dca00bfa303b` |
 | championship.ogg | 159.3 | `5a00e81e4086d3726a68803a5b62c22b8afe790b504400c75dec274a2c16a594` |
+
+## The title's tap sound (2026-11-16, provisional)
+`assets/audio/ui_title_start.wav` (0.3 s): Codex's `ball_hammer.wav` mixed with `pin_wood.wav` 70 ms later (a ball meeting a pin), limited to 0.6 peak. ffmpeg, no outside source. SHA-256 `d672f034ca6c7201ac2be675ac2608a15779f23862357f147d454a9f9ff90a89`. A designed sound from Codex can replace it at the same path.
