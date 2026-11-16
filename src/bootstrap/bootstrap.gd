@@ -39,6 +39,11 @@ var throw_settings: Dictionary = {}
 ## The owner's Clubhouse music (2026-11-16): the title and the Clubhouse between
 ## attempts. A League's own music takes over during an attempt.
 var clubhouse_music: AudioStreamPlayer
+## The owner (2026-11-16): the Clubhouse music starts at the Clubhouse menu, after the
+## title's tap (which plays its own sound), never under the title.
+var _awaiting_title := false
+const TITLE_TAP_SOUND := "res://assets/audio/ui_title_start.wav"
+var tap_sound: AudioStreamPlayer
 ## Career record (E09), saved apart from attempts since E10 (career.json); E15
 ## (ADR 010) adds the validated unlock graph, records and mastery. Restart and
 ## retry keep it.
@@ -64,6 +69,7 @@ var save_notice := ""
 var content: Dictionary = {}
 
 func _ready() -> void:
+	_awaiting_title = show_title_on_start()
 	# UI-2: one House theme (frame kit, Pixelify Sans) for every screen.
 	theme = UiTheme.build()
 	get_window().size_changed.connect(_viewport_layout)
@@ -231,9 +237,13 @@ func _stop_clubhouse_music() -> void:
 ## Lets go of the loop when the shell closes, so the audio thread holds no playback
 ## at exit (as LeagueTheme does).
 func _exit_tree() -> void:
-	if clubhouse_music == null: return
-	clubhouse_music.stop()
-	clubhouse_music.stream = null
+	if tap_sound != null:
+		tap_sound.stop()
+		tap_sound.stream = null
+	if clubhouse_music == null and tap_sound == null: return
+	if clubhouse_music != null:
+		clubhouse_music.stop()
+		clubhouse_music.stream = null
 	if AudioServer.get_driver_name() == "Dummy":
 		# As PresentationAudio: under the Dummy driver (journeys) the stopped playback
 		# is retired on the next mixer pass, so wait for an actual pass (bounded).
@@ -249,11 +259,24 @@ func _open_title() -> void:
 	add_child(title)
 	title.started.connect(_title_done)
 	screen = "title"
+	title.tapped.connect(_title_tapped)
 	title.open(bool(throw_settings.get("reduced_motion", false)))
-	_play_clubhouse_music()
+
+## The tap's sound, at the session's sound-effects level (PresentationAudio's mix).
+func _title_tapped() -> void:
+	if bool(throw_settings.get("sound_muted", false)) or not ResourceLoader.exists(TITLE_TAP_SOUND): return
+	if tap_sound == null:
+		tap_sound = AudioStreamPlayer.new()
+		tap_sound.name = "TitleTapSound"
+		tap_sound.stream = load(TITLE_TAP_SOUND)
+		add_child(tap_sound)
+	tap_sound.volume_db = linear_to_db(maxf(0.0001, float(throw_settings.get("sound_volume", 0.65)) * 0.35 * 2.0))
+	tap_sound.play()
 
 func _title_done() -> void:
+	_awaiting_title = false
 	screen = "menu"
+	_play_clubhouse_music()
 	(continue_button if continue_button.visible else enter).grab_focus()
 
 func _button(parent: Node, label: String, node_name: String, width: float) -> Button:
@@ -492,7 +515,8 @@ func _on_frame_scored(scored: Dictionary) -> void:
 		session.division = lab.division.division_number()
 
 func _show_menu() -> void:
-	_play_clubhouse_music()
+	if not _awaiting_title: # under the title at start-up the menu is built, not yet seen
+		_play_clubhouse_music()
 	screen = "menu"
 	session = {}
 	details.text = "The lanes are waiting."

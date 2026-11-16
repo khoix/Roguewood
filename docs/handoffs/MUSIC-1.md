@@ -37,3 +37,14 @@
 ## Limitations
 - **Not heard on a phone yet.**
 - **Browsers:** a browser starts audio only after the first tap. On the web the Clubhouse music begins at the title's tap.
+
+## Follow-up (the owner, 2026-11-16)
+- **The Clubhouse music starts at the Clubhouse menu,** after the title's tap. Before, it began with the title, and on the web became audible at the title's tap.
+- **The title's tap plays a sound** (`ui_title_start.wav`: a provisional ball-meets-pin built from two of Codex's sounds) at the sound-effects level. It is silent under Mute.
+- **The prompt reads "Tap to Play"** ("Click or press any key to Play" on a desktop).
+- **The title has a new signal, `tapped`,** for the moment of the tap. `started` still follows the 0.3 s fade.
+- **Native app builds** could start music on the title without a tap, but browsers allow sound only after the first interaction. The owner chose the menu for both.
+- **Checks:**
+  - J01 (headless and rendered): "to Play", no music under the title, then the tap's sound and the music at the menu.
+  - Also PASS: J11, `web`, JUIA1, JUIA2 and `unit`.
+

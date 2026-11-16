@@ -45,12 +45,17 @@ func _run() -> void:
 	await process_frame
 	scene = current_scene
 	await _wait_for(func(): return scene.screen == "title" and scene.title.visible and scene.title.start.has_focus(), "title screen with Start focused")
+	# The owner (2026-11-16): "Tap to Play"; no Clubhouse music under the title.
+	if not scene.title.prompt.text.ends_with("to Play"): failures.append("the title says Tap to Play (%s)" % scene.title.prompt.text)
+	if scene.clubhouse_music != null and scene.clubhouse_music.playing: failures.append("the Clubhouse music waits for the menu")
 	await _capture("title")
 	if scene.title == null or scene.title.wordmark.text != "ROGUEWOOD" or not scene.title.prompt.visible: failures.append("the title screen lacks its wordmark or prompt")
 	if scene.enter.has_focus(): failures.append("Enter League has focus behind the title")
 	await _accept()
 	await _wait_for(func(): return scene.enter.has_focus(), "menu focus")
 	if scene.title.visible or scene.screen != "menu": failures.append("accept did not leave the title for the Clubhouse")
+	if scene.tap_sound == null or scene.tap_sound.stream == null: failures.append("the title's tap plays its sound")
+	if scene.clubhouse_music == null or not scene.clubhouse_music.playing: failures.append("the Clubhouse music starts at the menu")
 	await _capture("menu")
 	if scene.screen != "menu" or not scene.enter.has_focus(): failures.append("menu missing or Enter League unfocused")
 	await _accept()
