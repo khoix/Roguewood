@@ -339,9 +339,13 @@ Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build`
   - **Loader:** the web loader as a pixel ball rolling to a pin that tips at 100% (tools/author_loader.py).
   - **Checks:** `unit`, J11, J01 and `web`: PASS.
   - **To Codex:** the charge particles (AV-T03) and the title's motion (UI-A7).
+- **AV-T03 and UI-A7 DONE and merged** (Codex `7ff10ca`, merge `294c08a`; handoffs/AV-T03.md, UI-A7.md):
+  - **AV-T03:** the text tab and fixed sparkles around the held ball are gone; colored particles trail the ball's path, growing with charge, in both spin models and views.
+  - **UI-A7:** the title no longer shifts or shakes; stars twinkle, the plants sway, and the ball is a pixel-style 3D ball turning about Y. The loader sprites stay as UI-10 drew them.
+  - **Checks on the merge:** `web`, `unit`, `content`, `physics` (digest `75d1a3c0…`), JAVT01, J02, J01, JUIA1 and JUIA2 headless and rendered, plus J08 and J11: PASS.
 - **Claude's Wave 14 claims are done.** Next:
   - the owner's E05-R5 phone trial;
-  - Codex's AV-T03 and UI-A7 (next), AV-N3 to AV-N5 and UI-A6 (AV-T02 is merged);
+  - Codex's AV-N3 to AV-N5 and UI-A6 (AV-T02, AV-T03 and UI-A7 are merged);
   - then the full matrix and the "Wave 14 closed" commit.
 
 ## Wave 13 closed (coordinator, 2026-11-15)
