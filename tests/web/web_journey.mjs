@@ -106,6 +106,36 @@ try {
   check(splash && splash[0] === 720 && splash[1] === 560 && head.splashClass.includes("fullsize--false") && head.statusColor === "rgb(11, 17, 22)",
     `the loading screen is the Roguewood splash on the night background (${head.splash} ${splash}, ${head.splashClass}, ${head.statusColor})`);
   check(head.theme === "#0b1116" && head.homeName === "Roguewood" && head.title === "Roguewood", `theme colour, home-screen name and page title (${JSON.stringify(head)})`);
+  // UI-10: the loading progress is a pixel ball rolling down a short lane toward a pin,
+  // driven by the engine's own progress element (kept, invisible); the pin tips at 100%.
+  // The engine removes its loading overlay once it starts, so the loader is run again
+  // on a stand-in overlay with the same ids.
+  const loader = await page.evaluate(async () => {
+    if (!document.querySelector("#rw-loader-js") || typeof window.rwLoaderStart !== "function") return { found: false };
+    const stand = document.createElement("div");
+    stand.id = "status";
+    stand.style.cssText = "position:absolute;inset:0;width:600px;height:400px;";
+    stand.innerHTML = '<progress id="status-progress"></progress>';
+    document.body.appendChild(stand);
+    window.rwLoaderStart();
+    await new Promise((r) => requestAnimationFrame(r));
+    const lane = stand.querySelector("#rw-loader"), pr = stand.querySelector("#status-progress");
+    if (!lane) return { found: false, started: true };
+    const shown = pr.style.display;
+    const at = async (value) => {
+      pr.style.display = "block"; pr.max = 1; pr.value = value;
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      const m = new DOMMatrixReadOnly(getComputedStyle(lane.querySelector("#rw-ball")).transform);
+      return { x: m.m41, shown: getComputedStyle(lane).display, progress: lane.dataset.progress, pinDown: lane.querySelector("#rw-pin").classList.contains("down") };
+    };
+    const quarter = await at(0.25), most = await at(0.9), done = await at(1.0);
+    pr.style.display = shown;
+    const opacity = getComputedStyle(pr).opacity;
+    stand.remove();
+    return { found: true, opacity, ball: lane.querySelector("#rw-ball").getAttribute("src").startsWith("data:image/svg+xml"), quarter, most, done };
+  });
+  check(loader.found && loader.opacity === "0" && loader.ball && loader.quarter.shown === "block" && loader.most.x > loader.quarter.x + 40
+    && !loader.most.pinDown && loader.done.pinDown && loader.done.progress === "1.000", `the loader rolls a pixel ball toward a pin that tips at 100% (${JSON.stringify(loader)})`);
   await page.screenshot({ path: path.join(outDir, "web_title.png") });
   // The browser's first tap, on the title, is the user gesture that lets audio start.
   await click(titled.s.title.at);

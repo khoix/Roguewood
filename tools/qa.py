@@ -248,6 +248,14 @@ JOURNEYS["JAVT01"] = (*_avt02[:3], _avt02[3] + tuple(
     for r in ["normal", "motion", "flash"] for s in ["charging", "ready", "full"]
 ), *_avt02[4:])
 
+# AV-T03 adds building charge and a short native swirl sequence to both models.
+_avt03 = JOURNEYS["JAVT01"]
+JOURNEYS["JAVT01"] = (*_avt03[:3], _avt03[3] + tuple(
+    f"{m}{v}_{r}_{s}" for m in ["", "model2_"] for v in ["depth", "flat"]
+    for r in ["normal", "motion", "flash"]
+    for s in ["building", "swirl_130", "swirl_135", "swirl_140"]
+), *_avt03[4:])
+
 def engine():
     executable = os.environ.get("GODOT_BIN") or shutil.which("godot") or shutil.which("godot4")
     if not executable:
