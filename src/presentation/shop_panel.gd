@@ -7,6 +7,14 @@ extends PanelContainer
 const ItemAssets = preload("res://src/presentation/item_assets.gd")
 const CardView = preload("res://src/presentation/card_view.gd")
 const UiTheme = preload("res://src/presentation/house_ui_theme.gd")
+const ModArt = preload("res://src/presentation/modification_art.gd")
+## UI-12 (owner's play notes, 2026-11-16): placing an item shows a map of the rack
+## (each pin with its art and modification badge) and the other places as tiles; a
+## tap selects one and shows what is there now and what will change, and Confirm
+## applies it. Sell shows the owned items as tiles; a tap opens the item with a Sell
+## confirmation. Keyboard and gamepad focus shows the same detail and accept applies,
+## as before. The bowling triangle, back row first, as the player sees it down the lane.
+const RACK_ROWS := [[7, 8, 9, 10], [4, 5, 6], [2, 3], [1]]
 signal offer_pressed(index: int)
 signal reroll_pressed
 signal remove_pressed
@@ -26,7 +34,25 @@ var reroll_button: Button
 var remove_button: Button
 var continue_button: Button
 var rack_label: Label
-var owned_list: VBoxContainer
+var owned_list: Container # UI-12: the Sell tiles (HFlowContainer "Owned")
+var charm_box: VBoxContainer # the Charm order and its moves, under the tiles
+var sell_detail: Label
+var sell_confirm_sheet: PanelContainer
+var sell_card: CardView
+var sell_confirm_title: Label
+var sell_confirm_text: Label
+var sell_confirm: Button
+var sell_back: Button
+var _sell_pending := ""
+var _sellables: Dictionary = {} # ref -> the view's sellable entry
+var choice_map: VBoxContainer
+var choice_others: HFlowContainer
+var choice_detail: Label
+var choice_confirm: Button
+var _choice_labels: Array = []
+var _choice_visuals: Array = []
+var _choice_selected := -1
+var _pointer := false # the last press came from a finger or the mouse, not focus and accept
 var choice_sheet: PanelContainer
 var choice_prompt: Label
 var choice_list: VBoxContainer
@@ -176,14 +202,57 @@ func _ready() -> void:
 	sell_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	sell_scroll.follow_focus = true
 	sell_box.add_child(sell_scroll)
-	owned_list = VBoxContainer.new()
-	owned_list.name = "Owned"
-	owned_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	owned_list.add_theme_constant_override("separation", 6)
-	sell_scroll.add_child(owned_list)
+	var sell_column := VBoxContainer.new()
+	sell_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	sell_column.add_theme_constant_override("separation", 10)
+	sell_scroll.add_child(sell_column)
+	var flow := HFlowContainer.new()
+	flow.name = "Owned"
+	flow.alignment = FlowContainer.ALIGNMENT_CENTER
+	flow.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	flow.add_theme_constant_override("h_separation", 8)
+	flow.add_theme_constant_override("v_separation", 8)
+	sell_column.add_child(flow)
+	owned_list = flow
+	charm_box = VBoxContainer.new()
+	charm_box.name = "CharmOrderBox"
+	charm_box.add_theme_constant_override("separation", 6)
+	sell_column.add_child(charm_box)
+	sell_detail = _label(sell_box, "SellDetail", 18)
+	sell_detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	sell_detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	sell_detail.add_theme_color_override("font_color", Color("9aa8a6"))
 	sell_close = _button(sell_box, "SellClose", close_sell)
 	sell_close.text = "Done"
 	sell_close.custom_minimum_size = Vector2(0, 56)
+	# UI-12: a tapped item opens large, with what it is, where it sits and its price.
+	sell_confirm_sheet = _sheet("SellConfirm")
+	var confirm_box := VBoxContainer.new()
+	confirm_box.add_theme_constant_override("separation", 8)
+	sell_confirm_sheet.add_child(confirm_box)
+	sell_confirm_title = _label(confirm_box, "SellConfirmTitle", 28)
+	sell_confirm_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	sell_card = CardView.new()
+	sell_card.name = "SellCard"
+	sell_card.focus_mode = Control.FOCUS_NONE
+	sell_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	sell_card.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	confirm_box.add_child(sell_card)
+	sell_confirm_text = _label(confirm_box, "SellConfirmText", 22)
+	sell_confirm_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	sell_confirm_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var confirm_row := HBoxContainer.new()
+	confirm_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	confirm_row.add_theme_constant_override("separation", 12)
+	confirm_box.add_child(confirm_row)
+	sell_back = _button(confirm_row, "SellBack", close_sell_confirm)
+	sell_back.text = "Back"
+	sell_back.custom_minimum_size = Vector2(150, 60)
+	sell_confirm = _button(confirm_row, "SellConfirmButton", func():
+		var ref := _sell_pending
+		close_sell_confirm()
+		if not ref.is_empty(): call_deferred("emit_signal", "sell_pressed", ref))
+	sell_confirm.custom_minimum_size = Vector2(190, 60)
 	# The offer sheet: the card large, its full text and price, Buy and Back.
 	offer_sheet = _sheet("OfferSheet")
 	var offer_box := VBoxContainer.new()
@@ -244,8 +313,31 @@ func _ready() -> void:
 	choice_list.name = "Choices"
 	choice_list.add_theme_constant_override("separation", 6)
 	sheet.add_child(choice_list)
-	cancel_choice = _button(sheet, "CancelChoice", func(): choice_cancelled.emit())
+	choice_map = VBoxContainer.new()
+	choice_map.name = "RackMap"
+	choice_map.add_theme_constant_override("separation", 6)
+	sheet.add_child(choice_map)
+	choice_others = HFlowContainer.new()
+	choice_others.name = "OtherPlaces"
+	choice_others.alignment = FlowContainer.ALIGNMENT_CENTER
+	choice_others.add_theme_constant_override("h_separation", 8)
+	choice_others.add_theme_constant_override("v_separation", 8)
+	sheet.add_child(choice_others)
+	choice_detail = _label(sheet, "ChoiceDetail", 20)
+	choice_detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	choice_detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	choice_detail.custom_minimum_size.y = 56
+	var choice_row := HBoxContainer.new()
+	choice_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	choice_row.add_theme_constant_override("separation", 12)
+	sheet.add_child(choice_row)
+	cancel_choice = _button(choice_row, "CancelChoice", func(): choice_cancelled.emit())
 	cancel_choice.text = "Cancel"
+	cancel_choice.custom_minimum_size = Vector2(150, 60)
+	choice_confirm = _button(choice_row, "ConfirmChoice", func():
+		if _choice_selected >= 0: call_deferred("emit_signal", "choice_made", _choice_selected))
+	choice_confirm.text = "Confirm"
+	choice_confirm.custom_minimum_size = Vector2(190, 60)
 
 ## A sheet over the shop, hidden until opened (the choice sheet's pattern).
 func _sheet(node_name: String) -> PanelContainer:
@@ -314,26 +406,115 @@ func close_offer() -> void:
 		offer_buttons[index].grab_focus()
 
 func _open_sell() -> void:
-	if choice_sheet.visible or owned_list.get_child_count() == 0: return
+	if choice_sheet.visible or owned_list.get_child_count() + charm_box.get_child_count() == 0: return
 	close_offer()
 	sell_sheet.show()
 	_fit_sell()
-	for child in owned_list.get_children():
+	for child in owned_list.get_children() + charm_box.get_children():
 		if child is Button:
 			child.grab_focus()
 			break
 
 func _fit_sell() -> void:
-	_fit_sheet(sell_sheet, Vector2(560.0, 62.0 * owned_list.get_child_count() + 150.0))
+	var screen := get_viewport_rect().size
+	var columns := maxi(1, int((minf(560.0, screen.x - 32.0) - 48.0 + 8.0) / (_sell_tile_size().x + 8.0)))
+	var rows := ceili(owned_list.get_child_count() / float(columns))
+	_fit_sheet(sell_sheet, Vector2(560.0, (_sell_tile_size().y + 8.0) * rows + 62.0 * charm_box.get_child_count() + 230.0))
+
+func _sell_tile_size() -> Vector2:
+	var screen := get_viewport_rect().size
+	return Vector2(112, 128) if screen.y >= 820.0 else Vector2(96, 108)
+
+## The tapped item, large, with its place, modification and price; Sell confirms.
+func open_sell_confirm(ref: String) -> void:
+	var owned: Dictionary = _sellables.get(ref, {})
+	if owned.is_empty(): return
+	_sell_pending = ref
+	var screen := get_viewport_rect().size
+	var width := floorf(clampf(minf(screen.x - 200.0, (screen.y - 420.0) / CardView.ASPECT), 120.0, 240.0))
+	sell_card.custom_minimum_size = Vector2(width, floorf(width * CardView.ASPECT))
+	var item_id := String(owned.get("item_id", ""))
+	sell_card.visible = not item_id.is_empty()
+	if sell_card.visible:
+		sell_card.set_item(item_id, {}, String(owned.get("name", "")))
+		sell_card.show_face(true)
+		sell_card.set_state("", "", "", String(owned.get("text", "")))
+	sell_confirm_title.text = String(owned.get("name", owned.label))
+	sell_confirm_text.text = String(owned.get("detail", owned.label))
+	sell_confirm.text = "Sell +$%d" % int(owned.get("value", 0))
+	sell_confirm_sheet.show()
+	sell_confirm.grab_focus()
+	_fit_sheet(sell_confirm_sheet, Vector2(480.0, 10000.0))
+	sell_confirm_sheet.modulate.a = 0.0
+	for i in 2:
+		await get_tree().process_frame
+		if not is_inside_tree() or not sell_confirm_sheet.visible or _sell_pending != ref: return
+		sell_confirm_sheet.size.y = 0.0
+		_fit_sheet(sell_confirm_sheet, Vector2(480.0, sell_confirm_sheet.get_combined_minimum_size().y))
+	sell_confirm_sheet.modulate.a = 1.0
+
+func close_sell_confirm() -> void:
+	if not sell_confirm_sheet.visible: return
+	var ref := _sell_pending
+	_sell_pending = ""
+	sell_confirm_sheet.hide()
+	sell_confirm_sheet.modulate.a = 1.0
+	_dim.visible = sell_sheet.visible or offer_sheet.visible
+	var tile := sell_button(ref)
+	if tile != null and tile.is_visible_in_tree(): tile.grab_focus()
+
+## A square tile: the item's art, its modification's badge, a short caption. A press
+## from a finger or the mouse is told apart from focus and accept (_pointer).
+func _tile(parent: Control, node_name: String, item_id: String, mod: String, caption: String, tile_size: Vector2) -> Button:
+	var tile := Button.new()
+	tile.name = node_name
+	tile.text = caption
+	tile.custom_minimum_size = tile_size
+	tile.set_meta("art_tile", true) # ModificationArt badges it but keeps its art
+	tile.icon = ItemAssets.slot(item_id, "icon") as Texture2D if not item_id.is_empty() else null
+	tile.expand_icon = true
+	tile.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	tile.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
+	tile.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	tile.clip_text = true
+	tile.add_theme_font_size_override("font_size", 15)
+	tile.add_theme_constant_override("icon_max_width", int(tile_size.x * 0.62))
+	tile.gui_input.connect(func(event): _pointer = event is InputEventMouseButton or event is InputEventScreenTouch)
+	parent.add_child(tile)
+	if not mod.is_empty(): ModArt._badge(tile, mod, int(tile_size.x * 0.24))
+	var ring := Panel.new()
+	ring.name = "Selected"
+	ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var style := StyleBoxFlat.new()
+	style.draw_center = false
+	style.border_color = UiTheme.BRASS
+	style.set_border_width_all(3)
+	style.set_corner_radius_all(8)
+	ring.add_theme_stylebox_override("panel", style)
+	ring.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	ring.hide()
+	tile.add_child(ring)
+	return tile
+
+## The control to press to finish what a tap began (journeys use it after a tap).
+func pending_confirm(control) -> Button:
+	if not is_instance_valid(control): return null
+	if choice_sheet.visible and _choice_selected >= 0 and control == choice_button(_choice_selected): return choice_confirm
+	if sell_confirm_sheet.visible and not _sell_pending.is_empty() and control == sell_button(_sell_pending): return sell_confirm
+	return null
 
 func close_sell() -> void:
 	if not sell_sheet.visible: return
+	close_sell_confirm()
 	sell_sheet.hide()
 	_dim.visible = offer_sheet.visible
 	if sell_open.is_visible_in_tree(): sell_open.grab_focus()
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_cancel") and (offer_sheet.visible or sell_sheet.visible):
+	if event.is_action_pressed("ui_cancel") and sell_confirm_sheet.visible:
+		close_sell_confirm()
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("ui_cancel") and (offer_sheet.visible or sell_sheet.visible):
 		close_offer()
 		close_sell()
 		get_viewport().set_input_as_handled()
@@ -469,25 +650,36 @@ func show_view(view: Dictionary) -> void:
 	var refused: bool = message.text.begins_with("Can't")
 	message.add_theme_color_override("font_color", Color(1.0, 0.55, 0.45) if refused else Color(0.6, 0.95, 0.7))
 	rack_label.text = view.rack
-	for child in owned_list.get_children():
-		owned_list.remove_child(child)
-		child.queue_free()
+	for box in [owned_list, charm_box]:
+		for child in box.get_children():
+			box.remove_child(child)
+			child.queue_free()
+	_sellables = {}
 	for owned in view.sellables:
 		var ref: String = owned.ref
-		# Deferred: selling rebuilds this list, so the button must not vanish mid-input.
-		var button := _button(owned_list, "Sell_" + ref.replace(":", "_").replace("-", "_"), func(): sell_pressed.emit(ref), CONNECT_DEFERRED)
-		button.text = owned.label
-		button.custom_minimum_size = Vector2(0, 52)
-		button.disabled = choice_sheet.visible
-	# Charm order (E13), after the sales so existing controls keep their place: each
-	# Charm after the first can move one slot left.
+		_sellables[ref] = owned
+		var caption := "%s\n+$%d" % [String(owned.get("name", owned.label)), int(owned.get("value", 0))] if owned.has("value") else String(owned.label)
+		var tile := _tile(owned_list, "Sell_" + ref.replace(":", "_").replace("-", "_"), String(owned.get("item_id", "")), String(owned.get("mod", "")), caption, _sell_tile_size())
+		tile.tooltip_text = owned.label
+		tile.disabled = choice_sheet.visible
+		# A tap opens the item to confirm; accept sells at once (deferred: selling
+		# rebuilds these tiles, so the pressed one must not vanish mid-input).
+		tile.pressed.connect(func():
+			var by_pointer := _pointer
+			_pointer = false
+			if by_pointer: open_sell_confirm(ref)
+			else: call_deferred("emit_signal", "sell_pressed", ref))
+		tile.focus_entered.connect(func(): sell_detail.text = String(owned.get("detail", owned.label)))
+	sell_detail.text = "Tap an item to sell it." if not view.sellables.is_empty() else ""
+	if sell_confirm_sheet.visible and not _sellables.has(_sell_pending): close_sell_confirm()
+	# Charm order (E13), under the tiles: each Charm after the first can move one slot left.
 	if not String(view.get("charm_order", "")).is_empty():
-		var order := _label(owned_list, "CharmOrder", 20)
+		var order := _label(charm_box, "CharmOrder", 20)
 		order.text = view.charm_order
 		order.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	for move in view.get("charm_moves", []):
 		var slot: int = move.slot
-		var button := _button(owned_list, "MoveCharm_%d" % slot, func(): charm_moved.emit(slot), CONNECT_DEFERRED)
+		var button := _button(charm_box, "MoveCharm_%d" % slot, func(): charm_moved.emit(slot), CONNECT_DEFERRED)
 		button.text = move.label
 		button.custom_minimum_size = Vector2(0, 52)
 		button.disabled = choice_sheet.visible
@@ -507,36 +699,125 @@ func _scroll_home() -> void:
 	await get_tree().process_frame
 	if is_inside_tree(): _scroll.scroll_vertical = 0
 
-func show_choices(prompt: String, labels: Array) -> void:
+## labels: one line per choice (also the tile's tooltip). visuals (UI-12), one per
+## choice: {target, item_id, mod, caption, detail, verb}; rack: the ten pins as
+## {item_id, mod}, for the map's pins that are not choices. Without visuals the
+## choices are a list of rows, each applied at once.
+func show_choices(prompt: String, labels: Array, visuals: Array = [], rack: Array = []) -> void:
 	choice_prompt.text = prompt
-	for child in choice_list.get_children():
-		choice_list.remove_child(child)
-		child.queue_free()
-	for i in labels.size():
-		var index := i
-		var button := _button(choice_list, "Choice_%d" % i, func(): choice_made.emit(index), CONNECT_DEFERRED)
-		button.text = labels[i]
-		button.custom_minimum_size = Vector2(0, 56)
-	choice_sheet.show()
+	_choice_labels = labels
+	_choice_visuals = visuals
+	_choice_selected = -1
+	for box in [choice_list, choice_map, choice_others]:
+		for child in box.get_children():
+			box.remove_child(child)
+			child.queue_free()
+	var visual := visuals.size() == labels.size() and not labels.is_empty()
+	choice_list.visible = not visual
+	choice_map.visible = false
+	choice_others.visible = visual
+	choice_detail.visible = visual
+	choice_confirm.visible = visual
+	choice_confirm.disabled = true
+	choice_detail.text = "Tap a place to see what is there." if visual else ""
 	var viewport_size := get_viewport_rect().size
-	choice_sheet.size = Vector2(minf(600.0, viewport_size.x - 32.0), minf(64.0 * (labels.size() + 2) + 60.0, viewport_size.y - 160.0))
-	choice_sheet.position = (viewport_size - choice_sheet.size) * 0.5
+	var width := minf(600.0, viewport_size.x - 32.0)
+	choice_sheet.get_child(0).custom_minimum_size.x = width - 40.0
+	if not visual:
+		for i in labels.size():
+			var index := i
+			var button := _button(choice_list, "Choice_%d" % i, func(): choice_made.emit(index), CONNECT_DEFERRED)
+			button.text = labels[i]
+			button.custom_minimum_size = Vector2(0, 56)
+	else:
+		var by_target := {}
+		for i in visuals.size():
+			by_target[String(visuals[i].get("target", ""))] = i
+		var pin := floorf(clampf((width - 40.0 - 24.0) / 4.0, 64.0, 104.0))
+		if viewport_size.y < viewport_size.x: pin = floorf(clampf((viewport_size.y - 380.0) / 4.4, 52.0, 88.0))
+		var pin_size := Vector2(pin, floorf(pin * 1.08))
+		var on_rack: bool = visuals.any(func(v): return String(v.get("target", "")).begins_with("rack:"))
+		choice_map.visible = on_rack
+		if on_rack:
+			for row_positions in RACK_ROWS:
+				var row := HBoxContainer.new()
+				row.alignment = BoxContainer.ALIGNMENT_CENTER
+				row.add_theme_constant_override("separation", 6)
+				choice_map.add_child(row)
+				for position in row_positions:
+					var target := "rack:%d" % position
+					if by_target.has(target):
+						_choice_tile(row, by_target[target], pin_size)
+					else:
+						# A pin that is not a choice: shown for the map, not pressable.
+						var here: Dictionary = rack[position - 1] if rack.size() >= position else {}
+						var still := _tile(row, "Pin_%d" % position, String(here.get("item_id", "")), String(here.get("mod", "")), str(position), pin_size)
+						still.disabled = true
+						still.focus_mode = Control.FOCUS_NONE
+						still.modulate.a = 0.55
+		for i in visuals.size():
+			if not String(visuals[i].get("target", "")).begins_with("rack:"):
+				_choice_tile(choice_others, i, Vector2(floorf(pin * 1.15), floorf(pin * 1.2)))
+		choice_others.visible = choice_others.get_child_count() > 0
+	choice_sheet.show()
+	choice_sheet.size = Vector2(width, minf(64.0 * (labels.size() + 2) + 60.0, viewport_size.y - 160.0))
+	choice_sheet.position = ((viewport_size - choice_sheet.size) * 0.5).floor()
 	if labels.is_empty():
 		cancel_choice.grab_focus()
 	else:
-		choice_list.get_child(0).grab_focus()
+		choice_button(0).grab_focus()
+	if visual: _fit_choices.call_deferred()
+
+## The visual sheet's height is known once its tiles are laid out.
+func _fit_choices() -> void:
+	await get_tree().process_frame
+	if not is_inside_tree() or not choice_sheet.visible: return
+	var viewport_size := get_viewport_rect().size
+	var content: Control = choice_sheet.get_child(0).get_child(0)
+	choice_sheet.size.y = minf(content.get_combined_minimum_size().y + 40.0, viewport_size.y - 48.0)
+	choice_sheet.position = ((viewport_size - choice_sheet.size) * 0.5).floor()
+
+func _choice_tile(parent: Control, index: int, tile_size: Vector2) -> Button:
+	var v: Dictionary = _choice_visuals[index]
+	var tile := _tile(parent, "Choice_%d" % index, String(v.get("item_id", "")), String(v.get("mod", "")), String(v.get("caption", str(index + 1))), tile_size)
+	tile.tooltip_text = _choice_labels[index]
+	tile.pressed.connect(func():
+		var by_pointer := _pointer
+		_pointer = false
+		if by_pointer: select_choice(index)
+		else: call_deferred("emit_signal", "choice_made", index))
+	tile.focus_entered.connect(func(): select_choice(index))
+	return tile
+
+## Shows what is at a place now and what the choice will do; Confirm applies it.
+func select_choice(index: int) -> void:
+	if index < 0 or index >= _choice_visuals.size(): return
+	_choice_selected = index
+	for i in _choice_visuals.size():
+		var tile := choice_button(i)
+		if tile != null: tile.get_node("Selected").visible = i == index
+	choice_detail.text = String(_choice_visuals[index].get("detail", _choice_labels[index]))
+	choice_confirm.text = String(_choice_visuals[index].get("verb", "Confirm"))
+	choice_confirm.disabled = false
+
+func choice_count() -> int:
+	return _choice_labels.size() if choice_sheet.visible else 0
+
+func choice_label(index: int) -> String:
+	return String(_choice_labels[index]) if index >= 0 and index < _choice_labels.size() else ""
 
 func hide_choices() -> void:
 	choice_sheet.hide()
+	_choice_selected = -1
 
 func button_for_offer(index: int) -> Button:
 	return offer_buttons[index]
 
 func choice_button(index: int) -> Button:
-	return choice_list.get_child(index) if index < choice_list.get_child_count() else null
+	return choice_sheet.find_child("Choice_%d" % index, true, false) as Button
 
 func move_button(slot: int) -> Button:
-	return owned_list.get_node_or_null("MoveCharm_%d" % slot)
+	return charm_box.get_node_or_null("MoveCharm_%d" % slot)
 
 func sell_button(ref: String) -> Button:
 	return owned_list.get_node_or_null("Sell_" + ref.replace(":", "_").replace("-", "_"))

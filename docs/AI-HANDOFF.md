@@ -358,6 +358,14 @@ Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build`
   - **Checks:** `unit`, J11, J22L01, J22L02 and its live art, J01, J06, J07, J09, J10, J03C18 and `web`: PASS.
 - **PR #38 merged** (owner, 2026-11-16; main `4a16b21`, a merge of `545c674`): MUSIC-1. The owner merged it while CI's game shard was still running on `545c674`; the push run on the same commit passed both shards.
 - **PR #39 merged** (owner, 2026-11-16; main `4e4a31c`, a merge of `5495685`): the Clubhouse music starts at the menu, the title's tap plays a sound, and the title reads "Tap to Play" (handoffs/MUSIC-1.md, follow-up). CI passed on `5495685`, and the full local matrix passed (242/242) on `25bc296`.
+- **UI-12 DONE** (handoffs/UI-12.md), the owner's play notes of 2026-11-16:
+  - **Sound:** every button taps (provisional tap, select and back sounds; Codex's final set is proposed as AV-UI1).
+  - **Music dip:** the music, not the sound effects, eases to half under the Pro Shop and Options, in a match and in the Clubhouse.
+  - **Clubhouse menu:** a three-bar menu at the top right opens Options and Sound & effects.
+  - **Wording:** "attempt" reads "run" everywhere a player sees it, and Try Again is New Run.
+  - **Tally log:** sized by most of its lines, so a later frame no longer shrinks it.
+  - **Shop:** placing an item shows a tappable rack map with each pin's art and modification, then Confirm; Sell shows item tiles that open to a Sell confirmation.
+  - **Checks:** `unit`, `content`, J05 (both modes), J11, J03C17, J03C18, J01, J06, J10 and J03C07: PASS; the full local matrix: see below.
 - **Claude's Wave 14 claims are done.** Next:
   - Codex's AV-N3 to AV-N5 and UI-A6 (AV-T02, AV-T03 and UI-A7 are merged);
   - then the full matrix and the "Wave 14 closed" commit.

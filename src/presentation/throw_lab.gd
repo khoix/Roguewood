@@ -1446,7 +1446,7 @@ func _on_offer(index: int) -> void:
 	elif RunInventory.slot_kind(run.item(plan.item_id).category) == "mod":
 		prompt = "Attach %s ($%d) to:" % [item_name, plan.price]
 	_choice = {"kind": "buy", "index": index, "targets": options.map(func(o): return o.target)}
-	shop_panel.show_choices(prompt, options.map(_placement_label))
+	shop_panel.show_choices(prompt, options.map(_placement_label), options.map(func(o): return _choice_visual(o, plan.item_id)), _rack_art())
 	_refresh_shop()
 
 func _finish_buy(index: int, target: String) -> void:
@@ -1502,7 +1502,8 @@ func _on_remove() -> void:
 			targets.append(owned.ref.trim_prefix("card:"))
 	_choice = {"kind": "remove", "targets": targets}
 	shop_panel.show_choices("Remove which card from the run for $%d? (No refund.)" % Economy.REMOVAL_PRICE,
-		targets.map(func(uid): return _ref_label("card:" + uid)))
+		targets.map(func(uid): return _ref_label("card:" + uid)),
+		targets.map(func(uid): return _choice_visual({"target": "card:" + uid, "replaces": "", "moves_to": ""}, "", "Remove")))
 	_refresh_shop()
 
 func _on_sell(ref: String) -> void:
@@ -1574,6 +1575,39 @@ func _ref_label(ref: String) -> String:
 		"charm": return "Charm %s %s" % [parts[1], text]
 		"upgrade": return "Upgrade " + text
 	return "Card " + text
+
+## UI-12: what the visual placement sheet shows for one choice: the place's current
+## occupant (art, modification badge, a short caption), what is there now and what
+## will change, and the Confirm button's word.
+func _choice_visual(option: Dictionary, item_id: String, verb: String = "") -> Dictionary:
+	var target: String = option.target
+	var parts := target.split(":")
+	var entry = run.entry_at(target) if not target.ends_with(":new") else null
+	var places := {"rack": "Rack %s", "reserve": "Reserve %s", "charm": "Charm slot %s", "card": "Deck card"}
+	var place: String = places.get(parts[0], "%s") % parts[1] if parts[0] in ["rack", "reserve", "charm"] else ("Deck" if target == "card:new" else "Deck card")
+	if target == "charm:new": place = "Charm slot %d" % (run.charms.size() + 1)
+	var is_mod: bool = not item_id.is_empty() and RunInventory.slot_kind(String(run.item(item_id).get("category", ""))) == "mod"
+	var now := "empty"
+	if entry != null:
+		now = _names.get(entry.item_id, entry.item_id)
+		if not String(entry.mod).is_empty(): now += " + " + _names.get(entry.mod, entry.mod)
+		elif is_mod: now += " · no modification"
+	elif target == "card:new":
+		now = "%d of %d cards" % [run.cards.size(), RunInventory.DECK_CAP]
+	if verb.is_empty():
+		verb = "Replace" if not String(option.get("replaces", "")).is_empty() else ("Attach" if is_mod else "Place")
+	var caption: String = parts[1] if parts[0] == "rack" else ("New" if target.ends_with(":new") else (_names.get(entry.item_id, "") if entry != null else place))
+	var then := _placement_label(option) if verb != "Remove" else "Removed from the run; no refund."
+	return {"target": target, "item_id": entry.item_id if entry != null else item_id, "mod": String(entry.mod) if entry != null else "",
+		"caption": caption, "detail": "%s · now: %s\n%s" % [place, now, then], "verb": verb}
+
+## The ten pins for the placement map: {item_id, mod} by position.
+func _rack_art() -> Array:
+	var out: Array = []
+	for position in range(1, 11):
+		var pin: Dictionary = run.rack.get(position, {})
+		out.append({"item_id": String(pin.get("item_id", "")), "mod": String(pin.get("mod", ""))})
+	return out
 
 func _placement_label(option: Dictionary) -> String:
 	var target: String = option.target
@@ -1652,7 +1686,16 @@ func _refresh_shop() -> void:
 	var sellables: Array = []
 	for owned in run.entries():
 		if run.can_sell(owned.ref):
-			sellables.append({"ref": owned.ref, "label": "%s  +$%d" % [_ref_label(owned.ref), run.sale_value(owned.ref)]}) # the sheet's title says Sell
+			# UI-12: a tile per item (art, badge, name, price) that opens to confirm the sale.
+			var entry: Dictionary = owned.entry
+			var item: Dictionary = run.item(entry.item_id)
+			var ref_parts: PackedStringArray = String(owned.ref).split(":")
+			var place: String = ("%s %s" % [String(ref_parts[0]).capitalize(), ref_parts[1]]) if ref_parts[0] in ["rack", "reserve", "charm"] else "Deck card"
+			var with_mod: String = "" if String(entry.mod).is_empty() else " + " + _names.get(entry.mod, entry.mod)
+			sellables.append({"ref": owned.ref, "label": "%s  +$%d" % [_ref_label(owned.ref), run.sale_value(owned.ref)], # the sheet's title says Sell
+				"item_id": entry.item_id, "mod": String(entry.mod), "name": item.get("name", entry.item_id), "value": run.sale_value(owned.ref),
+				"place": place, "text": _effect_text(item),
+				"detail": "%s%s · %s · sells for $%d" % [item.get("name", entry.item_id), with_mod, place, run.sale_value(owned.ref)]})
 	var summary := "Match %d paid: payout $%d · interest $%d (on $%d held) · item income $%d" % [settlement.match, settlement.payout,
 		settlement.interest, settlement.balance_before, settlement.item_income]
 	if Upgrades.owned(run, "interest_cap"):

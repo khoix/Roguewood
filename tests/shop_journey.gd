@@ -85,7 +85,7 @@ func _reach(control: Control) -> void:
 			shop.sell_open.grab_focus()
 			await _action("ui_accept")
 			await process_frame
-	elif shop.sell_sheet.visible:
+	elif shop.sell_sheet.visible and not shop.sell_confirm_sheet.is_ancestor_of(control):
 		shop.sell_close.grab_focus()
 		await _action("ui_accept")
 	if shop.offer_sheet.visible and not shop.offer_sheet.is_ancestor_of(control):
@@ -99,6 +99,11 @@ func _confirm(control) -> void: # untyped: a pressed row may already be freed
 	var shop: Control = scene.lab.shop_panel
 	if shop.offer_sheet.visible and control in shop.offer_buttons:
 		(shop.offer_back if shop.buy_button.disabled else shop.buy_button).grab_focus()
+		await _action("ui_accept")
+	# UI-12: a tap on a placement or Sell tile selects it; its Confirm finishes the tap.
+	var pending: Button = shop.pending_confirm(control)
+	if pending != null:
+		pending.grab_focus()
 		await _action("ui_accept")
 
 func _focus_accept(control: Control) -> void:
@@ -360,7 +365,7 @@ func _placements() -> void:
 	if pin >= 0:
 		var pin_id: String = shop.offers[pin].item_id
 		await _focus_accept(lab.shop_panel.button_for_offer(pin))
-		_check(lab.shop_panel.choice_sheet.visible and lab.shop_panel.choice_button(0).text.contains("moves to Reserve 1"), "a pin purchase asks where to place it")
+		_check(lab.shop_panel.choice_sheet.visible and lab.shop_panel.choice_label(0).contains("moves to Reserve 1"), "a pin purchase asks where to place it")
 		await _capture("place_pin")
 		var money: int = run.money
 		await _focus_accept(lab.shop_panel.choice_button(0))
@@ -372,7 +377,7 @@ func _placements() -> void:
 		var mod_id: String = shop.offers[mod].item_id
 		var hosts: Array = run.mod_hosts(mod_id)
 		await _focus_accept(lab.shop_panel.button_for_offer(mod))
-		_check(lab.shop_panel.choice_sheet.visible and lab.shop_panel.choice_list.get_child_count() == hosts.size(), "a modification lists every eligible host")
+		_check(lab.shop_panel.choice_sheet.visible and lab.shop_panel.choice_count() == hosts.size(), "a modification lists every eligible host")
 		await _tap(lab.shop_panel.choice_button(0))
 		var host = run.entry_at(hosts[0])
 		_check(host.mod == mod_id and hosts[0] not in run.mod_hosts(mod_id), "the modification is attached to the chosen host, one per item")
@@ -400,7 +405,7 @@ func _full_slot() -> void:
 	if charm < 0: return
 	var snapshot: Dictionary = run.to_dict()
 	await _focus_accept(lab.shop_panel.button_for_offer(charm))
-	_check(lab.shop_panel.choice_sheet.visible and lab.shop_panel.choice_prompt.text.contains("No free slot") and lab.shop_panel.choice_list.get_child_count() == 5,
+	_check(lab.shop_panel.choice_sheet.visible and lab.shop_panel.choice_prompt.text.contains("No free slot") and lab.shop_panel.choice_count() == 5,
 		"a full Charm row offers five replacements or Cancel")
 	_check(lab.shop_panel.button_for_offer(charm).disabled and lab.shop_panel.continue_button.disabled, "the shop waits for the choice")
 	await _capture("full_slot")
@@ -411,7 +416,11 @@ func _full_slot() -> void:
 	var money: int = run.money
 	var bought: String = shop.offers[charm].item_id
 	await _focus_accept(lab.shop_panel.button_for_offer(charm))
+	# UI-12: a click selects Charm 2 and shows what is there; Confirm replaces it.
 	await _click(lab.shop_panel.choice_button(1))
+	_check(lab.shop_panel.choice_sheet.visible and run.charms[1].item_id != bought and lab.shop_panel.choice_detail.text.contains("Charm slot 2")
+		and lab.shop_panel.choice_confirm.text == "Replace", "a click on a Charm slot shows it, and waits for Confirm (%s)" % lab.shop_panel.choice_detail.text)
+	await _click(lab.shop_panel.choice_confirm)
 	_check(run.charms[1].item_id == bought and run.charms.size() == 5 and run.money == money - price + sale, "replacing Charm 2 sells it and seats the new Charm")
 
 func _removal_and_sale() -> void:
@@ -420,7 +429,7 @@ func _removal_and_sale() -> void:
 	var cards: int = run.cards.size()
 	var snapshot: Dictionary = run.to_dict()
 	await _focus_accept(lab.shop_panel.remove_button)
-	_check(lab.shop_panel.choice_sheet.visible and lab.shop_panel.choice_list.get_child_count() == cards, "removal lists every deck card")
+	_check(lab.shop_panel.choice_sheet.visible and lab.shop_panel.choice_count() == cards, "removal lists every deck card")
 	await _focus_accept(lab.shop_panel.cancel_choice)
 	_check(run.to_dict() == snapshot, "a cancelled removal changes nothing")
 	var money: int = run.money
@@ -436,7 +445,28 @@ func _removal_and_sale() -> void:
 	var sellable: int = run.entries().filter(func(e): return run.can_sell(e.ref)).size()
 	_check(not lab.shop_panel.sell_sheet.visible and lab.shop_panel.sell_open.text.begins_with("Sell · %d" % sellable)
 		and not lab.shop_panel._main.find_children("Sell_*", "Button", true, false).size() > 0, "one Sell control counts what can be sold (%s)" % lab.shop_panel.sell_open.text)
-	await _tap(lab.shop_panel.sell_button(card_ref)) # opens the sheet first, as a player does
+	# UI-12: Sell shows the owned items as tiles; a tap opens the item to confirm.
+	var panel = lab.shop_panel
+	panel.sell_open.grab_focus()
+	await _action("ui_accept")
+	await process_frame
+	var tile: Button = panel.sell_button(card_ref)
+	_check(panel.sell_sheet.visible and tile != null and tile.custom_minimum_size.x >= 96.0 and panel.owned_list is HFlowContainer, "Sell shows the owned items as tiles")
+	await _capture("sell_tiles")
+	var before: int = run.money
+	var at := tile.get_global_rect().get_center()
+	for pressed in [true, false]:
+		var touch := InputEventScreenTouch.new()
+		touch.position = _window(at)
+		touch.pressed = pressed
+		Input.parse_input_event(touch)
+		await process_frame
+	await process_frame
+	await process_frame
+	_check(panel.sell_confirm_sheet.visible and run.money == before and panel.sell_confirm.text == "Sell +$%d" % value and panel.sell_confirm_title.text != "",
+		"a tap on an item opens it with a Sell confirmation (%s)" % panel.sell_confirm.text)
+	await _capture("sell_confirm")
+	await _tap(panel.sell_confirm)
 	_check(run.money == money + value and run.entry_at(card_ref) == null, "selling pays the sale value")
 	var rows: int = lab.shop_panel.owned_list.get_children().filter(func(c): return c is Button and String(c.name).begins_with("Sell_") and not c.is_queued_for_deletion()).size()
 	_check(lab.shop_panel.sell_sheet.visible and rows == sellable - 1, "the sheet stays open for the next sale, one row fewer (rows %d, were %d)" % [rows, sellable])
