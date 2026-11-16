@@ -1130,3 +1130,17 @@ Existing AV-T01 sound cues and the coordinator's body rotation remain intact.
 Native evidence: extended JAVT01, A/B × depth/flat × normal/motion/flash,
 rest/curve-ready/full; capture paths in the AV-T02 handoff. Captures are ignored
 artifacts, never source assets.
+
+## AV-T03 — historical charge-particle trail (2026-11-15)
+
+Original procedural geometry and deterministic scatter authored by Codex in
+src/presentation/aim_overlay.gd. Replaces AV-T01/02's held-ball text, teeth,
+fixed glints and seal. No external art, audio, font or catalogue slot added.
+96 preallocated particle records retain screen-space emission positions and
+fade; no particle nodes, textures, RNG, resource creation or pool growth per
+frame. A follows ball history; B adds a rotating rim emission point using the
+existing body angle. Charge controls rate, lifetime and opacity; blue-grey,
+cyan and brass mark building, curve-ready and full. Reduced flash caps alpha;
+reduced motion clears particles and relocates the former collar meter to a
+stationary lower-screen rail. Existing sound/vibration cues remain unchanged.
+Native evidence and capture index: docs/handoffs/AV-T03.md.

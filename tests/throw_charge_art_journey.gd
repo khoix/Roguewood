@@ -31,6 +31,7 @@ func _run() -> void:
 		await _drag(next, next-at)
 		at = next
 	_check(lab.get_node("AimOverlay").charge_pose().state == "disabled" and cues.is_empty(), "Dead Straight has no lit charge or sounds")
+	_check(lab.get_node("AimOverlay").trail_count == 0, "Dead Straight has no trail")
 	await _capture("disabled")
 	await _touch(at, false, true)
 	var sound: Node = lab.get_node("MotionDirector/PresentationAudio")
@@ -52,8 +53,8 @@ func _hold_states(label: String) -> void:
 	await _touch(at, true)
 	_check(lab.state == "holding", "real touch holds the ball")
 	var overlay: Control = lab.get_node("AimOverlay")
-	_check(overlay.charge_pose().state == "charging", "dim charging collar")
-	_check(overlay.charge_pose().spin_blur == 0.0, "rest has no streak")
+	_check(overlay.charge_pose().state == "charging", "initial uncharged hold")
+	_check(overlay.trail_count == 0, "rest has no streak")
 	await _capture(label + "_charging")
 	var center := at + Vector2(0,-30)
 	var angle := PI/2
@@ -67,22 +68,33 @@ func _hold_states(label: String) -> void:
 		var pose: Dictionary = overlay.charge_pose()
 		_check((overlay.get_global_transform() * pose.center).distance_to(lab.ball_screen_position()) < 0.01, "effect tracks screen ball")
 		_check(absf(pose.radius - lab._ball_screen_radius()) < 0.01, "effect uses rendered radius")
-		_check(pose.reduced == (lab.settings.reduced_motion or lab.settings.reduced_flash), "either reduction freezes decoration")
-		_check(pose.spin_blur == 0.0 if pose.reduced else pose.spin_blur >= 0.0 and pose.spin_blur <= 1.0, "bounded spin envelope; disabled under reduction")
+		_check(pose.reduced == lab.settings.reduced_motion, "motion reduction suppresses particles")
+		_check(overlay.trail_count >= 0 and overlay.trail_count <= overlay.CAPACITY, "bounded particle pool")
+		if pose.reduced: _check(overlay.trail_count == 0, "reduced motion has no particles")
+		if lab.settings.reduced_flash:
+			for color in overlay.trail_colors: _check(color.a <= 0.38, "reduced flash caps brightness")
+		if absf(lab.held_charge()) > 0.08 and pose.state == "charging" and not captured.has("building") and (pose.reduced or overlay.trail_count > 0):
+			captured.building = true
+			await _capture(label + "_building")
+		if i in [130, 135, 140]:
+			await _capture(label + "_swirl_" + str(i))
 		if pose.state == "full" and not pose.reduced:
-			_check(pose.spin_blur > 0.9, "full spin resolves into rings")
+			_check(overlay.trail_count > 0, "full charge leaves a particle trail")
 		if pose.state in ["ready", "full"] and not captured.has(pose.state):
 			captured[pose.state] = true
 			await _capture(label + "_" + pose.state)
 	_check(captured.has("ready") and captured.has("full"), label + " reaches both charge levels")
 	for id in ["throw.charge", "throw.curve_ready", "throw.full_charge"]:
 		_check(cues.filter(func(c): return c[0] == id).size() == 1, label + " once per hold: " + id)
-	var wound: float = overlay.charge_pose().spin_blur
-	for i in 18: await process_frame
-	var coast: float = overlay.charge_pose().spin_blur
-	if not overlay.charge_pose().reduced:
-		_check(coast > 0.0 and coast < wound, "streak follows flywheel coast after finger stops")
+	_check(captured.has("building"), "building charge captured")
+	# Emitted particles remain at historical positions while the ball moves.
+	var slot: int = (overlay._cursor - 1 + overlay.CAPACITY) % overlay.CAPACITY
+	var old_point: Vector2 = overlay.trail_positions[slot]
+	for i in 3: await process_frame
+	_check(overlay.trail_positions[slot] == old_point, "particles stay behind at their emission point")
 	if lab.settings.reduced_motion:
 		_check(lab.lane.aim_ball.basis.orthonormalized().is_equal_approx(Basis.IDENTITY), "reduced motion keeps the ball still")
 	await _touch(at, false, true)
 	_check(lab.state == "aim", "cancel returns to aim")
+	await process_frame
+	_check(overlay.trail_count == 0, "cancel clears the particle pool")

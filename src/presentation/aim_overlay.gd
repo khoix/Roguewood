@@ -1,9 +1,9 @@
 extends Control
 ## Aiming feedback drawn over the lane: the target ring, a short directional guide
-## from the ball and an enamel charge collar around it. The ring is magnified (RETICLE_PX per
+## from the ball and a bounded screen-space charge trail. The ring is magnified (RETICLE_PX per
 ## unit of ring radius) because its true size is a few pixels at 20 m; it keeps the
 ## true proportions while contracting. The guide bends only qualitatively with
-## charged spin and is not a forecast of the roll. Charge art: AV-T01.
+## charged spin and is not a forecast of the roll. Charge art: AV-T03.
 const Lane = preload("res://src/simulation/lane_spec.gd")
 const NeonArt = preload("res://assets/leagues/neon/rule_overlay.gd")
 const GUIDE_LENGTH := 4.5
@@ -13,14 +13,92 @@ const GUIDE_COLOR := Color(1.0, 1.0, 1.0, 0.55)
 const RETICLE_PX := 240.0 # per unit of normalized ring radius, at a 720 px shorter side
 const RETICLE_FLATTEN := 0.45
 
+const CAPACITY := 96
+const MIN_CHARGE := 0.06
 var lab: Control
+var trail_positions := PackedVector2Array()
+var trail_life := PackedFloat32Array()
+var trail_duration := PackedFloat32Array()
+var trail_colors := PackedColorArray()
+var trail_sizes := PackedFloat32Array()
+var guide_points := PackedVector2Array()
+var _cursor := 0
+var _emission := 0.0
+var _previous := Vector2.ZERO
+var _previous_angle := 0.0
+var _tracking := false
+var _viewport_size := Vector2.ZERO
+var trail_count := 0
+var trail_strength := 0.0
+var trail_color := Color("668baf")
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	trail_positions.resize(CAPACITY)
+	trail_life.resize(CAPACITY)
+	trail_duration.resize(CAPACITY)
+	trail_colors.resize(CAPACITY)
+	trail_sizes.resize(CAPACITY)
+	guide_points.resize(DASHES * 2 + 1)
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	_update_trail(minf(delta, 0.05))
 	queue_redraw()
+
+func _clear_trail() -> void:
+	trail_life.fill(0.0)
+	trail_colors.fill(Color.TRANSPARENT)
+	trail_count = 0
+	_emission = 0.0
+	_tracking = false
+
+func _update_trail(delta: float) -> void:
+	if lab == null or lab.lane == null or lab.state != "holding" or lab.settings.reduced_motion or lab.spin_disabled():
+		_clear_trail()
+		return
+	if size != _viewport_size:
+		_clear_trail()
+		_viewport_size = size
+	trail_strength = absf(lab.held_charge())
+	if trail_strength < MIN_CHARGE:
+		_clear_trail()
+		return
+	trail_color = Color("f5cb69") if lab.full_charge() else (Color("64dacb") if lab.curve_ready() else Color("668baf"))
+	var center: Vector2 = get_global_transform().affine_inverse() * lab.ball_screen_position()
+	var angle: float = lab._flick.body_angle
+	if not _tracking:
+		_previous = center
+		_previous_angle = angle
+		_tracking = true
+	for i in CAPACITY:
+		trail_life[i] = maxf(0.0, trail_life[i] - delta)
+	if trail_strength >= MIN_CHARGE:
+		var speed := clampf(absf(lab._flick.spin_rate) / 30.0, 0.0, 1.0)
+		_emission += delta * lerpf(12.0, 110.0, trail_strength) * lerpf(0.6, 1.0, speed)
+		var count := mini(int(_emission), 8)
+		_emission -= count
+		var radius: float = lab._ball_screen_radius()
+		for j in count:
+			var t := float(j + 1) / count
+			var point := _previous.lerp(center, t)
+			if int(lab._flick.tuning.spin_model) == 2:
+				point += Vector2.from_angle(lerpf(_previous_angle, angle, t)) * radius * 1.05
+			# Deterministic narrow scatter; each point stays where it was emitted.
+			var offset := Vector2(sin(_cursor * 2.4), cos(_cursor * 1.7)) * radius * 0.12
+			trail_positions[_cursor] = point + offset
+			trail_duration[_cursor] = lerpf(0.12, 0.55, trail_strength)
+			trail_life[_cursor] = trail_duration[_cursor]
+			var alpha := lerpf(0.25, 0.85, trail_strength)
+			if lab.settings.get("reduced_flash", false): alpha = minf(alpha, 0.38)
+			trail_colors[_cursor] = Color(trail_color, alpha)
+			trail_sizes[_cursor] = maxf(1.0, radius / 14.0) * (1.0 + trail_strength)
+			_cursor = (_cursor + 1) % CAPACITY
+	_previous = center
+	_previous_angle = angle
+	trail_count = 0
+	for i in CAPACITY:
+		if trail_life[i] > 0.0: trail_count += 1
 
 func _draw() -> void:
 	if lab == null or lab.lane == null or lab.state not in ["aim", "holding"]:
@@ -39,92 +117,41 @@ func _draw() -> void:
 		NeonArt.rails(self, lab.screen_point, edge, maxf(1.0, minf(size.x, size.y) / 720.0))
 	var spin: float = lab.charged_spin() * lab.hook_scale()
 	var ball: Vector3 = lab.lane.ball_position()
-	var points: Array[Vector2] = []
+
 	for i in DASHES * 2 + 1:
 		var t := float(i) / (DASHES * 2)
 		var bend := spin * GUIDE_BEND * t * t
-		points.append(lab.screen_point(Lane.world(ball.x + bend, Lane.BALL_START_F + Lane.BALL_RADIUS * 2.0 + GUIDE_LENGTH * t, 0.002)))
+		guide_points[i] = lab.screen_point(Lane.world(ball.x + bend, Lane.BALL_START_F + Lane.BALL_RADIUS * 2.0 + GUIDE_LENGTH * t, 0.002))
 	for dash in DASHES:
-		draw_line(points[dash * 2], points[dash * 2 + 1], GUIDE_COLOR, 4.0, true)
+		draw_line(guide_points[dash * 2], guide_points[dash * 2 + 1], GUIDE_COLOR, 4.0, true)
 	if lab.state != "holding":
 		return
 	_draw_charge()
 
-## AV-T01: enamel charge collar, directional vanes and stepped star clusters.
-## Geometry uses the rendered radius, never the enlarged touch target.
+## Diagnostic snapshot used by the native journey, not the frame loop.
 func charge_pose() -> Dictionary:
 	return {"center": get_global_transform().affine_inverse() * lab.ball_screen_position(),
-		"radius": lab._ball_screen_radius(),
-		"spin_blur": 0.0 if lab.settings.reduced_motion or lab.settings.get("reduced_flash", false) else smoothstep(0.0, 24.0, absf(lab._flick.spin_rate)),
+		"radius": lab._ball_screen_radius(), "particles": trail_count,
 		"state": "disabled" if lab.spin_disabled() else ("full" if lab.full_charge() else ("ready" if lab.curve_ready() else "charging")),
-		"reduced": lab.settings.reduced_motion or lab.settings.get("reduced_flash", false)}
+		"reduced": lab.settings.reduced_motion}
 
 func _draw_charge() -> void:
-	var pose := charge_pose()
-	var center: Vector2 = pose.center
-	var r: float = pose.radius
-	var unit := maxf(1.0, r / 18.0)
-	var ink := Color("101b2d")
-	var color := Color("53687c")
-	if pose.state == "ready": color = Color("64dacb") if lab.held_charge() > 0 else Color("ee9476")
-	if pose.state == "full": color = Color("f5cb69")
-	# AV-T02: continuous, stationary envelopes avoid temporal aliasing. The
-	# swept arc grows with the actual flywheel, including its coast after input.
-	var blur: float = pose.spin_blur
-	if blur > 0.001:
-		for band in 3:
-			var radius := r * (0.87 + band * 0.045)
-			var sweep := lerpf(0.15, TAU, blur)
-			var start := -PI / 2 + band * TAU / 3
-			var wash := Color(color, (0.12 + blur * 0.18) / (1.0 + band * 0.3))
-			draw_arc(center, radius, start, start + sweep, 64, wash, unit * (1.0 + blur * 2.0), true)
-	if pose.state == "full":
-		# A solid brass seal is distinct from the stepped curve-ready sparkle;
-		# it does not pulse, including under either accessibility reduction.
-		draw_arc(center, r * 1.36, 0.0, TAU, 96, ink, unit * 5, true)
-		draw_arc(center, r * 1.36, 0.0, TAU, 96, color, unit * 2, true)
-	# Twelve inset enamel teeth retain a readable silhouette without bloom.
-	var count := ceili(absf(lab.held_charge()) * 12.0)
-	for i in 12:
-		var a := -PI / 2 + (i + 0.5) * TAU / 12 * (1 if lab.held_charge() >= 0 else -1)
-		var radial := Vector2.from_angle(a)
-		var tangent := radial.orthogonal()
-		var p := center + radial * r * 1.2
-		var points := PackedVector2Array([p-radial*unit*2-tangent*unit*2, p+radial*unit*2-tangent*unit*2, p+radial*unit*2+tangent*unit*2, p-radial*unit*2+tangent*unit*2])
-		draw_colored_polygon(points, color if i < count else ink)
-		draw_line(points[1], points[2], color.lightened(0.3) if i < count else Color("53687c"), unit)
-	if pose.state in ["ready", "full"]:
-		# Stationary glints remain legible at five revolutions per second.
-		var turn := 0.0
-		for i in (6 if pose.state == "full" else 3):
-			var a := turn + i * TAU / (6 if pose.state == "full" else 3)
-			var p := center + Vector2.from_angle(a) * r * 1.55
-			_star(p.snapped(Vector2.ONE * unit), unit, color, pose.state == "full")
-	# Compact engraved tab replaces the floating percentage label.
-	var text := {"charging":"SWING", "ready":"CURVE", "full":"FULL", "disabled":"NO SPIN"}[pose.state] as String
-	var font := get_theme_default_font()
-	var fs := 16
-	var width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
-	var tab := Rect2(center + Vector2(-width/2-8, -r*1.85-24), Vector2(width+16, 24))
-	draw_style_box(_tab_style(ink, color), tab)
-	draw_string(font, tab.position + Vector2(8,18), text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, color.lightened(0.35))
-	if pose.state == "disabled":
-		draw_line(center + Vector2(-r, r), center + Vector2(r, -r), ink, unit*4)
-		draw_line(center + Vector2(-r, r), center + Vector2(r, -r), color, unit*2)
-
-func _tab_style(ink: Color, color: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = ink
-	style.border_color = color
-	style.set_border_width_all(1)
-	style.corner_radius_top_left = 4
-	style.corner_radius_bottom_right = 4
-	return style
-
-func _star(p: Vector2, u: float, color: Color, full: bool) -> void:
-	# Hand-built stepped glint: dark keyline, coloured shoulders, cream core.
-	var length := 4.0 if full else 3.0
-	for axis in [Vector2(1,0), Vector2(0,1)]:
-		draw_line(p-axis*u*(length+1), p+axis*u*(length+1), Color("101b2d"), u*3)
-		draw_line(p-axis*u*length, p+axis*u*length, color, u)
-	draw_rect(Rect2(p-Vector2.ONE*u, Vector2.ONE*u*2), Color("fff1ce"))
+	if lab.spin_disabled(): return
+	if lab.settings.reduced_motion:
+		# Relocate the former collar meter to a stationary lower-screen rail.
+		var rail := Rect2(Vector2(size.x * 0.35, size.y * 0.82), Vector2(size.x * 0.3, 6))
+		draw_rect(rail.grow(2), Color("101b2d"))
+		draw_rect(rail, Color("53687c"))
+		var charge := absf(lab.held_charge())
+		var color := Color("f5cb69") if lab.full_charge() else (Color("64dacb") if lab.curve_ready() else Color("668baf"))
+		rail.size.x *= charge
+		draw_rect(rail, color)
+		return
+	for i in CAPACITY:
+		if trail_life[i] <= 0.0: continue
+		var fade := trail_life[i] / trail_duration[i]
+		var color := trail_colors[i]
+		color.a *= fade * fade
+		var width := trail_sizes[i]
+		var at := trail_positions[i].round()
+		draw_rect(Rect2(at - Vector2.ONE * width * 0.5, Vector2.ONE * width), color)
