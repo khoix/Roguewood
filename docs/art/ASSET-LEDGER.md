@@ -1130,3 +1130,42 @@ Existing AV-T01 sound cues and the coordinator's body rotation remain intact.
 Native evidence: extended JAVT01, A/B × depth/flat × normal/motion/flash,
 rest/curve-ready/full; capture paths in the AV-T02 handoff. Captures are ignored
 artifacts, never source assets.
+
+## AV-T03 — historical charge-particle trail (2026-11-15)
+
+Original procedural geometry and deterministic scatter authored by Codex in
+src/presentation/aim_overlay.gd. Replaces AV-T01/02's held-ball text, teeth,
+fixed glints and seal. No external art, audio, font or catalogue slot added.
+96 preallocated particle records retain screen-space emission positions and
+fade; no particle nodes, textures, RNG, resource creation or pool growth per
+frame. A follows ball history; B adds a rotating rim emission point using the
+existing body angle. Charge controls rate, lifetime and opacity; blue-grey,
+cyan and brass mark building, curve-ready and full. Reduced flash caps alpha;
+reduced motion clears particles and relocates the former collar meter to a
+stationary lower-screen rail. Existing sound/vibration cues remain unchanged.
+Native evidence and capture index: docs/handoffs/AV-T03.md.
+
+## UI-A7 — local title motion and pixel 3D hero (2026-11-16)
+
+Original shader `assets/brand/title_life.gdshader` authored by Codex. Samples the
+existing House source.environment.png atlas, with bounded foliage displacement
+and sparse sky twinkle. Original title scene composition reuses House ball mesh,
+finger-hole geometry and identity material in a 96×96 transparent viewport.
+Existing UI-A4 logo/icon/splash and House sources remain byte-identical; no new
+illustration, external texture, audio, font or license. UI-10 loader sprite data
+and export head include unchanged. Source plan: docs/art/ui/UI-A7.md.
+Review tools: capture_ui_a7.gd and capture_ui_a7_loader.mjs in docs/art/ui/.
+Captures are ignored artifacts; provenance of reused art remains in its original
+ledger entries. Completion evidence and limits: docs/handoffs/UI-A7.md.
+
+
+### UI-A7 owner correction — original illustrated hero (2026-11-16)
+
+Original title-only shader assets/brand/title_ball.gdshader, authored by Codex.
+Reuses the immutable House-ball illustration in assets/items/balls/a01-source.png
+(crop 52,45,538,538). No new image generation, bitmap edits or external assets.
+A sphere projection restores the reference-facing details; an unmarked portion
+of the original enamel supplies the reconstructed rear. View-space lamp/rim
+reflection treatment preserves the glossy identity while surface details turn.
+The larger 192×192 nearest-filtered viewport and tighter camera restore the
+original hero scale. See UI-A7.md for technical limits, validation and captures.
