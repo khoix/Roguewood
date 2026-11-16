@@ -155,3 +155,4 @@ The owner asked for the feel of the rotation while charging a curve to follow th
 - **Unchanged:** the flick, the release window (the spin is read as it stood when the window opened, so the flick's own bend never charges it), the curve threshold (0.25, to be retuned on the phone), the launch contract, the hook physics, scoring and saves.
 - **Starting values, to be tuned on the phone:** with a finger circle 0.06 of the shorter side across, curve-ready comes at about two loops a second and full charge at about three, in about a second; a wider circle charges faster.
 - **Evidence:** held_ball_test and J02, listed in handoffs/E05-R5.md.
+- **Owner's choice (2026-11-16):** after the phone trial, the owner prefers A (swing + flywheel); it stays the default with its starting values. B and the R4 orbit charge remain on the test tuning page only. In flat spin view the held ball is now drawn 1.5× bigger (UI-11).
