@@ -195,15 +195,20 @@ func _sound_sliders() -> void:
 	await _focus_accept(sound_row)
 	var sound = lab.motion.sound
 	var base: float = lab.league_theme.MUSIC_DB
+	# UI-12: with Options open the music has eased to half its level.
+	await _wait_for(func(): return is_equal_approx(sound.duck, sound.MENU_DUCK), "the music eases down under Options")
+	_check(absf(music.volume_db - (base + linear_to_db(sound.MENU_DUCK))) < 0.01, "Options halves the music (%.1f dB)" % music.volume_db)
 	sound.music_slider.value = 0.5
 	await process_frame
-	_check(absf(music.volume_db - (base + linear_to_db(0.5))) < 0.01 and absf(sound.volume_slider.value - 0.65) < 0.01, "the music slider sets the music to half (%.1f dB); effects stay at 0.65" % music.volume_db)
+	_check(absf(music.volume_db - (base + linear_to_db(0.5 * sound.MENU_DUCK))) < 0.01 and absf(sound.volume_slider.value - 0.65) < 0.01, "the music slider sets the music to half (%.1f dB); effects stay at 0.65" % music.volume_db)
 	sound.mute_button.button_pressed = true
 	await process_frame
 	_check(music.volume_db < -60.0, "Mute silences the music too")
 	sound.mute_button.button_pressed = false
 	sound.music_slider.value = 1.0
 	await process_frame
-	_check(absf(music.volume_db - base) < 0.01, "back to the music's own level")
+	_check(absf(music.volume_db - (base + linear_to_db(sound.MENU_DUCK))) < 0.01, "back to the slider's full level, still dipped under Options")
 	sound.panel.hide()
 	panel.hide()
+	await _wait_for(func(): return is_equal_approx(sound.duck, 1.0), "the music eases back when Options closes")
+	_check(absf(music.volume_db - base) < 0.01, "back to the music's own level")

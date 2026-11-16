@@ -21,6 +21,11 @@ var effects_button: CheckButton
 var volume_slider: HSlider # sound effects
 var music_slider: HSlider
 var music_volume := 1.0 # of the League music's own level
+## UI-12 (owner's play notes, 2026-11-16): while the Pro Shop or Options is open the
+## music eases to half its level (sound effects keep theirs) and eases back on close.
+const MENU_DUCK := 0.5
+const DUCK_SECONDS := 0.4
+var duck := 1.0
 func _ready() -> void:
 	name = "PresentationAudio"
 	muted = lab.settings.get("sound_muted", false)
@@ -121,7 +126,7 @@ func _mix() -> void:
 func _mix_music() -> void:
 	var theme = lab.get("league_theme") if lab != null else null
 	if theme == null or theme.music == null: return
-	var level: float = 0.0 if muted else music_volume
+	var level: float = 0.0 if muted else music_volume * duck
 	var want: float = float(theme.MUSIC_DB) + linear_to_db(maxf(level, 0.0001))
 	if not is_equal_approx(theme.music.volume_db, want):
 		theme.music.volume_db = want
@@ -147,8 +152,12 @@ func cue(id: String, stream: AudioStream, priority: int = 1) -> void:
 	played += 1
 	max_active = maxi(max_active, voices.filter(func(v): return v.playing).size())
 
-func _process(_delta: float) -> void:
+func menu_open() -> bool:
+	return lab.settings_panel.visible or (lab.get("shop_panel") != null and lab.shop_panel.visible)
+
+func _process(delta: float) -> void:
 	if not lab.settings_panel.visible: panel.hide()
+	duck = move_toward(duck, MENU_DUCK if menu_open() else 1.0, delta * (1.0 - MENU_DUCK) / DUCK_SECONDS)
 	_mix_music() # the music may start after the panel is built
 
 func _exit_tree() -> void:

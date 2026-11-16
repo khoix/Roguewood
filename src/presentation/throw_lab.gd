@@ -1241,7 +1241,7 @@ func _show_result() -> void:
 				lines.append("Champion again: %d %s titles (a record, not a repeat unlock)." % [wins, league_entry.name])
 		_save_career()
 	else:
-		title = "Attempt over — %s lost" % String(last.kind).capitalize()
+		title = "Run over — %s lost" % String(last.kind).capitalize()
 		lines.append("Scored %d of the %d target." % [last.score, last.target])
 		for rule in division.rules():
 			lines.append("Rule in force: " + RivalRules.summary(rule))
@@ -1251,7 +1251,7 @@ func _show_result() -> void:
 			_save_career()
 	var career_lines := _career_lines()
 	lines.append_array(career_lines)
-	lines.append("Attempt %d · total %d · $%d left" % [attempt, total_score, run.money])
+	lines.append("Run %d · total %d · $%d left" % [attempt, total_score, run.money])
 	_result_view = {"title": title, "body": "\n".join(lines), "won": division.outcome == "won", "sections": _result_sections(lines, career_lines, last)}
 	_checkpoint("division_over")
 	hud.show_result(title, _result_view.body, _result_view.won, _retry_label(), _result_view.sections)
@@ -1294,7 +1294,7 @@ func _result_sections(lines: Array, career_lines: Array, last: Dictionary) -> Di
 		"headline": headline,
 		"quip": not quip.is_empty(),
 		"subtitle": ("%s defeated." % division.rival().name) if won else lost,
-		"stats": [[str(total_score), "Total"], [reached, "Reached"], ["$%d" % run.money, "Left"], [str(attempt), "Attempt"]],
+		"stats": [[str(total_score), "Total"], [reached, "Reached"], ["$%d" % run.money, "Left"], [str(attempt), "Run"]],
 		"matches": division.results.map(func(r): return {"division": int(r.get("division", 1)), "kind": String(r.kind), "score": int(r.score), "target": int(r.target), "won": bool(r.won)}),
 		"highlights": highlights,
 		"goals": CareerProfile.goals(career, career_graph.get("objectives", []), career_attempt).map(func(g): return {"name": g.name, "progress": int(g.progress), "threshold": int(g.threshold)}),
@@ -1316,7 +1316,7 @@ func _career_lines() -> Array:
 		if items.is_empty():
 			lines.append("Earned: %s (kept for good)." % gate_name)
 		else:
-			lines.append("Unlocked: %s join%s the shop pool from your next attempt." % [", ".join(items.map(func(i): return _names.get(i, i))), "s" if items.size() == 1 else ""])
+			lines.append("Unlocked: %s join%s the shop pool from your next run." % [", ".join(items.map(func(i): return _names.get(i, i))), "s" if items.size() == 1 else ""])
 	if division.practice:
 		lines.append("Practice: discoveries and practice records only; no unlocks or mastery progress.")
 	var goals: Array = CareerProfile.goals(career, career_graph.get("objectives", []), career_attempt)
@@ -1645,7 +1645,7 @@ func _refresh_shop() -> void:
 	var reserves: Array = run.reserves.map(func(e): return "empty" if e == null else _names.get(e.item_id, ""))
 	rack_text += "\nReserves: " + ", ".join(reserves) + " · Charms %d/%d · Deck %d/%d" % [run.charms.size(), RunInventory.CHARM_SLOTS, run.cards.size(), RunInventory.DECK_CAP]
 	if not run.upgrades.is_empty():
-		rack_text += "\nUpgrades (kept for the attempt): " + Upgrades.summary(run, _names)
+		rack_text += "\nUpgrades (kept for the run): " + Upgrades.summary(run, _names)
 	var charm_moves: Array = []
 	for i in range(1, run.charms.size()):
 		charm_moves.append({"slot": i + 1, "label": "◀ Move %s before %s" % [_names.get(run.charms[i].item_id, ""), _names.get(run.charms[i - 1].item_id, "")]})

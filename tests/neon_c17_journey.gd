@@ -63,7 +63,7 @@ func _run() -> void:
 	_check(called.scored.result.category == "strike" and _logged("Line Call") and _logged("Straight Money"), "a straight strike with Line Call: Line Call +4 Mult and Straight Money pay")
 	_check(not _logged("Dry Side") and not _logged("Lane Reader") and not _logged("Bounce Back"), "Dry Side, Lane Reader and Bounce Back stay silent")
 	_check(lab.run.money >= money + 2, "Straight Money's $2 reaches the wallet ($%d to $%d)" % [money, lab.run.money])
-	_check(cards.line_call in lab.equipment.exhausted, "the Line Call card is spent for the attempt")
+	_check(cards.line_call in lab.equipment.exhausted, "the Line Call card is spent for the run")
 	# UI-8: choosing a card to keep, the hand has no Cycle or Inspect button and its
 	# cards fill the section; two quick taps open the inspector and change nothing.
 	_check(lab.card_hand.keep_mode and not lab.card_hand.actions.visible and lab.card_hand.buttons.values().all(func(b): return b.size.y > 150.0),
@@ -80,7 +80,10 @@ func _run() -> void:
 	_check(not lab.card_hand.get_global_rect().intersects(lab.score_panel.get_global_rect()), "the keep section stays above the review")
 	var panel = lab.score_panel
 	var wrapped: Array = panel.log_list.get_children().filter(func(l): return l is Button and l.size.y > panel.log_font * 2.0)
-	_check(panel.log_font == panel.LOG_MIN or wrapped.is_empty(), "a log scaled to %d px wraps no line (%d wrap)" % [panel.log_font, wrapped.size()])
+	# UI-12: the size fits the 75th-percentile line, so only the longer quarter may wrap.
+	var lines: int = panel.log_list.get_children().filter(func(l): return l is Button).size()
+	_check(panel.log_font == panel.LOG_MIN or wrapped.size() <= int(ceil(lines * (1.0 - panel.LOG_FIT_SHARE))),
+		"a log scaled to %d px wraps only its longest quarter (%d of %d wrap)" % [panel.log_font, wrapped.size(), lines])
 	var first: Button = lab.card_hand.buttons.values()[0]
 	var kept: String = lab.keep_card
 	await _tap(first)

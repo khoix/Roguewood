@@ -372,7 +372,7 @@ func _division_one() -> void:
 	var offers: Array = lab.shop.offers.duplicate(true)
 	await _focus_accept(scene.back)
 	await _wait_for(func(): return scene.screen == "menu" and scene.continue_button.visible and scene.continue_button.has_focus(), "Continue Attempt offered")
-	_check(scene.continue_button.text == "Continue Attempt 1 · match 3", "the menu offers the saved slice attempt")
+	_check(scene.continue_button.text == "Continue Run 1 · match 3", "the menu offers the saved slice attempt")
 	await _action("ui_accept")
 	await _wait_for(func(): return scene.lab != null and scene.lab.state == "shop", "the attempt resumes in the shop")
 	lab = scene.lab
@@ -419,7 +419,7 @@ func _division_two() -> void:
 	_check(lab.hud.result_title.text.contains("The Custodian defeated — House League cleared!") and lab.hud.result_body.text.contains("First clear: Standing Order")
 		and lab.hud.result_body.text.contains("D1 Boss") and lab.hud.result_body.text.contains("D2 Boss"), "the League victory lists both Divisions and banks the reward")
 	_check(scene.career.first_clears.has("rival.custodian") and scene.career.first_clears.has("rival.surveyor") and scene.session.outcome == "won"
-		and lab.hud.retry_button.text == "New Attempt", "both first clears are in the Career")
+		and lab.hud.retry_button.text == "New Run", "both first clears are in the Career")
 	await _capture("slice_won")
 
 func _second_attempt() -> void:

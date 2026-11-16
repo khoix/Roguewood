@@ -176,7 +176,7 @@ func _ready() -> void:
 	var room := Control.new()
 	room.custom_minimum_size.y = 8
 	play_box.add_child(room)
-	continue_button = _button(play_box, "Continue Attempt", "ContinueAttempt", 0)
+	continue_button = _button(play_box, "Continue Run", "ContinueAttempt", 0)
 	continue_button.pressed.connect(_continue_attempt)
 	enter = _button(play_box, "Enter League", "EnterLeague", 0)
 	for action in [continue_button, enter]:
@@ -338,14 +338,14 @@ func _build_session_menu() -> void:
 	options = add_menu_entry("Options", "ThrowOptions", func(): if lab: lab.toggle_settings())
 	back = add_menu_entry("Clubhouse", "BackToMenu", _show_menu)
 	# Restart discards the attempt, so it asks once: the first press arms it.
-	reset = add_menu_entry("Restart attempt", "ResetSession", func(): pass, false)
+	reset = add_menu_entry("Restart run", "ResetSession", func(): pass, false)
 	reset.pressed.connect(func():
 		if _restart_armed:
 			close_menu()
 			_start_session()
 		else:
 			_restart_armed = true
-			reset.text = "Discard this attempt? Press again")
+			reset.text = "Discard this run? Press again")
 
 ## Adds an entry to the session menu and returns its button. `closes` entries close
 ## the menu before they act, so what they open is not under the sheet.
@@ -360,7 +360,7 @@ func add_menu_entry(label: String, node_name: String, action: Callable, closes: 
 func open_menu() -> void:
 	if screen != "session": return
 	_restart_armed = false
-	reset.text = "Restart attempt"
+	reset.text = "Restart run"
 	session_menu.show()
 	if lab: lab.input_paused = true
 	resume.grab_focus()
@@ -394,7 +394,7 @@ func _refresh_career_line() -> void:
 			box.remove_child(child)
 			child.queue_free()
 	var stats: Dictionary = CareerProfile.stats(career, career_graph.get("objectives", []))
-	var tiles := [[str(stats.rivals), "Rivals beaten"], [str(stats.titles), "Titles"], ["%d/%d" % [stats.mastered, stats.goals], "Mastery"], [str(stats.attempts), "Attempts"]]
+	var tiles := [[str(stats.rivals), "Rivals beaten"], [str(stats.titles), "Titles"], ["%d/%d" % [stats.mastered, stats.goals], "Mastery"], [str(stats.attempts), "Runs"]]
 	for i in tiles.size():
 		career_stats.add_child(Clubhouse.score_column(tiles[i][0], tiles[i][1], i == 0))
 	following.visible = not goals.is_empty()
@@ -440,7 +440,7 @@ func _saved_attempt() -> Dictionary:
 		target = ContentSet.load_set(saved_set, int(read.payload.get("seed", 1)))
 	var problems := Snapshot.validate(read.payload, target.catalogue, target.id)
 	if not problems.is_empty():
-		return {"ok": false, "notice": "The saved attempt no longer fits this version's content (%s); start a new attempt." % problems[0]}
+		return {"ok": false, "notice": "The saved attempt no longer fits this version's content (%s); start a new run." % problems[0]}
 	if read.payload.phase == "division_over" and not (target.id == "campaign" and read.payload.division.current.outcome == "won"):
 		return {"ok": false, "notice": read.notice}
 	read["content_set"] = target.id
@@ -525,7 +525,7 @@ func _show_menu() -> void:
 	# League access from the unlock graph: a locked League is shown but cannot be entered.
 	enter.disabled = false
 	var played := int(career.records.get(career_graph.get("league_of_set", {}).get(league_sets[league.selected], ""), {}).get("attempts", 0)) > 0
-	enter.text = "Try Again" if played else "Enter League" # design §16 button words
+	enter.text = "New Run" if played else "Enter League" # design §16 button words
 	for i in league.item_count:
 		var reason := UnlockGraph.league_access(career_graph, career, career_graph.get("league_of_set", {}).get(league_sets[i], ""))
 		league.set_item_disabled(i, not reason.is_empty())
@@ -536,7 +536,7 @@ func _show_menu() -> void:
 	var saved := _saved_attempt()
 	continue_button.visible = saved.ok
 	if saved.ok:
-		continue_button.text = "Continue Attempt %d · match %d" % [int(saved.payload.attempt), int(saved.payload.lab.match_number)]
+		continue_button.text = "Continue Run %d · match %d" % [int(saved.payload.attempt), int(saved.payload.lab.match_number)]
 	var notes: Array = [save_notice, saved.get("notice", "")].filter(func(n): return not n.is_empty())
 	notice.text = "\n".join(notes)
 	notice.visible = not notice.text.is_empty() # UI-9: no empty gap under the action

@@ -74,7 +74,7 @@ func _opener_shop() -> void:
 	await process_frame
 	_check(lab.run.upgrades.size() == 1 and lab.run.upgrades[0].item_id == license.item_id and lab.run.money == before - int(license.price)
 		and lab.shop.offers[_license_index()].sold and _button(_license_index()).text.contains("SOLD"), "%s bought for $%d with a real tap" % [license.item_id, license.price])
-	_check(not lab.shop_panel.owned_list.get_children().any(func(c): return c is Button and c.name.begins_with("Sell_upgrade")) and lab.shop_panel.rack_label.text.contains("Upgrades (kept for the attempt): "),
+	_check(not lab.shop_panel.owned_list.get_children().any(func(c): return c is Button and c.name.begins_with("Sell_upgrade")) and lab.shop_panel.rack_label.text.contains("Upgrades (kept for the run): "),
 		"an upgrade is listed as kept and offers no sale")
 	if license.item_id in IDS:
 		_check(lab.motion.upgrades.history.back().id == license.item_id and lab.motion.upgrades.history.back().audio, "real License purchase activates art and sound")

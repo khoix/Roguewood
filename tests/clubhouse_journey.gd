@@ -209,8 +209,8 @@ func _stage_one_clubhouse() -> void:
 
 func _stage_two_clubhouse() -> void:
 	var club = scene.clubhouse
-	_check(scene.enter.text == "Try Again" and club.records_label.text.contains("House League · 1 attempt") and club.records_label.text.contains("1 title"),
-		"after a restart the board offers Try Again and keeps the record")
+	_check(scene.enter.text == "New Run" and club.records_label.text.contains("House League · 1 run") and club.records_label.text.contains("1 title"),
+		"after a restart the board offers New Run and keeps the record")
 	await _tab("binder")
 	_check(_state("pin.wood") == "mastered" and _state("charm.encore") == "available", "Mastered and unlocked cards survive the restart")
 	await _tab("board")
@@ -241,7 +241,7 @@ func _stage_two_clubhouse() -> void:
 	await _leave_shop()
 	await _lose()
 	await _back_to_clubhouse()
-	_check(club.current_tab == "board" and club.records_label.text.contains("House League · 2 attempts") and club.latest_label.text.contains("Encore joins the shop pool"),
+	_check(club.current_tab == "board" and club.records_label.text.contains("House League · 2 runs") and club.latest_label.text.contains("Encore joins the shop pool"),
 		"after the loss the board counts both attempts and still lists the unlocks")
 	await _tab("binder")
 	_check(_state(bought) == "discovered" and _state("pin.wood") == "mastered" and _state("charm.encore") == "available", "the new Charm is Discovered; earlier rewards stay")

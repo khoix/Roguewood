@@ -89,7 +89,7 @@ static func _access(career: Dictionary, graph: Dictionary, league_id: String) ->
 static func record_line(row: Dictionary) -> String:
 	if row.attempts == 0 and row.practice_best_frame == 0:
 		return "%s · not played yet" % row.name
-	var text := "%s · %d attempt%s · best Division %d · best total %d · best frame %d · %d title%s" % [row.name, row.attempts,
+	var text := "%s · %d run%s · best Division %d · best total %d · best frame %d · %d title%s" % [row.name, row.attempts,
 		"" if row.attempts == 1 else "s", row.best_division, row.best_total, row.best_frame, row.titles, "" if row.titles == 1 else "s"]
 	if row.practice_best_frame > 0:
 		text += " · practice best frame %d" % row.practice_best_frame
@@ -126,11 +126,11 @@ static func inspect(entry: Dictionary, catalogue: Dictionary) -> String:
 	var lines: Array = ["%s · %s %s · %s" % [entry.name, String(entry.rarity).capitalize(), CATEGORY_NAMES.get(entry.category, entry.category).trim_suffix("s"), STATE_NAMES[entry.state]]]
 	match entry.state:
 		"locked":
-			lines.append("Unlock: " + entry.requirement + ". It then joins the pool from your next attempt.")
+			lines.append("Unlock: " + entry.requirement + ". It then joins the pool from your next run.")
 		"available":
-			lines.append("In the pool; not owned in an attempt yet.")
+			lines.append("In the pool; not owned in a run yet.")
 		_:
-			lines.append("Owned in %d attempt%s; in %d League win%s." % [entry.attempts, "" if entry.attempts == 1 else "s", entry.league_wins, "" if entry.league_wins == 1 else "s"])
+			lines.append("Owned in %d run%s; in %d League win%s." % [entry.attempts, "" if entry.attempts == 1 else "s", entry.league_wins, "" if entry.league_wins == 1 else "s"])
 	if entry.state == "discovered":
 		lines.append("Win a League with it in your build to master it.")
 	if not String(item.get("downside", "")).is_empty():
@@ -203,7 +203,7 @@ static func latest(career: Dictionary, graph: Dictionary, limit: int = 3) -> Arr
 		var names: Array = items.map(func(id): return _item_name(graph, id))
 		var source: String = String(career.awards.get(gate, {}).get("source", ""))
 		var how := source_text(graph, source)
-		var text: String = "%s: %s join%s the shop pool from your next attempt." % [how, ", ".join(names), "s" if names.size() == 1 else ""] \
+		var text: String = "%s: %s join%s the shop pool from your next run." % [how, ", ".join(names), "s" if names.size() == 1 else ""] \
 			if not names.is_empty() else "%s: %s." % [how, graph.get("gates", {}).get(gate, {}).get("name", gate)]
 		# UI-9: the board shows each unlock as its items' pictures and names over how it was won.
 		out.append({"gate": gate, "name": graph.get("gates", {}).get(gate, {}).get("name", gate), "text": text, "items": items.duplicate(), "item_names": names, "how": how,
