@@ -24,6 +24,7 @@ var tactical_hand: TextureRect
 var tactical_grey: ShaderMaterial
 var neon: Node2D
 var neon_n2: Node2D
+var neon_n3: Node2D
 func _ready() -> void:
 	name = "AbilityDirector"
 	marquee = TextureRect.new()
@@ -81,6 +82,10 @@ func _ready() -> void:
 	neon_n2.lab = lab
 	neon_n2.director = self
 	lab.motion.add_child(neon_n2)
+	neon_n3 = preload("res://src/presentation/neon_n3_presentation.gd").new()
+	neon_n3.lab = lab
+	neon_n3.director = self
+	lab.motion.add_child(neon_n3)
 func _process(_delta: float) -> void:
 	if lab.run != null:
 		marquee.visible = lab.run.charms.any(func(e): return e.item_id == "charm.opening_act")
@@ -156,6 +161,7 @@ func _step(step: Dictionary, index: int, skipped: bool) -> void:
 	var mod_events = preload("res://src/presentation/modification_events.gd")
 	var owners: Dictionary = mod_events.owners(scored.frame,Assets._items,snapshot)
 	var activations: Array = mod_events.combine(scored.frame,event,owners,scored.result.get("facts",{}))
+	activations.append_array(preload("res://src/presentation/neon_n3_events.gd").project(event,owners))
 	for activation in activations:
 		if _projected.has(activation.key): continue
 		_projected[activation.key] = true
