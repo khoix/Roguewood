@@ -1264,3 +1264,40 @@ No sampled audio, external marks or third-party image source.
 | sound.consumable.steady_hand | cloth / 420 Hz | `490c6d8dfe1dc289b6cd3745d532454c2b20d5b25afcaf7ec14e72dc4a61fe1c` |
 
 Brief: docs/art/briefs/AV-N4.md. Native evidence and limits: docs/handoffs/AV-N4.md.
+
+## AV-N5 — Both Halves, Rebound Rescue and five mastery items (2026-11-17)
+
+Original transparent PNG outputs from image generation, unchanged. Exact prompts:
+docs/art/briefs/AV-N5-{A,B,R1,R2}-prompt.txt. A contains Compass Pin, Split Pattern
+and Dry Run; B contains Long Game and Second Chance. Separate Both Halves and
+Rebound Rescue ribbons include byte-identical aliases for the existing Clubhouse
+lookup, which strips mastery from the filename. AtlasTexture region views only;
+no source pixels edited or resampled. No third-party marks or image sources.
+
+| Source | SHA-256 |
+|---|---|
+| assets/items/neon/source.AV-N5-B.png | `e402bde9c242b777a064952955b093f86f3d58dd99d55f5201cb1c1bee82bd1f` |
+| assets/items/neon/source.AV-N5-A.png | `f64891a97e0e4ab9b65a76dda1b14b71490192b28f5b634642592587f89f281f` |
+| assets/clubhouse/ribbon.mastery.both_halves.png | `2c568c72db6106d60a9b4c682b615e99fa2f655201c707606c097e38c4515220` |
+| assets/clubhouse/ribbon.both_halves.png | `2c568c72db6106d60a9b4c682b615e99fa2f655201c707606c097e38c4515220` |
+| assets/clubhouse/ribbon.mastery.rebound_rescue.png | `faed2881b694af97d1889cf34a379534dd0be160b05a4199721a2cddd7211eb1` |
+| assets/clubhouse/ribbon.rebound_rescue.png | `faed2881b694af97d1889cf34a379534dd0be160b05a4199721a2cddd7211eb1` |
+
+Original Compass Pin enamel/rose shader, lane needle, observed side and rescue
+markers and paid-amount glyph geometry authored by Codex. Presentation meshes
+only; physics bodies and rule values unchanged. Reduced motion/flash freezes
+geometry. The existing Pixelify Sans font is reused under its recorded licence.
+
+Original deterministic material foley via tools/author_foley.py and
+tools/author_neon_n5_items.py: mono PCM16, 22050 Hz, 0.32 s, peak 0.48.
+No sampled recordings.
+
+| Sound ID | Material / frequency | SHA-256 |
+|---|---|
+| sound.pin.compass | metal / 760 Hz | `e089eb7bfe1a717b89af5ab27cbaf18165d735c7c4db0056e3ea7d45947f0d82` |
+| sound.charm.split_pattern | wood / 540 Hz | `b67179a2a77892c513d659d5cb4ee4c52ed8b4cd40a7e87421c6e229df2d607a` |
+| sound.charm.dry_run | paper / 680 Hz | `63e670270814bfa200c5eddf5ccf7786f0666ab7c94c50d6464868aa667bfb1d` |
+| sound.charm.long_game | swish / 430 Hz | `cec500ea08793bd03cfffda64fe872cbf5061114d1ac94c6a912060e56ce895e` |
+| sound.charm.second_chance | rubber / 610 Hz | `4199f8cf557527915ee78eda6d2201b6db39b026f38d73f1abb048c761e995c5` |
+
+Brief: docs/art/briefs/AV-N5.md. Native evidence and limitations: docs/handoffs/AV-N5.md.

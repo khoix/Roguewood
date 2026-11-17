@@ -384,6 +384,13 @@ jobs:
             python3 tools/qa.py e2e --journey "$journey"
             xvfb-run -a python3 tools/qa.py e2e --journey "$journey" --rendered
           done
+      - name: Neon Both Halves and Rebound Rescue art (AV-N5)
+        if: matrix.shard == 'art'
+        run: |
+          for journey in JAVN5 JAVN5R JAVN5C JAVN5BC; do
+            python3 tools/qa.py e2e --journey "$journey"
+            xvfb-run -a python3 tools/qa.py e2e --journey "$journey" --rendered
+          done
       - name: Preserve journey diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -395,6 +402,7 @@ jobs:
             artifacts/av-n2/
             artifacts/av-n3/
             artifacts/av-n4/
+            artifacts/av-n5/
             artifacts/av-h3-a/
             artifacts/av-h3-b/
             artifacts/ui-a1/

@@ -15,7 +15,9 @@ per-item briefs still apply.
 - AV-N3: DONE; six identities/effects/sounds, required native checks and 64 captures in AV-N3.md.
 - AV-N4: DONE; five identities/effects/sounds, the Controlled Curve ribbon,
   203 passing local checks and 52 captures. Details in AV-N4.md.
-- AV-N5, UI-A6: not started. No DONE handoffs to skip.
+- AV-N5: DONE; five identities/effects/sounds, two mastery ribbons, 211 distinct
+  passing local checks and 64 captures. Details in AV-N5.md.
+- UI-A6: not started. No DONE handoff to skip.
 - Salvage art stays outside Wave 14.
 
 ## Owner capture index
@@ -40,14 +42,21 @@ Contact sheets and the labelled earned ribbon specimen are in
 artifacts/av-n4/{contact,contact-b}/rendered/. Full index and native mastery
 limits: AV-N4.md.
 
+AV-N5: artifacts/av-n5/{native,reduced}/rendered/, 28 captures each. Review
+`n5_lane_two_tone`, `n5_lane_long_oil`, `n5_lane_house_oil`, `n5_side`,
+`n5_rescue` and the five `*_paid` captures. All five shop/Binder identities and
+both native Trophies/Goals rows are included. Contact sheets and the labelled
+earned ribbon specimens are in artifacts/av-n5/{contact,contact-b}/rendered/.
+Full index and native mastery limits: AV-N5.md.
+
 ## Exact resume step
 
-AV-N4 is complete. Coordinator b97354b was merged by 38d68cb before authoring,
-and 9ec104e (UI-13) by 2bc73b5 before final validation. Fetch/merge the latest
-coordinator with a merge commit, read updated claims, and continue with AV-N5
-(High): E17-D16 and E18-C19, five items
-and the Both Halves/Rebound Rescue ribbons. List IDs, slots, provenance and
-captures before authoring. Follow with UI-A6 (Medium).
+AV-N5 is complete; see AV-N5.md for verification and fixture limits. Coordinator
+8bafa27 (UI-13) was merged by 0cbd9a4 before authoring. Stop at this completed
+checkpoint. Next UI-A6 (Medium): fetch/merge the latest coordinator
+with a merge commit, read updated claims and docs/prompts/codex-wave14-ui-a6.md,
+then implement the manifest pin-deck hook and House finish. Check Divisions 1–8
+and the Championship, preserving Neon's finish.
 
 ## Validation environment
 
@@ -85,3 +94,13 @@ thread each. All 203 local checks passed, including all 167 configured art-shard
 journey modes and the protected gameplay batch. These results supersede AV-N3's
 incomplete art-matrix coverage on this merged tree. Full CI/Web and remaining
 gameplay integration are still the coordinator's wave-closing work.
+
+AV-N5 environment: pinned Godot 4.5.2, Xorg :90 with MIT-SHM disabled and the same
+temporary XDG directories; extra art checks used isolated :91/:92. Coordinator
+8bafa27 was merged by 0cbd9a4 before authoring. Results, capture manifests and
+asset/scope audits are in artifacts/wave14/av-n5/. The broad matrix has 211
+distinct passing checks, including all 175 configured art-shard journey modes.
+JAVC04B rendered timed out under concurrent software rendering, then passed
+alone with its original 900-second timeout. Final label checks and full details
+are recorded in AV-N5.md. No captures are committed. Full CI/Web and wave
+closure remain the coordinator's work.

@@ -277,6 +277,14 @@ for _key, _script, _directory in [("JAVN4", "neon_n4_art_journey", "native"), ("
 for _key, _script, _directory in [("JAVN4C", "neon_n4_contact", "contact"), ("JAVN4BC", "neon_n4_contact_b", "contact-b")]:
     JOURNEYS[_key] = ("res://tests/"+_script+".gd", "ROGUEWOOD_NEON_N1_CONTACT_OK", "artifacts/av-n4/"+_directory, ("count_0","count_1","count_2","motion"), 180, ["--fixed-fps","60"])
 
+# AV-N5 preserves J03C19's real gameplay and adds presentation evidence.
+_n5_ids = ["pin.compass", "charm.split_pattern", "charm.dry_run", "charm.long_game", "charm.second_chance"]
+_n5_caps = ("c19_shop", "c19_two_tone", "c19_long_oil", "c19_rescue") + tuple("n5_"+key for key in ["side", "rescue", "lane_two_tone", "lane_long_oil", "lane_house_oil", "compass_paid", "split_pattern_paid", "dry_run_paid", "long_game_paid", "second_chance_paid"]) + tuple("n5_"+place+"_"+id.replace(".","_") for place in ["shop","binder"] for id in _n5_ids) + tuple("n5_"+tab+"_"+id for tab in ["trophies","goals"] for id in ["both_halves","rebound_rescue"])
+for _key, _script, _directory in [("JAVN5", "neon_n5_art_journey", "native"), ("JAVN5R", "neon_n5_reduced_journey", "reduced")]:
+    JOURNEYS[_key] = ("res://tests/"+_script+".gd", "ROGUEWOOD_J03C19_OK", "artifacts/av-n5/"+_directory, _n5_caps, 900, ["--fixed-fps", "60"])
+for _key, _script, _directory in [("JAVN5C", "neon_n5_contact", "contact"), ("JAVN5BC", "neon_n5_contact_b", "contact-b")]:
+    JOURNEYS[_key] = ("res://tests/"+_script+".gd", "ROGUEWOOD_NEON_N1_CONTACT_OK", "artifacts/av-n5/"+_directory, ("count_0","count_1","count_2","motion"), 180, ["--fixed-fps","60"])
+
 def engine():
     executable = os.environ.get("GODOT_BIN") or shutil.which("godot") or shutil.which("godot4")
     if not executable:
