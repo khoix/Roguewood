@@ -1228,3 +1228,39 @@ Original deterministic mono PCM foley by tools/author_foley.py (wood material), 
 | ui_tap.wav | `author_foley.py ui_tap wood 1100 0.045` | `7c3e7681d9f042bf2996dfc91002ac97bf02fdf397f07a7e66baf2d9123ccd96` |
 | ui_select.wav | `author_foley.py ui_select wood 1500 0.035` | `644a5039a46c3b45c9cf4c6d35e59959ea30764951e05ddf9fbad627bce9403e` |
 | ui_back.wav | `author_foley.py ui_back wood 720 0.06` | `f7863214664f83bdc3b0ae9cdaa6d46f980b1e9c138a67b99d61da23dd586457` |
+
+## AV-N4 — Controlled Curve, shop upgrades and ribbon (2026-11-16)
+
+Original image-generation outputs, unchanged transparent PNGs. Exact prompts:
+docs/art/briefs/AV-N4-{A,B,R}-prompt.txt. A contains Trade-In, Specialist Shelf
+and Comet Ball; B contains Metronome and Steady Hand. The separate Controlled
+Curve ribbon is shipped under its requested ID plus an identical runtime alias,
+because ClubhouseModel.asset_id strips the mastery prefix. No source pixels
+edited or resampled; item resources are AtlasTexture region views only.
+
+| Source | SHA-256 |
+|---|---|
+| assets/items/neon/source.AV-N4-A.png | `e506d90721402095ea13e7b2814aa7eaa3a827dc65e60e97ed9b577c4f850f0b` |
+| assets/items/neon/source.AV-N4-B.png | `ee801ad15fcd04b409f28a23de4d803ca30e2bde8433499a4e985cfe4225e706` |
+| assets/clubhouse/ribbon.mastery.controlled_curve.png | `8619c243b470202e6e00a0328f4a2a60cf5f47f745d45b8afc11e09ab8c7a8fc` |
+| assets/clubhouse/ribbon.controlled_curve.png | `8619c243b470202e6e00a0328f4a2a60cf5f47f745d45b8afc11e09ab8c7a8fc` |
+
+Original procedural Comet enamel shader, bounded twelve-point trail, ticking
+metronome, armed hand, confirmed transaction and paid-amount geometry authored
+by Codex. Reuses the existing ball presentation mesh and Pixelify Sans font; no
+physics meshes changed. Reduced motion/flash uses static geometry. Comet's flare
+waits for the measured target grade; it never predicts an accuracy reward.
+
+Original deterministic foley via tools/author_foley.py and
+tools/author_neon_n4_items.py: mono 22050 Hz PCM16, 0.32 s, peak 0.48.
+No sampled audio, external marks or third-party image source.
+
+| Sound ID | Material / frequency | SHA-256 |
+|---|---|---|
+| sound.shop_upgrade.trade_in | paper / 520 Hz | `efed0e8694c81d535ec3b5301153b7f1fdd5a241082dfa888b6df8afd8da2fac` |
+| sound.shop_upgrade.specialist_shelf | metal / 740 Hz | `1d9b68d967aca9899d2382e80910b269ab981d9417e06c3f062f244be2f1d71c` |
+| sound.ball.comet | swish / 870 Hz | `300a135ac8298520ce09c4b1a327dddbaae111ddcd9ab1e80bde7cbf57526ae2` |
+| sound.charm.metronome | wood / 610 Hz | `1ecb51d02de422fbf94a94d6eb7dd9e2c727be5990b6d8d14fc821cc9fa68daa` |
+| sound.consumable.steady_hand | cloth / 420 Hz | `490c6d8dfe1dc289b6cd3745d532454c2b20d5b25afcaf7ec14e72dc4a61fe1c` |
+
+Brief: docs/art/briefs/AV-N4.md. Native evidence and limits: docs/handoffs/AV-N4.md.

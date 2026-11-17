@@ -268,6 +268,15 @@ JOURNEYS["JAVN3R"] = ("res://tests/neon_n3_reduced_journey.gd", "ROGUEWOOD_J03C1
 JOURNEYS["JAVN3C"] = ("res://tests/neon_n3_contact.gd", "ROGUEWOOD_NEON_N1_CONTACT_OK", "artifacts/av-n3/contact", ("count_0","count_1","count_2","motion"), 180, ["--fixed-fps","60"])
 JOURNEYS["JAVN3BC"] = ("res://tests/neon_n3_contact_b.gd", "ROGUEWOOD_NEON_N1_CONTACT_OK", "artifacts/av-n3/contact-b", ("count_0","count_1","count_2","motion"), 180, ["--fixed-fps","60"])
 
+# AV-N4 native art, preserving J03C18's original gameplay assertions.
+_n4_ids = ["shop_upgrade.trade_in", "shop_upgrade.specialist_shelf", "ball.comet", "charm.metronome", "consumable.steady_hand"]
+_n4_caps = ("c18_shop", "c18_controlled_curve") + tuple("n4_"+key for key in ["trade_sale", "specialist", "specialist_offer", "armed", "comet_trail", "comet_paid", "metronome_paid", "steady_hand_paid", "ribbon_trophies", "mastery_progress"]) + tuple("n4_"+place+"_"+id.replace(".","_") for place in ["shop","binder"] for id in _n4_ids)
+for _key, _script, _directory in [("JAVN4", "neon_n4_art_journey", "native"), ("JAVN4R", "neon_n4_reduced_journey", "reduced")]:
+    JOURNEYS[_key] = ("res://tests/"+_script+".gd", "ROGUEWOOD_J03C18_OK", "artifacts/av-n4/"+_directory, _n4_caps, 900, ["--fixed-fps", "60"])
+    CONTENT[_key] = "neon"
+for _key, _script, _directory in [("JAVN4C", "neon_n4_contact", "contact"), ("JAVN4BC", "neon_n4_contact_b", "contact-b")]:
+    JOURNEYS[_key] = ("res://tests/"+_script+".gd", "ROGUEWOOD_NEON_N1_CONTACT_OK", "artifacts/av-n4/"+_directory, ("count_0","count_1","count_2","motion"), 180, ["--fixed-fps","60"])
+
 def engine():
     executable = os.environ.get("GODOT_BIN") or shutil.which("godot") or shutil.which("godot4")
     if not executable:

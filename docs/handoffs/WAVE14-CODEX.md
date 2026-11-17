@@ -1,6 +1,6 @@
 # Wave 14 Codex checkpoint
 
-Status: IN_PROGRESS. Branch: codex/roguewood-build (2026-11-16).
+Status: IN_PROGRESS. Branch: codex/roguewood-build (2026-11-17).
 
 Coordinator be1d045 was merged with merge commit c9ecd381. Includes E05-R5
 and UI-9. No rebase, force-push, main push or PR. Initial synchronization
@@ -13,7 +13,9 @@ per-item briefs still apply.
 - AV-T03: DONE; verification and 85 captures in AV-T03.md. Supersedes AV-T02 held-ball visuals.
 - UI-A7: DONE; local hall motion, pixel 3D ball, native/web checks and loader review in UI-A7.md.
 - AV-N3: DONE; six identities/effects/sounds, required native checks and 64 captures in AV-N3.md.
-- AV-N4, AV-N5, UI-A6: not started. No DONE handoffs to skip.
+- AV-N4: DONE; five identities/effects/sounds, the Controlled Curve ribbon,
+  203 passing local checks and 52 captures. Details in AV-N4.md.
+- AV-N5, UI-A6: not started. No DONE handoffs to skip.
 - Salvage art stays outside Wave 14.
 
 ## Owner capture index
@@ -31,14 +33,21 @@ AV-N3: artifacts/av-n3/{native,reduced}/rendered/, 28 captures each. Review
 captures; all six shop/Binder identities are included. Contact sheets in
 artifacts/av-n3/{contact,contact-b}/rendered/. Full index: AV-N3.md.
 
+AV-N4: artifacts/av-n4/{native,reduced}/rendered/, 22 captures each. Review
+`n4_specialist`, `n4_specialist_offer`, `n4_trade_sale`, `n4_comet_trail` and
+the three `*_paid` captures. All five shop/Binder identities are included.
+Contact sheets and the labelled earned ribbon specimen are in
+artifacts/av-n4/{contact,contact-b}/rendered/. Full index and native mastery
+limits: AV-N4.md.
+
 ## Exact resume step
 
-Merge the latest origin/claude/roguewood-build with a merge commit (UI-12c was 68b8244 at
-last fetch), read updated claims, and continue with AV-N4 (High): E17-D15 and
-E18-C18: shop_upgrade.trade_in, shop_upgrade.specialist_shelf, ball.comet,
-charm.metronome, consumable.steady_hand and ribbon.mastery.controlled_curve. List IDs, slots,
-provenance and captures before authoring; the native shop must show Specialist
-Shelf's marked offer in slot 7. Follow with AV-N5 (High), then UI-A6 (Medium).
+AV-N4 is complete. Coordinator b97354b was merged by 38d68cb before authoring,
+and 9ec104e (UI-13) by 2bc73b5 before final validation. Fetch/merge the latest
+coordinator with a merge commit, read updated claims, and continue with AV-N5
+(High): E17-D16 and E18-C19, five items
+and the Both Halves/Rebound Rescue ribbons. List IDs, slots, provenance and
+captures before authoring. Follow with UI-A6 (Medium).
 
 ## Validation environment
 
@@ -66,3 +75,13 @@ resumed. Logs/results: artifacts/wave14/av-n3/ and /tmp/n3-*.log.
 
 AV-N3 required checks pass. The supplementary matrix recorded 72 passing checks;
 remaining full-wave coverage is listed in AV-N3.md and is not claimed complete.
+
+AV-N4 environment: pinned Godot 4.5.2, Xorg :93 with MIT-SHM disabled, same
+temporary XDG directories and LP_NUM_THREADS=2. Logs/results and the asset
+reproduction audit: artifacts/wave14/av-n4/. Final verification is recorded in
+AV-N4.md; the central claims/progress file remains the coordinator's.
+Additional rendered art checks used isolated displays :91/:92 with one llvmpipe
+thread each. All 203 local checks passed, including all 167 configured art-shard
+journey modes and the protected gameplay batch. These results supersede AV-N3's
+incomplete art-matrix coverage on this merged tree. Full CI/Web and remaining
+gameplay integration are still the coordinator's wave-closing work.

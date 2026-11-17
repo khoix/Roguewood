@@ -33,6 +33,7 @@ func _draw() -> void:
 	if preload("res://src/presentation/neon_item_glyph.gd").draw_cue(self,c,t,ink): return
 	if preload("res://src/presentation/neon_n2_glyph.gd").draw_cue(self,c,t,ink): return
 	if preload("res://src/presentation/neon_n3_glyph.gd").draw_cue(self,c,t,ink): return
+	if preload("res://src/presentation/neon_n4_glyph.gd").draw_cue(self,c,t,ink): return
 	if _draw_house_cleanup(c,t,ink): return
 	if _draw_house_tacticals(c,t,ink): return
 	if _draw_house_keepsakes(c,t,ink): return

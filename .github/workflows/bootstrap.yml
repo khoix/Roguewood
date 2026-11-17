@@ -377,6 +377,13 @@ jobs:
           xvfb-run -a python3 tools/qa.py e2e --journey JAVN3C --rendered
           python3 tools/qa.py e2e --journey JAVN3BC
           xvfb-run -a python3 tools/qa.py e2e --journey JAVN3BC --rendered
+      - name: Neon Controlled Curve and upgrades art (AV-N4)
+        if: matrix.shard == 'art'
+        run: |
+          for journey in JAVN4 JAVN4R JAVN4C JAVN4BC; do
+            python3 tools/qa.py e2e --journey "$journey"
+            xvfb-run -a python3 tools/qa.py e2e --journey "$journey" --rendered
+          done
       - name: Preserve journey diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -387,6 +394,7 @@ jobs:
             artifacts/av-n1/
             artifacts/av-n2/
             artifacts/av-n3/
+            artifacts/av-n4/
             artifacts/av-h3-a/
             artifacts/av-h3-b/
             artifacts/ui-a1/
