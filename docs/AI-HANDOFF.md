@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-11-15. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E22 IN_PROGRESS; E23–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). Wave 10 is merged by PR #22 (main `706767f`). Wave 11 is merged by PR #29 (main `f65d16f`). Wave 12 is merged by PR #30 (main `cd1cfc9`; the Neon League is live with its rivals and theme). Wave 13 is merged by PR #33 (main `4aefda6`; all 28 Neon items, Codex's Neon art and the Roguewood brand). **Wave 14 is open** (see "Wave 14 claims"); its early merges are PR #34 (main `90f5003`: UI-9, E05-R5, Salvage's spec, rules and lanes, and Codex's AV-T02) PR #36 (main `457875c`: UI-10, and Codex's AV-T03 and UI-A7) PR #37 (main `2530367`: UI-11) PR #38 (main `4a16b21`: the owner's soundtrack, MUSIC-1) and PR #39 (main `4e4a31c`: the Clubhouse music at the menu, the title's tap sound, "Tap to Play"). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
+Updated: 2026-11-15. E01–E16 DONE and merged to main (owner merge is approval; see AGENTS.md). E17–E22 IN_PROGRESS; E23–E29 NOT_STARTED. Waves 1–7 are merged (PRs #11, #13–#18); Waves 1–8 are merged; Wave 8 by PR #19 (main `f444488`). Wave 9 is merged by PR #20 (main `e52343f`), plus the CI fix PR #21 (`f4810aa`). Wave 10 is merged by PR #22 (main `706767f`). Wave 11 is merged by PR #29 (main `f65d16f`). Wave 12 is merged by PR #30 (main `cd1cfc9`; the Neon League is live with its rivals and theme). Wave 13 is merged by PR #33 (main `4aefda6`; all 28 Neon items, Codex's Neon art and the Roguewood brand). **Wave 14 is open** (see "Wave 14 claims"); its early merges are PR #34 (main `90f5003`: UI-9, E05-R5, Salvage's spec, rules and lanes, and Codex's AV-T02) PR #36 (main `457875c`: UI-10, and Codex's AV-T03 and UI-A7) PR #37 (main `2530367`: UI-11) PR #38 (main `4a16b21`: the owner's soundtrack, MUSIC-1) PR #39 (main `4e4a31c`: the Clubhouse music at the menu, the title's tap sound, "Tap to Play") and PR #40 (main `c397d4b`: UI-12 and Codex's AV-N3). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
 
 ## Read first
 
@@ -288,6 +288,18 @@ Open: Wave 10 is merged (PR #22, main `706767f`). Base: `claude/roguewood-build`
 - **Owner actions:** play the Neon League on the phone; listen to its music; review the captures listed in docs/handoffs/WAVE12-CODEX.md (no phone or speaker trial has been run).
 - **Merge:** MERGED to main by PR #30 (`cd1cfc9`, 2026-11-14) after CI passed on `53ba01c` (Bootstrap run 43613842320); Bootstrap also passed on main (run 43631722839).
 
+## Wave 15 queue (owner requests; claimed when Wave 15 opens)
+- **UI-A8, Codex** (owner, 2026-11-17; prompt docs/prompts/codex-wave15-ui-a8.md): League backdrops. The space beside and behind the lane is redesigned to push each League's theme forward: ambient, layered, slow and readable under the HUD, with still versions for reduced motion and reduced flash.
+  - **Scope:** House and Neon now, every Division and the Championship. Salvage, Royal, Spectral and Foundry follow the standard UI-A8 sets, within their own themes.
+  - **Claude:** wires any hook UI-A8 asks for in league_theme.gd.
+
+- **AV-FIX1, Codex** (owner, 2026-11-17; prompt docs/prompts/codex-av-fix1-transparency.md): eight card images have opaque dark backgrounds instead of transparency:
+  - **The cards:** Tin Pin, Spare Jar, Consolation Prize, Double Take, Called Shot, Pin Count, Cleanup Crew and Lucky Seven.
+  - **Source sheets:** source.AV-H3-B.png and source.AV-H4-A/B.png.
+  - **The fix:** a clean alpha matte, ledger entries, and a unit guard that every card is transparent at its border.
+  - **When:** in Codex's current queue, ahead of Wave 15 if the owner wants it on the phone sooner.
+  - **Update (2026-11-17), at the owner's request:** the coordinator matted seven with tools/author_card_mattes.py (ledger, AV-FIX1). A unit guard (tests/card_transparency_test.gd) now fails on any card with a background plate. **Spare Jar remains for Codex:** its glass needs repainting. Checks: `unit`, `content`, JAVH3BC, JAVH4AC and JAVH4BC (both modes), and J03C08–J03C11: PASS.
+
 ## Wave 14 claims (coordinator: Claude, 2026-11-15)
 Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build` at the "Wave 13 closed" commit or later. Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave14-session.md, a new session from 2026-11-15 with AV-T02 first; it replaces codex-wave14.md). Scope: docs/ROADMAP.md, the Wave 14 row and "League template" (wave a for Salvage).
 - **Claude:**
@@ -369,8 +381,23 @@ Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build`
 - **AV-N3 DONE and merged** (Codex `06b7772`, merge `4bd6942`; handoffs/AV-N3.md): the art, sounds and effects for Dry Side, Lane Reader, Hook Shot, Line Call, Bounce Back and Straight Money.
   - **Merge:** one conflict, in the asset ledger; both sections were kept, and the UI-12 button sounds were added.
   - **Checks on the merge:** `unit`, `content`, J03C17, J22L02, and JAVN3, JAVN3R, JAVN3C and JAVN3BC in both modes: PASS.
+- **PR #40 merged** (owner, 2026-11-16; main `c397d4b`, a merge of `9da918d`): UI-12 and AV-N3. CI passed on `9da918d` (game, art and capture, on both runs).
+- **UI-13 DONE** (handoffs/UI-13.md), "Learn to Bowl" (owner, 2026-11-17; added to Claude's Wave 14 work at the owner's request):
+  - **What it is:** a visual tutorial on a fixed practice lane (content set `tutorial`): a spotlight, an animated pixel hand and one line per step, each waiting for the player to do it in the real game.
+  - **What it teaches:** aim, the throw, scoring, cards, the match target, the Pro Shop (buy, place on the rack map, sell) and the boss.
+  - **When it starts:** on a new player's first Enter League, and any time from the Clubhouse menu's How to Play. Skippable at every step.
+  - **Nothing counts:** a throwaway Career and no saves. The real Career keeps only `tutorial: {seen, completed}`.
+  - **Checks:** `unit`, `content`, JTUT (both modes), J01, J11, J05, J07 and J10, and the phone tour: PASS. The full local matrix passed (251/251) on `9ec104e`.
+  - **Follow-up (owner, 2026-11-17):** a touched place on the rack map previews what is about to go there (the modification's badge, or the new item's art), and the detail line states the result.
+- **Binder centring** (owner, 2026-11-17, screenshot): in landscape the Binder's category tabs and card grid sat to the left.
+  - **Fix:** the tabs centre when the strip fits the screen, and still slide sideways when it does not. The grid centres, and a short last row lines up under the first column.
+  - **Checks:** J11 adds a landscape check that the gaps either side are equal. J11 (both modes), J11ART, JAVN2 and `unit`: PASS.
+- **E12 motion review fixed** (owner's question, 2026-11-17). The workflow runs only on `codex/roguewood-build`, and had failed there on every push since 10 Nov. It was not Codex's work; both causes were coordinator changes Codex had merged:
+  - **J08 landscape:** a Next Rack check written for portrait (UI-5 follow-up) required the button below the hand. In landscape the hand is a side column, so the check now accepts below it or clear of it.
+  - **Movie recording:** the UI-12 button tap pressed just before J08 quits was still held at exit. Under `--write-movie` the mixer runs only as frames are written, so the engine reported "1 resources still in use". Taps now release their sound when they finish, and are skipped while a movie is recorded.
+  - **Checks:** `capture_motion.py` passes in full (`ROGUEWOOD_E12_MATRIX_OK`), and J08, J11 and `unit` pass. Codex's branch picks the fix up at its next merge from `claude/roguewood-build`.
 - **Claude's Wave 14 claims are done.** Next:
-  - Codex's AV-N3 to AV-N5 and UI-A6 (AV-T02, AV-T03 and UI-A7 are merged);
+  - Codex's AV-N4, AV-N5 and UI-A6 (AV-T02, AV-T03, UI-A7 and AV-N3 are merged), and the proposed AV-UI1 (the final button sounds);
   - then the full matrix and the "Wave 14 closed" commit.
 
 ## Wave 13 closed (coordinator, 2026-11-15)

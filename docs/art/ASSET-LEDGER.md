@@ -1228,3 +1228,27 @@ Original deterministic mono PCM foley by tools/author_foley.py (wood material), 
 | ui_tap.wav | `author_foley.py ui_tap wood 1100 0.045` | `7c3e7681d9f042bf2996dfc91002ac97bf02fdf397f07a7e66baf2d9123ccd96` |
 | ui_select.wav | `author_foley.py ui_select wood 1500 0.035` | `644a5039a46c3b45c9cf4c6d35e59959ea30764951e05ddf9fbad627bce9403e` |
 | ui_back.wav | `author_foley.py ui_back wood 720 0.06` | `f7863214664f83bdc3b0ae9cdaa6d46f980b1e9c138a67b99d61da23dd586457` |
+
+## AV-FIX1 — transparent card art for seven House items (coordinator, at the owner's request, 2026-11-17)
+The owner found card art with an opaque background. A scan of all 97 catalogue cards found eight whose generated source sheets were saved on a flat plate of about #0F181F, not transparency. Seven are fixed here; Spare Jar stays with Codex, because its glass shows the plate through it, which needs repainting rather than a matte.
+
+**Method:** `tools/author_card_mattes.py`, deterministic.
+- **The plate:** cut each card's region from its source sheet, and take the plate colour as the median of the region's border.
+- **The background:** the area connected to the edge within 34 of the plate colour, plus large enclosed pockets that are on average plate colour (for example inside Double Take's rings).
+- **The edge:** alpha eases from 0 (within 10 of the plate) to 1 (at 34), and the plate colour is removed from the soft-edge pixels, so there is no dark fringe.
+- **Not changed:** no painting, resampling or generation. The source sheets `source.AV-H3-B.png`, `source.AV-H4-A.png` and `source.AV-H4-B.png` are unchanged and remain the provenance. Each item's card, icon and reduced-motion views now point at its matte; the in-play material and effects are untouched.
+
+| Item | Matte | Size | Plate | Transparent | SHA-256 |
+|---|---|---|---|---|---|
+| `pin.tin` | `assets/items/d09/matte.pin.tin.png` | 416x896 | #0e1920 | 53% | `cf0f20066223182db5f14a9ef094a387f9fd179ca4fd7bf410103ca885dead58` |
+| `charm.consolation_prize` | `assets/items/d09/matte.charm.consolation_prize.png` | 480x880 | #0f1920 | 47% | `1ace89da47e754d8c8acd42cddeae42d863495f10e2dc371c15f03bd00f8666d` |
+| `consumable.double_take` | `assets/items/d10/matte.consumable.double_take.png` | 464x700 | #0f1720 | 57% | `079a67852758f218d15013049bd236a6fa83a68787dc4dd02c6212d87fb47cf5` |
+| `consumable.called_shot` | `assets/items/d10/matte.consumable.called_shot.png` | 512x700 | #0e1720 | 75% | `f1218f910eb1eacc2544ffe61da54b5a61b04e3dbdcb04e7bfa5f11bfc9f7fb0` |
+| `consumable.pin_count` | `assets/items/d10/matte.consumable.pin_count.png` | 512x700 | #0e1720 | 39% | `36d3c7c476850a6f2baa79ce13cf8ffee2c970c6e67411f5f4b1fee00ce6d77c` |
+| `charm.cleanup_crew` | `assets/items/d10/matte.charm.cleanup_crew.png` | 768x900 | #0f181f | 60% | `5c85b6186924b133cf6ffd2a38edf6f6baa6855d5dadca7ae483b56dbba4ae6d` |
+| `charm.lucky_seven` | `assets/items/d10/matte.charm.lucky_seven.png` | 720x800 | #0f181f | 41% | `a1da687a84d95f3eeb7d3d7d5a8b984c5a396440cc09aa5836eb3622612237b8` |
+
+**Guard:** tests/card_transparency_test.gd, in `unit`.
+- **The check:** every catalogue card, icon and reduced view fails if three or more of its four edges are more than half opaque. A subject touching one edge, like Standing Order's clipboard, passes.
+- **The exception:** `charm.spare_jar` is listed in `KNOWN_OPAQUE`. The check fails once it is fixed, so the exception is removed then.
+

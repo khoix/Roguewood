@@ -34,7 +34,7 @@ const COUNTED := ["strikes", "spares", "curved_strikes", "controlled_curves", "r
 
 static func fresh() -> Dictionary:
 	return {"first_clears": {}, "unlocked": [], "awards": {}, "intros_seen": {}, "attempts": 0, "championships": {},
-		"mastery": {}, "totals": {}, "tally": {}, "records": {}, "items": {}, "tracked": []}
+		"mastery": {}, "totals": {}, "tally": {}, "records": {}, "items": {}, "tracked": [], "tutorial": {}}
 
 ## Fills missing keys (and drops unknown ones) so older in-memory records fit.
 static func normalized(data: Dictionary) -> Dictionary:
@@ -58,7 +58,7 @@ static func validate(data: Variant) -> Array[String]:
 		errors.append("not a record")
 		return errors
 	for key in fresh():
-		if not data.has(key) and key != "tracked": # tracked arrived within schema 2 (E16)
+		if not data.has(key) and key not in ["tracked", "tutorial"]: # both arrived within schema 2 (E16, UI-13)
 			errors.append("missing " + key)
 	return errors
 

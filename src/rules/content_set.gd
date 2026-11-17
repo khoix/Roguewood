@@ -35,6 +35,9 @@ const SETS := {
 	"house_c05": {"catalogue": "res://content/catalogue.json", "league": "res://content/fixtures/house_c05_league.json", "unlocks": "res://content/fixtures/house_c05_unlocks.json"},
 	# J03C13 only (E18-C13): the Neon rules and lanes on three short Divisions.
 	"neon_c13": {"catalogue": "res://content/catalogue.json", "league": "res://content/fixtures/neon_c13_league.json", "unlocks": "res://content/fixtures/neon_c13_unlocks.json"},
+	# UI-13: the tutorial's fixed practice lane (one short House Division, fixed first shop).
+	# It is in no unlock registry: the shell plays it on a throwaway Career, unsaved.
+	"tutorial": {"catalogue": "res://content/catalogue.json", "league": "res://content/tutorial/league.json", "unlocks": LAB_UNLOCKS},
 	# J03C20 only (E18-C20): the Salvage rules and lanes on three short Divisions.
 	"salvage_c20": {"catalogue": "res://content/catalogue.json", "league": "res://content/fixtures/salvage_c20_league.json", "unlocks": "res://content/fixtures/salvage_c20_unlocks.json"},
 }
@@ -104,6 +107,10 @@ static func load_set(set_id: String, seed_value: int = 1) -> Dictionary:
 	out.name = league.get("name", "")
 	out["league_id"] = league.get("id", "")
 	out["specialists"] = league.get("specialists", {})
+	# UI-13: a League can borrow another's look (the tutorial wears the House theme)
+	# and fix its first shop's offers.
+	out["theme"] = league.get("theme", out.league_id)
+	if league.has("tutorial_offers"): out["tutorial_offers"] = league.tutorial_offers
 	for kit in out.kits:
 		out.errors.append_array(validate_kit(kit, out.catalogue))
 	# Hashed for save warnings: a changed catalogue or League is reported on load.

@@ -53,6 +53,8 @@ var _choice_labels: Array = []
 var _choice_visuals: Array = []
 var _choice_selected := -1
 var _pointer := false # the last press came from a finger or the mouse, not focus and accept
+var choice_touched := false # a finger or the mouse picked a place (not only focus) since the sheet opened
+var _opening := false # the sheet's first focus is not a pick
 var choice_sheet: PanelContainer
 var choice_prompt: Label
 var choice_list: VBoxContainer
@@ -472,6 +474,7 @@ func _tile(parent: Control, node_name: String, item_id: String, mod: String, cap
 	tile.custom_minimum_size = tile_size
 	tile.set_meta("art_tile", true) # ModificationArt badges it but keeps its art
 	tile.icon = ItemAssets.slot(item_id, "icon") as Texture2D if not item_id.is_empty() else null
+	tile.set_meta("own_icon", tile.icon)
 	tile.expand_icon = true
 	tile.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	tile.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
@@ -708,6 +711,7 @@ func show_choices(prompt: String, labels: Array, visuals: Array = [], rack: Arra
 	_choice_labels = labels
 	_choice_visuals = visuals
 	_choice_selected = -1
+	choice_touched = false
 	for box in [choice_list, choice_map, choice_others]:
 		for child in box.get_children():
 			box.remove_child(child)
@@ -765,7 +769,11 @@ func show_choices(prompt: String, labels: Array, visuals: Array = [], rack: Arra
 	if labels.is_empty():
 		cancel_choice.grab_focus()
 	else:
+		# UI-13 (owner, 2026-11-17): the map opens with nothing picked, so a preview
+		# appears only on the pin the player touches (or moves focus to).
+		_opening = true
 		choice_button(0).grab_focus()
+		_opening = false
 	if visual: _fit_choices.call_deferred()
 
 ## The visual sheet's height is known once its tiles are laid out.
@@ -784,21 +792,46 @@ func _choice_tile(parent: Control, index: int, tile_size: Vector2) -> Button:
 	tile.pressed.connect(func():
 		var by_pointer := _pointer
 		_pointer = false
-		if by_pointer: select_choice(index)
+		if by_pointer:
+			choice_touched = true
+			select_choice(index)
 		else: call_deferred("emit_signal", "choice_made", index))
-	tile.focus_entered.connect(func(): select_choice(index))
+	tile.focus_entered.connect(func(): if not _opening: select_choice(index))
 	return tile
 
 ## Shows what is at a place now and what the choice will do; Confirm applies it.
 func select_choice(index: int) -> void:
 	if index < 0 or index >= _choice_visuals.size(): return
+	if _choice_selected >= 0 and _choice_selected != index: _preview(_choice_selected, false)
 	_choice_selected = index
+	_preview(index, true)
 	for i in _choice_visuals.size():
 		var tile := choice_button(i)
 		if tile != null: tile.get_node("Selected").visible = i == index
 	choice_detail.text = String(_choice_visuals[index].get("detail", _choice_labels[index]))
 	choice_confirm.text = String(_choice_visuals[index].get("verb", "Confirm"))
 	choice_confirm.disabled = false
+
+## UI-13 (owner, 2026-11-17): the picked place shows what is about to go there: a
+## modification's badge on the pin, or the new item's art in the place (its old
+## occupant's badge leaves with it). Picking another place restores this one.
+func _preview(index: int, on: bool) -> void:
+	var v: Dictionary = _choice_visuals[index]
+	var tile := choice_button(index)
+	var placing := String(v.get("placing", ""))
+	if tile == null or placing.is_empty(): return
+	var extent := int(tile.custom_minimum_size.x * 0.24)
+	if bool(v.get("placing_mod", false)):
+		# Larger while previewed, so the new modification reads at a glance.
+		ModArt._badge(tile, placing if on else String(v.get("mod", "")), int(tile.custom_minimum_size.x * 0.46) if on else extent)
+	else:
+		tile.icon = (ItemAssets.slot(placing, "icon") as Texture2D) if on else tile.get_meta("own_icon", null)
+		ModArt._badge(tile, "" if on else String(v.get("mod", "")), extent)
+	tile.set_meta("previewing", placing if on else "")
+	if on and is_inside_tree():
+		tile.pivot_offset = tile.size * 0.5
+		tile.scale = Vector2(1.08, 1.08)
+		create_tween().tween_property(tile, "scale", Vector2.ONE, 0.18)
 
 func choice_count() -> int:
 	return _choice_labels.size() if choice_sheet.visible else 0
