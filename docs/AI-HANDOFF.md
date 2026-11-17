@@ -293,6 +293,12 @@ Open: Wave 10 is merged (PR #22, main `706767f`). Base: `claude/roguewood-build`
   - **Scope:** House and Neon now, every Division and the Championship. Salvage, Royal, Spectral and Foundry follow the standard UI-A8 sets, within their own themes.
   - **Claude:** wires any hook UI-A8 asks for in league_theme.gd.
 
+- **AV-FIX1, Codex** (owner, 2026-11-17; prompt docs/prompts/codex-av-fix1-transparency.md): eight card images have opaque dark backgrounds instead of transparency:
+  - **The cards:** Tin Pin, Spare Jar, Consolation Prize, Double Take, Called Shot, Pin Count, Cleanup Crew and Lucky Seven.
+  - **Source sheets:** source.AV-H3-B.png and source.AV-H4-A/B.png.
+  - **The fix:** a clean alpha matte, ledger entries, and a unit guard that every card is transparent at its border.
+  - **When:** in Codex's current queue, ahead of Wave 15 if the owner wants it on the phone sooner.
+
 ## Wave 14 claims (coordinator: Claude, 2026-11-15)
 Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build` at the "Wave 13 closed" commit or later. Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave14-session.md, a new session from 2026-11-15 with AV-T02 first; it replaces codex-wave14.md). Scope: docs/ROADMAP.md, the Wave 14 row and "League template" (wave a for Salvage).
 - **Claude:**
