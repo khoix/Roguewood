@@ -1301,3 +1301,16 @@ No sampled recordings.
 | sound.charm.second_chance | rubber / 610 Hz | `4199f8cf557527915ee78eda6d2201b6db39b026f38d73f1abb048c761e995c5` |
 
 Brief: docs/art/briefs/AV-N5.md. Native evidence and limitations: docs/handoffs/AV-N5.md.
+
+## UI-A6 — House pin-deck finish (2026-11-17)
+
+Original procedural shader by Codex: assets/leagues/house/pin_deck.gdshader and
+pin_deck.tres. Quantized walnut grain, recessed joins, brass rails and diamond
+inlays; no external images, sampled sources or generated textures. Static,
+unshaded, presentation meshes only. Neon material and shader reused unchanged.
+Manifest entries bind each League's finish. Brief: docs/art/ui/UI-A6.md.
+
+| UI-A6 source | SHA-256 |
+|---|---|
+| assets/leagues/house/pin_deck.gdshader | `143f03638c8368a3ee5a956fb8425f48fc7d451a3506e945ae6b935322c416e6` |
+| assets/leagues/house/pin_deck.tres | `297ee89f7ad07351f32c1e5eb24fadfc5919a356c41a4e6f8d19300bfd17d757` |

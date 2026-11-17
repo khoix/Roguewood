@@ -1,6 +1,6 @@
 # Wave 14 Codex checkpoint
 
-Status: IN_PROGRESS. Branch: codex/roguewood-build (2026-11-17).
+Status: DONE — assigned Codex Wave 14 implementation and verification. Branch: codex/roguewood-build (2026-11-17).
 
 Coordinator be1d045 was merged with merge commit c9ecd381. Includes E05-R5
 and UI-9. No rebase, force-push, main push or PR. Initial synchronization
@@ -17,7 +17,8 @@ per-item briefs still apply.
   203 passing local checks and 52 captures. Details in AV-N4.md.
 - AV-N5: DONE; five identities/effects/sounds, two mastery ribbons, 211 distinct
   passing local checks and 64 captures. Details in AV-N5.md.
-- UI-A6: not started. No DONE handoff to skip.
+- UI-A6: DONE; manifest pin-deck hook, static House finish, 35 passing targeted
+  checks and 21 native captures. See UI-A6.md.
 - Salvage art stays outside Wave 14.
 
 ## Owner capture index
@@ -49,14 +50,16 @@ both native Trophies/Goals rows are included. Contact sheets and the labelled
 earned ribbon specimens are in artifacts/av-n5/{contact,contact-b}/rendered/.
 Full index and native mastery limits: AV-N5.md.
 
+UI-A6: artifacts/ui-a6/rendered/. Review deck_d02_feature, deck_d03_boss and
+deck_d08_boss with _portrait, _landscape and _roll suffixes. Eight opener captures
+cover Divisions 1–8. Neon comparison: artifacts/e22-l02-art/live/rendered/
+live_pin_deck_{normal,reduced}.png. Full index: UI-A6.md.
+
 ## Exact resume step
 
-AV-N5 is complete; see AV-N5.md for verification and fixture limits. Coordinator
-8bafa27 (UI-13) was merged by 0cbd9a4 before authoring. Stop at this completed
-checkpoint. Next UI-A6 (Medium): fetch/merge the latest coordinator
-with a merge commit, read updated claims and docs/prompts/codex-wave14-ui-a6.md,
-then implement the manifest pin-deck hook and House finish. Check Divisions 1–8
-and the Championship, preserving Neon's finish.
+All assigned Codex Wave 14 items are complete. Stop for coordinator integration
+and wave closure. No next Codex milestone or effort is assigned; do not begin
+Salvage Wave 15 or proposed AV-UI1. The coordinator owns the central progress file.
 
 ## Validation environment
 
@@ -104,3 +107,9 @@ JAVC04B rendered timed out under concurrent software rendering, then passed
 alone with its original 900-second timeout. Final label checks and full details
 are recorded in AV-N5.md. No captures are committed. Full CI/Web and wave
 closure remain the coordinator's work.
+
+UI-A6: pinned Godot 4.5.2, isolated Xorg :90, same temporary XDG directories.
+All 35 targeted checks pass; results and audits are in artifacts/wave14/ui-a6/.
+Physics digest and J03/J05 pinned scores remain unchanged. This targeted run
+includes both League journeys and their art journeys in both modes; it does not
+claim a fresh full art-shard or full CI/Web run. See UI-A6.md for scope and limits.

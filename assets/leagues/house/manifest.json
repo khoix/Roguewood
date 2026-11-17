@@ -1,5 +1,6 @@
 {
   "schema_version": 1,
+  "pin_deck": "res://assets/leagues/house/pin_deck.tres",
   "league_id": "league.house",
   "source": "res://assets/leagues/house/source.environment.png",
   "stages": [

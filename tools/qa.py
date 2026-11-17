@@ -285,6 +285,12 @@ for _key, _script, _directory in [("JAVN5", "neon_n5_art_journey", "native"), ("
 for _key, _script, _directory in [("JAVN5C", "neon_n5_contact", "contact"), ("JAVN5BC", "neon_n5_contact_b", "contact-b")]:
     JOURNEYS[_key] = ("res://tests/"+_script+".gd", "ROGUEWOOD_NEON_N1_CONTACT_OK", "artifacts/av-n5/"+_directory, ("count_0","count_1","count_2","motion"), 180, ["--fixed-fps","60"])
 
+
+# UI-A6 native House pin-deck evidence across all nine stages.
+_a6_caps = tuple("deck_d%02d_opener" % i for i in range(1,9)) + ("deck_d08_boss",) + tuple("deck_d%02d_%s_%s" % (d,k,v) for d,k in [(2,"feature"),(3,"boss"),(8,"boss")] for v in ["portrait","landscape","roll"]) + ("j22_champion","j22_title","j22_tournament")
+JOURNEYS["JUIA6"] = ("res://tests/house_pin_deck_art_journey.gd", "ROGUEWOOD_J22L01_OK", "artifacts/ui-a6", _a6_caps, 1800, ["--fixed-fps","60"])
+CONTENT["JUIA6"] = "house"
+
 def engine():
     executable = os.environ.get("GODOT_BIN") or shutil.which("godot") or shutil.which("godot4")
     if not executable:
