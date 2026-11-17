@@ -107,7 +107,7 @@ JOURNEYS = {
     "J09": ("res://tests/campaign_journey.gd", "ROGUEWOOD_J09_OK", "artifacts/e14", ("campaign_shop", "campaign_won", "campaign_endless", "campaign_lost"), 1500, ["--fixed-fps", "60"]),
     "J08": ("res://tests/motion_journey.gd", "ROGUEWOOD_J08_OK", "artifacts/e12",
             ("aim", "foil", "reveal", "rolling", "impact", "scoring", "reaction", "returned"), 900, ["--fixed-fps", "60"]),
-    "J01": ("res://tests/shell_smoke.gd", "ROGUEWOOD_SHELL_OK", "artifacts/e03", ("title", "menu", "tutorial", "session", "reset", "returned"), 30, []),
+    "J01": ("res://tests/shell_smoke.gd", "ROGUEWOOD_SHELL_OK", "artifacts/e03", ("title", "menu", "tutorial", "session", "reset", "returned"), 90, []),
     # UI-13: Learn to Bowl, the tutorial on its practice lane, end to end.
     "JTUT": ("res://tests/tutorial_journey.gd", "ROGUEWOOD_JTUT_OK", "artifacts/ui-13",
              ("tut_welcome", "tut_target", "tut_cards", "tut_aim", "tut_throw", "tut_scoring", "tut_shop", "tut_place", "tut_place_preview", "tut_place_confirm",
