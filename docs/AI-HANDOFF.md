@@ -288,6 +288,18 @@ Open: Wave 10 is merged (PR #22, main `706767f`). Base: `claude/roguewood-build`
 - **Owner actions:** play the Neon League on the phone; listen to its music; review the captures listed in docs/handoffs/WAVE12-CODEX.md (no phone or speaker trial has been run).
 - **Merge:** MERGED to main by PR #30 (`cd1cfc9`, 2026-11-14) after CI passed on `53ba01c` (Bootstrap run 43613842320); Bootstrap also passed on main (run 43631722839).
 
+## Wave 15 queue (owner requests; claimed when Wave 15 opens)
+- **UI-A8, Codex** (owner, 2026-11-17; prompt docs/prompts/codex-wave15-ui-a8.md): League backdrops. The space beside and behind the lane is redesigned to push each League's theme forward: ambient, layered, slow and readable under the HUD, with still versions for reduced motion and reduced flash.
+  - **Scope:** House and Neon now, every Division and the Championship. Salvage, Royal, Spectral and Foundry follow the standard UI-A8 sets, within their own themes.
+  - **Claude:** wires any hook UI-A8 asks for in league_theme.gd.
+
+- **AV-FIX1, Codex** (owner, 2026-11-17; prompt docs/prompts/codex-av-fix1-transparency.md): eight card images have opaque dark backgrounds instead of transparency:
+  - **The cards:** Tin Pin, Spare Jar, Consolation Prize, Double Take, Called Shot, Pin Count, Cleanup Crew and Lucky Seven.
+  - **Source sheets:** source.AV-H3-B.png and source.AV-H4-A/B.png.
+  - **The fix:** a clean alpha matte, ledger entries, and a unit guard that every card is transparent at its border.
+  - **When:** in Codex's current queue, ahead of Wave 15 if the owner wants it on the phone sooner.
+  - **Update (2026-11-17), at the owner's request:** the coordinator matted seven with tools/author_card_mattes.py (ledger, AV-FIX1). A unit guard (tests/card_transparency_test.gd) now fails on any card with a background plate. **Spare Jar remains for Codex:** its glass needs repainting. Checks: `unit`, `content`, JAVH3BC, JAVH4AC and JAVH4BC (both modes), and J03C08–J03C11: PASS.
+
 ## Wave 14 claims (coordinator: Claude, 2026-11-15)
 Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build` at the "Wave 13 closed" commit or later. Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave14-session.md, a new session from 2026-11-15 with AV-T02 first; it replaces codex-wave14.md). Scope: docs/ROADMAP.md, the Wave 14 row and "League template" (wave a for Salvage).
 - **Claude:**
@@ -377,6 +389,13 @@ Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build`
   - **Nothing counts:** a throwaway Career and no saves. The real Career keeps only `tutorial: {seen, completed}`.
   - **Checks:** `unit`, `content`, JTUT (both modes), J01, J11, J05, J07 and J10, and the phone tour: PASS. The full local matrix passed (251/251) on `9ec104e`.
   - **Follow-up (owner, 2026-11-17):** a touched place on the rack map previews what is about to go there (the modification's badge, or the new item's art), and the detail line states the result.
+- **Binder centring** (owner, 2026-11-17, screenshot): in landscape the Binder's category tabs and card grid sat to the left.
+  - **Fix:** the tabs centre when the strip fits the screen, and still slide sideways when it does not. The grid centres, and a short last row lines up under the first column.
+  - **Checks:** J11 adds a landscape check that the gaps either side are equal. J11 (both modes), J11ART, JAVN2 and `unit`: PASS.
+- **E12 motion review fixed** (owner's question, 2026-11-17). The workflow runs only on `codex/roguewood-build`, and had failed there on every push since 10 Nov. It was not Codex's work; both causes were coordinator changes Codex had merged:
+  - **J08 landscape:** a Next Rack check written for portrait (UI-5 follow-up) required the button below the hand. In landscape the hand is a side column, so the check now accepts below it or clear of it.
+  - **Movie recording:** the UI-12 button tap pressed just before J08 quits was still held at exit. Under `--write-movie` the mixer runs only as frames are written, so the engine reported "1 resources still in use". Taps now release their sound when they finish, and are skipped while a movie is recorded.
+  - **Checks:** `capture_motion.py` passes in full (`ROGUEWOOD_E12_MATRIX_OK`), and J08, J11 and `unit` pass. Codex's branch picks the fix up at its next merge from `claude/roguewood-build`.
 - **Claude's Wave 14 claims are done.** Next:
   - Codex's AV-N4, AV-N5 and UI-A6 (AV-T02, AV-T03, UI-A7 and AV-N3 are merged), and the proposed AV-UI1 (the final button sounds);
   - then the full matrix and the "Wave 14 closed" commit.

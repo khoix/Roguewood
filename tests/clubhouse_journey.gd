@@ -195,6 +195,20 @@ func _stage_one_clubhouse() -> void:
 	var cards: Array = club.binder_grid.get_children()
 	_check(is_equal_approx(cards[2].global_position.y, cards[0].global_position.y) and not is_equal_approx(cards[3].global_position.y, cards[0].global_position.y)
 		and cards[2].get_global_rect().end.x <= club.size.x, "a phone's binder is three cards across")
+	# Owner (2026-11-17): in landscape the category tabs and the cards are centred.
+	root.size = Vector2i(1000, 506)
+	for i in 6: await process_frame
+	var page: Rect2 = club.pages.binder.get_global_rect()
+	var shown: Array = club.binder_grid.get_children().filter(func(c): return c.visible and not c.is_queued_for_deletion()) # the grid is rebuilt for the new width
+	var row: Array = shown.filter(func(c): return is_equal_approx(c.global_position.y, shown[0].global_position.y))
+	var strip: Rect2 = club.binder_tabs.get_global_rect()
+	var tabs: Array = club.binder_filters.get_children().filter(func(c): return not c.is_queued_for_deletion())
+	var gaps := [row[0].global_position.x - page.position.x, page.end.x - row[-1].get_global_rect().end.x,
+		tabs[0].global_position.x - strip.position.x, strip.end.x - tabs[-1].get_global_rect().end.x]
+	_check(row.size() > 3 and absf(gaps[0] - gaps[1]) <= 4.0 and gaps[2] > 40.0 and absf(gaps[2] - gaps[3]) <= 4.0,
+		"in landscape the Binder's cards and tabs are centred (gaps %s)" % str(gaps.map(func(g): return roundi(g))))
+	root.size = PORTRAIT
+	for i in 6: await process_frame
 	await _focus_accept(club.filter_button("charm"))
 	_check(club.category == "charm" and club.binder_grid.get_child_count() == 52, "the Charms filter shows the fifty-two Charms")
 	var encore := await _card("charm.encore")

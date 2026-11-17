@@ -25,6 +25,8 @@ func _ready() -> void:
 		var voice := AudioStreamPlayer.new()
 		add_child(voice)
 		_voices.append(voice)
+		# A finished tap lets go of its sound at once, so nothing is held at exit.
+		voice.finished.connect(func(): voice.stream = null)
 	get_tree().node_added.connect(_on_node_added)
 	_hook_all(get_tree().root)
 
@@ -54,6 +56,10 @@ func play(kind: String) -> void:
 	if kind.is_empty() or not SOUNDS.has(kind): return
 	var level := float(settings.get("sound_volume", 0.65))
 	if bool(settings.get("sound_muted", false)) or level <= 0.0: return
+	# Recording a movie (the E12 review captures), the mixer runs only as frames are
+	# written, so a tap pressed just before quitting could never be retired: the
+	# engine would report it still in use at exit. Those recordings go without taps.
+	if not Engine.get_write_movie_path().is_empty(): return
 	var frame := Engine.get_process_frames()
 	if frame - _last_frame < MIN_GAP_FRAMES: return
 	_last_frame = frame
