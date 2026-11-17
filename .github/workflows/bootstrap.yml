@@ -124,6 +124,8 @@ jobs:
           xvfb-run -a python3 tools/qa.py e2e --journey J22L02 --rendered
           python3 tools/qa.py e2e --journey J11
           xvfb-run -a python3 tools/qa.py e2e --journey J11 --rendered
+          python3 tools/qa.py e2e --journey JTUT
+          xvfb-run -a python3 tools/qa.py e2e --journey JTUT --rendered
           python3 tools/qa.py e2e --journey J12
           xvfb-run -a python3 tools/qa.py e2e --journey J12 --rendered
           python3 tools/qa.py experiment
@@ -418,6 +420,7 @@ jobs:
             artifacts/e20-v02/
             artifacts/e20-v01/
             artifacts/e16/
+            artifacts/ui-13/
             artifacts/e18-c01/
             artifacts/e18-c02/
             artifacts/e18-c03/

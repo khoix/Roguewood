@@ -16,6 +16,9 @@ const TitleScreen = preload("res://src/bootstrap/title_screen.gd")
 const Soundtrack = preload("res://src/presentation/soundtrack.gd")
 const UiSounds = preload("res://src/presentation/ui_sounds.gd")
 const ClubOptions = preload("res://src/clubhouse/clubhouse_options.gd")
+const TutorialCoach = preload("res://src/presentation/tutorial_coach.gd")
+## UI-13: the tutorial's practice lane always deals the same cards.
+const TUTORIAL_SEED := 7
 var session: Dictionary = {}
 var screen := "menu"
 var heading: Label
@@ -53,6 +56,11 @@ var club_menu: Control
 var club_menu_list: VBoxContainer
 var club_options: ClubOptions
 var music_duck := 1.0 # the Clubhouse music eases to half under its Options
+## UI-13 (owner, 2026-11-17): "Learn to Bowl", a guided practice match (the coach).
+var coach: TutorialCoach
+var tutorial_first_run := false # started by a new player's first Enter League
+var _tutorial_return := "" # the League choice to restore when the tutorial ends
+var _coach_from := "" # the coach's first step ("" from the start)
 ## Career record (E09), saved apart from attempts since E10 (career.json); E15
 ## (ADR 010) adds the validated unlock graph, records and mastery. Restart and
 ## retry keep it.
@@ -301,7 +309,74 @@ func _button(parent: Node, label: String, node_name: String, width: float) -> Bu
 	return button
 
 func _start_session() -> void:
+	if content.id == "tutorial": # Restart run within the tutorial starts it again
+		_begin_tutorial()
+		return
+	if _offer_tutorial():
+		start_tutorial(true)
+		return
 	_begin_attempt(1)
+
+## A new player's first Enter League opens the tutorial (the real game only: a shell
+## embedded by a journey, and the browser QA run, enter the League as before).
+func _offer_tutorial() -> bool:
+	return show_title_on_start() and not WebQA.requested() and int(career.get("attempts", 0)) == 0 \
+		and not bool(career.get("tutorial", {}).get("seen", false))
+
+## Plays the tutorial on its practice lane. first_run: it was the player's first
+## Enter League, so its last step (and Skip) go on to the chosen League.
+func start_tutorial(first_run: bool = false) -> void:
+	tutorial_first_run = first_run
+	if content.id != "tutorial": _tutorial_return = content.id
+	var record: Dictionary = career.get("tutorial", {})
+	record["seen"] = true
+	career["tutorial"] = record
+	_save_career()
+	content = ContentSet.load_set("tutorial")
+	_begin_tutorial()
+
+func _begin_tutorial(from_step: String = "") -> void:
+	_coach_from = from_step
+	_begin_attempt(1)
+
+func _attach_coach() -> void:
+	if coach != null:
+		coach.queue_free()
+	coach = TutorialCoach.new()
+	coach.name = "TutorialCoach"
+	coach.lab = lab
+	coach.first_run = tutorial_first_run
+	coach.reduced = bool(throw_settings.get("reduced_motion", false))
+	add_child(coach)
+	lab.chrome = [menu_button, coach.card] # a touch on the coach's card is never a throw
+	if not _coach_from.is_empty(): coach.step = maxi(coach._index(_coach_from), 0)
+	coach.finished.connect(_on_coach_finished, CONNECT_DEFERRED)
+
+func _on_coach_finished(choice: String) -> void:
+	if choice in ["run", "clubhouse", "practice"]:
+		career.tutorial["completed"] = true
+		_save_career()
+	if coach != null:
+		coach.queue_free()
+		coach = null
+	match choice:
+		"practice": pass # the practice lane plays on, unguided
+		"retry": _begin_tutorial("aim")
+		"run", "skip":
+			if tutorial_first_run:
+				_end_tutorial()
+				_begin_attempt(1)
+			else:
+				_show_menu()
+		_: _show_menu()
+
+## Back to the League the player had chosen.
+func _end_tutorial() -> void:
+	if coach != null:
+		coach.queue_free()
+		coach = null
+	if content.id == "tutorial":
+		content = ContentSet.load_set(_tutorial_return if not _tutorial_return.is_empty() else league_sets[league.selected])
 
 ## The menu button (three bars, drawn; Codex can supply an icon by asset later) and
 ## its sheet: a dimmed layer over the match with a short list of large entries.
@@ -401,6 +476,11 @@ func _build_club_menu() -> void:
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title_label.add_theme_font_size_override("font_size", 30)
 	club_menu_list.add_child(title_label)
+	# UI-13: the tutorial, any time.
+	var how := _button(club_menu_list, "How to Play", "ClubTutorial", 320)
+	how.pressed.connect(func():
+		club_menu.hide()
+		start_tutorial(false))
 	for entry in [["Options", "ClubOptions", "options"], ["Sound & effects", "ClubSound", "sound"]]:
 		var page: String = entry[2]
 		var button := _button(club_menu_list, entry[0], entry[1], 320)
@@ -417,7 +497,7 @@ func _build_club_menu() -> void:
 func open_club_menu() -> void:
 	if screen != "menu": return
 	club_menu.show()
-	club_menu_list.get_node("ClubOptions").grab_focus()
+	club_menu_list.get_node("ClubTutorial").grab_focus()
 
 func close_club_menu() -> void:
 	if not club_menu.visible: return
@@ -589,6 +669,13 @@ func _begin_attempt(attempt: int, saved: Dictionary = {}) -> void:
 	lab.attempt = attempt
 	lab.save_store = store
 	lab.restore_from = saved
+	if content.id == "tutorial":
+		# UI-13: a practice lane. A throwaway Career and no saves, so nothing counts;
+		# the same seed every time, so the cards and the first shop never change.
+		lab.career = CareerProfile.fresh()
+		lab.save_store = null
+		lab.equipment_seed = TUTORIAL_SEED
+		lab.restore_from = {}
 	lab.attempt_finished.connect(func(outcome): session.outcome = outcome)
 	lab.retry_requested.connect(func(): _begin_attempt(int(session.attempt) + 1), CONNECT_DEFERRED)
 	lab.menu_requested.connect(_show_menu, CONNECT_DEFERRED)
@@ -601,6 +688,8 @@ func _begin_attempt(attempt: int, saved: Dictionary = {}) -> void:
 	menu_button.show()
 	_place_menu()
 	menu_button.grab_focus()
+	if content.id == "tutorial" and (attempt == 1 or coach != null):
+		_attach_coach()
 
 ## The session fixture tracks the lab's banked total and current frame.
 func _on_frame_scored(scored: Dictionary) -> void:
@@ -611,6 +700,7 @@ func _on_frame_scored(scored: Dictionary) -> void:
 		session.division = lab.division.division_number()
 
 func _show_menu() -> void:
+	_end_tutorial()
 	if not _awaiting_title: # under the title at start-up the menu is built, not yet seen
 		_play_clubhouse_music()
 	screen = "menu"

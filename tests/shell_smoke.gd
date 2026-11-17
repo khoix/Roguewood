@@ -59,7 +59,16 @@ func _run() -> void:
 	await _capture("menu")
 	if scene.screen != "menu" or not scene.enter.has_focus(): failures.append("menu missing or Enter League unfocused")
 	await _accept()
-	await _wait_for(func(): return scene.screen == "session", "session entry")
+	# UI-13: a new player's first Enter League opens the tutorial on its practice lane;
+	# Skip goes on to the League they chose, and the tutorial is not offered again.
+	await _wait_for(func(): return scene.screen == "session" and scene.coach != null and scene.coach.card_ready(), "the tutorial on a first Enter League")
+	if scene.content.id != "tutorial" or scene.coach.current_id() != "welcome" or not scene.coach.skip_button.visible:
+		failures.append("the first Enter League opens the tutorial's welcome (%s, %s)" % [scene.content.id, scene.coach.current_id() if scene.coach != null else "no coach"])
+	await _capture("tutorial")
+	scene.coach.skip_button.grab_focus()
+	await _accept()
+	await _wait_for(func(): return scene.screen == "session" and scene.coach == null and scene.content.id != "tutorial" and scene.lab != null, "Skip enters the League")
+	if not bool(scene.career.get("tutorial", {}).get("seen", false)): failures.append("the Career notes the tutorial as seen")
 	await _capture("session")
 	if scene.session.get("kit_id") != "kit.house": failures.append("kit fixture missing")
 	if scene.screen != "session": failures.append("Enter League input did not open session")

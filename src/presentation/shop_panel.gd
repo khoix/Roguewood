@@ -53,6 +53,7 @@ var _choice_labels: Array = []
 var _choice_visuals: Array = []
 var _choice_selected := -1
 var _pointer := false # the last press came from a finger or the mouse, not focus and accept
+var choice_touched := false # a finger or the mouse picked a place (not only focus) since the sheet opened
 var choice_sheet: PanelContainer
 var choice_prompt: Label
 var choice_list: VBoxContainer
@@ -708,6 +709,7 @@ func show_choices(prompt: String, labels: Array, visuals: Array = [], rack: Arra
 	_choice_labels = labels
 	_choice_visuals = visuals
 	_choice_selected = -1
+	choice_touched = false
 	for box in [choice_list, choice_map, choice_others]:
 		for child in box.get_children():
 			box.remove_child(child)
@@ -784,7 +786,9 @@ func _choice_tile(parent: Control, index: int, tile_size: Vector2) -> Button:
 	tile.pressed.connect(func():
 		var by_pointer := _pointer
 		_pointer = false
-		if by_pointer: select_choice(index)
+		if by_pointer:
+			choice_touched = true
+			select_choice(index)
 		else: call_deferred("emit_signal", "choice_made", index))
 	tile.focus_entered.connect(func(): select_choice(index))
 	return tile

@@ -278,8 +278,8 @@ func _ready() -> void:
 	if not content.errors.is_empty():
 		push_error("Content set %s invalid: %s" % [content.id, str(content.errors)])
 	_catalogue = content.catalogue
-	if content.get("id", "") in ["house", "neon"]:
-		league_theme = LeagueTheme.for_league(content.get("league_id", ""))
+	if content.get("id", "") in ["house", "neon", "tutorial"]: # UI-13: the tutorial wears the House theme
+		league_theme = LeagueTheme.for_league(content.get("theme", content.get("league_id", "")))
 		if league_theme != null:
 			add_child(league_theme)
 			league_theme.play_music()
@@ -1143,6 +1143,8 @@ func _open_shop() -> void:
 	run.drop_consumed(equipment.exhausted.duplicate())
 	settlement = run.settle_match(int(division.results[-1].frames))
 	shop.open_visit(run, division.division_number() + (1 if division.division_cleared() else 0))
+	if shop.visit == 1 and content.has("tutorial_offers"):
+		_fix_offers(content.tutorial_offers)
 	state = "shop"
 	_checkpoint("shop")
 	next_rack.hide()
@@ -1152,6 +1154,16 @@ func _open_shop() -> void:
 	shop_panel.continue_button.grab_focus()
 	_update_status()
 	money_changed.emit(run.money)
+
+## UI-13: the tutorial's first shop sells fixed items, one per ordinary slot, so
+## its steps can always point at the same offers. Prices follow the shop's rules.
+func _fix_offers(item_ids: Array) -> void:
+	for i in mini(item_ids.size(), shop.offers.size()):
+		var item: Dictionary = run.item(String(item_ids[i]))
+		if item.is_empty() or int(shop.offers[i].slot) >= Shop.EXTRA: continue
+		shop.offers[i].item_id = item.id
+		shop.offers[i].sold = false
+	shop.reprice(run)
 
 func _start_next_match() -> void:
 	if state != "shop" or not _choice.is_empty():

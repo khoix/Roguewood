@@ -134,6 +134,14 @@ func _run() -> void:
 	await _settle()
 	# A first attempt.
 	await _press(scene.enter)
+	# UI-13: a new player's first Enter League opens the tutorial; the tour shows its
+	# welcome, then skips on to the League.
+	await _wait_for(func(): return scene.lab != null and (scene.coach != null and scene.coach.card_ready() or scene.content.id != "tutorial"))
+	if scene.coach != null:
+		await _settle(30)
+		await _capture("tutorial_welcome")
+		await _press(scene.coach.skip_button)
+		await _wait_for(func(): return scene.coach == null and scene.lab != null and scene.content.id != "tutorial")
 	await _wait_for(func(): return scene.lab != null and scene.lab.state == "aim")
 	lab = scene.lab
 	lab.trial_log_path = ""
