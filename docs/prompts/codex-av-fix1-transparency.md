@@ -1,5 +1,12 @@
 # Codex brief — AV-FIX1, transparent card art (owner, 2026-11-17)
 
+> **Update (2026-11-17), at the owner's request:** the coordinator has fixed seven of the eight: Tin Pin, Consolation Prize, Double Take, Called Shot, Pin Count, Cleanup Crew and Lucky Seven.
+> - **How:** the mattes come from `tools/author_card_mattes.py`, recorded in ASSET-LEDGER.md under "AV-FIX1"; the source sheets are unchanged.
+> - **Guard:** in place as `tests/card_transparency_test.gd`.
+> - **What remains for Codex:** **Spare Jar only**. Its glass shows the plate through the jar, so its art needs repainting or regenerating with real transparency, not a matte.
+> - **Done when:** the jar's background and glass let the card's window show through. Then remove `charm.spare_jar` from `KNOWN_OPAQUE` in the guard, which fails until you do, and record the new source in the ledger.
+> - **Optional:** review the seven mattes as art lead. Refine any in the same way if you see a halo or a lost detail.
+
 Owner: "A number of images aren't transparent — they have background colors that need to be removed." The owner's screenshots show the Binder, where these cards show a dark rectangle inside the card's art window.
 
 ## The eight cards
