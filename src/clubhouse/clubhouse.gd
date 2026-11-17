@@ -504,6 +504,10 @@ func _build_binder() -> void:
 	binder_filters = HBoxContainer.new()
 	binder_filters.name = "BinderFilters"
 	binder_filters.add_theme_constant_override("separation", 2)
+	# Owner (2026-11-17): centred when the strip fits the screen (landscape, wide
+	# windows); it still slides sideways when it does not.
+	binder_filters.alignment = BoxContainer.ALIGNMENT_CENTER
+	binder_filters.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	binder_tabs.add_child(binder_filters)
 	# Margins keep a card's focus ring inside the page's clip; the rows leave room
 	# for the state tab above a card (DISCOVERED, MASTERED).
@@ -517,6 +521,10 @@ func _build_binder() -> void:
 	binder_grid.name = "BinderGrid"
 	binder_grid.add_theme_constant_override("h_separation", 8)
 	binder_grid.add_theme_constant_override("v_separation", 30)
+	# Owner (2026-11-17): the cards centred on the page; a short last row lines up
+	# under the first column rather than floating in the middle.
+	binder_grid.alignment = FlowContainer.ALIGNMENT_CENTER
+	binder_grid.last_wrap_alignment = FlowContainer.LAST_WRAP_ALIGNMENT_BEGIN
 	grid_margin.add_child(binder_grid)
 	var note := _label(pages.binder, "BinderNote", 18)
 	note.text = "The binder keeps each item's history. A new run never starts with an item. Tap a card to see it."
