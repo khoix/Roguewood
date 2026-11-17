@@ -375,7 +375,8 @@ Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build`
   - **What it teaches:** aim, the throw, scoring, cards, the match target, the Pro Shop (buy, place on the rack map, sell) and the boss.
   - **When it starts:** on a new player's first Enter League, and any time from the Clubhouse menu's How to Play. Skippable at every step.
   - **Nothing counts:** a throwaway Career and no saves. The real Career keeps only `tutorial: {seen, completed}`.
-  - **Checks:** `unit`, `content`, JTUT (both modes), J01, J11, J05, J07 and J10, and the phone tour: PASS. The full local matrix: see below.
+  - **Checks:** `unit`, `content`, JTUT (both modes), J01, J11, J05, J07 and J10, and the phone tour: PASS. The full local matrix passed (251/251) on `9ec104e`.
+  - **Follow-up (owner, 2026-11-17):** a touched place on the rack map previews what is about to go there (the modification's badge, or the new item's art), and the detail line states the result.
 - **Claude's Wave 14 claims are done.** Next:
   - Codex's AV-N4, AV-N5 and UI-A6 (AV-T02, AV-T03, UI-A7 and AV-N3 are merged), and the proposed AV-UI1 (the final button sounds);
   - then the full matrix and the "Wave 14 closed" commit.
