@@ -1,6 +1,6 @@
 # Wave 14 Codex checkpoint
 
-Status: DONE — assigned Codex Wave 14 implementation and verification. Branch: codex/roguewood-build (2026-11-17).
+Status: IN_PROGRESS — late owner-assigned AV-FIX1 transparency correction. Branch: codex/roguewood-build (2026-11-17).
 
 Coordinator be1d045 was merged with merge commit c9ecd381. Includes E05-R5
 and UI-9. No rebase, force-push, main push or PR. Initial synchronization
@@ -19,6 +19,8 @@ per-item briefs still apply.
   passing local checks and 64 captures. Details in AV-N5.md.
 - UI-A6: DONE; manifest pin-deck hook, static House finish, 35 passing targeted
   checks and 21 native captures. See UI-A6.md.
+- AV-FIX1: IN_PROGRESS; late owner assignment, Spare Jar transparency. Seven
+  other cards were fixed by the coordinator. See AV-FIX1.md for the timed checkpoint.
 - Salvage art stays outside Wave 14.
 
 ## Owner capture index
@@ -57,9 +59,10 @@ live_pin_deck_{normal,reduced}.png. Full index: UI-A6.md.
 
 ## Exact resume step
 
-All assigned Codex Wave 14 items are complete. Stop for coordinator integration
-and wave closure. No next Codex milestone or effort is assigned; do not begin
-Salvage Wave 15 or proposed AV-UI1. The coordinator owns the central progress file.
+The original seven Codex claims are complete. The coordinator added AV-FIX1;
+Spare Jar remains in progress. Resume docs/handoffs/AV-FIX1.md: native before/after
+shop/Binder evidence and remaining rendered checks, then finish the handoff.
+Recommended effort High for the glass/alpha correction. No Wave 15 work.
 
 ## Validation environment
 
@@ -113,3 +116,9 @@ All 35 targeted checks pass; results and audits are in artifacts/wave14/ui-a6/.
 Physics digest and J03/J05 pinned scores remain unchanged. This targeted run
 includes both League journeys and their art journeys in both modes; it does not
 claim a fresh full art-shard or full CI/Web run. See UI-A6.md for scope and limits.
+
+AV-FIX1 timed checkpoint: unit/content, JAVH3BC and J11 in both modes,
+J03C10 headless and the native Binder capture tool in both modes pass. Reviewed
+Binder after captures: artifacts/av-fix1/binder/rendered/binder_portrait.png and
+binder_landscape.png. Remaining native before/after evidence and rendered shop
+verification are recorded in AV-FIX1.md; this late item is not DONE.

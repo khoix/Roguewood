@@ -1337,3 +1337,17 @@ The owner found card art with an opaque background. A scan of all 97 catalogue c
 - **The check:** every catalogue card, icon and reduced view fails if three or more of its four edges are more than half opaque. A subject touching one edge, like Standing Order's clipboard, passes.
 - **The exception:** `charm.spare_jar` is listed in `KNOWN_OPAQUE`. The check fails once it is fixed, so the exception is removed then.
 
+
+### AV-FIX1 — Spare Jar regenerated glass (Codex, 2026-11-17)
+
+Original reference: assets/items/d09/source.AV-H3-B.png, retained unchanged.
+Two image-generation edit passes isolated the jar and coins, then removed the
+first pass's unwanted external haze. Final generated RGBA copied without pixel
+editing: assets/items/d09/source.AV-FIX1.spare_jar.png.
+SHA-256: `ab9f64b5e8a1011e85590e3694990e42a2fd6046a230e064208e7507cfc69c54`. Exact prompts:
+docs/art/briefs/AV-FIX1-source-prompts.txt. AtlasTexture views use region
+(280,85,750,1070); no resampling or source-pixel edits. Central glass alpha 4/255,
+open mouth 0/255 and sampled upper background 0/255. Card, icon and reduced view
+share this source; the counted in-play jar continues using its existing icon
+hook. No sound, scoring or catalogue changes. Native visual completion is
+tracked separately in docs/handoffs/AV-FIX1.md.
