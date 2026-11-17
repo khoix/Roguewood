@@ -98,7 +98,7 @@
             "unlocks": [
               "gate.slick_cleared"
             ],
-            "text": "A Neon item joins the shop pool from your next attempt."
+            "text": "A Neon item joins the shop pool from your next run."
           },
           "reactions": {
             "entrance": "Mind the shine, friend. It's all slide out here.",
@@ -154,7 +154,7 @@
             "unlocks": [
               "gate.laser_lena_cleared"
             ],
-            "text": "A Neon item joins the shop pool from your next attempt."
+            "text": "A Neon item joins the shop pool from your next run."
           },
           "reactions": {
             "entrance": "Stay between the lines. They're closer than they look.",
@@ -210,7 +210,7 @@
             "unlocks": [
               "gate.dj_flicker_cleared"
             ],
-            "text": "A Neon item joins the shop pool from your next attempt."
+            "text": "A Neon item joins the shop pool from your next run."
           },
           "reactions": {
             "entrance": "Feel the beat? Release on the drop.",
@@ -266,7 +266,7 @@
             "unlocks": [
               "gate.slick_cleared"
             ],
-            "text": "A Neon item joins the shop pool from your next attempt."
+            "text": "A Neon item joins the shop pool from your next run."
           },
           "reactions": {
             "entrance": "Mind the shine, friend. It's all slide out here.",
@@ -322,7 +322,7 @@
             "unlocks": [
               "gate.laser_lena_cleared"
             ],
-            "text": "A Neon item joins the shop pool from your next attempt."
+            "text": "A Neon item joins the shop pool from your next run."
           },
           "reactions": {
             "entrance": "Stay between the lines. They're closer than they look.",
@@ -378,7 +378,7 @@
             "unlocks": [
               "gate.dj_flicker_cleared"
             ],
-            "text": "A Neon item joins the shop pool from your next attempt."
+            "text": "A Neon item joins the shop pool from your next run."
           },
           "reactions": {
             "entrance": "Feel the beat? Release on the drop.",
@@ -434,7 +434,7 @@
             "unlocks": [
               "gate.slick_cleared"
             ],
-            "text": "A Neon item joins the shop pool from your next attempt."
+            "text": "A Neon item joins the shop pool from your next run."
           },
           "reactions": {
             "entrance": "Mind the shine, friend. It's all slide out here.",

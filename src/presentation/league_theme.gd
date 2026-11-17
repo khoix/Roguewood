@@ -7,6 +7,7 @@ extends Node
 ## - The match's lane condition picks the lane surface material; the lane's physics
 ##   material and geometry are untouched.
 ## - The League's music loops on the Master bus, quietly, for the whole attempt.
+const Soundtrack = preload("res://src/presentation/soundtrack.gd")
 const MANIFESTS := {"league.house": "res://assets/leagues/house/manifest.json", "league.neon": "res://assets/leagues/neon/manifest.json"}
 const MUSIC_DB := -18.0
 
@@ -14,6 +15,7 @@ var manifest: Dictionary = {}
 var stage_id := "" # the environment id on show
 var environment: Node3D
 var music: AudioStreamPlayer
+var _championship := false # the stage on show is the Championship (its own track)
 
 ## A theme for the League, or null when it has none.
 static func for_league(league_id: String) -> Node:
@@ -47,6 +49,8 @@ func show_stage(viewport: SubViewport, division: int, championship: bool) -> voi
 	if scene == null:
 		push_warning("League theme: missing environment " + s.environment_id)
 		return
+	_championship = championship
+	_retune()
 	environment = scene.instantiate()
 	environment.name = "LeagueEnvironment"
 	environment.set_meta("environment_id", s.environment_id)
@@ -103,7 +107,7 @@ func flank() -> Control:
 func play_music() -> void:
 	if music != null:
 		return
-	var stream: AudioStream = load(_asset(manifest.get("music", {}).get("asset_id", "")))
+	var stream: AudioStream = _track()
 	if stream == null:
 		return
 	music = AudioStreamPlayer.new()
@@ -112,6 +116,24 @@ func play_music() -> void:
 	music.volume_db = MUSIC_DB
 	add_child(music)
 	music.play()
+
+## The track for the stage on show: the owner's soundtrack first (the Championship
+## has its own), else the theme's own loop.
+func _track() -> AudioStream:
+	if _championship and Soundtrack.has("championship"):
+		return Soundtrack.stream("championship")
+	var league := String(manifest.get("league_id", ""))
+	if Soundtrack.has(league):
+		return Soundtrack.stream(league)
+	return load(_asset(manifest.get("music", {}).get("asset_id", "")))
+
+## A stage change (into or out of the Championship) swaps the playing track.
+func _retune() -> void:
+	if music == null: return
+	var want := _track()
+	if want != null and want != music.stream:
+		music.stream = want
+		music.play()
 
 ## Stops the loop and lets go of its stream when the lab closes. A test that quits
 ## while the loop plays stops it first and waits a few frames, or the audio thread

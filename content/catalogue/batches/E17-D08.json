@@ -9,7 +9,7 @@
       "id": "charm.trophy_case",
       "landed_in": "E18-C09",
       "design": {
-        "trigger": "+1 Mult for every strike thrown since it was bought: each strike adds a trophy after the frame banks, so a strike counts from the next frame on. Kept for the attempt; selling it loses its trophies.",
+        "trigger": "+1 Mult for every strike thrown since it was bought: each strike adds a trophy after the frame banks, so a strike counts from the next frame on. Kept for the run; selling it loses its trophies.",
         "primitives": [],
         "pool": "Shop Charm slot; initial pool from Division 1.",
         "presentation_needs": "A glass case that fills with small trophies; the count shows on the card and the new trophy lands after the bank.",

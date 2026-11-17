@@ -67,7 +67,7 @@
             "unlocks": [
               "gate.surveyor_cleared"
             ],
-            "text": "Encore joins the shop pool from your next attempt."
+            "text": "Encore joins the shop pool from your next run."
           },
           "reactions": {
             "entrance": "Plumb, level, true. Show me a straight line.",
@@ -118,7 +118,7 @@
             "unlocks": [
               "gate.custodian_cleared"
             ],
-            "text": "Standing Order joins the shop pool from your next attempt."
+            "text": "Standing Order joins the shop pool from your next run."
           },
           "reactions": {
             "entrance": "Mind the corners. I only count what's cleared.",

@@ -519,7 +519,7 @@ func _build_binder() -> void:
 	binder_grid.add_theme_constant_override("v_separation", 30)
 	grid_margin.add_child(binder_grid)
 	var note := _label(pages.binder, "BinderNote", 18)
-	note.text = "The binder keeps each item's history. A new attempt never starts with an item. Tap a card to see it."
+	note.text = "The binder keeps each item's history. A new run never starts with an item. Tap a card to see it."
 	note.add_theme_color_override("font_color", Color("9aa8a6"))
 	_build_preview()
 
@@ -593,7 +593,7 @@ func _build_trophies() -> void:
 func _build_goals() -> void:
 	pages.goals.add_child(caption("Mastery goals", "GoalsCaption"))
 	var hint := _label(pages.goals, "GoalsHint")
-	hint.text = "Follow up to three. They show on the League Board and after every attempt; practice does not count."
+	hint.text = "Follow up to three. They show on the League Board and after every run; practice does not count."
 	hint.add_theme_font_size_override("font_size", 18)
 	hint.add_theme_color_override("font_color", Color("c9d3cf"))
 	goals_message = _label(pages.goals, "GoalsMessage")
@@ -736,7 +736,7 @@ func _unlock_row(entry: Dictionary) -> Control:
 	what.add_theme_color_override("font_color", Color("f0d99b"))
 	var how := _label(text, "How", 16)
 	how.custom_minimum_size.x = 100
-	how.text = String(entry.get("how", "")) + (" · in the shop from your next attempt" if not names.is_empty() else "")
+	how.text = String(entry.get("how", "")) + (" · in the shop from your next run" if not names.is_empty() else "")
 	how.add_theme_color_override("font_color", Color("9aa8a6"))
 	return row
 
@@ -948,7 +948,7 @@ func _refresh_goals() -> void:
 			reward.text = "Complete: " + goal.reward
 			reward.add_theme_color_override("font_color", Color("a8e0b0"))
 		else:
-			box.add_child(progress_row(goal.progress, goal.threshold, "in one attempt" if goal.scope == "attempt" else "across your Career"))
+			box.add_child(progress_row(goal.progress, goal.threshold, "in one run" if goal.scope == "attempt" else "across your Career"))
 		var track := Button.new()
 		track.name = "Track"
 		track.custom_minimum_size = Vector2(132, 48)

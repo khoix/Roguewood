@@ -1241,7 +1241,7 @@ func _show_result() -> void:
 				lines.append("Champion again: %d %s titles (a record, not a repeat unlock)." % [wins, league_entry.name])
 		_save_career()
 	else:
-		title = "Attempt over — %s lost" % String(last.kind).capitalize()
+		title = "Run over — %s lost" % String(last.kind).capitalize()
 		lines.append("Scored %d of the %d target." % [last.score, last.target])
 		for rule in division.rules():
 			lines.append("Rule in force: " + RivalRules.summary(rule))
@@ -1251,7 +1251,7 @@ func _show_result() -> void:
 			_save_career()
 	var career_lines := _career_lines()
 	lines.append_array(career_lines)
-	lines.append("Attempt %d · total %d · $%d left" % [attempt, total_score, run.money])
+	lines.append("Run %d · total %d · $%d left" % [attempt, total_score, run.money])
 	_result_view = {"title": title, "body": "\n".join(lines), "won": division.outcome == "won", "sections": _result_sections(lines, career_lines, last)}
 	_checkpoint("division_over")
 	hud.show_result(title, _result_view.body, _result_view.won, _retry_label(), _result_view.sections)
@@ -1294,7 +1294,7 @@ func _result_sections(lines: Array, career_lines: Array, last: Dictionary) -> Di
 		"headline": headline,
 		"quip": not quip.is_empty(),
 		"subtitle": ("%s defeated." % division.rival().name) if won else lost,
-		"stats": [[str(total_score), "Total"], [reached, "Reached"], ["$%d" % run.money, "Left"], [str(attempt), "Attempt"]],
+		"stats": [[str(total_score), "Total"], [reached, "Reached"], ["$%d" % run.money, "Left"], [str(attempt), "Run"]],
 		"matches": division.results.map(func(r): return {"division": int(r.get("division", 1)), "kind": String(r.kind), "score": int(r.score), "target": int(r.target), "won": bool(r.won)}),
 		"highlights": highlights,
 		"goals": CareerProfile.goals(career, career_graph.get("objectives", []), career_attempt).map(func(g): return {"name": g.name, "progress": int(g.progress), "threshold": int(g.threshold)}),
@@ -1316,7 +1316,7 @@ func _career_lines() -> Array:
 		if items.is_empty():
 			lines.append("Earned: %s (kept for good)." % gate_name)
 		else:
-			lines.append("Unlocked: %s join%s the shop pool from your next attempt." % [", ".join(items.map(func(i): return _names.get(i, i))), "s" if items.size() == 1 else ""])
+			lines.append("Unlocked: %s join%s the shop pool from your next run." % [", ".join(items.map(func(i): return _names.get(i, i))), "s" if items.size() == 1 else ""])
 	if division.practice:
 		lines.append("Practice: discoveries and practice records only; no unlocks or mastery progress.")
 	var goals: Array = CareerProfile.goals(career, career_graph.get("objectives", []), career_attempt)
@@ -1446,7 +1446,7 @@ func _on_offer(index: int) -> void:
 	elif RunInventory.slot_kind(run.item(plan.item_id).category) == "mod":
 		prompt = "Attach %s ($%d) to:" % [item_name, plan.price]
 	_choice = {"kind": "buy", "index": index, "targets": options.map(func(o): return o.target)}
-	shop_panel.show_choices(prompt, options.map(_placement_label))
+	shop_panel.show_choices(prompt, options.map(_placement_label), options.map(func(o): return _choice_visual(o, plan.item_id)), _rack_art())
 	_refresh_shop()
 
 func _finish_buy(index: int, target: String) -> void:
@@ -1502,7 +1502,8 @@ func _on_remove() -> void:
 			targets.append(owned.ref.trim_prefix("card:"))
 	_choice = {"kind": "remove", "targets": targets}
 	shop_panel.show_choices("Remove which card from the run for $%d? (No refund.)" % Economy.REMOVAL_PRICE,
-		targets.map(func(uid): return _ref_label("card:" + uid)))
+		targets.map(func(uid): return _ref_label("card:" + uid)),
+		targets.map(func(uid): return _choice_visual({"target": "card:" + uid, "replaces": "", "moves_to": ""}, "", "Remove")))
 	_refresh_shop()
 
 func _on_sell(ref: String) -> void:
@@ -1575,6 +1576,39 @@ func _ref_label(ref: String) -> String:
 		"upgrade": return "Upgrade " + text
 	return "Card " + text
 
+## UI-12: what the visual placement sheet shows for one choice: the place's current
+## occupant (art, modification badge, a short caption), what is there now and what
+## will change, and the Confirm button's word.
+func _choice_visual(option: Dictionary, item_id: String, verb: String = "") -> Dictionary:
+	var target: String = option.target
+	var parts := target.split(":")
+	var entry = run.entry_at(target) if not target.ends_with(":new") else null
+	var places := {"rack": "Rack %s", "reserve": "Reserve %s", "charm": "Charm slot %s", "card": "Deck card"}
+	var place: String = places.get(parts[0], "%s") % parts[1] if parts[0] in ["rack", "reserve", "charm"] else ("Deck" if target == "card:new" else "Deck card")
+	if target == "charm:new": place = "Charm slot %d" % (run.charms.size() + 1)
+	var is_mod: bool = not item_id.is_empty() and RunInventory.slot_kind(String(run.item(item_id).get("category", ""))) == "mod"
+	var now := "empty"
+	if entry != null:
+		now = _names.get(entry.item_id, entry.item_id)
+		if not String(entry.mod).is_empty(): now += " + " + _names.get(entry.mod, entry.mod)
+		elif is_mod: now += " · no modification"
+	elif target == "card:new":
+		now = "%d of %d cards" % [run.cards.size(), RunInventory.DECK_CAP]
+	if verb.is_empty():
+		verb = "Replace" if not String(option.get("replaces", "")).is_empty() else ("Attach" if is_mod else "Place")
+	var caption: String = parts[1] if parts[0] == "rack" else ("New" if target.ends_with(":new") else (_names.get(entry.item_id, "") if entry != null else place))
+	var then := _placement_label(option) if verb != "Remove" else "Removed from the run; no refund."
+	return {"target": target, "item_id": entry.item_id if entry != null else item_id, "mod": String(entry.mod) if entry != null else "",
+		"caption": caption, "detail": "%s · now: %s\n%s" % [place, now, then], "verb": verb}
+
+## The ten pins for the placement map: {item_id, mod} by position.
+func _rack_art() -> Array:
+	var out: Array = []
+	for position in range(1, 11):
+		var pin: Dictionary = run.rack.get(position, {})
+		out.append({"item_id": String(pin.get("item_id", "")), "mod": String(pin.get("mod", ""))})
+	return out
+
 func _placement_label(option: Dictionary) -> String:
 	var target: String = option.target
 	if target == "card:new":
@@ -1645,14 +1679,23 @@ func _refresh_shop() -> void:
 	var reserves: Array = run.reserves.map(func(e): return "empty" if e == null else _names.get(e.item_id, ""))
 	rack_text += "\nReserves: " + ", ".join(reserves) + " · Charms %d/%d · Deck %d/%d" % [run.charms.size(), RunInventory.CHARM_SLOTS, run.cards.size(), RunInventory.DECK_CAP]
 	if not run.upgrades.is_empty():
-		rack_text += "\nUpgrades (kept for the attempt): " + Upgrades.summary(run, _names)
+		rack_text += "\nUpgrades (kept for the run): " + Upgrades.summary(run, _names)
 	var charm_moves: Array = []
 	for i in range(1, run.charms.size()):
 		charm_moves.append({"slot": i + 1, "label": "◀ Move %s before %s" % [_names.get(run.charms[i].item_id, ""), _names.get(run.charms[i - 1].item_id, "")]})
 	var sellables: Array = []
 	for owned in run.entries():
 		if run.can_sell(owned.ref):
-			sellables.append({"ref": owned.ref, "label": "%s  +$%d" % [_ref_label(owned.ref), run.sale_value(owned.ref)]}) # the sheet's title says Sell
+			# UI-12: a tile per item (art, badge, name, price) that opens to confirm the sale.
+			var entry: Dictionary = owned.entry
+			var item: Dictionary = run.item(entry.item_id)
+			var ref_parts: PackedStringArray = String(owned.ref).split(":")
+			var place: String = ("%s %s" % [String(ref_parts[0]).capitalize(), ref_parts[1]]) if ref_parts[0] in ["rack", "reserve", "charm"] else "Deck card"
+			var with_mod: String = "" if String(entry.mod).is_empty() else " + " + _names.get(entry.mod, entry.mod)
+			sellables.append({"ref": owned.ref, "label": "%s  +$%d" % [_ref_label(owned.ref), run.sale_value(owned.ref)], # the sheet's title says Sell
+				"item_id": entry.item_id, "mod": String(entry.mod), "name": item.get("name", entry.item_id), "value": run.sale_value(owned.ref),
+				"place": place, "text": _effect_text(item),
+				"detail": "%s%s · %s · sells for $%d" % [item.get("name", entry.item_id), with_mod, place, run.sale_value(owned.ref)]})
 	var summary := "Match %d paid: payout $%d · interest $%d (on $%d held) · item income $%d" % [settlement.match, settlement.payout,
 		settlement.interest, settlement.balance_before, settlement.item_income]
 	if Upgrades.owned(run, "interest_cap"):

@@ -13,6 +13,9 @@ const UnlockGraph = preload("res://src/career/unlock_graph.gd")
 const Clubhouse = preload("res://src/clubhouse/clubhouse.gd")
 const MatchPanels = preload("res://src/presentation/match_panels.gd")
 const TitleScreen = preload("res://src/bootstrap/title_screen.gd")
+const Soundtrack = preload("res://src/presentation/soundtrack.gd")
+const UiSounds = preload("res://src/presentation/ui_sounds.gd")
+const ClubOptions = preload("res://src/clubhouse/clubhouse_options.gd")
 var session: Dictionary = {}
 var screen := "menu"
 var heading: Label
@@ -35,6 +38,21 @@ var _restart_armed := false
 var lab: ThrowLab
 ## Throw settings shared by every session this run (persistence is E25).
 var throw_settings: Dictionary = {}
+## The owner's Clubhouse music (2026-11-16): the title and the Clubhouse between
+## attempts. A League's own music takes over during an attempt.
+var clubhouse_music: AudioStreamPlayer
+## The owner (2026-11-16): the Clubhouse music starts at the Clubhouse menu, after the
+## title's tap (which plays its own sound), never under the title.
+var _awaiting_title := false
+const TITLE_TAP_SOUND := "res://assets/audio/ui_title_start.wav"
+var tap_sound: AudioStreamPlayer
+## UI-12 (owner's play notes, 2026-11-16): button taps, and the Clubhouse's own menu.
+var ui_sounds: UiSounds
+var club_menu_button: Button
+var club_menu: Control
+var club_menu_list: VBoxContainer
+var club_options: ClubOptions
+var music_duck := 1.0 # the Clubhouse music eases to half under its Options
 ## Career record (E09), saved apart from attempts since E10 (career.json); E15
 ## (ADR 010) adds the validated unlock graph, records and mastery. Restart and
 ## retry keep it.
@@ -60,6 +78,10 @@ var save_notice := ""
 var content: Dictionary = {}
 
 func _ready() -> void:
+	ui_sounds = UiSounds.new()
+	ui_sounds.settings = throw_settings
+	add_child(ui_sounds)
+	_awaiting_title = show_title_on_start()
 	# UI-2: one House theme (frame kit, Pixelify Sans) for every screen.
 	theme = UiTheme.build()
 	get_window().size_changed.connect(_viewport_layout)
@@ -166,7 +188,7 @@ func _ready() -> void:
 	var room := Control.new()
 	room.custom_minimum_size.y = 8
 	play_box.add_child(room)
-	continue_button = _button(play_box, "Continue Attempt", "ContinueAttempt", 0)
+	continue_button = _button(play_box, "Continue Run", "ContinueAttempt", 0)
 	continue_button.pressed.connect(_continue_attempt)
 	enter = _button(play_box, "Enter League", "EnterLeague", 0)
 	for action in [continue_button, enter]:
@@ -185,6 +207,7 @@ func _ready() -> void:
 	clubhouse.graph = career_graph
 	clubhouse.career_changed.connect(_save_career)
 	_build_session_menu()
+	_build_club_menu()
 	resized.connect(_place_menu)
 	_viewport_layout()
 	enter.pressed.connect(_start_session)
@@ -207,15 +230,66 @@ func _ready() -> void:
 func show_title_on_start() -> bool:
 	return get_tree().current_scene == self
 
+## Plays the Clubhouse track (once started, it keeps its place) at the session's
+## Music level; a browser lets it sound from the first tap, which is the title's.
+func _play_clubhouse_music() -> void:
+	if not Soundtrack.has("clubhouse"): return
+	if clubhouse_music == null:
+		clubhouse_music = AudioStreamPlayer.new()
+		clubhouse_music.name = "ClubhouseMusic"
+		clubhouse_music.stream = Soundtrack.stream("clubhouse")
+		add_child(clubhouse_music)
+	clubhouse_music.volume_db = Soundtrack.level_db(throw_settings)
+	if not clubhouse_music.playing:
+		clubhouse_music.play()
+
+func _stop_clubhouse_music() -> void:
+	if clubhouse_music != null:
+		clubhouse_music.stop()
+
+## Lets go of the loop when the shell closes, so the audio thread holds no playback
+## at exit (as LeagueTheme does).
+func _exit_tree() -> void:
+	if tap_sound != null:
+		tap_sound.stop()
+		tap_sound.stream = null
+	if clubhouse_music == null and tap_sound == null and ui_sounds.played == 0: return
+	if clubhouse_music != null:
+		clubhouse_music.stop()
+		clubhouse_music.stream = null
+	if AudioServer.get_driver_name() == "Dummy":
+		# As PresentationAudio: under the Dummy driver (journeys) the stopped playback
+		# is retired on the next mixer pass, so wait for an actual pass (bounded).
+		var stopped_at := Time.get_ticks_usec()
+		while Time.get_ticks_usec() - stopped_at < 1000000:
+			var sampled_at := Time.get_ticks_usec()
+			var since_mix := int(AudioServer.get_time_since_last_mix() * 1000000.0)
+			if sampled_at - since_mix > stopped_at: break
+			OS.delay_msec(1)
+
 func _open_title() -> void:
 	title = TitleScreen.new()
 	add_child(title)
 	title.started.connect(_title_done)
 	screen = "title"
+	title.tapped.connect(_title_tapped)
 	title.open(bool(throw_settings.get("reduced_motion", false)))
 
+## The tap's sound, at the session's sound-effects level (PresentationAudio's mix).
+func _title_tapped() -> void:
+	if bool(throw_settings.get("sound_muted", false)) or not ResourceLoader.exists(TITLE_TAP_SOUND): return
+	if tap_sound == null:
+		tap_sound = AudioStreamPlayer.new()
+		tap_sound.name = "TitleTapSound"
+		tap_sound.stream = load(TITLE_TAP_SOUND)
+		add_child(tap_sound)
+	tap_sound.volume_db = linear_to_db(maxf(0.0001, float(throw_settings.get("sound_volume", 0.65)) * 0.35 * 2.0))
+	tap_sound.play()
+
 func _title_done() -> void:
+	_awaiting_title = false
 	screen = "menu"
+	_play_clubhouse_music()
 	(continue_button if continue_button.visible else enter).grab_focus()
 
 func _button(parent: Node, label: String, node_name: String, width: float) -> Button:
@@ -235,13 +309,7 @@ func _build_session_menu() -> void:
 	menu_button = Button.new()
 	menu_button.name = "SessionMenu"
 	menu_button.tooltip_text = "Menu"
-	menu_button.draw.connect(func():
-		var ink := UiTheme.IVORY
-		var w := menu_button.size.x
-		var h := menu_button.size.y
-		for i in 3:
-			var y := h * 0.5 + (i - 1) * 9.0
-			menu_button.draw_rect(Rect2(w * 0.5 - 12.0, y - 2.0, 24.0, 4.0), ink))
+	_draw_bars(menu_button)
 	menu_button.pressed.connect(open_menu)
 	menu_button.hide()
 	add_child(menu_button)
@@ -277,14 +345,91 @@ func _build_session_menu() -> void:
 	options = add_menu_entry("Options", "ThrowOptions", func(): if lab: lab.toggle_settings())
 	back = add_menu_entry("Clubhouse", "BackToMenu", _show_menu)
 	# Restart discards the attempt, so it asks once: the first press arms it.
-	reset = add_menu_entry("Restart attempt", "ResetSession", func(): pass, false)
+	reset = add_menu_entry("Restart run", "ResetSession", func(): pass, false)
 	reset.pressed.connect(func():
 		if _restart_armed:
 			close_menu()
 			_start_session()
 		else:
 			_restart_armed = true
-			reset.text = "Discard this attempt? Press again")
+			reset.text = "Discard this run? Press again")
+
+## Three drawn bars on a menu button.
+static func _draw_bars(button: Button) -> void:
+	button.draw.connect(func():
+		var w := button.size.x
+		var h := button.size.y
+		for i in 3:
+			var y := h * 0.5 + (i - 1) * 9.0
+			button.draw_rect(Rect2(w * 0.5 - 12.0, y - 2.0, 24.0, 4.0), UiTheme.IVORY))
+
+## UI-12 (owner's play notes, 2026-11-16): the Clubhouse's menu, at its top right:
+## Options and Sound & effects (the same pages as in a match, on the same session
+## settings), then Close.
+func _build_club_menu() -> void:
+	club_menu_button = Button.new()
+	club_menu_button.name = "ClubhouseMenu"
+	club_menu_button.tooltip_text = "Menu"
+	club_menu_button.custom_minimum_size = Vector2(56, 56)
+	_draw_bars(club_menu_button)
+	club_menu_button.pressed.connect(open_club_menu)
+	add_child(club_menu_button)
+	club_menu = Control.new()
+	club_menu.name = "ClubhouseMenuSheet"
+	club_menu.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	club_menu.hide()
+	add_child(club_menu)
+	var dim := ColorRect.new()
+	dim.color = Color(0.03, 0.05, 0.08, 0.72)
+	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	dim.gui_input.connect(func(event):
+		if (event is InputEventMouseButton or event is InputEventScreenTouch) and event.pressed: close_club_menu())
+	club_menu.add_child(dim)
+	var centre := CenterContainer.new()
+	centre.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	centre.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	club_menu.add_child(centre)
+	var sheet := PanelContainer.new()
+	sheet.add_theme_stylebox_override("panel", UiTheme.frame("menu", 20.0, 18.0))
+	centre.add_child(sheet)
+	club_menu_list = VBoxContainer.new()
+	club_menu_list.name = "Entries"
+	club_menu_list.add_theme_constant_override("separation", 10)
+	sheet.add_child(club_menu_list)
+	var title_label := Label.new()
+	title_label.text = "Menu"
+	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_label.add_theme_font_size_override("font_size", 30)
+	club_menu_list.add_child(title_label)
+	for entry in [["Options", "ClubOptions", "options"], ["Sound & effects", "ClubSound", "sound"]]:
+		var page: String = entry[2]
+		var button := _button(club_menu_list, entry[0], entry[1], 320)
+		button.pressed.connect(func():
+			club_menu.hide()
+			club_options.open(page))
+	var close_button := _button(club_menu_list, "Close", "CloseClubMenu", 320)
+	close_button.pressed.connect(close_club_menu)
+	club_options = ClubOptions.new()
+	club_options.settings = throw_settings
+	add_child(club_options)
+	club_options.closed.connect(func(): if screen == "menu": club_menu_button.grab_focus())
+
+func open_club_menu() -> void:
+	if screen != "menu": return
+	club_menu.show()
+	club_menu_list.get_node("ClubOptions").grab_focus()
+
+func close_club_menu() -> void:
+	if not club_menu.visible: return
+	club_menu.hide()
+	club_menu_button.grab_focus()
+
+## The Clubhouse music eases to half while its Options are open (as a match's music does).
+func _process(delta: float) -> void:
+	if clubhouse_music == null or not clubhouse_music.playing: return
+	var dipped := club_options != null and club_options.is_open()
+	music_duck = move_toward(music_duck, 0.5 if dipped else 1.0, delta * 0.5 / 0.4)
+	clubhouse_music.volume_db = Soundtrack.level_db(throw_settings) + linear_to_db(music_duck)
 
 ## Adds an entry to the session menu and returns its button. `closes` entries close
 ## the menu before they act, so what they open is not under the sheet.
@@ -299,7 +444,7 @@ func add_menu_entry(label: String, node_name: String, action: Callable, closes: 
 func open_menu() -> void:
 	if screen != "session": return
 	_restart_armed = false
-	reset.text = "Restart attempt"
+	reset.text = "Restart run"
 	session_menu.show()
 	if lab: lab.input_paused = true
 	resume.grab_focus()
@@ -314,6 +459,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	if session_menu != null and session_menu.visible and event.is_action_pressed("ui_cancel"):
 		close_menu()
 		get_viewport().set_input_as_handled()
+	elif club_menu != null and club_menu.visible and event.is_action_pressed("ui_cancel"):
+		close_club_menu()
+		get_viewport().set_input_as_handled()
+	elif club_options != null and club_options.is_open() and event.is_action_pressed("ui_cancel"):
+		club_options.close()
+		get_viewport().set_input_as_handled()
 
 ## Beside the top bar, where MatchPanels leaves room for it.
 func _place_menu() -> void:
@@ -321,6 +472,9 @@ func _place_menu() -> void:
 	var rect := MatchPanels.menu_rect(size)
 	menu_button.position = rect.position
 	menu_button.size = rect.size
+	if club_menu_button != null:
+		club_menu_button.size = Vector2(56, 56)
+		club_menu_button.position = Vector2(size.x - 16.0 - 56.0, 16.0)
 
 ## The board's Career summary and followed goals.
 func _refresh_career_line() -> void:
@@ -333,7 +487,7 @@ func _refresh_career_line() -> void:
 			box.remove_child(child)
 			child.queue_free()
 	var stats: Dictionary = CareerProfile.stats(career, career_graph.get("objectives", []))
-	var tiles := [[str(stats.rivals), "Rivals beaten"], [str(stats.titles), "Titles"], ["%d/%d" % [stats.mastered, stats.goals], "Mastery"], [str(stats.attempts), "Attempts"]]
+	var tiles := [[str(stats.rivals), "Rivals beaten"], [str(stats.titles), "Titles"], ["%d/%d" % [stats.mastered, stats.goals], "Mastery"], [str(stats.attempts), "Runs"]]
 	for i in tiles.size():
 		career_stats.add_child(Clubhouse.score_column(tiles[i][0], tiles[i][1], i == 0))
 	following.visible = not goals.is_empty()
@@ -379,7 +533,7 @@ func _saved_attempt() -> Dictionary:
 		target = ContentSet.load_set(saved_set, int(read.payload.get("seed", 1)))
 	var problems := Snapshot.validate(read.payload, target.catalogue, target.id)
 	if not problems.is_empty():
-		return {"ok": false, "notice": "The saved attempt no longer fits this version's content (%s); start a new attempt." % problems[0]}
+		return {"ok": false, "notice": "The saved attempt no longer fits this version's content (%s); start a new run." % problems[0]}
 	if read.payload.phase == "division_over" and not (target.id == "campaign" and read.payload.division.current.outcome == "won"):
 		return {"ok": false, "notice": read.notice}
 	read["content_set"] = target.id
@@ -396,6 +550,7 @@ func _continue_attempt() -> void:
 ## attempt 1 again; Retry and New Attempt begin the next one.
 ## A saved payload resumes that attempt instead of starting fresh.
 func _begin_attempt(attempt: int, saved: Dictionary = {}) -> void:
+	_stop_clubhouse_music()
 	if content.id == "campaign": content = ContentSet.load_set("campaign", int(saved.get("seed", attempt)))
 	if saved.is_empty():
 		content.kit = _chosen_kit()
@@ -411,6 +566,9 @@ func _begin_attempt(attempt: int, saved: Dictionary = {}) -> void:
 	details.text = "%s · %d Division%s" % [content.get("name", "House League"), content.divisions.size(), "" if content.divisions.size() == 1 else "s"]
 	if content.id == "campaign": details.text += " · Seed %d" % int(session.seed)
 	clubhouse.hide()
+	club_menu_button.hide()
+	club_menu.hide()
+	club_options.close()
 	_clear_lab()
 	# E22-L02: the League's frame kit for everything the attempt builds, and for the
 	# session menu over it. The lab's own Theme carries the kit to its buttons.
@@ -453,6 +611,8 @@ func _on_frame_scored(scored: Dictionary) -> void:
 		session.division = lab.division.division_number()
 
 func _show_menu() -> void:
+	if not _awaiting_title: # under the title at start-up the menu is built, not yet seen
+		_play_clubhouse_music()
 	screen = "menu"
 	session = {}
 	details.text = "The lanes are waiting."
@@ -461,7 +621,7 @@ func _show_menu() -> void:
 	# League access from the unlock graph: a locked League is shown but cannot be entered.
 	enter.disabled = false
 	var played := int(career.records.get(career_graph.get("league_of_set", {}).get(league_sets[league.selected], ""), {}).get("attempts", 0)) > 0
-	enter.text = "Try Again" if played else "Enter League" # design §16 button words
+	enter.text = "New Run" if played else "Enter League" # design §16 button words
 	for i in league.item_count:
 		var reason := UnlockGraph.league_access(career_graph, career, career_graph.get("league_of_set", {}).get(league_sets[i], ""))
 		league.set_item_disabled(i, not reason.is_empty())
@@ -472,7 +632,7 @@ func _show_menu() -> void:
 	var saved := _saved_attempt()
 	continue_button.visible = saved.ok
 	if saved.ok:
-		continue_button.text = "Continue Attempt %d · match %d" % [int(saved.payload.attempt), int(saved.payload.lab.match_number)]
+		continue_button.text = "Continue Run %d · match %d" % [int(saved.payload.attempt), int(saved.payload.lab.match_number)]
 	var notes: Array = [save_notice, saved.get("notice", "")].filter(func(n): return not n.is_empty())
 	notice.text = "\n".join(notes)
 	notice.visible = not notice.text.is_empty() # UI-9: no empty gap under the action
@@ -482,6 +642,7 @@ func _show_menu() -> void:
 	clubhouse.show_tab("board")
 	session_menu.hide()
 	menu_button.hide()
+	club_menu_button.show()
 	# UI-9: the action to take is the brass one: Continue when an attempt is saved.
 	Clubhouse.primary_style(continue_button if saved.ok else enter)
 	Clubhouse.secondary_style(enter if saved.ok else continue_button)

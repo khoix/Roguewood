@@ -260,7 +260,7 @@ static func goals(career: Dictionary, objectives: Array, uid: int, limit: int = 
 ## One line for the menu.
 static func summary(career: Dictionary, objectives: Array) -> String:
 	var s := stats(career, objectives)
-	return "Career: %d rival%s cleared · %d championship%s · %d/%d mastery goals · %d attempt%s" % [s.rivals,
+	return "Career: %d rival%s cleared · %d championship%s · %d/%d mastery goals · %d run%s" % [s.rivals,
 		"" if s.rivals == 1 else "s", s.titles, "" if s.titles == 1 else "s", s.mastered, s.goals,
 		s.attempts, "" if s.attempts == 1 else "s"]
 

@@ -7,6 +7,7 @@ extends RefCounted
 ## - The first clears of The Proprietor and Old Lou unlock House Special and Wood Grain.
 ## - The theme binds each Division's environment, the Championship stage and the lane
 ##   surfaces by manifest id.
+const Soundtrack = preload("res://src/presentation/soundtrack.gd")
 const ContentSet = preload("res://src/rules/content_set.gd")
 const League = preload("res://src/rules/league_run.gd")
 const LeagueTheme = preload("res://src/presentation/league_theme.gd")
@@ -57,4 +58,15 @@ static func _theme(failures: Array[String]) -> void:
 	var stages: Array = theme.manifest.stages
 	_expect(stages.all(func(s): return ResourceLoader.exists(theme._asset(s.environment_id))) and ResourceLoader.exists(theme._asset(theme.manifest.music.asset_id)),
 		"every stage's environment and the music resolve", failures)
+	# The owner's soundtrack (2026-11-16) takes precedence over the theme's own loop,
+	# and the Championship stage has its own track.
+	_expect(theme._track().resource_path == Soundtrack.TRACKS["league.house"], "the House League plays the owner's House track", failures)
+	theme._championship = true
+	_expect(theme._track().resource_path == Soundtrack.TRACKS.championship, "the Championship plays its own track", failures)
+	var neon = LeagueTheme.for_league("league.neon")
+	_expect(neon._track().resource_path == Soundtrack.TRACKS["league.neon"], "the Neon League plays the owner's Neon track", failures)
+	for key in Soundtrack.TRACKS:
+		var stream: AudioStream = Soundtrack.stream(key)
+		_expect(stream is AudioStreamOggVorbis and stream.loop and stream.get_length() > 120.0, "%s is a looping track over two minutes" % key, failures)
+	neon.free()
 	theme.free()

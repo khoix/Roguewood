@@ -61,7 +61,7 @@ func _run() -> void:
 	# The Neon theme (E22-L02-ART) is live: music, the flank backdrop behind the lane
 	# (still, since reduced motion is on) and the Neon frame kit on the attempt's screens.
 	_check(lab.league_theme != null and lab.league_theme.music != null and lab.league_theme.music.playing
-		and lab.league_theme.music.stream.resource_path == manifest.assets[manifest.music.asset_id], "the Neon League's music loop is playing")
+		and lab.league_theme.music.stream.resource_path == "res://assets/audio/music/neon.ogg", "the Neon League's music loop is playing (the owner's Neon track, 2026-11-16)")
 	_check(lab.backdrop.get_meta("backdrop_id", "") == manifest.flank.normal and lab.backdrop.reduced and lab.backdrop.get_index() == 0
 		and lab.backdrop.mouse_filter == Control.MOUSE_FILTER_IGNORE, "the Neon flank backdrop is behind the lane, still under reduced motion")
 	_check(UiTheme.kit_id() == "neon" and _frame(lab.hud.bar) == "res://assets/ui/neon/hud.svg" and _frame(lab.score_panel) == "res://assets/ui/neon/menu.svg"
@@ -176,7 +176,7 @@ func _title() -> void:
 func _next_attempt() -> void:
 	await _focus_accept(lab.hud.menu_button)
 	await _wait_for(func(): return scene.screen == "menu", "back to the menu")
-	_check(scene.content.id == "neon" and scene.enter.text == "Try Again", "the board stays on the Neon League")
+	_check(scene.content.id == "neon" and scene.enter.text == "New Run", "the board stays on the Neon League")
 	var trophy: Array = ClubModel.trophies(scene.career, scene.career_graph).filter(func(t): return t.id == "league.neon")
 	_check(trophy.size() == 1 and trophy[0].earned, "the Neon League trophy is on the shelf")
 	await _focus_accept(scene.enter)

@@ -1170,6 +1170,19 @@ reflection treatment preserves the glossy identity while surface details turn.
 The larger 192×192 nearest-filtered viewport and tighter camera restore the
 original hero scale. See UI-A7.md for technical limits, validation and captures.
 
+## The owner's soundtrack (2026-11-16)
+Made by the repository owner with Suno and delivered as MP3s (originals in `assets/audio/music/source/`, kept out of Godot's import). `tools/author_soundtrack.py` cut each 3.5 s before its end (Suno fades out there) and crossfaded its last 2 s into its first 2 s, so each OGG loops seamlessly. The loudness is as delivered (about −16 LUFS). `src/presentation/soundtrack.gd` plays them: the Clubhouse track on the title and the board, each League's track in its runs, and the Championship track at Division 8's title match. They take precedence over the theme loops of E22-L01-ART and E22-L02-ART, which remain the themes' own files.
+
+| File | Seconds | SHA-256 |
+|---|---|---|
+| clubhouse.ogg | 132.5 | `79230d7b4eb339b99563ffecc151e2bc8e29d2600550700f1a765339d197d051` |
+| house.ogg | 156.1 | `169634cd42552a52a6be84c41a55bf646931b8a4c316aed00b8add8a4fb9ffe8` |
+| neon.ogg | 159.4 | `a21d85d50d44a2e76485e59d6c23ecc501eaf4cce92bcde1a935dca00bfa303b` |
+| championship.ogg | 159.3 | `5a00e81e4086d3726a68803a5b62c22b8afe790b504400c75dec274a2c16a594` |
+
+## The title's tap sound (2026-11-16, provisional)
+`assets/audio/ui_title_start.wav` (0.3 s): Codex's `ball_hammer.wav` mixed with `pin_wood.wav` 70 ms later (a ball meeting a pin), limited to 0.6 peak. ffmpeg, no outside source. SHA-256 `d672f034ca6c7201ac2be675ac2608a15779f23862357f147d454a9f9ff90a89`. A designed sound from Codex can replace it at the same path.
+
 ## AV-N3 — Neon side, lane, hook and payout identities (2026-11-16)
 
 Six original identities in two generated transparent three-cell PNG atlases,
@@ -1206,3 +1219,12 @@ committed tactics and observed knockdown facts; no gameplay values altered.
 Bounce Back animates a coin along its return path; Straight Money raises a
 straight-creased banknote. Both freeze their geometry under reduced effects.
 Brief: docs/art/briefs/AV-N3.md. Native evidence and capture paths: AV-N3 handoff.
+
+## UI-12 button sounds (2026-11-16, provisional)
+Original deterministic mono PCM foley by tools/author_foley.py (wood material), no recordings or outside source. Played by `src/presentation/ui_sounds.gd` on every button press. Codex's final set (proposed AV-UI1, handoffs/UI-12.md) can replace them at the same paths.
+
+| File | Command | SHA-256 |
+|---|---|---|
+| ui_tap.wav | `author_foley.py ui_tap wood 1100 0.045` | `7c3e7681d9f042bf2996dfc91002ac97bf02fdf397f07a7e66baf2d9123ccd96` |
+| ui_select.wav | `author_foley.py ui_select wood 1500 0.035` | `644a5039a46c3b45c9cf4c6d35e59959ea30764951e05ddf9fbad627bce9403e` |
+| ui_back.wav | `author_foley.py ui_back wood 720 0.06` | `f7863214664f83bdc3b0ae9cdaa6d46f980b1e9c138a67b99d61da23dd586457` |

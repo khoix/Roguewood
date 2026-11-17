@@ -65,7 +65,7 @@ func _reach(control: Control) -> void:
 			shop.sell_open.grab_focus()
 			await _action("ui_accept")
 			await process_frame
-	elif shop.sell_sheet.visible:
+	elif shop.sell_sheet.visible and not shop.sell_confirm_sheet.is_ancestor_of(control):
 		shop.sell_close.grab_focus()
 		await _action("ui_accept")
 	if shop.offer_sheet.visible and not shop.offer_sheet.is_ancestor_of(control):
@@ -79,6 +79,11 @@ func _confirm(control) -> void: # untyped: a pressed row may already be freed
 	var shop: Control = scene.lab.shop_panel
 	if shop.offer_sheet.visible and control in shop.offer_buttons:
 		(shop.offer_back if shop.buy_button.disabled else shop.buy_button).grab_focus()
+		await _action("ui_accept")
+	# UI-12: a tap on a placement or Sell tile selects it; its Confirm finishes the tap.
+	var pending: Button = shop.pending_confirm(control)
+	if pending != null:
+		pending.grab_focus()
 		await _action("ui_accept")
 
 func _focus_accept(control: Control) -> void:

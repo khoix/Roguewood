@@ -2863,7 +2863,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "Only the first reroll of a visit, and it never lowers the price of anything you buy. Kept for the attempt; cannot be sold.",
+      "downside": "Only the first reroll of a visit, and it never lowers the price of anything you buy. Kept for the run; cannot be sold.",
       "synergy_tags": [
         "shop",
         "reroll",
@@ -2908,7 +2908,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "Reserve pins do not score unless racked, so the slot only pays off with pin swaps or Reserve Call. Kept for the attempt; cannot be sold.",
+      "downside": "Reserve pins do not score unless racked, so the slot only pays off with pin swaps or Reserve Call. Kept for the run; cannot be sold.",
       "synergy_tags": [
         "capacity",
         "reserve",
@@ -2953,7 +2953,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "Saves $1 per purchase; it needs several purchases before it has paid for itself. Kept for the attempt; cannot be sold.",
+      "downside": "Saves $1 per purchase; it needs several purchases before it has paid for itself. Kept for the run; cannot be sold.",
       "synergy_tags": [
         "economy",
         "discount",
@@ -2998,7 +2998,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "Only pays when you hold $20 or more at the end of a match, which competes with buying now. Kept for the attempt; cannot be sold.",
+      "downside": "Only pays when you hold $20 or more at the end of a match, which competes with buying now. Kept for the run; cannot be sold.",
       "synergy_tags": [
         "economy",
         "interest",
@@ -3043,7 +3043,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "More choice, not cheaper choice: the extra offer costs full price and rerolls cost the same. Kept for the attempt; cannot be sold.",
+      "downside": "More choice, not cheaper choice: the extra offer costs full price and rerolls cost the same. Kept for the run; cannot be sold.",
       "synergy_tags": [
         "selection",
         "shop",
@@ -3088,7 +3088,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "Rarer offers usually cost more, and common staples appear less often. Kept for the attempt; cannot be sold.",
+      "downside": "Rarer offers usually cost more, and common staples appear less often. Kept for the run; cannot be sold.",
       "synergy_tags": [
         "selection",
         "rarity",
@@ -5984,7 +5984,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "It pays only when you sell, and a sale never returns more than you paid. Kept for the attempt; cannot be sold.",
+      "downside": "It pays only when you sell, and a sale never returns more than you paid. Kept for the run; cannot be sold.",
       "synergy_tags": [
         "shop",
         "sell",

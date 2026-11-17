@@ -22,9 +22,10 @@ func _process(_delta:float) -> void:
   for owned in lab.run.entries():
    var button:Button=lab.shop_panel.sell_button(owned.ref)
    if button!=null and Assets.slot(owned.entry.mod,"icon")!=null:
-    button.icon=Assets.slot(owned.entry.item_id,"icon")
-    button.add_theme_constant_override("icon_max_width",28)
-    _badge(button,owned.entry.mod,24)
+    if not button.has_meta("art_tile"): # UI-12: a Sell tile already shows the host's art at its own size
+     button.icon=Assets.slot(owned.entry.item_id,"icon")
+     button.add_theme_constant_override("icon_max_width",28)
+    _badge(button,owned.entry.mod,24 if not button.has_meta("art_tile") else int(button.custom_minimum_size.x*0.24))
  for position in lab.lane.pins:
   var entry:Dictionary=lab.run.rack.get(position,{})
   dress(lab.lane.pins[position],entry.get("mod",""),entry.get("item_id",""))
