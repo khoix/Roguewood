@@ -385,6 +385,10 @@ Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build`
 - **Binder centring** (owner, 2026-11-17, screenshot): in landscape the Binder's category tabs and card grid sat to the left.
   - **Fix:** the tabs centre when the strip fits the screen, and still slide sideways when it does not. The grid centres, and a short last row lines up under the first column.
   - **Checks:** J11 adds a landscape check that the gaps either side are equal. J11 (both modes), J11ART, JAVN2 and `unit`: PASS.
+- **E12 motion review fixed** (owner's question, 2026-11-17). The workflow runs only on `codex/roguewood-build`, and had failed there on every push since 10 Nov. It was not Codex's work; both causes were coordinator changes Codex had merged:
+  - **J08 landscape:** a Next Rack check written for portrait (UI-5 follow-up) required the button below the hand. In landscape the hand is a side column, so the check now accepts below it or clear of it.
+  - **Movie recording:** the UI-12 button tap pressed just before J08 quits was still held at exit. Under `--write-movie` the mixer runs only as frames are written, so the engine reported "1 resources still in use". Taps now release their sound when they finish, and are skipped while a movie is recorded.
+  - **Checks:** `capture_motion.py` passes in full (`ROGUEWOOD_E12_MATRIX_OK`), and J08, J11 and `unit` pass. Codex's branch picks the fix up at its next merge from `claude/roguewood-build`.
 - **Claude's Wave 14 claims are done.** Next:
   - Codex's AV-N4, AV-N5 and UI-A6 (AV-T02, AV-T03, UI-A7 and AV-N3 are merged), and the proposed AV-UI1 (the final button sounds);
   - then the full matrix and the "Wave 14 closed" commit.
