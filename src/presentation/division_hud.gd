@@ -350,7 +350,7 @@ func _build_intro() -> void:
 	intro_story_button = Button.new()
 	intro_story_button.name = "IntroStoryToggle"
 	intro_story_button.flat = true
-	intro_story_button.text = "Scouting report +"
+	intro_story_button.text = "Scouting Report +"
 	intro_story_button.add_theme_font_size_override("font_size", 18)
 	intro_story_button.add_theme_color_override("font_color", UiTheme.BRASS)
 	intro_story_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -365,7 +365,7 @@ func _build_intro() -> void:
 
 func _toggle_story() -> void:
 	intro_story.visible = not intro_story.visible
-	intro_story_button.text = "Scouting report −" if intro_story.visible else "Scouting report +"
+	intro_story_button.text = "Scouting Report −" if intro_story.visible else "Scouting Report +"
 
 ## One rule as a card: its seal, its name and what it does.
 func _rule_card(rule: String) -> Control:
@@ -655,7 +655,7 @@ func show_intro(rival: Dictionary, target: int, rule_summary: String, reward: St
 	intro_reward_text.text = "First clear: " + reward
 	intro_story.text = String(rival.get("intro", ""))
 	intro_story.visible = false
-	intro_story_button.text = "Scouting report +"
+	intro_story_button.text = "Scouting Report +"
 	intro_story_button.visible = not intro_story.text.is_empty()
 	intro_scroll.scroll_vertical = 0
 	intro.show()

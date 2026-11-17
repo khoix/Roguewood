@@ -85,7 +85,7 @@ func _ready() -> void:
 	inspect_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	inspect_button.pressed.connect(func():
 		inspecting = not inspecting
-		inspect_button.text = "Pick card" if inspecting else "Inspect")
+		inspect_button.text = "Pick Card" if inspecting else "Inspect")
 	actions.add_child(inspect_button)
 
 ## cards: [{uid, title, detail, kind}], marks: uid -> "ball"/"tactical"/"keep"/"cycle".

@@ -39,7 +39,7 @@ func _ready() -> void:
 		priorities.append(0)
 	var button := Button.new()
 	button.name = "SoundAndEffects"
-	button.text = "Sound & effects"
+	button.text = "Sound & Effects"
 	button.custom_minimum_size.y = 56
 	# UI-11 (owner, 2026-11-16): Sound & effects is its own full-width row like the
 	# other settings, above Done, which stays centred at the bottom.
@@ -64,18 +64,18 @@ func _ready() -> void:
 	box.add_theme_constant_override("separation",16)
 	panel.add_child(box)
 	var title := Label.new()
-	title.text = "Sound & effects"
+	title.text = "Sound & Effects"
 	title.add_theme_font_size_override("font_size",28)
 	box.add_child(title)
 	mute_button = CheckButton.new()
-	mute_button.text = "Mute sound"
+	mute_button.text = "Mute Sound"
 	mute_button.button_pressed = muted
 	mute_button.custom_minimum_size.y = 48
 	mute_button.toggled.connect(func(value): muted = value; lab.settings["sound_muted"] = value; _mix())
 	box.add_child(mute_button)
 	# UI-11 (owner, 2026-11-16): music and sound effects each have a slider.
 	var music_label := Label.new()
-	music_label.text = "Music volume"
+	music_label.text = "Music Volume"
 	box.add_child(music_label)
 	music_slider = HSlider.new()
 	music_slider.name = "MusicVolume"
@@ -87,7 +87,7 @@ func _ready() -> void:
 	music_slider.value_changed.connect(func(value): music_volume = value; lab.settings["music_volume"] = value; _mix())
 	box.add_child(music_slider)
 	var label := Label.new()
-	label.text = "Sound effects volume"
+	label.text = "Sound Effects Volume"
 	box.add_child(label)
 	volume_slider = HSlider.new()
 	volume_slider.name = "EffectsVolume"
@@ -99,13 +99,13 @@ func _ready() -> void:
 	volume_slider.value_changed.connect(func(value): volume = value; lab.settings["sound_volume"] = value; _mix())
 	box.add_child(volume_slider)
 	effects_button = CheckButton.new()
-	effects_button.text = "Ability effects"
+	effects_button.text = "Ability Effects"
 	effects_button.button_pressed = enabled
 	effects_button.custom_minimum_size.y = 48
 	effects_button.toggled.connect(func(value): enabled = value; lab.settings["ability_effects"] = value)
 	box.add_child(effects_button)
 	var close := Button.new()
-	close.text = "Back to options"
+	close.text = "Back to Options"
 	close.custom_minimum_size.y = 48
 	close.pressed.connect(func(): panel.hide(); button.grab_focus())
 	box.add_child(close)

@@ -397,6 +397,7 @@ Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build`
   - **Movie recording:** the UI-12 button tap pressed just before J08 quits was still held at exit. Under `--write-movie` the mixer runs only as frames are written, so the engine reported "1 resources still in use". Taps now release their sound when they finish, and are skipped while a movie is recorded.
   - **Checks:** `capture_motion.py` passes in full (`ROGUEWOOD_E12_MATRIX_OK`), and J08, J11 and `unit` pass. Codex's branch picks the fix up at its next merge from `claude/roguewood-build`.
 - **PR #41 merged** (owner, 2026-11-17; main `65ca8e5`, a merge of `5b782e1`): UI-13 (Learn to Bowl), the rack-map preview, Binder centring, seven transparent cards (AV-FIX1 part), the J01 and E12 test fixes, the owner's four new music sources, and the UI-A8 and AV-FIX1 briefs. CI passed on `5b782e1` (game, art and capture).
+- **UI-13 phone notes** (owner, 2026-11-17; handoffs/UI-13.md): the Sell step shows the whole sheet; headings and buttons are in title case across the game; the tutorial's card docks out of the way on throwing steps (bottom in portrait, side in landscape), the lane is clear while the ball is held, and the card is gone once it rolls. JTUT (both modes), J01, J02, J05, J06, J08, J11, J03C18 and `unit`: PASS.
 - **Claude's Wave 14 claims are done.** Next:
   - Codex's AV-N4, AV-N5 and UI-A6 (AV-T02, AV-T03, UI-A7 and AV-N3 are merged), and the proposed AV-UI1 (the final button sounds);
   - then the full matrix and the "Wave 14 closed" commit.

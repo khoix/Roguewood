@@ -85,6 +85,10 @@ func _swirl_throw() -> void:
 		var next := center + Vector2(cos(angle), sin(angle)) * radius
 		await _drag(next, next - at)
 		at = next
+	# Owner (2026-11-17): while the player swirls, the lane is clear: no dimming, no hand.
+	if is_instance_valid(coach) and coach.current_id() == "throw":
+		_check(lab.state == "holding" and coach.dims.all(func(d): return not d.visible) and coach._quiet(coach.steps[coach.step]),
+			"while the ball is held the lane is clear (no dimming, no hand)")
 	for i in 8:
 		at += Vector2(0, -32) * _px()
 		await _drag(at, Vector2(0, -32) * _px())
@@ -149,7 +153,7 @@ func _lose_and_retry() -> void:
 			await _step("next_rack")
 			await _tap(lab.next_rack)
 	await _wait_for(func(): return coach.current_id() == "lost" and coach.card_ready(), "losing the opener offers a fresh lane", ROLL_FRAMES)
-	_check(lab.division.outcome == "lost" and coach.next_button.text == "Try again" and coach.skip_button.visible, "the lost card offers Try again or Skip (%d of %d)" % [lab.division.match_score, lab.division.target()])
+	_check(lab.division.outcome == "lost" and coach.next_button.text == "Try Again" and coach.skip_button.visible, "the lost card offers Try again or Skip (%d of %d)" % [lab.division.match_score, lab.division.target()])
 	await _capture("tut_lost")
 	await _tap(coach.next_button)
 	await _wait_for(func(): return scene.coach != null and scene.coach != coach and scene.lab != lab and scene.coach.card_ready(), "Try again deals a fresh practice lane")
@@ -227,6 +231,21 @@ func _run() -> void:
 	# Throw: hold, swirl, flick.
 	await _step("throw")
 	_check(coach._hole.has_point(lab.ball_screen_position()) and coach.steps[coach.step].gesture == "swirl_flick", "the throw step frames the ball and shows the swirl and flick")
+	var screen: Vector2 = coach.root.get_viewport_rect().size
+	var ball := Rect2(lab.ball_screen_position() - Vector2(40, 40), Vector2(80, 80))
+	_check(absf(coach.card.get_global_rect().end.y - (screen.y - 12.0)) <= 2.0 and not coach.card.get_global_rect().intersects(ball),
+		"portrait: the throw card is pinned to the bottom, clear of the ball (%s)" % str(coach.card.get_global_rect()))
+	# Landscape: pinned beside the lane instead.
+	root.size = Vector2i(800, 450)
+	for i in 8: await process_frame
+	screen = coach.root.get_viewport_rect().size
+	ball = Rect2(lab.ball_screen_position() - Vector2(30, 30), Vector2(60, 60))
+	var side: Rect2 = coach.card.get_global_rect()
+	_check(side.end.x >= screen.x - 14.0 and side.size.x <= screen.x * 0.3 + 1.0 and not side.intersects(ball),
+		"landscape: the throw card is a column at the side, clear of the ball (%s in %s)" % [str(side), str(screen)])
+	await _capture("tut_throw_landscape")
+	root.size = PORTRAIT
+	for i in 8: await process_frame
 	coach._time = 0.4 * coach.PERIOD
 	await process_frame
 	await _capture("tut_throw")
@@ -297,6 +316,7 @@ func _run() -> void:
 	_check(lab.run.entries().any(func(e): return e.ref.begins_with("rack:") and String(e.entry.get("mod", "")) == "pin_mod.brass_cap"), "the Brass Cap is on the rack")
 	await _tap(shop.sell_open)
 	await _step("sell_sheet")
+	_check(coach._hole.grow(1.0).encloses(shop.sell_sheet.get_global_rect()), "the Sell step spotlights the whole Sell sheet, not only Done")
 	await _capture("tut_sell")
 	await _tap(shop.sell_close)
 	await _step("rival")
@@ -304,7 +324,7 @@ func _run() -> void:
 	await _capture("tut_rival")
 	await _tap(coach.next_button)
 	await _step("ready")
-	_check(coach.next_button.text == "Back to the Clubhouse" and coach.extra_button.visible and coach.extra_button.text == "Keep practising", "the last card offers the Clubhouse or more practice")
+	_check(coach.next_button.text == "Back to the Clubhouse" and coach.extra_button.visible and coach.extra_button.text == "Keep Practising", "the last card offers the Clubhouse or more practice")
 	await _capture("tut_ready")
 	await _tap(coach.next_button)
 	await _wait_for(func(): return scene.screen == "menu" and scene.coach == null and scene.content.id != "tutorial", "back in the Clubhouse")
