@@ -370,6 +370,12 @@ Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build`
   - **Merge:** one conflict, in the asset ledger; both sections were kept, and the UI-12 button sounds were added.
   - **Checks on the merge:** `unit`, `content`, J03C17, J22L02, and JAVN3, JAVN3R, JAVN3C and JAVN3BC in both modes: PASS.
 - **PR #40 merged** (owner, 2026-11-16; main `c397d4b`, a merge of `9da918d`): UI-12 and AV-N3. CI passed on `9da918d` (game, art and capture, on both runs).
+- **UI-13 DONE** (handoffs/UI-13.md), "Learn to Bowl" (owner, 2026-11-17; added to Claude's Wave 14 work at the owner's request):
+  - **What it is:** a visual tutorial on a fixed practice lane (content set `tutorial`): a spotlight, an animated pixel hand and one line per step, each waiting for the player to do it in the real game.
+  - **What it teaches:** aim, the throw, scoring, cards, the match target, the Pro Shop (buy, place on the rack map, sell) and the boss.
+  - **When it starts:** on a new player's first Enter League, and any time from the Clubhouse menu's How to Play. Skippable at every step.
+  - **Nothing counts:** a throwaway Career and no saves. The real Career keeps only `tutorial: {seen, completed}`.
+  - **Checks:** `unit`, `content`, JTUT (both modes), J01, J11, J05, J07 and J10, and the phone tour: PASS. The full local matrix: see below.
 - **Claude's Wave 14 claims are done.** Next:
   - Codex's AV-N4, AV-N5 and UI-A6 (AV-T02, AV-T03, UI-A7 and AV-N3 are merged), and the proposed AV-UI1 (the final button sounds);
   - then the full matrix and the "Wave 14 closed" commit.

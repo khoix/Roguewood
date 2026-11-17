@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "id": "league.tutorial",
+  "name": "Learn to Bowl",
+  "theme": "league.house",
+  "_note": "UI-13: the fixed practice lane of the tutorial. One short House Division; played on a throwaway Career with saving off, so nothing here counts. The first Pro Shop visit sells the fixed offers below, so the tutorial can always point at the same pin modification.",
+  "tutorial_offers": [
+    "charm.flat_bonus",
+    "charm.pin_counter",
+    "pin.gold",
+    "consumable.nudge",
+    "pin_mod.brass_cap"
+  ],
+  "kit": {
+    "id": "kit.tutorial",
+    "name": "Practice Kit",
+    "pins": [
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.wood"
+    ],
+    "deck": [
+      "ball.hook",
+      "ball.hook",
+      "ball.hammer",
+      "ball.hammer",
+      "ball.echo",
+      "ball.echo"
+    ],
+    "money": 10
+  },
+  "divisions": [
+    {
+      "schema_version": 1,
+      "division": 1,
+      "name": "Learn to Bowl · Practice lane",
+      "frames_per_match": 2,
+      "matches": [
+        {
+          "id": "match.tutorial_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 40
+        },
+        {
+          "id": "match.tutorial_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 150
+        },
+        {
+          "id": "match.tutorial_boss",
+          "kind": "boss",
+          "name": "Boss",
+          "target": 300,
+          "rival": "rival.surveyor"
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.surveyor",
+          "name": "The Surveyor",
+          "initials": "TS",
+          "color": "#d8cf8a",
+          "rule": "boss_rule.dead_straight",
+          "intro": "Every line measured, every angle true. The Surveyor allows no charged spin: each ball rolls exactly where it is aimed, so placement and straight-line equipment win this lane.",
+          "first_clear": {
+            "unlocks": [],
+            "text": "Practice only: nothing is unlocked here."
+          },
+          "reactions": {
+            "entrance": "Plumb, level, true. Show me a straight line.",
+            "confident": "Off by a board. I measured it.",
+            "impressed": "A true line. Precisely as charted.",
+            "threatened": "Your figures are… converging on mine.",
+            "defeated": "The survey is complete. You hold the line.",
+            "victorious": "Out of true. Recalibrate and return."
+          }
+        }
+      ]
+    }
+  ]
+}
