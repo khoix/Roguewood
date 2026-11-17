@@ -6,8 +6,10 @@ var failures: Array[String] = []
 var artifact_dir := ""
 var scene: Control
 
-func _wait_for(predicate: Callable, label: String) -> void:
-	var deadline := Time.get_ticks_msec() + 2000
+## Real time (J01 runs without --fixed-fps). Building a lane takes longer than a
+## menu step under software rendering (CI's llvmpipe), so those waits pass `ms`.
+func _wait_for(predicate: Callable, label: String, ms: int = 2000) -> void:
+	var deadline := Time.get_ticks_msec() + ms
 	while not predicate.call() and Time.get_ticks_msec() < deadline:
 		await process_frame
 	if not predicate.call(): failures.append("Timeout: " + label)
@@ -61,13 +63,13 @@ func _run() -> void:
 	await _accept()
 	# UI-13: a new player's first Enter League opens the tutorial on its practice lane;
 	# Skip goes on to the League they chose, and the tutorial is not offered again.
-	await _wait_for(func(): return scene.screen == "session" and scene.coach != null and scene.coach.card_ready(), "the tutorial on a first Enter League")
+	await _wait_for(func(): return scene.screen == "session" and scene.coach != null and scene.coach.card_ready(), "the tutorial on a first Enter League", 20000)
 	if scene.content.id != "tutorial" or scene.coach.current_id() != "welcome" or not scene.coach.skip_button.visible:
 		failures.append("the first Enter League opens the tutorial's welcome (%s, %s)" % [scene.content.id, scene.coach.current_id() if scene.coach != null else "no coach"])
 	await _capture("tutorial")
 	scene.coach.skip_button.grab_focus()
 	await _accept()
-	await _wait_for(func(): return scene.screen == "session" and scene.coach == null and scene.content.id != "tutorial" and scene.lab != null, "Skip enters the League")
+	await _wait_for(func(): return scene.screen == "session" and scene.coach == null and scene.content.id != "tutorial" and scene.lab != null, "Skip enters the League", 20000)
 	if not bool(scene.career.get("tutorial", {}).get("seen", false)): failures.append("the Career notes the tutorial as seen")
 	await _capture("session")
 	if scene.session.get("kit_id") != "kit.house": failures.append("kit fixture missing")

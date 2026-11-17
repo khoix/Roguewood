@@ -277,6 +277,18 @@ func _run() -> void:
 	await process_frame
 	await _capture("tut_place")
 	_check(coach._pin_point() == shop.choice_button(0).get_global_rect().get_center(), "the hand first points at a pin, not Confirm")
+	_check(shop._choice_selected == -1 and shop.choice_confirm.disabled and String(shop.choice_button(0).get_meta("previewing", "")).is_empty(),
+		"the map opens with nothing picked and nothing previewed")
+	var pin1: Button = shop.choice_button(0)
+	var pin2: Button = shop.choice_button(1)
+	await _tap(pin2)
+	_check(pin2.get_meta("previewing", "") == "pin_mod.brass_cap" and pin2.get_node("ModificationBadge").visible
+		and pin2.get_node("ModificationBadge").get_meta("item_id") == "pin_mod.brass_cap", "a touched pin shows the Brass Cap on it")
+	await _capture("tut_place_preview")
+	await _tap(pin1)
+	var badge: Node = pin2.get_node_or_null("ModificationBadge")
+	_check(String(pin2.get_meta("previewing", "")).is_empty() and (badge == null or not badge.visible) and pin1.get_meta("previewing", "") == "pin_mod.brass_cap",
+		"touching another pin moves the preview there; the first goes back as it was")
 	await _tap(shop.choice_button(0))
 	await _wait_for(func(): return shop._choice_selected == 0 and coach._pin_point() == shop.choice_confirm.get_global_rect().get_center(), "once a pin is picked, the hand moves to Confirm")
 	await _capture("tut_place_confirm")
