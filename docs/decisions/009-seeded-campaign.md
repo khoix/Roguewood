@@ -54,3 +54,8 @@ isolation, saved campaign restoration, and J09 in three actual engine processes:
 12 matches and a shop save; resume and championship win; resume the choice,
 continue to Division 9, then lose through actual gutter throws. All shots and
 navigation use native input. The synthetic model probe remains supplementary.
+
+**Update (owner, 2026-11-18):** the House League (E22-L01) is the real eight-Division
+League, so the campaign is off the production League Board. It remains a test
+content set: `--content=campaign`, or listed beside the two-Division slice
+(`--content=slice`) so J09 can still choose it through the menu.

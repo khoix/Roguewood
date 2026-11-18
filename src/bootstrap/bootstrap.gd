@@ -171,10 +171,12 @@ func _ready() -> void:
 	league.add_item(content.get("name", "House League"))
 	league_sets = [content.id]
 	if content.id == "house":
-		# E22-L02: the production board lists every live League, then the campaign.
+		# E22-L02: the production board lists every live League.
 		league.add_item(ContentSet.load_set("neon").get("name", "Neon League"))
 		league_sets.append("neon")
-	if content.id in ["house", "slice"]:
+	if content.id == "slice":
+		# The provisional seeded campaign (E14) is a test fixture, not a League: it is
+		# offered only beside the test slice, for J09 (owner, 2026-11-18).
 		league.add_item("House Campaign · 8 Divisions (provisional)")
 		league_sets.append("campaign")
 	if league_sets.size() > 1:
