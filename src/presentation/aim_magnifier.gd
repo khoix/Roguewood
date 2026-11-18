@@ -1,8 +1,8 @@
 extends PanelContainer
 ## UI-14 (owner, 2026-11-18): while the player moves the target reticle, the top HUD
 ## area becomes a magnifier: a close, low view of the front of the rack, with the
-## reticle drawn at its true size (the band the ball's centre must cross at the
-## target line), so the target can be placed precisely against the pins.
+## same reticle the lane shows (owner: "precisely as it looks zoomed out"), so the
+## target can be placed precisely against the pins.
 ## Shown only while the reticle is being moved: a drag on the lane, a touch held
 ## on it, or the assist panel's target slider. A quick tap that just places the
 ## target does not open it. It fades in and out quickly, and while hidden it
@@ -13,6 +13,7 @@ extends PanelContainer
 ## moves across the lane.
 const Lane = preload("res://src/simulation/lane_spec.gd")
 const UiTheme = preload("res://src/presentation/house_ui_theme.gd")
+const AimOverlay = preload("res://src/presentation/aim_overlay.gd")
 const FADE_SECONDS := 0.12
 const SHOW_AFTER := 0.15 # a touch held this long opens it; one that drags the reticle opens it at once
 ## The panel: the top bar's left edge and width, made taller to this aspect so
@@ -141,26 +142,12 @@ func _frame() -> void:
 func target_point() -> Vector3:
 	return Lane.world(lab.target_x * Lane.LANE_HALF_WIDTH, Lane.TARGET_PLANE_F, 0.0)
 
-## The ring at its true size (radii are a fraction of the lane half-width), in the
-## magnifier's perspective, with a small centre mark.
+## The lane's own reticle (same shape, size, colours and Neon zone marks), at the
+## target's place in the magnifier.
 func _draw_reticle() -> void:
 	if not visible or camera == null:
 		return
-	var centre := target_point()
-	var radius: float = lab.ring_radius * Lane.LANE_HALF_WIDTH
-	var points := PackedVector2Array()
-	for i in 49:
-		var angle := TAU * i / 48.0
-		var world := centre + Vector3(cos(angle) * radius, 0.0, sin(angle) * radius)
-		if camera.is_position_behind(world):
-			continue
-		points.append(camera.unproject_position(world))
-	if points.size() > 2:
-		overlay.draw_polyline(points, Color(0, 0, 0, 0.55), 5.0, true)
-		overlay.draw_polyline(points, lab.ring_color(), 2.5, true)
-	var mark := camera.unproject_position(centre)
-	overlay.draw_line(mark + Vector2(-6, 0), mark + Vector2(6, 0), lab.ring_color(), 2.0)
-	overlay.draw_line(mark + Vector2(0, -6), mark + Vector2(0, 6), lab.ring_color(), 2.0)
+	AimOverlay.draw_reticle(overlay, lab, camera.unproject_position(target_point()), minf(lab.size.x, lab.size.y))
 
 ## Where the reticle's centre appears in the magnifier (local to the panel), for tests.
 func reticle_position() -> Vector2:
