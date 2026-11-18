@@ -409,8 +409,14 @@ func _magnifier(at: Vector2, capture := "magnifier") -> void:
 	_check(local.has_point(head_base) and local.has_point(head_top) and local.has_point(reticle) and left.x >= 0.0 and right.x <= rect.size.x,
 		"%s: the view holds the head pin, base to top, the reticle and the lane's width (pin %s..%s, reticle %s, lane %.0f..%.0f in %s)" % [capture, str(head_base), str(head_top), str(reticle), left.x, right.x, str(rect.size)])
 	var on_lane: float = (lab.screen_point(Lane.world(Lane.LANE_HALF_WIDTH, Lane.TARGET_PLANE_F, 0.0)) - lab.screen_point(Lane.world(-Lane.LANE_HALF_WIDTH, Lane.TARGET_PLANE_F, 0.0))).length()
-	_check(right.x - left.x >= 5.0 * on_lane, "%s: the magnifier is zoomed in (the lane %.0f px across, against %.0f px on the lane)" % [capture, right.x - left.x, on_lane])
+	_check(right.x - left.x >= 4.0 * on_lane, "%s: the magnifier is zoomed in (the lane %.0f px across, against %.0f px on the lane)" % [capture, right.x - left.x, on_lane])
 	print("J02 %s magnifier=%s lane_px=%.0f main_lane_px=%.0f zoom=%.1f" % [capture, str(rect.size), right.x - left.x, on_lane, (right.x - left.x) / on_lane])
+	_check(mag.camera.global_transform.is_equal_approx(lab._camera.global_transform),
+		"%s: the magnifier looks from the player's own camera" % capture)
+	var seen: Vector2 = mag.lane_position(mag.target_point())
+	_check(reticle.distance_to(seen) < 2.0, "%s: the zoomed ring sits where the zoomed lane shows the target (%s, %s)" % [capture, str(reticle), str(seen)])
+	var marker: Vector2 = mag.lane_position(lab._marker.global_position)
+	_check(local.has_point(marker), "%s: the target marker is in view (%s in %s)" % [capture, str(marker), str(rect.size)])
 	var before: float = lab.target_x
 	for i in 6:
 		at += Vector2(-8, 0) * _px()
@@ -419,8 +425,10 @@ func _magnifier(at: Vector2, capture := "magnifier") -> void:
 	var moved: Vector2 = mag.reticle_position()
 	_check(lab.target_x < before and moved.x < reticle.x - 4.0 and local.has_point(moved),
 		"%s: the reticle moves across the magnifier with the target (%.0f to %.0f px)" % [capture, reticle.x, moved.x])
+	await _drag(home, home - at) # back near the head pin for the capture
+	for i in 2: await process_frame
 	await _capture(capture)
-	await _touch(at, false)
+	await _touch(home, false)
 	for i in 15: await process_frame
 	_check(not mag.visible and mag.view.render_target_update_mode == SubViewport.UPDATE_DISABLED, "on release the magnifier is gone and stops rendering")
 	await _touch(home, true) # the target back where the throws expect it

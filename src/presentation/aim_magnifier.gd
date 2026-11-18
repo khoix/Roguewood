@@ -1,38 +1,38 @@
 extends PanelContainer
 ## UI-14 (owner, 2026-11-18): while the player moves the target reticle, the top HUD
-## area becomes a magnifier: a close, low view of the front of the rack, with the
-## same reticle the lane shows (owner: "precisely as it looks zoomed out"), so the
-## target can be placed precisely against the pins.
+## area becomes a magnifier: a zoomed-in view of exactly what the player sees down
+## the lane ("just with better quality"): the same camera, the same reticle and
+## target marker, cropped around the pin deck and rendered at full resolution
+## (the lane itself renders at half resolution for its pixel look).
 ## Shown only while the reticle is being moved: a drag on the lane, a touch held
 ## on it, or the assist panel's target slider. A quick tap that just places the
 ## target does not open it. It fades in and out quickly, and while hidden it
 ## renders nothing.
-## The view is a second camera on the lab's own 3D world (the lab gives each roll a
-## fresh world, which the magnifier follows); nothing in the lane changes. The
-## camera holds still over the lane's centre and the reticle moves across it, as it
-## moves across the lane.
+## How: a second camera on the lab's own 3D world copies the lane camera's pose and
+## uses an off-axis frustum, so its picture is an exact crop of the lane's. Over
+## it, a second copy of the lane's aim overlay is drawn scaled by the same zoom.
+## Nothing in the lane changes; the lab gives each roll a fresh world, which the
+## magnifier follows.
 const Lane = preload("res://src/simulation/lane_spec.gd")
 const UiTheme = preload("res://src/presentation/house_ui_theme.gd")
 const AimOverlay = preload("res://src/presentation/aim_overlay.gd")
 const FADE_SECONDS := 0.12
 const SHOW_AFTER := 0.15 # a touch held this long opens it; one that drags the reticle opens it at once
-## The panel: the top bar's left edge and width, made taller to this aspect so
-## the view is deep enough for the target line and the pins together; in
+## The crop (the owner's reference framing): the lane at the head pin spans this
+## share of the magnifier's width, and the head pin's base sits this far down it.
+const LANE_SHARE := 0.44
+const PIN_BASE_AT := 0.8
+## The panel: the top bar's left edge and width, made taller to this aspect; in
 ## landscape, where the bar is a thin strip, a box at its left end instead.
 const ASPECT := 2.8
 const MAX_SCREEN_SHARE := 0.24 # of the screen's height
-## The camera: behind the target line and above the deck. It frames the target
-## line's near side (the ring's near edge) up to the head pin's top, and the whole
-## lane's width.
-const BACK_M := 1.2
-const EYE_M := 0.45
-const FRAME_MARGIN := 1.1
-const SIDE_MARGIN_M := 0.05
 
 var lab: Control
 var view: SubViewport
 var camera: Camera3D
 var overlay: Control
+var zoomed: Control # the lane's aim overlay, scaled to the crop
+var crop := Rect2() # the part of the lane's view shown, in lab coordinates
 var alpha := 0.0
 var _slider_drag := false
 var _touch_seconds := 0.0
@@ -49,27 +49,24 @@ func _ready() -> void:
 	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(holder)
 	view = SubViewport.new()
-	view.transparent_bg = false
 	view.render_target_update_mode = SubViewport.UPDATE_DISABLED
 	holder.add_child(view)
+	view.transparent_bg = true # the lane's view is transparent too
 	camera = Camera3D.new()
-	camera.keep_aspect = Camera3D.KEEP_HEIGHT
-	camera.near = 0.05
-	var environment := Environment.new()
-	environment.background_mode = Environment.BG_COLOR
-	environment.background_color = Color("0b1116")
-	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	environment.ambient_light_color = Color(0.55, 0.52, 0.65)
-	environment.ambient_light_energy = 0.7
-	camera.environment = environment
+	camera.environment = lab._camera.environment
 	view.add_child(camera)
 	camera.current = true
 	overlay = Control.new()
 	overlay.name = "MagnifierReticle"
 	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	overlay.draw.connect(_draw_reticle)
+	overlay.clip_contents = true
 	holder.add_child(overlay)
+	zoomed = AimOverlay.new()
+	zoomed.name = "ZoomedAim"
+	zoomed.lab = lab
+	overlay.add_child(zoomed)
+	zoomed.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	modulate.a = 0.0
 	hide()
 	var slider: HSlider = lab.assist_panel.target_slider if lab.assist_panel != null else null
@@ -101,6 +98,7 @@ func _process(delta: float) -> void:
 	var showing := alpha > 0.0
 	visible = showing
 	view.render_target_update_mode = SubViewport.UPDATE_ALWAYS if showing else SubViewport.UPDATE_DISABLED
+	zoomed.set_process(showing)
 	if not showing:
 		return
 	_place()
@@ -112,7 +110,6 @@ func _process(delta: float) -> void:
 		view.world_3d = lab._viewport.world_3d
 		previous = null
 	_frame()
-	overlay.queue_redraw()
 
 ## Over the top HUD: the bar's left edge and width, ASPECT wide, never shorter than
 ## the bar nor taller than MAX_SCREEN_SHARE of the screen.
@@ -123,35 +120,52 @@ func _place() -> void:
 	position = bar.position
 	size = Vector2(minf(bar.size.x, height * ASPECT), height)
 
-## Fit the camera to this panel's shape: the ring's near edge low in the view, the
-## head pin's top high in it, and the lane's full width across.
+## The crop of the lane's view, in lab coordinates: centred on the lane at the
+## head pin, LANE_SHARE of its width the lane, with the head pin's base at
+## PIN_BASE_AT of its height; shaped like the magnifier.
+func crop_rect() -> Rect2:
+	var shape: Vector2 = overlay.size if overlay.size.y > 0.0 else size
+	var left: Vector2 = lab.screen_point(Lane.world(-Lane.LANE_HALF_WIDTH, Lane.HEAD_PIN_F, 0.0))
+	var right: Vector2 = lab.screen_point(Lane.world(Lane.LANE_HALF_WIDTH, Lane.HEAD_PIN_F, 0.0))
+	var width: float = (right.x - left.x) / LANE_SHARE
+	var height: float = width * shape.y / maxf(1.0, shape.x)
+	var base: Vector2 = (left + right) * 0.5
+	return Rect2(Vector2(base.x - width * 0.5, base.y - height * PIN_BASE_AT), Vector2(width, height))
+
+## The magnification: magnifier pixels per lab pixel.
+func zoom() -> float:
+	return overlay.size.x / maxf(1.0, crop.size.x)
+
+## The lane camera's pose, with an off-axis frustum that sees only the crop; and
+## the lane's overlay, scaled and shifted by the same crop.
 func _frame() -> void:
-	var aspect: float = maxf(1.0, float(view.size.x) / maxf(1.0, float(view.size.y)))
-	var camera_f := Lane.TARGET_PLANE_F - BACK_M
-	var ring_m: float = lab.ring_radius * Lane.LANE_HALF_WIDTH
-	var low := atan2(EYE_M, Lane.TARGET_PLANE_F - ring_m - camera_f)
-	var high := atan2(EYE_M - Lane.PIN_HEIGHT, Lane.HEAD_PIN_F - camera_f)
-	var pitch := (low + high) * 0.5
-	var across := 2.0 * atan((Lane.LANE_HALF_WIDTH + SIDE_MARGIN_M) / Vector2(BACK_M, EYE_M).length())
-	var vertical := maxf((low - high) * FRAME_MARGIN, 2.0 * atan(tan(across * 0.5) / aspect))
-	camera.fov = rad_to_deg(vertical)
-	camera.position = Lane.world(0.0, camera_f, EYE_M)
-	camera.look_at(Lane.world(0.0, camera_f + cos(pitch), EYE_M - sin(pitch)))
+	var lane_camera: Camera3D = lab._camera
+	var lab_size: Vector2 = lab.size
+	var lane_aspect: float = float(lab._viewport.size.x) / maxf(1.0, float(lab._viewport.size.y))
+	crop = crop_rect()
+	camera.global_transform = lane_camera.global_transform
+	var half := lane_camera.near * tan(deg_to_rad(lane_camera.fov) * 0.5)
+	var half_height := half / lane_aspect if lane_camera.keep_aspect == Camera3D.KEEP_WIDTH else half
+	var half_width := half_height * lane_aspect
+	var centre := crop.get_center() / lab_size
+	camera.keep_aspect = Camera3D.KEEP_HEIGHT
+	camera.set_frustum(crop.size.y / lab_size.y * 2.0 * half_height,
+		Vector2((centre.x * 2.0 - 1.0) * half_width, (1.0 - centre.y * 2.0) * half_height),
+		lane_camera.near, lane_camera.far)
+	var k := zoom()
+	zoomed.size = lab_size
+	zoomed.scale = Vector2(k, k)
+	zoomed.position = -crop.position * k
+	zoomed.queue_redraw()
 
 ## The reticle's centre on the deck, in world space.
 func target_point() -> Vector3:
 	return Lane.world(lab.target_x * Lane.LANE_HALF_WIDTH, Lane.TARGET_PLANE_F, 0.0)
 
-## The lane's own reticle (same shape, size, colours and Neon zone marks), at the
-## target's place in the magnifier.
-func _draw_reticle() -> void:
-	if not visible or camera == null:
-		return
-	AimOverlay.draw_reticle(overlay, lab, camera.unproject_position(target_point()), minf(lab.size.x, lab.size.y))
-
 ## Where the reticle's centre appears in the magnifier (local to the panel), for tests.
+## (The zoomed overlay's ring, which must sit where the 3D view shows the target.)
 func reticle_position() -> Vector2:
-	return overlay.get_global_rect().position - global_position + camera.unproject_position(target_point())
+	return overlay.get_global_rect().position - global_position + (lab.screen_point(target_point()) - crop.position) * zoom()
 
 ## Where a lane point appears in the magnifier (local to the panel), for tests.
 func lane_position(world: Vector3) -> Vector2:
