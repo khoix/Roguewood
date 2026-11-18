@@ -344,6 +344,7 @@ func _curves_and_target() -> void:
 	await _touch(tap, false)
 	_check(absf(lab.target_x - pocket / Lane.LANE_HALF_WIDTH) < 0.01, "tap moves the target ring under the finger")
 	await _capture("target")
+	await _magnifier(tap)
 	# Short flick: too little travel to throw.
 	var cancels: int = lab.cancels
 	await _gesture(Vector2.ZERO, 0, Vector2(0, -6), 3)
@@ -369,6 +370,63 @@ func _curves_and_target() -> void:
 		var hook := Lane.hook_at_target(report.launch, report.knockdown_log)
 		_check(not is_nan(hook) and signf(hook) == signf(sweep) and absf(hook) > 0.05, "%s hooks %+.3f m the matching way" % [label, hook])
 		print("J02 %s spin=%+.3f hook_m=%+.3f ring=%.3f accuracy=%s fallen=%s" % [label, launch.spin, hook, launch.ring_radius, report.roll_result.accuracy, str(report.roll_result.fallen_positions)])
+
+## UI-14 (owner, 2026-11-18): dragging the reticle turns the top bar into a magnifier
+## of the pin deck around the target; it follows the drag and is gone on release.
+func _magnifier(at: Vector2, capture := "magnifier") -> void:
+	var mag = lab.aim_magnifier
+	var home := at
+	_check(not mag.visible and mag.alpha == 0.0 and mag.view.render_target_update_mode == SubViewport.UPDATE_DISABLED,
+		"%s: before the reticle is moved the magnifier is hidden and renders nothing (a quick tap does not open it)" % capture)
+	await _touch(at, true)
+	for i in 3: await process_frame
+	_check(not mag.visible, "%s: a touch on the lane does not open it at once" % capture)
+	for i in 12: await process_frame
+	_check(mag.visible and mag.alpha > 0.0, "%s: a touch held on the lane opens it, before any drag" % capture)
+	for i in 4:
+		at += Vector2(4, 0) * _px()
+		await _drag(at, Vector2(4, 0) * _px())
+	for i in 10: await process_frame
+	var bar: Rect2 = lab.hud.bar.get_global_rect()
+	var rect: Rect2 = mag.get_global_rect()
+	var portrait: bool = lab.size.y > lab.size.x
+	_check(mag.visible and mag.alpha >= 0.99 and mag.view.render_target_update_mode == SubViewport.UPDATE_ALWAYS
+		and rect.position.is_equal_approx(bar.position) and rect.size.y >= bar.size.y - 0.5
+		and rect.size.x <= bar.size.x + 0.5 and absf(rect.size.x / rect.size.y - mag.ASPECT) < 0.05,
+		"%s: while the reticle is dragged the top HUD is a magnifier (%s over the bar %s)" % [capture, str(rect), str(bar)])
+	if portrait:
+		_check(absf(rect.size.x - bar.size.x) < 1.0, "portrait: the magnifier spans the top bar")
+	else:
+		var head: Vector2 = lab.get_global_transform() * lab.screen_point(Lane.world(0.0, Lane.HEAD_PIN_F, 0.0))
+		_check(not rect.has_point(head), "landscape: the magnifier leaves the pins in view (%s, head pin at %s)" % [str(rect), str(head)])
+	_check(mag.view.world_3d == lab._viewport.world_3d, "the magnifier shows the lab's own lane")
+	var local := Rect2(Vector2.ZERO, rect.size)
+	var head_base: Vector2 = mag.lane_position(Lane.world(0.0, Lane.HEAD_PIN_F, 0.0))
+	var head_top: Vector2 = mag.lane_position(Lane.world(0.0, Lane.HEAD_PIN_F, Lane.PIN_HEIGHT))
+	var left: Vector2 = mag.lane_position(Lane.world(-Lane.LANE_HALF_WIDTH, Lane.TARGET_PLANE_F, 0.0))
+	var right: Vector2 = mag.lane_position(Lane.world(Lane.LANE_HALF_WIDTH, Lane.TARGET_PLANE_F, 0.0))
+	var reticle: Vector2 = mag.reticle_position()
+	_check(local.has_point(head_base) and local.has_point(head_top) and local.has_point(reticle) and left.x >= 0.0 and right.x <= rect.size.x,
+		"%s: the view holds the head pin, base to top, the reticle and the lane's width (pin %s..%s, reticle %s, lane %.0f..%.0f in %s)" % [capture, str(head_base), str(head_top), str(reticle), left.x, right.x, str(rect.size)])
+	var on_lane: float = (lab.screen_point(Lane.world(Lane.LANE_HALF_WIDTH, Lane.TARGET_PLANE_F, 0.0)) - lab.screen_point(Lane.world(-Lane.LANE_HALF_WIDTH, Lane.TARGET_PLANE_F, 0.0))).length()
+	_check(right.x - left.x >= 5.0 * on_lane, "%s: the magnifier is zoomed in (the lane %.0f px across, against %.0f px on the lane)" % [capture, right.x - left.x, on_lane])
+	print("J02 %s magnifier=%s lane_px=%.0f main_lane_px=%.0f zoom=%.1f" % [capture, str(rect.size), right.x - left.x, on_lane, (right.x - left.x) / on_lane])
+	var before: float = lab.target_x
+	for i in 6:
+		at += Vector2(-8, 0) * _px()
+		await _drag(at, Vector2(-8, 0) * _px())
+	await process_frame
+	var moved: Vector2 = mag.reticle_position()
+	_check(lab.target_x < before and moved.x < reticle.x - 4.0 and local.has_point(moved),
+		"%s: the reticle moves across the magnifier with the target (%.0f to %.0f px)" % [capture, reticle.x, moved.x])
+	await _capture(capture)
+	await _touch(at, false)
+	for i in 15: await process_frame
+	_check(not mag.visible and mag.view.render_target_update_mode == SubViewport.UPDATE_DISABLED, "on release the magnifier is gone and stops rendering")
+	await _touch(home, true) # the target back where the throws expect it
+	await _touch(home, false)
+	for i in 3: await process_frame
+	_check(not mag.visible, "%s: the restoring tap does not open it" % capture)
 
 func _mouse_button(canvas: Vector2, pressed: bool) -> void:
 	var event := InputEventMouseButton.new()
@@ -647,6 +705,8 @@ func _landscape_throw() -> void:
 	_check(lab.size.x > lab.size.y, "lab fills a landscape viewport")
 	var at: Vector2 = lab.ball_screen_position()
 	_check(Rect2(Vector2.ZERO, lab.size).has_point(at - lab.get_global_transform().origin), "ball visible after resize")
+	var aim: Vector2 = lab.get_global_transform() * lab.screen_point(Lane.world(lab.target_x * Lane.LANE_HALF_WIDTH, Lane.TARGET_PLANE_F, 0.0))
+	await _magnifier(aim, "magnifier_landscape")
 	await _gesture(Vector2.ZERO, 0, Vector2(0, -40), 8)
 	_check(lab.state == "rolling" and lab.lane.launch.power > 0.0, "flick works after resize")
 	for i in 30: await process_frame
