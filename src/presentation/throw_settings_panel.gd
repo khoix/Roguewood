@@ -4,6 +4,8 @@ extends PanelContainer
 ## E09 practice mode. Values live in the shell's settings
 ## dictionary so they survive Restart Session; saving them is E25 work.
 signal changed
+## UI-15 (owner, 2026-11-18): Back returns to the menu that opened this page.
+signal back
 ## Flick sensitivity 0.4 (owner's phone trial, 2026-11-08) and the depth spin view
 ## (owner's choice over flat, 2026-11-09; flat stays in Options).
 const DEFAULTS := {"handedness": "right", "sensitivity": 0.4, "spin_view": "depth", "reduced_motion": false, "large_targets": false, "assist": false,
@@ -119,15 +121,21 @@ func _ready() -> void:
 	# no longer offer direct selection. It stays a test fixture (use_equipment).
 	# E09: practice drops the Division's targets (applies to an attempt not yet thrown).
 	practice = _toggle(box, "PracticeMode", "Practice (no targets; no unlocks)", "practice")
+	# UI-15 (owner, 2026-11-18): Back, centred at the bottom, returns to the menu.
 	close = Button.new()
 	close.name = "CloseSettings"
-	close.text = "Done"
+	close.text = "Back"
 	close.custom_minimum_size = Vector2(220, 64)
-	close.size_flags_horizontal = Control.SIZE_SHRINK_CENTER # UI-11: Done sits centred at the bottom
-	close.pressed.connect(hide)
+	close.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	close.pressed.connect(go_back)
 	box.add_child(close)
 	_build_tuning()
 	_refresh()
+
+## Leave the page for the menu that opened it (Back, or Escape).
+func go_back() -> void:
+	hide()
+	back.emit()
 
 ## A second page in the same panel: sliders for the held-ball constants, for
 ## tuning the throw on a real phone through the web build.

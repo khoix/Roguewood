@@ -174,6 +174,7 @@ func _run() -> void:
 	await _tap(lab.settings_panel.tuning_box.get_node("CloseTuning"))
 	await _press(lab.settings_panel.assist)
 	await _press(lab.settings_panel.close)
+	await _press(scene.resume)
 	await _settle()
 	await _capture("aim_assist")
 	await _throw(STRIKE, "rolling")

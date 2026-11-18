@@ -57,7 +57,7 @@ func _run() -> void:
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	# The Neon theme (E22-L02-ART) is live: music, the flank backdrop behind the lane
 	# (still, since reduced motion is on) and the Neon frame kit on the attempt's screens.
 	_check(lab.league_theme != null and lab.league_theme.music != null and lab.league_theme.music.playing

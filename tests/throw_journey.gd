@@ -133,6 +133,9 @@ func _run() -> void:
 	_check(is_equal_approx(lab._flick.tuning.sensitivity, 1.0) and lab.settings.spin_view == "depth", "Options set sensitivity ×1.0 and depth spin")
 	lab.settings_panel.close.grab_focus()
 	await _accept()
+	_check(scene.session_menu.visible and scene.options.has_focus(), "UI-15: Back from Throw Settings returns to the menu")
+	scene.resume.grab_focus()
+	await _accept()
 	_check(lab.division.practice, "practice mode via Options")
 	await _wait_for(func(): return lab.state == "aim" and lab.lane.state == "ready", "aim state")
 	for i in 3: await process_frame
@@ -489,7 +492,7 @@ func _held_ball() -> void:
 	await _focus_accept(lab.settings_panel.tuning_box.get_node("ResetTuning"))
 	_check(lab._flick.tuning.full_charge_speed == Held.DEFAULTS.full_charge_speed and lab.settings.throw_tuning.is_empty(), "Reset restores the default tuning")
 	await _focus_accept(lab.settings_panel.tuning_box.get_node("CloseTuning"))
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	_check(not lab.settings_panel.visible, "settings close after tuning")
 
 ## E05-R5 (owner, 2026-11-15): the flywheel. Swing + flywheel (A) is the default: a
@@ -526,7 +529,7 @@ func _spin_models() -> void:
 	await _ui("ui_right", 1)
 	_check(int(lab._flick.tuning.spin_model) == 2 and lab.settings_panel._tuning_labels.spin_model.text.contains("Spin in place (B)"), "the tuning page switches to spin in place (B)")
 	await _focus_accept(lab.settings_panel.tuning_box.get_node("CloseTuning"))
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	await _ready_to_throw()
 	at = lab.ball_screen_position()
 	center = at + Vector2(0.0, -radius)
@@ -552,7 +555,7 @@ func _spin_models() -> void:
 	await _focus_accept(lab.settings_panel.tuning_box.get_node("ResetTuning"))
 	_check(int(lab._flick.tuning.spin_model) == 1, "Reset returns to swing + flywheel (A)")
 	await _focus_accept(lab.settings_panel.tuning_box.get_node("CloseTuning"))
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 
 ## Flat spin (owner, 2026-11-08): the held ball never changes size on screen while
 ## it swirls, nor when the finger goes well below its start, and turns about the line
@@ -675,7 +678,7 @@ func _assist_throw() -> void:
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.assist)
 	_check(lab.settings.reduced_motion and lab.settings.assist and lab.assist_panel.visible, "settings toggle reduced motion and assist controls")
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	_check(not lab.settings_panel.visible, "settings close")
 	var panel: Control = lab.assist_panel
 	panel.spin_slider.grab_focus()
@@ -700,7 +703,7 @@ func _assist_throw() -> void:
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.assist)
 	await _focus_accept(lab.settings_panel.reduced_motion)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	_check(not lab.settings.assist and not lab.assist_panel.visible, "assist controls turn off")
 
 ## Rotating to landscape keeps hit-testing and gesture units correct.

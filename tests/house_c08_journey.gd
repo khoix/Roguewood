@@ -31,7 +31,7 @@ func _run() -> void:
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.assist)
 	await _focus_accept(lab.settings_panel.practice)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	_check(lab.division.practice, "Practice is on before the first throw")
 	await _play_out()
 	lab.run.credit(8000, "fixture: C08 Charm sampling")

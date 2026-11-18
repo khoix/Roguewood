@@ -30,7 +30,7 @@ func _run() -> void:
 	if reduced_only:
 		await _focus_accept(lab.settings_panel.reduced_motion)
 		await _focus_accept(lab.settings_panel.reduced_flash)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	await _capture("aim")
 	var uid:=_find("ball")
 	var before: Dictionary=lab.equipment.counts().duplicate(true)

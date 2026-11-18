@@ -76,7 +76,7 @@ func _run() -> void:
 	await _capture("equipped")
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	await _capture("reduced")
 	if pin_count > 0:
 		var player_camera: Transform3D = lab._camera.transform

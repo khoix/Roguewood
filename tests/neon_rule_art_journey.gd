@@ -13,13 +13,13 @@ func _capture(label:String) -> void:
  # Hide tuning controls for art captures, then restore C13's assist via native input.
  await _focus_accept(scene.options)
  await _focus_accept(lab.settings_panel.assist)
- await _focus_accept(lab.settings_panel.close)
+ await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
  _check(not lab.settings_panel.assist.button_pressed,"art capture hides assist controls")
  # C13 starts in reduced motion; exercise both modes through the real menu.
  await super._capture(label+"_art_reduced")
  await _focus_accept(scene.options)
  await _focus_accept(lab.settings_panel.reduced_motion)
- await _focus_accept(lab.settings_panel.close)
+ await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
  _check(not lab.settings.reduced_motion,"normal mode native toggle")
  await super._capture(label+"_art_normal")
  root.size=Vector2i(800,450)
@@ -30,5 +30,5 @@ func _capture(label:String) -> void:
  await _focus_accept(scene.options)
  await _focus_accept(lab.settings_panel.reduced_motion)
  await _focus_accept(lab.settings_panel.assist)
- await _focus_accept(lab.settings_panel.close)
+ await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
  _check(lab.settings.reduced_motion and lab.settings_panel.assist.button_pressed,"reduction and assist restored for inherited C13")

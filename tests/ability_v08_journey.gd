@@ -157,8 +157,7 @@ func _controls(scored: Dictionary) -> void:
  for i in 12: await process_frame
  await _capture("stage%d_landscape"%stage)
  _check(Rect2(Vector2.ZERO,lab.size).encloses(lab.score_panel.get_rect()),"score controls fit landscape")
- await _focus_accept(scene.options)
- await _focus_accept(lab.settings_panel.find_child("SoundAndEffects",true,false))
+ await _focus_accept(scene.sound_entry)
  var sound: Node=lab.motion.sound
  await _focus_accept(sound.mute_button)
  var played: int=sound.played
@@ -173,10 +172,12 @@ func _controls(scored: Dictionary) -> void:
  await process_frame
  _check(not lab.motion.abilities.glyph.enabled,"native effect toggle")
  await _focus_accept(sound.effects_button)
- await _focus_accept(sound.panel.get_child(0).get_child(sound.panel.get_child(0).get_child_count()-1))
+ await _focus_accept(sound.back_button)
+ _check(scene.session_menu.visible and scene.sound_entry.has_focus(),"UI-15: Back from Sound & Effects returns to the menu")
+ await _focus_accept(scene.options)
  await _focus_accept(lab.settings_panel.reduced_motion)
  await _focus_accept(lab.settings_panel.reduced_flash)
- await _focus_accept(lab.settings_panel.close)
+ await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
  root.size=Vector2i(720,1280)
  lab.score_panel.reduced_motion=true
  lab.score_panel.play(scored.steps,lab.frame_reports,scored.title,1)

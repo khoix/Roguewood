@@ -52,6 +52,8 @@ var tap_sound: AudioStreamPlayer
 ## UI-12 (owner's play notes, 2026-11-16): button taps, and the Clubhouse's own menu.
 var ui_sounds: UiSounds
 var club_menu_button: Button
+var sound_entry: Button # UI-15: the session menu's Sound & Effects
+var _menu_page := "" # the session menu's page that is open: "throw", "sound" or ""
 var club_menu: Control
 var club_menu_list: VBoxContainer
 var club_options: ClubOptions
@@ -416,8 +418,13 @@ func _build_session_menu() -> void:
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 30)
 	menu_list.add_child(title)
+	# UI-15 (owner, 2026-11-18): the same menu as the Clubhouse's. Throw Settings and
+	# Sound & Effects are sibling pages; each one's Back returns here.
 	resume = add_menu_entry("Resume", "ResumeSession", func(): pass)
-	options = add_menu_entry("Options", "ThrowOptions", func(): if lab: lab.toggle_settings())
+	options = add_menu_entry("Throw Settings", "ThrowOptions", func(): _open_page("throw"), false)
+	options.pressed.connect(func(): _open_page("throw"))
+	sound_entry = add_menu_entry("Sound & Effects", "SoundOptions", func(): pass, false)
+	sound_entry.pressed.connect(func(): _open_page("sound"))
 	back = add_menu_entry("Clubhouse", "BackToMenu", _show_menu)
 	# Restart discards the attempt, so it asks once: the first press arms it.
 	reset = add_menu_entry("Restart Run", "ResetSession", func(): pass, false)
@@ -438,9 +445,28 @@ static func _draw_bars(button: Button) -> void:
 			var y := h * 0.5 + (i - 1) * 9.0
 			button.draw_rect(Rect2(w * 0.5 - 12.0, y - 2.0, 24.0, 4.0), UiTheme.IVORY))
 
-## UI-12 (owner's play notes, 2026-11-16): the Clubhouse's menu, at its top right:
-## Options and Sound & effects (the same pages as in a match, on the same session
-## settings), then Close.
+## A page from the session menu: the menu steps aside (the lane stays paused) and
+## the page's Back brings it back.
+func _open_page(page: String) -> void:
+	if lab == null: return
+	session_menu.hide()
+	_menu_page = page
+	if page == "sound":
+		lab.motion.sound.open()
+	else:
+		lab.settings_panel.show()
+		lab.settings_panel.handedness.grab_focus()
+
+func _page_back(page: String) -> void:
+	if _menu_page != page: return
+	_menu_page = ""
+	open_menu()
+	(sound_entry if page == "sound" else options).grab_focus()
+
+## UI-12 (owner's play notes, 2026-11-16): the Clubhouse's menu, at its top right.
+## UI-15 (owner, 2026-11-18): the same entries and pages as a match's menu (Throw
+## Settings and Sound & Effects, on the same session settings), each page's Back
+## returning here; then Close.
 func _build_club_menu() -> void:
 	club_menu_button = Button.new()
 	club_menu_button.name = "ClubhouseMenu"
@@ -481,7 +507,7 @@ func _build_club_menu() -> void:
 	how.pressed.connect(func():
 		club_menu.hide()
 		start_tutorial(false))
-	for entry in [["Options", "ClubOptions", "options"], ["Sound & Effects", "ClubSound", "sound"]]:
+	for entry in [["Throw Settings", "ClubOptions", "throw"], ["Sound & Effects", "ClubSound", "sound"]]:
 		var page: String = entry[2]
 		var button := _button(club_menu_list, entry[0], entry[1], 320)
 		button.pressed.connect(func():
@@ -492,7 +518,10 @@ func _build_club_menu() -> void:
 	club_options = ClubOptions.new()
 	club_options.settings = throw_settings
 	add_child(club_options)
-	club_options.closed.connect(func(): if screen == "menu": club_menu_button.grab_focus())
+	club_options.closed.connect(func(page: String):
+		if screen != "menu": return
+		club_menu.show()
+		club_menu_list.get_node("ClubSound" if page == "sound" else "ClubOptions").grab_focus())
 
 func open_club_menu() -> void:
 	if screen != "menu": return
@@ -536,14 +565,19 @@ func close_menu() -> void:
 	if menu_button.visible: menu_button.grab_focus()
 
 func _unhandled_input(event: InputEvent) -> void:
-	if session_menu != null and session_menu.visible and event.is_action_pressed("ui_cancel"):
+	# UI-15: Escape on a page goes back to its menu; on a menu, closes it.
+	if _menu_page != "" and lab != null and event.is_action_pressed("ui_cancel"):
+		if _menu_page == "sound": lab.motion.sound.go_back()
+		else: lab.settings_panel.go_back()
+		get_viewport().set_input_as_handled()
+	elif session_menu != null and session_menu.visible and event.is_action_pressed("ui_cancel"):
 		close_menu()
 		get_viewport().set_input_as_handled()
 	elif club_menu != null and club_menu.visible and event.is_action_pressed("ui_cancel"):
 		close_club_menu()
 		get_viewport().set_input_as_handled()
 	elif club_options != null and club_options.is_open() and event.is_action_pressed("ui_cancel"):
-		club_options.close()
+		club_options.go_back()
 		get_viewport().set_input_as_handled()
 
 ## Beside the top bar, where MatchPanels leaves room for it.
@@ -684,6 +718,9 @@ func _begin_attempt(attempt: int, saved: Dictionary = {}) -> void:
 	lab.chrome = [menu_button]
 	add_child(lab)
 	move_child(lab, 0)
+	_menu_page = ""
+	lab.settings_panel.back.connect(_page_back.bind("throw"))
+	lab.motion.sound.back.connect(_page_back.bind("sound"))
 	session_menu.hide()
 	menu_button.show()
 	_place_menu()
@@ -768,6 +805,7 @@ func _clear_lab() -> void:
 		remove_child(lab)
 		lab.free()
 		lab = null
+		_menu_page = ""
 	UiTheme.use_kit("") # the shell and the Clubhouse are always the House kit
 	if menu_button != null:
 		menu_button.theme = null

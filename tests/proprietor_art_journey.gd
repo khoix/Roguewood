@@ -24,7 +24,7 @@ func _run() -> void:
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	await _to_boss("Proprietor")
 	await _focus_accept(lab.hud.intro_button)
 	await _wait_for(func(): return lab.state == "aim", "Proprietor ready")
@@ -34,7 +34,7 @@ func _run() -> void:
 	# Exercise normal idle motion through the real settings control.
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	var open := await _rule_frame([LEAVE, GUTTER], "Proprietor open")
 	_check(open.banked > 0, "House Rules allows an open frame to bank")
 	await _capture("proprietor_reaction")

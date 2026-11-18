@@ -128,7 +128,7 @@ func _play_batch() -> void:
  _check(captures.has("wax_trail"),"narrow actual curved trail accent captured")
  await _controls(wax)
  await _focus_accept(scene.options)
- await _focus_accept(lab.settings_panel.reduced_motion);await _focus_accept(lab.settings_panel.reduced_flash);await _focus_accept(lab.settings_panel.close)
+ await _focus_accept(lab.settings_panel.reduced_motion);await _focus_accept(lab.settings_panel.reduced_flash);await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
  await _next_frame();await _arm_mod("ball_mod.chalk_grip")
  var chalk:=await _mod_frame([LEAVE,[0,0,.6]],[0,0],"Chalk Grip spare")
  _check(chalk.result.category=="spare" and _ids().count("ball_mod.chalk_grip")==1,"spare-only +2 for the actual used card")

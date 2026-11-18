@@ -26,7 +26,7 @@ func _run() -> void:
 	lab.trial_log_path = ""
 	await _focus_accept(scene.options)
 	if not lab.settings_panel.assist.button_pressed: await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	_check(Generator.validate_schedule(lab.division.campaign, lab.content.profile, lab.content.catalogue).is_empty(), "saved seeded schedule validated")
 	if stage == 1:
 		var repeat := Content.load_set("campaign", 1)
