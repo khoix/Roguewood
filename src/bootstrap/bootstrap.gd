@@ -420,14 +420,14 @@ func _build_session_menu() -> void:
 	options = add_menu_entry("Options", "ThrowOptions", func(): if lab: lab.toggle_settings())
 	back = add_menu_entry("Clubhouse", "BackToMenu", _show_menu)
 	# Restart discards the attempt, so it asks once: the first press arms it.
-	reset = add_menu_entry("Restart run", "ResetSession", func(): pass, false)
+	reset = add_menu_entry("Restart Run", "ResetSession", func(): pass, false)
 	reset.pressed.connect(func():
 		if _restart_armed:
 			close_menu()
 			_start_session()
 		else:
 			_restart_armed = true
-			reset.text = "Discard this run? Press again")
+			reset.text = "Discard This Run? Press Again")
 
 ## Three drawn bars on a menu button.
 static func _draw_bars(button: Button) -> void:
@@ -481,7 +481,7 @@ func _build_club_menu() -> void:
 	how.pressed.connect(func():
 		club_menu.hide()
 		start_tutorial(false))
-	for entry in [["Options", "ClubOptions", "options"], ["Sound & effects", "ClubSound", "sound"]]:
+	for entry in [["Options", "ClubOptions", "options"], ["Sound & Effects", "ClubSound", "sound"]]:
 		var page: String = entry[2]
 		var button := _button(club_menu_list, entry[0], entry[1], 320)
 		button.pressed.connect(func():
@@ -524,7 +524,7 @@ func add_menu_entry(label: String, node_name: String, action: Callable, closes: 
 func open_menu() -> void:
 	if screen != "session": return
 	_restart_armed = false
-	reset.text = "Restart run"
+	reset.text = "Restart Run"
 	session_menu.show()
 	if lab: lab.input_paused = true
 	resume.grab_focus()

@@ -72,7 +72,7 @@ func _ready() -> void:
 	_pages.add_child(box)
 	_main_box = box
 	var title := Label.new()
-	title.text = "Throw settings"
+	title.text = "Throw Settings"
 	title.add_theme_font_size_override("font_size", 30)
 	box.add_child(title)
 	handedness = OptionButton.new()
@@ -103,15 +103,15 @@ func _ready() -> void:
 	spin_view.select(1 if settings.get("spin_view", "depth") == "depth" else 0)
 	spin_view.item_selected.connect(func(index): _store("spin_view", "depth" if index == 1 else "flat"))
 	box.add_child(spin_view)
-	reduced_motion = _toggle(box, "ReducedMotion", "Reduced motion (steady camera & foil)", "reduced_motion")
-	reduced_flash = _toggle(box, "ReducedFlash", "Reduced flash (no impact accents)", "reduced_flash")
-	large_targets = _toggle(box, "LargeTargets", "Larger touch targets", "large_targets")
-	assist = _toggle(box, "AssistControls", "Assist controls (no gestures)", "assist")
+	reduced_motion = _toggle(box, "ReducedMotion", "Reduced Motion (steady camera & foil)", "reduced_motion")
+	reduced_flash = _toggle(box, "ReducedFlash", "Reduced Flash (no impact accents)", "reduced_flash")
+	large_targets = _toggle(box, "LargeTargets", "Larger Touch Targets", "large_targets")
+	assist = _toggle(box, "AssistControls", "Assist Controls (no gestures)", "assist")
 	# UI-11 (owner, 2026-11-16): no vibration toggle; the charge cues always vibrate
 	# where the device can (settings.haptics stays true).
 	tuning_button = Button.new()
 	tuning_button.name = "ThrowTuning"
-	tuning_button.text = "Throw tuning (test)…"
+	tuning_button.text = "Throw Tuning (Test)…"
 	tuning_button.custom_minimum_size = Vector2(0, 56)
 	tuning_button.pressed.connect(func(): _show_tuning(true))
 	box.add_child(tuning_button)
@@ -139,7 +139,7 @@ func _build_tuning() -> void:
 	tuning_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_pages.add_child(tuning_box)
 	var title := Label.new()
-	title.text = "Throw tuning (test)"
+	title.text = "Throw Tuning (Test)"
 	title.add_theme_font_size_override("font_size", 30)
 	tuning_box.add_child(title)
 	for row in TUNABLE:
@@ -159,7 +159,7 @@ func _build_tuning() -> void:
 		_tuning_sliders[row[0]] = slider
 	var reset := Button.new()
 	reset.name = "ResetTuning"
-	reset.text = "Reset to defaults"
+	reset.text = "Reset to Defaults"
 	reset.custom_minimum_size = Vector2(0, 52)
 	reset.pressed.connect(func():
 		settings.throw_tuning = {}

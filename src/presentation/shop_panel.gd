@@ -555,7 +555,7 @@ func _show_details() -> void:
 	summary.visible = shown
 	rack_label.visible = shown
 	details_button.visible = not _landscape
-	details_button.text = "Hide details" if _details_open else "Payout & rack"
+	details_button.text = "Hide Details" if _details_open else "Payout & Rack"
 
 static func _style(_color: Color) -> StyleBox:
 	return UiTheme.frame("panel", 14.0, 12.0)
@@ -646,7 +646,7 @@ func show_view(view: Dictionary) -> void:
 		button.disabled = offer.state in ["sold", "empty"] or item_id.is_empty() or choice_sheet.visible
 	reroll_button.text = "Reroll $%d" % view.reroll_cost
 	reroll_button.disabled = not view.can_reroll or choice_sheet.visible
-	remove_button.text = "Remove a card $%d" % view.removal_price
+	remove_button.text = "Remove a Card $%d" % view.removal_price
 	remove_button.disabled = not view.can_remove or choice_sheet.visible
 	continue_button.disabled = choice_sheet.visible
 	message.text = view.get("message", "")
@@ -690,7 +690,7 @@ func show_view(view: Dictionary) -> void:
 	var moves: int = view.get("charm_moves", []).size()
 	sell_open.text = ("Sell · %d" % view.sellables.size()) if moves == 0 else "Sell · %d · order" % view.sellables.size()
 	sell_open.disabled = (view.sellables.is_empty() and moves == 0) or choice_sheet.visible
-	sell_title.text = "Sell" if moves == 0 else "Sell, or change the Charm order"
+	sell_title.text = "Sell" if moves == 0 else "Sell, or Change the Charm Order"
 	if sell_sheet.visible:
 		if sell_open.disabled: close_sell()
 		else: _fit_sell.call_deferred()
