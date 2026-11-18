@@ -1,4 +1,5 @@
 extends SceneTree
+const ScoreLog = preload("res://src/rules/score_log.gd")
 ## J03 scoring journey (E06): strike, spare and open frames played through real
 ## input (focused Options toggles, keyboard steps on the assist sliders and Throw),
 ## then checked against an independent FrameRules resolution: banked score, ordered
@@ -144,9 +145,14 @@ func _throw(position: float, aim: float, power: float) -> Dictionary:
 ## Waits for scoring, then checks it against an independent resolution.
 func _verify_frame(category: String, label: String, during: Callable = Callable()) -> void:
 	await _wait_for(func(): return lab.state == "scoring", label + " scoring starts", ROLL_FRAMES)
+	# The owner (2026-11-18): the top bar holds the score from before the frame while its tally plays.
+	var before: int = int(lab.division.match_score) - int(lab.scored_frames[-1].banked)
+	_check(lab.shown_score() == before and lab.hud.score_label.text.begins_with(ScoreLog._n(before)) and (int(lab.scored_frames[-1].banked) == 0 or not lab.hud.score_label.text.begins_with(ScoreLog._n(lab.division.match_score))),
+		"%s: the top bar keeps the pre-frame score %d during the tally (%s)" % [label, before, lab.hud.score_label.text])
 	if during.is_valid():
 		await during.call()
 	await _wait_for(func(): return lab.state == "frame_done", label + " scoring finishes", ROLL_FRAMES)
+	_check(lab.hud.score_label.text.begins_with(ScoreLog._n(lab.division.match_score)), "%s: the top bar shows the banked score once the tally finishes (%s)" % [label, lab.hud.score_label.text])
 	var reports: Array = lab.frame_reports
 	var built: Dictionary = FrameBuilder.build(FrameBuilder.lab_loadout(), Contracts.read_json(FrameBuilder.LAB_CATALOGUE), reports)
 	_check(built.ok, label + " frame builds from the roll reports")

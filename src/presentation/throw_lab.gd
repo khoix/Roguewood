@@ -1974,25 +1974,34 @@ func _compose_status() -> void:
 				var result: Dictionary = scored_frames[-1].result
 				status.text += " · %s %s · Total %s" % [String(result.category).capitalize(), ScoreLog._n(result.score), ScoreLog._n(total_score)]
 
+## The match score the top bar shows. While a frame's tally plays, it holds the
+## score from before that frame, so the bar does not give the tally away (owner,
+## 2026-11-18); it catches up when the tally finishes.
+func shown_score() -> int:
+	if state == "scoring" and not scored_frames.is_empty():
+		return int(division.match_score) - int(scored_frames[-1].get("banked", 0))
+	return int(division.match_score)
+
 ## The match bar: which match, its target, the banked score and frames left; the
 ## badge inspects the rival's rule (boss) or previews the boss (earlier matches).
 func _refresh_hud() -> void:
 	if hud == null or division == null:
 		return
+	var shown := shown_score()
 	var m: Dictionary = division.current()
 	var left: int = division.frames_left()
 	var frames := "%d frame%s left" % [left, "" if left == 1 else "s"]
 	var view := {"text": "", "badge": "", "rule_text": "", "frames": frames}
 	if division.practice:
-		view.text = "Practice · no target · score %d · %s · no unlocks" % [division.match_score, frames]
+		view.text = "Practice · no target · score %d · %s · no unlocks" % [shown, frames]
 		view.title = "Practice · no unlocks"
-		view.score = ScoreLog._n(division.match_score)
+		view.score = ScoreLog._n(shown)
 	else:
 		var index: int = division.spec.matches.find(m) + 1
-		view.text = "%s %d/3 · Target %d · Score %d · %s" % [m.name, index, division.target(), division.match_score, frames]
+		view.text = "%s %d/3 · Target %d · Score %d · %s" % [m.name, index, division.target(), shown, frames]
 		view.title = "%s %d/3" % [m.name, index]
 		view.short_title = view.title # the roll view's slim bar has no room for the Division or the rival
-		view.score = "%s / %s" % [ScoreLog._n(division.match_score), ScoreLog._n(division.target())]
+		view.score = "%s / %s" % [ScoreLog._n(shown), ScoreLog._n(division.target())]
 		if division.division_count() > 1:
 			view.text = "D%d/%d · %s" % [division.division_number(), division.division_count(), view.text]
 			view.title = "D%d/%d · %s" % [division.division_number(), division.division_count(), view.title]
