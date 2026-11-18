@@ -104,13 +104,7 @@ func _draw() -> void:
 	if lab == null or lab.lane == null or lab.state not in ["aim", "holding"]:
 		return
 	var target: Vector2 = lab.screen_point(Lane.world(lab.target_x * Lane.LANE_HALF_WIDTH, Lane.TARGET_PLANE_F, 0.0))
-	var reticle: float = lab.ring_radius * RETICLE_PX * minf(size.x, size.y) / 720.0
-	draw_set_transform(target, 0.0, Vector2(1.0, RETICLE_FLATTEN))
-	if lab.zone_scale() < 1.0:
-		NeonArt.zones(self, RETICLE_PX * minf(size.x, size.y) / 720.0, lab.zone_scale())
-	draw_arc(Vector2.ZERO, reticle, 0.0, TAU, 48, Color(0, 0, 0, 0.5), 7.0, true)
-	draw_arc(Vector2.ZERO, reticle, 0.0, TAU, 48, lab.ring_color(), 4.0, true)
-	draw_set_transform(Vector2.ZERO)
+	draw_reticle(self, lab, target, minf(size.x, size.y))
 	# Authored enamel/brass rail at the existing Narrow Lane gutter boundary.
 	var edge: float = lab.lane.gutter_edge()
 	if edge < Lane.LANE_HALF_WIDTH:
@@ -127,6 +121,19 @@ func _draw() -> void:
 	if lab.state != "holding":
 		return
 	_draw_charge()
+
+## The target reticle as the lane shows it, centred at `at` on `canvas`, sized for a
+## screen whose shorter side is `short_side`. The aim magnifier (UI-14) draws this
+## same ring, so it looks identical in both.
+static func draw_reticle(canvas: CanvasItem, lab, at: Vector2, short_side: float) -> void:
+	var pixels: float = RETICLE_PX * short_side / 720.0
+	var reticle: float = lab.ring_radius * pixels
+	canvas.draw_set_transform(at, 0.0, Vector2(1.0, RETICLE_FLATTEN))
+	if lab.zone_scale() < 1.0:
+		NeonArt.zones(canvas, pixels, lab.zone_scale())
+	canvas.draw_arc(Vector2.ZERO, reticle, 0.0, TAU, 48, Color(0, 0, 0, 0.5), 7.0, true)
+	canvas.draw_arc(Vector2.ZERO, reticle, 0.0, TAU, 48, lab.ring_color(), 4.0, true)
+	canvas.draw_set_transform(Vector2.ZERO)
 
 ## Diagnostic snapshot used by the native journey, not the frame loop.
 func charge_pose() -> Dictionary:

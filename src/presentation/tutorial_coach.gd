@@ -164,19 +164,19 @@ func _build_steps() -> void:
 			"enter": func(): return lab.state == "frame_done" and lab.next_rack.visible and lab.division.match_over() and lab.division.outcome != "lost",
 			"done": func(): return lab.state == "shop", "rect": func(): return _rect_of(lab.next_rack), "gesture": "tap",
 			"point": func(): return _rect_of(lab.next_rack).get_center()},
-		{"id": "shop", "title": "The Pro Shop", "text": "Between matches you can buy balls, pins, Charms and more. Tap a card to read it.",
-			"enter": _shop_idle, "rect": func(): return _rect_of(lab.shop_panel.offers_grid)},
-		{"id": "buy", "title": "Buy One", "text": "Try it: tap the %s, a pin modification." % _workshop_name(),
-			"enter": _shop_idle, "done": func(): return lab.shop_panel.offer_sheet.visible or lab.shop_panel.choice_sheet.visible,
+		# Owner (2026-11-18): one step that points at the item to buy; the rest of the
+		# shop stays readable under a light dim, and only that item takes a tap.
+		{"id": "shop", "title": "The Pro Shop", "text": "Between matches, buy balls, pins, Charms and more. Try it: tap the %s." % _workshop_name(),
+			"enter": _shop_dealt, "done": func(): return lab.shop_panel.offer_sheet.visible or lab.shop_panel.choice_sheet.visible, "light": true, "below": true,
 			"rect": func(): return _rect_of(_workshop_offer()), "gesture": "tap", "point": func(): return _rect_of(_workshop_offer()).get_center()},
-		{"id": "confirm_buy", "title": "Buy", "text": "Its full rule and price are here. Tap Buy.",
+		{"id": "confirm_buy", "title": "Buy", "text": "Its full rule and price are here. Tap Buy.", "light": true,
 			"enter": func(): return lab.state == "shop" and lab.shop_panel.offer_sheet.visible,
 			"done": func(): return lab.shop_panel.choice_sheet.visible or _workshop_sold(),
 			"rect": func(): return _rect_of(lab.shop_panel.buy_button), "gesture": "tap", "point": func(): return _rect_of(lab.shop_panel.buy_button).get_center()},
 		{"id": "place", "title": "Place It", "text": "This is your rack. Tap a pin to see what is on it now, then Confirm.", "card": false,
 			"enter": func(): return lab.state == "shop" and lab.shop_panel.choice_sheet.visible,
 			"done": _workshop_sold, "rect": func(): return _rect_of(lab.shop_panel.choice_sheet), "gesture": "tap", "point": _pin_point},
-		{"id": "sell", "title": "Sell", "text": "Short of money? Sell what you no longer need. Open Sell.",
+		{"id": "sell", "title": "Sell", "light": true, "text": "Short of money? Sell what you no longer need. Open Sell.",
 			"enter": _shop_idle, "done": func(): return lab.shop_panel.sell_sheet.visible,
 			"rect": func(): return _rect_of(lab.shop_panel.sell_open), "gesture": "tap", "point": func(): return _rect_of(lab.shop_panel.sell_open).get_center()},
 		{"id": "sell_sheet", "title": "Your Items", "text": "Tap an item to see what it sells for, then Sell or Back. Tap Done when you are finished.", "card": false,
@@ -197,6 +197,15 @@ func _frames() -> int:
 func _shop_idle() -> bool:
 	var shop = lab.shop_panel
 	return lab.state == "shop" and shop.visible and not shop.offer_sheet.visible and not shop.choice_sheet.visible and not shop.sell_sheet.visible
+
+## The shop is idle and its cards have finished dealing in, so the spotlight never
+## lands on a card that is still fading in.
+func _shop_dealt() -> bool:
+	if not _shop_idle(): return false
+	for i in lab.shop.offers.size():
+		var card: Control = lab.shop_panel.button_for_offer(i)
+		if card.is_visible_in_tree() and card.get("_face") != null and card._face.modulate.a < 0.99: return false
+	return true
 
 func _workshop_index() -> int:
 	for i in lab.shop.offers.size():
@@ -394,7 +403,9 @@ func _layout(s: Dictionary) -> void:
 			Rect2(0, _hole.position.y, _hole.position.x, _hole.size.y), Rect2(_hole.end.x, _hole.position.y, screen.x - _hole.end.x, _hole.size.y)]
 	elif dim:
 		panes = [Rect2(Vector2.ZERO, screen)]
+	var shade := 0.45 if s.get("light", false) else 0.74 # light: the shop stays readable around the spotlight
 	for i in dims.size():
+		dims[i].color.a = shade
 		dims[i].visible = i < panes.size()
 		if i < panes.size():
 			dims[i].position = panes[i].position
@@ -416,6 +427,8 @@ func _layout(s: Dictionary) -> void:
 		y = screen.y - height - 12.0 if portrait else _rect_of(lab.hud.bar).end.y + 12.0
 	elif not _hole.has_area():
 		y = (screen.y - height) * 0.5
+	elif s.get("below", false) and screen.y - _hole.end.y >= height + 20.0:
+		y = _hole.end.y + 10.0 # below it, where it covers nothing the step needs (the shop's offers stay in view)
 	elif _hole.position.y > screen.y - _hole.end.y:
 		y = _hole.position.y - height - 18.0 # above the spotlight
 	else:

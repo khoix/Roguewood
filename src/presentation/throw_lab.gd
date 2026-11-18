@@ -198,6 +198,7 @@ var pending_launch: Dictionary = {} # committed launch not yet resolved: {launch
 var _result_view: Dictionary = {}
 var _replay_only := false # showing a restored, already banked frame
 var _content: Dictionary = {}
+var aim_magnifier: Control # UI-14
 
 func _ready() -> void:
 	SettingsPanel.with_defaults(settings)
@@ -376,6 +377,10 @@ func _ready() -> void:
 	motion.lab = self
 	add_child(motion)
 	move_child(motion, 2)
+	# UI-14: the top bar becomes a magnifier while the target reticle is moved.
+	aim_magnifier = preload("res://src/presentation/aim_magnifier.gd").new()
+	aim_magnifier.lab = self
+	add_child(aim_magnifier)
 	panels.host_equipment_strip(motion.equipment_art) # UI-3: out of the lane
 	if not restore_from.is_empty():
 		_restore(restore_from)
