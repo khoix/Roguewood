@@ -196,7 +196,7 @@ func _run() -> void:
 		"the practice lane: the tutorial set, its fixed kit, a throwaway Career and no saves")
 	_check(lab.league_theme != null, "the practice lane wears the House theme")
 	await _step("welcome")
-	_check(coach.counter.text == "Step 1 of 14", "the main steps are numbered (%s)" % coach.counter.text)
+	_check(coach.counter.text == "Step 1 of 13", "the main steps are numbered (%s)" % coach.counter.text)
 	_check(coach.next_button.visible and coach.skip_button.visible and coach.dims.filter(func(d): return d.visible).size() == 1 and lab.input_paused,
 		"the welcome dims the whole screen, offers Next and Skip, and holds the lane still")
 	await _capture("tut_welcome")
@@ -279,13 +279,18 @@ func _run() -> void:
 	await _step("shop")
 	var shop = lab.shop_panel
 	_check(lab.shop.offers.slice(0, 5).map(func(o): return o.item_id) == lab.content.tutorial_offers, "the first shop sells the tutorial's fixed offers")
-	_spotlit(shop.offers_grid, "shop")
-	await _capture("tut_shop")
-	await _tap(coach.next_button)
-	await _step("buy")
+	# Owner (2026-11-18): the shop step points straight at the item to buy, and the rest
+	# of the shop stays readable under a light dim that takes no taps.
 	var offer: Control = coach._workshop_offer()
-	_check(lab.shop.offers[coach._workshop_index()].item_id == "pin_mod.brass_cap" and coach.body.text.contains(lab.run.item("pin_mod.brass_cap").name), "the buy step points at the Brass Cap")
-	_spotlit(offer, "buy")
+	_check(lab.shop.offers[coach._workshop_index()].item_id == "pin_mod.brass_cap" and coach.body.text.contains(lab.run.item("pin_mod.brass_cap").name)
+		and not coach.next_button.visible and coach.steps[coach.step].gesture == "tap", "the shop step points at the Brass Cap, with no Next")
+	_spotlit(offer, "shop")
+	_check(coach.dims.all(func(d): return not d.visible or is_equal_approx(d.color.a, 0.45)), "the shop is dimmed lightly, so it stays readable")
+	var other: Control = lab.shop_panel.button_for_offer(0)
+	await _tap(other)
+	_check(not shop.offer_sheet.visible and coach.current_id() == "shop", "another offer cannot be tapped during the shop step")
+	_check(not coach.card.get_global_rect().intersects(shop.offers_grid.get_global_rect()), "the coach's card leaves the shop's offers in view")
+	await _capture("tut_shop")
 	await _tap(offer)
 	await _step("confirm_buy")
 	_spotlit(shop.buy_button, "confirm buy")
