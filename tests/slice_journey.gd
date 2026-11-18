@@ -176,7 +176,7 @@ func _circle_throw(sweep_deg: float) -> Dictionary:
 func _toggle_assist() -> void:
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 
 func _slide(slider: HSlider, value: float) -> void:
 	slider.grab_focus()
@@ -200,7 +200,7 @@ func _run() -> void:
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	_check(lab.run.money == 6 and lab.run.cards.size() == 6 and lab.run.loadout().pins.values().all(func(p): return p == "pin.wood")
 		and lab.run.deck_cards().values().count("ball.echo") == 2, "the House Kit: ten Wood pins, two each of Hook, Hammer and Echo, $6")
 	await _division_one()

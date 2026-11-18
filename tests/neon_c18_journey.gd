@@ -40,7 +40,7 @@ func _run() -> void:
 	lab.trial_log_path = ""
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	_check(not lab.division.practice and lab.equipment.MODEL == "deck" and not lab.settings.reduced_motion, "a real Neon match with the deck and the contracting ring")
 	await _strike_out()
 	await _to_shop("opener")
@@ -186,18 +186,25 @@ func _sound_sliders() -> void:
 	var music: AudioStreamPlayer = lab.league_theme.music if lab.league_theme != null else null
 	_check(music != null and music.playing, "the Neon League's music is playing")
 	if music == null: return
+	# UI-15 (owner, 2026-11-18): the menu holds Throw Settings and Sound & Effects as
+	# sibling pages; each page's Back returns to the menu.
+	await _focus_accept(scene.menu_button)
+	var entries: Array = scene.menu_list.get_children().filter(func(c): return c is Button).map(func(c): return c.text)
+	_check(entries == ["Resume", "Throw Settings", "Sound & Effects", "Clubhouse", "Restart Run"], "UI-15: the match menu's entries (%s)" % str(entries))
 	await _focus_accept(scene.options)
 	var panel = lab.settings_panel
-	var sound_row: Button = panel.find_child("SoundAndEffects", true, false)
-	_check(panel.find_child("Haptics", true, false) == null and sound_row != null and sound_row.get_parent() == panel.close.get_parent()
-		and sound_row.get_index() == panel.close.get_index() - 1 and panel.close.size_flags_horizontal == Control.SIZE_SHRINK_CENTER,
-		"no vibration toggle; Sound & effects has its own row above a centred Done")
-	await _focus_accept(sound_row)
+	_check(panel.visible and not scene.session_menu.visible and panel.find_child("Haptics", true, false) == null and panel.find_child("SoundAndEffects", true, false) == null
+		and panel.close.text == "Back" and panel.close.size_flags_horizontal == Control.SIZE_SHRINK_CENTER,
+		"Throw Settings: no vibration toggle, no Sound & Effects row, a centred Back")
+	await _focus_accept(panel.close)
+	_check(not panel.visible and scene.session_menu.visible and scene.options.has_focus(), "Back from Throw Settings returns to the menu")
+	await _focus_accept(scene.sound_entry)
 	var sound = lab.motion.sound
+	_check(sound.panel.visible and not panel.visible and not scene.session_menu.visible, "Sound & Effects opens from the menu, on its own")
 	var base: float = lab.league_theme.MUSIC_DB
-	# UI-12: with Options open the music has eased to half its level.
-	await _wait_for(func(): return is_equal_approx(sound.duck, sound.MENU_DUCK), "the music eases down under Options")
-	_check(absf(music.volume_db - (base + linear_to_db(sound.MENU_DUCK))) < 0.01, "Options halves the music (%.1f dB)" % music.volume_db)
+	# UI-12: with a menu page open the music has eased to half its level.
+	await _wait_for(func(): return is_equal_approx(sound.duck, sound.MENU_DUCK), "the music eases down under Sound & Effects")
+	_check(absf(music.volume_db - (base + linear_to_db(sound.MENU_DUCK))) < 0.01, "the page halves the music (%.1f dB)" % music.volume_db)
 	sound.music_slider.value = 0.5
 	await process_frame
 	_check(absf(music.volume_db - (base + linear_to_db(0.5 * sound.MENU_DUCK))) < 0.01 and absf(sound.volume_slider.value - 0.65) < 0.01, "the music slider sets the music to half (%.1f dB); effects stay at 0.65" % music.volume_db)
@@ -207,8 +214,9 @@ func _sound_sliders() -> void:
 	sound.mute_button.button_pressed = false
 	sound.music_slider.value = 1.0
 	await process_frame
-	_check(absf(music.volume_db - (base + linear_to_db(sound.MENU_DUCK))) < 0.01, "back to the slider's full level, still dipped under Options")
-	sound.panel.hide()
-	panel.hide()
-	await _wait_for(func(): return is_equal_approx(sound.duck, 1.0), "the music eases back when Options closes")
+	_check(absf(music.volume_db - (base + linear_to_db(sound.MENU_DUCK))) < 0.01, "back to the slider's full level, still dipped under the page")
+	await _action("ui_cancel")
+	_check(not sound.panel.visible and scene.session_menu.visible and scene.sound_entry.has_focus(), "Escape on Sound & Effects goes back to the menu")
+	await _focus_accept(scene.resume)
+	await _wait_for(func(): return is_equal_approx(sound.duck, 1.0), "the music eases back when the menu closes")
 	_check(absf(music.volume_db - base) < 0.01, "back to the music's own level")

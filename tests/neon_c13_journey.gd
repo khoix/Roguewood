@@ -37,7 +37,7 @@ func _run() -> void:
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	await _slick()
 	await _lena()
 	await _champion()

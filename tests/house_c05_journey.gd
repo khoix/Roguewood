@@ -32,7 +32,7 @@ func _run() -> void:
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	await _to_boss("Division 1")
 	_check(lab.hud.intro_body.text.contains("Clean Sweep") and lab.hud.intro_body.text.contains("House Rules"), "the champion's introduction names both rules")
 	await _focus_accept(lab.hud.intro_button)

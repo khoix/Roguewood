@@ -34,7 +34,7 @@ func _run() -> void:
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	_check(not lab.division.practice, "a real match, not Practice")
 	await _strike_out()
 	await _to_shop("opener")

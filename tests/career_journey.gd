@@ -68,7 +68,7 @@ func _assist_on() -> void:
 	await _focus_accept(scene.options)
 	if not lab.settings_panel.reduced_motion.button_pressed: await _focus_accept(lab.settings_panel.reduced_motion)
 	if not lab.settings_panel.assist.button_pressed: await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 
 ## Division 1 through the shop after The Surveyor: Echo strike, strikes, strikes.
 func _beat_surveyor() -> void:
@@ -207,7 +207,7 @@ func _stage_three() -> void:
 	await _focus_accept(lab.settings_panel.practice)
 	if not lab.settings_panel.assist.button_pressed: await _focus_accept(lab.settings_panel.assist)
 	if not lab.settings_panel.reduced_motion.button_pressed: await _focus_accept(lab.settings_panel.reduced_motion)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	_check(lab.division.practice and lab.hud.info.text.contains("no unlocks"), "practice is on; the match bar says no unlocks")
 	await _capture("career_practice")
 	await _throw(LEAVE)

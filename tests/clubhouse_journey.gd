@@ -70,38 +70,42 @@ func _ui12_menu() -> void:
 	var taps: int = scene.ui_sounds.played
 	await _tap(button)
 	_check(scene.club_menu.visible and scene.ui_sounds.played > taps and scene.ui_sounds.last_kind == "tap", "a tap opens the Clubhouse menu, with a tap sound")
+	# UI-15 (owner, 2026-11-18): the same menu as a match's, with Throw Settings and
+	# Sound & Effects as sibling pages whose Back returns here.
+	var entries: Array = scene.club_menu_list.get_children().filter(func(c): return c is Button).map(func(c): return c.text)
+	_check(entries == ["How to Play", "Throw Settings", "Sound & Effects", "Close"], "UI-15: the Clubhouse menu's entries (%s)" % str(entries))
 	await _tap(scene.club_menu_list.get_node("ClubOptions"))
 	var options = scene.club_options
 	await process_frame
-	_check(not scene.club_menu.visible and options.is_open() and options.settings_panel.get_global_rect().intersects(scene.get_global_rect()), "Options opens from the Clubhouse menu")
+	_check(not scene.club_menu.visible and options.is_open() and options.settings_panel.visible and not options.sound.panel.visible
+		and options.settings_panel.get_global_rect().intersects(scene.get_global_rect()), "Throw Settings opens from the Clubhouse menu, on its own")
+	_check(options.settings_panel.find_child("SoundAndEffects", true, false) == null and options.settings_panel.close.text == "Back", "Throw Settings has no Sound & Effects row, and a Back")
 	var music: AudioStreamPlayer = scene.clubhouse_music
-	await _wait_for(func(): return is_equal_approx(scene.music_duck, 0.5), "the Clubhouse music eases down under Options")
-	_check(absf(music.volume_db - (scene.Soundtrack.level_db(scene.throw_settings) + linear_to_db(0.5))) < 0.01, "Options halves the Clubhouse music (%.1f dB)" % music.volume_db)
+	await _wait_for(func(): return is_equal_approx(scene.music_duck, 0.5), "the Clubhouse music eases down under Throw Settings")
+	_check(absf(music.volume_db - (scene.Soundtrack.level_db(scene.throw_settings) + linear_to_db(0.5))) < 0.01, "Throw Settings halves the Clubhouse music (%.1f dB)" % music.volume_db)
 	options.settings_panel.sensitivity.value = 0.6
 	_check(is_equal_approx(float(scene.throw_settings.sensitivity), 0.6), "a setting changed in the Clubhouse is the session's")
-	var sound_row: Button = options.settings_panel.find_child("SoundAndEffects", true, false)
-	await _tap(sound_row)
-	_check(options.sound.panel.visible, "Sound & effects opens from the Clubhouse's Options")
+	await _tap(options.settings_panel.close)
+	_check(not options.is_open() and scene.club_menu.visible and scene.club_menu_list.get_node("ClubOptions").has_focus() and scene.ui_sounds.last_kind == "back",
+		"Back from Throw Settings returns to the Clubhouse menu, with the back sound")
+	await _tap(scene.club_menu_list.get_node("ClubSound"))
+	_check(not scene.club_menu.visible and options.sound.panel.visible and not options.settings_panel.visible, "Sound & Effects opens from the Clubhouse menu, on its own")
+	await _wait_for(func(): return is_equal_approx(scene.music_duck, 0.5), "the Clubhouse music eases down under Sound & Effects")
 	options.sound.music_slider.value = 0.5
 	await process_frame
 	_check(is_equal_approx(float(scene.throw_settings.music_volume), 0.5) and absf(music.volume_db - (scene.Soundtrack.level_db(scene.throw_settings) + linear_to_db(0.5))) < 0.01
 		and scene.Soundtrack.level_db(scene.throw_settings) < scene.Soundtrack.MUSIC_DB - 5.0, "the music slider lowers the Clubhouse music")
 	options.sound.music_slider.value = 1.0
-	options.sound.panel.hide()
-	var done: Button = options.settings_panel.close
-	await _tap(done)
-	_check(not options.is_open() and scene.ui_sounds.last_kind == "back" and button.has_focus(), "Done closes Options with the back sound, back on the menu button")
+	await _action("ui_cancel")
+	_check(not options.is_open() and scene.club_menu.visible and scene.club_menu_list.get_node("ClubSound").has_focus(), "Escape on Sound & Effects goes back to the Clubhouse menu")
+	await _tap(scene.club_menu_list.get_node("CloseClubMenu"))
+	_check(not scene.club_menu.visible and button.has_focus(), "Close closes the Clubhouse menu, back on the menu button")
 	await _wait_for(func(): return is_equal_approx(scene.music_duck, 1.0), "the Clubhouse music eases back")
 	scene.throw_settings.sensitivity = 0.4
-	# Escape closes the menu; Sound & effects opens straight on its page.
+	# Escape closes the menu itself.
 	await _focus_accept(button)
 	await _action("ui_cancel")
 	_check(not scene.club_menu.visible and button.has_focus(), "Escape closes the Clubhouse menu")
-	await _focus_accept(button)
-	await _focus_accept(scene.club_menu_list.get_node("ClubSound"))
-	_check(options.is_open() and options.sound.panel.visible, "the menu's Sound & effects opens on its page")
-	options.close()
-	await process_frame
 	scene.throw_settings.sound_muted = true
 	taps = scene.ui_sounds.played
 	await _tap(scene.clubhouse.tab_buttons.binder)

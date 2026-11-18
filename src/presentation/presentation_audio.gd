@@ -21,6 +21,8 @@ var effects_button: CheckButton
 var volume_slider: HSlider # sound effects
 var music_slider: HSlider
 var music_volume := 1.0 # of the League music's own level
+var back_button: Button
+signal back # UI-15: the page's Back, to the menu that opened it
 ## UI-12 (owner's play notes, 2026-11-16): while the Pro Shop or Options is open the
 ## music eases to half its level (sound effects keep theirs) and eases back on close.
 const MENU_DUCK := 0.5
@@ -37,16 +39,6 @@ func _ready() -> void:
 		add_child(voice)
 		voices.append(voice)
 		priorities.append(0)
-	var button := Button.new()
-	button.name = "SoundAndEffects"
-	button.text = "Sound & Effects"
-	button.custom_minimum_size.y = 56
-	# UI-11 (owner, 2026-11-16): Sound & effects is its own full-width row like the
-	# other settings, above Done, which stays centred at the bottom.
-	var options: VBoxContainer = lab.settings_panel.close.get_parent()
-	options.add_child(button)
-	options.move_child(button, lab.settings_panel.close.get_index())
-	button.pressed.connect(func(): panel.show(); mute_button.grab_focus())
 	panel = PanelContainer.new()
 	panel.name = "SoundEffectsPanel"
 	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -104,11 +96,13 @@ func _ready() -> void:
 	effects_button.custom_minimum_size.y = 48
 	effects_button.toggled.connect(func(value): enabled = value; lab.settings["ability_effects"] = value)
 	box.add_child(effects_button)
-	var close := Button.new()
-	close.text = "Back to Options"
-	close.custom_minimum_size.y = 48
-	close.pressed.connect(func(): panel.hide(); button.grab_focus())
-	box.add_child(close)
+	back_button = Button.new()
+	back_button.name = "SoundBack"
+	back_button.text = "Back"
+	back_button.custom_minimum_size = Vector2(220, 64)
+	back_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	back_button.pressed.connect(go_back)
+	box.add_child(back_button)
 	panel.hide()
 	lab.throw_cue.connect(_throw_cue)
 
@@ -153,10 +147,20 @@ func cue(id: String, stream: AudioStream, priority: int = 1) -> void:
 	max_active = maxi(max_active, voices.filter(func(v): return v.playing).size())
 
 func menu_open() -> bool:
-	return lab.settings_panel.visible or (lab.get("shop_panel") != null and lab.shop_panel.visible)
+	return lab.settings_panel.visible or panel.visible or (lab.get("shop_panel") != null and lab.shop_panel.visible)
+
+## UI-15 (owner, 2026-11-18): Sound & Effects is its own page, opened from the menu
+## beside Throw Settings; Back returns to that menu.
+func open() -> void:
+	panel.move_to_front() # over the lane's later layers
+	panel.show()
+	mute_button.grab_focus()
+
+func go_back() -> void:
+	panel.hide()
+	back.emit()
 
 func _process(delta: float) -> void:
-	if not lab.settings_panel.visible: panel.hide()
 	duck = move_toward(duck, MENU_DUCK if menu_open() else 1.0, delta * (1.0 - MENU_DUCK) / DUCK_SECONDS)
 	_mix_music() # the music may start after the panel is built
 

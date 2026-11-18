@@ -37,7 +37,7 @@ func _run() -> void:
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	_check(not lab.division.practice and lab.division.target() > 0, "a real match with a target")
 	for position in CROWNS:
 		lab.run.rack[position] = Inventory._entry("pin.crown", 0)

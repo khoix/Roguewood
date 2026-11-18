@@ -46,7 +46,7 @@ func _run() -> void:
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.assist)
 	await _focus_accept(lab.settings_panel.practice)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	_check(lab.division.practice and lab.equipment.MODEL == "deck", "Practice with the deck")
 	await _strike_out()
 	await _to_shop("opener")

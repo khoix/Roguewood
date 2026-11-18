@@ -79,7 +79,7 @@ func _run() -> void:
 	lab._camera.transform = camera
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	await _capture("glass_reduced")
 	root.size = Vector2i(1280,720)
 	await _capture("glass_landscape")

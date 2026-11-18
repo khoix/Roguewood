@@ -29,7 +29,7 @@ func _run() -> void:
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.assist)
 	await _focus_accept(lab.settings_panel.practice)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	for position in range(1, 11):
 		lab.run.rack[position] = Inventory._entry("pin.glass", 0)
 	_check(lab.run.place("charm.glass_cutter", 0, "charm:new").is_empty(), "fixture: seat Glass Cutter")

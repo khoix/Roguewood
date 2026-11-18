@@ -139,7 +139,7 @@ func _run() -> void:
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	_check(not lab.division.practice and lab.settings.assist, "a Division attempt with assist controls")
 	await _first_attempt()
 	await _second_attempt()

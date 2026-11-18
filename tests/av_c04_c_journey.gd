@@ -135,7 +135,7 @@ func _play_batch() -> void:
  var partial:=await _mod_frame([LEAVE,GUTTER],[0,0],"partial standing rack")
  _check(lab.motion.abilities.glyph.still,"native Lantern reduced state stays static")
  _check(partial.result.category=="open" and _ids()==[LANTERN] and frame_cues[0].details.count>0 and frame_cues[0].details.count<10,"partial actual standing count")
- await _focus_accept(scene.options);await _focus_accept(lab.settings_panel.reduced_motion);await _focus_accept(lab.settings_panel.reduced_flash);await _focus_accept(lab.settings_panel.close)
+ await _focus_accept(scene.options);await _focus_accept(lab.settings_panel.reduced_motion);await _focus_accept(lab.settings_panel.reduced_flash);await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
  await _next_frame();await _arm_mod(CHARGE)
  _charge_result(await _mod_frame([STRIKE],[0],"second charged strike"))
  await _purchase_hook_charge()

@@ -30,8 +30,7 @@ func _run() -> void:
 	root.size = Vector2i(800,450)
 	for i in 12: await process_frame
 	await _capture("landscape")
-	await _focus_accept(scene.options)
-	await _focus_accept(lab.settings_panel.find_child("SoundAndEffects",true,false))
+	await _focus_accept(scene.sound_entry)
 	var sound: Node = lab.motion.sound
 	_check(sound.panel.visible and Rect2(Vector2.ZERO,lab.size).encloses(sound.panel.get_rect()),"sound controls fit landscape")
 	await _focus_accept(sound.mute_button)
@@ -48,10 +47,12 @@ func _run() -> void:
 	_check(not lab.motion.abilities.glyph.enabled,"native effects toggle")
 	await _capture("controls")
 	await _focus_accept(sound.effects_button)
-	await _focus_accept(sound.panel.get_child(0).get_child(sound.panel.get_child(0).get_child_count()-1))
+	await _focus_accept(sound.back_button)
+	_check(scene.session_menu.visible and scene.sound_entry.has_focus(),"UI-15: Back from Sound & Effects returns to the menu")
+	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.reduced_flash)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	root.size = PORTRAIT
 	for i in 12: await process_frame
 	# Isolated replay of already-banked presentation; no second flow notification.
