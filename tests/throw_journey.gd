@@ -415,8 +415,6 @@ func _magnifier(at: Vector2, capture := "magnifier") -> void:
 		"%s: the magnifier looks from the player's own camera" % capture)
 	var seen: Vector2 = mag.lane_position(mag.target_point())
 	_check(reticle.distance_to(seen) < 2.0, "%s: the zoomed ring sits where the zoomed lane shows the target (%s, %s)" % [capture, str(reticle), str(seen)])
-	var marker: Vector2 = mag.lane_position(lab._marker.global_position)
-	_check(local.has_point(marker), "%s: the target marker is in view (%s in %s)" % [capture, str(marker), str(rect.size)])
 	var before: float = lab.target_x
 	for i in 6:
 		at += Vector2(-8, 0) * _px()

@@ -21,7 +21,7 @@ const SHOW_AFTER := 0.15 # a touch held this long opens it; one that drags the r
 ## The crop (the owner's reference framing): the lane at the head pin spans this
 ## share of the magnifier's width, and the head pin's base sits this far down it.
 const LANE_SHARE := 0.44
-const PIN_BASE_AT := 0.8
+const PIN_BASE_AT := 0.75
 ## The panel: the top bar's left edge and width, made taller to this aspect; in
 ## landscape, where the bar is a thin strip, a box at its left end instead.
 const ASPECT := 2.8
