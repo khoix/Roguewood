@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "id": "glossary",
+  "name": "Talk the Talk",
+  "note": "UI-24 (owner, 2026-11-19): bowling words and Roguewood's own, each with a drawn picture. Shown from the Clubhouse menu: How to Play, then Talk the Talk. Diagram kinds are drawn by src/presentation/glossary_diagram.gd; rack spots are 1-10, roll 1 pins draw orange and roll 2 blue as in the frame review, an outline is a pin left standing.",
+  "sections": [
+    {
+      "id": "run",
+      "name": "The Run",
+      "terms": [
+        {"id": "league", "term": "League", "text": "A themed set of eight Divisions, with its own lanes, rivals and items. Pick one on the League Board.",
+          "diagram": {"kind": "ladder", "steps": 8, "trophy": true}},
+        {"id": "run", "term": "Run", "text": "One go at a League, from Division 1 until you win it or miss a target. Every run is shuffled afresh, so the Pro Shop differs each time.",
+          "diagram": {"kind": "ladder", "steps": 8, "trophy": true, "progress": 3}},
+        {"id": "division", "term": "Division", "text": "One of a League's eight stages: an Opener, a Feature and a Boss, in that order.",
+          "diagram": {"kind": "ladder", "steps": 3, "labels": ["Opener", "Feature", "Boss"]}},
+        {"id": "match", "term": "Match", "text": "Reach its target score within two frames to win. Miss the target and the run is over.",
+          "diagram": {"kind": "target", "score": 360, "target": 500}},
+        {"id": "opener", "term": "Opener", "text": "A Division's first match: the lowest target, always on House Oil.",
+          "diagram": {"kind": "ladder", "steps": 3, "labels": ["Opener", "Feature", "Boss"], "glow": 0}},
+        {"id": "feature", "term": "Feature", "text": "The second match, with a higher target. In some Leagues it moves to a special lane.",
+          "diagram": {"kind": "ladder", "steps": 3, "labels": ["Opener", "Feature", "Boss"], "glow": 1}},
+        {"id": "boss", "term": "Boss", "text": "A Division's last match, against its rival. Their boss rule changes the game; tap the rule badge any time to read it.",
+          "diagram": {"kind": "ladder", "steps": 3, "labels": ["Opener", "Feature", "Boss"], "glow": 2}},
+        {"id": "rival", "term": "Rival", "text": "The named bowler you face in a boss match. Reach their target to beat them; your first win earns their plaque.",
+          "diagram": {"kind": "art", "textures": ["res://assets/rivals/surveyor.png", "res://assets/clubhouse/plaque.surveyor.png"]}},
+        {"id": "championship", "term": "Championship", "text": "Division 8's boss match. Win it to win the League, and its trophy.",
+          "diagram": {"kind": "art", "textures": ["res://assets/clubhouse/trophy.house.png"]}}
+      ]
+    },
+    {
+      "id": "frame",
+      "name": "Frames",
+      "terms": [
+        {"id": "frame", "term": "Frame", "text": "Ten fresh pins and up to two rolls. Each match gives you two frames.",
+          "diagram": {"kind": "sheet", "marks": [["7", "2"], ["", "X"]], "labels": ["Frame 1", "Frame 2"]}},
+        {"id": "strike", "term": "Strike", "text": "All ten pins down with your first roll. It ends the frame at once, and scores the most.",
+          "diagram": {"kind": "rack", "roll1": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "mark": "X"}},
+        {"id": "spare", "term": "Spare", "text": "All ten pins down, using both rolls.",
+          "diagram": {"kind": "rack", "roll1": [1, 2, 3, 4, 5, 7, 8, 9], "roll2": [6, 10], "mark": "8 /"}},
+        {"id": "open", "term": "Open frame", "text": "Pins still standing after both rolls. The pins that fell still score, but there is no strike or spare bonus.",
+          "diagram": {"kind": "rack", "roll1": [1, 2, 3, 4, 5, 6, 8, 9], "roll2": [7], "mark": "8 1"}},
+        {"id": "leave", "term": "Leave", "text": "The pins still standing after your first roll: what you have left to spare.",
+          "diagram": {"kind": "rack", "roll1": [1, 3, 5, 6, 7, 9, 10], "glow": [2, 4, 8]}},
+        {"id": "split", "term": "Split", "text": "A leave with the head pin down and a gap between the pins still standing. Hard to pick up; some Charms pay extra for spares from big leaves.",
+          "diagram": {"kind": "rack", "roll1": [1, 2, 3, 4, 5, 6, 8, 9], "glow": [7, 10]}},
+        {"id": "double", "term": "Double", "text": "Two strikes in a row.",
+          "diagram": {"kind": "sheet", "marks": [["", "X"], ["", "X"]], "bracket": "2 in a row"}},
+        {"id": "turkey", "term": "Turkey", "text": "Three strikes in a row. Your streak carries from match to match, and any frame that is not a strike ends it.",
+          "diagram": {"kind": "sheet", "marks": [["", "X"], ["", "X"], ["", "X"]], "bracket": "3 in a row"}},
+        {"id": "gutter", "term": "Gutter ball", "text": "A roll that drops into a gutter beside the lane and knocks nothing down. A Bumper Guard can bounce it back, once a frame.",
+          "diagram": {"kind": "lane", "path": "gutter"}}
+      ]
+    },
+    {
+      "id": "lane",
+      "name": "Lane & Ball",
+      "terms": [
+        {"id": "rack", "term": "Rack", "text": "The ten pins in their triangle, numbered 1 to 10. Between matches you choose which pin stands on each spot.",
+          "diagram": {"kind": "rack", "numbers": true}},
+        {"id": "head_pin", "term": "Head pin", "text": "Pin 1, at the front of the rack: usually the first pin the ball meets.",
+          "diagram": {"kind": "rack", "numbers": true, "glow": [1]}},
+        {"id": "pocket", "term": "Pocket", "text": "The strike spot, between the head pin and the 3 pin if you bowl right-handed (the 2 pin if left-handed). The picture follows your Throw Settings.",
+          "diagram": {"kind": "rack", "numbers": true, "pocket": true}},
+        {"id": "corners", "term": "Corner pins", "text": "The 7 and the 10, at the back corners: the hardest pins to reach.",
+          "diagram": {"kind": "rack", "numbers": true, "glow": [7, 10]}},
+        {"id": "back_row", "term": "Back row", "text": "The four pins at the back of the rack: 7, 8, 9 and 10.",
+          "diagram": {"kind": "rack", "numbers": true, "glow": [7, 8, 9, 10]}},
+        {"id": "hook", "term": "Hook", "text": "A ball that curves on its way to the pins. Swirl the held ball to charge spin before you flick: more charge, more hook.",
+          "diagram": {"kind": "lane", "path": "hook"}},
+        {"id": "straight", "term": "Curved or straight", "text": "Enough spin and a roll counts as curved; otherwise it is straight and goes where you aim. Cards say which they want.",
+          "diagram": {"kind": "lane", "path": "both"}},
+        {"id": "charge", "term": "Charge", "text": "The spin you wind into the held ball by swirling it. A full charge gives the biggest hook.",
+          "diagram": {"kind": "charge"}},
+        {"id": "oil", "term": "Oil", "text": "Lanes are oiled. The ball skids through the oil and hooks once it reaches dry lane. House Oil is the standard pattern; other lanes change it.",
+          "diagram": {"kind": "lane", "path": "hook", "oil": true}},
+        {"id": "backend", "term": "Backend", "text": "The far end of the lane, past the oil, where a hook bites. Dry Backend makes it bite harder.",
+          "diagram": {"kind": "lane", "path": "hook", "oil": true, "zone": "backend"}},
+        {"id": "boards", "term": "Boards", "text": "The lane is 39 narrow boards from gutter to gutter. A board is a small step: Narrow Lane moves each gutter in by two.",
+          "diagram": {"kind": "lane", "zone": "boards"}},
+        {"id": "release", "term": "Sweet & Perfect", "text": "The ring at your target shrinks while you hold the ball. Roll through it while it is small: Sweet adds +1 Mult, Perfect +2. Your best roll in a frame counts, once.",
+          "diagram": {"kind": "ring"}}
+      ]
+    },
+    {
+      "id": "score",
+      "name": "Scoring",
+      "terms": [
+        {"id": "value", "term": "Value", "text": "Points from pins and cards. Each pin that falls adds its Value: 10 for a Wood pin.",
+          "diagram": {"kind": "formula", "value": 140, "mult": 4, "glow": "value"}},
+        {"id": "mult", "term": "Mult", "text": "The multiplier. A strike starts at ×4 and a spare at ×2; balls and Charms add to it or multiply it.",
+          "diagram": {"kind": "formula", "value": 140, "mult": 4, "glow": "mult"}},
+        {"id": "bank", "term": "Bank", "text": "When a frame ends, Value × Mult is banked into your match score. A strike with ten Wood pins: (40 + 100) × 4 = 560.",
+          "diagram": {"kind": "formula", "value": 140, "mult": 4, "glow": "score"}},
+        {"id": "retrigger", "term": "Retrigger", "text": "Scores a pin again, as if it fell twice. Only its score repeats, not the crash.",
+          "diagram": {"kind": "retrigger"}},
+        {"id": "payout", "term": "Payout", "text": "Money a card pays you, on top of your winnings for each match you win. Spend it in the Pro Shop.",
+          "diagram": {"kind": "cards", "icons": ["money"], "tags": ["+$2"]}}
+      ]
+    },
+    {
+      "id": "cards",
+      "name": "Your Cards",
+      "terms": [
+        {"id": "pro_shop", "term": "Pro Shop", "text": "Between matches: buy balls, pins, Charms and more, sell what you no longer need, or reroll for new offers.",
+          "diagram": {"kind": "cards", "icons": ["ball", "charm", "pin"], "tags": ["$4", "$6", "$3"]}},
+        {"id": "balls", "term": "Ball cards", "text": "Your hand. Tap one to throw it; you draw again every frame. The House Ball is always there besides.",
+          "diagram": {"kind": "cards", "icons": ["ball", "ball", "ball"], "fan": true}},
+        {"id": "pins", "term": "Pins", "text": "Special pins for your rack. Each scores its own way when it falls, or while it stands.",
+          "diagram": {"kind": "rack", "special": [5]}},
+        {"id": "charms", "term": "Charms", "text": "They work on every frame, scoring after the pins, from left to right, so their order matters. Reorder them in the Pro Shop.",
+          "diagram": {"kind": "cards", "icons": ["charm", "charm", "charm"], "order": true}},
+        {"id": "tactical", "term": "Tactical", "text": "One-use cards: each does one thing, once, at the moment its card says.",
+          "diagram": {"kind": "cards", "icons": ["consumable"], "tags": ["Once"]}},
+        {"id": "mods", "term": "Mods", "text": "A ball mod attaches to one of your ball cards; a pin mod goes on a pin in your rack. Either changes how it scores.",
+          "diagram": {"kind": "cards", "icons": ["ball", "pin"], "tags": ["+ mod", "+ mod"]}},
+        {"id": "upgrades", "term": "Upgrades", "text": "Pro Shop improvements kept for the whole run, such as an Extra Shelf of offers.",
+          "diagram": {"kind": "cards", "icons": ["shop_upgrade"], "tags": ["Run"]}},
+        {"id": "kit", "term": "Kit", "text": "The pins, ball cards and money a run starts with. Choose one on the League Board; more unlock as you play.",
+          "diagram": {"kind": "cards", "icons": ["pin", "ball", "money"]}},
+        {"id": "binder", "term": "Binder", "text": "Every item in the game, kept in the Clubhouse: what you have found, and how to unlock the rest.",
+          "diagram": {"kind": "cards", "icons": ["ball", "charm", "pin", "consumable"], "grid": true}},
+        {"id": "goals", "term": "Goals", "text": "Challenges, some across your Career and some within one run. Finishing one earns its ribbon and often unlocks an item.",
+          "diagram": {"kind": "art", "textures": ["res://assets/clubhouse/ribbon.true_curve.png"]}},
+        {"id": "trophies", "term": "Trophies", "text": "Your Clubhouse shelf: League titles, rivals' plaques and Clubhouse upgrades, each celebrated after the run that earned it.",
+          "diagram": {"kind": "art", "textures": ["res://assets/clubhouse/trophy.neon.png", "res://assets/clubhouse/plaque.dj_flicker.png"]}}
+      ]
+    }
+  ]
+}

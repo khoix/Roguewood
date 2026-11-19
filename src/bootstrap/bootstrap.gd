@@ -16,6 +16,7 @@ const TitleScreen = preload("res://src/bootstrap/title_screen.gd")
 const Soundtrack = preload("res://src/presentation/soundtrack.gd")
 const UiSounds = preload("res://src/presentation/ui_sounds.gd")
 const ClubOptions = preload("res://src/clubhouse/clubhouse_options.gd")
+const GlossaryPage = preload("res://src/clubhouse/glossary_page.gd")
 const TutorialCoach = preload("res://src/presentation/tutorial_coach.gd")
 ## UI-13: the tutorial's practice lane always deals the same cards.
 const TUTORIAL_SEED := 7
@@ -64,6 +65,10 @@ var _menu_page := "" # the session menu's page that is open: "throw", "sound" or
 var club_menu: Control
 var club_menu_list: VBoxContainer
 var club_options: ClubOptions
+## UI-24 (owner, 2026-11-19): How to Play offers a choice, the tutorial or Talk the
+## Talk (the words the game uses, with pictures), on a second page of the menu sheet.
+var club_how_list: VBoxContainer
+var club_glossary: GlossaryPage
 var music_duck := 1.0 # the Clubhouse music eases to half under its Options
 ## UI-23 (owner, 2026-11-19): leaving a run for the Clubhouse is a slow fade, about
 ## 3.5 s: the screen and the run's music fade out together (EXIT_OUT), the Clubhouse
@@ -523,11 +528,9 @@ func _build_club_menu() -> void:
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title_label.add_theme_font_size_override("font_size", 30)
 	club_menu_list.add_child(title_label)
-	# UI-13: the tutorial, any time.
-	var how := _button(club_menu_list, "How to Play", "ClubTutorial", 320)
-	how.pressed.connect(func():
-		club_menu.hide()
-		start_tutorial(false))
+	# UI-13: the tutorial, any time; UI-24: beside Talk the Talk, on How to Play's page.
+	var how := _button(club_menu_list, "How to Play", "ClubHowToPlay", 320)
+	how.pressed.connect(show_how_to_play)
 	for entry in [["Throw Settings", "ClubOptions", "throw"], ["Sound & Effects", "ClubSound", "sound"]]:
 		var page: String = entry[2]
 		var button := _button(club_menu_list, entry[0], entry[1], 320)
@@ -536,6 +539,7 @@ func _build_club_menu() -> void:
 			club_options.open(page))
 	var close_button := _button(club_menu_list, "Close", "CloseClubMenu", 320)
 	close_button.pressed.connect(close_club_menu)
+	_build_how_to_play(sheet)
 	club_options = ClubOptions.new()
 	club_options.settings = throw_settings
 	add_child(club_options)
@@ -544,20 +548,80 @@ func _build_club_menu() -> void:
 		club_menu.show()
 		club_menu_list.get_node("ClubSound" if page == "sound" else "ClubOptions").grab_focus())
 
+## UI-24: How to Play's page in the menu sheet: Play Tutorial (the practice lane,
+## UI-13) or Talk the Talk (GlossaryPage); Back returns to the menu's entries.
+func _build_how_to_play(sheet: Control) -> void:
+	club_how_list = VBoxContainer.new()
+	club_how_list.name = "HowToPlay"
+	club_how_list.add_theme_constant_override("separation", 10)
+	club_how_list.hide()
+	sheet.add_child(club_how_list)
+	var heading := Label.new()
+	heading.text = "How to Play"
+	heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	heading.add_theme_font_size_override("font_size", 30)
+	club_how_list.add_child(heading)
+	var tutorial := _button(club_how_list, "Play Tutorial", "ClubPlayTutorial", 320)
+	tutorial.pressed.connect(func():
+		club_menu.hide()
+		_show_club_entries()
+		start_tutorial(false))
+	_how_caption("A guided practice lane")
+	var talk := _button(club_how_list, "Talk the Talk", "ClubTalkTheTalk", 320)
+	talk.pressed.connect(open_glossary)
+	_how_caption("Bowling words, explained with pictures")
+	var back_button := _button(club_how_list, "Back", "HowToPlayBack", 320)
+	back_button.pressed.connect(how_to_play_back)
+	club_glossary = GlossaryPage.new()
+	add_child(club_glossary)
+	club_glossary.closed.connect(func():
+		if screen != "menu": return
+		club_menu.show()
+		show_how_to_play("ClubTalkTheTalk"))
+
+func _how_caption(text: String) -> void:
+	var caption := Label.new()
+	caption.text = text
+	caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	caption.add_theme_font_size_override("font_size", 16)
+	caption.add_theme_color_override("font_color", Color("9aa8a6"))
+	club_how_list.add_child(caption)
+
+## How to Play's page, its focus on `focus` (Play Tutorial by default).
+func show_how_to_play(focus: String = "ClubPlayTutorial") -> void:
+	club_menu_list.hide()
+	club_how_list.show()
+	club_how_list.get_node(focus).grab_focus()
+
+func how_to_play_back() -> void:
+	_show_club_entries()
+	club_menu_list.get_node("ClubHowToPlay").grab_focus()
+
+func _show_club_entries() -> void:
+	club_how_list.hide()
+	club_menu_list.show()
+
+func open_glossary() -> void:
+	club_menu.hide()
+	club_glossary.open(throw_settings)
+
 func open_club_menu() -> void:
 	if screen != "menu": return
+	_show_club_entries()
 	club_menu.show()
-	club_menu_list.get_node("ClubTutorial").grab_focus()
+	club_menu_list.get_node("ClubHowToPlay").grab_focus()
 
 func close_club_menu() -> void:
 	if not club_menu.visible: return
 	club_menu.hide()
+	_show_club_entries()
 	club_menu_button.grab_focus()
 
-## The Clubhouse music eases to half while its Options are open (as a match's music does).
+## The Clubhouse music eases to half while its Options are open (as a match's music
+## does), and while Talk the Talk is (UI-24).
 func _process(delta: float) -> void:
 	if clubhouse_music == null or not clubhouse_music.playing: return
-	var dipped := club_options != null and club_options.is_open()
+	var dipped := (club_options != null and club_options.is_open()) or (club_glossary != null and club_glossary.is_open())
 	music_duck = move_toward(music_duck, 0.5 if dipped else 1.0, delta * 0.5 / 0.4)
 	clubhouse_music.volume_db = Soundtrack.level_db(throw_settings) + linear_to_db(maxf(music_duck * clubhouse_fade, 0.0001))
 
@@ -594,8 +658,14 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif session_menu != null and session_menu.visible and event.is_action_pressed("ui_cancel"):
 		close_menu()
 		get_viewport().set_input_as_handled()
+	elif club_menu != null and club_menu.visible and club_how_list.visible and event.is_action_pressed("ui_cancel"):
+		how_to_play_back() # UI-24: How to Play's page goes back to the menu's entries
+		get_viewport().set_input_as_handled()
 	elif club_menu != null and club_menu.visible and event.is_action_pressed("ui_cancel"):
 		close_club_menu()
+		get_viewport().set_input_as_handled()
+	elif club_glossary != null and club_glossary.is_open() and event.is_action_pressed("ui_cancel"):
+		club_glossary.go_back()
 		get_viewport().set_input_as_handled()
 	elif club_options != null and club_options.is_open() and event.is_action_pressed("ui_cancel"):
 		club_options.go_back()
@@ -715,6 +785,7 @@ func _begin_attempt(attempt: int, saved: Dictionary = {}) -> void:
 	club_menu_button.hide()
 	club_menu.hide()
 	club_options.close()
+	club_glossary.close()
 	_clear_lab()
 	# E22-L02: the League's frame kit for everything the attempt builds, and for the
 	# session menu over it. The lab's own Theme carries the kit to its buttons.

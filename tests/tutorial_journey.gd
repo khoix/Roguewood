@@ -128,10 +128,16 @@ func _gutter() -> void:
 	await _touch(at, false)
 	await _wait_for(func(): return lab.state != "rolling" and lab.state != "aim" or (lab.state == "aim" and lab.roll_index == 2 and lab.lane.state == "ready"), "the gutter ball settles", ROLL_FRAMES)
 
+## UI-24: How to Play, then its Play Tutorial (beside Talk the Talk).
+func _play_tutorial() -> void:
+	await _tap(scene.club_menu_list.get_node("ClubHowToPlay"))
+	_check(scene.club_how_list.visible and scene.club_how_list.get_node("ClubPlayTutorial").text == "Play Tutorial", "How to Play offers Play Tutorial")
+	await _tap(scene.club_how_list.get_node("ClubPlayTutorial"))
+
 ## Losing the practice opener: the coach offers a fresh lane, which starts again at Aim.
 func _lose_and_retry() -> void:
 	await _tap(scene.club_menu_button)
-	await _tap(scene.club_menu_list.get_node("ClubTutorial"))
+	await _play_tutorial()
 	await _wait_for(func(): return scene.coach != null and scene.coach.card_ready(), "How to Play, to lose")
 	coach = scene.coach
 	lab = scene.lab
@@ -185,8 +191,8 @@ func _run() -> void:
 	var career_before: Dictionary = scene.career.duplicate(true)
 	# How to Play, from the Clubhouse menu.
 	await _tap(scene.club_menu_button)
-	_check(scene.club_menu.visible and scene.club_menu_list.get_node("ClubTutorial").text == "How to Play", "the Clubhouse menu offers How to Play")
-	await _tap(scene.club_menu_list.get_node("ClubTutorial"))
+	_check(scene.club_menu.visible and scene.club_menu_list.get_node("ClubHowToPlay").text == "How to Play", "the Clubhouse menu offers How to Play")
+	await _play_tutorial()
 	await _wait_for(func(): return scene.screen == "session" and scene.coach != null, "the tutorial opens")
 	lab = scene.lab
 	coach = scene.coach
@@ -344,14 +350,14 @@ func _run() -> void:
 	await _lose_and_retry()
 	# Skip, from a second How to Play; then reduced motion's still hand.
 	await _tap(scene.club_menu_button)
-	await _tap(scene.club_menu_list.get_node("ClubTutorial"))
+	await _play_tutorial()
 	await _wait_for(func(): return scene.coach != null and scene.coach.card_ready(), "How to Play again")
 	coach = scene.coach
 	await _tap(coach.skip_button)
 	await _wait_for(func(): return scene.screen == "menu" and scene.coach == null, "Skip returns to the Clubhouse")
 	scene.throw_settings.reduced_motion = true
 	await _tap(scene.club_menu_button)
-	await _tap(scene.club_menu_list.get_node("ClubTutorial"))
+	await _play_tutorial()
 	await _wait_for(func(): return scene.coach != null and scene.coach.card_ready(), "How to Play, reduced motion")
 	coach = scene.coach
 	lab = scene.lab
