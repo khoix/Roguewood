@@ -115,7 +115,7 @@
         }
       },
       "design": {
-        "trigger": "During the boss match the Charm in slot 1 (leftmost) is silent: its effects do not apply and do not grow. The other Charms apply in order as usual. An empty slot 1 means nothing is lost.",
+        "trigger": "During the boss match the Charm in slot 1 (leftmost) is silent: Its effects do not apply and do not grow. The other Charms apply in order as usual. An empty slot 1 means nothing is lost.",
         "primitives": [
           "rule.silence_charm_slot"
         ],
@@ -179,7 +179,7 @@
         }
       },
       "design": {
-        "trigger": "In the boss match each frame ends after roll 1: a strike scores as a strike, anything else scores as an open frame with the pins left standing. There are no spares in this match.",
+        "trigger": "In the boss match each frame ends after roll 1: A strike scores as a strike, anything else scores as an open frame with the pins left standing. There are no spares in this match.",
         "primitives": [
           "rule.single_roll"
         ],
@@ -308,7 +308,7 @@
       "id": "boss_rule.narrow_lane",
       "landed_in": "E18-C13",
       "design": {
-        "trigger": "For the boss match each gutter edge moves 2 boards (5.4 cm; a board is 1/39 of the lane) toward the centre: a ball crossing the new edge is a gutter ball. Pins, rack and target ring are unchanged. The rail then carries such a ball into the gutter, and the start position is kept inside the new edges.",
+        "trigger": "For the boss match each gutter edge moves 2 boards (5.4 cm; a board is 1/39 of the lane) toward the centre: A ball crossing the new edge is a gutter ball. Pins, rack and target ring are unchanged. The rail then carries such a ball into the gutter, and the start position is kept inside the new edges.",
         "primitives": [
           "rule.lane_width"
         ],

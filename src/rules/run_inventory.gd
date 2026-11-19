@@ -246,7 +246,7 @@ func pay(amount: int, kind: String, item_id: String = "") -> Array[String]:
 	if amount < 0:
 		errors.append("negative price")
 	elif amount > money:
-		errors.append("insufficient funds: need $%d, have $%d" % [amount, money])
+		errors.append("insufficient funds: Need $%d, have $%d" % [amount, money])
 	if errors.is_empty():
 		money -= amount
 		_record(kind, amount, item_id)

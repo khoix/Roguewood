@@ -58,7 +58,7 @@ static func _nudge(failures: Array[String]) -> void:
 		"Nudge is played before roll 2 only", failures)
 	_expect(not Tactics.blocked("consumable.nudge", _at(2, {"rack": _rack(range(1, 11))})).is_empty() and Tactics.nudge_options(_rack([])).is_empty(),
 		"Nudge needs a fallen neighbouring spot", failures)
-	_expect(Tactics.text({"kind": "relocate_pin", "position": 4, "to": 8}, {}) == "Nudge: pin 4 moved to spot 8 before roll 2.", "Nudge explains the move", failures)
+	_expect(Tactics.text({"kind": "relocate_pin", "position": 4, "to": 8}, {}) == "Nudge: Pin 4 moved to spot 8 before roll 2.", "Nudge explains the move", failures)
 
 static func _reserve_call(content: Dictionary, failures: Array[String]) -> void:
 	var run = Inventory.create(content.catalogue, content.kit.pins, content.kit.deck, int(content.kit.money))

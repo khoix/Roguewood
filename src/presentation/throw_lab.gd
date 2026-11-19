@@ -31,6 +31,7 @@ signal tactic_played(action: Dictionary)
 signal throw_cue(id: String, charge: float)
 ## UI-3: true while the ball rolls and the frame scores (the shell hides its bar).
 signal chrome_compact_changed(compact: bool)
+const Sentence = preload("res://src/presentation/sentence.gd")
 const Lane = preload("res://src/simulation/lane_spec.gd")
 const LaneWorld = preload("res://src/simulation/lane_world.gd")
 const Dressing = preload("res://src/presentation/live_dressing.gd")
@@ -517,12 +518,12 @@ func _tactic_step() -> void:
 	match _tactic.kind:
 		"relocate_pin":
 			if not _tactic.has("position"):
-				text = "Nudge: which standing pin moves?"
+				text = "Nudge: Which standing pin moves?"
 				for option in Tactics.nudge_options(rack):
 					labels.append("Pin %d · %s" % [option.position, name_at.call(run.rack[option.position])])
 					values.append(option.position)
 			else:
-				text = "Nudge: move pin %d to which empty spot?" % _tactic.position
+				text = "Nudge: Move pin %d to which empty spot?" % _tactic.position
 				for option in Tactics.nudge_options(rack):
 					if option.position == _tactic.position:
 						for q in option.to:
@@ -530,7 +531,7 @@ func _tactic_step() -> void:
 							values.append(q)
 		"reserve_swap":
 			if not _tactic.has("reserve"):
-				text = "Reserve Call: which reserve pin plays this frame?"
+				text = "Reserve Call: Which reserve pin plays this frame?"
 				for r in Tactics.reserve_options(run):
 					labels.append("%s · reserve %d" % [name_at.call(run.reserves[r - 1]), r])
 					values.append(r)
@@ -633,7 +634,7 @@ func _refresh_hand() -> void:
 		if state == "frame_done":
 			header = "Keep a card? (optional) · hold or double-tap to inspect" if not division.match_over() else "Match over — the deck recombines and reshuffles"
 		elif cycling:
-			header = "Cycle: tap a card to discard it and draw one"
+			header = "Cycle: Tap a card to discard it and draw one"
 	else:
 		header = "Bag · House always ready · specials %d uses left this match" % counts.special_uses
 	var choosing: bool = state == "aim" or (state == "frame_done" and equipment.can_retain() and not division.match_over())
@@ -1062,7 +1063,7 @@ func _score_frame() -> void:
 	var grown: Array = run.apply_frame(result, built.frame) # growth and the strike streak, banked with the frame
 	for change in run.transformed: # rolled once on the effects stream; saved with the frame below
 		steps.append({"phase": "rule", "symbol": "✕", "pin": int(change.position), "pin_value": steps[-1].pin_value, "mult": steps[-1].mult, "score": banked.score,
-			"text": "%s at %d cracked: now a %s." % [_names.get(change.from, change.from), int(change.position), _names.get(change.into, change.into)]})
+			"text": "%s at %d cracked: Now a %s." % [_names.get(change.from, change.from), int(change.position), _names.get(change.into, change.into)]})
 	Tactics.restore_swaps(run, frame_actions) # a Reserve Call lasts one frame; saved with the frame below
 	var outcome: Dictionary = division.record_frame(banked.score)
 	total_score += int(banked.score)
@@ -1287,7 +1288,7 @@ func _show_result() -> void:
 			var title_won: Dictionary = CareerProfile.record_championship(career, league_entry, career_attempt, _owned_ids(), division.practice)
 			var wins := int(career.championships.get(league_entry.id, {}).get("wins", 0))
 			if title_won.first:
-				lines.append("Champion: first %s title. %s" % [league_entry.name, league_entry.championship.text])
+				lines.append("Champion: First %s title. %s" % [league_entry.name, league_entry.championship.text])
 			elif wins > 1:
 				lines.append("Champion again: %d %s titles (a record, not a repeat unlock)." % [wins, league_entry.name])
 		_save_career()
@@ -1406,7 +1407,7 @@ func _career_lines() -> Array:
 		else:
 			lines.append("Unlocked: %s join%s the shop pool from your next run." % [", ".join(items.map(func(i): return _names.get(i, i))), "s" if items.size() == 1 else ""])
 	if division.practice:
-		lines.append("Practice: discoveries and practice records only; no unlocks or mastery progress.")
+		lines.append("Practice: Discoveries and practice records only; no unlocks or mastery progress.")
 	var goals: Array = CareerProfile.goals(career, career_graph.get("objectives", []), career_attempt)
 	if not goals.is_empty():
 		lines.append("Goals: " + " · ".join(goals.map(func(g): return "%s %d/%d" % [g.name, mini(g.progress, g.threshold), g.threshold])))
@@ -1518,7 +1519,7 @@ func _on_offer(index: int) -> void:
 		return
 	var plan: Dictionary = shop.plan(index, run)
 	if not plan.ok:
-		shop_message = "Can't buy that: %s." % plan.reason
+		shop_message = "Can't buy that: %s." % Sentence.cap(String(plan.reason))
 		_refresh_shop()
 		return
 	var options: Array = plan.placements
@@ -1530,7 +1531,7 @@ func _on_offer(index: int) -> void:
 	var full: bool = options.all(func(o): return not o.replaces.is_empty())
 	var prompt := "Place %s ($%d)" % [item_name, plan.price]
 	if full:
-		prompt = "No free slot for %s ($%d): replace one (it is sold) or Cancel." % [item_name, plan.price]
+		prompt = "No free slot for %s ($%d): Replace one (it is sold) or Cancel." % [item_name, plan.price]
 	elif RunInventory.slot_kind(run.item(plan.item_id).category) == "mod":
 		prompt = "Attach %s ($%d) to:" % [item_name, plan.price]
 	_choice = {"kind": "buy", "index": index, "targets": options.map(func(o): return o.target)}
@@ -1540,7 +1541,7 @@ func _on_offer(index: int) -> void:
 func _finish_buy(index: int, target: String) -> void:
 	var item_id: String = shop.offers[index].item_id
 	var errors: Array[String] = shop.buy(index, target, run)
-	shop_message = ("Bought %s." % _names.get(item_id, item_id)) if errors.is_empty() else "Can't buy that: %s." % ", ".join(errors)
+	shop_message = ("Bought %s." % _names.get(item_id, item_id)) if errors.is_empty() else "Can't buy that: %s." % Sentence.cap(", ".join(errors))
 	if errors.is_empty():
 		_checkpoint("shop") # payment, the item and the sold offer: one transaction
 	_refresh_shop()
@@ -1556,7 +1557,7 @@ func _on_choice(index: int) -> void:
 			var uid: String = choice.targets[index]
 			var removed: String = _names.get(run.cards[uid].item_id, "")
 			var errors: Array[String] = shop.remove_card(uid, run)
-			shop_message = ("Removed %s from the deck." % removed) if errors.is_empty() else "Can't remove: %s." % ", ".join(errors)
+			shop_message = ("Removed %s from the deck." % removed) if errors.is_empty() else "Can't remove: %s." % Sentence.cap(", ".join(errors))
 			if errors.is_empty():
 				_checkpoint("shop")
 			_refresh_shop()
@@ -1572,7 +1573,7 @@ func _on_reroll() -> void:
 	if state != "shop" or not _choice.is_empty():
 		return
 	var errors: Array[String] = shop.reroll(run)
-	shop_message = "New offers." if errors.is_empty() else "Can't reroll: %s." % ", ".join(errors)
+	shop_message = "New offers." if errors.is_empty() else "Can't reroll: %s." % Sentence.cap(", ".join(errors))
 	if errors.is_empty():
 		_checkpoint("shop") # paid and drawn: reloading cannot undo or repeat a reroll
 	_refresh_shop()
@@ -1581,7 +1582,7 @@ func _on_remove() -> void:
 	if state != "shop" or not _choice.is_empty():
 		return
 	if run.money < Economy.REMOVAL_PRICE:
-		shop_message = "Can't remove: insufficient funds."
+		shop_message = "Can't remove: Insufficient funds."
 		_refresh_shop()
 		return
 	var targets: Array = []
@@ -1600,7 +1601,7 @@ func _on_sell(ref: String) -> void:
 	var label := _ref_label(ref)
 	var value: int = run.sale_value(ref)
 	var errors: Array[String] = run.sell(ref)
-	shop_message = ("Sold %s for $%d." % [label, value]) if errors.is_empty() else "Can't sell: %s." % ", ".join(errors)
+	shop_message = ("Sold %s for $%d." % [label, value]) if errors.is_empty() else "Can't sell: %s." % Sentence.cap(", ".join(errors))
 	if errors.is_empty():
 		_checkpoint("shop")
 	_refresh_shop()
@@ -1610,7 +1611,7 @@ func _on_charm_moved(slot: int) -> void:
 	if state != "shop" or not _choice.is_empty():
 		return
 	var errors: Array[String] = run.move_charm_left(slot)
-	shop_message = ("Moved %s to Charm slot %d." % [_names.get(run.charms[slot - 2].item_id, ""), slot - 1]) if errors.is_empty() else "Can't move: %s." % ", ".join(errors)
+	shop_message = ("Moved %s to Charm slot %d." % [_names.get(run.charms[slot - 2].item_id, ""), slot - 1]) if errors.is_empty() else "Can't move: %s." % Sentence.cap(", ".join(errors))
 	if errors.is_empty():
 		_checkpoint("shop")
 	_refresh_shop()
@@ -1619,7 +1620,7 @@ func _on_charm_moved(slot: int) -> void:
 ## rival, its rule and the first-clear reward.
 func _next_match_preview() -> String:
 	if division.practice:
-		return "Next: another practice match (no target)."
+		return "Next: Another practice match (no target)."
 	var next: Dictionary = division.upcoming()
 	var where := "Division %d " % int(next.division) if division.division_count() > 1 else ""
 	var text := "Next: %s%s — target %d in two frames." % [where, next.match.name, int(next.match.target)]
@@ -1637,7 +1638,7 @@ func _next_match_preview() -> String:
 ## UI-5b: the shop's one-line preview. The boss's rule is behind the ⓘ on the bar.
 func _next_match_short() -> String:
 	if division.practice:
-		return "Next: a practice match"
+		return "Next: A practice match"
 	var next: Dictionary = division.upcoming()
 	var where := "Division %d " % int(next.division) if division.division_count() > 1 else ""
 	var text := "Next: %s%s · target %d" % [where, next.match.name, int(next.match.target)]
@@ -1689,7 +1690,7 @@ func _choice_visual(option: Dictionary, item_id: String, verb: String = "") -> D
 	if is_mod and entry != null: # UI-13: the result, as the preview shows it
 		then = "After: %s + %s" % [_names.get(entry.item_id, entry.item_id), _names.get(item_id, item_id)]
 	return {"target": target, "item_id": entry.item_id if entry != null else item_id, "mod": String(entry.mod) if entry != null else "",
-		"caption": caption, "detail": "%s · now: %s\n%s" % [place, now, then], "verb": verb,
+		"caption": caption, "detail": "%s · now: %s\n%s" % [place, Sentence.cap(now), then], "verb": verb,
 		"placing": item_id if verb != "Remove" else "", "placing_mod": is_mod} # UI-13: previewed on the picked place
 
 ## The ten pins for the placement map: {item_id, mod} by position.
@@ -1766,7 +1767,7 @@ func _refresh_shop() -> void:
 	var rack_text := "Rack: " + ", ".join(pins)
 	if not common.is_empty() and counts[common] >= 3:
 		var others: Array = pins.filter(func(entry): return entry.substr(entry.find(" ") + 1) != common)
-		rack_text = "Rack: " + (("all %d %s" % [counts[common], common]) if others.is_empty() else ", ".join(others) + ", the other %d %s" % [counts[common], common])
+		rack_text = "Rack: " + (("All %d %s" % [counts[common], common]) if others.is_empty() else ", ".join(others) + ", the other %d %s" % [counts[common], common])
 	var reserves: Array = run.reserves.map(func(e): return "empty" if e == null else _names.get(e.item_id, ""))
 	rack_text += "\nReserves: " + ", ".join(reserves) + " · Charms %d/%d · Deck %d/%d" % [run.charms.size(), RunInventory.CHARM_SLOTS, run.cards.size(), RunInventory.DECK_CAP]
 	if not run.upgrades.is_empty():
@@ -1787,10 +1788,10 @@ func _refresh_shop() -> void:
 				"item_id": entry.item_id, "mod": String(entry.mod), "name": item.get("name", entry.item_id), "value": run.sale_value(owned.ref),
 				"place": place, "text": _effect_text(item),
 				"detail": "%s%s · %s · sells for $%d" % [item.get("name", entry.item_id), with_mod, place, run.sale_value(owned.ref)]})
-	var summary := "Match %d paid: payout $%d · interest $%d (on $%d held) · item income $%d" % [settlement.match, settlement.payout,
+	var summary := "Match %d paid: Payout $%d · interest $%d (on $%d held) · item income $%d" % [settlement.match, settlement.payout,
 		settlement.interest, settlement.balance_before, settlement.item_income]
 	if Upgrades.owned(run, "interest_cap"):
-		summary += " · Savings Book: interest cap $%d" % (Economy.INTEREST_CAP + Upgrades.INTEREST_BONUS)
+		summary += " · Savings Book: Interest cap $%d" % (Economy.INTEREST_CAP + Upgrades.INTEREST_BONUS)
 	shop_panel.show_view({"title": "Pro Shop", "summary": summary, "preview": _next_match_preview(), "preview_short": _next_match_short(), "money": run.money, "offers": offers,
 		"reroll_cost": shop.reroll_cost(run), "can_reroll": run.money >= shop.reroll_cost(run),
 		"removal_price": Economy.REMOVAL_PRICE, "can_remove": run.money >= Economy.REMOVAL_PRICE and not run.cards.is_empty(),
@@ -2011,9 +2012,9 @@ func _compose_status() -> void:
 			else:
 				status.text = lead + "\nHold the ball, swirl to curve, flick up · tap the lane to aim"
 			if spin_disabled():
-				status.text += "\nDead Straight: spin is disabled — every throw rolls straight."
+				status.text += "\nDead Straight: Spin is disabled — every throw rolls straight."
 			if not RivalRules.ball_allowed(active_rules(), "ball.hook"):
-				status.text += "\nHouse Rules: only the House Ball may be thrown; tactical cards are allowed."
+				status.text += "\nHouse Rules: Only the House Ball may be thrown; tactical cards are allowed."
 			for rule in active_rules():
 				if RivalRules.kind(rule) in ["hook_scale", "lane_width", "ring_scale", "no_item_income", "pin_value_scale", "no_mods"]:
 					status.text += "\n" + RivalRules.summary(rule).replace(" — ", ": ")
@@ -2022,7 +2023,7 @@ func _compose_status() -> void:
 			for action in frame_actions:
 				status.text += "\n" + Tactics.text(action, _names)
 			if last_cancel == "house_rules":
-				status.text += "\nHouse Rules: that ball cannot be thrown here."
+				status.text += "\nHouse Rules: That ball cannot be thrown here."
 			elif last_cancel == "tactic":
 				status.text += "\n" + _tactic_note
 			elif not last_cancel.is_empty():

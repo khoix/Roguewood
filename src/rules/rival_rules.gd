@@ -137,18 +137,18 @@ static func bank(rule_ids: Array, result: Dictionary) -> Dictionary:
 		match kind(rule_id):
 			"clean_sweep":
 				if result.category == "open":
-					notes.append("Clean Sweep: an open frame banks nothing (%d → 0)" % score)
+					notes.append("Clean Sweep: An open frame banks nothing (%d → 0)" % score)
 					score = 0
 			"plain_rack":
-				notes.append("House Pins: every pin was scored as plain Wood")
+				notes.append("House Pins: Every pin was scored as plain Wood")
 			"pin_value_scale":
-				notes.append("Dull Pins: every pin's Value was halved")
+				notes.append("Dull Pins: Every pin's Value was halved")
 			"no_mods":
-				notes.append("Rust: every modification was switched off")
+				notes.append("Rust: Every modification was switched off")
 			"no_item_income":
 				var kept := int(paid(rule_ids, result).kept)
 				if kept > 0:
-					notes.append("Frugal House: item payouts paid nothing ($%d kept by the house)" % kept)
+					notes.append("Frugal House: Item payouts paid nothing ($%d kept by the house)" % kept)
 	return {"score": score, "notes": notes}
 
 static func summary(rule_id: String) -> String:
@@ -162,7 +162,7 @@ static func summary(rule_id: String) -> String:
 		"plain_rack":
 			return "House Pins — every pin scores as plain Wood; materials are off, modifications stay."
 		"hook_scale":
-			return "Oil Slick — every hook is halved: the same charge curves half as far."
+			return "Oil Slick — every hook is halved: The same charge curves half as far."
 		"lane_width":
 			return "Narrow Lane — each gutter edge is two boards in; crossing it is a gutter ball."
 		"ring_scale":

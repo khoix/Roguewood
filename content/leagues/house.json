@@ -105,7 +105,7 @@
           "name": "The Surveyor",
           "initials": "TS",
           "rule": "boss_rule.dead_straight",
-          "intro": "Every line measured, every angle true. The Surveyor allows no charged spin: each ball rolls exactly where it is aimed, so placement and straight-line equipment win this lane.",
+          "intro": "Every line measured, every angle true. The Surveyor allows no charged spin: Each ball rolls exactly where it is aimed, so placement and straight-line equipment win this lane.",
           "first_clear": {
             "unlocks": [
               "gate.surveyor_cleared"
@@ -159,7 +159,7 @@
           "name": "The Custodian",
           "initials": "TC",
           "rule": "boss_rule.clean_sweep",
-          "intro": "Every lane spotless, every frame finished. The Custodian banks only clean work: strikes and spares. Leave a pin standing and the frame is swept away.",
+          "intro": "Every lane spotless, every frame finished. The Custodian banks only clean work: Strikes and spares. Leave a pin standing and the frame is swept away.",
           "first_clear": {
             "unlocks": [
               "gate.custodian_cleared"
@@ -266,7 +266,7 @@
           "name": "Old Lou",
           "initials": "OL",
           "rule": "boss_rule.house_pins",
-          "intro": "Forty years on these lanes and Old Lou still racks the pins himself. In his match every pin plays as plain Wood: materials switch off, so your Charms, balls and modifications have to make the score.",
+          "intro": "Forty years on these lanes and Old Lou still racks the pins himself. In his match every pin plays as plain Wood: Materials switch off, so your Charms, balls and modifications have to make the score.",
           "first_clear": {
             "unlocks": [
               "gate.old_lou_cleared"
@@ -319,7 +319,7 @@
           "name": "The Surveyor",
           "initials": "TS",
           "rule": "boss_rule.dead_straight",
-          "intro": "Every line measured, every angle true. The Surveyor allows no charged spin: each ball rolls exactly where it is aimed, so placement and straight-line equipment win this lane.",
+          "intro": "Every line measured, every angle true. The Surveyor allows no charged spin: Each ball rolls exactly where it is aimed, so placement and straight-line equipment win this lane.",
           "first_clear": {
             "unlocks": [
               "gate.surveyor_cleared"
@@ -426,7 +426,7 @@
           "name": "Old Lou",
           "initials": "OL",
           "rule": "boss_rule.house_pins",
-          "intro": "Forty years on these lanes and Old Lou still racks the pins himself. In his match every pin plays as plain Wood: materials switch off, so your Charms, balls and modifications have to make the score.",
+          "intro": "Forty years on these lanes and Old Lou still racks the pins himself. In his match every pin plays as plain Wood: Materials switch off, so your Charms, balls and modifications have to make the score.",
           "first_clear": {
             "unlocks": [
               "gate.old_lou_cleared"
@@ -484,7 +484,7 @@
             "boss_rule.house_rules"
           ],
           "of": "rival.custodian",
-          "intro": "The Custodian defends the House title with the Proprietor's blessing: only strikes and spares bank, and you throw the House Ball only. Every frame must be clean, with no special ball to fall back on.",
+          "intro": "The Custodian defends the House title with the Proprietor's blessing: Only strikes and spares bank, and you throw the House Ball only. Every frame must be clean, with no special ball to fall back on.",
           "first_clear": {
             "unlocks": [
               "gate.house_champion_cleared"

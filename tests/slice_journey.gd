@@ -434,7 +434,7 @@ func _division_two() -> void:
 	await _aim()
 	await _throw(GUTTER)
 	var open := await _scored()
-	_check(open.result.category == "open" and open.result.score > 0 and open.banked == 0 and _log_lines().any(func(l): return l.contains("Clean Sweep: an open frame banks nothing")),
+	_check(open.result.category == "open" and open.result.score > 0 and open.banked == 0 and _log_lines().any(func(l): return l.contains("Clean Sweep: An open frame banks nothing")),
 		"Clean Sweep banks the open frame as 0 and says so")
 	await _capture("slice_clean_sweep")
 	await _focus_accept(lab.next_rack)

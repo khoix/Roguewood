@@ -264,7 +264,7 @@ func _first_attempt() -> void:
 	await _throw(GUTTER)
 	var open := await _scored()
 	var lines: Array = lab.score_panel.log_list.get_children().map(func(c): return c.text)
-	_check(open.result.category == "open" and open.result.score > 0 and open.banked == 0 and lines.any(func(l): return l.contains("Clean Sweep: an open frame banks nothing")),
+	_check(open.result.category == "open" and open.result.score > 0 and open.banked == 0 and lines.any(func(l): return l.contains("Clean Sweep: An open frame banks nothing")),
 		"Clean Sweep banks the open frame as 0 and says so")
 	_check(open.match_over and not open.match_won and lab.division.outcome == "lost" and lab.next_rack.text == "See Result", "560 of 800: the boss is lost")
 	_check(_says(lab.division.rival(), "victorious", lab.hud.last_line), "the rival reacts to winning")

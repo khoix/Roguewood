@@ -49,7 +49,7 @@ func _run() -> void:
 		# E15: the championship is banked in the Career at once, with its title gate.
 		var title: Dictionary = scene.career.championships.get("league.house_campaign", {})
 		_check(int(title.get("wins", 0)) == 1 and "gate.house_campaign_champion" in scene.career.unlocked
-			and lab.hud.result_body.text.contains("Champion: first House Campaign title"), "the first campaign title is banked and announced")
+			and lab.hud.result_body.text.contains("Champion: First House Campaign title"), "the first campaign title is banked and announced")
 		var saved: Dictionary = scene.store.read("career")
 		_check(saved.ok and int(saved.payload.championships["league.house_campaign"].wins) == 1, "the title is on disk before the result")
 		await _capture("campaign_won")

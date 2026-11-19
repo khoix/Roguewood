@@ -69,7 +69,7 @@
       "id": "shop_upgrade.savings_book",
       "landed_in": "E18-C07",
       "design": {
-        "trigger": "Raises the interest cap from $3 to $5: interest still pays $1 per $5 held when a match ends, now up to $5.",
+        "trigger": "Raises the interest cap from $3 to $5: Interest still pays $1 per $5 held when a match ends, now up to $5.",
         "primitives": [
           "economy.interest_cap"
         ],
@@ -109,7 +109,7 @@
       "id": "shop_upgrade.spotlight_sign",
       "landed_in": "E18-C07",
       "design": {
-        "trigger": "Uncommon and rare offers come up more often: rarity odds become common 40%, uncommon 38%, rare 18%, epic 4% (from 55/30/12/3), from the next stock onward.",
+        "trigger": "Uncommon and rare offers come up more often: Rarity odds become common 40%, uncommon 38%, rare 18%, epic 4% (from 55/30/12/3), from the next stock onward.",
         "primitives": [
           "shop.rarity_shift"
         ],

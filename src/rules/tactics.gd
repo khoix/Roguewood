@@ -21,9 +21,9 @@ static func kind(item_id: String) -> String:
 ## What the card does, for cards and shop offers ("" for other items).
 static func describe(item_id: String) -> String:
 	match kind(item_id):
-		"relocate_pin": return "Before roll 2: move a standing pin to an adjacent empty spot"
-		"reserve_swap": return "Before roll 1: a reserve pin plays at a rack position this frame"
-		"waive_rule": return "Boss match: the rival's rules are off for this frame"
+		"relocate_pin": return "Before roll 2: Move a standing pin to an adjacent empty spot"
+		"reserve_swap": return "Before roll 1: A reserve pin plays at a rack position this frame"
+		"waive_rule": return "Boss match: The rival's rules are off for this frame"
 	return ""
 
 ## Why a tactic cannot be played now ("" when it can). at: {roll_index, thrown (rolls
@@ -34,19 +34,19 @@ static func blocked(item_id: String, at: Dictionary) -> String:
 			if int(at.roll_index) != 2:
 				return "Nudge is played before roll 2."
 			if nudge_options(at.rack).is_empty():
-				return "Nudge: no standing pin has an empty neighbouring spot."
+				return "Nudge: No standing pin has an empty neighbouring spot."
 		"reserve_swap":
 			if int(at.roll_index) != 1 or int(at.thrown) > 0:
 				return "Reserve Call is played at the start of a frame, before roll 1."
 			if reserve_options(at.run).is_empty():
 				return "Reserve Call needs a pin in reserve."
 			if at.actions.any(func(a): return a.kind == "reserve_swap"):
-				return "Reserve Call: a reserve pin is already in this frame's rack."
+				return "Reserve Call: A reserve pin is already in this frame's rack."
 		"waive_rule":
 			if not at.boss or at.rules.is_empty():
 				return "Rule Waiver is only played in a boss match."
 			if waived(at.actions):
-				return "Rule Waiver: the rules are already waived this frame."
+				return "Rule Waiver: The rules are already waived this frame."
 		_:
 			return "not an instant tactic"
 	return ""
@@ -109,7 +109,7 @@ static func active_rules(rules: Array, actions: Array) -> Array:
 static func text(action: Dictionary, names: Dictionary) -> String:
 	match action.kind:
 		"relocate_pin":
-			return "Nudge: pin %d moved to spot %d before roll 2." % [int(action.position), int(action.to)]
+			return "Nudge: Pin %d moved to spot %d before roll 2." % [int(action.position), int(action.to)]
 		"reserve_swap":
 			return "Reserve Call: %s played at position %d this frame; %s waited in reserve %d." % [
 				names.get(action.called, action.called), int(action.position), names.get(action.displaced, action.displaced), int(action.reserve)]

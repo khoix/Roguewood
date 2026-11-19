@@ -51,7 +51,7 @@
       "id": "consumable.hook_shot",
       "landed_in": "E18-C17",
       "design": {
-        "trigger": "Played with a throw: that roll's charge hooks 1.5× as far, on top of the ball and any modification. The card is spent with the throw, whatever it knocks down.",
+        "trigger": "Played with a throw: That roll's charge hooks 1.5× as far, on top of the ball and any modification. The card is spent with the throw, whatever it knocks down.",
         "primitives": [
           "tactical.hook_scale"
         ],

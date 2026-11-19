@@ -167,7 +167,7 @@ func _feature() -> void:
 		str(reports.map(func(r): return r.roll_result.fallen_positions)), called_pin, pin, spot])
 	_check(built.ok and scored.banked == expected.score and scored.frame.pins.any(func(p): return int(p.position) == 1 and p.item_id == called_pin),
 		"the frame banks the independent resolution with %s at position 1 (%d vs %d)" % [called_pin, scored.banked, expected.score])
-	_check(_logged("Reserve Call: ") and _logged("Nudge: pin %d moved to spot %d" % [pin, spot]), "the explanation names both tactics")
+	_check(_logged("Reserve Call: ") and _logged("Nudge: Pin %d moved to spot %d" % [pin, spot]), "the explanation names both tactics")
 	_check(lab.run.rack[1].item_id == wood.item_id and lab.run.reserves[0].item_id == called_pin and lab.frame_actions[0].restored, "after the frame both pins are back in place")
 	await _capture("c06_feature_frame")
 	while not lab.division.match_over():

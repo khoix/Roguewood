@@ -35,7 +35,7 @@ static func describe(item_id: String) -> String:
 		"discount": return "Offers cost $%d less (min $%d) · kept" % [DISCOUNT, MIN_PRICE]
 		"interest_cap": return "Interest cap $%d → $%d · kept" % [Economy.INTEREST_CAP, Economy.INTEREST_CAP + INTEREST_BONUS]
 		"extra_offer": return "+1 shop offer, any category · kept"
-		"rarity_shift": return "Rarer offers: uncommon %d%%, rare %d%% · kept" % [SPOTLIGHT_WEIGHTS.uncommon, SPOTLIGHT_WEIGHTS.rare]
+		"rarity_shift": return "Rarer offers: Uncommon %d%%, rare %d%% · kept" % [SPOTLIGHT_WEIGHTS.uncommon, SPOTLIGHT_WEIGHTS.rare]
 		"sell_bonus": return "Sales return $%d more · kept" % SELL_BONUS
 		"specialist_offer": return "+1 offer from the League's specialists · kept"
 	return ""

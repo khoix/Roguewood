@@ -90,7 +90,7 @@
           "charges": 0,
           "exhaustion": "cycle"
         },
-        "downside": "Gives up the front hit: the first pin it meets is passed through, so ordinary pocket entries lose their carry.",
+        "downside": "Gives up the front hit: The first pin it meets is passed through, so ordinary pocket entries lose their carry.",
         "synergy_tags": [
           "precision",
           "phase",
@@ -117,7 +117,7 @@
         }
       },
       "design": {
-        "trigger": "The first standing pin the ball touches in its roll is passed through: no contact force either way, and the ball does not knock it down (it may still fall from other pins). When that contact ends the ball is solid for the rest of the roll. Once per roll.",
+        "trigger": "The first standing pin the ball touches in its roll is passed through: No contact force either way, and the ball does not knock it down (it may still fall from other pins). When that contact ends the ball is solid for the rest of the roll. Once per roll.",
         "primitives": [
           "physics.phase_first_contact"
         ],
@@ -183,7 +183,7 @@
         }
       },
       "design": {
-        "trigger": "When the ball crosses the arrows line (4.57 m past the foul line) it splits into two balls, each 0.55× the original mass, diverging ±4° from its heading and keeping its spin. Both halves are the same roll: each pin either knocks down is credited once to that roll. A ball already in a gutter before the line does not split. Split point, mass and angle are provisional (E24).",
+        "trigger": "When the ball crosses the arrows line (4.57 m past the foul line) it splits into two balls, each 0.55× the original mass, diverging ±4° from its heading and keeping its spin. Both halves are the same roll: Each pin either knocks down is credited once to that roll. A ball already in a gutter before the line does not split. Split point, mass and angle are provisional (E24).",
         "primitives": [
           "physics.split_ball"
         ],
@@ -220,7 +220,7 @@
           "charges": 0,
           "exhaustion": "cycle"
         },
-        "downside": "Lighter (0.85× mass): weaker collisions and fewer strikes.",
+        "downside": "Lighter (0.85× mass): Weaker collisions and fewer strikes.",
         "synergy_tags": [
           "economy",
           "gold"
@@ -295,7 +295,7 @@
           "charges": 0,
           "exhaustion": "none"
         },
-        "downside": "Rack-order puzzle: worth only its +10 if it falls first or right after a plain pin.",
+        "downside": "Rack-order puzzle: Worth only its +10 if it falls first or right after a plain pin.",
         "synergy_tags": [
           "echo",
           "rack_order",
@@ -458,7 +458,7 @@
       "id": "consumable.nudge",
       "landed_in": "E18-C06",
       "design": {
-        "trigger": "Play before roll 2: choose one standing pin and move it to an adjacent rack spot whose pin has fallen, then throw. The moved pin keeps its material and modification. Exhausted for the run.",
+        "trigger": "Play before roll 2: Choose one standing pin and move it to an adjacent rack spot whose pin has fallen, then throw. The moved pin keeps its material and modification. Exhausted for the run.",
         "primitives": [
           "tactical.relocate_pin"
         ],
@@ -478,7 +478,7 @@
       "id": "consumable.reserve_call",
       "landed_in": "E18-C06",
       "design": {
-        "trigger": "Play at the start of a frame, before roll 1: swap one reserve pin into a chosen rack position for this frame only. The displaced pin waits in that reserve slot and both return to their places after the frame. Exhausted for the run.",
+        "trigger": "Play at the start of a frame, before roll 1: Swap one reserve pin into a chosen rack position for this frame only. The displaced pin waits in that reserve slot and both return to their places after the frame. Exhausted for the run.",
         "primitives": [
           "tactical.reserve_swap"
         ],
@@ -498,7 +498,7 @@
       "id": "consumable.rule_waiver",
       "landed_in": "E18-C06",
       "design": {
-        "trigger": "Play before a throw in a boss match: the rival's rule does not apply for the rest of the current frame. Dead Straight allows charged spin; Clean Sweep banks that frame as scored even if it is open. Exhausted for the run.",
+        "trigger": "Play before a throw in a boss match: The rival's rule does not apply for the rest of the current frame. Dead Straight allows charged spin; Clean Sweep banks that frame as scored even if it is open. Exhausted for the run.",
         "primitives": [
           "tactical.waive_rule"
         ],

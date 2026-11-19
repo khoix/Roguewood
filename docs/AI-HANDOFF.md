@@ -427,6 +427,7 @@ Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build`
 - **Full CI matrix (local) on `b97ebf3`** (UI-24 and UI-25): 250 of 252 commands PASS; the two J01 runs failed because J01 gave the Clubhouse 2 s and UI-25's fade out takes 3.3 s. J01 now waits up to 6 s (`6bb8b3a`) and passes headless and rendered; with UI-26, unit, J01 and J05 pass again.
 - **PR #49 merged** (owner, 2026-11-19; main `69a5af8`): UI-24, UI-25 and UI-26.
 - **UI-27 DONE** (handoffs/UI-27.md), owner 2026-11-19: Talk the Talk scrolls from anywhere (rows and Next pass drags, as the Binder's cards), its tabs are the Clubhouse's segmented tabs, and a tapped word opens large in an overlay (Close, a tap outside or Escape). J11 checks it.
+- **UI-28 DONE** (handoffs/UI-28.md), owner 2026-11-19: the first word after a colon starts with a capital throughout the player-facing text (125 content strings, 40 code strings, and `Sentence.cap()` for text inserted after a colon at run time); developer-only messages unchanged.
 - **Next:**
   - Codex's AV-N4, AV-N5 and UI-A6 (AV-T02, AV-T03, UI-A7 and AV-N3 are merged), then UI-A9-H, and the proposed AV-UI1 (the final button sounds);
   - then the full matrix and the "Wave 14 closed" commit.

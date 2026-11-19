@@ -84,7 +84,7 @@ static func _dull(failures: Array[String]) -> void:
 	var event: Dictionary = dull.events.filter(func(e): return e.get("op", "") == "add_value")[0] if dull.ok else {}
 	_expect(event.get("amount", 0.0) == 5.0 and event.get("dulled_from", 0.0) == 10.0, "the event keeps the full amount it was dulled from", failures)
 	var steps := ScoreLog.steps(dull, _frame([_roll(1, all)], _pins(), [], [DULL]))
-	_expect(steps.any(func(s): return String(s.text).contains("Dull Pins: half of 10")), "the log marks each halved step", failures)
+	_expect(steps.any(func(s): return String(s.text).contains("Dull Pins: Half of 10")), "the log marks each halved step", failures)
 	_expect(not RivalRules.bank([DULL], dull).notes.is_empty() and RivalRules.bank([DULL], dull).score == 360, "Dull Pins banks the dulled score, with a rule line", failures)
 	var bad := _frame([_roll(1, all)])
 	bad.context["pin_value_scale"] = 1.5
