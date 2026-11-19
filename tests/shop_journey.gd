@@ -299,8 +299,9 @@ func _offers_and_purchase() -> void:
 	for i in 3: await process_frame
 	_check(panel.offer_sheet.visible and run.money == money and run.charms.is_empty(), "opening an offer buys nothing")
 	_check(panel.offer_title.text == run.item(bought).name and panel.buy_button.text == "Buy $%d" % price and panel.buy_button.has_focus()
-		and not panel.offer_detail.text.is_empty() and panel.offer_card.item_id == bought and panel.offer_price.text.contains("you have $%d" % money),
+		and not panel.offer_detail.text.is_empty() and panel.offer_card.item_id == bought and panel.offer_price.text == "$%d" % price and panel.offer_price.get_global_rect().get_center().x > panel.offer_title.get_global_rect().get_center().x,
 		"the opened offer shows the card, its text, its price and Buy")
+	await _capture("offer")
 	_check(panel.offer_sheet.get_global_rect().end.x <= lab.size.x and panel.offer_sheet.get_global_rect().end.y <= lab.size.y and panel.offer_sheet.position.x >= 0.0,
 		"the offer sheet fits the screen (%s in %s)" % [str(panel.offer_sheet.get_global_rect()), str(lab.size)])
 	_check(panel.offer_sheet.get_global_rect().position.y >= 0.0, "the offer sheet starts on the screen")

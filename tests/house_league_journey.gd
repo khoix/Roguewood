@@ -175,7 +175,8 @@ func _title() -> void:
 
 func _tournament() -> void:
 	await _focus_accept(lab.hud.menu_button)
-	await _wait_for(func(): return scene.screen == "menu", "back to the menu")
+	await _through_awards()
+	await _wait_for(func(): return scene.screen == "menu", "back to the menu", 400)
 	_check(not scene.kit.is_item_disabled(1) and scene.kit.get_item_text(1) == "Tournament Kit", "the title opens the Tournament Kit")
 	scene.kit.grab_focus()
 	await _action("ui_accept")

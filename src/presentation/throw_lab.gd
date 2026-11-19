@@ -202,6 +202,7 @@ var _content: Dictionary = {}
 var aim_magnifier: Control # UI-14
 var alley_screen: Control # UI-20: celebrations in the magnifier's window
 var award_ceremony: Control # UI-22: what a run earned, presented when it ends
+var _pending_awards: Dictionary = {} # UI-25: shown when the player leaves the result sheet
 
 func _ready() -> void:
 	SettingsPanel.with_defaults(settings)
@@ -363,7 +364,7 @@ func _ready() -> void:
 	hud.layout(TOP_UI_HEIGHT, TOP_UI_HEIGHT + 300.0)
 	resized.connect(_layout_resolution)
 	hud.intro_done.connect(_on_intro_done)
-	hud.retry_pressed.connect(func(): retry_requested.emit())
+	hud.retry_pressed.connect(_leave_for_new_run)
 	hud.menu_pressed.connect(func(): menu_requested.emit())
 	settings_panel = SettingsPanel.new()
 	settings_panel.settings = settings
@@ -1306,21 +1307,45 @@ func _show_result() -> void:
 	_checkpoint("division_over")
 	hud.show_result(title, _result_view.body, _result_view.won, _retry_label(), _result_view.sections)
 	hud.endless_button.visible = _can_endless()
-	_present_awards()
+	_queue_awards()
 	_update_status()
 	attempt_finished.emit(division.outcome)
 
-## UI-22: when the run earned a trophy or moved a goal, the ceremony plays over the
-## result sheet first (never in the tutorial, or for a restored result).
-func _present_awards() -> void:
+## UI-22: when the run earned a trophy or moved a goal, the award ceremony presents
+## it (never in the tutorial, or for a restored result). UI-25 (owner, 2026-11-19):
+## it follows the result sheet ("League's End"), playing when the player leaves it.
+func _queue_awards() -> void:
+	_pending_awards = {}
 	if award_ceremony == null or content.get("id", "") == "tutorial":
 		return
 	var awards: Dictionary = RunAwards.for_run(career, career_graph, career_attempt)
 	if RunAwards.is_empty(awards):
 		return
 	var league_name := String(content.get("name", "League"))
-	award_ceremony.present(awards, {"league_id": String(content.get("league_id", "")), "run": attempt,
-		"title": "Run %d · %s · %s" % [attempt, league_name, "Champion" if division.outcome == "won" else "Run complete"]})
+	_pending_awards = {"awards": awards, "context": {"league_id": String(content.get("league_id", "")), "run": attempt,
+		"title": "Run %d · %s · %s" % [attempt, league_name, "Champion" if division.outcome == "won" else "Run complete"]}}
+
+## The run's awards are waiting for the player to leave the result sheet.
+func awards_pending() -> bool:
+	return not _pending_awards.is_empty()
+
+## UI-25: plays the waiting ceremony over the result sheet and returns when its
+## Continue is pressed; it stays on screen, with its music, for what follows.
+func present_pending_awards() -> void:
+	if _pending_awards.is_empty(): return
+	var pending := _pending_awards
+	_pending_awards = {}
+	award_ceremony.present(pending.awards, pending.context, true)
+	await award_ceremony.finished
+
+## The result sheet's New Run (or Retry): the ceremony first, when there is one.
+func _leave_for_new_run() -> void:
+	if award_ceremony != null and award_ceremony.visible: return
+	if awards_pending():
+		await present_pending_awards()
+		award_ceremony.fade_music(0.4) # eases out as the next run is built
+		await get_tree().create_timer(0.4).timeout
+	retry_requested.emit()
 
 ## UI-8: the result sheet's sections (DivisionHud._build_sections), from the same
 ## facts as its full text: the outcome in one line, the attempt's numbers, every

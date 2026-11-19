@@ -30,7 +30,9 @@ func _run() -> void:
 	_ui9_board()
 	# The owner's soundtrack (2026-11-16): the Clubhouse has its own music.
 	_check(scene.clubhouse_music != null and scene.clubhouse_music.playing and scene.clubhouse_music.stream.resource_path.ends_with("clubhouse.ogg"), "the Clubhouse music plays")
-	if stage == 1: await _ui12_menu()
+	if stage == 1:
+		await _ui12_menu()
+		await _ui24_how_to_play()
 	match stage:
 		1: await _stage_one_clubhouse()
 		2: await _stage_two_clubhouse()
@@ -114,6 +116,101 @@ func _ui12_menu() -> void:
 	await _tap(scene.clubhouse.tab_buttons.board)
 	_check(scene.ui_sounds.played == taps + 1 and scene.ui_sounds.last_kind == "select", "a tab tap makes the select sound")
 
+## UI-24 (owner, 2026-11-19): How to Play offers Play Tutorial (JTUT plays it) or
+## Talk the Talk, the words the game uses, each with its picture, tab by tab; its
+## pictures of a throw follow the player's hand; Back and Escape step back a page.
+func _ui24_how_to_play() -> void:
+	var Glossary = load("res://src/clubhouse/glossary.gd")
+	_check(Glossary.validate(Glossary.data()).is_empty(), "the glossary is valid: %s" % str(Glossary.validate(Glossary.data())))
+	await _tap(scene.club_menu_button)
+	var entries: Array = scene.club_menu_list.get_children().filter(func(c): return c is Button).map(func(c): return c.text)
+	_check(entries == ["How to Play", "Throw Settings", "Sound & Effects", "Close"] and scene.club_menu_list.get_node("ClubHowToPlay").has_focus(),
+		"the Clubhouse menu still leads with How to Play")
+	await _tap(scene.club_menu_list.get_node("ClubHowToPlay"))
+	var how: VBoxContainer = scene.club_how_list
+	var choices: Array = how.get_children().filter(func(c): return c is Button).map(func(c): return c.text)
+	_check(scene.club_menu.visible and how.visible and not scene.club_menu_list.visible and choices == ["Play Tutorial", "Talk the Talk", "Back"]
+		and how.get_node("ClubPlayTutorial").has_focus(), "How to Play offers Play Tutorial and Talk the Talk (%s)" % str(choices))
+	await _capture("how_to_play")
+	await _action("ui_cancel")
+	_check(scene.club_menu.visible and scene.club_menu_list.visible and not how.visible and scene.club_menu_list.get_node("ClubHowToPlay").has_focus(),
+		"Escape on How to Play returns to the menu's entries")
+	await _tap(scene.club_menu_list.get_node("ClubHowToPlay"))
+	await _tap(how.get_node("HowToPlayBack"))
+	_check(scene.club_menu.visible and scene.club_menu_list.visible and not how.visible and scene.ui_sounds.last_kind == "back", "Back on How to Play returns to the menu, with the back sound")
+	await _tap(scene.club_menu_list.get_node("ClubHowToPlay"))
+	await _tap(how.get_node("ClubTalkTheTalk"))
+	var page = scene.club_glossary
+	await process_frame
+	var screen_rect: Rect2 = scene.get_global_rect()
+	_check(page.is_open() and not scene.club_menu.visible and page.section == "run" and page.tab_buttons.run.has_focus() and page.tab_buttons.run.button_pressed
+		and screen_rect.encloses(page.panel.get_global_rect()), "Talk the Talk opens on The Run, inside the screen")
+	await _wait_for(func(): return is_equal_approx(scene.music_duck, 0.5), "the Clubhouse music eases down under Talk the Talk")
+	var sections: Array = Glossary.sections()
+	var tab_names: Array = page.tabs.get_children().map(func(b): return b.text)
+	var tabs: Array = page.tab_buttons.values()
+	var panel_end: float = page.panel.get_global_rect().end.x
+	var in_row := func(b: Button) -> bool: return is_equal_approx(b.global_position.y, tabs[0].global_position.y) and b.size.y >= 52 and b.get_global_rect().end.x <= panel_end + 1
+	_check(tab_names == sections.map(func(s): return s.get("tab", s.name)) and tabs.all(in_row), "five tabs on one row inside the page (%s)" % str(tab_names))
+	await _capture("glossary_run")
+	# Every word of every tab, with its picture: walk on with Next, or tap a tab.
+	var words := 0
+	for i in sections.size():
+		var section: Dictionary = sections[i]
+		if i > 0:
+			if i % 2 == 1: await _tap(page.next_button)
+			else: await _tap(page.tab_buttons[section.id])
+			await process_frame
+		_check(page.section == section.id and page.tab_buttons[section.id].button_pressed and page.scroll.scroll_vertical == 0
+			and page.entries.size() == section.terms.size(), "the %s tab shows its %d words, from the top" % [section.name, section.terms.size()])
+		var expect_next: String = ("Next: " + String(sections[i + 1].name)) if i < sections.size() - 1 else ""
+		_check((page.next_button.text if page.next_button != null else "") == expect_next, "the %s tab ends on '%s'" % [section.name, expect_next])
+		for term in section.terms:
+			var row: Control = page.entries[term.id]
+			var picture: Control = page.diagram(term.id)
+			_check(picture != null and picture.kind() == term.diagram.kind and picture.size.x >= 150 and row.find_child("Word", true, false).text == term.term
+				and row.find_child("Meaning", true, false).text == term.text and row.get_global_rect().end.x <= page.panel.get_global_rect().end.x + 1,
+				"%s: its picture (%s) and meaning, inside the page" % [term.term, term.diagram.kind])
+			words += 1
+		if section.id == "lane":
+			var bar: VScrollBar = page.scroll.get_v_scroll_bar()
+			_check(bar.max_value > page.scroll.size.y, "Lane & Ball's words scroll")
+			await _capture("glossary_lane")
+			page.scroll.ensure_control_visible(page.entries.pocket)
+			await process_frame
+			_check(page.diagram("pocket").handedness == "right" and page.diagram("pocket").side() > 0, "the pocket is drawn for a right-hander")
+			await _capture("glossary_pocket")
+		if section.id == "score": await _capture("glossary_scoring")
+		if section.id == "cards": await _capture("glossary_cards")
+	_check(words == Glossary.terms().size() and words >= 40, "every word shown (%d)" % words)
+	# The pictures of a throw follow the hand in Throw Settings.
+	await _action("ui_cancel")
+	_check(not page.is_open() and scene.club_menu.visible and how.visible and how.get_node("ClubTalkTheTalk").has_focus(), "Escape on Talk the Talk returns to How to Play")
+	scene.throw_settings.handedness = "left"
+	await _tap(how.get_node("ClubTalkTheTalk"))
+	page.show_section("lane")
+	await process_frame
+	page.scroll.ensure_control_visible(page.entries.pocket)
+	await process_frame
+	_check(page.diagram("pocket").handedness == "left" and page.diagram("pocket").side() < 0 and page.diagram("hook").side() < 0, "a left-hander's pocket and hook are mirrored")
+	await _capture("glossary_pocket_left")
+	scene.throw_settings.handedness = "right"
+	# Landscape: a centred column.
+	root.size = Vector2i(1280, 720)
+	for i in 8: await process_frame
+	var column: Rect2 = page.panel.get_global_rect()
+	_check(absf(column.get_center().x - scene.get_global_rect().get_center().x) < 2.0 and column.size.x < scene.size.x * 0.75 and scene.get_global_rect().encloses(column),
+		"in landscape Talk the Talk is a centred column")
+	await _capture("glossary_landscape")
+	root.size = PORTRAIT
+	for i in 8: await process_frame
+	await _tap(page.back_button)
+	_check(not page.is_open() and how.visible and how.get_node("ClubTalkTheTalk").has_focus(), "Back on Talk the Talk returns to How to Play")
+	await _tap(how.get_node("HowToPlayBack"))
+	await _tap(scene.club_menu_list.get_node("CloseClubMenu"))
+	_check(not scene.club_menu.visible and scene.club_menu_button.has_focus(), "the menu closes")
+	await _wait_for(func(): return is_equal_approx(scene.music_duck, 1.0), "the Clubhouse music eases back")
+
 ## UI-9: on the Trophies and Goals pages a finger that lands on a row or a button
 ## drags the page; a Follow press that ended in a scroll follows nothing.
 func _ui9_scroll() -> void:
@@ -187,7 +284,8 @@ func _earned(id: String) -> bool:
 
 func _back_to_clubhouse() -> void:
 	await _focus_accept(lab.hud.menu_button)
-	await _wait_for(func(): return scene.screen == "menu" and scene.lab == null and scene.clubhouse.visible, "the Clubhouse after the result")
+	await _through_awards()
+	await _wait_for(func(): return scene.screen == "menu" and scene.lab == null and scene.clubhouse.visible, "the Clubhouse after the result", 400)
 	lab = null
 
 func _stage_one_clubhouse() -> void:

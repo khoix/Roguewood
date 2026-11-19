@@ -169,7 +169,7 @@ func go_back() -> void:
 func _process(delta: float) -> void:
 	var target := MENU_DUCK if menu_open() else 1.0
 	var ceremony = lab.get("award_ceremony")
-	if ceremony != null and ceremony.visible and ceremony.playing:
+	if ceremony != null and ceremony.visible and (ceremony.playing or ceremony.hold):
 		target = ceremony.music_duck() # UI-22: the ceremony's own music takes over
 	duck = move_toward(duck, target, delta * (1.0 - MENU_DUCK) / DUCK_SECONDS)
 	_mix_music() # the music may start after the panel is built

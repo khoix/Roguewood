@@ -55,6 +55,7 @@ var shelf: HFlowContainer
 var goals_box: VBoxContainer
 var goals_scroll: ScrollContainer
 var continue_button: Button
+var hold := false # UI-25: Continue keeps the last screen for the fade after it
 var skip_button: Button
 var _voices: Array = []
 var _hurry := false
@@ -215,7 +216,10 @@ func _process(_delta: float) -> void:
 	if visible: _layout()
 
 ## Starts the ceremony for `data` (RunAwards.for_run). ctx: {league_id, run, won}.
-func present(data: Dictionary, ctx: Dictionary = {}) -> void:
+## UI-25: with `hold_at_end`, Continue leaves its last screen and music in place for
+## the fade that follows it (leaving for the Clubhouse or a new run).
+func present(data: Dictionary, ctx: Dictionary = {}, hold_at_end: bool = false) -> void:
+	hold = hold_at_end
 	awards = data
 	context = ctx
 	reduced_motion = bool(lab.settings.get("reduced_motion", false)) if lab != null else false
@@ -603,8 +607,13 @@ func skip_all() -> void:
 func close() -> void:
 	if not playing: return
 	playing = false
-	_stop_music()
 	_finish_tweens()
+	if hold:
+		# UI-25: stays on screen, its music playing, under the fade that follows.
+		continue_button.disabled = true
+		finished.emit()
+		return
+	_stop_music()
 	var fade := create_tween()
 	fade.tween_property(self, "modulate:a", 0.0, 0.2 if not reduced_motion else 0.0)
 	fade.tween_callback(hide)
