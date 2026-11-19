@@ -100,7 +100,7 @@ func _run() -> void:
 	await _accept()
 	scene.back.grab_focus()
 	await _accept()
-	await _wait_for(func(): return scene.screen == "menu", "return")
+	await _wait_for(func(): return scene.screen == "menu", "return", 6000) # UI-25: a 3.3 s fade out
 	await _capture("returned")
 	if "--inject-failure" in OS.get_cmdline_user_args(): failures.append("Injected diagnostic failure")
 	if scene.screen != "menu" or not scene.session.is_empty(): failures.append("Clubhouse input did not clear session")
