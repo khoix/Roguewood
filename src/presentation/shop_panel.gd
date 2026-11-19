@@ -260,8 +260,22 @@ func _ready() -> void:
 	var offer_box := VBoxContainer.new()
 	offer_box.add_theme_constant_override("separation", 8)
 	offer_sheet.add_child(offer_box)
-	offer_title = _label(offer_box, "OfferTitle", 28)
+	# UI-26 (owner, 2026-11-19): the price sits at the top right, beside the name.
+	var offer_head := HBoxContainer.new()
+	offer_head.name = "OfferHead"
+	offer_box.add_child(offer_head)
+	var balance := Control.new() # matches the price's side, so the name stays centred
+	balance.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	balance.size_flags_stretch_ratio = 0.3
+	offer_head.add_child(balance)
+	offer_title = _label(offer_head, "OfferTitle", 28)
 	offer_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	offer_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	offer_price = _label(offer_head, "OfferPrice", 28)
+	offer_price.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	offer_price.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	offer_price.size_flags_stretch_ratio = 0.3
+	offer_price.add_theme_color_override("font_color", Color(1.0, 0.85, 0.35))
 	offer_card = CardView.new()
 	offer_card.name = "OfferCard"
 	offer_card.focus_mode = Control.FOCUS_NONE
@@ -274,9 +288,6 @@ func _ready() -> void:
 	offer_detail = _label(offer_box, "OfferDetail", 22)
 	offer_detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	offer_detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	offer_price = _label(offer_box, "OfferPrice", 22)
-	offer_price.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	offer_price.add_theme_color_override("font_color", Color(1.0, 0.85, 0.35))
 	offer_reason = _label(offer_box, "OfferReason", 20)
 	offer_reason.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	offer_reason.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -378,7 +389,7 @@ func open_offer(index: int) -> void:
 	offer_title.text = String(offer.get("name", ""))
 	offer_kind.text = String(offer.get("kind", ""))
 	offer_detail.text = String(offer.get("detail", ""))
-	offer_price.text = "Costs $%d · you have $%d" % [int(offer.get("price", 0)), _money]
+	offer_price.text = "$%d" % int(offer.get("price", 0))
 	var reason := String(offer.get("reason", ""))
 	offer_reason.text = "" if offer.state == "buy" else "Can't buy: %s." % (reason if not reason.is_empty() else "not available")
 	offer_reason.visible = not offer_reason.text.is_empty()
