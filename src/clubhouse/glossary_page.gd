@@ -12,6 +12,9 @@ const UiTheme = preload("res://src/presentation/house_ui_theme.gd")
 
 signal closed
 
+const WORD := Color("8a4419")
+const MEANING := Color("2a221c")
+
 var dim: ColorRect
 var panel: PanelContainer
 var title: Label
@@ -62,7 +65,7 @@ func _ready() -> void:
 	for s in _sections:
 		var tab := Button.new()
 		tab.name = "Tab_" + String(s.id)
-		tab.text = String(s.name)
+		tab.text = String(s.get("tab", s.name)) # a short label; Next names the tab in full
 		tab.toggle_mode = true
 		tab.button_group = _group
 		tab.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -142,11 +145,14 @@ func show_section(id: String) -> void:
 		next_button.text = "Next: %s" % following.name
 		next_button.custom_minimum_size = Vector2(0, 56)
 		next_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		next_button.pressed.connect(func():
-			show_section(String(following.id))
-			tab_buttons[String(following.id)].grab_focus())
+		# Deferred: the list it sits in is rebuilt, so it must not be freed mid-press.
+		next_button.pressed.connect(func(): _next.call_deferred(String(following.id)))
 		list.add_child(next_button)
 	scroll.scroll_vertical = 0
+
+func _next(id: String) -> void:
+	show_section(id)
+	tab_buttons[id].grab_focus()
 
 ## A term's picture, as drawn in its row (for tests and captures).
 func diagram(id: String) -> Control:
@@ -174,7 +180,7 @@ func _row(term: Dictionary) -> Control:
 	name_label.name = "Word"
 	name_label.text = String(term.term)
 	name_label.add_theme_font_size_override("font_size", 24)
-	name_label.add_theme_color_override("font_color", Diagram.BRASS)
+	name_label.add_theme_color_override("font_color", WORD) # dark inks on the cream slip
 	words.add_child(name_label)
 	var text := Label.new()
 	text.name = "Meaning"
@@ -182,6 +188,7 @@ func _row(term: Dictionary) -> Control:
 	text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	text.add_theme_font_size_override("font_size", 17)
 	text.custom_minimum_size.x = 120
+	text.add_theme_color_override("font_color", MEANING)
 	words.add_child(text)
 	return row
 

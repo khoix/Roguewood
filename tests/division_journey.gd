@@ -93,6 +93,17 @@ func _confirm(control) -> void: # untyped: a pressed row may already be freed
 		pending.grab_focus()
 		await _action("ui_accept")
 
+## UI-25: leaving a result sheet plays the run's waiting award ceremony first; a
+## journey that is not about it goes through as a player can (Skip, then Continue).
+func _through_awards() -> void:
+	for i in 4: await process_frame
+	if lab == null or not is_instance_valid(lab): return
+	var ceremony = lab.get("award_ceremony")
+	if ceremony == null or not ceremony.visible or not ceremony.playing: return
+	await _focus_accept(ceremony.skip_button)
+	await _wait_for(func(): return ceremony.step == "done" and not ceremony.continue_button.disabled, "Skip shows the awards summary", 120)
+	await _focus_accept(ceremony.continue_button)
+
 func _focus_accept(control: Control) -> void:
 	await _reach(control)
 	control.grab_focus()
@@ -271,6 +282,7 @@ func _first_attempt() -> void:
 	await _capture("lost")
 	var old_id: int = lab.get_instance_id() # never capture the freed lab itself
 	await _focus_accept(lab.hud.retry_button)
+	await _through_awards()
 	await _wait_for(func(): return scene.lab != null and scene.lab.get_instance_id() != old_id and scene.lab.state == "aim", "retry starts a new attempt")
 	lab = scene.lab
 	_check(scene.session.attempt == 2 and lab.attempt == 2 and lab.total_score == 0 and lab.run.money == Economy.STARTING_MONEY and lab.division.current().kind == "opener",
@@ -304,6 +316,7 @@ func _second_attempt() -> void:
 	await _capture("won")
 	var old_id: int = lab.get_instance_id() # never capture the freed lab itself
 	await _focus_accept(lab.hud.retry_button) # "New Attempt"
+	await _through_awards()
 	await _wait_for(func(): return scene.lab != null and scene.lab.get_instance_id() != old_id and scene.lab.state == "aim", "a new attempt")
 	lab = scene.lab
 
@@ -325,7 +338,8 @@ func _third_attempt() -> void:
 	_check(lab.hud.result_body.text.contains("Career progress kept: 1 rival(s) cleared") and scene.career.first_clears.has("rival.lab_custodian"), "a later loss keeps the first clear")
 	await _capture("lost_again")
 	await _focus_accept(lab.hud.menu_button)
-	await _wait_for(func(): return scene.screen == "menu" and scene.lab == null, "Clubhouse returns to the menu")
+	await _through_awards()
+	await _wait_for(func(): return scene.screen == "menu" and scene.lab == null, "Clubhouse returns to the menu", 400)
 	_check(scene.career.first_clears.has("rival.lab_custodian"), "the Career record outlives the session")
 	lab = null
 

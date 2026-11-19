@@ -40,6 +40,7 @@ static func validate(glossary: Dictionary) -> Array[String]:
 		if sid.is_empty() or seen.has("s:" + sid): errors.append("glossary.json: section id '%s' is missing or repeated" % sid)
 		seen["s:" + sid] = true
 		if String(section.get("name", "")).is_empty(): errors.append("glossary.json: section %s has no name" % sid)
+		if String(section.get("tab", section.get("name", ""))).length() > 8: errors.append("glossary.json: section %s's tab label is over 8 characters" % sid)
 		if section.get("terms", []).is_empty(): errors.append("glossary.json: section %s has no terms" % sid)
 		for term in section.get("terms", []):
 			var id := String(term.get("id", ""))

@@ -6,6 +6,7 @@
   "sections": [
     {
       "id": "run",
+      "tab": "Run",
       "name": "The Run",
       "terms": [
         {"id": "league", "term": "League", "text": "A themed set of eight Divisions, with its own lanes, rivals and items. Pick one on the League Board.",
@@ -30,6 +31,7 @@
     },
     {
       "id": "frame",
+      "tab": "Frames",
       "name": "Frames",
       "terms": [
         {"id": "frame", "term": "Frame", "text": "Ten fresh pins and up to two rolls. Each match gives you two frames.",
@@ -54,6 +56,7 @@
     },
     {
       "id": "lane",
+      "tab": "Lane",
       "name": "Lane & Ball",
       "terms": [
         {"id": "rack", "term": "Rack", "text": "The ten pins in their triangle, numbered 1 to 10. Between matches you choose which pin stands on each spot.",
@@ -84,6 +87,7 @@
     },
     {
       "id": "score",
+      "tab": "Scoring",
       "name": "Scoring",
       "terms": [
         {"id": "value", "term": "Value", "text": "Points from pins and cards. Each pin that falls adds its Value: 10 for a Wood pin.",
@@ -100,6 +104,7 @@
     },
     {
       "id": "cards",
+      "tab": "Cards",
       "name": "Your Cards",
       "terms": [
         {"id": "pro_shop", "term": "Pro Shop", "text": "Between matches: buy balls, pins, Charms and more, sell what you no longer need, or reroll for new offers.",

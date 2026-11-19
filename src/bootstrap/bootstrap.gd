@@ -70,17 +70,15 @@ var club_options: ClubOptions
 var club_how_list: VBoxContainer
 var club_glossary: GlossaryPage
 var music_duck := 1.0 # the Clubhouse music eases to half under its Options
-## UI-23 (owner, 2026-11-19): leaving a run for the Clubhouse is a slow fade, about
-## 3.5 s: the screen and the run's music fade out together (EXIT_OUT), the Clubhouse
-## is built behind the dark (EXIT_HOLD), then it fades in with its music (EXIT_IN).
-const EXIT_OUT := 1.5
-const EXIT_HOLD := 0.2
-const EXIT_IN := 1.8
+## UI-23 (owner, 2026-11-19): leaving a run for the Clubhouse is a slow fade: the
+## screen and the run's music fade out together (EXIT_OUT). UI-25 (owner, the same
+## day): the fade follows the award ceremony, and there is no fade into the
+## Clubhouse: after a moment in the dark (EXIT_HOLD) it is simply there, with its music.
+const EXIT_OUT := 3.0
+const EXIT_HOLD := 0.3
 var curtain_layer: CanvasLayer
 var curtain: ColorRect
-var clubhouse_fade := 1.0 # the Clubhouse music's share while it fades in
-var exiting := false # fading out of a run
-var _fade_in: Tween
+var exiting := false # leaving a run: its awards, then the fade out
 ## UI-13 (owner, 2026-11-17): "Learn to Bowl", a guided practice match (the coach).
 var coach: TutorialCoach
 var tutorial_first_run := false # started by a new player's first Enter League
@@ -275,7 +273,7 @@ func _play_clubhouse_music() -> void:
 		clubhouse_music.name = "ClubhouseMusic"
 		clubhouse_music.stream = Soundtrack.stream("clubhouse")
 		add_child(clubhouse_music)
-	clubhouse_music.volume_db = Soundtrack.level_db(throw_settings) + linear_to_db(maxf(clubhouse_fade, 0.0001))
+	clubhouse_music.volume_db = Soundtrack.level_db(throw_settings) + linear_to_db(maxf(music_duck, 0.0001))
 	if not clubhouse_music.playing:
 		clubhouse_music.play()
 
@@ -623,7 +621,7 @@ func _process(delta: float) -> void:
 	if clubhouse_music == null or not clubhouse_music.playing: return
 	var dipped := (club_options != null and club_options.is_open()) or (club_glossary != null and club_glossary.is_open())
 	music_duck = move_toward(music_duck, 0.5 if dipped else 1.0, delta * 0.5 / 0.4)
-	clubhouse_music.volume_db = Soundtrack.level_db(throw_settings) + linear_to_db(maxf(music_duck * clubhouse_fade, 0.0001))
+	clubhouse_music.volume_db = Soundtrack.level_db(throw_settings) + linear_to_db(maxf(music_duck, 0.0001))
 
 ## Adds an entry to the session menu and returns its button. `closes` entries close
 ## the menu before they act, so what they open is not under the sheet.
@@ -839,8 +837,9 @@ func _on_frame_scored(scored: Dictionary) -> void:
 	if lab != null:
 		session.division = lab.division.division_number()
 
-## UI-23: from a run to the Clubhouse, slowly. The run takes no input while it fades
-## out; the Clubhouse takes input as soon as it starts fading in.
+## UI-23: from a run to the Clubhouse, slowly. UI-25: a run's awards come first
+## (after its result sheet); the run then fades out, taking no input, and the
+## Clubhouse appears without a fade, taking input at once.
 func exit_to_clubhouse() -> void:
 	if exiting:
 		return
@@ -848,10 +847,13 @@ func exit_to_clubhouse() -> void:
 		_show_menu()
 		return
 	exiting = true
-	if _fade_in != null and _fade_in.is_valid():
-		_fade_in.kill()
 	session_menu.hide()
 	menu_button.hide()
+	if lab.has_method("awards_pending") and lab.awards_pending():
+		await lab.present_pending_awards()
+		if lab == null or screen != "session":
+			exiting = false
+			return
 	lab.input_paused = true
 	if lab.motion != null and lab.motion.get("sound") != null:
 		lab.motion.sound.fade_music(EXIT_OUT)
@@ -862,19 +864,16 @@ func exit_to_clubhouse() -> void:
 	curtain_layer.show()
 	var out := create_tween()
 	out.tween_property(curtain, "color:a", 1.0, EXIT_OUT * (1.0 - curtain.color.a))
+	out.tween_interval(EXIT_HOLD)
 	await out.finished
-	# Behind the dark: the Clubhouse is built and takes input from here on.
-	clubhouse_fade = 0.0
-	curtain.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# The Clubhouse, at once: no fade in (UI-25).
 	exiting = false
 	_show_menu()
-	_fade_in = create_tween()
-	_fade_in.tween_interval(EXIT_HOLD)
-	_fade_in.tween_property(curtain, "color:a", 0.0, EXIT_IN).set_trans(Tween.TRANS_SINE)
-	_fade_in.parallel().tween_property(self, "clubhouse_fade", 1.0, EXIT_IN)
-	_fade_in.tween_callback(curtain_layer.hide)
+	curtain.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	curtain.color.a = 0.0
+	curtain_layer.hide()
 
-## True while the screen is fading out of a run or into the Clubhouse.
+## True while the screen is fading out of a run.
 func transition_playing() -> bool:
 	return curtain_layer != null and curtain_layer.visible
 

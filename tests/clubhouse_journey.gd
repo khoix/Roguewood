@@ -151,7 +151,7 @@ func _ui24_how_to_play() -> void:
 	var tabs: Array = page.tab_buttons.values()
 	var panel_end: float = page.panel.get_global_rect().end.x
 	var in_row := func(b: Button) -> bool: return is_equal_approx(b.global_position.y, tabs[0].global_position.y) and b.size.y >= 52 and b.get_global_rect().end.x <= panel_end + 1
-	_check(tab_names == sections.map(func(s): return s.name) and tabs.all(in_row), "five tabs on one row inside the page (%s)" % str(tab_names))
+	_check(tab_names == sections.map(func(s): return s.get("tab", s.name)) and tabs.all(in_row), "five tabs on one row inside the page (%s)" % str(tab_names))
 	await _capture("glossary_run")
 	# Every word of every tab, with its picture: walk on with Next, or tap a tab.
 	var words := 0
@@ -284,7 +284,8 @@ func _earned(id: String) -> bool:
 
 func _back_to_clubhouse() -> void:
 	await _focus_accept(lab.hud.menu_button)
-	await _wait_for(func(): return scene.screen == "menu" and scene.lab == null and scene.clubhouse.visible, "the Clubhouse after the result")
+	await _through_awards()
+	await _wait_for(func(): return scene.screen == "menu" and scene.lab == null and scene.clubhouse.visible, "the Clubhouse after the result", 400)
 	lab = null
 
 func _stage_one_clubhouse() -> void:

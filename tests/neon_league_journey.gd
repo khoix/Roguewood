@@ -175,7 +175,8 @@ func _title() -> void:
 
 func _next_attempt() -> void:
 	await _focus_accept(lab.hud.menu_button)
-	await _wait_for(func(): return scene.screen == "menu", "back to the menu")
+	await _through_awards()
+	await _wait_for(func(): return scene.screen == "menu", "back to the menu", 400)
 	_check(scene.content.id == "neon" and scene.enter.text == "New Run", "the board stays on the Neon League")
 	var trophy: Array = ClubModel.trophies(scene.career, scene.career_graph).filter(func(t): return t.id == "league.neon")
 	_check(trophy.size() == 1 and trophy[0].earned, "the Neon League trophy is on the shelf")

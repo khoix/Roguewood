@@ -67,10 +67,10 @@ static func spot(position: int, centre: Vector2 = Vector2(84, 98), pin_gap: floa
 	return centre + Vector2(at.x / Lane.PIN_SPACING * pin_gap, -(at.y - Lane.HEAD_PIN_F) / Lane.ROW_SPACING * row_gap)
 
 func _rack() -> void:
-	var roll1: Array = spec.get("roll1", [])
-	var roll2: Array = spec.get("roll2", [])
-	var glow: Array = spec.get("glow", [])
-	var special: Array = spec.get("special", [])
+	var roll1: Array = _spots("roll1")
+	var roll2: Array = _spots("roll2")
+	var glow: Array = _spots("glow")
+	var special: Array = _spots("special")
 	var font := get_theme_default_font()
 	var centre := Vector2(84, 98) if not spec.has("mark") else Vector2(74, 98)
 	for position in range(1, 11):
@@ -113,6 +113,10 @@ func _score_box(rect: Rect2, mark: String) -> void:
 		if special: draw_rect(cell, Color(BRASS, 0.3))
 		draw_rect(cell, IVORY, false, 1.0)
 		_text(font, text, cell.get_center() + Vector2(0, 5), 13, BRASS if special else IVORY)
+
+## A list of rack spots as ints (JSON reads every number as a float).
+func _spots(key: String) -> Array:
+	return spec.get(key, []).map(func(p): return int(p))
 
 ## A standing pin from above: ivory, its neck stripes a red ring.
 func _pin_top(at: Vector2) -> void:
@@ -424,10 +428,8 @@ func _formula() -> void:
 		_text(font, b[1], rect.get_center() + Vector2(0, 7), 18 if b[1].length() < 4 else 15, b[2] if lit or glow.is_empty() else Color(b[2], 0.55))
 	_text(font, "×", Vector2(66, 66), 16, IVORY)
 	_text(font, "=", Vector2(113, 65), 12, IVORY)
-	var icon: Texture2D = _texture(CARD_DIR + ("mult" if glow == "mult" else "value") + ".svg")
-	if icon != null and glow != "score":
-		var r: Rect2 = boxes[1 if glow == "mult" else 0][4]
-		draw_texture_rect(icon, Rect2(r.get_center().x - 9, r.end.y + 8, 18, 18), false)
+	var notes := {"value": "pins + cards", "mult": "the multiplier", "score": "into the match"}
+	_text(font, notes.get(glow, ""), Vector2(BOX.x * 0.5, 102), 10, BRASS)
 
 # --- A retrigger: the pin scores twice ---
 
