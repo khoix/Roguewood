@@ -2017,7 +2017,8 @@ func _compose_status() -> void:
 				status.text += "\nHouse Rules: Only the House Ball may be thrown; tactical cards are allowed."
 			for rule in active_rules():
 				if RivalRules.kind(rule) in ["hook_scale", "lane_width", "ring_scale", "no_item_income", "pin_value_scale", "no_mods"]:
-					status.text += "\n" + RivalRules.summary(rule).replace(" — ", ": ")
+					var said := RivalRules.summary(rule).split(" — ", true, 1)
+					status.text += "\n" + (said[0] + ": " + Sentence.cap(said[1]) if said.size() == 2 else said[0])
 			if lane != null and lane.lane_condition.begins_with("lane_condition.") and lane.lane_condition != "lane_condition.house_oil":
 				status.text += "\nLane: %s" % _lane_text(lane.lane_condition)
 			for action in frame_actions:

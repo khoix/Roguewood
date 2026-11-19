@@ -348,7 +348,7 @@ func _division_one() -> void:
 	await _focus_accept(lab.hud.intro_button)
 	await _aim()
 	# Dead Straight: the assist spin control is locked...
-	_check(lab.spin_disabled() and not lab.assist_panel.spin_slider.editable and lab.status.text.contains("spin is disabled"),
+	_check(lab.spin_disabled() and not lab.assist_panel.spin_slider.editable and lab.status.text.contains("Spin is disabled"),
 		"Dead Straight: the spin control is disabled and the status says so")
 	await _slide(lab.assist_panel.spin_slider, 0.5)
 	_check(lab.assist_panel.spin_slider.value == 0.0, "the disabled spin control ignores input")

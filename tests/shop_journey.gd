@@ -258,7 +258,7 @@ func _settlement() -> void:
 	_check(summary.balance_before == held and summary.interest == Economy.interest(held) and summary.payout == Economy.MATCH_PAYOUT,
 		"interest on the $%d held, then the $3 payout" % held)
 	_check(lab.run.money == held + summary.interest + summary.payout and lab.shop_panel.money.text == "$%d" % lab.run.money, "the shop shows the settled balance")
-	_check(lab.shop_panel.summary.text.contains("payout $3") and lab.shop_panel.summary.text.contains("interest $%d" % summary.interest), "settlement is explained")
+	_check(lab.shop_panel.summary.text.contains("Payout $3") and lab.shop_panel.summary.text.contains("interest $%d" % summary.interest), "settlement is explained")
 	_check(scene.session.money == lab.run.money, "the session tracks the run's money")
 	await _capture("shop")
 
