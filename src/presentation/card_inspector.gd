@@ -1,33 +1,27 @@
 extends Control
-## Inspection never plays cards or changes their rarity. Finish samples are visual only.
+## Inspection never plays cards or changes their rarity. It shows the card in its own
+## finish, which tilts with the pointer (owner, 2026-11-18: no finish preview, no reveal).
 const ItemAssets = preload("res://src/presentation/item_assets.gd")
 const CardView = preload("res://src/presentation/card_view.gd")
 const ScoreLog = preload("res://src/rules/score_log.gd")
 var _item_texture: Texture2D
 var _default_frame: StyleBox
 signal closed
-const FINISHES = ["Common — matte", "Uncommon — metal", "Rare — border foil", "Epic — full foil", "Legendary — crown reveal"]
 const COLORS = [Color("c4b69b"),Color("bb935b"),Color("75cbd1"),Color("c691d9"),Color("e9b768")]
 var panel: PanelContainer
 var art: TextureRect # the card's illustration (UI-1: inside the full-size card)
 var card_view: CardView
 var title: Label
 var detail: Label
-var finish: OptionButton
 var close_button: Button
-var skip_button: Button
 ## UI-A2: the card's own rarity material (the old illustration foil is off, so the
 ## two never double up). Tilt drives its phase.
 var foil: ShaderMaterial:
 	get: return card_view.sheen.material if card_view else null
 var tilt := Vector2.ZERO
 var reduced := false
-var revealing := false
-var reveal_count := 0
 var selected_uid := ""
 var _origin: Control
-var _tween: Tween
-var _base_index := 0
 
 func _ready() -> void:
 	name = "CardInspector"
@@ -66,32 +60,19 @@ func _ready() -> void:
 	detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	detail.add_theme_font_size_override("font_size",20)
 	box.add_child(detail)
-	finish = OptionButton.new()
-	finish.name = "FinishSample"
-	for label in FINISHES: finish.add_item(label)
-	finish.custom_minimum_size.y = 48
-	finish.item_selected.connect(_finish_selected)
-	box.add_child(finish)
 	var hint := Label.new()
 	# A phone has no Escape key; Close is the button below.
-	hint.text = "Finish preview · item stats stay unchanged\nDrag artwork to tilt" + ("" if OS.has_feature("mobile") or OS.has_feature("web_android") or OS.has_feature("web_ios") else " · Escape to close")
+	hint.text = "Drag artwork to tilt" + ("" if OS.has_feature("mobile") or OS.has_feature("web_android") or OS.has_feature("web_ios") else " · Escape to close")
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hint.add_theme_font_size_override("font_size",17)
 	box.add_child(hint)
-	var row := HBoxContainer.new()
-	box.add_child(row)
-	skip_button = Button.new()
-	skip_button.name = "SkipReveal"
-	skip_button.text = "Skip reveal"
-	skip_button.custom_minimum_size = Vector2(170,52)
-	skip_button.pressed.connect(skip_reveal)
-	row.add_child(skip_button)
 	close_button = Button.new()
 	close_button.name = "CloseInspection"
 	close_button.text = "Close"
 	close_button.custom_minimum_size = Vector2(170,52)
+	close_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	close_button.pressed.connect(dismiss)
-	row.add_child(close_button)
+	box.add_child(close_button)
 	hide()
 
 static func illustration(index: int) -> AtlasTexture:
@@ -108,7 +89,6 @@ func inspect(card: Dictionary, origin: Control, reduce: bool) -> void:
 	_origin = origin
 	reduced = reduce
 	selected_uid = card.uid
-	_base_index = int(card.get("art_index",0))
 	var item_id := ItemAssets.identify(card)
 	title.text = card.title
 	card_view.reduced_motion = reduce
@@ -121,40 +101,21 @@ func inspect(card: Dictionary, origin: Control, reduce: bool) -> void:
 	detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	detail.custom_minimum_size.x = 420
 	show()
-	var initial := ["common", "uncommon", "rare", "epic", "legendary"].find(card.get("rarity", "common")) if _item_texture else 0
-	finish.select(initial)
-	_finish_selected(initial)
+	# The card's own finish (a card without its own art keeps the plain one).
+	art.texture = _item_texture if _item_texture else illustration(int(card.get("art_index", 0)))
+	card_view.preview_material(str(card.get("rarity", "common")) if _item_texture else "common")
+	_settle()
 	close_button.grab_focus()
 
-func _finish_selected(index: int) -> void:
-	skip_reveal()
-	art.texture = _item_texture if _item_texture else illustration(4 if index == 4 else _base_index)
-	card_view.preview_material(["common", "uncommon", "rare", "epic", "legendary"][index])
+func _settle() -> void:
 	tilt = Vector2.ZERO
-	if index == 4:
-		reveal_count += 1
-		if not reduced:
-			revealing = true
-			skip_button.disabled = false
-			art.pivot_offset = art.size/2
-			art.scale = Vector2.ONE*0.9
-			art.modulate.a = 0.2
-			_tween = create_tween().set_parallel(true)
-			_tween.tween_property(art,"scale",Vector2.ONE,0.45).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-			_tween.tween_property(art,"modulate:a",1.0,0.32)
-			_tween.chain().tween_callback(skip_reveal)
-
-func skip_reveal() -> void:
-	if _tween and _tween.is_running(): _tween.kill()
-	revealing = false
 	if art:
 		art.scale = Vector2.ONE
 		art.modulate = Color.WHITE
 		art.rotation = 0
-	if skip_button: skip_button.disabled = true
 
 func dismiss() -> void:
-	skip_reveal()
+	_settle()
 	hide()
 	if is_instance_valid(_origin) and not _origin.disabled: _origin.grab_focus()
 	closed.emit()
@@ -176,9 +137,8 @@ func _input(event: InputEvent) -> void:
 			tilt = (((at-art.global_position)/art.size-Vector2.ONE*0.5)*2).clamp(-Vector2.ONE, Vector2.ONE)
 			if reduced: tilt = Vector2.ZERO
 			card_view.tilt_material(tilt)
-			if not revealing:
-				art.pivot_offset = art.size/2
-				art.rotation = tilt.x*0.045
+			art.pivot_offset = art.size/2
+			art.rotation = tilt.x*0.045
 			get_viewport().set_input_as_handled()
 		elif tilt != Vector2.ZERO:
 			# Off the art: the material settles to its rest phase (UI-A2).

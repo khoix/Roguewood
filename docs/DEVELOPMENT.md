@@ -184,8 +184,9 @@ The real-device play session is blocked; its protocol and the outstanding defect
 
 ## E14 campaign
 
-Select **House Campaign · 8 Divisions (provisional)** in the League menu, or launch
-with `--content=campaign`. Attempt number is the seed. The profile uses implemented
+A test fixture, not a League: the real League Board does not offer it (owner,
+2026-11-18). Launch with `--content=campaign`, or with `--content=slice`, whose menu
+still lists **House Campaign · 8 Divisions (provisional)** for J09. Attempt number is the seed. The profile uses implemented
 rules with provisional encounter fixtures/targets; see ADR 009 for content limits.
 
 `python3 tools/qa.py e2e --journey J09` (optionally `--rendered`) drives the menu,

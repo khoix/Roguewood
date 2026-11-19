@@ -40,8 +40,8 @@ func _run() -> void:
 	root.add_child(scene)
 	await process_frame
 	await _wait_for(func(): return scene.enter.has_focus(), "menu focus")
-	_check(scene.content.id == "house" and scene.league.item_count == 3 and scene.league.get_item_text(1) == "Neon League" and not scene.league.is_item_disabled(1),
-		"the board lists the Neon League after the House League, open from the start")
+	_check(scene.content.id == "house" and scene.league.item_count == 2 and not scene.league.get_item_text(scene.league.item_count - 1).contains("Campaign") and scene.league.get_item_text(1) == "Neon League" and not scene.league.is_item_disabled(1),
+		"the board lists the Neon League after the House League, open from the start, and no test Campaign")
 	await _choose_neon()
 	_check(scene.content.id == "neon" and scene.content.divisions.size() == 8 and scene.kit.item_count == 1 and scene.kit.get_item_text(0) == "Neon Kit"
 		and not scene.kit.is_item_disabled(0) and scene.enter.text == "Enter League", "choosing it offers the eight-Division League and the Neon Kit")

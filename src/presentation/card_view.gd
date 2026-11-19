@@ -429,7 +429,7 @@ func _apply_material() -> void:
 	sheen.material = material_for(rarity, reduced_motion, league)
 	set_material_phase(REST_PHASE)
 
-## Inspection's finish preview: shows another rarity's material on this face.
+## Inspection: shows this face in the given rarity's material.
 func preview_material(rarity_id: String) -> void:
 	rarity = rarity_id if rarity_id in RARITIES else "common"
 	_apply_material()
