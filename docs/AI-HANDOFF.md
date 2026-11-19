@@ -318,7 +318,7 @@ Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build`
   5. **AV-T02** (owner, 2026-11-15; prompt docs/prompts/codex-wave14-av-t02.md): the spinning held ball's look for the flywheel. Readable spin at every speed, a clear full state, reduced motion still.
   6. **AV-T03** (the owner's play notes, 2026-11-15; prompt docs/prompts/codex-wave14-av-t03.md; next after the item in hand): the charge feedback as a trail of colored particles behind the ball's path, growing with the charge, in place of the text tab and the fixed sparkles.
   7. **UI-A7** (the same notes; prompt docs/prompts/codex-wave14-ui-a7.md; after AV-T03): the title's motion. No shifting or shaking; twinkling stars; plants in a light wind; a pixel-style 3D ball turning about Y. Optionally, the loader's sprites.
-  8. **UI-A9** (owner, 2026-11-19; prompt docs/prompts/codex-wave14-ui-a9.md; after AV-N4, AV-N5 and UI-A6, once UI-20 is merged): the House and Neon celebrations (strike, spare, boss defeated), their stings and the final CRT look. Also the standard the later Leagues follow.
+  8. **UI-A9-H** (owner, 2026-11-19; prompt docs/prompts/codex-wave14-ui-a9.md; after AV-N4, AV-N5 and UI-A6, once UI-20 is merged): the House celebrations, 20 animations (5 or more strikes, 5 or more spares, 2 per boss including the champion), their stings and the final CRT look. Also the standard the later Leagues follow. UI-A9-N (Neon, 18) is Wave 15.
   - Salvage's rivals and theme follow its spec (Wave 15).
 - **Owner:** play UI-8 on the phone, in particular dragging across Binder cards (no touchscreen in the test environment).
 
@@ -412,10 +412,11 @@ Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build`
 - **UI-18 DONE** (handoffs/UI-18.md), the inspected card tilts as one unit (owner, 2026-11-19): the card renders into its own view and a perspective shader turns the whole card toward the finger (frame, text, art and material together), where before only the illustration rotated.
 - **PR #45 merged** (owner, 2026-11-19; main `6935eee`, a merge of `dabb531`): UI-16 (simpler card inspection, the test Campaign off the board), UI-17 (no score spoiler during the tally) and the saved boss rule ideas. UI-18 follows in the next PR.
 - **UI-19 DONE** (handoffs/UI-19.md), a fresh seed for every run (owner, 2026-11-19): in the real game every new run (Enter League, New Run, Restart Run) draws its own random seed and takes the next run number from the Career; restored runs keep their saved seed; the tutorial, the test Campaign, journeys and the browser QA run keep their fixed seeds. JSEED checks it across a restart.
+- **Variety (owner, 2026-11-19):** at least 5 strike and 5 spare animations per League, and 2 per boss; each pick is uniform random. That is 20 for House and 18 for Neon, so UI-A9 is split: House (UI-A9-H) stays in Wave 14 and Neon (UI-A9-N) moves to Wave 15.
 - **UI-20 and UI-A9 added to Wave 14** (owner, 2026-11-19: "Include in this wave, if it fits"): celebrations for strikes, spares and boss wins on a CRT-style alley screen in the magnifier's window. It fits because the wave's close already waits on Codex. Spec handoffs/UI-20.md; Codex brief docs/prompts/codex-wave14-ui-a9.md.
 - **Next:**
   - Claude's UI-20;
-  - Codex's AV-N4, AV-N5 and UI-A6 (AV-T02, AV-T03, UI-A7 and AV-N3 are merged), then UI-A9, and the proposed AV-UI1 (the final button sounds);
+  - Codex's AV-N4, AV-N5 and UI-A6 (AV-T02, AV-T03, UI-A7 and AV-N3 are merged), then UI-A9-H, and the proposed AV-UI1 (the final button sounds);
   - then the full matrix and the "Wave 14 closed" commit.
 
 ## Wave 13 closed (coordinator, 2026-11-15)
