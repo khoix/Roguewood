@@ -177,8 +177,7 @@ func _stage_two() -> void:
 	_check("gate.surveyor_cleared" in _disk().unlocked, "losing later keeps the unlock on disk")
 	await _capture("career_lost")
 	var old_id: int = lab.get_instance_id()
-	await _focus_accept(lab.hud.retry_button)
-	await _through_awards()
+	await _new_run_from_result()
 	await _wait_for(func(): return scene.lab != null and scene.lab.get_instance_id() != old_id and scene.lab.state == "aim", "Retry starts a new attempt")
 	lab = scene.lab
 	lab.trial_log_path = ""

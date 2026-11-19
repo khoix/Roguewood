@@ -1325,6 +1325,12 @@ func _queue_awards() -> void:
 	var league_name := String(content.get("name", "League"))
 	_pending_awards = {"awards": awards, "context": {"league_id": String(content.get("league_id", "")), "run": attempt,
 		"title": "Run %d · %s · %s" % [attempt, league_name, "Champion" if division.outcome == "won" else "Run complete"]}}
+	# UI-29 (owner, 2026-11-19): the award screen always ends in the Clubhouse, so a
+	# run with awards waiting offers one way on: Continue (to the awards, then the
+	# fade, then the Clubhouse). New Run and Retry start from the Clubhouse instead.
+	hud.retry_button.hide()
+	hud.menu_button.text = "Continue"
+	hud.menu_button.grab_focus()
 
 ## The run's awards are waiting for the player to leave the result sheet.
 func awards_pending() -> bool:
@@ -1342,10 +1348,9 @@ func present_pending_awards() -> void:
 ## The result sheet's New Run (or Retry): the ceremony first, when there is one.
 func _leave_for_new_run() -> void:
 	if award_ceremony != null and award_ceremony.visible: return
-	if awards_pending():
-		await present_pending_awards()
-		award_ceremony.fade_music(0.4) # eases out as the next run is built
-		await get_tree().create_timer(0.4).timeout
+	if awards_pending(): # UI-29: awards lead to the Clubhouse, never into a run
+		menu_requested.emit()
+		return
 	retry_requested.emit()
 
 ## UI-8: the result sheet's sections (DivisionHud._build_sections), from the same
@@ -1769,7 +1774,7 @@ func _refresh_shop() -> void:
 		var others: Array = pins.filter(func(entry): return entry.substr(entry.find(" ") + 1) != common)
 		rack_text = "Rack: " + (("All %d %s" % [counts[common], common]) if others.is_empty() else ", ".join(others) + ", the other %d %s" % [counts[common], common])
 	var reserves: Array = run.reserves.map(func(e): return "empty" if e == null else _names.get(e.item_id, ""))
-	rack_text += "\nReserves: " + ", ".join(reserves) + " · Charms %d/%d · Deck %d/%d" % [run.charms.size(), RunInventory.CHARM_SLOTS, run.cards.size(), RunInventory.DECK_CAP]
+	rack_text += "\nReserves: " + Sentence.cap(", ".join(reserves)) + " · Charms %d/%d · Deck %d/%d" % [run.charms.size(), RunInventory.CHARM_SLOTS, run.cards.size(), RunInventory.DECK_CAP]
 	if not run.upgrades.is_empty():
 		rack_text += "\nUpgrades (kept for the run): " + Upgrades.summary(run, _names)
 	var charm_moves: Array = []

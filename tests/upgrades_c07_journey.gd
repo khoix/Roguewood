@@ -104,7 +104,7 @@ func _opener_shop() -> void:
 		cheap = cheap and offer.price == maxi(1, base - 1) and _button(i).text.contains("\n$%d" % offer.price)
 	_check(cheap, "Clearance Tag: the offers cost $1 less: %s" % str(lab.shop.offers.map(func(o): return o.price)))
 	# Pin Caddy: three reserve slots; a pin goes into the third through the placement sheet.
-	_check(lab.run.reserves.size() == 3 and lab.shop_panel.rack_label.text.contains("Reserves: empty, empty, empty"), "Pin Caddy: three reserve slots")
+	_check(lab.run.reserves.size() == 3 and lab.shop_panel.rack_label.text.contains("Reserves: Empty, empty, empty"), "Pin Caddy: three reserve slots")
 	var placed := ""
 	for visit in 40:
 		for i in lab.shop.offers.size():

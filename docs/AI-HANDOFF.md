@@ -428,6 +428,7 @@ Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build`
 - **PR #49 merged** (owner, 2026-11-19; main `69a5af8`): UI-24, UI-25 and UI-26.
 - **UI-27 DONE** (handoffs/UI-27.md), owner 2026-11-19: Talk the Talk scrolls from anywhere (rows and Next pass drags, as the Binder's cards), its tabs are the Clubhouse's segmented tabs, and a tapped word opens large in an overlay (Close, a tap outside or Escape). J11 checks it.
 - **UI-28 DONE** (handoffs/UI-28.md), owner 2026-11-19: the first word after a colon starts with a capital throughout the player-facing text (125 content strings, 40 code strings, and `Sentence.cap()` for text inserted after a colon at run time); developer-only messages unchanged.
+- **UI-29 DONE** (handoffs/UI-29.md), owner 2026-11-19: the award screen always ends in the Clubhouse. With awards waiting, the result sheet offers only Continue (awards, the fade out, the Clubhouse); the next run starts from Enter League. A run with nothing to award keeps New Run or Retry and Clubhouse.
 - **Next:**
   - Codex's AV-N4, AV-N5 and UI-A6 (AV-T02, AV-T03, UI-A7 and AV-N3 are merged), then UI-A9-H, and the proposed AV-UI1 (the final button sounds);
   - then the full matrix and the "Wave 14 closed" commit.
