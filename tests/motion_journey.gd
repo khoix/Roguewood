@@ -50,16 +50,24 @@ func _run() -> void:
 	_check(lab.inspector.close_button.has_focus(), "Close has focus")
 	# A real pointer movement changes foil; reduced motion fixes its direction.
 	var pointer:=InputEventMouseMotion.new()
-	pointer.position=_window(lab.inspector.art.get_global_rect().position+lab.inspector.art.size*Vector2(0.8,0.4))
+	pointer.position=_window(lab.inspector.tilt_area().position+lab.inspector.tilt_area().size*Vector2(0.8,0.4))
 	Input.parse_input_event(pointer)
 	await process_frame
 	var tilt: Vector2=lab.inspector.tilt
+	# The owner (2026-11-19): the whole card tilts as one unit, not the picture inside it.
+	var turned: Vector2 = lab.inspector.tilt_material.get_shader_parameter("tilt")
+	_check(lab.inspector.art.rotation == 0.0 and lab.inspector.card_view.is_ancestor_of(lab.inspector.art) and lab.inspector.tilt_view.is_ancestor_of(lab.inspector.card_view),
+		"the picture stays put inside the card; the card's own view carries the tilt")
+	_check(turned == Vector2.ZERO if reduced_only else (turned.x < 0.0 and absf(turned.x) > 0.05), "the whole card turns toward the pointer (%s), not under reduced motion" % turned)
+	var slot: Rect2 = lab.inspector.tilt_area()
+	var drawn: Rect2 = lab.inspector.tilt_view.get_global_rect()
+	_check(drawn.encloses(slot) and drawn.size.x > slot.size.x, "the card's view has room around the card for its nearer corners (%s around %s)" % [drawn, slot])
 	var phase: float=lab.inspector.foil.get_shader_parameter("progress")
 	_check(tilt==Vector2.ZERO if reduced_only else tilt.length()>0.01,"foil follows pointer only in full motion")
 	_check(lab.inspector.art.material==null and lab.inspector.foil.get_shader_parameter("reduced")==reduced_only and (is_equal_approx(phase,0.42) if reduced_only else phase>0.42),"the card's UI-A2 material takes the tilt (phase %.2f); the old art foil is off" % phase)
 	var drag := InputEventScreenDrag.new()
 	drag.index = 0
-	drag.position = _window(lab.inspector.art.get_global_rect().position + lab.inspector.art.size * Vector2(0.2, 0.6))
+	drag.position = _window(lab.inspector.tilt_area().position + lab.inspector.tilt_area().size * Vector2(0.2, 0.6))
 	Input.parse_input_event(drag)
 	await process_frame
 	var touch_tilt: Vector2 = lab.inspector.tilt

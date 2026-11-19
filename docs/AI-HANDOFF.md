@@ -407,6 +407,7 @@ Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build`
 - **Boss rule ideas saved** (owner, 2026-11-18): docs/ideas/boss-rules.md holds ten unscheduled boss rules (the owner's Wrong Hand, Courtesy Pin and Speed Limit, and seven more) for a later League or E23 modifiers. Not claimed.
 - **PR #44 merged** (owner, 2026-11-18; main `055c7b2`, a merge of `2462ae0`): UI-15, one standard menu. UI-16 and the boss rule ideas were pushed after that merge, so they were not in it; they follow in the next PR.
 - **UI-17 DONE** (handoffs/UI-17.md), no score spoiler (owner, 2026-11-18): while a frame's tally plays, the top bar holds the match score from before that frame, and catches up when the tally finishes.
+- **UI-18 DONE** (handoffs/UI-18.md), the inspected card tilts as one unit (owner, 2026-11-19): the card renders into its own view and a perspective shader turns the whole card toward the finger (frame, text, art and material together), where before only the illustration rotated.
 - **Claude's Wave 14 claims are done.** Next:
   - Codex's AV-N4, AV-N5 and UI-A6 (AV-T02, AV-T03, UI-A7 and AV-N3 are merged), and the proposed AV-UI1 (the final button sounds);
   - then the full matrix and the "Wave 14 closed" commit.

@@ -14,6 +14,14 @@ var card_view: CardView
 var title: Label
 var detail: Label
 var close_button: Button
+## The whole card tilts as one unit (owner, 2026-11-19): it renders into its own
+## view, which a perspective shader turns toward the pointer.
+const TILT_RADIANS := 0.3 # at the card's edge
+const TILT_PAD := 0.08 # empty share of the view on each side, room for the nearer corners
+var card_slot: Control # the card's place in the layout
+var tilt_view: SubViewportContainer
+var card_port: SubViewport
+var tilt_material: ShaderMaterial
 ## UI-A2: the card's own rarity material (the old illustration foil is off, so the
 ## two never double up). Tilt drives its phase.
 var foil: ShaderMaterial:
@@ -48,13 +56,30 @@ func _ready() -> void:
 	box.add_child(title)
 	# UI-1: inspection shows the whole playing card at its inspection size (UI-A1:
 	# 240×344 portrait, 210×300 landscape); tilt drives its UI-A2 rarity material.
+	card_slot = Control.new()
+	card_slot.name = "CardSlot"
+	card_slot.custom_minimum_size = Vector2(240, 344)
+	card_slot.mouse_filter = MOUSE_FILTER_IGNORE
+	card_slot.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	box.add_child(card_slot)
+	tilt_view = SubViewportContainer.new()
+	tilt_view.name = "TiltView"
+	tilt_view.mouse_filter = MOUSE_FILTER_IGNORE
+	tilt_view.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	tilt_material = ShaderMaterial.new()
+	tilt_material.shader = preload("res://src/presentation/card_tilt.gdshader")
+	tilt_view.material = tilt_material
+	card_slot.add_child(tilt_view)
+	card_port = SubViewport.new()
+	card_port.transparent_bg = true
+	card_port.size_2d_override_stretch = true
+	tilt_view.add_child(card_port)
 	card_view = CardView.new()
 	card_view.name = "InspectedCard"
 	card_view.custom_minimum_size = Vector2(240, 344)
 	card_view.focus_mode = Control.FOCUS_NONE
 	card_view.mouse_filter = MOUSE_FILTER_IGNORE
-	card_view.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	box.add_child(card_view)
+	card_port.add_child(card_view)
 	art = card_view.art
 	detail = Label.new()
 	detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -62,7 +87,7 @@ func _ready() -> void:
 	box.add_child(detail)
 	var hint := Label.new()
 	# A phone has no Escape key; Close is the button below.
-	hint.text = "Drag artwork to tilt" + ("" if OS.has_feature("mobile") or OS.has_feature("web_android") or OS.has_feature("web_ios") else " · Escape to close")
+	hint.text = "Drag the card to tilt it" + ("" if OS.has_feature("mobile") or OS.has_feature("web_android") or OS.has_feature("web_ios") else " · Escape to close")
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hint.add_theme_font_size_override("font_size",17)
 	box.add_child(hint)
@@ -113,6 +138,19 @@ func _settle() -> void:
 		art.scale = Vector2.ONE
 		art.modulate = Color.WHITE
 		art.rotation = 0
+	_apply_tilt()
+
+## Turns the whole card toward the pointer (none under reduced motion), and moves
+## its rarity material's phase with it (UI-A2).
+func _apply_tilt() -> void:
+	if tilt_material:
+		tilt_material.set_shader_parameter("tilt", Vector2(-tilt.x, tilt.y) * TILT_RADIANS)
+	if card_view:
+		card_view.tilt_material(tilt)
+
+## Where a drag tilts the card: the card's place on screen.
+func tilt_area() -> Rect2:
+	return card_slot.get_global_rect()
 
 func dismiss() -> void:
 	_settle()
@@ -122,9 +160,29 @@ func dismiss() -> void:
 
 func _process(_delta: float) -> void:
 	if not visible: return
-	card_view.custom_minimum_size = Vector2(210, 300) if size.x > size.y else Vector2(240, 344)
+	_fit_card(Vector2(210, 300) if size.x > size.y else Vector2(240, 344))
 	panel.size = panel.get_combined_minimum_size()
 	panel.position = (size-panel.size)/2
+
+## Lays the card out at `card` (its inspection size) inside a view TILT_PAD larger
+## on each side, rendered at the screen's own pixel density so it stays sharp.
+func _fit_card(card: Vector2) -> void:
+	card_slot.custom_minimum_size = card
+	var pad := (card * TILT_PAD).round()
+	var logical := card + pad * 2.0
+	var density := clampf(get_viewport().get_final_transform().get_scale().x, 1.0, 4.0)
+	var pixels := Vector2i((logical * density).ceil())
+	if card_port.size != pixels:
+		card_port.size = pixels
+	card_port.size_2d_override = Vector2i(logical)
+	tilt_view.size = Vector2(pixels)
+	tilt_view.scale = logical / Vector2(pixels)
+	tilt_view.position = -pad
+	card_view.custom_minimum_size = card
+	card_view.position = pad
+	card_view.size = card
+	tilt_material.set_shader_parameter("margin", pad / logical)
+	tilt_material.set_shader_parameter("card_aspect", card.x / card.y)
 
 func _input(event: InputEvent) -> void:
 	if not visible: return
@@ -133,15 +191,13 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 	elif event is InputEventMouseMotion or event is InputEventScreenDrag:
 		var at: Vector2 = event.position
-		if art.get_global_rect().has_point(at):
-			tilt = (((at-art.global_position)/art.size-Vector2.ONE*0.5)*2).clamp(-Vector2.ONE, Vector2.ONE)
+		var area := tilt_area()
+		if area.has_point(at):
+			tilt = (((at - area.position) / area.size - Vector2.ONE * 0.5) * 2).clamp(-Vector2.ONE, Vector2.ONE)
 			if reduced: tilt = Vector2.ZERO
-			card_view.tilt_material(tilt)
-			art.pivot_offset = art.size/2
-			art.rotation = tilt.x*0.045
+			_apply_tilt()
 			get_viewport().set_input_as_handled()
 		elif tilt != Vector2.ZERO:
-			# Off the art: the material settles to its rest phase (UI-A2).
+			# Off the card: it settles flat, and its material to its rest phase (UI-A2).
 			tilt = Vector2.ZERO
-			card_view.tilt_material(tilt)
-			art.rotation = 0
+			_apply_tilt()
