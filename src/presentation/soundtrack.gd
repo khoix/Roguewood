@@ -10,6 +10,9 @@ const TRACKS := {
 	"league.house": "res://assets/audio/music/house.ogg",
 	"league.neon": "res://assets/audio/music/neon.ogg",
 	"championship": "res://assets/audio/music/championship.ogg",
+	# UI-22: the award ceremony after a run. The owner's Suno track goes here (run
+	# tools/author_soundtrack.py awards.mp3); until then the ceremony plays without it.
+	"awards": "res://assets/audio/music/awards.ogg",
 }
 ## The music sits under the sound effects (as the League loops did).
 const MUSIC_DB := -18.0

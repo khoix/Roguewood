@@ -432,8 +432,13 @@ func _division_two() -> void:
 	print("J06 Custodian: %d/%d" % [lab.division.match_score, lab.division.target()])
 	_check(last.match_over and last.match_won and lab.division.outcome == "won" and lab.next_rack.text == "Division Result",
 		"the bought build's strike alone beats The Custodian's 2400")
+	# UI-22: the award ceremony, in full motion (the journey plays with Reduced Motion on).
+	await _focus_accept(scene.options)
+	await _focus_accept(lab.settings_panel.reduced_motion)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	await _focus_accept(lab.next_rack)
 	await _wait_for(func(): return lab.hud.result.visible, "victory screen")
+	await _award_ceremony()
 	_check(lab.hud.result_title.text.contains("The Custodian defeated — House League cleared!") and lab.hud.result_body.text.contains("First clear: Standing Order")
 		and lab.hud.result_body.text.contains("D1 Boss") and lab.hud.result_body.text.contains("D2 Boss"), "the League victory lists both Divisions and banks the reward")
 	_check(scene.career.first_clears.has("rival.custodian") and scene.career.first_clears.has("rival.surveyor") and scene.session.outcome == "won"
@@ -456,11 +461,86 @@ func _second_attempt() -> void:
 		if frame == 0:
 			await _focus_accept(lab.next_rack)
 	_check(lab.division.outcome == "lost" and lab.division.results[0].score < 300, "two open frames lose the opener")
+	# UI-22: Reduced Motion back on (as the journey plays) for the loss's ceremony.
+	await _focus_accept(scene.options)
+	await _focus_accept(lab.settings_panel.reduced_motion)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	await _focus_accept(lab.next_rack)
 	await _wait_for(func(): return lab.hud.result.visible, "loss screen")
+	var ceremony: Control = lab.award_ceremony
+	if ceremony.visible:
+		# Only goal progress: a quieter PROGRESS ceremony, and under Reduced Motion no
+		# travelling effects at all.
+		_check(ceremony.awards.trophies.is_empty() and ceremony.title.text == "PROGRESS", "a run that only moved goals opens on PROGRESS")
+		await _wait_for(func(): return ceremony.step == "done", "the progress ceremony ends", 600)
+		_check(not ceremony.cues.has("drumroll") and not ceremony.cues.has("launch") and ceremony.fx.bursts == 0 and ceremony.fx.confetti_shots == 0
+			and ceremony.fx.airborne() == 0, "no fireworks for progress alone, and no effects under Reduced Motion (%s)" % str(ceremony.cues))
+		await _focus_accept(ceremony.continue_button)
+		await _wait_for(func(): return not ceremony.visible, "Continue closes the progress ceremony")
+	print("J06 loss ceremony: %s" % ("shown" if not ceremony.cues.is_empty() else "none"))
 	_check(lab.hud.result_body.text.contains("Career progress kept: 2 rival(s) cleared") and lab.hud.retry_button.text == "Retry League", "a later loss keeps both first clears")
 	await _capture("slice_lost_again")
+	# UI-23 (owner, 2026-11-19): leaving for the Clubhouse is a slow fade, about 3.5 s.
+	var start := Engine.get_process_frames()
 	await _focus_accept(lab.hud.menu_button)
+	_check(scene.exiting and scene.transition_playing() and scene.curtain.mouse_filter == Control.MOUSE_FILTER_STOP and lab.input_paused,
+		"Clubhouse starts a slow fade, and the run takes no input")
+	for i in 45: await process_frame
+	_check(scene.curtain.color.a > 0.3 and scene.curtain.color.a < 0.9 and lab.motion.sound.fade < 0.8 and lab.motion.sound.fade > 0.2,
+		"the screen and the League's music fade out together (%.2f, %.2f)" % [scene.curtain.color.a, lab.motion.sound.fade])
 	await _wait_for(func(): return scene.screen == "menu" and scene.lab == null, "Clubhouse returns to the menu")
+	_check(scene.curtain.color.a > 0.9 and scene.clubhouse_fade < 0.2 and scene.curtain.mouse_filter == Control.MOUSE_FILTER_IGNORE
+		and (scene.clubhouse_music == null or scene.clubhouse_music.playing), "the Clubhouse is built behind the dark, its music starting from silence, and takes input")
+	await _wait_for(func(): return not scene.transition_playing(), "the Clubhouse fades in", 400)
+	var seconds := float(Engine.get_process_frames() - start) / 60.0
+	_check(seconds >= 3.0 and seconds <= 4.0 and is_equal_approx(scene.clubhouse_fade, 1.0), "the whole transition takes %.1f s (3 to 4)" % seconds)
 	_check(scene.career.first_clears.has("rival.surveyor"), "the Career outlives the session")
 	lab = null
+
+## UI-22: the League win's award ceremony over the result sheet: each new trophy with
+## its own Clubhouse art, the effects and their sounds, the goals, Skip and Continue.
+func _award_ceremony() -> void:
+	var ceremony: Control = lab.award_ceremony
+	var Art = preload("res://src/clubhouse/clubhouse_art.gd")
+	_check(ceremony.visible and ceremony.playing and not lab.settings.reduced_motion, "the award ceremony opens over the result sheet, in full motion")
+	var ids: Array = ceremony.awards.trophies.map(func(t): return t.id)
+	_check(ids.slice(0, 3) == ["league.house", "rival.custodian", "rival.surveyor"] or ids.slice(0, 3) == ["league.house", "rival.surveyor", "rival.custodian"],
+		"it presents the House title first, then both rivals' plaques (%s)" % str(ids))
+	_check(ceremony.title.text == "AWARDS", "a run that earned trophies opens on AWARDS")
+	# The owner's awards track loops under the ceremony; the League's music steps aside.
+	_check(ceremony.has_music() and ceremony.music.stream.resource_path == "res://assets/audio/music/awards.ogg" and ceremony.music.stream.loop,
+		"the ceremony plays the owner's looping awards track")
+	await _wait_for(func(): return lab.motion.sound.duck < 0.2, "the League's music steps aside for it", 120)
+	# The first trophy: a drumroll under the gathering sunburst, then the reveal.
+	await _wait_for(func(): return ceremony.step == "trophy" and "reveal" in ceremony.cues, "the first trophy is revealed", 600)
+	var first: Dictionary = ceremony.awards.trophies[0]
+	_check(ceremony.stage_art.texture != null and ceremony.stage_art.texture.resource_path == Art.path_for(first.asset) and Art.has_art(first.asset),
+		"the trophy shown is its own Clubhouse art (%s)" % first.asset)
+	_check(ceremony.stage_kicker.text == "LEAGUE CHAMPION!" and ceremony.stage_name.text == first.name, "the title is announced by name")
+	_check(ceremony.cues.slice(0, 3) == ["whoosh", "rocket", "rocket"] and "drumroll" in ceremony.cues, "the opening whoosh and bottle rockets, then a drumroll (%s)" % str(ceremony.cues))
+	await _wait_for(func(): return ceremony.fx.bursts > 0 and "burst" in ceremony.cues and ceremony.fx.confetti_shots > 0, "fireworks and confetti, with their sounds", 300)
+	for i in 6: await process_frame
+	await _capture("awards_trophy")
+	# A tap hurries the moment along; Skip goes straight to the summary.
+	var at: Vector2 = root.get_screen_transform() * ceremony.get_global_rect().get_center()
+	for pressed in [true, false]:
+		var touch := InputEventScreenTouch.new()
+		touch.index = 0
+		touch.position = at
+		touch.pressed = pressed
+		Input.parse_input_event(touch)
+		await process_frame
+	await _wait_for(func(): return ceremony.shown_trophies.size() >= 2, "a tap moves on to the next trophy", 240)
+	await _focus_accept(ceremony.skip_button)
+	_check(ceremony.step == "done" and ceremony.continue_button.has_focus() and not ceremony.skip_button.visible, "Skip goes to the summary, with Continue ready")
+	for t in ceremony.awards.trophies:
+		_check(ceremony.shelf.get_node_or_null("Shelf_" + String(t.id).replace(".", "_")) != null, "the shelf holds %s" % t.name)
+	for g in ceremony.awards.goals:
+		var row: Dictionary = ceremony.goal_rows.get(g.id, {})
+		_check(not row.is_empty() and is_equal_approx(row.bar.value, float(g.after)) and row.stamp.visible == g.completed,
+			"the goal %s stands at %d of %d" % [g.name, g.after, g.threshold])
+	for i in 10: await process_frame
+	await _capture("awards_summary")
+	await _focus_accept(ceremony.continue_button)
+	await _wait_for(func(): return not ceremony.visible, "Continue closes the ceremony")
+	_check(lab.hud.result.visible and not ceremony.playing, "the result sheet is underneath")

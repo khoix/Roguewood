@@ -28,6 +28,7 @@ signal back # UI-15: the page's Back, to the menu that opened it
 const MENU_DUCK := 0.5
 const DUCK_SECONDS := 0.4
 var duck := 1.0
+var fade := 1.0 # UI-23: leaving for the Clubhouse fades the League's music out (fade_music)
 func _ready() -> void:
 	name = "PresentationAudio"
 	muted = lab.settings.get("sound_muted", false)
@@ -120,11 +121,16 @@ func _mix() -> void:
 func _mix_music() -> void:
 	var theme = lab.get("league_theme") if lab != null else null
 	if theme == null or theme.music == null: return
-	var level: float = 0.0 if muted else music_volume * duck
+	var level: float = 0.0 if muted else music_volume * duck * fade
 	var want: float = float(theme.MUSIC_DB) + linear_to_db(maxf(level, 0.0001))
 	if not is_equal_approx(theme.music.volume_db, want):
 		theme.music.volume_db = want
 
+
+## UI-23: fades the League's music to silence over `seconds` (leaving for the Clubhouse).
+func fade_music(seconds: float) -> void:
+	var t := create_tween()
+	t.tween_property(self, "fade", 0.0, seconds)
 
 func cue(id: String, stream: AudioStream, priority: int = 1) -> void:
 	var now := Time.get_ticks_msec()
@@ -161,7 +167,11 @@ func go_back() -> void:
 	back.emit()
 
 func _process(delta: float) -> void:
-	duck = move_toward(duck, MENU_DUCK if menu_open() else 1.0, delta * (1.0 - MENU_DUCK) / DUCK_SECONDS)
+	var target := MENU_DUCK if menu_open() else 1.0
+	var ceremony = lab.get("award_ceremony")
+	if ceremony != null and ceremony.visible and ceremony.playing:
+		target = ceremony.music_duck() # UI-22: the ceremony's own music takes over
+	duck = move_toward(duck, target, delta * (1.0 - MENU_DUCK) / DUCK_SECONDS)
 	_mix_music() # the music may start after the panel is built
 
 func _exit_tree() -> void:

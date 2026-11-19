@@ -67,6 +67,7 @@ const ItemPhysics = preload("res://src/simulation/item_physics.gd")
 const Tactics = preload("res://src/rules/tactics.gd")
 const Upgrades = preload("res://src/rules/upgrades.gd")
 const LeagueTheme = preload("res://src/presentation/league_theme.gd")
+const RunAwards = preload("res://src/clubhouse/run_awards.gd")
 const TacticSheet = preload("res://src/presentation/tactic_sheet.gd")
 const NEAR_VICTORY := 0.75 # share of the target that makes a rival nervous
 const HOUSE := "ball.house"
@@ -200,6 +201,7 @@ var _replay_only := false # showing a restored, already banked frame
 var _content: Dictionary = {}
 var aim_magnifier: Control # UI-14
 var alley_screen: Control # UI-20: celebrations in the magnifier's window
+var award_ceremony: Control # UI-22: what a run earned, presented when it ends
 
 func _ready() -> void:
 	SettingsPanel.with_defaults(settings)
@@ -386,6 +388,9 @@ func _ready() -> void:
 	alley_screen.lab = self
 	add_child(alley_screen)
 	alley_screen.finished.connect(_on_alley_finished)
+	award_ceremony = preload("res://src/presentation/award_ceremony.gd").new()
+	award_ceremony.lab = self
+	add_child(award_ceremony)
 	panels.host_equipment_strip(motion.equipment_art) # UI-3: out of the lane
 	if not restore_from.is_empty():
 		_restore(restore_from)
@@ -1301,8 +1306,21 @@ func _show_result() -> void:
 	_checkpoint("division_over")
 	hud.show_result(title, _result_view.body, _result_view.won, _retry_label(), _result_view.sections)
 	hud.endless_button.visible = _can_endless()
+	_present_awards()
 	_update_status()
 	attempt_finished.emit(division.outcome)
+
+## UI-22: when the run earned a trophy or moved a goal, the ceremony plays over the
+## result sheet first (never in the tutorial, or for a restored result).
+func _present_awards() -> void:
+	if award_ceremony == null or content.get("id", "") == "tutorial":
+		return
+	var awards: Dictionary = RunAwards.for_run(career, career_graph, career_attempt)
+	if RunAwards.is_empty(awards):
+		return
+	var league_name := String(content.get("name", "League"))
+	award_ceremony.present(awards, {"league_id": String(content.get("league_id", "")), "run": attempt,
+		"title": "Run %d · %s · %s" % [attempt, league_name, "Champion" if division.outcome == "won" else "Run complete"]})
 
 ## UI-8: the result sheet's sections (DivisionHud._build_sections), from the same
 ## facts as its full text: the outcome in one line, the attempt's numbers, every
