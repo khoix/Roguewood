@@ -77,6 +77,19 @@ func _initialize() -> void:
 			for d in spec.get("divisions", []):
 				for r in d.get("rivals", []): rival_ids[r.id] = true
 			failures.append_array(theme_script.celebration_gaps(manifest, rival_ids.keys()))
+		# The rivals' library of lines (owner, 2026-11-19): every League rival has at
+		# least six per mood, each short enough for the bubble; no stray ids.
+		var lines_script = load("res://src/presentation/rival_lines.gd")
+		var league_rivals := {}
+		for league_file in DirAccess.get_files_at("res://content/leagues"):
+			if not league_file.ends_with(".json"): continue
+			var league_data = Contracts.read_json("res://content/leagues/" + league_file)
+			if not (league_data is Dictionary and league_data.has("divisions")): continue # the roster is not a League
+			for d in league_data.divisions:
+				for r in d.get("rivals", []): league_rivals[r.id] = r
+		failures.append_array(lines_script.gaps(league_rivals.values()))
+		for id in lines_script.library():
+			if not league_rivals.has(id): failures.append("rival_lines.json: %s is not a League rival" % id)
 	elif mode == "unit":
 		failures = ContractTests.run()
 		failures.append_array(load("res://tests/house_tactical_art_test.gd").run())
@@ -87,6 +100,7 @@ func _initialize() -> void:
 		failures.append_array(load("res://tests/neon_pin_deck_art_test.gd").run())
 		failures.append_array(load("res://tests/card_transparency_test.gd").run())
 		failures.append_array(load("res://tests/alley_screen_test.gd").run())
+		failures.append_array(load("res://tests/rival_lines_test.gd").run())
 		for path in ["res://tests/rules_test.gd", "res://tests/simulation_test.gd", "res://tests/input_test.gd", "res://tests/held_ball_test.gd", "res://tests/card_view_test.gd", "res://tests/scoring_test.gd", "res://tests/deck_test.gd", "res://tests/economy_test.gd", "res://tests/division_test.gd", "res://tests/save_test.gd", "res://tests/slice_test.gd", "res://tests/campaign_generator_test.gd", "res://tests/campaign_integration_test.gd", "res://tests/career_test.gd", "res://tests/clubhouse_test.gd", "res://tests/authored_test.gd", "res://tests/mechanics_c02_test.gd", "res://tests/mechanics_c03_test.gd", "res://tests/mechanics_c04_test.gd", "res://tests/league_spec_test.gd", "res://tests/mechanics_c05_test.gd", "res://tests/mechanics_c06_test.gd", "res://tests/mechanics_c07_test.gd", "res://tests/mechanics_c08_test.gd", "res://tests/mechanics_c09_test.gd", "res://tests/mechanics_c10_test.gd", "res://tests/mechanics_c11_test.gd", "res://tests/mechanics_c13_test.gd", "res://tests/mechanics_c14_test.gd", "res://tests/mechanics_c15_test.gd", "res://tests/mechanics_c16_test.gd", "res://tests/mechanics_c17_test.gd", "res://tests/mechanics_c18_test.gd", "res://tests/mechanics_c19_test.gd", "res://tests/mechanics_c20_test.gd", "res://tests/league_house_test.gd", "res://tests/league_neon_test.gd"]:
 			var suite = load(path)
 			if suite == null:
