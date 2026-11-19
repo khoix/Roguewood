@@ -189,6 +189,9 @@ STAGE_RUNS["J12V08"] = [("res://tests/ability_v08_journey.gd", "slice")] * 3
 # Journeys that restart the game: each stage is a separate engine process sharing
 # one save directory; stage k prints ROGUEWOOD_<journey>_STAGE<k>_OK.
 STAGES = {"J09": 3, "J07": 10, "J10": 3, "J11": 2}
+# Owner (2026-11-19): every new run gets its own seed; a restored run keeps it.
+JOURNEYS["JSEED"] = ("res://tests/run_seed_journey.gd", "ROGUEWOOD_JSEED_OK", "artifacts/run-seed", (), 600, ["--fixed-fps", "60"])
+STAGES["JSEED"] = 2
 # Wave 2: retain the complete J11 flow and add Clubhouse art/layout assertions.
 JOURNEYS["J11ART"] = ("res://tests/art_club_journey.gd", "ROGUEWOOD_J11_OK", "artifacts/e16-art/native",
     ("clubhouse_locked_720", "clubhouse_mastered_1280", "clubhouse_trophies_bottom_720", "clubhouse_discovered_1280"), 1200, ["--fixed-fps", "60"])

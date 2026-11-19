@@ -409,6 +409,7 @@ Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build`
 - **UI-17 DONE** (handoffs/UI-17.md), no score spoiler (owner, 2026-11-18): while a frame's tally plays, the top bar holds the match score from before that frame, and catches up when the tally finishes.
 - **UI-18 DONE** (handoffs/UI-18.md), the inspected card tilts as one unit (owner, 2026-11-19): the card renders into its own view and a perspective shader turns the whole card toward the finger (frame, text, art and material together), where before only the illustration rotated.
 - **PR #45 merged** (owner, 2026-11-19; main `6935eee`, a merge of `dabb531`): UI-16 (simpler card inspection, the test Campaign off the board), UI-17 (no score spoiler during the tally) and the saved boss rule ideas. UI-18 follows in the next PR.
+- **UI-19 DONE** (handoffs/UI-19.md), a fresh seed for every run (owner, 2026-11-19): in the real game every new run (Enter League, New Run, Restart Run) draws its own random seed and takes the next run number from the Career; restored runs keep their saved seed; the tutorial, the test Campaign, journeys and the browser QA run keep their fixed seeds. JSEED checks it across a restart.
 - **Claude's Wave 14 claims are done.** Next:
   - Codex's AV-N4, AV-N5 and UI-A6 (AV-T02, AV-T03, UI-A7 and AV-N3 are merged), and the proposed AV-UI1 (the final button sounds);
   - then the full matrix and the "Wave 14 closed" commit.

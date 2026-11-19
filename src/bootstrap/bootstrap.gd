@@ -19,6 +19,13 @@ const ClubOptions = preload("res://src/clubhouse/clubhouse_options.gd")
 const TutorialCoach = preload("res://src/presentation/tutorial_coach.gd")
 ## UI-13: the tutorial's practice lane always deals the same cards.
 const TUTORIAL_SEED := 7
+## Every new run in the real game gets its own random seed and the next run number
+## from the Career (owner, 2026-11-19: before, every run entered from the board was
+## run 1 with seed 1, so every player saw the same shops and draws). The seed is
+## saved with the run, so a restored run carries on exactly as before. Journeys and
+## the browser QA run keep seed = run number, for reproducible checks; the tutorial
+## and the test Campaign keep their fixed seeds.
+var random_runs := false
 var session: Dictionary = {}
 var screen := "menu"
 var heading: Label
@@ -92,6 +99,7 @@ func _ready() -> void:
 	ui_sounds.settings = throw_settings
 	add_child(ui_sounds)
 	_awaiting_title = show_title_on_start()
+	random_runs = show_title_on_start() and not WebQA.requested()
 	# UI-2: one House theme (frame kit, Pixelify Sans) for every screen.
 	theme = UiTheme.build()
 	get_window().size_changed.connect(_viewport_layout)
@@ -662,15 +670,26 @@ func _continue_attempt() -> void:
 			content = ContentSet.load_set(saved.content_set, int(saved.payload.get("seed", 1)))
 			league.select(league_sets.find(saved.content_set))
 		_begin_attempt(int(saved.payload.attempt), saved.payload)
-## Attempt n of the content set's League (seed n). Restart Session begins
+## A fresh seed for a new run (random_runs).
+func new_run_seed() -> int:
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	return rng.randi_range(1, 2147483646)
+
+## Attempt n of the content set's League (seed n; random_runs draws a fresh seed and
+## numbers the run from the Career). Restart Session begins
 ## attempt 1 again; Retry and New Attempt begin the next one.
 ## A saved payload resumes that attempt instead of starting fresh.
 func _begin_attempt(attempt: int, saved: Dictionary = {}) -> void:
 	_stop_clubhouse_music()
+	var run_seed := attempt
+	if saved.is_empty() and random_runs and content.id not in ["campaign", "tutorial"]:
+		attempt = int(career.get("attempts", 0)) + 1
+		run_seed = new_run_seed()
 	if content.id == "campaign": content = ContentSet.load_set("campaign", int(saved.get("seed", attempt)))
 	if saved.is_empty():
 		content.kit = _chosen_kit()
-	session = {"schema_version": 1, "seed": attempt, "attempt": attempt, "league_id": String(content.get("league_id", "league.house")) if content.id != "campaign" else "league.house", "kit_id": content.kit.get("id", "kit.house"),
+	session = {"schema_version": 1, "seed": run_seed, "attempt": attempt, "league_id": String(content.get("league_id", "league.house")) if content.id != "campaign" else "league.house", "kit_id": content.kit.get("id", "kit.house"),
 		"content": content.id, "division": 1, "match": 1, "frame": 1, "score": 0, "money": int(content.kit.get("money", 6))}
 	if not saved.is_empty():
 		session.seed = int(saved.seed)
