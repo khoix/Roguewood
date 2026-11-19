@@ -79,6 +79,8 @@ func _ready() -> void:
 func aiming() -> bool:
 	if lab.state != "aim":
 		return false
+	if lab.alley_screen != null and lab.alley_screen.playing():
+		return false # the alley screen has the window (UI-20)
 	if _slider_drag:
 		return true
 	return lab._target_touch != -1 and (_touch_seconds >= SHOW_AFTER or absf(lab.target_x - _touch_x) > 0.002)
@@ -114,11 +116,15 @@ func _process(delta: float) -> void:
 ## Over the top HUD: the bar's left edge and width, ASPECT wide, never shorter than
 ## the bar nor taller than MAX_SCREEN_SHARE of the screen.
 func _place() -> void:
-	var bar: Rect2 = lab.hud.bar.get_global_rect()
-	var screen: Vector2 = get_viewport_rect().size
+	var rect := panel_rect(lab, get_viewport_rect().size)
+	position = rect.position
+	size = rect.size
+
+## The window over the top HUD, in screen space; the alley screen (UI-20) uses the same.
+static func panel_rect(lab_node: Control, screen: Vector2) -> Rect2:
+	var bar: Rect2 = lab_node.hud.bar.get_global_rect()
 	var height := maxf(bar.size.y, minf(bar.size.x / ASPECT, screen.y * MAX_SCREEN_SHARE))
-	position = bar.position
-	size = Vector2(minf(bar.size.x, height * ASPECT), height)
+	return Rect2(bar.position, Vector2(minf(bar.size.x, height * ASPECT), height))
 
 ## The crop of the lane's view, in lab coordinates: centred on the lane at the
 ## head pin, LANE_SHARE of its width the lane, with the head pin's base at

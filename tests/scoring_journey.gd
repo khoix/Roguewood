@@ -118,6 +118,9 @@ func _run() -> void:
 	await _focus_accept(lab.settings_panel.practice) # E09: targets off; this journey tests its own subsystem
 	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	_check(lab.settings.assist and lab.settings.reduced_motion, "assist and reduced motion on")
+	# UI-20: the lab has no League art, so nothing celebrates until variants are given.
+	_check(not lab.alley_screen.has_art("strike") and not lab.alley_screen.has_art("spare"), "no celebration without art (the owner: not before Codex's)")
+	lab.alley_screen.variants_override = {"strike": CELEBRATIONS, "spare": CELEBRATIONS}
 	await _strike_frame()
 	await _spare_frame()
 	await _open_frame()
@@ -187,8 +190,38 @@ func _next_frame() -> void:
 		await _focus_accept(lab.shop_panel.continue_button)
 	await _wait_for(func(): return lab.state == "aim" and lab.roll_index == 1, "next rack", ROLL_FRAMES)
 
+## UI-20's placeholder, listed five times as a League's five variants would be.
+const CELEBRATIONS := ["res://src/presentation/alley_screen_placeholder.gd", "res://src/presentation/alley_screen_placeholder.gd",
+	"res://src/presentation/alley_screen_placeholder.gd", "res://src/presentation/alley_screen_placeholder.gd", "res://src/presentation/alley_screen_placeholder.gd"]
+
+## UI-20: the alley screen plays `event` over the magnifier's window, rendering.
+func _check_celebration(event: String) -> void:
+	var alley: Control = lab.alley_screen
+	await _wait_for(func(): return alley.playing(), event + " celebration starts")
+	_check(alley.current_event == event and alley.current_path in CELEBRATIONS and alley.visible and alley.view.render_target_update_mode == SubViewport.UPDATE_ALWAYS,
+		"the %s celebration plays on the alley screen (%s)" % [event, alley.current_event])
+	var window: Rect2 = lab.aim_magnifier.panel_rect(lab, lab.get_viewport_rect().size)
+	_check(alley.get_global_rect().is_equal_approx(window), "it fills the magnifier's window over the top HUD")
+	_check(bool(alley.current_context.reduced_motion) == bool(lab.settings.reduced_motion) and float(alley.crt.get_shader_parameter("flicker")) == (0.0 if lab.settings.get("reduced_flash", false) else 1.0),
+		"it follows Reduced Motion and Reduced Flash")
+
 func _strike_frame() -> void:
 	await _throw(0.1, 0.0, 0.7)
+	await _check_celebration("strike")
+	for i in 6: await process_frame
+	await _capture("celebration_strike")
+	# A tap on the alley screen skips it; it hides and stops rendering.
+	var on_screen: Vector2 = root.get_screen_transform() * lab.alley_screen.get_global_rect().get_center()
+	for pressed in [true, false]:
+		var touch := InputEventScreenTouch.new()
+		touch.index = 0
+		touch.position = on_screen
+		touch.pressed = pressed
+		Input.parse_input_event(touch)
+		await process_frame
+	await process_frame
+	_check(not lab.alley_screen.playing() and not lab.alley_screen.visible and lab.alley_screen.view.render_target_update_mode == SubViewport.UPDATE_DISABLED,
+		"a tap skips the celebration; hidden, it renders nothing")
 	await _verify_frame("strike", "strike", func():
 		for i in 20: await process_frame
 		await _capture("scoring")
@@ -210,8 +243,13 @@ func _strike_frame() -> void:
 	await _next_frame()
 
 func _spare_frame() -> void:
+	var before: int = lab.alley_screen.played.size()
 	await _throw(-0.4, 0.0, 0.6)
+	_check(lab.alley_screen.played.size() == before, "a first roll that leaves pins does not celebrate")
 	await _throw(0.0, 0.0, 0.6)
+	await _check_celebration("spare")
+	await _wait_for(func(): return not lab.alley_screen.playing(), "the spare celebration ends by itself", 300)
+	_check(not lab.alley_screen.visible, "the spare celebration ends by itself and hides")
 	await _verify_frame("spare", "spare", func():
 		var panel: Control = lab.score_panel
 		_check(panel.playing, "the next frame's reveal counts step by step again")
@@ -221,8 +259,10 @@ func _spare_frame() -> void:
 	await _next_frame()
 
 func _open_frame() -> void:
+	var before: int = lab.alley_screen.played.size()
 	await _throw(-0.4, 0.0, 0.6)
 	var gutter: Dictionary = await _throw(0.8, 2.0, 0.6)
 	_check(gutter.knockdown_log.gutter, "second roll is a gutter ball")
 	await _verify_frame("open", "open")
+	_check(lab.alley_screen.played.size() == before, "an open frame does not celebrate")
 	await _capture("open")
