@@ -28,6 +28,7 @@ signal back # UI-15: the page's Back, to the menu that opened it
 const MENU_DUCK := 0.5
 const DUCK_SECONDS := 0.4
 var duck := 1.0
+var fade := 1.0 # UI-23: leaving for the Clubhouse fades the League's music out (fade_music)
 func _ready() -> void:
 	name = "PresentationAudio"
 	muted = lab.settings.get("sound_muted", false)
@@ -120,11 +121,16 @@ func _mix() -> void:
 func _mix_music() -> void:
 	var theme = lab.get("league_theme") if lab != null else null
 	if theme == null or theme.music == null: return
-	var level: float = 0.0 if muted else music_volume * duck
+	var level: float = 0.0 if muted else music_volume * duck * fade
 	var want: float = float(theme.MUSIC_DB) + linear_to_db(maxf(level, 0.0001))
 	if not is_equal_approx(theme.music.volume_db, want):
 		theme.music.volume_db = want
 
+
+## UI-23: fades the League's music to silence over `seconds` (leaving for the Clubhouse).
+func fade_music(seconds: float) -> void:
+	var t := create_tween()
+	t.tween_property(self, "fade", 0.0, seconds)
 
 func cue(id: String, stream: AudioStream, priority: int = 1) -> void:
 	var now := Time.get_ticks_msec()

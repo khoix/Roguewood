@@ -258,11 +258,15 @@ func _start_music() -> void:
 	var fade := create_tween()
 	fade.tween_property(music, "volume_db", target, 0.6)
 
-func _stop_music() -> void:
+func _stop_music(seconds: float = 0.4) -> void:
 	if not music.playing: return
 	var fade := create_tween()
-	fade.tween_property(music, "volume_db", -60.0, 0.4)
+	fade.tween_property(music, "volume_db", -60.0, seconds)
 	fade.tween_callback(music.stop)
+
+## UI-23: leaving for the Clubhouse fades the ceremony's music out with the screen.
+func fade_music(seconds: float) -> void:
+	_stop_music(seconds)
 
 func _earned_something() -> bool:
 	return not awards.get("trophies", []).is_empty() or awards.get("goals", []).any(func(g): return g.completed)

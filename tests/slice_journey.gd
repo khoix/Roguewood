@@ -480,8 +480,20 @@ func _second_attempt() -> void:
 	print("J06 loss ceremony: %s" % ("shown" if not ceremony.cues.is_empty() else "none"))
 	_check(lab.hud.result_body.text.contains("Career progress kept: 2 rival(s) cleared") and lab.hud.retry_button.text == "Retry League", "a later loss keeps both first clears")
 	await _capture("slice_lost_again")
+	# UI-23 (owner, 2026-11-19): leaving for the Clubhouse is a slow fade, about 3.5 s.
+	var start := Engine.get_process_frames()
 	await _focus_accept(lab.hud.menu_button)
+	_check(scene.exiting and scene.transition_playing() and scene.curtain.mouse_filter == Control.MOUSE_FILTER_STOP and lab.input_paused,
+		"Clubhouse starts a slow fade, and the run takes no input")
+	for i in 45: await process_frame
+	_check(scene.curtain.color.a > 0.3 and scene.curtain.color.a < 0.9 and lab.motion.sound.fade < 0.8 and lab.motion.sound.fade > 0.2,
+		"the screen and the League's music fade out together (%.2f, %.2f)" % [scene.curtain.color.a, lab.motion.sound.fade])
 	await _wait_for(func(): return scene.screen == "menu" and scene.lab == null, "Clubhouse returns to the menu")
+	_check(scene.curtain.color.a > 0.9 and scene.clubhouse_fade < 0.2 and scene.curtain.mouse_filter == Control.MOUSE_FILTER_IGNORE
+		and (scene.clubhouse_music == null or scene.clubhouse_music.playing), "the Clubhouse is built behind the dark, its music starting from silence, and takes input")
+	await _wait_for(func(): return not scene.transition_playing(), "the Clubhouse fades in", 400)
+	var seconds := float(Engine.get_process_frames() - start) / 60.0
+	_check(seconds >= 3.0 and seconds <= 4.0 and is_equal_approx(scene.clubhouse_fade, 1.0), "the whole transition takes %.1f s (3 to 4)" % seconds)
 	_check(scene.career.first_clears.has("rival.surveyor"), "the Career outlives the session")
 	lab = null
 
@@ -495,6 +507,10 @@ func _award_ceremony() -> void:
 	_check(ids.slice(0, 3) == ["league.house", "rival.custodian", "rival.surveyor"] or ids.slice(0, 3) == ["league.house", "rival.surveyor", "rival.custodian"],
 		"it presents the House title first, then both rivals' plaques (%s)" % str(ids))
 	_check(ceremony.title.text == "AWARDS", "a run that earned trophies opens on AWARDS")
+	# The owner's awards track loops under the ceremony; the League's music steps aside.
+	_check(ceremony.has_music() and ceremony.music.stream.resource_path == "res://assets/audio/music/awards.ogg" and ceremony.music.stream.loop,
+		"the ceremony plays the owner's looping awards track")
+	await _wait_for(func(): return lab.motion.sound.duck < 0.2, "the League's music steps aside for it", 120)
 	# The first trophy: a drumroll under the gathering sunburst, then the reveal.
 	await _wait_for(func(): return ceremony.step == "trophy" and "reveal" in ceremony.cues, "the first trophy is revealed", 600)
 	var first: Dictionary = ceremony.awards.trophies[0]
