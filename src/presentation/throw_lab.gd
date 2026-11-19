@@ -1331,7 +1331,7 @@ func _result_sections(lines: Array, career_lines: Array, last: Dictionary) -> Di
 	var headline := ("%s cleared!" % place) if won else "League's End"
 	var quip := ""
 	if not won and String(last.kind) == "boss" and not division.rival().is_empty():
-		quip = String(division.rival().get("reactions", {}).get("victorious", ""))
+		quip = preload("res://src/presentation/rival_lines.gd").line(division.rival(), "victorious")
 	if not quip.is_empty():
 		headline = "“%s”" % quip
 		lost = "— %s · %s" % [division.rival().name, lost]
