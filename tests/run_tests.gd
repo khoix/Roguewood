@@ -68,6 +68,15 @@ func _initialize() -> void:
 			failures.append("slice_unlocks.json: its Leagues must be production's with the slice as league.house, then league.house_full")
 		for e in content_set.career_graph(content_set.SLICE_UNLOCKS).errors:
 			failures.append("slice_unlocks.json: %s" % e)
+		# UI-20: a League whose celebrations are marked complete has every variant.
+		var theme_script = load("res://src/presentation/league_theme.gd")
+		for league_id in theme_script.MANIFESTS:
+			var manifest: Dictionary = Contracts.read_json(theme_script.MANIFESTS[league_id])
+			var spec: Dictionary = Contracts.read_json("res://content/leagues/%s.json" % String(league_id).trim_prefix("league."))
+			var rival_ids := {}
+			for d in spec.get("divisions", []):
+				for r in d.get("rivals", []): rival_ids[r.id] = true
+			failures.append_array(theme_script.celebration_gaps(manifest, rival_ids.keys()))
 	elif mode == "unit":
 		failures = ContractTests.run()
 		failures.append_array(load("res://tests/house_tactical_art_test.gd").run())
@@ -77,6 +86,7 @@ func _initialize() -> void:
 		failures.append_array(load("res://tests/neon_n3_art_test.gd").run())
 		failures.append_array(load("res://tests/neon_pin_deck_art_test.gd").run())
 		failures.append_array(load("res://tests/card_transparency_test.gd").run())
+		failures.append_array(load("res://tests/alley_screen_test.gd").run())
 		for path in ["res://tests/rules_test.gd", "res://tests/simulation_test.gd", "res://tests/input_test.gd", "res://tests/held_ball_test.gd", "res://tests/card_view_test.gd", "res://tests/scoring_test.gd", "res://tests/deck_test.gd", "res://tests/economy_test.gd", "res://tests/division_test.gd", "res://tests/save_test.gd", "res://tests/slice_test.gd", "res://tests/campaign_generator_test.gd", "res://tests/campaign_integration_test.gd", "res://tests/career_test.gd", "res://tests/clubhouse_test.gd", "res://tests/authored_test.gd", "res://tests/mechanics_c02_test.gd", "res://tests/mechanics_c03_test.gd", "res://tests/mechanics_c04_test.gd", "res://tests/league_spec_test.gd", "res://tests/mechanics_c05_test.gd", "res://tests/mechanics_c06_test.gd", "res://tests/mechanics_c07_test.gd", "res://tests/mechanics_c08_test.gd", "res://tests/mechanics_c09_test.gd", "res://tests/mechanics_c10_test.gd", "res://tests/mechanics_c11_test.gd", "res://tests/mechanics_c13_test.gd", "res://tests/mechanics_c14_test.gd", "res://tests/mechanics_c15_test.gd", "res://tests/mechanics_c16_test.gd", "res://tests/mechanics_c17_test.gd", "res://tests/mechanics_c18_test.gd", "res://tests/mechanics_c19_test.gd", "res://tests/mechanics_c20_test.gd", "res://tests/league_house_test.gd", "res://tests/league_neon_test.gd"]:
 			var suite = load(path)
 			if suite == null:

@@ -126,6 +126,7 @@ jobs:
           xvfb-run -a python3 tools/qa.py e2e --journey J11 --rendered
           python3 tools/qa.py e2e --journey JTUT
           xvfb-run -a python3 tools/qa.py e2e --journey JTUT --rendered
+          python3 tools/qa.py e2e --journey JSEED
           python3 tools/qa.py e2e --journey J12
           xvfb-run -a python3 tools/qa.py e2e --journey J12 --rendered
           python3 tools/qa.py experiment

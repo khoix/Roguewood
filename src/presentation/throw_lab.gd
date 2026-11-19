@@ -199,6 +199,7 @@ var _result_view: Dictionary = {}
 var _replay_only := false # showing a restored, already banked frame
 var _content: Dictionary = {}
 var aim_magnifier: Control # UI-14
+var alley_screen: Control # UI-20: celebrations in the magnifier's window
 
 func _ready() -> void:
 	SettingsPanel.with_defaults(settings)
@@ -381,6 +382,10 @@ func _ready() -> void:
 	aim_magnifier = preload("res://src/presentation/aim_magnifier.gd").new()
 	aim_magnifier.lab = self
 	add_child(aim_magnifier)
+	alley_screen = preload("res://src/presentation/alley_screen.gd").new()
+	alley_screen.lab = self
+	add_child(alley_screen)
+	alley_screen.finished.connect(_on_alley_finished)
 	panels.host_equipment_strip(motion.equipment_art) # UI-3: out of the lane
 	if not restore_from.is_empty():
 		_restore(restore_from)
@@ -973,6 +978,9 @@ func _on_roll_finished(report: Dictionary) -> void:
 		_react("gutter")
 	elif report.roll_result.roll_index == 1 and report.roll_result.fallen_positions.size() == 10:
 		_react("strike")
+	# UI-20: a strike or a spare celebrates on the alley screen (when the League has art).
+	if report.knockdown_log.standing.is_empty():
+		celebrate("strike" if report.roll_result.roll_index == 1 else "spare")
 	state = "result"
 	_result_timer = 0.0
 	_update_status()
@@ -1078,6 +1086,7 @@ func _on_scored() -> void:
 		_replay_only = false
 		_frame_done()
 		return
+	var boss_win: bool = scored.match_over and scored.match_won and not division.practice and division.is_boss()
 	if scored.match_over:
 		_react("victory" if scored.match_won else "defeat")
 	elif not division.practice and division.match_score >= NEAR_VICTORY * division.target():
@@ -1085,7 +1094,26 @@ func _on_scored() -> void:
 	elif scored.result.category == "open":
 		_react("open")
 	_frame_done()
+	if boss_win and _celebrate_boss():
+		next_rack.hide() # Division Result waits for the celebration, or a tap on it
 	frame_scored.emit(scored.duplicate(true))
+
+## UI-20: queues a celebration on the alley screen; false when none plays (the
+## League has no art for it yet, or this is the tutorial).
+func celebrate(event: String, context: Dictionary = {}) -> bool:
+	if alley_screen == null or content.get("id", "") == "tutorial":
+		return false
+	return alley_screen.celebrate(event, context)
+
+func _celebrate_boss() -> bool:
+	var rival: Dictionary = division.rival_for(division.boss())
+	return celebrate("boss_defeated", {"rival_id": String(rival.get("id", "")), "rival_name": String(rival.get("name", "")),
+		"rival_color": String(rival.get("color", "")), "championship": division.division_number() == division.division_count()})
+
+func _on_alley_finished(event: String) -> void:
+	if event == "boss_defeated" and state == "frame_done" and not next_rack.visible:
+		next_rack.show()
+		next_rack.grab_focus()
 
 func _frame_done() -> void:
 	state = "frame_done"

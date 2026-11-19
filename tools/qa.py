@@ -116,13 +116,13 @@ JOURNEYS = {
             ("aim", "cancelled", "rolling", "roll1", "roll2_aim", "frame", "gutter", "target", "magnifier", "curve_right_hold",
              "curve_right", "curve_left", "assist", "magnifier_landscape", "landscape"), 600, ["--fixed-fps", "60"]),
     "J03": ("res://tests/scoring_journey.gd", "ROGUEWOOD_J03_OK", "artifacts/e06",
-            ("scoring", "strike", "spare", "open"), 600, ["--fixed-fps", "60"]),
+            ("scoring", "strike", "spare", "open", "celebration_strike"), 600, ["--fixed-fps", "60"]),
     "J04": ("res://tests/deck_journey.gd", "ROGUEWOOD_J04_OK", "artifacts/e07",
             ("hand", "keep", "match_over", "exhausted", "direct"), 900, ["--fixed-fps", "60"]),
     "J05": ("res://tests/shop_journey.gd", "ROGUEWOOD_J05_OK", "artifacts/e08",
             ("shop", "bought", "funds", "place_pin", "full_slot", "removed", "landscape", "match2"), 900, ["--fixed-fps", "60"]),
     "J06": ("res://tests/division_journey.gd", "ROGUEWOOD_J06_OK", "artifacts/e13",
-            ("slice_preview", "slice_echo", "slice_shop", "slice_dead_straight", "slice_cleared", "slice_clean_sweep", "slice_won",
+            ("slice_preview", "slice_echo", "slice_shop", "slice_dead_straight", "celebration_boss", "slice_cleared", "slice_clean_sweep", "slice_won",
              "slice_lost_again", "preview", "shop_preview", "intro", "boss", "lost", "won", "lost_again"), 1500, ["--fixed-fps", "60"]),
     "J07": ("res://tests/save_journey.gd", "ROGUEWOOD_J07_OK", "artifacts/e10",
             ("continue_menu", "resumed_hand", "resumed_roll", "resumed_frame", "resumed_shop", "resumed_reroll",
@@ -189,6 +189,9 @@ STAGE_RUNS["J12V08"] = [("res://tests/ability_v08_journey.gd", "slice")] * 3
 # Journeys that restart the game: each stage is a separate engine process sharing
 # one save directory; stage k prints ROGUEWOOD_<journey>_STAGE<k>_OK.
 STAGES = {"J09": 3, "J07": 10, "J10": 3, "J11": 2}
+# Owner (2026-11-19): every new run gets its own seed; a restored run keeps it.
+JOURNEYS["JSEED"] = ("res://tests/run_seed_journey.gd", "ROGUEWOOD_JSEED_OK", "artifacts/run-seed", (), 600, ["--fixed-fps", "60"])
+STAGES["JSEED"] = 2
 # Wave 2: retain the complete J11 flow and add Clubhouse art/layout assertions.
 JOURNEYS["J11ART"] = ("res://tests/art_club_journey.gd", "ROGUEWOOD_J11_OK", "artifacts/e16-art/native",
     ("clubhouse_locked_720", "clubhouse_mastered_1280", "clubhouse_trophies_bottom_720", "clubhouse_discovered_1280"), 1200, ["--fixed-fps", "60"])

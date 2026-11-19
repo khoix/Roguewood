@@ -350,6 +350,11 @@ func _division_one() -> void:
 		"a charged circle gesture is committed with zero spin (%.2f charged)" % lab.trials[-1].input.spin)
 	await _toggle_assist()
 	await _wait_for(func(): return lab.state in ["aim", "scoring"], "after the gesture roll", ROLL_FRAMES)
+	# UI-20: the House League has no celebration art yet, so nothing has played. For the
+	# boss win, the journey supplies The Surveyor's two (the placeholder) to check the flow.
+	_check(lab.alley_screen.played.is_empty() and not lab.alley_screen.has_art("strike"), "no celebration plays before the League has art")
+	var placeholder := "res://src/presentation/alley_screen_placeholder.gd"
+	lab.alley_screen.variants_override = {"boss_defeated": {"rival.surveyor": [placeholder, placeholder]}}
 	if lab.state == "aim":
 		await _throw(STRIKE)
 	var boss := await _scored()
@@ -359,6 +364,14 @@ func _division_one() -> void:
 		if lab.state != "scoring" and not lab.history[-1].knockdown_log.standing.is_empty():
 			await _throw(STRIKE)
 		boss = await _scored()
+	var alley: Control = lab.alley_screen
+	_check(alley.playing() and alley.current_event == "boss_defeated" and alley.current_context.rival_id == "rival.surveyor"
+		and alley.current_context.rival_name == "The Surveyor" and alley.current_path == placeholder, "beating the boss plays its celebration, naming The Surveyor")
+	_check(not lab.next_rack.visible, "Division Result waits for the boss celebration")
+	await _capture("celebration_boss")
+	await _wait_for(func(): return not alley.playing() and lab.next_rack.visible, "the boss celebration ends, then the button appears", 300)
+	_check(lab.next_rack.visible and lab.next_rack.has_focus() and not alley.visible, "after the celebration, the button appears with focus")
+	alley.variants_override = {}
 	_check(boss.match_won and lab.division.division_cleared() and lab.division.outcome == "" and lab.next_rack.text == "Division Cleared · Shop",
 		"beating The Surveyor clears Division 1; the attempt continues")
 	await _to_shop("division cleared")
