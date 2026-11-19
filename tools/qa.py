@@ -102,7 +102,7 @@ JOURNEYS = {
     "J03C01": ("res://tests/charm_c01_journey.gd", "ROGUEWOOD_J03C01_OK", "artifacts/e18-c01", ("c01_strike", "c01_streak", "c01_spare", "c01_open"), 600, ["--fixed-fps", "60"]),
     "J11": ("res://tests/clubhouse_journey.gd", "ROGUEWOOD_J11_OK", "artifacts/e16",
             ("clubhouse_locked", "clubhouse_goals", "clubhouse_mastered", "clubhouse_trophies", "clubhouse_discovered", "clubhouse_return",
-             "how_to_play", "glossary_run", "glossary_lane", "glossary_pocket", "glossary_pocket_left", "glossary_scoring", "glossary_cards", "glossary_landscape"), 1500, ["--fixed-fps", "60"]),
+             "how_to_play", "glossary_run", "glossary_lane", "glossary_pocket", "glossary_pocket_left", "glossary_scoring", "glossary_cards", "glossary_landscape", "glossary_overlay"), 1500, ["--fixed-fps", "60"]),
     "J10": ("res://tests/career_journey.gd", "ROGUEWOOD_J10_OK", "artifacts/e15",
             ("career_fresh", "career_unlocked", "career_spare", "career_lost", "career_no_duplicate", "career_practice", "career_menu"), 900, ["--fixed-fps", "60"]),
     "J09": ("res://tests/campaign_journey.gd", "ROGUEWOOD_J09_OK", "artifacts/e14", ("campaign_shop", "campaign_won", "campaign_endless", "campaign_lost"), 1500, ["--fixed-fps", "60"]),
