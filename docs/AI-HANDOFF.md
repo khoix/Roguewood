@@ -307,8 +307,8 @@ Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build`
      - The League's eight Divisions, its three rivals and champion, their rules, its lanes, kit, rewards and specialist tags.
      - The 33-item plan for its batches (the ROADMAP's Salvage bundle), and the definitions the spec itself needs.
   2. **Salvage's rules and lane conditions** (High, as E18-C13 was for Neon): built and tested before any item uses them.
-  4. **UI-20** (owner, 2026-11-19; spec handoffs/UI-20.md): the alley screen. Celebrations for strikes, spares and boss wins in the aim magnifier's window, on a small CRT screen, per League from its theme manifest, with placeholders until UI-A9.
   3. **E05-R5, the flywheel spin** (High; owner, 2026-11-15): the rotation while charging a curve, after the mobile ball-throwing reference. Codex's reconstruction (PR #35) is reference only and stays unmerged until this is confirmed. Build both options to choose on the phone: A (the swing plus a flywheel) and B (spin in place).
+  4. **UI-20** (owner, 2026-11-19; spec handoffs/UI-20.md): the alley screen. Celebrations for strikes, spares and boss wins in the aim magnifier's window, on a small CRT screen, per League from its theme manifest, with placeholders until UI-A9.
 - **Codex:**
   1. **AV-N3** (DC-N3's six items; J03C17).
   2. **AV-N4** (DC-N4's five items and the Controlled Curve ribbon; J03C18).
