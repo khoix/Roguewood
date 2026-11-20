@@ -539,6 +539,10 @@ func _removal_and_sale() -> void:
 	await process_frame
 	_check(panel.sell_confirm_sheet.visible and run.money == before and panel.sell_confirm.text == "Sell +$%d" % value and panel.sell_confirm_title.text != "",
 		"a tap on an item opens it with a Sell confirmation (%s)" % panel.sell_confirm.text)
+	# UI-34 (owner, 2026-11-20): the opened item shows its full rules, and no "sells for".
+	var rules: String = lab._owned_rules(run.item(run.entry_at(card_ref).item_id), String(run.entry_at(card_ref).mod))
+	_check(panel.sell_confirm_rules.visible and panel.sell_confirm_rules.text == rules and not rules.is_empty()
+		and not panel.sell_confirm_text.text.to_lower().contains("sells for"), "the opened item shows its full rules, without a sale line (%s)" % panel.sell_confirm_rules.text)
 	await _capture("sell_confirm")
 	await _tap(panel.sell_confirm)
 	_check(run.money == money + value and run.entry_at(card_ref) == null, "selling pays the sale value")

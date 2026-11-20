@@ -154,6 +154,10 @@ func _tap(control: Control) -> void:
 		await process_frame
 	await _confirm(control)
 
+var lift_seen := false # UI-34: the last _drag_between lifted a card
+var lift_follow := INF # and how far its centre sat from the finger halfway
+var lift_captured := false
+
 ## BAL-1: what a frame's best release adds, [Value, Mult]: 10 Value inside the
 ## ring, and the grade's Mult (FrameRules).
 func _grade_bonus(reports: Array) -> Array:
@@ -164,8 +168,9 @@ func _grade_bonus(reports: Array) -> Array:
 		if Rules.GRADES[grade] > Rules.GRADES[best] or (best == "miss" and grade != "miss"): best = grade
 	return [int(Rules.INSIDE_VALUE) if best != "miss" else 0, int(Rules.GRADES[best])]
 
-## A finger-like mouse drag from one control to another (UI-32's Charm row).
-func _drag_between(from: Control, to: Control) -> void:
+## A finger-like press, hold and drag from one control to another (UI-34: a Charm
+## lifts after a long press and follows the finger). hold: frames held still first.
+func _drag_between(from: Control, to: Control, hold := 30) -> void:
 	var start := from.get_global_rect().get_center()
 	var end := to.get_global_rect().get_center()
 	var event := InputEventMouseButton.new()
@@ -176,6 +181,8 @@ func _drag_between(from: Control, to: Control) -> void:
 	event.global_position = event.position
 	Input.parse_input_event(event)
 	await process_frame
+	for i in hold: await process_frame
+	lift_seen = lab.shop_panel.lifted != null if lab != null else false
 	for i in range(1, 13):
 		var motion := InputEventMouseMotion.new()
 		motion.button_mask = MOUSE_BUTTON_MASK_LEFT
@@ -184,6 +191,11 @@ func _drag_between(from: Control, to: Control) -> void:
 		motion.relative = (end - start) / 12.0
 		Input.parse_input_event(motion)
 		await process_frame
+		if i == 6 and lab != null and lab.shop_panel.lifted != null: # halfway: the card is under the finger
+			lift_follow = lab.shop_panel.lifted.get_global_rect().get_center().distance_to(start.lerp(end, 0.5))
+			if not lift_captured:
+				lift_captured = true
+				await _capture("slice_inventory_lift")
 	var release := InputEventMouseButton.new()
 	release.button_index = MOUSE_BUTTON_LEFT
 	release.pressed = false
@@ -407,9 +419,13 @@ func _division_one() -> void:
 		_check(row.position.x >= shop.sell_sheet.get_global_rect().position.x and row.end.x <= shop.sell_sheet.get_global_rect().end.x,
 			"every Charm fits the row (%s)" % str(row))
 		await _capture("slice_inventory")
+		# UI-34: a quick drag with no hold lifts nothing and moves nothing.
+		await _drag_between(shop.charm_tile(2), shop.charm_tile(1), 0)
+		_check(not lift_seen and lab.run.charms.map(func(e): return e.item_id) == order and not shop.sell_confirm_sheet.visible, "a drag without a long press moves nothing")
 		await _drag_between(shop.charm_tile(2), shop.charm_tile(1))
+		_check(lift_seen and lift_follow < 12.0, "a long press lifts the Charm, and the card follows the finger (%.1f px off halfway)" % lift_follow)
 		_check(lab.run.charms[0].item_id == order[1] and lab.run.charms[1].item_id == order[0] and shop.message.text.contains("Moved") and shop.sell_sheet.visible
-			and not shop.sell_confirm_sheet.visible, "dragging Charm 2 onto Charm 1 swaps them, without opening it, and the Inventory stays open")
+			and not shop.sell_confirm_sheet.visible and shop.lifted == null, "dropping Charm 2 on Charm 1 swaps them, without opening it, and the Inventory stays open")
 		var last := order.size()
 		await _drag_between(shop.charm_tile(1), shop.charm_tile(last))
 		var moved: Array = lab.run.charms.map(func(e): return e.item_id)
