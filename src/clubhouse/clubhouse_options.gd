@@ -6,6 +6,7 @@ extends Control
 ## is what the next match reads. This host stands in for the lab: PresentationAudio
 ## reads `settings`, `settings_panel` and (absent here) `league_theme` and `shop_panel`.
 const SettingsPanel = preload("res://src/presentation/throw_settings_panel.gd")
+const UiTheme = preload("res://src/presentation/house_ui_theme.gd")
 const Audio = preload("res://src/presentation/presentation_audio.gd")
 
 var settings: Dictionary = {}
@@ -26,7 +27,7 @@ func _ready() -> void:
 	# The Clubhouse stays under the page, dimmed and out of reach while it is open.
 	dim = ColorRect.new()
 	dim.name = "OptionsDim"
-	dim.color = Color(0.03, 0.05, 0.08, 0.72)
+	dim.color = UiTheme.SCRIM # UI-35: one scrim behind every overlay
 	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	dim.hide()
 	add_child(dim)

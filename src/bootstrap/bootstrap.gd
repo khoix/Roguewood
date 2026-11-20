@@ -420,7 +420,7 @@ func _build_session_menu() -> void:
 	session_menu.hide()
 	add_child(session_menu)
 	var dim := ColorRect.new()
-	dim.color = Color(0.03, 0.05, 0.08, 0.72)
+	dim.color = UiTheme.SCRIM # UI-35: one scrim behind every overlay
 	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	dim.gui_input.connect(func(event):
 		if (event is InputEventMouseButton or event is InputEventScreenTouch) and event.pressed: close_menu())
@@ -505,7 +505,7 @@ func _build_club_menu() -> void:
 	club_menu.hide()
 	add_child(club_menu)
 	var dim := ColorRect.new()
-	dim.color = Color(0.03, 0.05, 0.08, 0.72)
+	dim.color = UiTheme.SCRIM # UI-35: one scrim behind every overlay
 	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	dim.gui_input.connect(func(event):
 		if (event is InputEventMouseButton or event is InputEventScreenTouch) and event.pressed: close_club_menu())

@@ -95,6 +95,7 @@ var sell_sheet: PanelContainer
 var sell_title: Label
 var sell_close: Button
 var _dim: ColorRect
+var _dim_tapped := -1 # the frame of the last tap on the dim
 var _offers: Array = []
 var _offer_index := -1
 var _money := 0
@@ -200,13 +201,16 @@ func _ready() -> void:
 	# A dimmed layer under the two sheets; a tap on it closes them.
 	_dim = ColorRect.new()
 	_dim.name = "SheetDim"
-	_dim.color = Color(0.03, 0.05, 0.08, 0.6)
+	_dim.color = UiTheme.SCRIM
 	_dim.top_level = true
 	_dim.hide()
-	_dim.gui_input.connect(func(event):
-		if (event is InputEventMouseButton or event is InputEventScreenTouch) and event.pressed:
-			close_offer()
-			close_sell())
+	_dim.gui_input.connect(func(event): # a tap outside closes the top sheet only
+		# A tap arrives twice, as touch and as its emulated mouse (or the reverse): once a frame.
+		if (event is InputEventMouseButton or event is InputEventScreenTouch) and event.pressed and Engine.get_process_frames() != _dim_tapped:
+			_dim_tapped = Engine.get_process_frames()
+			if sell_confirm_sheet.visible: close_sell_confirm()
+			elif offer_sheet.visible: close_offer()
+			elif sell_sheet.visible: close_sell())
 	add_child(_dim)
 	# The Sell sheet: everything that can be sold (and the Charm order), in rows.
 	sell_sheet = _sheet("SellSheet")
@@ -404,14 +408,36 @@ func _sheet(node_name: String) -> PanelContainer:
 	add_child(sheet)
 	return sheet
 
+## UI-35 (owner, 2026-11-20): "Bringing up the preview cards overlay in the inventory
+## does not darken the background like others." One dim serves every sheet; it sits
+## just under the topmost open sheet, so a sheet opened over another (an item over the
+## Inventory) darkens it too. The newest sheet is drawn on top.
+func _raise(sheet: Control) -> void:
+	move_child(sheet, -1)
+	_restack_dim()
+
+func _sheets_open() -> Array:
+	return [choice_sheet, sell_sheet, offer_sheet, sell_confirm_sheet].filter(func(s): return s != null and s.visible)
+
+func _restack_dim() -> void:
+	var open := _sheets_open()
+	if open.is_empty():
+		_dim.hide()
+		return
+	var top: Control = open[0]
+	for sheet in open:
+		if sheet.get_index() > top.get_index(): top = sheet
+	_dim.position = Vector2.ZERO
+	_dim.size = get_viewport_rect().size
+	_dim.show()
+	move_child(_dim, top.get_index() - (1 if _dim.get_index() < top.get_index() else 0))
+
 ## Centres a sheet on the screen at up to `wanted` size, over the dimmed layer.
 func _fit_sheet(sheet: Control, wanted: Vector2) -> void:
 	var screen := get_viewport_rect().size
-	_dim.position = Vector2.ZERO
-	_dim.size = screen
-	_dim.show()
 	sheet.size = Vector2(minf(wanted.x, screen.x - 32.0), minf(wanted.y, screen.y - 120.0))
 	sheet.position = ((screen - sheet.size) * 0.5).floor()
+	_raise(sheet)
 
 ## A tapped offer opens large, with its full text and price. Buying is the Buy
 ## button's job; an offer that cannot be bought still opens, and says why.
@@ -455,7 +481,7 @@ func close_offer() -> void:
 	_offer_index = -1
 	offer_sheet.hide()
 	offer_sheet.modulate.a = 1.0
-	_dim.visible = sell_sheet.visible
+	_restack_dim()
 	if index >= 0 and index < offer_buttons.size() and offer_buttons[index].is_visible_in_tree() and not offer_buttons[index].disabled:
 		offer_buttons[index].grab_focus()
 
@@ -523,7 +549,7 @@ func close_sell_confirm() -> void:
 	_sell_pending = ""
 	sell_confirm_sheet.hide()
 	sell_confirm_sheet.modulate.a = 1.0
-	_dim.visible = sell_sheet.visible or offer_sheet.visible
+	_restack_dim()
 	var tile := sell_button(ref)
 	if tile != null and tile.is_visible_in_tree(): tile.grab_focus()
 
@@ -573,7 +599,7 @@ func close_sell() -> void:
 	if lifted != null: _end_charm_drag()
 	close_sell_confirm()
 	sell_sheet.hide()
-	_dim.visible = offer_sheet.visible
+	_restack_dim()
 	if sell_open.is_visible_in_tree(): sell_open.grab_focus()
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -859,6 +885,7 @@ func show_choices(prompt: String, labels: Array, visuals: Array = [], rack: Arra
 	choice_sheet.show()
 	choice_sheet.size = Vector2(width, minf(64.0 * (labels.size() + 2) + 60.0, viewport_size.y - 160.0))
 	choice_sheet.position = ((viewport_size - choice_sheet.size) * 0.5).floor()
+	_raise(choice_sheet)
 	if labels.is_empty():
 		cancel_choice.grab_focus()
 	else:
@@ -937,6 +964,7 @@ func choice_label(index: int) -> String:
 func hide_choices() -> void:
 	choice_sheet.hide()
 	_choice_selected = -1
+	_restack_dim()
 
 func button_for_offer(index: int) -> Button:
 	return offer_buttons[index]

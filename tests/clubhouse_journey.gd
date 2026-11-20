@@ -255,6 +255,8 @@ func _ui27_overlay(page) -> void:
 	page.entries.pocket.grab_focus()
 	await _action("ui_accept")
 	_check(page.overlay.visible and page.shown_term == "pocket", "Enter on a focused word opens it")
+	var scrim := preload("res://src/presentation/house_ui_theme.gd").SCRIM # UI-35: one scrim for every overlay
+	_check(page.overlay.get_child(0).color == scrim and page.dim.color == scrim, "the word overlay and the guide darken with the game's one scrim")
 	await _action("ui_cancel")
 	_check(not page.overlay.visible and page.is_open(), "Escape closes the open word, not the guide")
 
@@ -374,6 +376,7 @@ func _stage_one_clubhouse() -> void:
 		"the categories are tabs above the scrolling page, Charms chosen")
 	_check(chosen.global_position.x - 3.0 >= scroll.global_position.x and chosen.get_global_rect().end.x + 3.0 <= scroll.get_global_rect().end.x,
 		"the page's edges leave room for the chosen card's ring: %s in %s" % [str(chosen.get_global_rect()), str(scroll.get_global_rect())])
+	_check(club.binder_preview.get_child(0).color == preload("res://src/presentation/house_ui_theme.gd").SCRIM, "the Binder preview darkens with the game's one scrim (UI-35)")
 	await _capture("clubhouse_preview")
 	await _focus_accept(club.preview_close)
 	_check(not club.binder_preview.visible and chosen.has_focus(), "Close returns to the chosen card")

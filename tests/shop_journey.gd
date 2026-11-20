@@ -543,9 +543,36 @@ func _removal_and_sale() -> void:
 	var rules: String = lab._owned_rules(run.item(run.entry_at(card_ref).item_id), String(run.entry_at(card_ref).mod))
 	_check(panel.sell_confirm_rules.visible and panel.sell_confirm_rules.text == rules and not rules.is_empty()
 		and not panel.sell_confirm_text.text.to_lower().contains("sells for"), "the opened item shows its full rules, without a sale line (%s)" % panel.sell_confirm_rules.text)
+	# UI-35 (owner, 2026-11-20): the item sheet darkens the Inventory behind it, with the
+	# game's one scrim, and a tap outside closes only the item.
+	var scrim := preload("res://src/presentation/house_ui_theme.gd").SCRIM
+	_check(panel._dim.visible and panel._dim.color == scrim and panel.sell_sheet.get_index() < panel._dim.get_index()
+		and panel._dim.get_index() < panel.sell_confirm_sheet.get_index(), "the opened item darkens the Inventory behind it")
 	await _capture("sell_confirm")
 	await _tap(panel.sell_confirm)
 	_check(run.money == money + value and run.entry_at(card_ref) == null, "selling pays the sale value")
+	_check(panel.sell_sheet.visible and panel._dim.visible and panel._dim.get_index() < panel.sell_sheet.get_index(), "back on the Inventory, the dim sits under it again")
+	for i in 4: await process_frame # the sale rebuilds the tiles
+	var other: Button = (panel.owned_list.get_children() + panel.charm_row.get_children()).filter(func(c): return c is Button and not c.is_queued_for_deletion())[0]
+	var spot := other.get_global_rect().get_center()
+	for pressed in [true, false]:
+		var touch := InputEventScreenTouch.new()
+		touch.position = _window(spot)
+		touch.pressed = pressed
+		Input.parse_input_event(touch)
+		await process_frame
+	for i in 3: await process_frame
+	_check(panel.sell_confirm_sheet.visible, "another item opens over the Inventory")
+	var corner := Vector2(6.0, lab.size.y - 6.0) # outside both sheets, on the dim
+	for pressed in [true, false]:
+		var tap := InputEventMouseButton.new()
+		tap.button_index = MOUSE_BUTTON_LEFT
+		tap.pressed = pressed
+		tap.position = _window(corner)
+		tap.global_position = tap.position
+		Input.parse_input_event(tap)
+		await process_frame
+	_check(not panel.sell_confirm_sheet.visible and panel.sell_sheet.visible, "a tap outside closes the item, not the Inventory")
 	var rows: int = (lab.shop_panel.owned_list.get_children() + lab.shop_panel.charm_row.get_children()).filter(func(c): return c is Button and String(c.name).begins_with("Sell_") and not c.is_queued_for_deletion()).size()
 	_check(lab.shop_panel.sell_sheet.visible and rows == sellable - 1, "the sheet stays open for the next sale, one row fewer (rows %d, were %d)" % [rows, sellable])
 	var sell_rect: Rect2 = lab.shop_panel.sell_sheet.get_global_rect()

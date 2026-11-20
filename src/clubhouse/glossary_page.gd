@@ -48,7 +48,7 @@ func _ready() -> void:
 	_sections = Glossary.sections()
 	dim = ColorRect.new()
 	dim.name = "GlossaryDim"
-	dim.color = Color(0.03, 0.05, 0.08, 0.72)
+	dim.color = UiTheme.SCRIM # UI-35: one scrim behind every overlay
 	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(dim)
 	panel = PanelContainer.new()
@@ -127,7 +127,7 @@ func _build_overlay() -> void:
 	overlay.hide()
 	add_child(overlay)
 	var shade := ColorRect.new()
-	shade.color = Color(0.02, 0.03, 0.05, 0.82)
+	shade.color = UiTheme.SCRIM # UI-35: one scrim behind every overlay
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	shade.gui_input.connect(func(event):
 		if (event is InputEventMouseButton or event is InputEventScreenTouch) and event.pressed: close_term())
