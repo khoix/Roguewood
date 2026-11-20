@@ -475,7 +475,7 @@ def main():
     parser.add_argument("--journey", choices=sorted(JOURNEYS), default="J01")
     parser.add_argument("--rendered", action="store_true", help="Use a real display; on Linux run via xvfb-run")
     parser.add_argument("--draw", choices=["all", "captures"],
-                        help="rendered: draw every frame, or only the frames a capture waits for (QA-8, tools/qa_render.gd). "
+                        help="rendered: draw every frame, or only the frames a capture waits for (QA-8, src/platform/qa_render.gd). "
                              "Default: captures for journeys at a fixed frame rate, all otherwise")
     parser.add_argument("--inject-failure", action="store_true", help="Exercise J01 failure artifacts")
     parser.add_argument("--verbose", action="store_true", help="Print every engine run's full output (or set QA_VERBOSE=1)")

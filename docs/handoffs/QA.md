@@ -6,7 +6,7 @@
 - **Branch:** held on `claude/gracious-hopper-2npyl2` while PR #51 is open; it joins `claude/roguewood-build` for the next PR.
 - **Paths:**
   - CI: `.github/workflows/bootstrap.yml`, `e11-art.yml`, `e12-motion.yml`, and `tools/ci_retry.sh`;
-  - tooling: `tools/qa.py`, and `tools/qa_render.gd` with its autoload in `project.godot`;
+  - tooling: `tools/qa.py`, and `src/platform/qa_render.gd` with its autoload in `project.godot`;
   - docs: docs/AI-HANDOFF.md (split), docs/AI-HANDOFF-HISTORY.md, AGENTS.md, docs/prompts/codex-wave14-session.md and ADR 008.
 
 ## What was measured first (full matrix m31, 252 commands, 3 workers, 64 min wall)
@@ -42,7 +42,7 @@
    - **The slice strategy simulation** has no pass or fail thresholds; it writes ADR 008's balance report. `qa.py slice` now runs 50 seeded games per strategy (it only has to run), and `--runs 400` regenerates the report. ADR 008 notes it.
    - **JAVC04B** was slow only because of drawing (27× its headless run), so QA-8 fixes it.
 8. **QA-8, rendered journeys draw only the frames a capture waits for:**
-   - **How:** the `QaRender` autoload (`tools/qa_render.gd`) turns the render loop off. It draws a frame when something waits on `RenderingServer.frame_post_draw` (every capture does), and every 30th frame besides.
+   - **How:** the `QaRender` autoload (`src/platform/qa_render.gd`) turns the render loop off. It draws a frame when something waits on `RenderingServer.frame_post_draw` (every capture does), and every 30th frame besides.
    - **Inert in the game:** it frees itself unless qa.py passes `--qa-render-on-demand` to a rendered run.
    - **Fixed frame rate only:** qa.py passes it only to journeys with `--fixed-fps` (110 of 111 rendered journeys). Their timing never depends on how long a frame takes to draw. J01, which has no fixed rate, draws every frame.
    - **Override:** `--draw=all` draws every frame.
@@ -72,8 +72,15 @@
 - `qa.py batch content J01 J01:rendered`: 3 of 3.
 - `qa.py matrix` reproduces CI's 252 commands exactly (75 game, 177 art).
 - The QA-8 comparisons above.
-- **Full local matrix with the new defaults:** see "Result" below.
-- **CI on the holding branch:** see "Result" below.
+- **Full local matrix with the new defaults, and CI on the holding branch:** see "Result" below.
 
 ## Result
-(filled in after the full matrix and CI)
+- **Full local matrix with the new defaults (`qa.py matrix`, `d8c46bd`):**
+  - **Time:** 28 min wall, against 64 min before (m31). That is 81 test-minutes against 187: rendered journeys 142 → 41, headless 32 → 35, the slice simulation 595 → 82 s.
+  - **Result:** 251 of 252. The web journey (JW01) failed with a real bug: the Web and desktop exports exclude `tools/`, so the `QaRender` autoload could not load in the shipped game ("Attempt to open script 'res://tools/qa_render.gd' … File not found"). CI's game shard (#532) failed on the same check.
+  - **Fix:** the autoload moved to `src/platform/qa_render.gd`, which ships, and is inert there.
+  - **Recheck:** `web`, `export`, J01 and J05 rendered (drawing on demand): PASS.
+- **CI #532** (holding branch, `d8c46bd`) proved the new install steps:
+  - `ci_retry.sh apt` installed the display packages;
+  - `ci_retry.sh playwright` installed Chromium;
+  - the game shard then failed only on the bug above.
