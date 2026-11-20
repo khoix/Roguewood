@@ -13,6 +13,20 @@ Repository: https://github.com/khoix/Roguewood.
 3. **Your assignment:** read docs/AI-HANDOFF.md, "Wave 14 claims", "Wave 14 progress" and "Ownership, lanes and hand-offs". Those claims are your assignment and limits; repo state wins over this prompt.
 4. **Check what is already done:** look in docs/handoffs/ for AV-N3.md, AV-N4.md, AV-N5.md, UI-A6.md, AV-T02.md and WAVE14-CODEX.md, and skip any item already DONE.
 
+## New since your last session: testing and CI (owner, 2026-11-20)
+The owner asked for tests that take less time and fewer tokens. The details are in docs/AI-HANDOFF.md, "Testing and CI"; in short:
+- **docs/AI-HANDOFF.md is now short** (current state only, about 200 lines). Older entries are in docs/AI-HANDOFF-HISTORY.md; read it only when you need a past result.
+- **qa.py is quiet:** a pass prints one `PASS` line; a failure prints its error lines, the last 40 lines and the log's path. `--verbose` or `QA_VERBOSE=1` prints everything.
+- **Check what your item touches, in parallel:** `python3 tools/qa.py batch unit content J03C18 J03C18:rendered JAVN3BC:rendered`, for example. It runs three at a time, prints one line each, and ends with any failure's tail.
+- **CI is the full gate.** You no longer re-run every art journey locally; push, and the art shard runs them all. `python3 tools/qa.py matrix --shard art` runs CI's own art list locally if CI is down.
+- **Rendered journeys draw only the frames a capture waits for** (and every 30th), through the `QaRender` autoload in project.godot. It is inert in the game. Captures are pixel-identical to drawing every frame. If an art step ever needs every frame drawn (a timing-sensitive capture without `await RenderingServer.frame_post_draw`), pass `--draw=all` and tell the coordinator.
+- **New captures:** wait for `RenderingServer.frame_post_draw` before reading `root.get_texture()`, as the existing journeys do.
+- **CI:**
+  - one run per push (no separate pull-request run);
+  - a newer push to your branch cancels the older run;
+  - pushes of only docs or Markdown run nothing;
+  - package installs go through `tools/ci_retry.sh`. Use it in any new step that installs packages.
+
 ## Order
 ### 1. AV-T02 (next; Medium): the spinning held ball's look
 - **Brief:** docs/prompts/codex-wave14-av-t02.md. Context: docs/handoffs/E05-R5.md and ADR 011, "Revision: the flywheel".
