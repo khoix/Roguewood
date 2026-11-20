@@ -121,7 +121,7 @@ JOURNEYS = {
     "J04": ("res://tests/deck_journey.gd", "ROGUEWOOD_J04_OK", "artifacts/e07",
             ("hand", "keep", "match_over", "exhausted", "direct"), 900, ["--fixed-fps", "60"]),
     "J05": ("res://tests/shop_journey.gd", "ROGUEWOOD_J05_OK", "artifacts/e08",
-            ("offer", "shop", "bought", "funds", "place_pin", "full_slot", "removed", "landscape", "match2"), 900, ["--fixed-fps", "60"]),
+            ("offer", "shop", "bought", "funds", "place_pin", "carried_mod", "full_slot", "removed", "landscape", "match2"), 900, ["--fixed-fps", "60"]),
     "J06": ("res://tests/division_journey.gd", "ROGUEWOOD_J06_OK", "artifacts/e13",
             ("slice_preview", "slice_echo", "slice_shop", "slice_dead_straight", "celebration_boss", "slice_cleared", "awards_trophy", "awards_summary", "slice_clean_sweep", "slice_won",
              "slice_lost_again", "preview", "shop_preview", "intro", "boss", "lost", "won", "lost_again"), 1500, ["--fixed-fps", "60"]),

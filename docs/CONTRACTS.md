@@ -88,7 +88,7 @@ How the deck plays:
 
 An entry is `{item_id, paid, mod, mod_paid}`. `paid` is the price actually paid (0 for the kit), and sale values derive from it. `mod` is the attached modification ("" for none), at most one per pin or ball card.
 
-Places are refs: `rack:N`, `reserve:N`, `charm:N`, `card:<uid>`. Purchases go through `placements(item_id)`, which lists each possible target with what it would displace (`moves_to`) or replace and sell (`replaces`, `sale`). `place` accepts only a listed target, so nothing is dropped silently.
+Places are refs: `rack:N`, `reserve:N`, `charm:N`, `card:<uid>`. Purchases go through `placements(item_id)`, which lists each possible target with what it would displace (`moves_to`) or replace and sell (`replaces`, `sale`). `place` accepts only a listed target, so nothing is dropped silently. A pin placed where a modified pin stands takes over its modification (`keeps_mod`, UI-30), with what was paid for it, unless the new pin and the modification exclude each other; the old pin then moves or sells without it (its `sale` leaves the modification out).
 
 `Shop` (`src/rules/shop.gd`, schema 1) saves its offers, visit, rerolls this visit, Division, unlocked prerequisites, selection log, seed and RNG state, with seed and state as decimal strings. `ineligibility(item, inventory)` is the executable eligibility rule. `plan(index, inventory)` previews a purchase without changing anything. `buy` and `remove_card` refuse without changing state.
 
