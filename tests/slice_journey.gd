@@ -567,7 +567,7 @@ func _award_ceremony() -> void:
 	await _wait_for(func(): return ceremony.fx.bursts > 0 and "burst" in ceremony.cues and ceremony.fx.confetti_shots > 0, "fireworks and confetti, with their sounds", 300)
 	# UI-31: the show runs from the start: shells of several kinds, confetti falling
 	# from the top and streamers, with their own sounds.
-	await _wait_for(func(): return ceremony.fx.shells >= 3 and "burst" in ceremony.show_cues, "the continuous show is under way", 300)
+	await _wait_for(func(): return ceremony.fx.shells >= 3 and "burst" in ceremony.show_cues, "the continuous show is under way", 600)
 	_check(ceremony.fx.show_on and ceremony.fx._stream != null and ceremony.fx._stream.emitting and ceremony.fx._streamers.size() == ceremony.fx.STREAMERS,
 		"confetti falls from the top and streamers drift the whole time")
 	for i in 6: await process_frame

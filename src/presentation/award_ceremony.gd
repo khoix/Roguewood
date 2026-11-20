@@ -65,7 +65,8 @@ var hold := false # UI-25: Continue keeps the last screen for the fade after it
 var skip_button: Button
 var _voices: Array = []
 var _show_voices: Array = []
-var _show_sound_at := 0
+var _show_clock := 0.0 # the ceremony's own time, so the throttle follows the game, not the wall clock
+var _show_sound_at := -1.0
 var _hurry := false
 var _skipping := false
 var _tweens: Array = []
@@ -227,8 +228,10 @@ func _layout() -> void:
 	spotlight.position = art_center - spotlight.size * 0.5
 	skip_button.position = Vector2((size.x - skip_button.size.x) * 0.5, size.y - skip_button.size.y - margin) # where Continue appears
 
-func _process(_delta: float) -> void:
-	if visible: _layout()
+func _process(delta: float) -> void:
+	if visible:
+		_show_clock += delta
+		_layout()
 
 ## Starts the ceremony for `data` (RunAwards.for_run). ctx: {league_id, run, won}.
 ## UI-25: with `hold_at_end`, Continue leaves its last screen and music in place for
@@ -245,6 +248,7 @@ func present(data: Dictionary, ctx: Dictionary = {}, hold_at_end: bool = false) 
 		fx.palette = [GOLD, Color("ff4fd8"), Color("3ff2ff"), Color("b48cff"), IVORY]
 	cues.clear()
 	show_cues.clear()
+	_show_sound_at = -1.0
 	shown_trophies.clear()
 	goal_rows.clear()
 	for child in shelf.get_children(): child.queue_free()
@@ -575,9 +579,8 @@ func cue(id: String, pitch: float = 1.0) -> void:
 ## sequence's, never more than one every SHOW_SOUND_GAP, and on after Skip.
 func _show_sound(id: String) -> void:
 	if not visible: return
-	var now := Time.get_ticks_msec()
-	if now - _show_sound_at < int(SHOW_SOUND_GAP * 1000.0): return
-	_show_sound_at = now
+	if _show_sound_at >= 0.0 and _show_clock - _show_sound_at < SHOW_SOUND_GAP: return
+	_show_sound_at = _show_clock
 	show_cues.append(id)
 	var muted := bool(lab.settings.get("sound_muted", false)) if lab != null else false
 	var volume := float(lab.settings.get("sound_volume", 0.65)) if lab != null else 0.65

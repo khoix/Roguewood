@@ -39,11 +39,14 @@ static func run() -> Array[String]:
 		failures.append("run awards: a Career goal moves from where it stood (4 → 7 of 10) (%s)" % str(spares))
 	if by_id.has("mastery.mixed_rack"):
 		failures.append("run awards: a goal this run did not move is not shown")
-	# A second title is "again", and a run with nothing earned has no ceremony.
-	career.championships["league.house"] = {"wins": 2, "first_attempt": 1, "last_attempt": uid}
-	var again: Array = RunAwards.trophies(career, graph, uid).filter(func(t): return t.id == "league.house")
-	if again.is_empty() or not again[0].again or again[0].headline != "Champion Again!":
-		failures.append("run awards: a repeat title is a champion again")
+	# UI-31 (owner, 2026-11-20): "Only for new awards": a title won again is no award,
+	# and a run with nothing earned has no ceremony.
+	var repeat := Career.begin_attempt(career)
+	career.championships["league.house"] = {"wins": 2, "first_attempt": uid, "last_attempt": repeat}
+	if not RunAwards.trophies(career, graph, repeat).filter(func(t): return t.id == "league.house").is_empty():
+		failures.append("run awards: a repeat title is no new award")
+	if not RunAwards.is_empty(RunAwards.for_run(career, graph, repeat)):
+		failures.append("run awards: a run whose only win was a repeat title has no award page (%s)" % str(RunAwards.for_run(career, graph, repeat)))
 	var quiet := Career.begin_attempt(career)
 	if not RunAwards.is_empty(RunAwards.for_run(career, graph, quiet)):
 		failures.append("run awards: a run that earned nothing has no awards")

@@ -434,6 +434,7 @@ Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build`
 - **UI-30 DONE** (handoffs/UI-30.md), owner 2026-11-20: a new pin placed where a modified pin stands takes over its modification (unless they exclude each other); the old pin moves or sells without it, and the placement sheet says so. Held on `claude/gracious-hopper-2npyl2` at the owner's request until #50 merged, then merged into `claude/roguewood-build` for the next PR.
 - **UI-31 DONE** (handoffs/UI-31.md), owner 2026-11-20: the award page opens only for real progress (a within-run goal counts only when completed); the fade out is halved (1.5 s + 0.15 s); and a continuous show runs the whole time the award screen is up: fireworks of five kinds, salvos with bottle rockets, confetti from the top, corner cannons and streamers, with their own sounds.
 - **Full CI matrix (local) on `90330f6`** (UI-30 and UI-31): 252 of 252 commands PASS.
+- **UI-31 follow-up** (owner, 2026-11-20): a League title won again is no new award; it no longer opens or appears on the award page. CI #529 failed on J12R01 because the show's sound throttle used the wall clock; it now counts the ceremony's own time. #528's art job hung in `apt-get update` (Ubuntu mirror) until the 90-minute limit.
 - **Next:**
   - Codex's AV-N4, AV-N5 and UI-A6 (AV-T02, AV-T03, UI-A7 and AV-N3 are merged), then UI-A9-H, and the proposed AV-UI1 (the final button sounds);
   - then the full matrix and the "Wave 14 closed" commit.
