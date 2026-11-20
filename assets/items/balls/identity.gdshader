@@ -36,9 +36,13 @@ void fragment() {
   c = mix(c, brass * 0.8, edge);
   metal = 0.78; rough = 0.34;
  } else {
-  float rings = band(sin(acos(clamp(n.z, -1.0, 1.0)) * 12.0), 0.15);
+  // UI-33b (owner, 2026-11-20): the rings were centred on the axis a held spin turns
+  // about, so spinning the Echo Ball changed nothing on screen. Their axis now leans
+  // off it, so the rings swing round as the ball spins, and roll over as it rolls.
+  float lean = dot(n, normalize(vec3(0.42, 0.30, 0.86)));
+  float rings = band(sin(acos(clamp(lean, -1.0, 1.0)) * 12.0), 0.15);
   c = mix(ivory, petrol, rings);
-  c = mix(c, brass, band(sin(acos(clamp(n.z, -1.0, 1.0)) * 12.0) - 0.28, 0.04));
+  c = mix(c, brass, band(sin(acos(clamp(lean, -1.0, 1.0)) * 12.0) - 0.28, 0.04));
   rough = 0.27; metal = 0.35;
  }
  // Quiet local material grain; no RNG, UV animation or silhouette change.

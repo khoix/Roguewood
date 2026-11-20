@@ -149,6 +149,7 @@ func _run() -> void:
 	await _curves_and_target()
 	await _held_ball()
 	await _spin_models()
+	await _every_ball_turns()
 	await _flat_spin()
 	await _mouse_throw()
 	await _assist_throw()
@@ -563,6 +564,72 @@ func _spin_models() -> void:
 	_check(int(lab._flick.tuning.spin_model) == 1, "Reset returns to swing + flywheel (A)")
 	await _focus_accept(lab.settings_panel.tuning_box.get_node("CloseTuning"))
 	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
+
+## UI-33b (owner, 2026-11-20): "check all ball types and make sure they are actually
+## spinning appropriately." Rendered only: every ball's own surface, its grip and roll
+## spots hidden, must look different after a 50° turn about the roll axis and
+## after one about the spin axis (a pattern fixed to the world, as the Spare Ball's
+## stripe was, or one that a turn maps onto itself, fails).
+func _every_ball_turns() -> void:
+	if DisplayServer.get_name() == "headless": return
+	await _ready_to_throw()
+	var Assets = preload("res://src/presentation/item_assets.gd")
+	var ball: Node3D = lab.lane.aim_ball
+	var marks: Array = ball.get_children().filter(func(c): return String(c.name).begins_with("FingerHole") or String(c.name).begins_with("RollSpot"))
+	for mark in marks: mark.visible = false
+	var body: MeshInstance3D = ball.get_children().filter(func(c): return c is MeshInstance3D)[0]
+	var original: Material = body.material_override
+	var rest: Basis = ball.basis
+	var ids: Array = Contracts.read_json("res://content/catalogue.json").items.filter(func(i): return i.category == "ball").map(func(i): return String(i.id))
+	var still: Array = []
+	var seen: Array = []
+	var sheet: Array = [] # a contact sheet: each ball at rest, rolled and spun
+	for id in ids:
+		var material := Assets.slot(id, "in_play") as Material
+		body.material_override = material if material != null else original # no art yet: the default ball
+		var shots: Array = []
+		for turn in [Basis.IDENTITY, Basis(Vector3.RIGHT, deg_to_rad(50.0)), Basis(Vector3.FORWARD, deg_to_rad(50.0))]: # 50°: no symmetry hides a turn
+			ball.basis = rest * turn
+			await RenderingServer.frame_post_draw
+			shots.append(_ball_crop())
+		sheet.append(shots)
+		var roll := _changed(shots[0], shots[1])
+		var spin := _changed(shots[0], shots[2])
+		seen.append("%s %.2f/%.2f" % [id, roll, spin])
+		if roll < 0.05 or spin < 0.05: still.append(id)
+	print("J02 ball turns (changed share, rolled/spun 50°): " + ", ".join(seen))
+	var cell := 96
+	var contact := Image.create(cell * 3 + 8, (cell + 4) * sheet.size(), false, Image.FORMAT_RGB8)
+	contact.fill(Color(0.06, 0.07, 0.09))
+	for row in sheet.size():
+		for col in 3:
+			var crop: Image = sheet[row][col].duplicate()
+			crop.convert(Image.FORMAT_RGB8)
+			crop.resize(cell, cell, Image.INTERPOLATE_NEAREST)
+			contact.blit_rect(crop, Rect2i(0, 0, cell, cell), Vector2i(col * (cell + 4), row * (cell + 4)))
+	if not artifact_dir.is_empty(): contact.save_png(artifact_dir.path_join("ball_turns.png"))
+	ball.basis = rest
+	body.material_override = original
+	for mark in marks: mark.visible = true
+	_check(ids.size() >= 10 and still.is_empty(), "every ball's surface turns with it, rolled and spun (%s)%s" % [", ".join(seen), "; still: " + ", ".join(still) if not still.is_empty() else ""])
+
+## The ball's square on the lane view, from the lane's own render.
+func _ball_crop() -> Image:
+	var view: Image = lab._viewport.get_texture().get_image()
+	var at: Vector2 = lab._camera.unproject_position(lab.lane.aim_ball.global_position)
+	var edge: Vector2 = lab._camera.unproject_position(lab.lane.aim_ball.global_position + lab._camera.global_transform.basis.x * Lane.BALL_RADIUS * lab.lane.ball_scale())
+	var r: float = at.distance_to(edge) * 0.8 # inside the outline: the surface only
+	return view.get_region(Rect2i(Vector2i(at - Vector2(r, r)), Vector2i(int(r * 2.0), int(r * 2.0))))
+
+## The share of pixels that changed noticeably between two crops.
+func _changed(a: Image, b: Image) -> float:
+	var changed := 0
+	for y in a.get_height():
+		for x in a.get_width():
+			var p := a.get_pixel(x, y)
+			var q := b.get_pixel(x, y)
+			if absf(p.r - q.r) + absf(p.g - q.g) + absf(p.b - q.b) > 0.12: changed += 1
+	return float(changed) / maxf(1.0, a.get_width() * a.get_height())
 
 ## Flat spin (owner, 2026-11-08): the held ball never changes size on screen while
 ## it swirls, nor when the finger goes well below its start, and turns about the line
