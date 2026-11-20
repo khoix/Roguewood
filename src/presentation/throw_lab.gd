@@ -668,6 +668,17 @@ func _refresh_hand() -> void:
 func _effect_text(item: Dictionary) -> String:
 	return ScoreLog.item_text(item, _names)
 
+## UI-34 (owner, 2026-11-20): an owned item's full rules, as its offer showed them:
+## its effect, any tradeoff, and its modification's effect.
+func _owned_rules(item: Dictionary, mod: String) -> String:
+	var rules := _effect_text(item)
+	if not String(item.get("downside", "")).is_empty():
+		rules += "\nTradeoff: " + String(item.downside)
+	if not mod.is_empty():
+		var mod_item: Dictionary = run.item(mod)
+		rules += "\n%s: %s" % [mod_item.get("name", mod), Sentence.cap(_effect_text(mod_item))]
+	return rules
+
 ## In-world target marker; the readable ring itself is drawn by the aim overlay.
 func _build_ring() -> void:
 	var arrow := PrismMesh.new()
@@ -1797,8 +1808,9 @@ func _refresh_shop() -> void:
 			var with_mod: String = "" if String(entry.mod).is_empty() else " + " + _names.get(entry.mod, entry.mod)
 			sellables.append({"ref": owned.ref, "label": "%s  +$%d" % [_ref_label(owned.ref), run.sale_value(owned.ref)], # the sheet's title says Sell
 				"item_id": entry.item_id, "mod": String(entry.mod), "name": item.get("name", entry.item_id), "value": run.sale_value(owned.ref),
-				"place": place, "text": _effect_text(item),
-				"detail": "%s%s · %s · sells for $%d" % [item.get("name", entry.item_id), with_mod, place, run.sale_value(owned.ref)]})
+				"place": place, "text": _effect_text(item), "rules": _owned_rules(item, String(entry.mod)),
+				# UI-34 (owner, 2026-11-20): no "sells for $" here; the tile and Sell say it.
+				"detail": "%s%s · %s" % [item.get("name", entry.item_id), with_mod, place]})
 	var summary := "Match %d paid: Payout $%d · interest $%d (on $%d held) · item income $%d" % [settlement.match, settlement.payout,
 		settlement.interest, settlement.balance_before, settlement.item_income]
 	var notes: Array = []

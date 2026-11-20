@@ -48,6 +48,7 @@ var sell_confirm_sheet: PanelContainer
 var sell_card: CardView
 var sell_confirm_title: Label
 var sell_confirm_text: Label
+var sell_confirm_rules: Label
 var sell_confirm: Button
 var sell_back: Button
 var _sell_pending := ""
@@ -275,9 +276,14 @@ func _ready() -> void:
 	sell_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	sell_card.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	confirm_box.add_child(sell_card)
-	sell_confirm_text = _label(confirm_box, "SellConfirmText", 22)
+	sell_confirm_text = _label(confirm_box, "SellConfirmText", 18) # where it sits
 	sell_confirm_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	sell_confirm_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	sell_confirm_text.add_theme_color_override("font_color", Color("9aa8a6"))
+	# UI-34 (owner, 2026-11-20): the item's full rules, as its offer showed them.
+	sell_confirm_rules = _label(confirm_box, "SellConfirmRules", 22)
+	sell_confirm_rules.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	sell_confirm_rules.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	var confirm_row := HBoxContainer.new()
 	confirm_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	confirm_row.add_theme_constant_override("separation", 12)
@@ -497,6 +503,8 @@ func open_sell_confirm(ref: String) -> void:
 		sell_card.set_state("", "", "", String(owned.get("text", "")))
 	sell_confirm_title.text = String(owned.get("name", owned.label))
 	sell_confirm_text.text = String(owned.get("detail", owned.label))
+	sell_confirm_rules.text = String(owned.get("rules", owned.get("text", "")))
+	sell_confirm_rules.visible = not sell_confirm_rules.text.is_empty()
 	sell_confirm.text = "Sell +$%d" % int(owned.get("value", 0))
 	sell_confirm_sheet.show()
 	sell_confirm.grab_focus()
@@ -562,6 +570,7 @@ func pending_confirm(control) -> Button:
 
 func close_sell() -> void:
 	if not sell_sheet.visible: return
+	if lifted != null: _end_charm_drag()
 	close_sell_confirm()
 	sell_sheet.hide()
 	_dim.visible = offer_sheet.visible
@@ -710,6 +719,7 @@ func show_view(view: Dictionary) -> void:
 	message.add_theme_color_override("font_color", Color(1.0, 0.55, 0.45) if refused else Color(0.6, 0.95, 0.7))
 	rack_label.text = view.rack
 	_build_ledger(view)
+	if lifted != null: _end_charm_drag() # a rebuild ends any lift
 	var focused_ref := ""
 	var focused := get_viewport().gui_get_focus_owner() if is_inside_tree() else null
 	for box in [owned_list, charm_row]:
@@ -751,9 +761,8 @@ func show_view(view: Dictionary) -> void:
 			number.add_theme_color_override("font_color", UiTheme.BRASS)
 			number.position = Vector2(6, 2)
 			tile.add_child(number)
-			tile.set_drag_forwarding(func(_at): return _charm_drag(slot, tile),
-				func(_at, data): return _charm_droppable(data, slot),
-				func(_at, data): _charm_drop(data, slot))
+			# UI-34: a long press lifts the Charm; it follows the finger to its new slot.
+			tile.gui_input.connect(func(event): _charm_pointer(event, slot, tile))
 			# Keyboard and gamepad: Shift+Left/Right moves the focused Charm.
 			tile.gui_input.connect(func(event):
 				if event is InputEventKey and event.pressed and event.shift_pressed and event.keycode in [KEY_LEFT, KEY_RIGHT]:
@@ -763,7 +772,7 @@ func show_view(view: Dictionary) -> void:
 						_refocus_charm = to
 						charm_reordered.emit.call_deferred(slot, to))
 	charm_box.visible = not charms.is_empty()
-	charm_hint.text = "Drag a Charm to change the order. Tap any item to review or sell it." if charms.size() > 1 else "Tap any item to review or sell it."
+	charm_hint.text = "Press and hold a Charm, then drag it to a new slot. Tap any item to review or sell it." if charms.size() > 1 else "Tap any item to review or sell it."
 	items_heading.visible = not others.is_empty() and not charms.is_empty()
 	sell_detail.text = "" if view.sellables.is_empty() else ("Tap an item to review or sell it." if charms.size() < 2 else "")
 	if sell_confirm_sheet.visible and not _sellables.has(_sell_pending): close_sell_confirm()
@@ -944,49 +953,106 @@ func sell_button(ref: String) -> Button:
 func charm_tile(slot: int) -> Button:
 	return charm_row.get_node_or_null("Sell_charm_%d" % slot) as Button
 
-# --- UI-32: the Charm row's drag and drop ------------------------------------
+# --- UI-34: the Charm row's long-press lift ---------------------------------
+# The owner (2026-11-20): "on long press, the charm card should become an object that
+# moves with the player's finger." Held LIFT_AFTER without moving, a Charm's tile lifts
+# into a card (a copy of the tile, a little larger) that follows the finger; the slot
+# under it is ringed, and releasing there moves the Charm. A press that moves first is
+# not a hold, and a release after a lift is not a tap. Touch reaches this as Godot's
+# emulated mouse, so one path serves the finger and the mouse.
 
-func _charm_drag(slot: int, tile: Button) -> Variant:
-	if choice_sheet.visible or charm_row.get_child_count() < 2: return null
+const LIFT_AFTER := 0.3 # seconds held still before a Charm lifts
+const LIFT_SLOP := 14.0 # pixels a press may wander and still be a hold
+var lifted: Control = null # the card following the finger
+var _lift_slot := 0
+var _press_slot := 0
+var _press_at := Vector2.ZERO
+var _press_time := 0.0
+
+func _charm_pointer(event: InputEvent, slot: int, tile: Button) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if event.pressed:
+			_press_slot = slot if charm_row.get_child_count() > 1 and not choice_sheet.visible else 0
+			_press_at = event.global_position
+			_press_time = 0.0
+		else:
+			_press_slot = 0
+			if lifted != null:
+				_drop_lifted(event.global_position)
+				tile.accept_event() # the release that ends a lift is not a tap
+	elif event is InputEventMouseMotion:
+		if lifted != null:
+			_follow(event.global_position)
+			tile.accept_event()
+		elif _press_slot > 0 and event.global_position.distance_to(_press_at) > LIFT_SLOP:
+			_press_slot = 0
+
+func _process(delta: float) -> void:
+	if _press_slot > 0 and lifted == null:
+		_press_time += delta
+		if _press_time >= LIFT_AFTER: _lift(_press_slot)
+
+func _lift(slot: int) -> void:
+	var tile := charm_tile(slot)
+	_press_slot = 0
+	if tile == null or not sell_sheet.visible: return
+	_lift_slot = slot
 	_dragging_charm = true
-	var ghost := TextureRect.new()
-	ghost.texture = tile.icon
-	ghost.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	ghost.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	ghost.size = tile.size * 0.9
-	ghost.position = -ghost.size * 0.5
-	ghost.modulate.a = 0.85
-	var holder := Control.new() # centred on the finger
-	holder.add_child(ghost)
-	set_drag_preview(holder)
-	tile.modulate.a = 0.4
-	return {"charm_slot": slot}
+	lifted = tile.duplicate(0) as Control # its art, name, price and badge; no signals
+	lifted.name = "LiftedCharm"
+	lifted.top_level = true
+	lifted.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	lifted.z_index = 50
+	lifted.size = tile.size
+	lifted.pivot_offset = tile.size * 0.5
+	lifted.scale = Vector2(1.15, 1.15)
+	sell_sheet.add_child(lifted)
+	var ring := lifted.get_node_or_null("Selected")
+	if ring != null: ring.show() # lit while held
+	tile.modulate.a = 0.35 # the slot it came from
+	_follow(_press_at)
 
-func _charm_droppable(data: Variant, slot: int) -> bool:
-	var ok: bool = data is Dictionary and data.has("charm_slot")
+## The lifted card sits under the finger; the slot it would land in is ringed.
+func _follow(at: Vector2) -> void:
+	if lifted == null: return
+	lifted.global_position = at - lifted.size * 0.5
+	var target := _slot_at(at)
 	for i in charm_row.get_child_count():
 		var ring := charm_row.get_child(i).get_node_or_null("Selected")
-		if ring != null: ring.visible = ok and i + 1 == slot and int(data.charm_slot) != slot
-	return ok
+		if ring != null: ring.visible = i + 1 == target and target != _lift_slot
 
-func _charm_drop(data: Variant, slot: int) -> void:
+## The Charm slot under a point: the nearest tile across, within the row's height.
+func _slot_at(at: Vector2) -> int:
+	var row := charm_row.get_global_rect().grow(24.0)
+	if not row.has_point(at): return 0
+	var best := 0
+	var nearest := INF
+	for i in charm_row.get_child_count():
+		var away := absf(charm_row.get_child(i).get_global_rect().get_center().x - at.x)
+		if away < nearest:
+			nearest = away
+			best = i + 1
+	return best
+
+func _drop_lifted(at: Vector2) -> void:
+	var target := _slot_at(at)
+	var from := _lift_slot
 	_end_charm_drag()
-	var from := int(data.get("charm_slot", 0)) if data is Dictionary else 0
-	if from > 0 and from != slot:
-		_refocus_charm = slot
-		charm_reordered.emit.call_deferred(from, slot) # the row is rebuilt by the result
+	if target > 0 and target != from:
+		_refocus_charm = target
+		charm_reordered.emit.call_deferred(from, target) # the row is rebuilt by the result
 
 func _end_charm_drag() -> void:
+	if lifted != null:
+		lifted.queue_free()
+		lifted = null
+	_lift_slot = 0
+	_press_slot = 0
 	for tile in charm_row.get_children():
 		tile.modulate.a = 1.0
 		var ring := tile.get_node_or_null("Selected")
 		if ring != null: ring.hide()
-
-func _notification(what: int) -> void:
-	if what == NOTIFICATION_DRAG_END and _dragging_charm:
-		_end_charm_drag()
-		# A drag ends with the button's release; that release is not a tap.
-		(func(): _dragging_charm = false).call_deferred()
+	(func(): _dragging_charm = false).call_deferred()
 
 # --- UI-32: the payout and rack slip -----------------------------------------
 
