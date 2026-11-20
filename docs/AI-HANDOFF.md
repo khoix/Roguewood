@@ -31,9 +31,7 @@ The owner asked for tests that take less time and fewer tokens. For both agents:
 - **Integration:** the owner merges `claude/roguewood-build` into main by PR. Claude restarts or fast-forwards it from main after each merge. Codex pushes `codex/roguewood-build` and opens no PRs.
 - **Merged:** PR #51 (owner, 2026-11-20; main `5f4df32`): UI-30 and UI-31.
 - **For the next PR** (merged into `claude/roguewood-build` after #51): QA-1…QA-8, the testing changes above. Full local matrix: 28 min (was 64). CI #533 PASS: game 21 min, art 31 min (were 44–60 and 60–77).
-- **UI-32 in progress** (owner's go, 2026-11-20; the owner's play notes of the same day):
-  - **The shop's Inventory:** "Sell · N · order" becomes **Inventory**. Charms sit in one row in a top section, reordered by drag and drop (no Move buttons); the other items go below; tapping an item still opens it to review or sell.
-  - **The shop's payout and rack details:** "Match N paid…", Rack, Reserves, Charms and Deck become a themed, visual panel instead of plain text.
+- **UI-32 DONE** (handoffs/UI-32.md; the owner's play notes, 2026-11-20): the shop's **Inventory** (Charms in a drag-to-reorder row on top, the other items below, tap to review or sell) and the payout and rack as a themed slip (payout rows and total; the rack as a triangle of pin art; reserves; Charms and Deck chips). Checks: `unit`, `content` and all 73 shop journeys headless; J05, J06, JTUT, JAVC04B, J03C07–C10 and J11 rendered: PASS.
 - **Codex** has been out of tokens since 2026-11-19 and returns about Friday 2026-11-21. Its Wave 14 queue: AV-N4, AV-N5, UI-A6, then UI-A9-H, and the proposed AV-UI1.
 
 ## Decisions and invariants

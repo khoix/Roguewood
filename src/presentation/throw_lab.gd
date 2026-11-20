@@ -352,7 +352,7 @@ func _ready() -> void:
 	shop_panel.continue_pressed.connect(_start_next_match)
 	shop_panel.choice_made.connect(_on_choice)
 	shop_panel.choice_cancelled.connect(_on_choice_cancelled)
-	shop_panel.charm_moved.connect(_on_charm_moved)
+	shop_panel.charm_reordered.connect(_on_charm_reordered)
 	shop_panel.hide()
 	add_child(shop_panel)
 	panels = MatchPanels.new()
@@ -1611,12 +1611,13 @@ func _on_sell(ref: String) -> void:
 		_checkpoint("shop")
 	_refresh_shop()
 
-## Reorders Charms between matches (saved like any other shop change).
-func _on_charm_moved(slot: int) -> void:
+## Reorders Charms between matches (saved like any other shop change). UI-32: the
+## Inventory's Charm row drags a Charm from one slot to another.
+func _on_charm_reordered(from: int, to: int) -> void:
 	if state != "shop" or not _choice.is_empty():
 		return
-	var errors: Array[String] = run.move_charm_left(slot)
-	shop_message = ("Moved %s to Charm slot %d." % [_names.get(run.charms[slot - 2].item_id, ""), slot - 1]) if errors.is_empty() else "Can't move: %s." % Sentence.cap(", ".join(errors))
+	var errors: Array[String] = run.move_charm(from, to)
+	shop_message = ("Moved %s to Charm slot %d." % [_names.get(run.charms[to - 1].item_id, ""), to]) if errors.is_empty() else "Can't move: %s." % Sentence.cap(", ".join(errors))
 	if errors.is_empty():
 		_checkpoint("shop")
 	_refresh_shop()
@@ -1785,9 +1786,6 @@ func _refresh_shop() -> void:
 	rack_text += "\nReserves: " + Sentence.cap(", ".join(reserves)) + " · Charms %d/%d · Deck %d/%d" % [run.charms.size(), RunInventory.CHARM_SLOTS, run.cards.size(), RunInventory.DECK_CAP]
 	if not run.upgrades.is_empty():
 		rack_text += "\nUpgrades (kept for the run): " + Upgrades.summary(run, _names)
-	var charm_moves: Array = []
-	for i in range(1, run.charms.size()):
-		charm_moves.append({"slot": i + 1, "label": "◀ Move %s before %s" % [_names.get(run.charms[i].item_id, ""), _names.get(run.charms[i - 1].item_id, "")]})
 	var sellables: Array = []
 	for owned in run.entries():
 		if run.can_sell(owned.ref):
@@ -1803,13 +1801,22 @@ func _refresh_shop() -> void:
 				"detail": "%s%s · %s · sells for $%d" % [item.get("name", entry.item_id), with_mod, place, run.sale_value(owned.ref)]})
 	var summary := "Match %d paid: Payout $%d · interest $%d (on $%d held) · item income $%d" % [settlement.match, settlement.payout,
 		settlement.interest, settlement.balance_before, settlement.item_income]
+	var notes: Array = []
 	if Upgrades.owned(run, "interest_cap"):
 		summary += " · Savings Book: Interest cap $%d" % (Economy.INTEREST_CAP + Upgrades.INTEREST_BONUS)
+		notes.append("Savings Book: Interest cap $%d" % (Economy.INTEREST_CAP + Upgrades.INTEREST_BONUS))
+	# UI-32: the same numbers for the shop's payout and rack slip.
+	var pin_view := func(e): return {} if e == null else {"item_id": e.item_id, "mod": String(e.mod), "name": _names.get(e.item_id, e.item_id) + (" + " + _names.get(e.mod, "") if not String(e.mod).is_empty() else "")}
+	var payout := {"match": settlement.match, "payout": settlement.payout, "interest": settlement.interest, "held": settlement.balance_before,
+		"item_income": settlement.item_income, "notes": notes}
+	var holdings := {"pins": range(1, 11).map(func(p): return pin_view.call(run.rack[p])), "reserves": run.reserves.map(pin_view),
+		"charms": [run.charms.size(), RunInventory.CHARM_SLOTS], "deck": [run.cards.size(), RunInventory.DECK_CAP],
+		"rack_line": rack_text.get_slice("\n", 0).trim_prefix("Rack: "), "upgrades": Upgrades.summary(run, _names) if not run.upgrades.is_empty() else ""}
 	shop_panel.show_view({"title": "Pro Shop", "summary": summary, "preview": _next_match_preview(), "preview_short": _next_match_short(), "money": run.money, "offers": offers,
 		"reroll_cost": shop.reroll_cost(run), "can_reroll": run.money >= shop.reroll_cost(run),
 		"removal_price": Economy.REMOVAL_PRICE, "can_remove": run.money >= Economy.REMOVAL_PRICE and not run.cards.is_empty(),
-		"rack": rack_text, "charm_moves": charm_moves, "sellables": sellables,
-		"charm_order": "" if run.charms.is_empty() else "Charm order (left to right): " + ", ".join(run.charms.map(func(e): return _names.get(e.item_id, e.item_id))), "message": shop_message, "columns": 3, "landscape": size.x > size.y})
+		"rack": rack_text, "sellables": sellables, "payout": payout, "holdings": holdings,
+		"message": shop_message, "columns": 3, "landscape": size.x > size.y})
 	money_changed.emit(run.money)
 
 func _normalized(position: Vector2) -> Vector2:

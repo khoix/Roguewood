@@ -176,7 +176,7 @@ func _build_steps() -> void:
 		{"id": "place", "title": "Place It", "text": "This is your rack. Tap a pin to see what is on it now, then Confirm.", "card": false,
 			"enter": func(): return lab.state == "shop" and lab.shop_panel.choice_sheet.visible,
 			"done": _workshop_sold, "rect": func(): return _rect_of(lab.shop_panel.choice_sheet), "gesture": "tap", "point": _pin_point},
-		{"id": "sell", "title": "Sell", "light": true, "text": "Short of money? Sell what you no longer need. Open Sell.",
+		{"id": "sell", "title": "Sell", "light": true, "text": "Short of money? Sell what you no longer need. Open Inventory.",
 			"enter": _shop_idle, "done": func(): return lab.shop_panel.sell_sheet.visible,
 			"rect": func(): return _rect_of(lab.shop_panel.sell_open), "gesture": "tap", "point": func(): return _rect_of(lab.shop_panel.sell_open).get_center()},
 		{"id": "sell_sheet", "title": "Your Items", "text": "Tap an item to see what it sells for, then Sell or Back. Tap Done when you are finished.", "card": false,

@@ -261,6 +261,28 @@ func _settlement() -> void:
 		"interest on the $%d held, then the $3 payout" % held)
 	_check(lab.run.money == held + summary.interest + summary.payout and lab.shop_panel.money.text == "$%d" % lab.run.money, "the shop shows the settled balance")
 	_check(lab.shop_panel.summary.text.contains("Payout $3") and lab.shop_panel.summary.text.contains("interest $%d" % summary.interest), "settlement is explained")
+	# UI-32 (owner, 2026-11-20): Payout & Rack opens a themed slip, not plain text.
+	var panel = lab.shop_panel
+	if not panel.ledger.visible: await _focus_accept(panel.details_button)
+	var slip: Control = panel.ledger
+	var total: int = summary.payout + summary.interest + summary.item_income
+	_check(slip.visible and not panel.summary.visible and not panel.rack_label.visible and slip.find_child("PayoutTitle", true, false).text == "MATCH 1 PAYOUT"
+		and slip.find_child("PayoutTotal", true, false).text == "+$%d" % total, "Payout & Rack opens the slip: match 1, +$%d" % total)
+	var amounts: Array = slip.find_child("PayoutRows", true, false).get_children().filter(func(c): return c.name.begins_with("Amount")).map(func(c): return c.text)
+	_check(amounts == ["$%d" % summary.payout, "$%d" % summary.interest, "$%d" % summary.item_income], "its rows: payout, interest, item income (%s)" % str(amounts))
+	var triangle: Control = slip.find_child("RackTriangle", true, false)
+	var pins: Array = triangle.find_children("Pin_*", "TextureRect", true, false)
+	_check(pins.size() == 10 and pins.all(func(p): return p.texture != null and p.get_meta("item_id") == lab.run.rack[int(String(p.name).get_slice("_", 1))].item_id)
+		and slip.find_child("Reserves", true, false).get_child_count() == 1 + lab.run.reserves.size(), "the rack as a triangle of its pins' art, and the reserve slots")
+	var chips: Array = slip.find_child("Counts", true, false).get_children().map(func(c): return c.get_child(0).text)
+	_check(chips == ["Charms %d/5" % lab.run.charms.size(), "Deck %d/16" % lab.run.cards.size()], "Charms and Deck counts as chips (%s)" % str(chips))
+	for i in 4: await process_frame
+	var view: Rect2 = panel._scroll.get_global_rect()
+	var top: float = slip.get_global_rect().position.y
+	_check(top >= view.position.y - 1.0 and top + 80.0 <= view.end.y and (top < view.position.y + 40.0 or panel._scroll.scroll_vertical >= int(panel._scroll.get_v_scroll_bar().max_value - panel._scroll.size.y) - 2),
+		"the opened slip scrolls into view (top %.0f, view %s)" % [top, str(view)])
+	await _capture("ledger")
+	if panel.details_button.visible: await _focus_accept(panel.details_button)
 	_check(scene.session.money == lab.run.money, "the session tracks the run's money")
 	await _capture("shop")
 
@@ -495,8 +517,8 @@ func _removal_and_sale() -> void:
 	money = run.money
 	# UI-5b: one Sell control opens a sheet of rows; the shop itself lists no Sell buttons.
 	var sellable: int = run.entries().filter(func(e): return run.can_sell(e.ref)).size()
-	_check(not lab.shop_panel.sell_sheet.visible and lab.shop_panel.sell_open.text.begins_with("Sell · %d" % sellable)
-		and not lab.shop_panel._main.find_children("Sell_*", "Button", true, false).size() > 0, "one Sell control counts what can be sold (%s)" % lab.shop_panel.sell_open.text)
+	_check(not lab.shop_panel.sell_sheet.visible and lab.shop_panel.sell_open.text == "Inventory"
+		and not lab.shop_panel._main.find_children("Sell_*", "Button", true, false).size() > 0, "one Inventory control (UI-32) opens what can be sold (%s)" % lab.shop_panel.sell_open.text)
 	# UI-12: Sell shows the owned items as tiles; a tap opens the item to confirm.
 	var panel = lab.shop_panel
 	panel.sell_open.grab_focus()
@@ -520,7 +542,7 @@ func _removal_and_sale() -> void:
 	await _capture("sell_confirm")
 	await _tap(panel.sell_confirm)
 	_check(run.money == money + value and run.entry_at(card_ref) == null, "selling pays the sale value")
-	var rows: int = lab.shop_panel.owned_list.get_children().filter(func(c): return c is Button and String(c.name).begins_with("Sell_") and not c.is_queued_for_deletion()).size()
+	var rows: int = (lab.shop_panel.owned_list.get_children() + lab.shop_panel.charm_row.get_children()).filter(func(c): return c is Button and String(c.name).begins_with("Sell_") and not c.is_queued_for_deletion()).size()
 	_check(lab.shop_panel.sell_sheet.visible and rows == sellable - 1, "the sheet stays open for the next sale, one row fewer (rows %d, were %d)" % [rows, sellable])
 	var sell_rect: Rect2 = lab.shop_panel.sell_sheet.get_global_rect()
 	_check(sell_rect.position.x >= 0.0 and sell_rect.position.y >= 0.0 and sell_rect.end.x <= lab.size.x and sell_rect.end.y <= lab.size.y, "the Sell sheet fits the screen (%s)" % str(sell_rect))
