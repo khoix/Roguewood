@@ -14,8 +14,9 @@ void fragment() {
   ink=mix(ink,vec3(.55,.84,.82),mark*.75);
  } else if(identity==1) {
   ink=vec3(.08,.025,.17);
-  mark=1.0-step(.0045,abs(p.y));
-  float meridian=(1.0-step(.0025,abs(p.x)))*(1.0-step(.025,abs(p.y)));
+  // UI-33b: a line a phone can see turn (was .0045 and a short .0025 tick).
+  mark=1.0-step(.011,abs(p.y));
+  float meridian=(1.0-step(.007,abs(p.x)))*(1.0-step(.06,abs(p.y)));
   mark=max(mark,meridian);
   ink=mix(ink,vec3(.32,.88,.96),mark);
  } else {

@@ -2,16 +2,19 @@ shader_type spatial;
 render_mode specular_schlick_ggx;
 uniform int identity=0;
 varying vec3 local_position;
-varying vec3 fixed_position;
-void vertex(){local_position=VERTEX;fixed_position=(MODEL_MATRIX*vec4(VERTEX,0.0)).xyz;}
+void vertex(){local_position=VERTEX;}
 void fragment(){
  vec3 p=normalize(local_position);vec3 q=floor(p*90.0)/90.0;
  vec3 c=vec3(.025,.19,.23);float rough=.24;
  if(identity==0){
-  // World-oriented, translation-free stripe: deliberately independent of body spin.
-  float stripe=1.0-smoothstep(.022,.028,abs(fixed_position.x));
+  // UI-33b (owner, 2026-11-20): "The stripe just stays up and down the entire time,
+  // even with a hook." The stripe is painted on the ball, so it turns with it. Its
+  // band leans 35 degrees off the forward-roll circle, so a straight roll sweeps it
+  // over the top as well as a hook or a held spin turning it.
+  float across=dot(local_position,normalize(vec3(.82,0.0,.57)));
+  float stripe=1.0-smoothstep(.022,.028,abs(across));
   c=mix(c,vec3(.91,.81,.59),stripe);
-  float edge=1.0-smoothstep(.002,.005,abs(abs(fixed_position.x)-.028));
+  float edge=1.0-smoothstep(.002,.005,abs(abs(across)-.028));
   c=mix(c,vec3(.65,.37,.10),edge);
  }else if(identity==1){
   c=vec3(.23,.055,.035);rough=.53;

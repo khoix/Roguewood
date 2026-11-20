@@ -101,6 +101,7 @@ For each of AV-N3 to AV-N5:
 
 - **UI-32 (2026-11-20):** the shop's Sell sheet is now the Inventory. Charms sit in a drag-to-reorder row (`charm_row`, tiles `Sell_charm_N`) above the other items. Find a tile with `shop_panel.sell_button(ref)`. Payout & Rack is a slip (`ledger`); `summary` and `rack_label` stay, hidden, with the text.
 - **BAL-1 (2026-11-20):** a release inside the ring adds 10 Value (FrameRules.INSIDE_VALUE). Expected scores in your journeys should come from the actual release grade.
+- **UI-33b (2026-11-20, at the owner's request):** three of your ball shaders changed. The Spare Ball's stripe is now painted on the ball (it was world-fixed). Echo's rings lean off the spin axis. Laser's line is wider. J02 (rendered) now turns every ball about the roll and spin axes and requires its surface to change; keep new ball looks in the ball's own coordinates.
 - **UI-33 (2026-11-20):** the ball's finger holes face the bowler, and small ivory roll spots mark its rolling circle and sides (lane_dressing.gd), so spin and roll read. A final ball look may restyle them, but must keep a marker that turns with the ball.
 
 ## Ownership and limits
