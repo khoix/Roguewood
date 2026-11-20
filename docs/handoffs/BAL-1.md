@@ -70,3 +70,4 @@ A frame's best release adds, once, before the Charms:
 - **PASS:**
   - `unit`, `content` and every journey headless (115);
   - the 15 updated journeys re-run after the changes.
+- **CI #538** failed on `integration`: a contract fixture expected a sweet three-pin frame to bank 60. It now banks (30 + 10) × (1 + 1) = 80. `unit`, `integration`, `content`, `physics` and `smoke`: PASS.

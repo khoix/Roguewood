@@ -14,7 +14,7 @@ Updated: 2026-11-20. Current state only; everything older is in docs/AI-HANDOFF-
 The owner asked for tests that take less time and fewer tokens. For both agents:
 - **qa.py is quiet.** A pass prints one `PASS … in N s` line; a failure prints its error lines and the last 40 lines, and names the full log. Every engine run's full output is in a log (the journey's own, or `artifacts/qa/`). `--verbose` or `QA_VERBOSE=1` prints everything (CI sets it).
 - **Run what a change touches, in parallel:** `python3 tools/qa.py batch unit content J05 J06:rendered` (three at a time; one line each; failures' tails at the end; results in `artifacts/qa/batch/`).
-  - Logic, rules or content: `unit`, `content`, and the headless journeys that play it.
+  - Logic, rules or content: `unit`, `integration`, `content`, and the headless journeys that play it (BAL-1 missed `integration` once; CI #538 caught it).
   - A screen or art: those journeys headless and rendered (`Jxx:rendered`), and look at their captures.
   - Docs only: nothing.
 - **CI is the full gate.** Every push runs the whole list (`linux-bootstrap (game)` and `(art)`); a pull request shows its head commit's push checks. The full local matrix is no longer run before every PR. Run it (`python3 tools/qa.py matrix`, CI's own list, or `--shard game|art`) for a wave close, when CI is down, or when a change could reach everything.
