@@ -5,12 +5,7 @@ on:
       - 'assets/art_direction/**'
       - 'docs/art/**'
       - '.github/workflows/e11-art.yml'
-  pull_request:
-    paths:
-      - 'assets/art_direction/**'
-      - 'docs/art/**'
-      - '.github/workflows/e11-art.yml'
-  workflow_dispatch:
+  workflow_dispatch: # QA-1: push only; a pull request shows its head commit's push checks
 permissions:
   contents: read
 jobs:
@@ -30,8 +25,7 @@ jobs:
           sha512sum --check --ignore-missing "$GITHUB_WORKSPACE/tools/godot-downloads.sha512"
           unzip -q "Godot_v${VERSION}-stable_linux.x86_64.zip"
           echo "GODOT_BIN=$RUNNER_TEMP/godot/Godot_v${VERSION}-stable_linux.x86_64" >> "$GITHUB_ENV"
-          sudo apt-get update -qq
-          sudo apt-get install -y xvfb xauth libgl1-mesa-dri
+          "$GITHUB_WORKSPACE/tools/ci_retry.sh" apt xvfb xauth libgl1-mesa-dri # QA-3
       - name: Capture both layouts and check source hashes and text bounds
         run: xvfb-run -a python3 docs/art/capture.py
       - uses: actions/upload-artifact@v4
