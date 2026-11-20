@@ -15,7 +15,8 @@ extends SceneTree
 ## FrameBuilder/FrameRules resolution.
 ## Fixture setup (not UI): to reach a full Charm row without many matches, the
 ## journey grants $30 and seats four reward-only Crown Charms through the inventory
-## API, logged as "fixture" in the ledger. Every decision after that is UI input.
+## API, logged as "fixture" in the ledger; for UI-30 it grants $20 more and puts an
+## Oak modification on one rack pin. Every decision after that is UI input.
 ## Run with --fixed-fps 60.
 const Contracts = preload("res://src/contracts/contracts.gd")
 const Rules = preload("res://src/rules/frame_rules.gd")
@@ -115,7 +116,7 @@ func _focus_accept(control: Control) -> void:
 func _window(canvas: Vector2) -> Vector2:
 	return root.get_screen_transform() * canvas
 
-func _tap(control: Control) -> void:
+func _tap(control: Control, finish := true) -> void:
 	# A player scrolls a control into view before tapping it (UI-3's portrait shop
 	# scrolls under its pinned actions).
 	await _reach(control)
@@ -133,7 +134,7 @@ func _tap(control: Control) -> void:
 		event.pressed = pressed
 		Input.parse_input_event(event)
 		await process_frame
-	await _confirm(control)
+	if finish: await _confirm(control)
 
 func _click(control: Control) -> void:
 	var at := control.get_global_rect().get_center()
@@ -194,6 +195,7 @@ func _run() -> void:
 	await _offers_and_purchase()
 	await _reroll_and_funds()
 	await _placements()
+	await _carried_mod()
 	await _full_slot()
 	await _removal_and_sale()
 	await _next_match()
@@ -383,6 +385,55 @@ func _placements() -> void:
 		var host = run.entry_at(hosts[0])
 		_check(host.mod == mod_id and hosts[0] not in run.mod_hosts(mod_id), "the modification is attached to the chosen host, one per item")
 
+## UI-30 (owner, 2026-11-20): a new pin bought for a modified pin's place takes
+## over the modification; the old pin moves to a reserve without it.
+func _carried_mod() -> void:
+	var shop = lab.shop
+	var run = lab.run
+	var place := -1
+	for position in range(2, 11):
+		if place < 0 and String(run.rack[position].mod).is_empty():
+			place = position
+	# Fixture setup: an Oak modification on that pin, and money for one more pin.
+	run.rack[place].mod = "pin_mod.lab_oak"
+	run.rack[place].mod_paid = 3
+	var old_pin: String = run.rack[place].item_id
+	_grant(20)
+	var other := func() -> int:
+		var i := _pin_offer()
+		return i if i >= 0 and shop.offers[i].item_id != old_pin and shop.plan(i, run).ok else -1
+	for attempt in 12:
+		if other.call() >= 0:
+			break
+		await _click(lab.shop_panel.reroll_button)
+	var pin: int = other.call()
+	_check(pin >= 0, "a different pin is on offer")
+	if pin < 0:
+		return
+	var pin_id: String = shop.offers[pin].item_id
+	var oak: String = run.item("pin_mod.lab_oak").name
+	await _focus_accept(lab.shop_panel.button_for_offer(pin))
+	var index: int = lab._choice.get("targets", []).find("rack:%d" % place)
+	_check(lab.shop_panel.choice_sheet.visible and index >= 0, "the modified pin's place is offered")
+	if index < 0:
+		return
+	_check(lab.shop_panel.choice_label(index).contains("%s stays on the new pin" % oak), "the place says its modification stays (%s)" % lab.shop_panel.choice_label(index))
+	# A finger selects the place; its preview is read before Confirm.
+	await _tap(lab.shop_panel.choice_button(index), false)
+	_check(lab.shop_panel.choice_sheet.visible and lab.shop_panel._choice_selected == index and String(run.rack[place].item_id) == old_pin,
+		"a tap selects the place and waits for Confirm")
+	var after := "After: %s + %s" % [run.item(pin_id).name, oak]
+	_check(lab.shop_panel.choice_detail.text.contains(after) and lab.shop_panel.choice_button(index).get_meta("previewing", "") == pin_id
+		and lab.shop_panel._choice_visuals[index].get("keeps_mod", "") == "pin_mod.lab_oak", "the picked place previews the new pin with the modification (%s)" % lab.shop_panel.choice_detail.text)
+	await _capture("carried_mod")
+	var free: int = run.reserves.find(null)
+	await _tap(lab.shop_panel.choice_confirm)
+	_check(not lab.shop_panel.choice_sheet.visible and run.rack[place].item_id == pin_id and run.rack[place].mod == "pin_mod.lab_oak" and int(run.rack[place].mod_paid) == 3,
+		"the new pin carries the modification")
+	_check(free >= 0 and run.reserves[free] != null and run.reserves[free].item_id == old_pin and String(run.reserves[free].mod).is_empty(),
+		"the old pin moves to a reserve without it")
+	_check(run.owned_count("pin_mod.lab_oak") == 1, "the modification is not duplicated")
+
 func _pin_offer() -> int:
 	var i := _offer_of(["pin"])
 	return i if i >= 0 and lab.run.item(lab.shop.offers[i].item_id).category == "pin" else -1
@@ -483,7 +534,8 @@ func _removal_and_sale() -> void:
 		await _focus_accept(lab.shop_panel.sell_button(newest))
 		_check(run.money == money - cost + Economy.sale_value(cost, 0) and run.money < money, "buying then selling loses money ($%d → $%d)" % [money, run.money])
 	var stats: Dictionary = run.stats()
-	_check(run.money == int(run.ledger[0].amount) + stats.net + 30, "the wallet equals the ledger (plus the $30 fixture grant)")
+	var granted: int = run.ledger.filter(func(r): return r.kind == "fixture").reduce(func(sum, r): return sum + int(r.amount), 0)
+	_check(granted == 50 and run.money == int(run.ledger[0].amount) + stats.net + granted, "the wallet equals the ledger (plus the $50 of fixture grants)")
 
 ## The shop reflows for landscape: a three-column shelf, every offer on screen (UI-2).
 func _landscape() -> void:

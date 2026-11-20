@@ -39,12 +39,28 @@ static func run() -> Array[String]:
 		failures.append("run awards: a Career goal moves from where it stood (4 → 7 of 10) (%s)" % str(spares))
 	if by_id.has("mastery.mixed_rack"):
 		failures.append("run awards: a goal this run did not move is not shown")
-	# A second title is "again", and a run with nothing earned has no ceremony.
-	career.championships["league.house"] = {"wins": 2, "first_attempt": 1, "last_attempt": uid}
-	var again: Array = RunAwards.trophies(career, graph, uid).filter(func(t): return t.id == "league.house")
-	if again.is_empty() or not again[0].again or again[0].headline != "Champion Again!":
-		failures.append("run awards: a repeat title is a champion again")
+	# UI-31 (owner, 2026-11-20): "Only for new awards": a title won again is no award,
+	# and a run with nothing earned has no ceremony.
+	var repeat := Career.begin_attempt(career)
+	career.championships["league.house"] = {"wins": 2, "first_attempt": uid, "last_attempt": repeat}
+	if not RunAwards.trophies(career, graph, repeat).filter(func(t): return t.id == "league.house").is_empty():
+		failures.append("run awards: a repeat title is no new award")
+	if not RunAwards.is_empty(RunAwards.for_run(career, graph, repeat)):
+		failures.append("run awards: a run whose only win was a repeat title has no award page (%s)" % str(RunAwards.for_run(career, graph, repeat)))
 	var quiet := Career.begin_attempt(career)
 	if not RunAwards.is_empty(RunAwards.for_run(career, graph, quiet)):
 		failures.append("run awards: a run that earned nothing has no awards")
+	# UI-31 (owner, 2026-11-20): a within-run goal that falls short starts over next
+	# run, so it is no progress, and a run with only that has no award page. Completed
+	# in the run, it shows.
+	var short := Career.begin_attempt(career)
+	career.tally = {"uid": short, "counts": {}, "materials": ["pin.wood"], "halves": []}
+	if not RunAwards.is_empty(RunAwards.for_run(career, graph, short)):
+		failures.append("run awards: a within-run goal short of its count (Mixed Rack 1 of 3) is no award (%s)" % str(RunAwards.for_run(career, graph, short)))
+	var full := Career.begin_attempt(career)
+	career.tally = {"uid": full, "counts": {}, "materials": ["pin.wood", "pin.glass", "pin.lead"], "halves": []}
+	career.mastery["mastery.mixed_rack"] = {"career_attempt": full}
+	var mixed: Array = RunAwards.goals(career, graph, full).filter(func(g): return g.id == "mastery.mixed_rack")
+	if mixed.is_empty() or not mixed[0].completed:
+		failures.append("run awards: a within-run goal completed in the run is shown")
 	return failures

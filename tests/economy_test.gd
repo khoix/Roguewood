@@ -89,6 +89,48 @@ static func _inventory(cat: Dictionary, failures: Array[String]) -> void:
 	mods.place("pin.lab_gold", 4, "rack:5")
 	_expect("rack:5" not in mods.mod_hosts("pin_mod.lab_gilded") and "rack:4" in mods.mod_hosts("pin_mod.lab_gilded"), "incompatible hosts are excluded", failures)
 	_expect(not mods.incompatible("pin.lab_gold") and mods.mod_hosts("pin_mod.lab_gilded").size() == 10, "mod incompatibility is per host, not global", failures)
+	_carried_mods(cat, failures)
+
+## UI-30 (owner, 2026-11-20): a new pin placed on a modified pin takes over its
+## modification; the old pin moves or sells without it. A modification the new pin
+## excludes stays with the old pin.
+static func _carried_mods(cat: Dictionary, failures: Array[String]) -> void:
+	var inv = fresh(cat)
+	inv.place("pin_mod.lab_oak", 3, "rack:3")
+	var option: Dictionary = inv.placements("pin.lab_lead").filter(func(o): return o.target == "rack:3")[0]
+	_expect(option.keeps_mod == "pin_mod.lab_oak" and option.moves_to == "reserve:1", "a pin offered for a modified place keeps its modification", failures)
+	_expect(inv.placements("pin.lab_lead").filter(func(o): return o.target == "rack:4")[0].keeps_mod == "", "an unmodified place carries nothing", failures)
+	_expect(inv.place("pin.lab_lead", 4, "rack:3").is_empty(), "the pin is placed", failures)
+	_expect(inv.rack[3].item_id == "pin.lab_lead" and inv.rack[3].mod == "pin_mod.lab_oak" and inv.rack[3].mod_paid == 3 and inv.rack[3].paid == 4,
+		"the new pin carries the modification and what was paid for it", failures)
+	_expect(inv.reserves[0].item_id == "pin.wood" and inv.reserves[0].mod == "" and inv.reserves[0].mod_paid == 0, "the displaced pin moves to a reserve without it", failures)
+	_expect(inv.owned_count("pin_mod.lab_oak") == 1, "the modification is not duplicated", failures)
+	# Replacement with reserves full: the old pin sells without the modification.
+	inv.reserves[1] = Inventory._entry("pin.wood", 0)
+	inv.place("pin_mod.lab_oak", 3, "rack:6")
+	var with_mod: int = inv.sale_value("rack:6")
+	var without: int = inv.sale_value("rack:6", false)
+	var replace: Dictionary = inv.placements("pin.lab_lead").filter(func(o): return o.target == "rack:6")[0]
+	_expect(replace.replaces == "rack:6" and replace.keeps_mod == "pin_mod.lab_oak" and replace.sale == without and without < with_mod,
+		"a replaced modified pin is sold without the modification it hands on", failures)
+	var money: int = inv.money
+	inv.place("pin.lab_lead", 4, "rack:6")
+	_expect(inv.money == money + without and inv.rack[6].item_id == "pin.lab_lead" and inv.rack[6].mod == "pin_mod.lab_oak", "the sale pays the pin alone; the new pin keeps the modification", failures)
+	# A reserve place carries its modification too.
+	inv.place("pin_mod.lab_oak", 3, "reserve:2")
+	inv.place("pin.lab_gold", 4, "reserve:2")
+	_expect(inv.reserves[1].item_id == "pin.lab_gold" and inv.reserves[1].mod == "pin_mod.lab_oak", "a reserve pin's modification carries to the new pin", failures)
+	# An excluded modification stays with the old pin (Gilded excludes Gold).
+	var gilt = fresh(cat)
+	gilt.place("pin_mod.lab_gilded", 3, "rack:2")
+	var excluded: Dictionary = gilt.placements("pin.lab_gold").filter(func(o): return o.target == "rack:2")[0]
+	_expect(excluded.keeps_mod == "", "a modification the new pin excludes does not carry", failures)
+	gilt.place("pin.lab_gold", 4, "rack:2")
+	_expect(gilt.rack[2].mod == "" and gilt.reserves[0].item_id == "pin.wood" and gilt.reserves[0].mod == "pin_mod.lab_gilded", "it moves with the old pin instead", failures)
+	_expect(gilt.placements("pin.lab_lead").filter(func(o): return o.target == "rack:2")[0].keeps_mod == "", "a pin with no modification hands on nothing", failures)
+	# Saved and restored, the carried modification stays.
+	var restored = Inventory.from_dict(inv.to_dict(), cat)
+	_expect(restored.rack[3].mod == "pin_mod.lab_oak" and restored.rack[6].mod == "pin_mod.lab_oak", "the carried modification survives a save", failures)
 
 static func _shop(cat: Dictionary, failures: Array[String]) -> void:
 	var inv = fresh(cat)

@@ -74,8 +74,8 @@ var music_duck := 1.0 # the Clubhouse music eases to half under its Options
 ## screen and the run's music fade out together (EXIT_OUT). UI-25 (owner, the same
 ## day): the fade follows the award ceremony, and there is no fade into the
 ## Clubhouse: after a moment in the dark (EXIT_HOLD) it is simply there, with its music.
-const EXIT_OUT := 3.0
-const EXIT_HOLD := 0.3
+const EXIT_OUT := 1.5 # UI-31 (owner, 2026-11-20): half UI-25's 3 s
+const EXIT_HOLD := 0.15
 var curtain_layer: CanvasLayer
 var curtain: ColorRect
 var exiting := false # leaving a run: its awards, then the fade out

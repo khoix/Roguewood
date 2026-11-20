@@ -3,10 +3,14 @@ extends RefCounted
 ## Read from the Career itself (each award records the run it came from), so it is
 ## right even when the run was resumed after a restart:
 ## - trophies: the Clubhouse shelf's slots (ClubhouseModel.trophies) that this run
-##   earned: a League title (first or again), a rival's plaque, a club decoration.
+##   earned for the first time: a League title, a rival's plaque, a club decoration.
 ##   A mastery ribbon comes with its goal, below;
-## - goals: every open goal this run moved forward, from where it stood before the
-##   run to where it stands now, and every goal it completed.
+## - goals: every open Career goal this run moved forward, from where it stood
+##   before the run to where it stands now, and every goal it completed.
+## UI-31 (owner, 2026-11-20): "Only show the award page if a new award or goal is
+## either achieved or made progress on in that run." A goal counted within one run
+## starts over the next, so its count alone is no progress: it shows only when the
+## run completed it.
 const Model = preload("res://src/clubhouse/clubhouse_model.gd")
 const Career = preload("res://src/persistence/career_profile.gd")
 const GOAL_LIMIT := 6 # rows the ceremony shows; completed goals first
@@ -26,11 +30,11 @@ static func trophies(career: Dictionary, graph: Dictionary, uid: int) -> Array:
 			continue
 		match String(slot.kind):
 			"trophy":
+				# UI-31 (owner, 2026-11-20): "Only for new awards": a League title won
+				# again is no new trophy, so only the first title is presented.
 				var entry: Dictionary = career.championships.get(slot.id, {})
-				if int(entry.get("last_attempt", -1)) == uid:
-					var wins := int(entry.get("wins", 0))
-					out.append(slot.merged({"again": wins > 1, "headline": "League Champion!" if wins == 1 else "Champion Again!",
-						"detail": "First title" if wins == 1 else "Title number %d" % wins}, true))
+				if int(entry.get("last_attempt", -1)) == uid and int(entry.get("wins", 0)) == 1:
+					out.append(slot.merged({"again": false, "headline": "League Champion!", "detail": "First title"}, true))
 			"plaque":
 				if int(career.first_clears.get(slot.id, {}).get("career_attempt", -1)) == uid:
 					out.append(slot.merged({"again": false, "headline": "Rival Plaque!", "detail": "First cleared this run"}, true))
@@ -64,6 +68,8 @@ static func goals(career: Dictionary, graph: Dictionary, uid: int) -> Array:
 			after = threshold
 		if after <= before and not completed:
 			continue
+		if objective.scope != "career" and not completed:
+			continue # UI-31: a within-run count that falls short starts over; no progress
 		out.append({"id": objective.id, "name": objective.name, "text": objective.text, "reward": objective.get("reward", ""),
 			"asset": Model.asset_id("ribbon", objective.id), "before": before, "after": after, "threshold": threshold,
 			"completed": completed, "scope": objective.scope, "tracked": objective.id in career.get("tracked", [])})

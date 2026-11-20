@@ -10,6 +10,9 @@ extends Control
 ## Art direction (Claude, as Codex is away): "Trophy Night". A velvet-dark stage, a
 ## slow gold sunburst behind each trophy, a spotlight, chunky gold lettering, and
 ## confetti in the club's colours (plus the League's own accents).
+## UI-31 (owner, 2026-11-20): a show that never stops under it all (AwardFx's
+## start_show): fireworks, salvos, confetti from the top, cannons and streamers, from
+## the first moment through the summary and under the fade after Continue.
 signal finished
 
 const Soundtrack = preload("res://src/presentation/soundtrack.gd")
@@ -26,6 +29,8 @@ const SOUNDS := {
 	"confetti": "res://assets/audio/awards/confetti_pop.wav", "tick": "res://assets/audio/awards/goal_tick.wav",
 	"complete": "res://assets/audio/awards/goal_complete.wav"}
 const VOICES := 8
+const SHOW_VOICES := 4 # UI-31: the continuous show's own, so it never cuts a reveal
+const SHOW_SOUND_GAP := 0.12 # seconds between the show's sounds
 const MAX_TICKS := 16
 
 var lab: Control
@@ -36,6 +41,7 @@ var step := "" # intro, trophy, goals, finale, done
 var reduced_motion := false
 var reduced_flash := false
 var cues: Array = [] # every sound asked for, in order (tests read it)
+var show_cues: Array = [] # UI-31: the continuous show's sounds (kept apart from the sequence's)
 var shown_trophies: Array = [] # ids presented
 var goal_rows: Dictionary = {} # goal id -> {bar, count, stamp, ...}
 var music: AudioStreamPlayer
@@ -58,6 +64,9 @@ var continue_button: Button
 var hold := false # UI-25: Continue keeps the last screen for the fade after it
 var skip_button: Button
 var _voices: Array = []
+var _show_voices: Array = []
+var _show_clock := 0.0 # the ceremony's own time, so the throttle follows the game, not the wall clock
+var _show_sound_at := -1.0
 var _hurry := false
 var _skipping := false
 var _tweens: Array = []
@@ -84,6 +93,8 @@ func _ready() -> void:
 	fx = AwardFx.new()
 	fx.name = "AwardFx"
 	add_child(fx)
+	fx.launched.connect(func(big): _show_sound("launch" if big else "rocket"))
+	fx.exploded.connect(func(kind): _show_sound("confetti" if kind == "confetti" else "burst"))
 	spotlight = TextureRect.new()
 	spotlight.name = "Spotlight"
 	spotlight.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -111,6 +122,11 @@ func _ready() -> void:
 		var voice := AudioStreamPlayer.new()
 		add_child(voice)
 		_voices.append(voice)
+	for i in SHOW_VOICES:
+		var voice := AudioStreamPlayer.new()
+		voice.name = "ShowVoice%d" % i
+		add_child(voice)
+		_show_voices.append(voice)
 	music = AudioStreamPlayer.new()
 	music.name = "AwardMusic"
 	add_child(music)
@@ -212,8 +228,10 @@ func _layout() -> void:
 	spotlight.position = art_center - spotlight.size * 0.5
 	skip_button.position = Vector2((size.x - skip_button.size.x) * 0.5, size.y - skip_button.size.y - margin) # where Continue appears
 
-func _process(_delta: float) -> void:
-	if visible: _layout()
+func _process(delta: float) -> void:
+	if visible:
+		_show_clock += delta
+		_layout()
 
 ## Starts the ceremony for `data` (RunAwards.for_run). ctx: {league_id, run, won}.
 ## UI-25: with `hold_at_end`, Continue leaves its last screen and music in place for
@@ -229,6 +247,8 @@ func present(data: Dictionary, ctx: Dictionary = {}, hold_at_end: bool = false) 
 	if String(ctx.get("league_id", "")) == "league.neon":
 		fx.palette = [GOLD, Color("ff4fd8"), Color("3ff2ff"), Color("b48cff"), IVORY]
 	cues.clear()
+	show_cues.clear()
+	_show_sound_at = -1.0
 	shown_trophies.clear()
 	goal_rows.clear()
 	for child in shelf.get_children(): child.queue_free()
@@ -243,6 +263,7 @@ func present(data: Dictionary, ctx: Dictionary = {}, hold_at_end: bool = false) 
 	skip_button.show()
 	skip_button.grab_focus()
 	_start_music()
+	fx.start_show() # UI-31: fireworks and confetti the whole time
 	_run()
 
 func has_music() -> bool:
@@ -493,16 +514,15 @@ func _count_text(goal: Dictionary, value: int) -> void:
 
 func _finale() -> void:
 	step = "finale"
-	if _earned_something() and not reduced_motion and not _skipping:
+	# UI-31: a grand salvo on top of the show, which keeps going after it.
+	if not reduced_motion and not _skipping:
 		cue("confetti")
 		fx.confetti_rain()
-		for i in 3:
+		fx.salvo()
+		for i in (3 if _earned_something() else 2):
 			_firework(Vector2(size.x * randf_range(0.15, 0.85), size.y * randf_range(0.12, 0.35)))
 			await _pause(0.35)
 			if not _alive(): return
-	elif not reduced_motion and not _skipping:
-		cue("confetti")
-		fx.confetti_burst(Vector2(size.x * 0.5, size.y), 50)
 	_end_state()
 
 ## Everything in its final place: the shelf, every goal filled, Continue ready.
@@ -553,6 +573,25 @@ func cue(id: String, pitch: float = 1.0) -> void:
 	voice.stream = load(SOUNDS[id])
 	voice.pitch_scale = pitch
 	voice.volume_db = linear_to_db(maxf(volume * 0.5, 0.0001))
+	voice.play()
+
+## UI-31: a sound for the continuous show, on its own voices, a little under the
+## sequence's, never more than one every SHOW_SOUND_GAP, and on after Skip.
+func _show_sound(id: String) -> void:
+	if not visible: return
+	if _show_sound_at >= 0.0 and _show_clock - _show_sound_at < SHOW_SOUND_GAP: return
+	_show_sound_at = _show_clock
+	show_cues.append(id)
+	var muted := bool(lab.settings.get("sound_muted", false)) if lab != null else false
+	var volume := float(lab.settings.get("sound_volume", 0.65)) if lab != null else 0.65
+	if muted or volume <= 0.0 or not SOUNDS.has(id) or not ResourceLoader.exists(SOUNDS[id]): return
+	var voice: AudioStreamPlayer = null
+	for v in _show_voices:
+		if not v.playing: voice = v; break
+	if voice == null: voice = _show_voices[show_cues.size() % _show_voices.size()]
+	voice.stream = load(SOUNDS[id])
+	voice.pitch_scale = randf_range(0.82, 1.18)
+	voice.volume_db = linear_to_db(maxf(volume * 0.38, 0.0001))
 	voice.play()
 
 func _firework(at: Vector2) -> void:
@@ -609,10 +648,12 @@ func close() -> void:
 	playing = false
 	_finish_tweens()
 	if hold:
-		# UI-25: stays on screen, its music playing, under the fade that follows.
+		# UI-25: stays on screen, its music (and UI-31's show) playing, under the fade
+		# that follows.
 		continue_button.disabled = true
 		finished.emit()
 		return
+	fx.stop_show()
 	_stop_music()
 	var fade := create_tween()
 	fade.tween_property(self, "modulate:a", 0.0, 0.2 if not reduced_motion else 0.0)
@@ -623,7 +664,7 @@ func close() -> void:
 ## sound or the music may still be playing when the lab is freed after a result.
 func _exit_tree() -> void:
 	var any := false
-	for voice in _voices + [music]:
+	for voice in _voices + _show_voices + [music]:
 		if is_instance_valid(voice):
 			any = any or voice.playing
 			voice.stop()
