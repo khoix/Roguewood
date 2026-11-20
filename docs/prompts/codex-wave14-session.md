@@ -99,6 +99,10 @@ For each of AV-N3 to AV-N5:
 - **Boss introductions wait for Begin.** The shared `_aim()` helpers press `lab.hud.intro_button`.
 - **Salvage:** E17-L03 and E18-C20 are done. Salvage's rivals and theme are Wave 15; do not start them.
 
+- **UI-32 (2026-11-20):** the shop's Sell sheet is now the Inventory. Charms sit in a drag-to-reorder row (`charm_row`, tiles `Sell_charm_N`) above the other items. Find a tile with `shop_panel.sell_button(ref)`. Payout & Rack is a slip (`ledger`); `summary` and `rack_label` stay, hidden, with the text.
+- **BAL-1 (2026-11-20):** a release inside the ring adds 10 Value (FrameRules.INSIDE_VALUE). Expected scores in your journeys should come from the actual release grade.
+- **UI-33 (2026-11-20):** the ball's finger holes face the bowler, and small ivory roll spots mark its rolling circle and sides (lane_dressing.gd), so spin and roll read. A final ball look may restyle them, but must keep a marker that turns with the ball.
+
 ## Ownership and limits
 - **Never edit:**
   - src/rules/, src/simulation/, src/persistence/, src/career/, src/procedural/, src/content/ or src/input/;

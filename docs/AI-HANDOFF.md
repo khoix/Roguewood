@@ -32,13 +32,8 @@ The owner asked for tests that take less time and fewer tokens. For both agents:
 - **Merged:** PR #51 (owner, 2026-11-20; main `5f4df32`): UI-30 and UI-31.
 - **For the next PR** (merged into `claude/roguewood-build` after #51): QA-1…QA-8, the testing changes above. Full local matrix: 28 min (was 64). CI #533 PASS: game 21 min, art 31 min (were 44–60 and 60–77).
 - **UI-32 DONE** (handoffs/UI-32.md; the owner's play notes, 2026-11-20): the shop's **Inventory** (Charms in a drag-to-reorder row on top, the other items below, tap to review or sell) and the payout and rack as a themed slip (payout rows and total; the rack as a triangle of pin art; reserves; Charms and Deck chips). Checks: `unit`, `content` and all 73 shop journeys headless; J05, J06, JTUT, JAVC04B, J03C07–C10 and J11 rendered: PASS.
-- **Queued, waiting for the owner's go** (the owner's play notes, 2026-11-20):
-  - **UI-33, a ball that visibly spins:** "The ball animation is static and does not change with the pinwheel spin or when rolling down the alley." The ball's surface should turn with the held flywheel spin, and roll down the lane (forward with speed, sideways with the hook), with Reduced Motion respected and Codex's AV-T02 spin look layered on top.
-  - **BAL-1, release grades** (owner, 2026-11-20: "It seems odd to credit the player with a clean throw, but give them nothing for it"; agreed version):
-    - **Bonuses:** a clean release adds **+10 Value**, one pin's worth. Each grade includes the ones below: clean +10 Value; sweet +10 Value and +1 Mult; perfect +10 Value and +2 Mult; a miss nothing.
-    - **Effect on a plain frame:** a strike scores 560 / 600 / 750 / 900 (miss / clean / sweet / perfect), against 560 / 560 / 700 / 840 today; clean gains 7–14% on a frame.
-    - **Targets:** re-run the strategy simulation and adjust the targets only if the win rates move noticeably.
-    - **Unchanged:** the tally shows "Clean +10"; the `accurate` item condition stays sweet or better.
+- **BAL-1 DONE** (handoffs/BAL-1.md; agreed with the owner, 2026-11-20): a release inside the ring adds 10 Value; sweet and perfect add +1 and +2 Mult on top (a plain strike 560 / 600 / 750 / 900). The simulation moves 0–5 points of League wins and 4–9 of Division 1 clears; the targets stay. New fixed values: J03 600/260/70, J05 match 2 25920.
+- **UI-33 DONE** (handoffs/UI-33.md; the owner's play notes, 2026-11-20): the ball's finger holes face the bowler, and ivory roll spots mark the rolling circle and the sides, so the held spin and the roll and hook down the lane read. Visual only; physics unchanged.
 - **Codex** has been out of tokens since 2026-11-19 and returns about Friday 2026-11-21. Its Wave 14 queue: AV-N4, AV-N5, UI-A6, then UI-A9-H, and the proposed AV-UI1.
 
 ## Decisions and invariants

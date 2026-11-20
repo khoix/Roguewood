@@ -74,13 +74,27 @@ func dress_ball(ball: Node3D) -> void:
 		_ball_mesh = SphereMesh.new()
 		_ball_mesh.radius = Lane.BALL_RADIUS
 		_ball_mesh.height = Lane.BALL_RADIUS * 2.0
-	_mesh_child(ball, _ball_mesh, _material("ball", Color(0.1, 0.55, 0.6), 0.25))
-	# Finger holes make true roll readable.
+	_mesh_child(ball, _ball_mesh, _material("ball", Color(0.1, 0.55, 0.6), 0.25)) # first: item art dresses it
+	# UI-33 (owner, 2026-11-20): "The ball animation is static and does not change
+	# with the pinwheel spin or when rolling down the alley." The finger holes faced
+	# the pins, away from the camera, and the surface pattern looks alike from every
+	# side. Now the grip faces the bowler (+Z, toward the camera), so the held spin
+	# turns it in plain view, and ivory spots round the ball's rolling circle stream
+	# over the top as it rolls and swing sideways as it hooks. Visual children only:
+	# the collision sphere and the physics are untouched.
 	var hole := SphereMesh.new()
-	hole.radius = 0.018
-	hole.height = 0.036
-	for offset in [Vector3(0.0, 0.0, -1.0), Vector3(0.3, 0.25, -0.92), Vector3(-0.3, 0.25, -0.92)]:
-		_mesh_child(ball, hole, _material("hole", Color(0.02, 0.03, 0.05)), offset.normalized() * (Lane.BALL_RADIUS - 0.008))
+	hole.radius = 0.021
+	hole.height = 0.042
+	for offset in [Vector3(0.0, -0.32, 1.0), Vector3(0.3, 0.2, 0.95), Vector3(-0.3, 0.2, 0.95)]:
+		_mesh_child(ball, hole, _material("hole", Color(0.02, 0.03, 0.05)), offset.normalized() * (Lane.BALL_RADIUS - 0.009)).name = "FingerHole"
+	var spot := SphereMesh.new()
+	spot.radius = 0.013
+	spot.height = 0.026
+	for angle in [90.0, 150.0, 210.0, 270.0]: # round the circle the forward roll turns (the grip is at 0)
+		var at := Vector3(0.0, sin(deg_to_rad(angle)), cos(deg_to_rad(angle)))
+		_mesh_child(ball, spot, _material("roll_spot", Color("f4e6cd"), 0.4), at * (Lane.BALL_RADIUS - 0.006)).name = "RollSpot"
+	for side in [-1.0, 1.0]: # and on each side, so a hook's turn reads too
+		_mesh_child(ball, spot, _material("roll_spot", Color("f4e6cd"), 0.4), Vector3(side, 0.0, 0.0) * (Lane.BALL_RADIUS - 0.006)).name = "RollSpot"
 
 func _lathe() -> ArrayMesh:
 	var tool := SurfaceTool.new()
