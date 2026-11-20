@@ -6,6 +6,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
+import time
 
 ROOT = Path(__file__).resolve().parents[1]
 # Captured evidence is output, never a Godot resource. Avoid reimporting every
@@ -17,6 +18,12 @@ ROOT = Path(__file__).resolve().parents[1]
 (ROOT / "build").mkdir(exist_ok=True)
 (ROOT / "build/.gdignore").touch()
 VERSION = (ROOT / ".godot-version").read_text().strip()
+# QA-5 (owner, 2026-11-20): quiet by default. A passing run prints one PASS line;
+# a failing one prints its error lines and the last TAIL lines. Every engine run's
+# full output is in a log file either way (the journey's own, or artifacts/qa/).
+# --verbose or QA_VERBOSE=1 prints everything as before (CI sets it).
+VERBOSE = os.environ.get("QA_VERBOSE") == "1"
+TAIL = 40
 # journey -> script, success marker, artifact directory, rendered captures, timeout, extra engine flags
 JOURNEYS = {
     "JAVN2": ("res://tests/neon_n2_art_journey.gd", "ROGUEWOOD_J03C16_OK", "artifacts/av-n2/native", ("c16_shop", "c16_spare", "c16_glow_strike", "c16_straight", "n2_glow_trail", "n2_spotlight_hit", "n2_grip_hook_reduced", "n2_host_grip") + tuple("n2_"+id+"_paid" for id in ["glow", "prism", "spotlight", "afterimage", "laser_level"]) + tuple("n2_"+place+"_"+id.replace(".","_") for place in ["shop","binder"] for id in ["ball.glow","pin.prism","ball_mod.grip_tape","pin_mod.spotlight","charm.afterimage","charm.laser_level"]), 900, ["--fixed-fps", "60"]),
@@ -121,9 +128,9 @@ JOURNEYS = {
     "J04": ("res://tests/deck_journey.gd", "ROGUEWOOD_J04_OK", "artifacts/e07",
             ("hand", "keep", "match_over", "exhausted", "direct"), 900, ["--fixed-fps", "60"]),
     "J05": ("res://tests/shop_journey.gd", "ROGUEWOOD_J05_OK", "artifacts/e08",
-            ("offer", "shop", "bought", "funds", "place_pin", "carried_mod", "full_slot", "removed", "landscape", "match2"), 900, ["--fixed-fps", "60"]),
+            ("offer", "shop", "ledger", "bought", "funds", "place_pin", "carried_mod", "full_slot", "removed", "landscape", "match2"), 900, ["--fixed-fps", "60"]),
     "J06": ("res://tests/division_journey.gd", "ROGUEWOOD_J06_OK", "artifacts/e13",
-            ("slice_preview", "slice_echo", "slice_shop", "slice_dead_straight", "celebration_boss", "slice_cleared", "awards_trophy", "awards_summary", "slice_clean_sweep", "slice_won",
+            ("slice_preview", "slice_echo", "slice_inventory", "slice_shop", "slice_dead_straight", "celebration_boss", "slice_cleared", "awards_trophy", "awards_summary", "slice_clean_sweep", "slice_won",
              "slice_lost_again", "preview", "shop_preview", "intro", "boss", "lost", "won", "lost_again"), 1500, ["--fixed-fps", "60"]),
     "J07": ("res://tests/save_journey.gd", "ROGUEWOOD_J07_OK", "artifacts/e10",
             ("continue_menu", "resumed_hand", "resumed_roll", "resumed_frame", "resumed_shop", "resumed_reroll",
@@ -282,22 +289,51 @@ def engine():
     return executable
 
 
+def _default_log(args):
+    """Where a run with no log of its own keeps its output (QA-5)."""
+    name = "run"
+    for i, arg in enumerate(args):
+        if arg == "--script" and i + 1 < len(args):
+            name = Path(args[i + 1]).stem
+            break
+        if arg in ("--import", "--export-release", "--export-debug"):
+            name = arg.strip("-")
+        if arg.endswith(".mjs"):
+            name = Path(arg).stem
+    extra = [a.split("=", 1)[0].strip("-") + "-" + a.split("=", 1)[1] for a in args if a.startswith("--stage=")]
+    extra += [a for a in args if a in ("unit", "content", "integration", "physics")]
+    return ROOT / "artifacts/qa" / ("-".join([name] + extra) + ".log")
+
+
+def _excerpt(output, log_path):
+    """A failing run's error lines and its last TAIL lines (QA-5)."""
+    lines = output.splitlines()
+    errors = [l for l in lines if l.startswith(("FAIL", "SCRIPT ERROR", "ERROR:", "   at:", "     at:")) or "TIMEOUT" in l]
+    shown = errors[:30]
+    tail = [l for l in lines[-TAIL:] if l not in shown]
+    print("\n".join(shown + (["..."] if shown and tail else []) + tail))
+    print(f"(full output: {log_path.relative_to(ROOT) if log_path.is_relative_to(ROOT) else log_path})")
+
+
 def run(args, marker=None, log_path=None, timeout=120):
+    log_path = log_path or _default_log(args)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
     try:
         result = subprocess.run(args, cwd=ROOT, capture_output=True, text=True, timeout=timeout)
     except subprocess.TimeoutExpired as error:
         def decode(value):
             return value.decode(errors="replace") if isinstance(value, bytes) else (value or "")
         output = decode(error.stdout) + decode(error.stderr) + "\nTIMEOUT\n"
-        if log_path:
-            log_path.parent.mkdir(parents=True, exist_ok=True)
-            log_path.write_text(output)
+        log_path.write_text(output)
+        print(output, end="") if VERBOSE else _excerpt(output, log_path)
         raise RuntimeError(f"Timed out after {timeout}s: {args}") from error
     output = result.stdout + result.stderr
-    if log_path:
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        log_path.write_text(output)
-    print(output, end="")
+    log_path.write_text(output)
+    failed = result.returncode or "SCRIPT ERROR:" in output or "ERROR:" in output or (marker and marker not in output)
+    if VERBOSE:
+        print(output, end="")
+    elif failed:
+        _excerpt(output, log_path)
     if result.returncode or "SCRIPT ERROR:" in output or "ERROR:" in output:
         raise RuntimeError(f"Command failed: {args}")
     if marker and marker not in output:
@@ -334,13 +370,134 @@ def web_journey(exe, inject_failure):
         server.shutdown()
 
 
+SERIAL = ("doctor", " import", " export", " web") # matrix commands that must run alone, first
+
+
+def _workflow_commands(shard=None):
+    """The CI workflow's test commands, in order (QA-4): the same list CI runs."""
+    import re
+    try:
+        import yaml
+    except ImportError as error:
+        raise RuntimeError("qa.py matrix needs PyYAML (pip install pyyaml)") from error
+    workflow = yaml.safe_load((ROOT / ".github/workflows/bootstrap.yml").read_text())
+    out = []
+    for job in workflow["jobs"].values():
+        for step in job.get("steps", []):
+            body = step.get("run")
+            condition = str(step.get("if", ""))
+            if not body or (shard and "matrix.shard" in condition and f"'{shard}'" not in condition):
+                continue
+            lines = [line.strip() for line in body.splitlines()]
+            i = 0
+            while i < len(lines):
+                loop = re.match(r"for (\w+) in (.+); do$", lines[i])
+                if loop:
+                    var, items, block = loop.group(1), loop.group(2).split(), []
+                    i += 1
+                    while lines[i] != "done":
+                        block.append(lines[i])
+                        i += 1
+                    expanded = [b.replace("${%s}" % var, it).replace("$%s" % var, it) for it in items for b in block]
+                else:
+                    expanded = [lines[i]]
+                for command in expanded:
+                    if "tools/qa.py" in command or "--script" in command:
+                        command = command.replace('"', "").replace("$GODOT_BIN", engine())
+                        if command not in out:
+                            out.append(command)
+                i += 1
+    return out
+
+
+def _run_many(commands, workers, out_dir, timeout=1500):
+    """Runs shell commands, `workers` at a time (SERIAL ones alone, first); one line
+    each, then every failure's quiet output. Returns the number that failed (QA-4)."""
+    import concurrent.futures
+    shutil.rmtree(out_dir, ignore_errors=True)
+    out_dir.mkdir(parents=True)
+    results = {}
+    env = dict(os.environ)
+    env.pop("QA_VERBOSE", None) # children stay quiet; their logs keep everything
+
+    def one(index):
+        command = commands[index]
+        log = out_dir / ("%03d.log" % (index + 1))
+        started = time.monotonic()
+        try:
+            done = subprocess.run(["bash", "-c", command], cwd=ROOT, stdout=open(log, "w"), stderr=subprocess.STDOUT, timeout=timeout, env=env)
+            code = done.returncode
+        except subprocess.TimeoutExpired:
+            code = 124
+        seconds = time.monotonic() - started
+        results[index] = (code, seconds)
+        with open(out_dir / "results.txt", "a") as table:
+            table.write("%d|%d|%.0f|%s\n" % (index + 1, code, seconds, command))
+        print("%s %4.0f s  %s" % ("PASS" if code == 0 else "FAIL", seconds, command.replace(str(ROOT) + "/", "")), flush=True)
+
+    serial = [i for i, c in enumerate(commands) if any(k in c for k in SERIAL)]
+    for i in serial:
+        one(i)
+    with concurrent.futures.ThreadPoolExecutor(workers) as pool:
+        list(pool.map(one, [i for i in range(len(commands)) if i not in serial]))
+    failed = sorted(i for i, (code, _) in results.items() if code != 0)
+    for i in failed:
+        print("\n--- FAIL %s (log %s)" % (commands[i], (out_dir / ("%03d.log" % (i + 1))).relative_to(ROOT)))
+        print("\n".join((out_dir / ("%03d.log" % (i + 1))).read_text().splitlines()[-TAIL:]))
+    total = sum(seconds for _, seconds in results.values())
+    print("\n%d of %d passed; %.0f test-min; results in %s" % (len(commands) - len(failed), len(commands), total / 60, (out_dir / "results.txt").relative_to(ROOT)))
+    return len(failed)
+
+
+def _batch_commands(items):
+    """`unit content J05 J06:rendered` -> qa.py commands (rendered ones under xvfb)."""
+    commands = []
+    for item in items:
+        name, _, mode = item.partition(":")
+        if name in JOURNEYS:
+            command = f"python3 tools/qa.py e2e --journey {name}"
+            if mode == "rendered":
+                command = 'xvfb-run -a -s "-screen 0 1280x1024x24" ' + command + " --rendered" if sys.platform.startswith("linux") else command + " --rendered"
+        else:
+            command = f"python3 tools/qa.py {name}"
+        commands.append(command)
+    return commands
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["doctor", "import", "smoke", "export", "unit", "integration", "content", "physics", "shell", "e2e", "experiment", "slice", "web"])
+    parser.add_argument("command", choices=["doctor", "import", "smoke", "export", "unit", "integration", "content", "physics", "shell", "e2e", "experiment", "slice", "web", "batch", "matrix"])
+    parser.add_argument("items", nargs="*", help="batch: suites and journeys to run, e.g. unit content J05 J06:rendered")
+    parser.add_argument("--workers", type=int, default=3, help="batch and matrix: commands at once (3 suits 4 cores)")
+    parser.add_argument("--shard", choices=["game", "art"], help="matrix: one CI shard only")
+    parser.add_argument("--runs", type=int, default=50,
+                        help="slice: seeded games per strategy. QA-7: 50 shows the simulation still runs; 400 regenerates ADR 008's balance report")
     parser.add_argument("--journey", choices=sorted(JOURNEYS), default="J01")
     parser.add_argument("--rendered", action="store_true", help="Use a real display; on Linux run via xvfb-run")
+    parser.add_argument("--draw", choices=["all", "captures"],
+                        help="rendered: draw every frame, or only the frames a capture waits for (QA-8, src/platform/qa_render.gd). "
+                             "Default: captures for journeys at a fixed frame rate, all otherwise")
     parser.add_argument("--inject-failure", action="store_true", help="Exercise J01 failure artifacts")
+    parser.add_argument("--verbose", action="store_true", help="Print every engine run's full output (or set QA_VERBOSE=1)")
     args = parser.parse_args()
+    global VERBOSE
+    VERBOSE = VERBOSE or args.verbose
+    if args.command in ("batch", "matrix"):
+        # QA-4: several commands in parallel, one line each. `matrix` is CI's own list
+        # (for a wave close or a CI outage); day to day, run what a change touches.
+        if args.command == "batch" and not args.items:
+            parser.error("batch needs suites or journeys, e.g. unit content J05 J06:rendered")
+        commands = _batch_commands(args.items) if args.command == "batch" else _workflow_commands(args.shard)
+        out_dir = ROOT / "artifacts/qa" / args.command
+        sys.exit(1 if _run_many(commands, args.workers, out_dir) else 0)
+    started = time.monotonic()
+    _dispatch(args)
+    what = args.command + (" " + args.journey + (" rendered" if args.rendered else " headless") if args.command == "e2e" else "")
+    if args.command != "doctor":
+        print(f"PASS {what} in {time.monotonic() - started:.0f} s")
+
+
+def _dispatch(args):
     exe = engine()
     if args.command == "doctor":
         print(f"Godot {VERSION}; Python {sys.version.split()[0]}; project={ROOT}")
@@ -370,7 +527,7 @@ def main():
         for label, flags in [("locked", []), ("unlocked", ["--unlocked"])]:
             report = artifact_dir / ("slice-strategies-%s.json" % label)
             report.unlink(missing_ok=True)
-            run([exe, "--headless", "--path", str(ROOT), "--script", "res://tools/slice_strategies.gd", "--", "--runs=400",
+            run([exe, "--headless", "--path", str(ROOT), "--script", "res://tools/slice_strategies.gd", "--", "--runs=%d" % args.runs,
                  "--out=" + str(report), *flags], "ROGUEWOOD_SLICE_SIM_OK", artifact_dir / ("slice-%s.log" % label), timeout=900)
     elif args.command == "e2e":
         script, marker, artifacts, captures, timeout, engine_flags = JOURNEYS[args.journey]
@@ -390,6 +547,12 @@ def main():
         save_dir.mkdir(parents=True)
         extra = ["--artifact-dir=" + str(artifact_dir), "--save-dir=" + str(save_dir),
                  "--content=" + CONTENT.get(args.journey, "slice")]
+        # QA-8 (owner, 2026-11-20): a rendered journey at a fixed frame rate draws only
+        # the frames its captures wait for; its logic and timing are unchanged, and its
+        # captures match drawing every frame (handoffs/QA.md). Others draw every frame.
+        on_demand = args.draw == "captures" or (args.draw is None and "--fixed-fps" in engine_flags)
+        draw = ["--qa-render-on-demand"] if args.rendered and on_demand else []
+        extra += draw
         stages = STAGES.get(args.journey, 0) or len(STAGE_RUNS.get(args.journey, []))
         if not stages:
             if args.inject_failure:
@@ -404,7 +567,7 @@ def main():
                     stage_script, content = STAGE_RUNS[args.journey][stage - 1]
                     stage_dir = save_dir / ("stage%d" % stage)
                     stage_dir.mkdir()
-                    stage_extra = ["--artifact-dir=" + str(artifact_dir), "--save-dir=" + str(stage_dir), "--content=" + content, "--stage=%d" % stage]
+                    stage_extra = ["--artifact-dir=" + str(artifact_dir), "--save-dir=" + str(stage_dir), "--content=" + content, "--stage=%d" % stage] + draw
                 if args.inject_failure and stage == stages:
                     stage_extra.append("--inject-failure")
                 stage_marker = marker if stage == stages else marker.replace("_OK", "_STAGE%d_OK" % stage)

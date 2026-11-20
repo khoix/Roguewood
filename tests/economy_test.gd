@@ -90,6 +90,19 @@ static func _inventory(cat: Dictionary, failures: Array[String]) -> void:
 	_expect("rack:5" not in mods.mod_hosts("pin_mod.lab_gilded") and "rack:4" in mods.mod_hosts("pin_mod.lab_gilded"), "incompatible hosts are excluded", failures)
 	_expect(not mods.incompatible("pin.lab_gold") and mods.mod_hosts("pin_mod.lab_gilded").size() == 10, "mod incompatibility is per host, not global", failures)
 	_carried_mods(cat, failures)
+	_charm_order(cat, failures)
+
+## UI-32 (owner, 2026-11-20): the Inventory's Charm row reorders by drag and drop.
+static func _charm_order(cat: Dictionary, failures: Array[String]) -> void:
+	var inv = fresh(cat)
+	for id in ["charm.lab_tally", "charm.lab_purse", "charm.lab_crown", "charm.lab_double"]:
+		inv.place(id, 4, "charm:new")
+	var ids := func(): return inv.charms.map(func(e): return e.item_id)
+	_expect(inv.move_charm(4, 1).is_empty() and ids.call() == ["charm.lab_double", "charm.lab_tally", "charm.lab_purse", "charm.lab_crown"], "a Charm dragged to slot 1 goes first, the rest close up", failures)
+	_expect(inv.move_charm(1, 3).is_empty() and ids.call() == ["charm.lab_tally", "charm.lab_purse", "charm.lab_double", "charm.lab_crown"], "a Charm dragged right lands in the slot dropped on", failures)
+	var before: Array = ids.call()
+	_expect(inv.move_charm(2, 2).is_empty() and ids.call() == before, "a Charm dropped on its own slot stays", failures)
+	_expect(not inv.move_charm(0, 1).is_empty() and not inv.move_charm(1, 5).is_empty() and ids.call() == before, "a move outside the Charm slots is refused and changes nothing", failures)
 
 ## UI-30 (owner, 2026-11-20): a new pin placed on a modified pin takes over its
 ## modification; the old pin moves or sells without it. A modification the new pin

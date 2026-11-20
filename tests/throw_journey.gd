@@ -200,7 +200,14 @@ func _two_roll_frame() -> Array:
 		var launch: Dictionary = lab.lane.launch.duplicate(true)
 		_check(launch.launch_id == "lab-%d" % (launch_index + 1), "launch ids ignore cancelled gestures")
 		_check(launch.roll_index == 1 and launch.spin == 0.0 and launch.direction_x == 0.0, "straight first-roll launch")
+		# UI-33 (owner, 2026-11-20): the rolling ball visibly turns. The physics ball
+		# carries the grip and the roll spots, and its basis turns as it rolls.
+		var ball: Node3D = lab.lane.ball
+		var spots: Array = ball.get_children().filter(func(c): return String(c.name).begins_with("RollSpot") or String(c.name).begins_with("FingerHole"))
+		var turned_from: Basis = ball.global_transform.basis
 		for i in 40: await process_frame
+		var turned: float = rad_to_deg(turned_from.get_rotation_quaternion().angle_to(ball.global_transform.basis.get_rotation_quaternion()))
+		_check(spots.size() >= 7 and turned > 90.0, "the rolling ball turns as it rolls (%.0f° in 40 frames) and carries its grip and roll spots (%d)" % [turned, spots.size()])
 		await _capture("rolling")
 		if not await _wait_for(func(): return lab.state == "result", "roll 1 settles", ROLL_FRAMES): return []
 		await _capture("roll1")
@@ -582,6 +589,20 @@ func _flat_spin() -> void:
 		at = next
 		radii.append(lab._ball_screen_radius())
 		depths.append(depth.call())
+	# UI-33: the grip faces the bowler and turns with the held spin.
+	var held: Node3D = lab.lane.aim_ball
+	var holes: Array = held.get_children().filter(func(c): return String(c.name).begins_with("FingerHole"))
+	var camera: Vector3 = lab._camera.global_position
+	var facing: bool = holes.size() == 3 and holes.all(func(h): return h.global_position.distance_to(camera) < held.global_position.distance_to(camera))
+	var grip_before: Vector2 = lab._camera.unproject_position(holes[0].global_position) - lab._camera.unproject_position(held.global_position) if holes.size() == 3 else Vector2.ZERO
+	for i in 6:
+		var swirl := deg_to_rad(90.0 + 12.0 * 72) + 0.21 * (i + 1) # the same brisk swirl, carried on
+		var turn := center + Vector2(cos(swirl), sin(swirl)) * radius
+		await _drag(turn, turn - at)
+		at = turn
+	var grip_after: Vector2 = lab._camera.unproject_position(holes[0].global_position) - lab._camera.unproject_position(held.global_position) if holes.size() == 3 else Vector2.ZERO
+	_check(facing and absf(rad_to_deg(grip_before.angle_to(grip_after))) > 20.0,
+		"the grip faces the bowler and turns on screen with the held spin (%.0f°)" % rad_to_deg(grip_before.angle_to(grip_after)))
 	await _capture("flat_spin")
 	for i in 12: # then well below its start, toward the bottom of the screen
 		at += Vector2(0, 15) * _px()

@@ -28,7 +28,7 @@ per milestone. Existing milestone branches remain historical delivery references
 
 Implement only the assigned execution/child. Respect the full-release content and premium visuals; a prototype does not fulfill final art or catalogue requirements. Use bounded batches, stable IDs, and independent content completeness flags.
 
-Add meaningful unit/integration and targeted E2E coverage with user-visible features. Native game E2E must drive the real game, not just call rule functions. Device feel, visual review, and platform exports need actual evidence. Never report unrun tests as passed or missing assets as finished.
+Verify a change with what it touches (`python3 tools/qa.py batch …`, in parallel, quiet); CI's full run on every push is the gate, and the full local matrix (`qa.py matrix`) is for wave closes or a CI outage (owner, 2026-11-20; docs/AI-HANDOFF.md, "Testing and CI"). Add meaningful unit/integration and targeted E2E coverage with user-visible features. Native game E2E must drive the real game, not just call rule functions. Device feel, visual review, and platform exports need actual evidence. Never report unrun tests as passed or missing assets as finished.
 
 Before stopping: inspect status/diff, validate, commit intended work, push task branch, verify remote SHA, confirm clean status, and update task handoff. Report blockers and exact resume actions. Coordinator updates central state after integration. DONE records completed implementation/verification with durable evidence; owner merge constitutes approval.
 

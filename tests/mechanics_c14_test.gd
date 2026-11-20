@@ -67,7 +67,7 @@ static func _pins(effect: Dictionary = {}) -> Array:
 	return pins
 
 static func _roll(index: int, fallen: Array, extra: Dictionary = {}, effects: Array = []) -> Dictionary:
-	var roll := {"roll_index": index, "ball_id": "ball.house", "fallen_positions": fallen, "accuracy": "clean", "effects": effects.duplicate(true),
+	var roll := {"roll_index": index, "ball_id": "ball.house", "fallen_positions": fallen, "accuracy": "miss", "effects": effects.duplicate(true),
 		"first_direct": fallen[0] if not fallen.is_empty() else 0, "last_fallen": fallen[-1] if not fallen.is_empty() else 0, "curved": false}
 	roll.merge(extra, true)
 	return roll

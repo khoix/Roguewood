@@ -61,7 +61,7 @@ func _run() -> void:
 	var index: int = lab.run.charms.map(func(e): return e.item_id).find("charm.opening_act")
 	var money: int = lab.run.money
 	var sale: int = lab.run.sale_value("charm:%d" % (index + 1))
-	await _tap(lab.shop_panel.owned_list.get_node("Sell_charm_%d" % (index + 1)))
+	await _tap(lab.shop_panel.sell_button("charm:%d" % (index + 1))) # UI-32: Charms are in the Inventory row
 	await process_frame
 	_check(not lab.run.charms.any(func(e): return e.item_id == "charm.opening_act") and lab.run.money == money + sale, "Opening Act sold for $%d to free a slot" % sale)
 	await _buy(["charm.holdouts"])

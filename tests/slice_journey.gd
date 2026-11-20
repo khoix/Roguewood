@@ -154,6 +154,55 @@ func _tap(control: Control) -> void:
 		await process_frame
 	await _confirm(control)
 
+## BAL-1: what a frame's best release adds, [Value, Mult]: 10 Value inside the
+## ring, and the grade's Mult (FrameRules).
+func _grade_bonus(reports: Array) -> Array:
+	var Rules = preload("res://src/rules/frame_rules.gd")
+	var best := "miss"
+	for report in reports:
+		var grade: String = report.roll_result.accuracy
+		if Rules.GRADES[grade] > Rules.GRADES[best] or (best == "miss" and grade != "miss"): best = grade
+	return [int(Rules.INSIDE_VALUE) if best != "miss" else 0, int(Rules.GRADES[best])]
+
+## A finger-like mouse drag from one control to another (UI-32's Charm row).
+func _drag_between(from: Control, to: Control) -> void:
+	var start := from.get_global_rect().get_center()
+	var end := to.get_global_rect().get_center()
+	var event := InputEventMouseButton.new()
+	event.button_index = MOUSE_BUTTON_LEFT
+	event.pressed = true
+	event.button_mask = MOUSE_BUTTON_MASK_LEFT
+	event.position = _window(start)
+	event.global_position = event.position
+	Input.parse_input_event(event)
+	await process_frame
+	for i in range(1, 13):
+		var motion := InputEventMouseMotion.new()
+		motion.button_mask = MOUSE_BUTTON_MASK_LEFT
+		motion.position = _window(start.lerp(end, i / 12.0))
+		motion.global_position = motion.position
+		motion.relative = (end - start) / 12.0
+		Input.parse_input_event(motion)
+		await process_frame
+	var release := InputEventMouseButton.new()
+	release.button_index = MOUSE_BUTTON_LEFT
+	release.pressed = false
+	release.position = _window(end)
+	release.global_position = release.position
+	Input.parse_input_event(release)
+	for i in 4: await process_frame
+
+func _shift_left() -> void:
+	for pressed in [true, false]:
+		var key := InputEventKey.new()
+		key.keycode = KEY_LEFT
+		key.physical_keycode = KEY_LEFT
+		key.shift_pressed = true
+		key.pressed = pressed
+		Input.parse_input_event(key)
+		await process_frame
+	for i in 3: await process_frame
+
 func _window(canvas: Vector2) -> Vector2:
 	return root.get_screen_transform() * canvas
 
@@ -328,8 +377,9 @@ func _division_one() -> void:
 	var roll := await _throw(STRIKE)
 	_check(roll.launch.ball_id == "ball.echo" and roll.roll_result.fallen_positions.size() == 10, "the Echo Ball strikes")
 	var echo := await _scored()
-	_check(echo.banked == (40 + 100 + 10) * 4 and _log_lines().any(func(l): return l.contains("(retrigger 1 · Roll 1 Echo Ball)")),
-		"Echo repeats one Wood pin: 600, explained in the log")
+	var bonus := _grade_bonus([roll])
+	_check(echo.banked == (40 + 100 + 10 + bonus[0]) * (4 + bonus[1]) and _log_lines().any(func(l): return l.contains("(retrigger 1 · Roll 1 Echo Ball)")),
+		"Echo repeats one Wood pin: (150 + %d) × (4 + %d), explained in the log (banked %d)" % [bonus[0], bonus[1], echo.banked])
 	_check(echo.match_over and echo.match_won and lab.next_rack.text == "Collect & Shop", "600 wins the 300 opener in one frame")
 	await _capture("slice_echo")
 	await _to_shop("opener")
@@ -345,12 +395,35 @@ func _division_one() -> void:
 	first.append_array(await _buy_charms())
 	print("J06 bought in Division 1: %s" % str(first))
 	if lab.run.charms.size() >= 2:
+		# UI-32 (owner, 2026-11-20): the Inventory's Charm row reorders by drag and drop.
+		var shop = lab.shop_panel
 		var order: Array = lab.run.charms.map(func(e): return e.item_id)
-		await _focus_accept(lab.shop_panel.move_button(2))
+		await _focus_accept(shop.sell_open)
 		await process_frame
-		_check(lab.run.charms[0].item_id == order[1] and lab.run.charms[1].item_id == order[0] and lab.shop_panel.message.text.contains("Moved"), "a Charm moves one slot left")
-		await _focus_accept(lab.shop_panel.move_button(2)) # and back: additions stay first
-		await process_frame
+		_check(shop.sell_sheet.visible and shop.sell_title.text == "Inventory" and shop.charm_row.get_child_count() == order.size()
+			and shop.charm_tile(1).get_meta("ref") == "charm:1" and shop.charm_tile(1).get_global_rect().end.y <= shop.owned_list.get_global_rect().position.y + 1.0,
+			"Inventory opens on the Charms in scoring order, above the other items")
+		var row: Rect2 = shop.charm_row.get_global_rect()
+		_check(row.position.x >= shop.sell_sheet.get_global_rect().position.x and row.end.x <= shop.sell_sheet.get_global_rect().end.x,
+			"every Charm fits the row (%s)" % str(row))
+		await _capture("slice_inventory")
+		await _drag_between(shop.charm_tile(2), shop.charm_tile(1))
+		_check(lab.run.charms[0].item_id == order[1] and lab.run.charms[1].item_id == order[0] and shop.message.text.contains("Moved") and shop.sell_sheet.visible
+			and not shop.sell_confirm_sheet.visible, "dragging Charm 2 onto Charm 1 swaps them, without opening it, and the Inventory stays open")
+		var last := order.size()
+		await _drag_between(shop.charm_tile(1), shop.charm_tile(last))
+		var moved: Array = lab.run.charms.map(func(e): return e.item_id)
+		_check(moved[last - 1] == order[1] and moved[0] == order[0], "a Charm dragged onto the last slot goes last; the rest close up (%s)" % str(moved))
+		# Keyboard and gamepad: Shift+Left moves the focused Charm (here back to its place).
+		for i in range(last, 1, -1):
+			shop.charm_tile(i).grab_focus()
+			await _shift_left()
+		var back: Array = lab.run.charms.map(func(e): return e.item_id)
+		_check(back == order.slice(1, 2) + order.slice(0, 1) + order.slice(2), "Shift+Left moves the focused Charm one slot left (%s)" % str(back))
+		shop.charm_tile(2).grab_focus()
+		await _shift_left()
+		_check(lab.run.charms.map(func(e): return e.item_id) == order, "and back to the bought order: additions stay first")
+		await _focus_accept(shop.sell_close)
 	await _capture("slice_shop")
 	await _leave_shop()
 	await _wait_for(func(): return lab.state == "intro" and lab.hud.intro.visible, "The Surveyor's introduction")

@@ -267,7 +267,7 @@ func _first_attempt() -> void:
 	await _capture("boss")
 	await _throw(STRIKE) # thrown while the reaction is on screen
 	var first := await _scored()
-	_check(first.banked == 560 and not first.match_over and lab.division.target() == 800, "a boss strike banks in full; the target stays 800")
+	_check(first.banked == 600 and not first.match_over and lab.division.target() == 800, "a clean boss strike banks in full (BAL-1: 600); the target stays 800")
 	await _focus_accept(lab.next_rack)
 	var leave := await _throw(LEAVE)
 	_check(not leave.knockdown_log.standing.is_empty(), "the leave leaves pins")
@@ -277,11 +277,11 @@ func _first_attempt() -> void:
 	var lines: Array = lab.score_panel.log_list.get_children().map(func(c): return c.text)
 	_check(open.result.category == "open" and open.result.score > 0 and open.banked == 0 and lines.any(func(l): return l.contains("Clean Sweep: An open frame banks nothing")),
 		"Clean Sweep banks the open frame as 0 and says so")
-	_check(open.match_over and not open.match_won and lab.division.outcome == "lost" and lab.next_rack.text == "See Result", "560 of 800: the boss is lost")
+	_check(open.match_over and not open.match_won and lab.division.outcome == "lost" and lab.next_rack.text == "See Result", "600 of 800: the boss is lost")
 	_check(_says(lab.division.rival(), "victorious", lab.hud.last_line), "the rival reacts to winning")
 	await _focus_accept(lab.next_rack)
 	await _wait_for(func(): return lab.hud.result.visible, "result screen")
-	_check(lab.hud.result_title.text.contains("Boss lost") and lab.hud.result_body.text.contains("Scored 560 of the 800 target")
+	_check(lab.hud.result_title.text.contains("Boss lost") and lab.hud.result_body.text.contains("Scored 600 of the 800 target")
 		and lab.hud.result_body.text.contains("Rule in force: Clean Sweep"), "the loss shows the unmet score and the rule")
 	_check(scene.career.first_clears.is_empty() and scene.session.outcome == "lost", "no reward for a loss")
 	# UI-11 (owner, 2026-11-16): a lost boss match ends on the rival's parting shot.
@@ -317,7 +317,7 @@ func _second_attempt() -> void:
 	await _focus_accept(lab.next_rack)
 	await _throw(STRIKE)
 	var win := await _scored()
-	_check(win.match_over and win.match_won and lab.division.outcome == "won" and lab.division.match_score == 1120 and lab.next_rack.text == "Division Result", "two strikes defeat the boss")
+	_check(win.match_over and win.match_won and lab.division.outcome == "won" and lab.division.match_score == 1200 and lab.next_rack.text == "Division Result", "two clean strikes (1200) defeat the boss")
 	_check(_says(lab.division.rival(), "defeated", lab.hud.last_line), "the rival concedes")
 	await _focus_accept(lab.next_rack)
 	await _wait_for(func(): return lab.hud.result.visible, "victory screen")

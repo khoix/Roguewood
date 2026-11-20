@@ -100,7 +100,7 @@ func _bag(item_id: String) -> Variant:
 func _sell_kit_balls() -> void:
 	for owned in lab.run.entries():
 		if owned.ref.begins_with("card:") and owned.entry.item_id in ["ball.hook", "ball.hammer", "ball.echo"]:
-			var button: Node = lab.shop_panel.owned_list.get_node_or_null("Sell_" + String(owned.ref).replace(":", "_").replace("-", "_"))
+			var button: Node = lab.shop_panel.sell_button(String(owned.ref))
 			if button == null:
 				_check(false, "a Sell button for " + owned.ref)
 				continue
@@ -297,7 +297,7 @@ func _jar_lifecycle() -> void:
 	await _capture("jar_shop")
 	for owned in lab.run.entries():
 		if owned.entry.item_id != "charm.spare_jar": continue
-		var button: Node = lab.shop_panel.owned_list.get_node("Sell_"+String(owned.ref).replace(":","_").replace("-","_"))
+		var button: Node = lab.shop_panel.sell_button(String(owned.ref))
 		await _tap(button)
 		break
 	await process_frame

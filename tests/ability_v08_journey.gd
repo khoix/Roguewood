@@ -49,7 +49,7 @@ func _run() -> void:
   _seat(["charm.banana_ball","charm.plumb_line"])
   var curved := await _frame([[-0.15,0.0,0.7]],"curved strike",0.25)
   _check(curved.result.category=="strike" and _ids().count("charm.banana_ball")==1 and not _ids().has("charm.plumb_line"),"real curved strike triggers Banana, not Plumb")
-  _check(curved.frame.rolls[0].curved and curved.banked==840,"native calibrated curve banks 840")
+  _check(curved.frame.rolls[0].curved and curved.banked==_bal1(840,curved),"native calibrated curve banks 840 (+10 Value inside the ring)")
   await _controls(curved)
   await _next_frame()
   await _frame([GUTTER,GUTTER],"curved non-strike",0.25)

@@ -490,6 +490,21 @@ func move_charm_left(slot: int) -> Array[String]:
 	charms[slot - 2] = moved
 	return errors
 
+## UI-32 (owner, 2026-11-20): the Inventory's Charm row is reordered by drag and
+## drop: the Charm at `from` (1-based) moves to slot `to`, the others closing up
+## around it. Moving to its own slot changes nothing.
+func move_charm(from: int, to: int) -> Array[String]:
+	var errors: Array[String] = []
+	if from < 1 or from > charms.size():
+		errors.append("no Charm to move at slot %d" % from)
+	elif to < 1 or to > charms.size():
+		errors.append("no Charm slot %d" % to)
+	if errors.is_empty() and from != to:
+		var moved = charms[from - 1]
+		charms.remove_at(from - 1)
+		charms.insert(to - 1, moved)
+	return errors
+
 func _set_pin(ref: String, entry: Variant) -> void:
 	if ref.begins_with("rack:"):
 		rack[int(ref.split(":")[1])] = entry

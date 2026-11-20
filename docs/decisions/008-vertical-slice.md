@@ -65,6 +65,8 @@ Attempt schema **2** records `content_set` and stores the League (`{index, pract
 
 400 seeded attempts per strategy play the real inventory, shop (its own seeded stream), deck, League, rules, builder and resolver. Only pinfall is synthetic: an ordinary-player model (strike 28% with House at the pocket; Hammer +10 points; Hook +8 when it can spin, with a 10% overcurve; any curve +5; −3 per racked Anchor; spare 40%; a deliberate single-pin leave 50%; head pin first 75% of the time). The same throws are dealt to every strategy on a seed. Strategies buy, place, order (additions before multipliers) and throw towards one build and adapt to Clean Sweep by clearing the rack.
 
+QA-7 (owner, 2026-11-20): `qa.py slice` now runs 50 seeded games per strategy by default, which shows the simulation still runs; the routine check has no balance thresholds. `python3 tools/qa.py slice --runs 400` regenerates the results below.
+
 Results (400 runs each; `artifacts/e13/slice-strategies-{locked,unlocked}.json`, CI artifact `journeys`):
 
 | Strategy | Win (fresh Career) | Win (both unlocks) | Division 1 cleared | Mean banked frame | Mean non-strike frame |
