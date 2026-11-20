@@ -11,6 +11,7 @@ extends Control
 ## asset ID through ClubhouseArt. E16-ART supplies final identities. No new currency.
 signal career_changed
 const Model = preload("res://src/clubhouse/clubhouse_model.gd")
+const UiTheme = preload("res://src/presentation/house_ui_theme.gd")
 const Art = preload("res://src/clubhouse/clubhouse_art.gd")
 const CardView = preload("res://src/presentation/card_view.gd")
 const Career = preload("res://src/persistence/career_profile.gd")
@@ -541,7 +542,7 @@ func _build_preview() -> void:
 	binder_preview.hide()
 	add_child(binder_preview)
 	var shade := ColorRect.new()
-	shade.color = Color(0.02, 0.03, 0.07, 0.86)
+	shade.color = UiTheme.SCRIM # UI-35: one scrim behind every overlay
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	shade.gui_input.connect(func(event):
 		if event is InputEventMouseButton and event.pressed: close_preview())

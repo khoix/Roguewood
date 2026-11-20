@@ -2,6 +2,7 @@ extends Control
 ## Inspection never plays cards or changes their rarity. It shows the card in its own
 ## finish, which tilts with the pointer (owner, 2026-11-18: no finish preview, no reveal).
 const ItemAssets = preload("res://src/presentation/item_assets.gd")
+const UiTheme = preload("res://src/presentation/house_ui_theme.gd")
 const CardView = preload("res://src/presentation/card_view.gd")
 const ScoreLog = preload("res://src/rules/score_log.gd")
 var _item_texture: Texture2D
@@ -36,7 +37,7 @@ func _ready() -> void:
 	set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	mouse_filter = MOUSE_FILTER_STOP
 	var shade := ColorRect.new()
-	shade.color = Color(0.02,0.03,0.07,0.96)
+	shade.color = UiTheme.SCRIM # UI-35: one scrim behind every overlay
 	shade.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	shade.mouse_filter = MOUSE_FILTER_IGNORE
 	add_child(shade)
