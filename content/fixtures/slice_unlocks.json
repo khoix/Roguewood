@@ -201,7 +201,7 @@
     {
       "id": "mastery.both_halves",
       "name": "Both Halves",
-      "text": "On a Two-Tone lane, strike once from each half in one run: once with the ball left of centre at 34 ft, once right of it.",
+      "text": "On a Two-Tone lane, strike once from each half in one run: Once with the ball left of centre at 34 ft, once right of it.",
       "metric": "two_tone_halves",
       "threshold": 2,
       "scope": "attempt",

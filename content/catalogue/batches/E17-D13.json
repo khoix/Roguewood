@@ -49,7 +49,7 @@
       "id": "ball_mod.grip_tape",
       "landed_in": "E18-C16",
       "design": {
-        "trigger": "Attached to one ball card: every roll thrown with that card hooks 1.4 times as far for the same charge, on top of the ball's own hook. It answers Long Oil and Oil Slick.",
+        "trigger": "Attached to one ball card: Every roll thrown with that card hooks 1.4 times as far for the same charge, on top of the ball's own hook. It answers Long Oil and Oil Slick.",
         "primitives": [
           "physics.mod_spin_response"
         ],

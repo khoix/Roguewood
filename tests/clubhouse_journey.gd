@@ -180,6 +180,7 @@ func _ui24_how_to_play() -> void:
 			await process_frame
 			_check(page.diagram("pocket").handedness == "right" and page.diagram("pocket").side() > 0, "the pocket is drawn for a right-hander")
 			await _capture("glossary_pocket")
+			await _ui27_overlay(page)
 		if section.id == "score": await _capture("glossary_scoring")
 		if section.id == "cards": await _capture("glossary_cards")
 	_check(words == Glossary.terms().size() and words >= 40, "every word shown (%d)" % words)
@@ -210,6 +211,52 @@ func _ui24_how_to_play() -> void:
 	await _tap(scene.club_menu_list.get_node("CloseClubMenu"))
 	_check(not scene.club_menu.visible and scene.club_menu_button.has_focus(), "the menu closes")
 	await _wait_for(func(): return is_equal_approx(scene.music_duck, 1.0), "the Clubhouse music eases back")
+
+## UI-27 (owner, 2026-11-19): Talk the Talk scrolls from anywhere, its tabs are the
+## Clubhouse's, and a tapped word opens large in an overlay.
+func _ui27_overlay(page) -> void:
+	var stops := func(root_node: Node) -> bool:
+		for node in root_node.find_children("*", "Control", true, false):
+			if (node as Control).mouse_filter == Control.MOUSE_FILTER_STOP: return true
+		return false
+	_check(not stops.call(page.list) and page.list.get_children().all(func(r): return (r as Control).mouse_filter == Control.MOUSE_FILTER_PASS),
+		"no word's row stops a drag: a finger anywhere scrolls the list")
+	_check(page.scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_SHOW_NEVER, "the list scrolls by finger, with no bar, as the Clubhouse's pages")
+	var tab: Button = page.tab_buttons.lane
+	_check(page.tabs.get_parent().name == "GlossaryTabTrack" and tab.get_theme_stylebox("pressed") is StyleBoxFlat
+		and (tab.get_theme_stylebox("pressed") as StyleBoxFlat).border_color == Color("d8b873"), "the tabs are the Clubhouse's segments in a track")
+	# A press that ends in a scroll opens nothing.
+	var row: Control = page.entries.hook
+	page.scroll.ensure_control_visible(row)
+	await process_frame
+	var before: int = page.scroll.scroll_vertical
+	var press := InputEventScreenTouch.new()
+	press.index = 0
+	press.pressed = true
+	press.position = row.get_global_rect().get_center()
+	page._row_input(press, "hook")
+	page.scroll.scroll_vertical = before + 120
+	var lift := press.duplicate()
+	lift.pressed = false
+	page._row_input(lift, "hook")
+	_check(not page.overlay.visible, "a press that scrolled the list opens nothing")
+	page.scroll.scroll_vertical = before
+	await process_frame
+	# A tap opens the word large.
+	await _tap(row)
+	await process_frame
+	var big: Control = page.overlay_picture
+	_check(page.overlay.visible and page.shown_term == "hook" and page.overlay_word.text == "Hook" and page.overlay_meaning.text == page.diagram("hook").get_parent().get_parent().find_child("Meaning", true, false).text
+		and big.kind() == "lane" and big.size.x > page.diagram("hook").size.x * 1.8 and page.overlay_close.has_focus()
+		and scene.get_global_rect().encloses(page.overlay.find_child("TermCard", true, false).get_global_rect()), "a tapped word opens large: picture, name and meaning, on screen")
+	await _capture("glossary_overlay")
+	await _tap(page.overlay_close)
+	_check(not page.overlay.visible and page.is_open() and page.section == "lane", "Close returns to the list")
+	page.entries.pocket.grab_focus()
+	await _action("ui_accept")
+	_check(page.overlay.visible and page.shown_term == "pocket", "Enter on a focused word opens it")
+	await _action("ui_cancel")
+	_check(not page.overlay.visible and page.is_open(), "Escape closes the open word, not the guide")
 
 ## UI-9: on the Trophies and Goals pages a finger that lands on a row or a button
 ## drags the page; a Follow press that ended in a scroll follows nothing.

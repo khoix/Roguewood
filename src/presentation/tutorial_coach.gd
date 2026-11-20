@@ -132,7 +132,7 @@ func _button(parent: Control, node_name: String, text: String, action: Callable)
 func _build_steps() -> void:
 	var aiming := func(): return lab.state == "aim" and lab.lane != null and lab.lane.state == "ready"
 	steps = [
-		{"id": "welcome", "title": "Learn to Bowl", "text": "A practice lane: nothing here counts toward your Career. Follow the hand.",
+		{"id": "welcome", "title": "Learn to Bowl", "text": "A practice lane: Nothing here counts toward your Career. Follow the hand.",
 			"enter": aiming, "pause": true},
 		{"id": "target", "title": "Win the Match", "text": "Reach the match's target before your frames run out, and the match is won. Here: %d points in %d frames." % [_target(), _frames()],
 			"enter": aiming, "rect": func(): return _rect_of(lab.hud.bar), "pause": true},
@@ -166,7 +166,7 @@ func _build_steps() -> void:
 			"point": func(): return _rect_of(lab.next_rack).get_center()},
 		# Owner (2026-11-18): one step that points at the item to buy; the rest of the
 		# shop stays readable under a light dim, and only that item takes a tap.
-		{"id": "shop", "title": "The Pro Shop", "text": "Between matches, buy balls, pins, Charms and more. Try it: tap the %s." % _workshop_name(),
+		{"id": "shop", "title": "The Pro Shop", "text": "Between matches, buy balls, pins, Charms and more. Try it: Tap the %s." % _workshop_name(),
 			"enter": _shop_dealt, "done": func(): return lab.shop_panel.offer_sheet.visible or lab.shop_panel.choice_sheet.visible, "light": true, "below": true,
 			"rect": func(): return _rect_of(_workshop_offer()), "gesture": "tap", "point": func(): return _rect_of(_workshop_offer()).get_center()},
 		{"id": "confirm_buy", "title": "Buy", "text": "Its full rule and price are here. Tap Buy.", "light": true,
@@ -184,7 +184,7 @@ func _build_steps() -> void:
 			"rect": func(): return _rect_of(lab.shop_panel.sell_sheet), "gesture": "tap", "point": func(): return _rect_of(lab.shop_panel.sell_close).get_center()},
 		{"id": "rival", "title": "The Boss", "text": "Every Division ends with a boss. Their rule changes the game: The Surveyor allows no curve. Tap the badge any time to read it.",
 			"enter": _shop_idle, "rect": func(): return _rect_of(lab.hud.badge), "pause": true},
-		{"id": "ready", "title": "You're Ready!", "text": "That is a Roguewood run: throw, score, shop, beat the boss. Win Divisions to climb the League.",
+		{"id": "ready", "title": "You're Ready!", "text": "That is a Roguewood run: Throw, score, shop, beat the boss. Win Divisions to climb the League.",
 			"enter": _shop_idle, "final": true, "pause": true},
 	]
 

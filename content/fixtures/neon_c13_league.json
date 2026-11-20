@@ -63,10 +63,10 @@
           "name": "Slick",
           "initials": "SL",
           "rule": "boss_rule.oil_slick",
-          "intro": "Slick runs the oil machine and never wipes it down. Under Oil Slick every hook is halved: the same charge curves half as far, so a straight line, or a strong spin ball to win the curve back, takes this lane.",
+          "intro": "Slick runs the oil machine and never wipes it down. Under Oil Slick every hook is halved: The same charge curves half as far, so a straight line, or a strong spin ball to win the curve back, takes this lane.",
           "first_clear": {
             "unlocks": [],
-            "text": "Fixture League: no Career reward."
+            "text": "Fixture League: No Career reward."
           },
           "reactions": {
             "entrance": "Mind the shine, friend. It's all slide out here.",
@@ -112,10 +112,10 @@
           "name": "Laser Lena",
           "initials": "LL",
           "rule": "boss_rule.narrow_lane",
-          "intro": "Laser Lena paints the lane edges in light. Under Narrow Lane each gutter edge moves two boards in, so a wide curve drops off the lane: aim tight, roll straight, or bend it late.",
+          "intro": "Laser Lena paints the lane edges in light. Under Narrow Lane each gutter edge moves two boards in, so a wide curve drops off the lane: Aim tight, roll straight, or bend it late.",
           "first_clear": {
             "unlocks": [],
-            "text": "Fixture League: no Career reward."
+            "text": "Fixture League: No Career reward."
           },
           "reactions": {
             "entrance": "Stay between the lines. They're closer than they look.",
@@ -165,10 +165,10 @@
             "boss_rule.oil_slick"
           ],
           "of": "rival.dj_flicker",
-          "intro": "DJ Flicker headlines the Neon title night with Slick on the oil: the ring's sweet and perfect zones are halved and every hook is halved too, on the two-tone pattern. Its dry left half gives back some of the curve; a straight, powerful game still scores.",
+          "intro": "DJ Flicker headlines the Neon title night with Slick on the oil: The ring's sweet and perfect zones are halved and every hook is halved too, on the two-tone pattern. Its dry left half gives back some of the curve; a straight, powerful game still scores.",
           "first_clear": {
             "unlocks": [],
-            "text": "Fixture League: no Career reward."
+            "text": "Fixture League: No Career reward."
           },
           "reactions": {
             "entrance": "Title night. Lights low, ring fast, lane slick.",

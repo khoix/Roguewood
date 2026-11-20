@@ -9,7 +9,7 @@
       "id": "lane_condition.long_oil",
       "landed_in": "E18-C13",
       "design": {
-        "trigger": "The oil runs to 47 ft (14.33 m) instead of the standard 40 ft (12.19 m), so a charged spin has less dry backend to hook in: the same charge curves later and less. Straight throws are unaffected, and the backend's friction is unchanged.",
+        "trigger": "The oil runs to 47 ft (14.33 m) instead of the standard 40 ft (12.19 m), so a charged spin has less dry backend to hook in: The same charge curves later and less. Straight throws are unaffected, and the backend's friction is unchanged.",
         "primitives": [
           "lane.oil_length"
         ],

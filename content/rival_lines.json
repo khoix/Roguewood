@@ -55,7 +55,7 @@
         "Off the mark. Precisely as predicted.",
         "Back to the drawing board for you.",
         "A straight line is the shortest path. You took the long one.",
-        "Data says: practise."
+        "Data says: Practise."
       ]
     },
     "rival.custodian": {
@@ -64,7 +64,7 @@
         "I clean up after everyone. Let's see your mess.",
         "Strikes and spares. Anything else is litter.",
         "My broom's ready. Is your arm?",
-        "Leave it the way you found it: empty.",
+        "Leave it the way you found it: Empty.",
         "Every pin down, or it's going in the bin.",
         "Spotless lanes, spotless frames. House policy."
       ],
@@ -441,7 +441,7 @@
     "rival.dj_flicker_champion": {
       "entrance": [
         "Headline slot. Biggest night of the year.",
-        "Title night: strobes fast, lanes slick.",
+        "Title night: Strobes fast, lanes slick.",
         "The whole of Neon came to hear this set.",
         "Champion's mix. Keep up if you can.",
         "Last track of the League. Make it count."
@@ -469,7 +469,7 @@
       ],
       "defeated": [
         "New headliner in town. Neon is yours.",
-        "Crown and crowd: both yours.",
+        "Crown and crowd: Both yours.",
         "Best set of the year. And it wasn't mine.",
         "Take a bow, champ. They're cheering for you.",
         "Lights up on the Neon champion."
@@ -486,7 +486,7 @@
       "entrance": [
         "No freebies in my yard, love.",
         "Pennies don't grow on pins, you know.",
-        "My match, my rules: nobody gets paid.",
+        "My match, my rules: Nobody gets paid.",
         "Keep your hands where I can see them. And your coins.",
         "Every point's free. Everything else costs.",
         "I'll take the till. You take your chances.",
@@ -607,7 +607,7 @@
       "confident": [
         "Rusted right through.",
         "See? Nothing under the paint.",
-        "Scrap value: zero.",
+        "Scrap value: Zero.",
         "Should've welded that one down.",
         "Rattling about, aren't you?",
         "One more for the scrap heap.",
@@ -653,7 +653,7 @@
     "rival.scrapjack_champion": {
       "entrance": [
         "Title night in the yard. Everything gets stripped.",
-        "Rust and grime: a champion's welcome.",
+        "Rust and grime: A champion's welcome.",
         "Biggest scrap heap of the year tonight.",
         "The Salvage crown is made of scrap. Earn it.",
         "Last match. Let's see what survives."

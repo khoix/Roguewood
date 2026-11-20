@@ -106,6 +106,17 @@ func _confirm(control) -> void: # untyped: a pressed row may already be freed
 		pending.grab_focus()
 		await _action("ui_accept")
 
+## UI-29: from a result sheet to the next run. With awards waiting the sheet offers
+## only Continue (the awards, then the Clubhouse), and Enter League starts the run.
+func _new_run_from_result() -> void:
+	if lab.hud.retry_button.visible:
+		await _focus_accept(lab.hud.retry_button)
+		return
+	await _focus_accept(lab.hud.menu_button)
+	await _through_awards()
+	await _wait_for(func(): return scene.screen == "menu" and scene.lab == null, "the awards end in the Clubhouse", 400)
+	await _focus_accept(scene.enter)
+
 ## UI-25: leaving a result sheet plays the run's waiting award ceremony first; a
 ## journey that is not about it goes through as a player can (Skip, then Continue).
 func _through_awards() -> void:
@@ -348,7 +359,7 @@ func _division_one() -> void:
 	await _focus_accept(lab.hud.intro_button)
 	await _aim()
 	# Dead Straight: the assist spin control is locked...
-	_check(lab.spin_disabled() and not lab.assist_panel.spin_slider.editable and lab.status.text.contains("spin is disabled"),
+	_check(lab.spin_disabled() and not lab.assist_panel.spin_slider.editable and lab.status.text.contains("Spin is disabled"),
 		"Dead Straight: the spin control is disabled and the status says so")
 	await _slide(lab.assist_panel.spin_slider, 0.5)
 	_check(lab.assist_panel.spin_slider.value == 0.0, "the disabled spin control ignores input")
@@ -434,7 +445,7 @@ func _division_two() -> void:
 	await _aim()
 	await _throw(GUTTER)
 	var open := await _scored()
-	_check(open.result.category == "open" and open.result.score > 0 and open.banked == 0 and _log_lines().any(func(l): return l.contains("Clean Sweep: an open frame banks nothing")),
+	_check(open.result.category == "open" and open.result.score > 0 and open.banked == 0 and _log_lines().any(func(l): return l.contains("Clean Sweep: An open frame banks nothing")),
 		"Clean Sweep banks the open frame as 0 and says so")
 	await _capture("slice_clean_sweep")
 	await _focus_accept(lab.next_rack)
@@ -452,21 +463,29 @@ func _division_two() -> void:
 	# UI-25 (owner, 2026-11-19): the result sheet comes first; the ceremony waits for
 	# the player to leave it.
 	for i in 30: await process_frame
-	_check(not lab.award_ceremony.visible and lab.awards_pending() and lab.hud.retry_button.has_focus(), "the result sheet comes first, the awards waiting")
+	_check(not lab.award_ceremony.visible and lab.awards_pending(), "the result sheet comes first, the awards waiting")
+	# UI-29 (owner, 2026-11-19): the award screen ends in the Clubhouse, so the sheet
+	# offers one way on, Continue; no New Run that would skip past it into a run.
+	_check(not lab.hud.retry_button.visible and lab.hud.menu_button.visible and lab.hud.menu_button.text == "Continue" and lab.hud.menu_button.has_focus(),
+		"with awards waiting the sheet offers only Continue")
 	_check(lab.hud.result_title.text.contains("The Custodian defeated — House League cleared!") and lab.hud.result_body.text.contains("First clear: Standing Order")
 		and lab.hud.result_body.text.contains("D1 Boss") and lab.hud.result_body.text.contains("D2 Boss"), "the League victory lists both Divisions and banks the reward")
 	_check(scene.career.first_clears.has("rival.custodian") and scene.career.first_clears.has("rival.surveyor") and scene.session.outcome == "won"
-		and lab.hud.retry_button.text == "New Run", "both first clears are in the Career")
+		, "both first clears are in the Career")
 	await _capture("slice_won")
 
 func _second_attempt() -> void:
-	var old_id: int = lab.get_instance_id()
-	await _focus_accept(lab.hud.retry_button)
-	# UI-25: New Run leaves the result sheet: the award ceremony plays, then the run starts.
+	await _focus_accept(lab.hud.menu_button)
+	# UI-25 and UI-29: Continue plays the award ceremony; it then fades out to the
+	# Clubhouse (never straight into a run), and Enter League starts the next run.
 	await _award_ceremony()
-	await _wait_for(func(): return scene.lab != null and scene.lab.get_instance_id() != old_id and scene.lab.state == "aim", "retry starts attempt 2")
+	await _wait_for(func(): return scene.transition_playing(), "the fade out after the awards", 30)
+	await _wait_for(func(): return scene.screen == "menu" and scene.lab == null, "the awards end in the Clubhouse", 400)
+	_check(scene.clubhouse.visible and not scene.transition_playing(), "after the award screen the Clubhouse, not a new run")
+	await _focus_accept(scene.enter)
+	await _wait_for(func(): return scene.lab != null and scene.lab.state == "aim", "Enter League starts attempt 2")
 	lab = scene.lab
-	_check(scene.session.attempt == 2 and lab.division.division_number() == 1 and lab.run.money == Economy.STARTING_MONEY and lab.run.charms.is_empty(), "attempt 2 starts over at Division 1")
+	_check(lab.career_attempt == 2 and lab.division.division_number() == 1 and lab.run.money == Economy.STARTING_MONEY and lab.run.charms.is_empty(), "attempt 2 starts over at Division 1")
 	_check("gate.surveyor_cleared" in lab.shop.unlocked and "gate.custodian_cleared" in lab.shop.unlocked and lab.hud.rule_text.text.contains("already cleared"),
 		"both unlocks join attempt 2's shop pool")
 	for frame in 2:
@@ -527,7 +546,7 @@ func _second_attempt() -> void:
 func _award_ceremony() -> void:
 	var ceremony: Control = lab.award_ceremony
 	var Art = preload("res://src/clubhouse/clubhouse_art.gd")
-	await _wait_for(func(): return ceremony.visible and ceremony.playing, "New Run opens the waiting ceremony")
+	await _wait_for(func(): return ceremony.visible and ceremony.playing, "Continue opens the waiting ceremony")
 	_check(ceremony.visible and ceremony.playing and not lab.settings.reduced_motion and lab.hud.result.visible, "the award ceremony opens over the result sheet, in full motion")
 	var ids: Array = ceremony.awards.trophies.map(func(t): return t.id)
 	_check(ids.slice(0, 3) == ["league.house", "rival.custodian", "rival.surveyor"] or ids.slice(0, 3) == ["league.house", "rival.surveyor", "rival.custodian"],
@@ -568,4 +587,4 @@ func _award_ceremony() -> void:
 	for i in 10: await process_frame
 	await _capture("awards_summary")
 	await _focus_accept(ceremony.continue_button)
-	_check(not ceremony.playing and ceremony.hold, "Continue ends the ceremony; its last screen stays while the next run is built")
+	_check(not ceremony.playing and ceremony.hold, "Continue ends the ceremony; its last screen stays under the fade")

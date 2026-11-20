@@ -86,7 +86,7 @@
       "id": "ball_mod.blacklight",
       "landed_in": "E18-C15",
       "design": {
-        "trigger": "Attached to one ball card: when a roll thrown with that card makes a curved strike, ×1.5 Mult. Nothing on a spare, an open frame or a straight strike.",
+        "trigger": "Attached to one ball card: When a roll thrown with that card makes a curved strike, ×1.5 Mult. Nothing on a spare, an open frame or a straight strike.",
         "primitives": [],
         "pool": "Shop modification slot from Division 2 once gate.neon_champion is earned (the Neon League title's reward; assigned by E22-L02). One modification per ball.",
         "presentation_needs": "A badge on the host card and a violet glow on the host in play that flares on a curved strike; the host's own marking stays readable.",

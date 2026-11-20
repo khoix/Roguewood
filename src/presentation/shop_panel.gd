@@ -4,6 +4,7 @@ extends PanelContainer
 ## explicit replacements) with Cancel. A view only: the lab and the pure Shop and
 ## RunInventory own every rule and number. Touch, mouse and keyboard/gamepad focus
 ## all work. Developmental look; card art and foil are E12/E19.
+const Sentence = preload("res://src/presentation/sentence.gd")
 const ItemAssets = preload("res://src/presentation/item_assets.gd")
 const CardView = preload("res://src/presentation/card_view.gd")
 const UiTheme = preload("res://src/presentation/house_ui_theme.gd")
@@ -391,7 +392,7 @@ func open_offer(index: int) -> void:
 	offer_detail.text = String(offer.get("detail", ""))
 	offer_price.text = "$%d" % int(offer.get("price", 0))
 	var reason := String(offer.get("reason", ""))
-	offer_reason.text = "" if offer.state == "buy" else "Can't buy: %s." % (reason if not reason.is_empty() else "not available")
+	offer_reason.text = "" if offer.state == "buy" else "Can't buy: %s." % Sentence.cap(reason if not reason.is_empty() else "not available")
 	offer_reason.visible = not offer_reason.text.is_empty()
 	buy_button.text = "Buy $%d" % int(offer.get("price", 0))
 	buy_button.disabled = offer.state != "buy"

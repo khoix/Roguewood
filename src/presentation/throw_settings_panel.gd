@@ -17,11 +17,11 @@ const Held = preload("res://src/input/held_ball.gd")
 const TUNABLE := [
 	# E05-R5 (owner, 2026-11-15): which spin model the held ball uses, then the flywheel's own constants.
 	["spin_model", "Spin model", 0.0, 2.0, 1.0, "%.0f"],
-	["flywheel_gain", "Flywheel: spin from circling", 15000.0, 300000.0, 5000.0, "%.0f"],
-	["flywheel_half_life", "Flywheel: spin half-life (s)", 0.1, 3.0, 0.05, "%.2f"],
-	["flywheel_max", "Flywheel: spin at full charge (rad/s)", 10.0, 60.0, 1.0, "%.0f"],
-	["flywheel_window_ms", "Flywheel: path window (ms)", 30.0, 150.0, 5.0, "%.0f"],
-	["spin_tick_ms", "Flywheel: tick per turn (ms, 0 off)", 0.0, 30.0, 1.0, "%.0f"],
+	["flywheel_gain", "Flywheel: Spin from circling", 15000.0, 300000.0, 5000.0, "%.0f"],
+	["flywheel_half_life", "Flywheel: Spin half-life (s)", 0.1, 3.0, 0.05, "%.2f"],
+	["flywheel_max", "Flywheel: Spin at full charge (rad/s)", 10.0, 60.0, 1.0, "%.0f"],
+	["flywheel_window_ms", "Flywheel: Path window (ms)", 30.0, 150.0, 5.0, "%.0f"],
+	["spin_tick_ms", "Flywheel: Tick per turn (ms, 0 off)", 0.0, 30.0, 1.0, "%.0f"],
 	["full_charge_speed", "Ball spin for full charge (rad/s)", 12.5, 75.0, 0.5, "%.1f"],
 	["gravity", "Gravity on the held ball", 0.0, 15.0, 0.5, "%.1f"],
 	["pin_reach", "How far the ball hangs (× ball radius)", 0.5, 2.0, 0.05, "%.2f"],

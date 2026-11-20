@@ -31,7 +31,7 @@
       "initials": "TC",
       "color": "#9fd8ff",
       "rule": "boss_rule.lab_clean_sweep",
-      "intro": "Every lane spotless, every frame finished. The Custodian banks only clean work: strikes and spares. Leave a pin standing and the frame is swept away.",
+      "intro": "Every lane spotless, every frame finished. The Custodian banks only clean work: Strikes and spares. Leave a pin standing and the frame is swept away.",
       "first_clear": {
         "unlocks": [
           "gate.lab_rival"

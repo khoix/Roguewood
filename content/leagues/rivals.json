@@ -18,7 +18,7 @@
       "initials": "TC",
       "rule": "boss_rule.clean_sweep",
       "league": "league.house",
-      "signature": "Only clean frames count: strikes and spares."
+      "signature": "Only clean frames count: Strikes and spares."
     },
     {
       "id": "rival.proprietor",
@@ -122,7 +122,7 @@
       "initials": "HU",
       "rule": "boss_rule.silence",
       "league": "league.spectral",
-      "signature": "Nothing echoes: retriggers are silenced."
+      "signature": "Nothing echoes: Retriggers are silenced."
     },
     {
       "id": "rival.wisp",

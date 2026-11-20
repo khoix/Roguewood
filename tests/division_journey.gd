@@ -93,6 +93,17 @@ func _confirm(control) -> void: # untyped: a pressed row may already be freed
 		pending.grab_focus()
 		await _action("ui_accept")
 
+## UI-29: from a result sheet to the next run. With awards waiting the sheet offers
+## only Continue (the awards, then the Clubhouse), and Enter League starts the run.
+func _new_run_from_result() -> void:
+	if lab.hud.retry_button.visible:
+		await _focus_accept(lab.hud.retry_button)
+		return
+	await _focus_accept(lab.hud.menu_button)
+	await _through_awards()
+	await _wait_for(func(): return scene.screen == "menu" and scene.lab == null, "the awards end in the Clubhouse", 400)
+	await _focus_accept(scene.enter)
+
 ## UI-25: leaving a result sheet plays the run's waiting award ceremony first; a
 ## journey that is not about it goes through as a player can (Skip, then Continue).
 func _through_awards() -> void:
@@ -264,7 +275,7 @@ func _first_attempt() -> void:
 	await _throw(GUTTER)
 	var open := await _scored()
 	var lines: Array = lab.score_panel.log_list.get_children().map(func(c): return c.text)
-	_check(open.result.category == "open" and open.result.score > 0 and open.banked == 0 and lines.any(func(l): return l.contains("Clean Sweep: an open frame banks nothing")),
+	_check(open.result.category == "open" and open.result.score > 0 and open.banked == 0 and lines.any(func(l): return l.contains("Clean Sweep: An open frame banks nothing")),
 		"Clean Sweep banks the open frame as 0 and says so")
 	_check(open.match_over and not open.match_won and lab.division.outcome == "lost" and lab.next_rack.text == "See Result", "560 of 800: the boss is lost")
 	_check(_says(lab.division.rival(), "victorious", lab.hud.last_line), "the rival reacts to winning")
@@ -281,8 +292,7 @@ func _first_attempt() -> void:
 		and not headline.text.contains("Attempt over"), "the end screen leads with the rival's parting shot (%s)" % headline.text)
 	await _capture("lost")
 	var old_id: int = lab.get_instance_id() # never capture the freed lab itself
-	await _focus_accept(lab.hud.retry_button)
-	await _through_awards()
+	await _new_run_from_result()
 	await _wait_for(func(): return scene.lab != null and scene.lab.get_instance_id() != old_id and scene.lab.state == "aim", "retry starts a new attempt")
 	lab = scene.lab
 	_check(scene.session.attempt == 2 and lab.attempt == 2 and lab.total_score == 0 and lab.run.money == Economy.STARTING_MONEY and lab.division.current().kind == "opener",
@@ -315,13 +325,12 @@ func _second_attempt() -> void:
 	_check(scene.career.first_clears.has("rival.lab_custodian") and "gate.lab_rival" in scene.career.unlocked and scene.session.outcome == "won", "the reward is in the Career record at once")
 	await _capture("won")
 	var old_id: int = lab.get_instance_id() # never capture the freed lab itself
-	await _focus_accept(lab.hud.retry_button) # "New Attempt"
-	await _through_awards()
+	await _new_run_from_result()
 	await _wait_for(func(): return scene.lab != null and scene.lab.get_instance_id() != old_id and scene.lab.state == "aim", "a new attempt")
 	lab = scene.lab
 
 func _third_attempt() -> void:
-	_check(scene.session.attempt == 3 and "gate.lab_rival" in lab.shop.unlocked and lab.hud.rule_text.text.contains("already cleared"), "the first clear carries into the next attempt")
+	_check(lab.career_attempt == 3 and "gate.lab_rival" in lab.shop.unlocked and lab.hud.rule_text.text.contains("already cleared"), "the first clear carries into the next attempt")
 	for frame in 2:
 		await _throw(LEAVE)
 		await _aim()

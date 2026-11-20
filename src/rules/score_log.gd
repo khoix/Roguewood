@@ -95,7 +95,7 @@ static func steps(result: Dictionary, frame: Dictionary, names: Dictionary = {},
 				if event.has("condition"):
 					step.text += " (%s)" % condition_text(event.condition, facts, names)
 				if event.has("dulled_from"):
-					step.text += " (Dull Pins: half of %s, rounded down)" % _n(event.dulled_from)
+					step.text += " (Dull Pins: Half of %s, rounded down)" % _n(event.dulled_from)
 				if event.phase == "standing":
 					step.text += " (standing)"
 				if int(event.get("repeat", 0)) > 0:

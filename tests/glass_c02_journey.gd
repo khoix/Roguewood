@@ -87,7 +87,7 @@ func _glass_frame(label: String) -> Array:
 		"%s breaks exactly the replayed pins %s" % [label, str(broke)])
 	for position in broke:
 		_check(lab.run.rack[position].item_id == "pin.wood", "%s: Glass at %d is now Wood" % [label, position])
-		_check(_log_lines().any(func(l): return l.contains("Glass Pin at %d cracked: now a Wood Pin." % position)), "%s: the explanation names the break at %d" % [label, position])
+		_check(_log_lines().any(func(l): return l.contains("Glass Pin at %d cracked: Now a Wood Pin." % position)), "%s: the explanation names the break at %d" % [label, position])
 	_check(_log_lines().any(func(l): return l.contains("20% chance to become Wood Pin")) and _log_lines().any(func(l): return l.contains("Glass Cutter")),
 		"%s: the log shows the chance and Glass Cutter" % label)
 	return broke

@@ -173,7 +173,7 @@ func _cards(tree: SceneTree, fixtures: Array) -> void:
 	_check(Contracts.validate("knockdown_log", saved).is_empty(), "a rebounded roll's log passes the contract: %s" % str(Contracts.validate("knockdown_log", saved)))
 	_check(results.get("c14.rebound", {}).get("final_state") == results.get("c14.rebound#1", {}).get("final_state") and not saved.is_empty(), "a rebounded roll repeats exactly")
 	var twice: Dictionary = log_of.call("c14.wild")
-	_check(twice.get("rebounded") == true and twice.get("gutter") == true and fell.call("c14.wild") == 0, "it rebounds once: a ball that leaves the lane again is a gutter ball")
+	_check(twice.get("rebounded") == true and twice.get("gutter") == true and fell.call("c14.wild") == 0, "it rebounds once: A ball that leaves the lane again is a gutter ball")
 	_check(results.get("c14.on_lane", {}).get("final_state") == results.get("pocket#0", {}).get("final_state") and not log_of.call("c14.on_lane").has("rebounded"),
 		"a roll that stays on the lane is exactly the roll without the modification")
 	_check(results.get("c14.hold_long", {}).get("final_state") == results.get("curve_right_50#0", {}).get("final_state"), "a ball that holds its hook rolls on Long Oil exactly as on House Oil")
