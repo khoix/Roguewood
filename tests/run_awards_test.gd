@@ -47,4 +47,17 @@ static func run() -> Array[String]:
 	var quiet := Career.begin_attempt(career)
 	if not RunAwards.is_empty(RunAwards.for_run(career, graph, quiet)):
 		failures.append("run awards: a run that earned nothing has no awards")
+	# UI-31 (owner, 2026-11-20): a within-run goal that falls short starts over next
+	# run, so it is no progress, and a run with only that has no award page. Completed
+	# in the run, it shows.
+	var short := Career.begin_attempt(career)
+	career.tally = {"uid": short, "counts": {}, "materials": ["pin.wood"], "halves": []}
+	if not RunAwards.is_empty(RunAwards.for_run(career, graph, short)):
+		failures.append("run awards: a within-run goal short of its count (Mixed Rack 1 of 3) is no award (%s)" % str(RunAwards.for_run(career, graph, short)))
+	var full := Career.begin_attempt(career)
+	career.tally = {"uid": full, "counts": {}, "materials": ["pin.wood", "pin.glass", "pin.lead"], "halves": []}
+	career.mastery["mastery.mixed_rack"] = {"career_attempt": full}
+	var mixed: Array = RunAwards.goals(career, graph, full).filter(func(g): return g.id == "mastery.mixed_rack")
+	if mixed.is_empty() or not mixed[0].completed:
+		failures.append("run awards: a within-run goal completed in the run is shown")
 	return failures

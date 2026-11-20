@@ -5,8 +5,12 @@ extends RefCounted
 ## - trophies: the Clubhouse shelf's slots (ClubhouseModel.trophies) that this run
 ##   earned: a League title (first or again), a rival's plaque, a club decoration.
 ##   A mastery ribbon comes with its goal, below;
-## - goals: every open goal this run moved forward, from where it stood before the
-##   run to where it stands now, and every goal it completed.
+## - goals: every open Career goal this run moved forward, from where it stood
+##   before the run to where it stands now, and every goal it completed.
+## UI-31 (owner, 2026-11-20): "Only show the award page if a new award or goal is
+## either achieved or made progress on in that run." A goal counted within one run
+## starts over the next, so its count alone is no progress: it shows only when the
+## run completed it.
 const Model = preload("res://src/clubhouse/clubhouse_model.gd")
 const Career = preload("res://src/persistence/career_profile.gd")
 const GOAL_LIMIT := 6 # rows the ceremony shows; completed goals first
@@ -64,6 +68,8 @@ static func goals(career: Dictionary, graph: Dictionary, uid: int) -> Array:
 			after = threshold
 		if after <= before and not completed:
 			continue
+		if objective.scope != "career" and not completed:
+			continue # UI-31: a within-run count that falls short starts over; no progress
 		out.append({"id": objective.id, "name": objective.name, "text": objective.text, "reward": objective.get("reward", ""),
 			"asset": Model.asset_id("ribbon", objective.id), "before": before, "after": after, "threshold": threshold,
 			"completed": completed, "scope": objective.scope, "tracked": objective.id in career.get("tracked", [])})

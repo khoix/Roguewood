@@ -520,13 +520,14 @@ func _second_attempt() -> void:
 		_check(ceremony.awards.trophies.is_empty() and ceremony.title.text == "PROGRESS", "a run that only moved goals opens on PROGRESS")
 		await _wait_for(func(): return ceremony.step == "done", "the progress ceremony ends", 600)
 		_check(not ceremony.cues.has("drumroll") and not ceremony.cues.has("launch") and ceremony.fx.bursts == 0 and ceremony.fx.confetti_shots == 0
-			and ceremony.fx.airborne() == 0, "no fireworks for progress alone, and no effects under Reduced Motion (%s)" % str(ceremony.cues))
+			and ceremony.fx.airborne() == 0 and ceremony.fx.shells == 0 and ceremony.show_cues.is_empty(), "no travelling effects under Reduced Motion, the show included (%s)" % str(ceremony.cues))
+		_check(ceremony.awards.goals.all(func(g): return g.completed or g.scope == "career"), "UI-31: only real progress (no within-run goal that starts over)")
 		await _focus_accept(ceremony.continue_button)
 	var start := Engine.get_process_frames()
 	await _wait_for(func(): return scene.transition_playing(), "the fade out starts", 30)
 	_check(scene.exiting and scene.curtain.mouse_filter == Control.MOUSE_FILTER_STOP and lab.input_paused and (ceremony.visible == pending),
 		"the run fades out after the ceremony, which stays under the fade, and takes no input")
-	for i in 90: await process_frame
+	for i in 45: await process_frame
 	_check(scene.curtain.color.a > 0.3 and scene.curtain.color.a < 0.75 and lab.motion.sound.fade < 0.75 and lab.motion.sound.fade > 0.25,
 		"the screen and the run's music fade out together (%.2f, %.2f)" % [scene.curtain.color.a, lab.motion.sound.fade])
 	if pending:
@@ -536,7 +537,7 @@ func _second_attempt() -> void:
 	_check(not scene.transition_playing() and scene.curtain.color.a == 0.0 and not scene.exiting, "no fade into the Clubhouse: it is there at once")
 	_check(scene.clubhouse_music == null or (scene.clubhouse_music.playing and absf(scene.clubhouse_music.volume_db - scene.Soundtrack.level_db(scene.throw_settings)) < 0.01),
 		"the Clubhouse music starts at its level")
-	_check(seconds >= 3.0 and seconds <= 3.6, "the fade out takes %.1f s (3.3)" % seconds)
+	_check(seconds >= 1.5 and seconds <= 1.95, "the fade out takes %.2f s (UI-31: 1.65, half of 3.3)" % seconds)
 	_check(scene.career.first_clears.has("rival.surveyor"), "the Career outlives the session")
 	lab = null
 
@@ -564,6 +565,11 @@ func _award_ceremony() -> void:
 	_check(ceremony.stage_kicker.text == "LEAGUE CHAMPION!" and ceremony.stage_name.text == first.name, "the title is announced by name")
 	_check(ceremony.cues.slice(0, 3) == ["whoosh", "rocket", "rocket"] and "drumroll" in ceremony.cues, "the opening whoosh and bottle rockets, then a drumroll (%s)" % str(ceremony.cues))
 	await _wait_for(func(): return ceremony.fx.bursts > 0 and "burst" in ceremony.cues and ceremony.fx.confetti_shots > 0, "fireworks and confetti, with their sounds", 300)
+	# UI-31: the show runs from the start: shells of several kinds, confetti falling
+	# from the top and streamers, with their own sounds.
+	await _wait_for(func(): return ceremony.fx.shells >= 3 and "burst" in ceremony.show_cues, "the continuous show is under way", 300)
+	_check(ceremony.fx.show_on and ceremony.fx._stream != null and ceremony.fx._stream.emitting and ceremony.fx._streamers.size() == ceremony.fx.STREAMERS,
+		"confetti falls from the top and streamers drift the whole time")
 	for i in 6: await process_frame
 	await _capture("awards_trophy")
 	# A tap hurries the moment along; Skip goes straight to the summary.
@@ -584,7 +590,14 @@ func _award_ceremony() -> void:
 		var row: Dictionary = ceremony.goal_rows.get(g.id, {})
 		_check(not row.is_empty() and is_equal_approx(row.bar.value, float(g.after)) and row.stamp.visible == g.completed,
 			"the goal %s stands at %d of %d" % [g.name, g.after, g.threshold])
-	for i in 10: await process_frame
+	_check(ceremony.awards.goals.all(func(g): return g.completed or g.scope == "career"), "UI-31: only real progress (no within-run goal that starts over)")
+	# UI-31: the fireworks keep going on the summary, for as long as it is up.
+	var shells: int = ceremony.fx.shells
+	var heard: int = ceremony.show_cues.size()
+	for i in 150: await process_frame
+	_check(ceremony.fx.show_on and ceremony.fx.shells >= shells + 3 and ceremony.show_cues.size() > heard and ceremony.fx.alive_bursts() > 0,
+		"the fireworks keep going on the summary (%d → %d shells)" % [shells, ceremony.fx.shells])
 	await _capture("awards_summary")
 	await _focus_accept(ceremony.continue_button)
 	_check(not ceremony.playing and ceremony.hold, "Continue ends the ceremony; its last screen stays under the fade")
+	_check(ceremony.fx.show_on, "the show goes on under the fade")
