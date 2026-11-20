@@ -32,6 +32,9 @@ The owner asked for tests that take less time and fewer tokens. For both agents:
 - **Merged:** PR #51 (owner, 2026-11-20; main `5f4df32`): UI-30 and UI-31.
 - **For the next PR** (merged into `claude/roguewood-build` after #51): QA-1…QA-8, the testing changes above. Full local matrix: 28 min (was 64). CI #533 PASS: game 21 min, art 31 min (were 44–60 and 60–77).
 - **UI-32 DONE** (handoffs/UI-32.md; the owner's play notes, 2026-11-20): the shop's **Inventory** (Charms in a drag-to-reorder row on top, the other items below, tap to review or sell) and the payout and rack as a themed slip (payout rows and total; the rack as a triangle of pin art; reserves; Charms and Deck chips). Checks: `unit`, `content` and all 73 shop journeys headless; J05, J06, JTUT, JAVC04B, J03C07–C10 and J11 rendered: PASS.
+- **Queued, waiting for the owner's go** (the owner's play notes, 2026-11-20):
+  - **UI-33, a ball that visibly spins:** "The ball animation is static and does not change with the pinwheel spin or when rolling down the alley." The ball's surface should turn with the held flywheel spin, and roll down the lane (forward with speed, sideways with the hook), with Reduced Motion respected and Codex's AV-T02 spin look layered on top.
+  - **BAL-1, release grades:** "Why does a clean throw gain nothing?" Today the frame's best grade adds Mult: clean +0, sweet +1, perfect +2 (FrameRules.GRADES). Proposed: clean +1, sweet +2, perfect +3 (not ×2), with the strategy simulation re-run and the match targets raised to keep the difficulty. The `accurate` item condition stays sweet or better.
 - **Codex** has been out of tokens since 2026-11-19 and returns about Friday 2026-11-21. Its Wave 14 queue: AV-N4, AV-N5, UI-A6, then UI-A9-H, and the proposed AV-UI1.
 
 ## Decisions and invariants
