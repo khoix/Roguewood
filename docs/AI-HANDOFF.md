@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-11-20. Current state only; everything older is in docs/AI-HANDOFF-HISTORY.md (moved verbatim by QA-6, owner 2026-11-20, so this file stays under about 200 lines). E01–E16 DONE and merged; E17–E22 IN_PROGRESS; E23–E29 NOT_STARTED. Waves 1–13 are merged (Wave 13 by PR #33). **Wave 14 is open**: its early merges are PRs #34 and #36–#50 (latest: PR #50, main `75d2dfa`, 2026-11-20). PR #51 (UI-30, UI-31) is open. The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
+Updated: 2026-11-20. Current state only; everything older is in docs/AI-HANDOFF-HISTORY.md (moved verbatim by QA-6, owner 2026-11-20, so this file stays under about 200 lines). E01–E16 DONE and merged; E17–E22 IN_PROGRESS; E23–E29 NOT_STARTED. Waves 1–13 are merged (Wave 13 by PR #33). **Wave 14 is open**: its early merges are PRs #34 and #36–#50 (latest: PR #50, main `75d2dfa`, 2026-11-20). PR #51 (UI-30, UI-31) is merged (main `5f4df32`). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
 
 ## Read first
 
@@ -29,9 +29,9 @@ The owner asked for tests that take less time and fewer tokens. For both agents:
 
 ## Current state
 - **Integration:** the owner merges `claude/roguewood-build` into main by PR. Claude restarts or fast-forwards it from main after each merge. Codex pushes `codex/roguewood-build` and opens no PRs.
-- **Open:** PR #51 (UI-30, UI-31; CI #530 PASS on `b2aaf7b`).
-- **Held for the next PR** (on `claude/gracious-hopper-2npyl2` until #51 merges): QA-1…QA-8, the testing changes above. Full local matrix: 28 min (was 64). CI #533 PASS: game 21 min, art 31 min (were 44–60 and 60–77).
-- **Queued, waiting for the owner's go (UI-32, owner's play notes, 2026-11-20):**
+- **Merged:** PR #51 (owner, 2026-11-20; main `5f4df32`): UI-30 and UI-31.
+- **For the next PR** (merged into `claude/roguewood-build` after #51): QA-1…QA-8, the testing changes above. Full local matrix: 28 min (was 64). CI #533 PASS: game 21 min, art 31 min (were 44–60 and 60–77).
+- **UI-32 in progress** (owner's go, 2026-11-20; the owner's play notes of the same day):
   - **The shop's Inventory:** "Sell · N · order" becomes **Inventory**. Charms sit in one row in a top section, reordered by drag and drop (no Move buttons); the other items go below; tapping an item still opens it to review or sell.
   - **The shop's payout and rack details:** "Match N paid…", Rack, Reserves, Charms and Deck become a themed, visual panel instead of plain text.
 - **Codex** has been out of tokens since 2026-11-19 and returns about Friday 2026-11-21. Its Wave 14 queue: AV-N4, AV-N5, UI-A6, then UI-A9-H, and the proposed AV-UI1.
