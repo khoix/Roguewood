@@ -56,7 +56,12 @@ extends RefCounted
 const SCOPES = ["roll", "frame", "match", "run"]
 const OPS = ["add_value", "add_mult", "multiply_mult", "payout", "grow_value"]
 const V2_OPS = ["retrigger", "transform", "lose_mult"]
-const GRADES = {"miss": 0, "clean": 0, "sweet": 1, "perfect": 2}
+const GRADES = {"miss": 0, "clean": 0, "sweet": 1, "perfect": 2} # Mult a frame's best release adds
+## BAL-1 (owner, 2026-11-20): "It seems odd to credit the player with a clean throw,
+## but give them nothing for it." A release inside the ring (clean or better) adds a
+## pin's worth of Value; sweet and perfect add their Mult on top, so each grade
+## includes the one below. A plain strike: 560 / 600 / 750 / 900.
+const INSIDE_VALUE := 10.0
 const MAX_SAFE_SCORE = 9007199254740991.0
 const MAX_RETRIGGERS := 8
 const HOUSE := "ball.house"
@@ -132,8 +137,10 @@ static func resolve(frame: Dictionary) -> Dictionary:
 			_apply_effects(state, pin, "standing", "pin:%d" % pin.position)
 	for roll in rolls:
 		_apply_effects(state, roll, "ball", "roll:%d" % roll.roll_index)
+	var inside: float = INSIDE_VALUE if rolls.any(func(r): return r.accuracy != "miss") else 0.0
+	state.value += inside
 	state.mult += accuracy
-	state.events.append({"phase": "accuracy", "amount": accuracy, "mult": state.mult})
+	state.events.append({"phase": "accuracy", "amount": accuracy, "value_amount": inside, "pin_value": state.value, "mult": state.mult})
 	for i in range(frame.charms.size()):
 		_apply_effects(state, frame.charms[i], "charm", "charm:%d" % (i + 1))
 	var total: float = state.value * state.mult

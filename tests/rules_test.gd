@@ -8,7 +8,7 @@ static func frame(first: Array, second: Array = []) -> Dictionary:
 	var pins: Array = []
 	for position in range(1, 11):
 		pins.append({"position": position, "item_id": "pin.wood", "effects": [effect("add_value", 10)]})
-	var rolls: Array = [{"roll_index": 1, "ball_id": "ball.house", "fallen_positions": first, "accuracy": "clean", "effects": []}]
+	var rolls: Array = [{"roll_index": 1, "ball_id": "ball.house", "fallen_positions": first, "accuracy": "miss", "effects": []}]
 	if first.size() != 10:
 		rolls.append({"roll_index": 2, "ball_id": "ball.house", "fallen_positions": second, "accuracy": "miss", "effects": []})
 	return {"schema_version": 1, "pins": pins, "rolls": rolls, "charms": []}
@@ -34,7 +34,14 @@ static func run() -> Array[String]:
 	var precise: Dictionary = frame([1, 2], [3])
 	precise.rolls[0].accuracy = "sweet"
 	precise.rolls[1].accuracy = "perfect"
-	_check(Rules.resolve(precise).get("score") == 90, "best accuracy once", failures)
+	_check(Rules.resolve(precise).get("score") == 120, "best accuracy once: (30 + 10) × (1 + 2)", failures)
+	# BAL-1 (owner, 2026-11-20): inside the ring adds 10 Value; sweet and perfect add Mult on top.
+	var ladder := {}
+	for grade in ["miss", "clean", "sweet", "perfect"]:
+		var plain: Dictionary = frame(range(1, 11), [])
+		plain.rolls[0].accuracy = grade
+		ladder[grade] = Rules.resolve(plain).get("score")
+	_check(ladder == {"miss": 560, "clean": 600, "sweet": 750, "perfect": 900}, "a plain strike by grade: 560 / 600 / 750 / 900 (%s)" % str(ladder), failures)
 	var fractional: Dictionary = frame([1], [])
 	fractional.pins[0].effects = [effect("add_value", 1.9)]
 	fractional.charms = [{"item_id": "charm.fraction", "effects": [effect("multiply_mult", 1.9, "charm")]}]

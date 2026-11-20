@@ -154,6 +154,16 @@ func _tap(control: Control) -> void:
 		await process_frame
 	await _confirm(control)
 
+## BAL-1: what a frame's best release adds, [Value, Mult]: 10 Value inside the
+## ring, and the grade's Mult (FrameRules).
+func _grade_bonus(reports: Array) -> Array:
+	var Rules = preload("res://src/rules/frame_rules.gd")
+	var best := "miss"
+	for report in reports:
+		var grade: String = report.roll_result.accuracy
+		if Rules.GRADES[grade] > Rules.GRADES[best] or (best == "miss" and grade != "miss"): best = grade
+	return [int(Rules.INSIDE_VALUE) if best != "miss" else 0, int(Rules.GRADES[best])]
+
 ## A finger-like mouse drag from one control to another (UI-32's Charm row).
 func _drag_between(from: Control, to: Control) -> void:
 	var start := from.get_global_rect().get_center()
@@ -367,8 +377,9 @@ func _division_one() -> void:
 	var roll := await _throw(STRIKE)
 	_check(roll.launch.ball_id == "ball.echo" and roll.roll_result.fallen_positions.size() == 10, "the Echo Ball strikes")
 	var echo := await _scored()
-	_check(echo.banked == (40 + 100 + 10) * 4 and _log_lines().any(func(l): return l.contains("(retrigger 1 · Roll 1 Echo Ball)")),
-		"Echo repeats one Wood pin: 600, explained in the log")
+	var bonus := _grade_bonus([roll])
+	_check(echo.banked == (40 + 100 + 10 + bonus[0]) * (4 + bonus[1]) and _log_lines().any(func(l): return l.contains("(retrigger 1 · Roll 1 Echo Ball)")),
+		"Echo repeats one Wood pin: (150 + %d) × (4 + %d), explained in the log (banked %d)" % [bonus[0], bonus[1], echo.banked])
 	_check(echo.match_over and echo.match_won and lab.next_rack.text == "Collect & Shop", "600 wins the 300 opener in one frame")
 	await _capture("slice_echo")
 	await _to_shop("opener")

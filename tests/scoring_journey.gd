@@ -169,14 +169,18 @@ func _verify_frame(category: String, label: String, during: Callable = Callable(
 	for report in reports:
 		fallen += report.roll_result.fallen_positions.size()
 	var base: Array = {"strike": [40, 4], "spare": [20, 2], "open": [0, 1]}[category]
-	_check(expected.score == (base[0] + 10 * fallen) * base[1], "%s base score is (%d + 10×%d) × %d" % [label, base[0], fallen, base[1]])
+	# BAL-1: a release inside the ring adds 10 Value; sweet and perfect add Mult too.
+	var grade: String = ScoreLog.grade_name(built.frame)
+	var inside: int = int(Rules.INSIDE_VALUE) if grade != "miss" else 0
+	_check(expected.score == (base[0] + 10 * fallen + inside) * (base[1] + int(Rules.GRADES[grade])),
+		"%s base score is (%d + 10×%d + %d) × (%d + %d), %s" % [label, base[0], fallen, inside, base[1], int(Rules.GRADES[grade]), grade])
 	var lines: Array = panel.log_list.get_children().map(func(child): return child.text)
 	_check(lines.size() == panel.steps.size() and lines[0].contains(category.capitalize()) and lines[-1].contains("Bank") and lines[-1].ends_with("= %d" % expected.score), label + " log opens with category and ends with the bank")
 	var pins: Array = panel.steps.filter(func(step): return step.pin > 0).map(func(step): return step.pin)
 	var sorted_pins := pins.duplicate()
 	sorted_pins.sort()
 	_check(pins == sorted_pins and pins.size() == fallen, label + " log credits each fallen pin once in rack order")
-	_check(lines.filter(func(text): return text.contains("Accuracy")).size() == 1, label + " one accuracy award")
+	_check(panel.steps.filter(func(step): return step.phase == "accuracy").size() == 1, label + " one accuracy award")
 	for report in reports:
 		for position in report.roll_result.fallen_positions:
 			_check(panel._roll_of.get(int(position)) == int(report.roll_result.roll_index), "%s rack shows pin %d taken by roll %d" % [label, position, report.roll_result.roll_index])

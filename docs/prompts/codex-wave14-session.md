@@ -108,7 +108,7 @@ For each of AV-N3 to AV-N5:
 - **Allowed in src/presentation/league_theme.gd:** only UI-A6's pin-deck hook.
 - **A hook you need that does not exist** goes to the coordinator as a request in your handoff.
 - **Add-only:** tools/qa.py, the CI workflow and run_tests.gd. Every new art step has `if: matrix.shard == 'art'`.
-- **These must stay identical:** the physics digest `75d1a3c0…`; J03 560/240/70; J05 21060.
+- **These must stay identical:** the physics digest `75d1a3c0…`; J03 600/260/70 and J05's match 2 at 25920 (BAL-1, 2026-11-20: a release inside the ring adds 10 Value; these were 560/240/70 before).
 - **These must keep passing:**
   - J02, JAVT01, J06, J08, J11, J11ART, J22L01 and J22L02;
   - J03C13, J03C15 to J03C20;

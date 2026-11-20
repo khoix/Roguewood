@@ -56,8 +56,13 @@ static func steps(result: Dictionary, frame: Dictionary, names: Dictionary = {},
 				step.text = "%s — base %s Value × %s Mult" % [String(event.category).capitalize(), _n(value), _n(mult)]
 				step.symbol = "="
 			"accuracy":
+				# BAL-1: a release inside the ring adds Value; sweet and perfect add Mult too.
+				value = float(event.get("pin_value", value))
 				mult = event.mult
-				step.text = "Accuracy %s %s%s Mult" % [grade_name(frame), ADD, _n(event.amount)]
+				var gains: Array = []
+				if float(event.get("value_amount", 0.0)) > 0.0: gains.append("%s%s Value" % [ADD, _n(event.value_amount)])
+				if float(event.amount) > 0.0 or gains.is_empty(): gains.append("%s%s Mult" % [ADD, _n(event.amount)])
+				step.text = "%s %s" % [String(grade_name(frame)).capitalize(), " ".join(gains)]
 				step.symbol = ADD
 			"bank":
 				step.text = "Bank ⌊%s × %s⌋ = %s" % [_n(event.pin_value), _n(event.mult), _n(event.score)]

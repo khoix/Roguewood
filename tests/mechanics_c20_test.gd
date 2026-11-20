@@ -55,7 +55,7 @@ static func _pins(effects: Array = [WOOD], item_id: String = "pin.wood") -> Arra
 	return pins
 
 static func _roll(index: int, fallen: Array, effects: Array = []) -> Dictionary:
-	return {"roll_index": index, "ball_id": "ball.house", "fallen_positions": fallen, "accuracy": "clean", "effects": effects.duplicate(true),
+	return {"roll_index": index, "ball_id": "ball.house", "fallen_positions": fallen, "accuracy": "miss", "effects": effects.duplicate(true),
 		"first_direct": fallen[0] if not fallen.is_empty() else 0, "last_fallen": fallen[-1] if not fallen.is_empty() else 0, "curved": false}
 
 static func _frame(rolls: Array, pins: Array = _pins(), charms: Array = [], rules: Array = []) -> Dictionary:

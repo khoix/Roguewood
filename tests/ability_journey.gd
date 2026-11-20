@@ -53,11 +53,11 @@ func _run() -> void:
 		await _throw(STRIKE)
 	var scored := await _scored()
 	if batch == "E20-V05":
-		_check(scored.banked == 2240 and not lab.motion.abilities.history.any(func(e): return e.id == "charm.last_chance"),"third strike activates Turkey and Finisher, not Last Chance in frame one")
+		_check(scored.banked == _bal1(2240, scored) and not lab.motion.abilities.history.any(func(e): return e.id == "charm.last_chance"),"third strike activates Turkey and Finisher, not Last Chance in frame one")
 		await _focus_accept(lab.next_rack)
 		await _throw(STRIKE)
 		scored = await _scored()
-		_check(scored.banked == 4480 and lab.match_frame == 2,"real second frame activates Last Chance")
+		_check(scored.banked == _bal1(4480, scored) and lab.match_frame == 2,"real second frame activates Last Chance")
 	if batch == "E20-V07":
 		_check(lab.motion.abilities.history.any(func(e): return e.id == "ball.hook" and e.event == "committed_curve"),"actual committed Hook curve")
 		await _focus_accept(lab.next_rack)
@@ -74,12 +74,12 @@ func _run() -> void:
 		scored = await _scored()
 		_check(lab.motion.abilities.history.any(func(e): return e.id == "ball.hammer" and e.event == "physical_impact"),"actual Hammer contact cue")
 		_check(lab.motion.abilities.history.any(func(e): return e.id == "pin.rubber" and e.event == "physical_contact"),"actual Rubber contact cue")
-	if batch == "E20-V06": _check(scored.result.category == "spare" and scored.banked == 2160,"real all-House spare: 180 Value times 12 Mult")
+	if batch == "E20-V06": _check(scored.result.category == "spare" and scored.banked == _bal1(2160, scored),"real all-House spare: 180 Value (190 inside the ring) times 12 Mult")
 	if batch == "E20-V04": _check(scored.result.category == "open" and scored.banked == scored.result.score,"one real standing Anchor frame banks unchanged")
-	if batch == "E20-V01": _check(scored.result.retriggers == 1 and scored.banked == 1050,"real Echo and Encore bank 1050")
-	if batch == "E20-V03": _check(scored.banked == 1120 and scored.income == 2 and lab.run.money == 8,"two real Gold payouts and Gold Rush bank")
+	if batch == "E20-V01": _check(scored.result.retriggers == 1 and scored.banked == _bal1(1050, scored),"real Echo and Encore bank 1050 (+10 Value inside the ring)")
+	if batch == "E20-V03": _check(scored.banked == _bal1(1120, scored) and scored.income == 2 and lab.run.money == 8,"two real Gold payouts and Gold Rush bank")
 	if batch == "E20-V02":
-		_check(scored.banked == 560 and lab.run.rack[1].growth == 1,"Grower grows after unchanged bank")
+		_check(scored.banked == _bal1(560, scored) and lab.run.rack[1].growth == 1,"Grower grows after unchanged bank")
 		_check(not lab.motion.abilities.history.any(func(e): return e.id == "charm.patient_investor"),"zero-growth Investor stays silent before settlement")
 	_check(Rect2(Vector2.ZERO,lab.size).encloses(lab.score_panel.get_rect()),"scoring and skip fit portrait")
 	await _capture("resolved")
@@ -146,3 +146,11 @@ func _wait_for(predicate: Callable, label: String, frames: int = 240) -> bool:
 	if predicate.call(): return true
 	_check(false,"Timeout: " + label)
 	return false
+
+## BAL-1 (owner, 2026-11-20): a release inside the ring adds 10 Value before anything
+## multiplies, so a clean frame banks its old score plus 10 × the frame's final Mult.
+func _bal1(old: int, scored: Dictionary) -> int:
+	var inside: float = 0.0
+	for event in scored.result.events:
+		if event.phase == "accuracy": inside = float(event.get("value_amount", 0.0))
+	return old + int(inside * float(scored.result.mult))

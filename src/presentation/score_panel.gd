@@ -234,7 +234,7 @@ static func _chain_icon(step: Dictionary) -> String:
 	match String(step.get("phase", "")):
 		"category", "fallen": return "pin"
 		"bank": return "value"
-		"accuracy": return "mult"
+		"accuracy": return "mult" if text.ends_with("Mult") else "value" # BAL-1: a clean release adds Value
 	if text.contains("+$") or text.contains(" $"): return "money"
 	if text.ends_with("Mult") or text.contains(" Mult (") or step.get("symbol", "") == "×": return "mult"
 	return "value"
