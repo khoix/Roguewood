@@ -1692,11 +1692,14 @@ func _choice_visual(option: Dictionary, item_id: String, verb: String = "") -> D
 		verb = "Replace" if not String(option.get("replaces", "")).is_empty() else ("Attach" if is_mod else "Place")
 	var caption: String = parts[1] if parts[0] == "rack" else ("New" if target.ends_with(":new") else (_names.get(entry.item_id, "") if entry != null else place))
 	var then := _placement_label(option) if verb != "Remove" else "Removed from the run; no refund."
+	var keeps: String = option.get("keeps_mod", "")
 	if is_mod and entry != null: # UI-13: the result, as the preview shows it
 		then = "After: %s + %s" % [_names.get(entry.item_id, entry.item_id), _names.get(item_id, item_id)]
+	elif not keeps.is_empty(): # UI-30: the new pin takes over the modification
+		then += "\nAfter: %s + %s" % [_names.get(item_id, item_id), _names.get(keeps, keeps)]
 	return {"target": target, "item_id": entry.item_id if entry != null else item_id, "mod": String(entry.mod) if entry != null else "",
 		"caption": caption, "detail": "%s · now: %s\n%s" % [place, Sentence.cap(now), then], "verb": verb,
-		"placing": item_id if verb != "Remove" else "", "placing_mod": is_mod} # UI-13: previewed on the picked place
+		"placing": item_id if verb != "Remove" else "", "placing_mod": is_mod, "keeps_mod": keeps} # UI-13: previewed on the picked place
 
 ## The ten pins for the placement map: {item_id, mod} by position.
 func _rack_art() -> Array:
@@ -1714,10 +1717,15 @@ func _placement_label(option: Dictionary) -> String:
 		return "Add to Charm slot %d" % (run.charms.size() + 1)
 	var parts := target.split(":")
 	var place := ("Rack %s" % parts[1]) if parts[0] == "rack" else ("Reserve %s" % parts[1]) if parts[0] == "reserve" else ""
+	var keeps: String = option.get("keeps_mod", "")
+	var stays := "%s stays on the new pin" % _names.get(keeps, keeps) if not keeps.is_empty() else "" # UI-30
 	if not option.moves_to.is_empty():
-		return "%s — %s moves to %s" % [place, _names.get(run.entry_at(target).item_id, ""), option.moves_to.replace("reserve:", "Reserve ")]
+		return "%s — %s moves to %s%s" % [place, _names.get(run.entry_at(target).item_id, ""), option.moves_to.replace("reserve:", "Reserve "),
+			" (%s)" % stays if not stays.is_empty() else ""]
 	if not option.replaces.is_empty():
-		return "Replace %s (sell +$%d)" % [_ref_label(option.replaces), option.sale]
+		if keeps.is_empty():
+			return "Replace %s (sell +$%d)" % [_ref_label(option.replaces), option.sale]
+		return "Replace %s %s (sell +$%d, %s)" % [place, _names.get(run.entry_at(target).item_id, ""), option.sale, stays]
 	if run.entry_at(target) != null:
 		return "Modify " + _ref_label(target)
 	return place

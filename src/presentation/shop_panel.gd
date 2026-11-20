@@ -825,8 +825,10 @@ func select_choice(index: int) -> void:
 	choice_confirm.disabled = false
 
 ## UI-13 (owner, 2026-11-17): the picked place shows what is about to go there: a
-## modification's badge on the pin, or the new item's art in the place (its old
-## occupant's badge leaves with it). Picking another place restores this one.
+## modification's badge on the pin, or the new item's art in the place. A new pin
+## keeps the place's modification badge when it takes the modification over
+## (UI-30); otherwise the badge leaves with the old pin. Picking another place
+## restores this one.
 func _preview(index: int, on: bool) -> void:
 	var v: Dictionary = _choice_visuals[index]
 	var tile := choice_button(index)
@@ -838,7 +840,7 @@ func _preview(index: int, on: bool) -> void:
 		ModArt._badge(tile, placing if on else String(v.get("mod", "")), int(tile.custom_minimum_size.x * 0.46) if on else extent)
 	else:
 		tile.icon = (ItemAssets.slot(placing, "icon") as Texture2D) if on else tile.get_meta("own_icon", null)
-		ModArt._badge(tile, "" if on else String(v.get("mod", "")), extent)
+		ModArt._badge(tile, String(v.get("keeps_mod", "")) if on else String(v.get("mod", "")), extent)
 	tile.set_meta("previewing", placing if on else "")
 	if on and is_inside_tree():
 		tile.pivot_offset = tile.size * 0.5
