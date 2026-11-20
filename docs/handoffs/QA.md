@@ -84,3 +84,8 @@
   - `ci_retry.sh apt` installed the display packages;
   - `ci_retry.sh playwright` installed Chromium;
   - the game shard then failed only on the bug above.
+- **CI #533** (`b96f113`, the fix) PASS:
+  - **game:** 21 min, against 44–60 before;
+  - **art:** 31 min, against 60–77 before, well inside the 90-minute limit.
+- **QA-1 verified:** pushing `b96f113` cancelled #532, the older run on the same branch.
+- **QA-2:** this docs-only commit started no Bootstrap run (checked after the push).

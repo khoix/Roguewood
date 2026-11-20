@@ -30,7 +30,7 @@ The owner asked for tests that take less time and fewer tokens. For both agents:
 ## Current state
 - **Integration:** the owner merges `claude/roguewood-build` into main by PR. Claude restarts or fast-forwards it from main after each merge. Codex pushes `codex/roguewood-build` and opens no PRs.
 - **Open:** PR #51 (UI-30, UI-31; CI #530 PASS on `b2aaf7b`).
-- **Held for the next PR** (on `claude/gracious-hopper-2npyl2` until #51 merges): QA-1…QA-8, the testing changes above.
+- **Held for the next PR** (on `claude/gracious-hopper-2npyl2` until #51 merges): QA-1…QA-8, the testing changes above. Full local matrix: 28 min (was 64). CI #533 PASS: game 21 min, art 31 min (were 44–60 and 60–77).
 - **Queued, waiting for the owner's go (UI-32, owner's play notes, 2026-11-20):**
   - **The shop's Inventory:** "Sell · N · order" becomes **Inventory**. Charms sit in one row in a top section, reordered by drag and drop (no Move buttons); the other items go below; tapping an item still opens it to review or sell.
   - **The shop's payout and rack details:** "Match N paid…", Rack, Reserves, Charms and Deck become a themed, visual panel instead of plain text.
