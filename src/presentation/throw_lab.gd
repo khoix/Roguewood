@@ -284,7 +284,7 @@ func _ready() -> void:
 	if not content.errors.is_empty():
 		push_error("Content set %s invalid: %s" % [content.id, str(content.errors)])
 	_catalogue = content.catalogue
-	if content.get("id", "") in ["house", "neon", "tutorial"]: # UI-13: the tutorial wears the House theme
+	if content.get("id", "") in ["house", "neon", "tutorial", "practice"]: # UI-13: the tutorial (and UI-39 practice) wear the House theme
 		league_theme = LeagueTheme.for_league(content.get("theme", content.get("league_id", "")))
 		if league_theme != null:
 			add_child(league_theme)
@@ -318,7 +318,7 @@ func _ready() -> void:
 	league_entry = career_graph.get("leagues", {}).get(career_graph.get("league_of_set", {}).get(content.id, ""), {})
 	shop.unlocked = career.unlocked.duplicate() # a snapshot: later unlocks wait for the next attempt (§16)
 	divisions = content.divisions
-	division = League.create(divisions, settings.get("practice", false))
+	division = League.create(divisions, settings.get("practice", false) or practice_lane())
 	division.campaign = content.get("campaign", {}).duplicate(true)
 	_content = content.hashes
 	score_panel = ScorePanel.new()
@@ -657,7 +657,8 @@ func _refresh_hand() -> void:
 	card_hand.cycle_button.text = "Cancel" if cycling else "Cycle"
 	# The roll view (UI-3): the hand leaves once the ball is away, and while the ball
 	# is held, so the whole lower screen is room to swirl (owner, 2026-11-08).
-	card_hand.visible = state not in ["holding", "rolling", "result", "scoring", "shop", "intro", "division_over"] and (portrait or not regions.get("fold", false) or panels.show_hand)
+	card_hand.visible = state not in ["holding", "rolling", "result", "scoring", "shop", "intro", "division_over"] and (portrait or not regions.get("fold", false) or panels.show_hand) \
+		and not practice_lane() # UI-39: the practice lane has no cards
 	card_hand.set_mode("fan" if portrait else "flank", settings.handedness == "left")
 	card_hand.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	card_hand.grow_vertical = Control.GROW_DIRECTION_END
@@ -736,7 +737,8 @@ func _apply_settings() -> void:
 	if settings.assist and state == "aim" and lane:
 		_assist_preview(assist_panel.values())
 	# Practice applies to an attempt that has not thrown yet, otherwise to the next attempt.
-	if division != null and settings.get("practice", false) != division.practice and _launch_serial == 0:
+	# (A test fixture since UI-39; How to Play's practice lane is always in practice.)
+	if division != null and not practice_lane() and settings.get("practice", false) != division.practice and _launch_serial == 0:
 		division = League.create(divisions, settings.practice)
 		_checkpoint("aim")
 	if hud != null:
@@ -1136,7 +1138,10 @@ func _on_alley_finished(event: String) -> void:
 func _frame_done() -> void:
 	state = "frame_done"
 	next_rack.text = "Next Rack"
-	if division.match_over():
+	if division.match_over() and practice_lane():
+		_practice_games.append(int(division.match_score))
+		next_rack.text = "Next Game"
+	elif division.match_over():
 		if division.outcome == "lost":
 			next_rack.text = "See Result"
 		elif division.outcome == "won":
@@ -1152,6 +1157,9 @@ func _frame_done() -> void:
 func _next_rack() -> void:
 	if state != "frame_done":
 		return
+	if division.match_over() and practice_lane():
+		_next_practice_game()
+		return
 	if division.match_over():
 		if division.is_finished():
 			_show_result()
@@ -1164,6 +1172,29 @@ func _next_rack() -> void:
 	var errors: Array[String] = equipment.start_frame(keep_card)
 	if not errors.is_empty():
 		push_error("Frame start: " + str(errors))
+	_clear_choices()
+	_new_roll()
+
+## UI-39 (owner, 2026-11-21): How to Play's practice lane. The House Ball only, ten
+## Wood pins, no Charms, cards, shop or rival rules; games of ten frames, scored as
+## normal, one after another for as long as the player likes.
+func practice_lane() -> bool:
+	return content.get("id", "") == "practice"
+
+## The practice lane's games so far (each game's score), and its best.
+var _practice_games: Array = []
+func practice_best() -> int:
+	return _practice_games.max() if not _practice_games.is_empty() else 0
+
+## A new game straight after the last: no shop, no payout.
+func _next_practice_game() -> void:
+	_kept_last_frame = ""
+	_advance_frame()
+	match_number += 1
+	match_frame = 1
+	division.next_match()
+	equipment.start_match()
+	equipment.start_frame()
 	_clear_choices()
 	_new_roll()
 
@@ -2097,7 +2128,13 @@ func _refresh_hud() -> void:
 	var left: int = division.frames_left()
 	var frames := "%d frame%s left" % [left, "" if left == 1 else "s"]
 	var view := {"text": "", "badge": "", "rule_text": "", "frames": frames}
-	if division.practice:
+	if practice_lane():
+		var best := practice_best()
+		view.text = "Practice · Game %d · Score %d · %s%s" % [match_number, shown, frames, (" · Best %d" % best) if best > 0 else ""]
+		view.title = "Practice · Game %d" % match_number
+		view.short_title = view.title
+		view.score = ScoreLog._n(shown)
+	elif division.practice:
 		view.text = "Practice · no target · score %d · %s · no unlocks" % [shown, frames]
 		view.title = "Practice · no unlocks"
 		view.score = ScoreLog._n(shown)
@@ -2287,6 +2324,10 @@ func _refresh_panels() -> void:
 	if panels == null: return
 	var last: Dictionary = scored_frames[-1].result if not scored_frames.is_empty() else {}
 	panels.show_slip(last, total_score)
+	panels.practice = practice_lane() # UI-39: no rival or Charms panel
+	if practice_lane() and not hud.money_hidden:
+		hud.money_hidden = true
+		hud.money.get_parent().hide()
 	if division.practice:
 		panels.show_rival({}, "", false)
 	else:

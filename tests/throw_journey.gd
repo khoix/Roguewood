@@ -120,8 +120,8 @@ func _run() -> void:
 	lab.trial_log_path = trials_path
 	# Practice (E09): this journey tests throwing, so the Division's targets are off.
 	await _focus_accept(scene.options)
-	lab.settings_panel.practice.grab_focus()
-	await _accept()
+	lab.settings_panel.use_practice() # UI-39: a test fixture now, not a player option
+	await process_frame
 	# The owner's phone defaults (2026-11-08): flick sensitivity 0.4 and the flat spin
 	# view. This journey's gestures are calibrated at sensitivity 1.0 and its first
 	# checks are of the depth view, so it sets both through the Options controls.

@@ -34,6 +34,7 @@ func _run() -> void:
 		await _ui12_menu()
 		await _perf1_graphics()
 		await _ui24_how_to_play()
+		await _ui39_practice()
 	match stage:
 		1: await _stage_one_clubhouse()
 		2: await _stage_two_clubhouse()
@@ -152,6 +153,13 @@ func _perf1_graphics() -> void:
 		_check(maxi(art.texture.get_width(), art.texture.get_height()) == gfx.TEXTURE_CAP and art.texture.resource_path.is_empty() and gfx.swapped > 0,
 			"PERF-1: Low draws large art from a %d px copy (%s, %d swapped)" % [gfx.TEXTURE_CAP, source_path, gfx.swapped])
 		await _capture("graphics_low")
+		# PERF-1b (owner: Low or High textures dropped a phone under 20 fps): once the art
+		# is swapped, following it costs next to nothing a frame.
+		var spent := 0
+		for i in 120:
+			await process_frame
+			spent += gfx.sweep_usec
+		_check(spent / 120.0 < 300.0 and gfx.sweep_worst_usec < 60000, "PERF-1b: the texture sweep costs %.3f ms a frame (worst %.1f ms)" % [spent / 120000.0, gfx.sweep_worst_usec / 1000.0])
 	gfx.texture_choice.select(1)
 	gfx.texture_choice.item_selected.emit(1)
 	gfx.resolution_choice.select(1)
@@ -179,6 +187,50 @@ func _perf1_graphics() -> void:
 	_check(not gfx.is_open() and scene.club_menu.visible and scene.club_menu_list.get_node("ClubGraphics").has_focus(), "PERF-1: Escape on Graphics goes back to the Clubhouse menu")
 	await _tap(scene.club_menu_list.get_node("CloseClubMenu"))
 
+## UI-39 (owner, 2026-11-21): How to Play's Practice: the House Ball and ten Wood
+## pins, no shop, rules, cards or Charms; games of ten frames scored as normal, one
+## after another. Nothing counts: the Career and the League choice are as before.
+func _ui39_practice() -> void:
+	var attempts: int = int(scene.career.get("attempts", 0))
+	var chosen: String = scene.content.id
+	var assist_was: bool = bool(scene.throw_settings.get("assist", false))
+	scene.throw_settings.assist = true # the deterministic assist throws (J03)
+	await _tap(scene.club_menu_button)
+	await _tap(scene.club_menu_list.get_node("ClubHowToPlay"))
+	await _tap(scene.club_how_list.get_node("ClubPractice"))
+	await _wait_for(func(): return scene.screen == "session" and scene.lab != null and scene.content.id == "practice" and scene.lab.state == "aim", "Practice opens its lane", ROLL_FRAMES)
+	lab = scene.lab
+	_check(lab.practice_lane() and lab.division.practice and lab.save_store == null and lab.active_rules().is_empty(), "UI-39: Practice is a practice lane: no rules, nothing saved")
+	_check(lab.equipment.options().is_empty() and lab.armed_ball_id() == "ball.house" and lab.run.charms.is_empty() and lab.run.loadout().pins.values().all(func(id): return id == "pin.wood"),
+		"UI-39: the House Ball only, ten Wood pins, no cards or Charms")
+	_check(not lab.hud.money.get_parent().visible and not lab.panels.rival.visible and not lab.panels.charms.visible and not lab.card_hand.visible,
+		"UI-39: no money, rival, Charms or card hand on screen")
+	_check(lab.hud.info.text.begins_with("Practice · Game 1"), "UI-39: the bar says Practice · Game 1 (%s)" % lab.hud.info.text)
+	await _capture("practice_lane")
+	# A whole game of ten frames, scored as normal.
+	var banked := 0
+	for frame in 10:
+		await _throw(STRIKE)
+		await _wait_for(func(): return lab.state in ["aim", "scoring"], "the second roll or the tally", ROLL_FRAMES)
+		if lab.state == "aim": await _throw(LEAVE) # pins left standing: the second roll
+		var scored: Dictionary = await _scored()
+		banked += int(scored.banked)
+		if frame < 9:
+			_check(not scored.match_over and lab.next_rack.text == "Next Rack", "UI-39: frame %d is followed by the next rack" % (frame + 1))
+			await _focus_accept(lab.next_rack)
+	var first_game: int = lab.division.match_score
+	_check(lab.division.match_over() and first_game == banked and first_game > 0 and lab.next_rack.text == "Next Game", "UI-39: ten frames make a game (%d), then Next Game" % first_game)
+	await _focus_accept(lab.next_rack)
+	await _wait_for(func(): return lab.state == "aim", "the next game", ROLL_FRAMES)
+	_check(lab.match_number == 2 and lab.match_frame == 1 and lab.division.match_score == 0 and not lab.shop_panel.visible and lab.practice_best() == first_game
+		and lab.hud.info.text.begins_with("Practice · Game 2") and lab.hud.info.text.contains("Best %d" % first_game), "UI-39: no shop; game 2 begins, with game 1 as the best (%s)" % lab.hud.info.text)
+	await _focus_accept(scene.menu_button)
+	await _focus_accept(scene.back)
+	await _wait_for(func(): return scene.screen == "menu", "back to the Clubhouse", ROLL_FRAMES)
+	_check(scene.content.id == chosen and int(scene.career.get("attempts", 0)) == attempts, "UI-39: leaving practice keeps the League choice and the Career (%s, %d attempts)" % [scene.content.id, int(scene.career.get("attempts", 0))])
+	scene.throw_settings.assist = assist_was
+	lab = null
+
 ## UI-24 (owner, 2026-11-19): How to Play offers Play Tutorial (JTUT plays it) or
 ## Talk the Talk, the words the game uses, each with its picture, tab by tab; its
 ## pictures of a throw follow the player's hand; Back and Escape step back a page.
@@ -192,7 +244,7 @@ func _ui24_how_to_play() -> void:
 	await _tap(scene.club_menu_list.get_node("ClubHowToPlay"))
 	var how: VBoxContainer = scene.club_how_list
 	var choices: Array = how.get_children().filter(func(c): return c is Button).map(func(c): return c.text)
-	_check(scene.club_menu.visible and how.visible and not scene.club_menu_list.visible and choices == ["Play Tutorial", "Talk the Talk", "Back"]
+	_check(scene.club_menu.visible and how.visible and not scene.club_menu_list.visible and choices == ["Play Tutorial", "Practice", "Talk the Talk", "Back"]
 		and how.get_node("ClubPlayTutorial").has_focus(), "How to Play offers Play Tutorial and Talk the Talk (%s)" % str(choices))
 	await _capture("how_to_play")
 	await _action("ui_cancel")

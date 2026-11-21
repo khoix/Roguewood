@@ -32,7 +32,8 @@ func _run() -> void:
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.practice)
+	lab.settings_panel.use_practice()
+	await process_frame
 	lab.settings_panel.use_equipment("direct") # fixture: direct selection is no longer a player option (ADR 004)
 	print("%s fixture: direct selection set through settings_panel.use_equipment (not a player option since UI-1)" % get_script().resource_path.get_file())
 	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)

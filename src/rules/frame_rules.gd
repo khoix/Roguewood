@@ -291,8 +291,9 @@ static func validate(frame: Dictionary) -> Array[String]:
 			for key in ["match_score", "match_target"]:
 				if not _integer_between(context.get(key, 0), 0, 1000000000000):
 					errors.append("context.%s must be a whole score" % key)
-			if not _integer_between(context.get("match_frame", 1), 1, 8):
-				errors.append("context.match_frame must be 1..8")
+			# UI-39: up to 10 (the practice lane's games are ten frames; matches are 1..8).
+			if not _integer_between(context.get("match_frame", 1), 1, 10):
+				errors.append("context.match_frame must be 1..10")
 			if not _integer_between(context.get("strike_streak", 0), 0, 100000):
 				errors.append("context.strike_streak must be a count")
 	if not errors.is_empty():
