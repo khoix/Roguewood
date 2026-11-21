@@ -75,19 +75,23 @@ STYLE = (
     "#rw-loader.idle #rw-roll{transition:none;animation:rw-run 1.8s linear infinite;}"
     "@keyframes rw-run{0%{transform:translateX(0);}78%,100%{transform:translateX(calc(100% - 48px));}}"
     "#rw-loader.idle #rw-pin{transition:none;animation:rw-knock 1.8s linear infinite;}"
-    "@keyframes rw-knock{0%,76%{transform:none;}82%,96%{transform:rotate(70deg) translate(6px,0);}100%{transform:none;}}"
+    "@keyframes rw-knock{0%,78%{transform:none;}84%,96%{transform:rotate(70deg) translate(6px,0);}100%{transform:none;}}"
     # The finale: the ball reaches the pin, the pin falls, then the screen fades into the game.
-    "#rw-loader.finale #rw-pin{transition-delay:.4s;}"
+    # UI-38: the pin waits for the ball, which takes up to the roll's .5s to arrive.
+    "#rw-loader.finale #rw-pin{transition-delay:.5s;}"
 )
 SCRIPT = (
     "(function(){function go(root){var st=root instanceof Element?root:document.getElementById('status'),pr=st&&st.querySelector('#status-progress');"
     "if(!st||!pr){requestAnimationFrame(function(){go(root);});return;}"
     "var lane=document.createElement('div');lane.id='rw-loader';"
     "lane.innerHTML='<div id=\"rw-track\"></div><img id=\"rw-pin\" alt=\"\" src=\"PIN\"><div id=\"rw-roll\"><div id=\"rw-bob\"><img id=\"rw-ball\" alt=\"\" src=\"BALL\"></div></div>';"
-    "st.appendChild(lane);var pin=lane.querySelector('#rw-pin'),host=st.parentNode,ending=false;"
+    "st.appendChild(lane);var pin=lane.querySelector('#rw-pin'),roll=lane.querySelector('#rw-roll'),host=st.parentNode,ending=false;"
     "function tick(){if(ending)return;var known=pr.hasAttribute('value')&&pr.max>0,f=known?Math.min(Math.max(pr.value/pr.max,0),1):0;"
     "lane.style.display=getComputedStyle(pr).display==='none'?'none':'block';lane.classList.toggle('idle',!known);"
-    "lane.style.setProperty('--f',f.toFixed(3));pin.classList.toggle('down',known&&f>=0.999);lane.dataset.progress=known?f.toFixed(3):'idle';"
+    "lane.style.setProperty('--f',f.toFixed(3));"
+    # The pin falls when the ball reaches it, not when the download does (UI-38).
+    "var end=roll.offsetWidth-48,at=new DOMMatrixReadOnly(getComputedStyle(roll).transform).m41;"
+    "pin.classList.toggle('down',known&&f>=0.999&&at>=end-1);lane.dataset.progress=known?f.toFixed(3):'idle';"
     "requestAnimationFrame(tick);}"
     # The engine removes its loading overlay the moment the game starts; put it back briefly for the knockdown.
     "function finale(){if(ending||st.isConnected||!host)return;ending=true;lane.classList.remove('idle');lane.classList.add('finale');"
