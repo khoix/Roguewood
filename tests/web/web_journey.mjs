@@ -108,34 +108,56 @@ try {
   check(head.theme === "#0b1116" && head.homeName === "Roguewood" && head.title === "Roguewood", `theme colour, home-screen name and page title (${JSON.stringify(head)})`);
   // UI-10: the loading progress is a pixel ball rolling down a short lane toward a pin,
   // driven by the engine's own progress element (kept, invisible); the pin tips at 100%.
-  // The engine removes its loading overlay once it starts, so the loader is run again
-  // on a stand-in overlay with the same ids.
+  // UI-36: the spin, bob and roll are CSS animations and transitions (they keep playing
+  // while a phone's main thread starts the game), an unknown download size loops the
+  // roll and knockdown, and when the engine removes its overlay the knockdown plays out
+  // before the overlay fades. The engine removes its overlay once it starts, so the
+  // loader is run again on a stand-in overlay with the same ids.
   const loader = await page.evaluate(async () => {
     if (!document.querySelector("#rw-loader-js") || typeof window.rwLoaderStart !== "function") return { found: false };
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
     const stand = document.createElement("div");
     stand.id = "status";
     stand.style.cssText = "position:absolute;inset:0;width:600px;height:400px;";
     stand.innerHTML = '<progress id="status-progress"></progress>';
     document.body.appendChild(stand);
-    window.rwLoaderStart();
+    window.rwLoaderStart(stand);
     await new Promise((r) => requestAnimationFrame(r));
     const lane = stand.querySelector("#rw-loader"), pr = stand.querySelector("#status-progress");
     if (!lane) return { found: false, started: true };
-    const shown = pr.style.display;
+    const roll = lane.querySelector("#rw-roll"), pin = lane.querySelector("#rw-pin");
+    const css = (el) => el.getAnimations().map((a) => a.animationName || a.transitionProperty).filter(Boolean);
+    const shown = pr.style.display, opacity = getComputedStyle(pr).opacity;
     const at = async (value) => {
       pr.style.display = "block"; pr.max = 1; pr.value = value;
-      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-      const m = new DOMMatrixReadOnly(getComputedStyle(lane.querySelector("#rw-ball")).transform);
-      return { x: m.m41, shown: getComputedStyle(lane).display, progress: lane.dataset.progress, pinDown: lane.querySelector("#rw-pin").classList.contains("down") };
+      await wait(700);
+      const m = new DOMMatrixReadOnly(getComputedStyle(roll).transform);
+      return { x: m.m41, shown: getComputedStyle(lane).display, progress: lane.dataset.progress, pinDown: pin.classList.contains("down") };
     };
-    const quarter = await at(0.25), most = await at(0.9), done = await at(1.0);
-    pr.style.display = shown;
-    const opacity = getComputedStyle(pr).opacity;
+    const quarter = await at(0.25);
+    const moving = { ball: css(lane.querySelector("#rw-ball")), bob: css(lane.querySelector("#rw-bob")) };
+    const most = await at(0.9), done = await at(1.0);
+    // No total from the server: the roll and the knockdown loop.
+    pr.removeAttribute("value");
+    await wait(100);
+    const idle = { progress: lane.dataset.progress, idle: lane.classList.contains("idle"), roll: css(roll), pin: css(pin) };
+    // The engine removes the overlay: it comes back for the knockdown, then fades and goes.
     stand.remove();
-    return { found: true, opacity, ball: lane.querySelector("#rw-ball").getAttribute("src").startsWith("data:image/svg+xml"), quarter, most, done };
+    await wait(200);
+    const finale = { back: stand.isConnected, pinDown: pin.classList.contains("down"), progress: lane.dataset.progress, taps: getComputedStyle(stand).pointerEvents };
+    await wait(1500);
+    finale.gone = !stand.isConnected;
+    pr.style.display = shown;
+    return { found: true, opacity, ball: lane.querySelector("#rw-ball").getAttribute("src").startsWith("data:image/svg+xml"), quarter, moving, most, done, idle, finale };
   });
   check(loader.found && loader.opacity === "0" && loader.ball && loader.quarter.shown === "block" && loader.most.x > loader.quarter.x + 40
     && !loader.most.pinDown && loader.done.pinDown && loader.done.progress === "1.000", `the loader rolls a pixel ball toward a pin that tips at 100% (${JSON.stringify(loader)})`);
+  check(loader.found && loader.moving.ball.includes("rw-spin") && loader.moving.bob.includes("rw-bob"),
+    `the ball's spin and bob are CSS animations (${JSON.stringify(loader.moving)})`);
+  check(loader.found && loader.idle.idle && loader.idle.progress === "idle" && loader.idle.roll.includes("rw-run") && loader.idle.pin.includes("rw-knock"),
+    `with no known download size the ball rolls and knocks the pin over in a loop (${JSON.stringify(loader.idle)})`);
+  check(loader.found && loader.finale.back && loader.finale.pinDown && loader.finale.progress === "1.000" && loader.finale.taps === "none" && loader.finale.gone,
+    `when the engine removes its overlay, the knockdown plays out, taps pass through, then it goes (${JSON.stringify(loader.finale)})`);
   await page.screenshot({ path: path.join(outDir, "web_title.png") });
   // The browser's first tap, on the title, is the user gesture that lets audio start.
   await click(titled.s.title.at);
