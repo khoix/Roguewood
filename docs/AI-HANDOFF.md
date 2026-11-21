@@ -46,6 +46,7 @@ The owner asked for tests that take less time and fewer tokens. For both agents:
 - **UI-37 DONE** (handoffs/UI-37.md; the owner's question): the League records and the trophy shelf list only the Leagues the League Board offers, so the provisional House Campaign (off the board since UI-16) no longer shows in the game. Beside the test slice it is still offered and listed.
 - **PR #57 merged** (owner, 2026-11-21; main `7f5f45f`): UI-37 and UI-36's corrected cause.
 - **UI-38 DONE** (handoffs/UI-38.md; the owner's play notes): on desktop the loader's pin fell as soon as the download reached 100%, while the ball was still rolling. The pin now falls when the ball reaches it (and in the fallback loop and the finale). JW01 checks it.
+- **UI-38b DONE** (handoffs/UI-38.md; the owner's play notes): on the award screen, while the last award shows (the last goal, or the last trophy with no goals, or the summary after Skip), the sound effects ease down over 5 s to half the awards music's volume; sounds already playing follow. Without the awards track they stay as they are. J06 checks it.
 - **Codex** has been out of tokens since 2026-11-19 and returns about Friday 2026-11-21. Its Wave 14 queue: AV-N4, AV-N5, UI-A6, then UI-A9-H, and the proposed AV-UI1.
 
 ## Decisions and invariants
