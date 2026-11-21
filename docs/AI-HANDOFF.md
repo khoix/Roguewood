@@ -41,7 +41,7 @@ The owner asked for tests that take less time and fewer tokens. For both agents:
 - **PR #54 merged** (owner, 2026-11-20; main `2605a3b`): UI-34.
 - **UI-35 DONE** (handoffs/UI-35.md; the owner's play notes): one scrim (`UiTheme.SCRIM`) behind every overlay; the shop's dim sits under the topmost sheet, so an item over the Inventory darkens it; a tap outside closes only the top sheet.
 - **PR #55 merged** (owner, 2026-11-20; main `6536427`): UI-35.
-- **UI-36 DONE** (handoffs/UI-36.md; the owner's play notes): the web loader lagged on phones and its knockdown rarely showed. Its spin, bob and roll are now CSS (the browser keeps them playing while the game starts); with no known download size the ball rolls and knocks the pin over in a loop; and when the engine removes its overlay, the knockdown plays out and the overlay fades over about a second. JW01 checks all three. Not tested on a real phone.
+- **UI-36 DONE** (handoffs/UI-36.md; the owner's play notes): the web loader lagged on phones and its knockdown rarely showed. Its spin, bob and roll are now CSS (the browser keeps them playing while the game starts); it still follows the real progress (a roll-and-knock loop is only a fallback for an unknown total); and when the engine removes its overlay, the knockdown plays out and the overlay fades over about a second. JW01 checks all three. Not tested on a real phone.
 - **Codex** has been out of tokens since 2026-11-19 and returns about Friday 2026-11-21. Its Wave 14 queue: AV-N4, AV-N5, UI-A6, then UI-A9-H, and the proposed AV-UI1.
 
 ## Decisions and invariants
