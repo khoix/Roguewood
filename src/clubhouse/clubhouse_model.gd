@@ -66,9 +66,15 @@ static func _sources_text(graph: Dictionary, gate: String) -> String:
 			texts.append(text)
 	return " or ".join(texts)
 
-static func board(career: Dictionary, graph: Dictionary) -> Array:
+## The Leagues this game can play: those whose content set is in `sets` (all of them
+## when `sets` is empty). UI-37 (owner, 2026-11-21): a League the board does not offer,
+## like the provisional House Campaign outside the test slice, has no record or trophy.
+static func leagues(graph: Dictionary, sets: Array = []) -> Array:
+	return graph.get("leagues", {}).keys().filter(func(id): return sets.is_empty() or graph.leagues[id].get("content_set", "") in sets)
+
+static func board(career: Dictionary, graph: Dictionary, sets: Array = []) -> Array:
 	var rows: Array = []
-	for league_id in graph.get("leagues", {}):
+	for league_id in leagues(graph, sets):
 		var league: Dictionary = graph.leagues[league_id]
 		var record: Dictionary = career.records.get(league_id, {})
 		rows.append({"id": league_id, "name": league.name, "content_set": league.content_set,
@@ -138,9 +144,9 @@ static func inspect(entry: Dictionary, catalogue: Dictionary) -> String:
 	return "\n".join(lines)
 
 ## Shelf slots: titles, ribbons, plaques, then decorations.
-static func trophies(career: Dictionary, graph: Dictionary) -> Array:
+static func trophies(career: Dictionary, graph: Dictionary, sets: Array = []) -> Array:
 	var out: Array = []
-	for league_id in graph.get("leagues", {}):
+	for league_id in leagues(graph, sets):
 		var wins := int(career.championships.get(league_id, {}).get("wins", 0))
 		out.append({"kind": "trophy", "id": league_id, "name": "%s title" % graph.leagues[league_id].name, "earned": wins > 0,
 			"detail": ("Won %d time%s" % [wins, "" if wins == 1 else "s"]) if wins > 0 else "Win the %s" % graph.leagues[league_id].name,

@@ -29,7 +29,7 @@ The owner asked for tests that take less time and fewer tokens. For both agents:
 
 ## Current state
 - **Integration:** the owner merges `claude/roguewood-build` into main by PR. Claude restarts or fast-forwards it from main after each merge. Codex pushes `codex/roguewood-build` and opens no PRs.
-- **Merged:** PRs #51 (main `5f4df32`), #52 (`4c54786`), #53 (`b78b7c2`), #54 (`2605a3b`) and #55 (`6536427`), 2026-11-20.
+- **Merged:** PRs #51 (main `5f4df32`), #52 (`4c54786`), #53 (`b78b7c2`), #54 (`2605a3b`), #55 (`6536427`) and #56 (`6204f4c`), 2026-11-20/21.
 - **For the next PR** (merged into `claude/roguewood-build` after #51): QA-1…QA-8, the testing changes above. Full local matrix: 28 min (was 64). CI #533 PASS: game 21 min, art 31 min (were 44–60 and 60–77).
 - **UI-32 DONE** (handoffs/UI-32.md; the owner's play notes, 2026-11-20): the shop's **Inventory** (Charms in a drag-to-reorder row on top, the other items below, tap to review or sell) and the payout and rack as a themed slip (payout rows and total; the rack as a triangle of pin art; reserves; Charms and Deck chips). Checks: `unit`, `content` and all 73 shop journeys headless; J05, J06, JTUT, JAVC04B, J03C07–C10 and J11 rendered: PASS.
 - **BAL-1 DONE** (handoffs/BAL-1.md; agreed with the owner, 2026-11-20): a release inside the ring adds 10 Value; sweet and perfect add +1 and +2 Mult on top (a plain strike 560 / 600 / 750 / 900). The simulation moves 0–5 points of League wins and 4–9 of Division 1 clears; the targets stay. New fixed values: J03 600/260/70, J05 match 2 25920.
@@ -42,6 +42,8 @@ The owner asked for tests that take less time and fewer tokens. For both agents:
 - **UI-35 DONE** (handoffs/UI-35.md; the owner's play notes): one scrim (`UiTheme.SCRIM`) behind every overlay; the shop's dim sits under the topmost sheet, so an item over the Inventory darkens it; a tap outside closes only the top sheet.
 - **PR #55 merged** (owner, 2026-11-20; main `6536427`): UI-35.
 - **UI-36 DONE** (handoffs/UI-36.md; the owner's play notes): the web loader lagged on phones and its knockdown rarely showed. Its spin, bob and roll are now CSS (the browser keeps them playing while the game starts); it still follows the real progress (a roll-and-knock loop is only a fallback for an unknown total); and when the engine removes its overlay, the knockdown plays out and the overlay fades over about a second. JW01 checks all three. Not tested on a real phone.
+- **PR #56 merged** (owner, 2026-11-21; main `6204f4c`): UI-36 at `f6c07ff`. Its correction (`dbc665e`: the loader always follows real progress, since the engine takes file sizes from the export) landed after the merge and goes in the next PR.
+- **UI-37 DONE** (handoffs/UI-37.md; the owner's question): the League records and the trophy shelf list only the Leagues the League Board offers, so the provisional House Campaign (off the board since UI-16) no longer shows in the game. Beside the test slice it is still offered and listed.
 - **Codex** has been out of tokens since 2026-11-19 and returns about Friday 2026-11-21. Its Wave 14 queue: AV-N4, AV-N5, UI-A6, then UI-A9-H, and the proposed AV-UI1.
 
 ## Decisions and invariants
