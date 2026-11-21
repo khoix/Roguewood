@@ -201,10 +201,12 @@ func _stage_three() -> void:
 	await _wait_for(func(): return scene.screen == "menu", "Clubhouse")
 	await _enter(scene.enter)
 	_check(lab.career_attempt == 3, "Enter League begins attempt uid 3")
-	# Practice before the first throw: the policy is on the toggle and the match bar.
+	# Practice before the first throw (E09's target-free Division, a test fixture since
+	# UI-39 moved practice to How to Play): the policy is on the match bar.
 	await _focus_accept(scene.options)
-	_check(lab.settings_panel.practice.text.contains("no unlocks"), "the Practice toggle states the policy before starting")
-	await _focus_accept(lab.settings_panel.practice)
+	_check(lab.settings_panel.find_child("PracticeMode", true, false) == null, "UI-39: Throw Settings has no Practice toggle")
+	lab.settings_panel.use_practice()
+	await process_frame
 	if not lab.settings_panel.assist.button_pressed: await _focus_accept(lab.settings_panel.assist)
 	if not lab.settings_panel.reduced_motion.button_pressed: await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)

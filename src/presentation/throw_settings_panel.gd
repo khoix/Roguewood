@@ -1,7 +1,7 @@
 extends PanelContainer
 ## In-session throw settings: handedness, flick sensitivity, reduced motion, larger
-## touch targets, the accessible controls (the equipment model is the deck, ADR 004) and
-## E09 practice mode. Values live in the shell's settings
+## touch targets and the accessible controls (the equipment model is the deck, ADR 004;
+## E09's practice is a test fixture since UI-39). Values live in the shell's settings
 ## dictionary so they survive Restart Session; saving them is E25 work.
 signal changed
 ## UI-15 (owner, 2026-11-18): Back returns to the menu that opened this page.
@@ -39,7 +39,6 @@ var reduced_motion: CheckButton
 var reduced_flash: CheckButton
 var large_targets: CheckButton
 var assist: CheckButton
-var practice: CheckButton
 var close: Button
 var _sensitivity_label: Label
 var haptics: CheckButton
@@ -119,8 +118,8 @@ func _ready() -> void:
 	box.add_child(tuning_button)
 	# ADR 004 decided the draw-and-cycle deck (owner, 2026-11-04): the player's Options
 	# no longer offer direct selection. It stays a test fixture (use_equipment).
-	# E09: practice drops the Division's targets (applies to an attempt not yet thrown).
-	practice = _toggle(box, "PracticeMode", "Practice (no targets; no unlocks)", "practice")
+	# UI-39 (owner, 2026-11-21): no Practice toggle here; How to Play's Practice is
+	# the practice mode. settings.practice stays a test fixture (use_practice).
 	# UI-15 (owner, 2026-11-18): Back, centred at the bottom, returns to the menu.
 	close = Button.new()
 	close.name = "CloseSettings"
@@ -200,6 +199,11 @@ func _store_tuning(key: String, value: float) -> void:
 ## Test fixture only: switches the equipment model (direct selection is not a player option).
 func use_equipment(model: String) -> void:
 	_store("equipment", model)
+
+## Test fixture only (UI-39: no longer a player option): E09's target-free Division,
+## for journeys that test their own subsystem. Applies before the first throw.
+func use_practice(on: bool = true) -> void:
+	_store("practice", on)
 
 func _toggle(box: Container, node_name: String, text: String, key: String) -> CheckButton:
 	var toggle := CheckButton.new()

@@ -59,3 +59,15 @@ A **Graphics** page in the match menu and the Clubhouse menu (after Sound & Effe
 ## Follow-up
 - With the log from the phone, find the long frames' cause (shader warm-up at match start, or memory).
 - **Codex:** large source art drawn small costs GPU memory on phones. The art pipeline could ship display-sized copies.
+
+## Follow-up, PERF-1b: the texture sweep's cost (owner, 2026-11-21)
+- **The note:** "Putting textures on anything but normal drops the game to under 20 FPS, making the game almost unplayable. All performance settings stay around 60 FPS."
+- **Cause:** every 2 s the sweep walked the whole tree, and for each node already drawing a copy it reloaded the original by path (`_recall` → `load`). The original had been freed on purpose, so each pass decoded and uploaded every full-size image again. It also re-read each shader's uniform list.
+- **Fix:**
+  - Art already at the current level is skipped without loading anything (`_settled`).
+  - Only nodes that can hold art are followed (weak references), revisited every 3 s, 40 a frame.
+  - Each shader's texture uniforms are read once.
+  - At most one new copy is made a frame, by halving steps instead of one Lanczos pass; a node waiting for its copy is retried next frame.
+- **Measured** (rendered native run, House match): the sweep now costs 0.03 ms a frame (Low) and 0.05 ms (High), worst 18 ms when a copy is made. GPU memory is unchanged: Low 76.5 MB, Normal 142 MB.
+- **J11 (rendered):** after the swap, the sweep must average under 0.3 ms a frame, worst under 60 ms.
+- **Not tested:** the phone's frame rate at Low and High textures.

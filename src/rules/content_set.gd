@@ -38,6 +38,9 @@ const SETS := {
 	# UI-13: the tutorial's fixed practice lane (one short House Division, fixed first shop).
 	# It is in no unlock registry: the shell plays it on a throwaway Career, unsaved.
 	"tutorial": {"catalogue": "res://content/catalogue.json", "league": "res://content/tutorial/league.json", "unlocks": LAB_UNLOCKS},
+	# UI-39: How to Play's practice lane (House Ball only, endless ten-frame games). In no
+	# unlock registry: the shell plays it on a throwaway Career, unsaved.
+	"practice": {"catalogue": "res://content/catalogue.json", "league": "res://content/practice/league.json", "unlocks": LAB_UNLOCKS},
 	# J03C20 only (E18-C20): the Salvage rules and lanes on three short Divisions.
 	"salvage_c20": {"catalogue": "res://content/catalogue.json", "league": "res://content/fixtures/salvage_c20_league.json", "unlocks": "res://content/fixtures/salvage_c20_unlocks.json"},
 }

@@ -41,7 +41,8 @@ func _run() -> void:
 	lab.trial_log_path = ""
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.practice)
+	lab.settings_panel.use_practice()
+	await process_frame
 	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	_check(lab.division.practice and lab.equipment.MODEL == "deck" and not lab.settings.reduced_motion, "Practice with the deck and the contracting ring")
 	await _strike_out()

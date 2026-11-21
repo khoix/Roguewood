@@ -339,6 +339,9 @@ func _start_session() -> void:
 	if content.id == "tutorial": # Restart run within the tutorial starts it again
 		_begin_tutorial()
 		return
+	if content.id == "practice": # UI-39: Restart in practice starts practice again
+		_begin_attempt(1)
+		return
 	if _offer_tutorial():
 		start_tutorial(true)
 		return
@@ -350,11 +353,19 @@ func _offer_tutorial() -> bool:
 	return show_title_on_start() and not WebQA.requested() and int(career.get("attempts", 0)) == 0 \
 		and not bool(career.get("tutorial", {}).get("seen", false))
 
+## UI-39: How to Play's Practice: the practice lane (content set "practice"), endless
+## games with the House Ball. Like the tutorial, nothing counts: a throwaway Career,
+## no saves. Leaving returns the League Board to the League chosen before.
+func start_practice() -> void:
+	if content.id not in ["tutorial", "practice"]: _tutorial_return = content.id
+	content = ContentSet.load_set("practice")
+	_begin_attempt(1)
+
 ## Plays the tutorial on its practice lane. first_run: it was the player's first
 ## Enter League, so its last step (and Skip) go on to the chosen League.
 func start_tutorial(first_run: bool = false) -> void:
 	tutorial_first_run = first_run
-	if content.id != "tutorial": _tutorial_return = content.id
+	if content.id not in ["tutorial", "practice"]: _tutorial_return = content.id
 	var record: Dictionary = career.get("tutorial", {})
 	record["seen"] = true
 	career["tutorial"] = record
@@ -402,7 +413,7 @@ func _end_tutorial() -> void:
 	if coach != null:
 		coach.queue_free()
 		coach = null
-	if content.id == "tutorial":
+	if content.id in ["tutorial", "practice"]:
 		content = ContentSet.load_set(_tutorial_return if not _tutorial_return.is_empty() else league_sets[league.selected])
 
 ## The menu button (three bars, drawn; Codex can supply an icon by asset later) and
@@ -580,6 +591,13 @@ func _build_how_to_play(sheet: Control) -> void:
 		_show_club_entries()
 		start_tutorial(false))
 	_how_caption("A guided practice lane")
+	# UI-39 (owner, 2026-11-21): free practice: the House Ball, endless games.
+	var practice := _button(club_how_list, "Practice", "ClubPractice", 320)
+	practice.pressed.connect(func():
+		club_menu.hide()
+		_show_club_entries()
+		start_practice())
+	_how_caption("The House Ball, no items, endless games")
 	var talk := _button(club_how_list, "Talk the Talk", "ClubTalkTheTalk", 320)
 	talk.pressed.connect(open_glossary)
 	_how_caption("Bowling words, explained with pictures")
@@ -778,7 +796,7 @@ func new_run_seed() -> int:
 func _begin_attempt(attempt: int, saved: Dictionary = {}) -> void:
 	_stop_clubhouse_music()
 	var run_seed := attempt
-	if saved.is_empty() and random_runs and content.id not in ["campaign", "tutorial"]:
+	if saved.is_empty() and random_runs and content.id not in ["campaign", "tutorial", "practice"]:
 		attempt = int(career.get("attempts", 0)) + 1
 		run_seed = new_run_seed()
 	if content.id == "campaign": content = ContentSet.load_set("campaign", int(saved.get("seed", attempt)))
@@ -820,9 +838,10 @@ func _begin_attempt(attempt: int, saved: Dictionary = {}) -> void:
 	lab.attempt = attempt
 	lab.save_store = store
 	lab.restore_from = saved
-	if content.id == "tutorial":
+	if content.id in ["tutorial", "practice"]:
 		# UI-13: a practice lane. A throwaway Career and no saves, so nothing counts;
 		# the same seed every time, so the cards and the first shop never change.
+		# UI-39: the same for How to Play's Practice.
 		lab.career = CareerProfile.fresh()
 		lab.save_store = null
 		lab.equipment_seed = TUTORIAL_SEED

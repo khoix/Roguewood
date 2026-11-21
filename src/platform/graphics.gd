@@ -20,7 +20,8 @@ const LOW_DENSITY := 2.0
 const TEXTURE_CAP := 512
 const LONG_FRAME_MS := 150.0
 const LOG_SIZE := 60
-const SWEEP_PER_FRAME := 120
+const SWEEP_PER_FRAME := 40
+const REVISIT_SECONDS := 3.0
 const ORIGINAL := &"rw_graphics_original"
 
 var settings: Dictionary = DEFAULTS.duplicate()
@@ -39,7 +40,14 @@ var back_button: Button
 var _on_back: Callable
 var _copies := {} # source texture id -> its copy at the current level
 var _made := {} # ids of copies made here, never processed again
-var _queue: Array = []
+var _queue: Array = [] # weak references to nodes still to check
+var _held: Array = [] # weak references to every node that can hold art
+var _fresh: Array = [] # nodes added since the last frame
+var _sampler_names := {} # shader id -> its texture uniforms
+var sweep_usec := 0 # the sweep's time this frame (tests hold it to a budget)
+var sweep_worst_usec := 0
+var _copied_this_frame := false
+var _retry := false
 var _sweep_at := 0.0
 var _last_usec := 0
 var _added := 0
@@ -124,34 +132,63 @@ func density() -> float:
 
 # --- Texture detail ---------------------------------------------------------
 
+## Only nodes that can draw art are followed: those with a texture property, a
+## canvas shader material or a 3D material override.
+static func _can_hold_art(node: Node) -> bool:
+	return not _texture_props(node).is_empty() or (node is CanvasItem and node.material is ShaderMaterial) \
+		or (node is GeometryInstance3D and node.material_override != null)
+
 func _node_added(node: Node) -> void:
 	_added += 1
-	if level("textures") != "normal" or not _copies.is_empty():
-		_queue.append(node)
+	if level("textures") != "normal" or swapped > 0:
+		_fresh.append(node) # checked once it has settled (its art often arrives after it joins)
 
-## Every node, a few at a time (art often arrives after a node joins the tree).
+## On a level change: every node that can hold art, a few a frame.
 func _restart_sweep() -> void:
 	_copies.clear()
-	_queue = get_tree().root.find_children("*", "", true, false)
+	_held.clear()
+	for node in get_tree().root.find_children("*", "", true, false):
+		if _can_hold_art(node): _held.append(weakref(node))
+	_queue = _held.duplicate()
 	_sweep_at = 0.0
 
+## PERF-1b (owner, 2026-11-21: Low or High textures dropped a phone under 20 fps):
+## the sweep is incremental and cheap. Art already drawn at the current level is
+## skipped without loading anything; only nodes that can hold art are followed; the
+## followed list is revisited every few seconds for art changed since.
 func _sweep(delta: float) -> void:
-	if level("textures") == "normal" and _queue.is_empty() and swapped == 0: return
+	if level("textures") == "normal" and _queue.is_empty() and _fresh.is_empty() and swapped == 0: return
+	var start := Time.get_ticks_usec()
 	_sweep_at += delta
-	if _queue.is_empty() and _sweep_at >= 2.0:
+	if not _fresh.is_empty():
+		for node in _fresh:
+			if is_instance_valid(node) and _can_hold_art(node):
+				_held.append(weakref(node))
+				_queue.append(_held.back())
+		_fresh.clear()
+	if _queue.is_empty() and _sweep_at >= REVISIT_SECONDS:
 		_sweep_at = 0.0
-		_queue = get_tree().root.find_children("*", "", true, false)
+		_held = _held.filter(func(ref): return ref.get_ref() != null)
+		_queue = _held.duplicate()
+	_copied_this_frame = false
 	var count := 0
 	while not _queue.is_empty() and count < SWEEP_PER_FRAME:
-		var node = _queue.pop_back()
+		var ref: WeakRef = _queue.pop_back()
+		var node = ref.get_ref()
 		count += 1
-		if is_instance_valid(node): _treat_node(node)
+		if node == null: continue
+		_retry = false
+		_treat_node(node)
+		if _retry: _queue.push_front(ref) # waits for next frame's copy
+	sweep_usec = Time.get_ticks_usec() - start
+	sweep_worst_usec = maxi(sweep_worst_usec, sweep_usec)
 
 func _treat_node(node: Node) -> void:
 	if node == page or (page != null and page.is_ancestor_of(node)): return
 	for prop in _texture_props(node):
 		var current = node.get(prop)
 		if not (current is Texture2D): continue
+		if _settled(current): continue
 		var key: String = String(ORIGINAL) + String(prop)
 		# A node remembers its own art (by path, so the full-size texture can be freed)
 		# while it draws a copy; art set since (not a copy made here) is the source now.
@@ -182,12 +219,17 @@ static func _texture_props(node: Node) -> Array:
 func _treat_material(material: Material) -> void:
 	var names: Array = []
 	if material is ShaderMaterial and material.shader != null:
-		for uniform in material.shader.get_shader_uniform_list(): names.append(uniform.name)
+		var shader_id: int = material.shader.get_instance_id()
+		if not _sampler_names.has(shader_id):
+			# Read once per shader: only its texture uniforms.
+			_sampler_names[shader_id] = material.shader.get_shader_uniform_list().filter(
+				func(u): return u.hint_string == "Texture2D" or u.type == TYPE_OBJECT).map(func(u): return u.name)
+		names = _sampler_names[shader_id]
 	elif material is BaseMaterial3D:
 		names.append("albedo_texture")
 	for prop in names:
 		var current = material.get_shader_parameter(prop) if material is ShaderMaterial else material.get(prop)
-		if not (current is Texture2D): continue
+		if not (current is Texture2D) or _settled(current): continue
 		var key: String = String(ORIGINAL) + String(prop)
 		var source: Texture2D = _recall(material, key) if _made.has(_id(current)) else current
 		if source == null: continue
@@ -213,6 +255,14 @@ static func _recall(holder: Object, key: String) -> Texture2D:
 	if kept is String: return load(kept) as Texture2D
 	return kept.get_ref() as Texture2D if kept is WeakRef else null
 
+## Art that needs nothing at this level: a copy made for it, or art the level leaves
+## as it is (small art, or every texture at Normal). Nothing is loaded to decide.
+func _settled(texture: Texture2D) -> bool:
+	var made = _made.get(_id(texture))
+	if made != null: return made == level("textures")
+	if level("textures") == "normal": return true
+	return maxi(texture.get_width(), texture.get_height()) <= TEXTURE_CAP and not (texture is AtlasTexture)
+
 static func _id(texture) -> int:
 	return texture.get_instance_id() if texture != null else 0
 
@@ -223,11 +273,23 @@ func _for_level(source: Texture2D) -> Texture2D:
 	if maxi(source.get_width(), source.get_height()) <= TEXTURE_CAP and not (source is AtlasTexture): return source
 	var cache_key = source.resource_path if not source.resource_path.is_empty() else _id(source)
 	if _copies.has(cache_key): return _copies[cache_key]
-	var copy: Texture2D = _atlas_copy(source) if source is AtlasTexture else _image_copy(source)
+	var copy: Texture2D = null
+	if source is AtlasTexture:
+		if source.atlas != null and maxi(source.atlas.get_width(), source.atlas.get_height()) > TEXTURE_CAP:
+			var sheet := _for_level(source.atlas)
+			if sheet == source.atlas: return source # its sheet waits for a later frame
+			copy = _atlas_from(source, sheet)
+	else:
+		# One new copy a frame (each is a resize); the node is retried next frame.
+		if _copied_this_frame:
+			_retry = true
+			return source
+		_copied_this_frame = true
+		copy = _image_copy(source)
 	if copy == null: copy = source
 	_copies[cache_key] = copy
 	if copy != source:
-		_made[_id(copy)] = true
+		_made[_id(copy)] = level("textures")
 		swapped += 1
 	return copy
 
@@ -236,17 +298,19 @@ func _image_copy(source: Texture2D) -> Texture2D:
 	if image == null or image.is_empty(): return null
 	if image.is_compressed() and image.decompress() != OK: return null
 	if level("textures") == "low":
+		# Halving steps, then one last step: close to a box filter, and far quicker on
+		# a phone than one Lanczos pass from the full size.
 		var scale := float(TEXTURE_CAP) / maxf(image.get_width(), image.get_height())
-		image.resize(maxi(1, roundi(image.get_width() * scale)), maxi(1, roundi(image.get_height() * scale)), Image.INTERPOLATE_LANCZOS)
+		var target := Vector2i(maxi(1, roundi(image.get_width() * scale)), maxi(1, roundi(image.get_height() * scale)))
+		while image.get_width() >= target.x * 2 and image.get_height() >= target.y * 2:
+			image.resize(image.get_width() / 2, image.get_height() / 2, Image.INTERPOLATE_BILINEAR)
+		image.resize(target.x, target.y, Image.INTERPOLATE_BILINEAR)
 	else:
 		image.generate_mipmaps()
 	return ImageTexture.create_from_image(image)
 
 ## An atlas region keeps its place in a scaled sheet.
-func _atlas_copy(source: AtlasTexture) -> Texture2D:
-	if source.atlas == null or maxi(source.atlas.get_width(), source.atlas.get_height()) <= TEXTURE_CAP: return null
-	var sheet := _for_level(source.atlas)
-	if sheet == source.atlas: return null
+static func _atlas_from(source: AtlasTexture, sheet: Texture2D) -> Texture2D:
 	var scale := float(sheet.get_width()) / source.atlas.get_width()
 	var copy := AtlasTexture.new()
 	copy.atlas = sheet

@@ -149,7 +149,7 @@ Saves live in one directory: `user://saves`, or the shell's `--save-dir=`.
 - `item.physics`: balls `{mass_scale 0.5–2, spin_response 0–2}`, pins `{mass_scale, bounce 0–0.6}`; other categories have none.
 A v1 catalogue using any of these is refused.
 
-**Frame v2** (`FrameBuilder.build(loadout, catalogue, reports, extras, context)` always emits it): frame `context {match_frame, strike_streak}` (consecutive strikes before this frame); pin and Charm `growth`; roll `first_direct` (0–10, must have fallen that roll) and `curved`. The resolver returns `strike_streak` (after this frame) and `retriggers`. Events gain `effect_index`, and `count`/`base`/`per`, `condition` and `cause` (the roll behind a retrigger) when they apply. v1 frames resolve exactly as before.
+**Frame v2** (`FrameBuilder.build(loadout, catalogue, reports, extras, context)` always emits it): frame `context {match_frame, strike_streak}` (consecutive strikes before this frame; `match_frame` 1–10 since UI-39, for the practice lane's ten-frame games); pin and Charm `growth`; roll `first_direct` (0–10, must have fallen that roll) and `curved`. The resolver returns `strike_streak` (after this frame) and `retriggers`. Events gain `effect_index`, and `count`/`base`/`per`, `condition` and `cause` (the roll behind a retrigger) when they apply. v1 frames resolve exactly as before.
 
 **Run state:** each owned entry has `growth`; the run has `strike_streak`. `apply_frame(result, frame)` banks growth and the streak; `settle_match` also grows match-end Charms and reports `grown`. `move_charm_left(slot)` reorders Charms. Missing fields default to 0.
 

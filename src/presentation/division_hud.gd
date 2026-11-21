@@ -44,6 +44,7 @@ var current_rival: Dictionary = {}
 var reduced_motion := false
 var side_box: BoxContainer
 var money: Label
+var money_hidden := false # UI-39: the practice lane has no money
 var title_label: Label
 var _titles := ["", ""] # the bar's title, and the short one the slim roll-view bar shows
 var _slim := false
@@ -472,7 +473,7 @@ func layout_regions(bar_rect: Rect2, bubble: Rect2, portrait: bool, slim: bool =
 	badge.custom_minimum_size = Vector2(0, 40)
 	# The roll view's slim bar: the match and its score only.
 	badges.visible = not slim
-	money_slot.visible = not slim
+	money_slot.visible = not slim and not money_hidden
 	frames_label.visible = not slim
 	_bar_width = bar_rect.size.x
 	_bar_portrait = portrait
