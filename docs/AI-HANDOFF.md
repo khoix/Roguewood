@@ -29,7 +29,7 @@ The owner asked for tests that take less time and fewer tokens. For both agents:
 
 ## Current state
 - **Integration:** the owner merges `claude/roguewood-build` into main by PR. Claude restarts or fast-forwards it from main after each merge. Codex pushes `codex/roguewood-build` and opens no PRs.
-- **Merged:** PRs #51 (main `5f4df32`), #52 (`4c54786`), #53 (`b78b7c2`), #54 (`2605a3b`), #55 (`6536427`) #56 (`6204f4c`) and #57 (`7f5f45f`), 2026-11-20/21.
+- **Merged:** PRs #51 (main `5f4df32`), #52 (`4c54786`), #53 (`b78b7c2`), #54 (`2605a3b`), #55 (`6536427`) #56 (`6204f4c`), #57 (`7f5f45f`) and #58 (`90ed9d3`), 2026-11-20/21.
 - **For the next PR** (merged into `claude/roguewood-build` after #51): QA-1…QA-8, the testing changes above. Full local matrix: 28 min (was 64). CI #533 PASS: game 21 min, art 31 min (were 44–60 and 60–77).
 - **UI-32 DONE** (handoffs/UI-32.md; the owner's play notes, 2026-11-20): the shop's **Inventory** (Charms in a drag-to-reorder row on top, the other items below, tap to review or sell) and the payout and rack as a themed slip (payout rows and total; the rack as a triangle of pin art; reserves; Charms and Deck chips). Checks: `unit`, `content` and all 73 shop journeys headless; J05, J06, JTUT, JAVC04B, J03C07–C10 and J11 rendered: PASS.
 - **BAL-1 DONE** (handoffs/BAL-1.md; agreed with the owner, 2026-11-20): a release inside the ring adds 10 Value; sweet and perfect add +1 and +2 Mult on top (a plain strike 560 / 600 / 750 / 900). The simulation moves 0–5 points of League wins and 4–9 of Division 1 clears; the targets stay. New fixed values: J03 600/260/70, J05 match 2 25920.
@@ -47,6 +47,8 @@ The owner asked for tests that take less time and fewer tokens. For both agents:
 - **PR #57 merged** (owner, 2026-11-21; main `7f5f45f`): UI-37 and UI-36's corrected cause.
 - **UI-38 DONE** (handoffs/UI-38.md; the owner's play notes): on desktop the loader's pin fell as soon as the download reached 100%, while the ball was still rolling. The pin now falls when the ball reaches it (and in the fallback loop and the finale). JW01 checks it.
 - **UI-38b DONE** (handoffs/UI-38.md; the owner's play notes): on the award screen, while the last award shows (the last goal, or the last trophy with no goals, or the summary after Skip), the sound effects ease down over 5 s to half the awards music's volume; sounds already playing follow. Without the awards track they stay as they are. J06 checks it.
+- **PR #58 merged** (owner, 2026-11-21; main `90ed9d3`): UI-38 and UI-38b.
+- **PERF-1 DONE** (handoffs/PERF-1.md; the owner's play notes and direction): a **Graphics** page (match and Clubhouse menus, saved on the device): Resolution (Low ≤2× density / Normal / High +2× lane anti-aliasing), Texture Detail (Low 512 px copies / Normal / High smoothed mipmaps), and a Performance Log (frames over 150 ms and lost contexts, with Copy). A lost WebGL context shows a Tap to Reload screen instead of the alert. Low textures: a House match 142 → 77 MB GPU. Defaults change nothing. Not tried on a phone.
 - **Codex** has been out of tokens since 2026-11-19 and returns about Friday 2026-11-21. Its Wave 14 queue: AV-N4, AV-N5, UI-A6, then UI-A9-H, and the proposed AV-UI1.
 
 ## Decisions and invariants

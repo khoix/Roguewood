@@ -79,6 +79,7 @@ async function load(label, tap = true) {
       theme: document.querySelector('meta[name="theme-color"]')?.getAttribute("content"),
       homeName: document.querySelector('meta[name="apple-mobile-web-app-title"]')?.getAttribute("content"),
       title: document.title,
+      cap: window.rwDensity ? window.rwDensity.cap : null, // PERF-1: the density cap while the engine loads
     };
   });
   if (!tap) await page.screenshot({ path: path.join(outDir, "web_loading.png") });
@@ -165,6 +166,23 @@ try {
     `with no known download size the ball rolls and knocks the pin over in a loop (${JSON.stringify(loader.idle)})`);
   check(loader.found && loader.finale.back && loader.finale.pinDown && loader.finale.progress === "1.000" && loader.finale.taps === "none" && loader.finale.gone,
     `when the engine removes its overlay, the knockdown plays out, taps pass through, then it goes (${JSON.stringify(loader.finale)})`);
+  // PERF-1: the page caps the canvas's pixel density for the Resolution setting, and
+  // the engine follows it live (here a cap of 0.5 halves the canvas, then is lifted).
+  const density = await page.evaluate(async () => {
+    const canvas = document.querySelector("canvas");
+    const frames = (n) => new Promise((r) => { let i = 0; const f = () => (++i >= n ? r() : requestAnimationFrame(f)); requestAnimationFrame(f); });
+    const before = { dpr: window.devicePixelRatio, width: canvas.width, cap: window.rwDensity ? window.rwDensity.cap : null };
+    if (!window.rwDensity) return { before };
+    window.rwDensity.cap = 0.5;
+    await frames(20);
+    const capped = { dpr: window.devicePixelRatio, width: canvas.width };
+    window.rwDensity.cap = 0;
+    await frames(20);
+    return { before, capped, after: { dpr: window.devicePixelRatio, width: canvas.width }, inner: window.innerWidth };
+  });
+  check(density.before.cap === 0 && density.capped && density.capped.dpr === 0.5 && Math.abs(density.capped.width - density.inner * 0.5) <= 1
+    && density.after.width === density.before.width, `PERF-1: the canvas follows the density cap live (${JSON.stringify(density)})`);
+  check(titled.s.graphics && titled.s.graphics.resolution === "normal" && titled.s.graphics.textures === "normal", `PERF-1: Graphics starts at Normal (${JSON.stringify(titled.s.graphics)})`);
   await page.screenshot({ path: path.join(outDir, "web_title.png") });
   // The browser's first tap, on the title, is the user gesture that lets audio start.
   await click(titled.s.title.at);
@@ -214,13 +232,39 @@ try {
   check(true, `roll 1 settled (state ${s.state}) and the attempt is saved`);
   await page.waitForTimeout(1500); // let the browser flush user:// to IndexedDB
 
+  // PERF-1: a saved Low resolution caps the density while the engine loads (the
+  // game's own saved setting, Normal here, then takes over once it starts).
+  await page.evaluate(() => localStorage.setItem("rw.resolution", "low"));
   const second = await load("reload");
+  const cap = await page.evaluate(() => window.rwDensity && window.rwDensity.cap);
+  check(second.head.cap === 2 && cap === 0 && second.s.graphics.resolution === "normal",
+    `PERF-1: a saved Low resolution caps the density at 2x while the engine loads; the game's setting then rules (${second.head.cap} → ${cap})`);
   check(second.s.saved && second.s.continue.visible, "after a reload the menu offers Continue Attempt from IndexedDB");
   await click(second.s.continue.at);
   s = await waitFor((s) => s.screen === "session" && s.history >= 1, "the attempt resumes with its roll", 30000);
   check(s.history >= 1, `the resumed attempt keeps its committed roll (history ${s.history}, state ${s.state})`);
   await page.screenshot({ path: path.join(outDir, "web_resumed.png") });
   check(errors.length === 0, `no script errors (${errors.slice(0, 3).join(" | ")})`);
+  // PERF-1: a lost WebGL context (forced here) shows the reload screen, not the
+  // engine's alert; a tap reloads, and the Performance log records the loss.
+  let dialogs = 0;
+  page.on("dialog", (d) => { dialogs++; d.dismiss().catch(() => {}); });
+  const lost = await page.evaluate(async () => {
+    const gl = document.querySelector("canvas").getContext("webgl2");
+    const ext = gl && gl.getExtension("WEBGL_lose_context");
+    if (!ext) return { ext: false };
+    ext.loseContext();
+    for (let i = 0; i < 50 && !document.getElementById("rw-lost"); i++) await new Promise((r) => setTimeout(r, 100));
+    const o = document.getElementById("rw-lost");
+    return { ext: true, shown: !!o && getComputedStyle(o).display === "flex", text: o ? o.innerText.split("\n")[0] : "", noted: !!localStorage.getItem("rw.contextLost") };
+  });
+  await page.screenshot({ path: path.join(outDir, "web_context_lost.png") });
+  check(lost.ext && lost.shown && lost.text === "The lane lost its picture" && lost.noted && dialogs === 0,
+    `PERF-1: a lost WebGL context shows the reload screen, no alert (${JSON.stringify(lost)}, ${dialogs} dialogs)`);
+  status = null;
+  await Promise.all([page.waitForNavigation({ waitUntil: "load" }), page.click("#rw-lost button")]);
+  s = await waitFor((s) => s.screen === "title" && s.graphics, "PERF-1: the reload starts the game again", 120000);
+  check(s.graphics.lost, `PERF-1: after the reload the Performance log records the lost context (${JSON.stringify(s.graphics)})`);
   if (injectFailure) check(false, "Injected diagnostic failure");
 } catch (e) {
   if (!failures.length) check(false, String(e));

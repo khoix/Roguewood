@@ -79,6 +79,30 @@ STYLE = (
     # The finale: the ball reaches the pin, the pin falls, then the screen fades into the game.
     # UI-38: the pin waits for the ball, which takes up to the roll's .5s to arrive.
     "#rw-loader.finale #rw-pin{transition-delay:.5s;}"
+    # PERF-1 (owner, 2026-11-21): a lost WebGL context gets a themed reload screen
+    # instead of the engine's alert.
+    "#rw-lost{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:rgba(8,13,20,.88);font-family:system-ui,sans-serif;padding:16px;box-sizing:border-box;}"
+    "#rw-lost .rw-card{max-width:420px;width:100%;background:#101820;border:3px solid #e7bc70;border-radius:6px;padding:24px 20px;text-align:center;color:#f4e6cd;box-shadow:0 8px 32px rgba(0,0,0,.6);}"
+    "#rw-lost b{display:block;font-size:22px;color:#e7bc70;margin-bottom:10px;}"
+    "#rw-lost p{font-size:16px;line-height:1.4;margin:0 0 18px;color:#c9d3cf;}"
+    "#rw-lost button{font:inherit;font-size:18px;font-weight:700;color:#101820;background:#e7bc70;border:0;border-radius:4px;padding:14px 28px;min-height:52px;}"
+    "#rw-lost small{display:block;margin-top:14px;font-size:13px;color:#95d9cb;}"
+)
+## PERF-1, before the engine starts: the saved Resolution level caps the canvas's
+## pixel density (Low: 2x), and a lost WebGL context shows the reload screen (the run
+## is saved after every roll) and is noted for the Performance log.
+EARLY = (
+    "(function(){var d=Object.getOwnPropertyDescriptor(window,'devicePixelRatio')||Object.getOwnPropertyDescriptor(Window.prototype,'devicePixelRatio');"
+    "var fixed=window.devicePixelRatio||1;function real(){try{return d&&d.get?d.get.call(window):fixed;}catch(e){return fixed;}}"
+    "window.rwDensity={real:real,cap:0};try{if(localStorage.getItem('rw.resolution')==='low')window.rwDensity.cap=2;}catch(e){}"
+    "try{Object.defineProperty(window,'devicePixelRatio',{configurable:true,get:function(){var r=real()||1,c=window.rwDensity.cap;return c>0?Math.min(r,c):r;}});}catch(e){}"
+    "function stamp(){var t=new Date(),p=function(n){return(n<10?'0':'')+n;};return t.getFullYear()+'-'+p(t.getMonth()+1)+'-'+p(t.getDate())+' '+p(t.getHours())+':'+p(t.getMinutes())+':'+p(t.getSeconds());}"
+    "function lost(){if(document.getElementById('rw-lost'))return;try{localStorage.setItem('rw.contextLost',stamp());}catch(e){}"
+    "var o=document.createElement('div');o.id='rw-lost';"
+    "o.innerHTML='<div class=\"rw-card\"><b>The lane lost its picture</b><p>The browser took back its graphics memory. Your run is saved after every roll.</p><button type=\"button\">Tap to Reload</button><small>Graphics in the menu can lighten the load (Resolution and Texture Detail: Low).</small></div>';"
+    "o.addEventListener('click',function(){location.reload();});document.body.appendChild(o);}"
+    "window.rwContextLost=lost;var a=window.alert;window.alert=function(m){if(String(m).indexOf('WebGL context lost')>=0){lost();return;}return a.apply(window,arguments);};"
+    "})();"
 )
 SCRIPT = (
     "(function(){function go(root){var st=root instanceof Element?root:document.getElementById('status'),pr=st&&st.querySelector('#status-progress');"
@@ -110,11 +134,12 @@ def main():
     text = open(path, encoding="utf-8").read()
     match = re.search(r'^html/head_include="(.*)"$', text, re.M)
     head = match.group(1).replace('\\"', '"')
-    head = re.sub(r"<script id=\"rw-loader-js\">.*?</script>", "", head)
+    head = re.sub(r"<script id=\"rw-(?:loader|early)-js\">.*?</script>", "", head)
     head = re.sub(r"#status-progress\{[^}]*\}", "", head)
-    head = re.sub(r"@keyframes rw-[a-z]+\{[^{}]*\{[^}]*\}\}", "", head)
+    head = re.sub(r"@keyframes rw-[a-z]+\{(?:[^{}]*\{[^}]*\})*\}", "", head)
     head = re.sub(r"#rw-[^{]*\{[^}]*\}", "", head)
     head = head.replace("</style>", STYLE + "</style>", 1)
+    head += '<script id="rw-early-js">' + EARLY + "</script>"
     head += '<script id="rw-loader-js">' + SCRIPT + "</script>"
     escaped = head.replace("\\", "\\\\").replace('"', '\\"')
     text = text[:match.start()] + 'html/head_include="' + escaped + '"' + text[match.end():]

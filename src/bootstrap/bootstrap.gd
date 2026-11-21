@@ -61,6 +61,7 @@ var tap_sound: AudioStreamPlayer
 var ui_sounds: UiSounds
 var club_menu_button: Button
 var sound_entry: Button # UI-15: the session menu's Sound & Effects
+var graphics_entry: Button # PERF-1: the session menu's Graphics
 var _menu_page := "" # the session menu's page that is open: "throw", "sound" or ""
 var club_menu: Control
 var club_menu_list: VBoxContainer
@@ -449,6 +450,9 @@ func _build_session_menu() -> void:
 	options.pressed.connect(func(): _open_page("throw"))
 	sound_entry = add_menu_entry("Sound & Effects", "SoundOptions", func(): pass, false)
 	sound_entry.pressed.connect(func(): _open_page("sound"))
+	# PERF-1 (owner, 2026-11-21): resolution, texture detail and the performance log.
+	graphics_entry = add_menu_entry("Graphics", "GraphicsOptions", func(): pass, false)
+	graphics_entry.pressed.connect(func(): _open_page("graphics"))
 	back = add_menu_entry("Clubhouse", "BackToMenu", exit_to_clubhouse)
 	# Restart discards the attempt, so it asks once: the first press arms it.
 	reset = add_menu_entry("Restart Run", "ResetSession", func(): pass, false)
@@ -459,6 +463,10 @@ func _build_session_menu() -> void:
 		else:
 			_restart_armed = true
 			reset.text = "Discard This Run? Press Again")
+
+## PERF-1: the Graphics autoload (src/platform/graphics.gd).
+func graphics() -> Node:
+	return get_node("/root/Graphics")
 
 ## Three drawn bars on a menu button.
 static func _draw_bars(button: Button) -> void:
@@ -475,7 +483,9 @@ func _open_page(page: String) -> void:
 	if lab == null: return
 	session_menu.hide()
 	_menu_page = page
-	if page == "sound":
+	if page == "graphics":
+		graphics().open(_page_back.bind("graphics"))
+	elif page == "sound":
 		lab.motion.sound.open()
 	else:
 		lab.settings_panel.show()
@@ -485,7 +495,7 @@ func _page_back(page: String) -> void:
 	if _menu_page != page: return
 	_menu_page = ""
 	open_menu()
-	(sound_entry if page == "sound" else options).grab_focus()
+	{"sound": sound_entry, "graphics": graphics_entry}.get(page, options).grab_focus()
 
 ## UI-12 (owner's play notes, 2026-11-16): the Clubhouse's menu, at its top right.
 ## UI-15 (owner, 2026-11-18): the same entries and pages as a match's menu (Throw
@@ -529,12 +539,17 @@ func _build_club_menu() -> void:
 	# UI-13: the tutorial, any time; UI-24: beside Talk the Talk, on How to Play's page.
 	var how := _button(club_menu_list, "How to Play", "ClubHowToPlay", 320)
 	how.pressed.connect(show_how_to_play)
-	for entry in [["Throw Settings", "ClubOptions", "throw"], ["Sound & Effects", "ClubSound", "sound"]]:
+	for entry in [["Throw Settings", "ClubOptions", "throw"], ["Sound & Effects", "ClubSound", "sound"], ["Graphics", "ClubGraphics", "graphics"]]:
 		var page: String = entry[2]
 		var button := _button(club_menu_list, entry[0], entry[1], 320)
 		button.pressed.connect(func():
 			club_menu.hide()
-			club_options.open(page))
+			if page == "graphics":
+				graphics().open(func():
+					if screen != "menu": return
+					club_menu.show()
+					club_menu_list.get_node("ClubGraphics").grab_focus())
+			else: club_options.open(page))
 	var close_button := _button(club_menu_list, "Close", "CloseClubMenu", 320)
 	close_button.pressed.connect(close_club_menu)
 	_build_how_to_play(sheet)
@@ -651,6 +666,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	# UI-15: Escape on a page goes back to its menu; on a menu, closes it.
 	if _menu_page != "" and lab != null and event.is_action_pressed("ui_cancel"):
 		if _menu_page == "sound": lab.motion.sound.go_back()
+		elif _menu_page == "graphics": graphics().go_back()
 		else: lab.settings_panel.go_back()
 		get_viewport().set_input_as_handled()
 	elif session_menu != null and session_menu.visible and event.is_action_pressed("ui_cancel"):
