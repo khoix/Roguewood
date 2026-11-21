@@ -25,6 +25,7 @@ const STATE_ORDER := ["locked", "available", "discovered", "mastered"]
 
 var career: Dictionary = {}
 var graph: Dictionary = {}
+var league_sets: Array = [] # the content sets the League Board offers; empty lists every League
 var current_tab := "board"
 var category := ""
 var selected_item := ""
@@ -633,7 +634,7 @@ func refresh() -> void:
 		"goals": _refresh_goals()
 
 func _refresh_board() -> void:
-	var rows: Array = Model.board(career, graph)
+	var rows: Array = Model.board(career, graph, league_sets)
 	records_label.text = "\n".join(rows.map(func(row): return Model.record_line(row) + ("" if row.access.is_empty() else " · " + row.access)))
 	var latest: Array = Model.latest(career, graph)
 	latest_label.text = "\n".join(latest.map(func(l): return l.text)) if not latest.is_empty() else "No unlocks yet. Beat a rival for the first time to add an item to the pool."
@@ -872,7 +873,7 @@ func filter_button(key: String) -> Button:
 
 func _refresh_trophies() -> void:
 	_clear(trophy_grid)
-	for slot in Model.trophies(career, graph):
+	for slot in Model.trophies(career, graph, league_sets):
 		if _narrow:
 			trophy_grid.add_child(_trophy_row(slot))
 			continue

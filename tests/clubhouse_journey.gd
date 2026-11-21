@@ -61,6 +61,10 @@ func _ui9_board() -> void:
 		and footer.find_child("FooterRule", true, false) != null, "UI-10: the board ends with a short rule and the footer line")
 	_check(club.league_cards.get_child_count() == club.records_label.text.split("\n").size() and club.records_label.visible == false,
 		"each League's record is a card (%d)" % club.league_cards.get_child_count())
+	var offers_campaign: bool = "campaign" in scene.league_sets
+	_check(club.league_sets == scene.league_sets and club.league_cards.get_child_count() == scene.league_sets.size()
+		and club.records_label.text.contains("House Campaign") == offers_campaign,
+		"UI-37: the League records hold only the Leagues the board offers (%s)" % ", ".join(scene.league_sets))
 
 ## UI-12 (owner's play notes, 2026-11-16): the Clubhouse has a menu at its top right,
 ## with Options and Sound & effects on the same session settings as a match; the

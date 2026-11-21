@@ -918,6 +918,7 @@ func _show_menu() -> void:
 	notice.visible = not notice.text.is_empty() # UI-9: no empty gap under the action
 	save_notice = ""
 	clubhouse.career = career
+	clubhouse.league_sets = league_sets
 	clubhouse.show()
 	clubhouse.show_tab("board")
 	session_menu.hide()

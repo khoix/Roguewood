@@ -1,9 +1,10 @@
 """UI-10 (owner's play notes, 2026-11-15): the web loading screen's progress as a
 bowling ball rolling down a short lane toward a pin, which tips over when loading
 completes. UI-36 (owner, 2026-11-20): on phones it lagged and the knockdown rarely
-showed, so its motion is CSS the browser runs while the game starts, it loops when the
-download has no known size, and it gets a short finale after the engine removes the
-loading overlay. Writes export_presets.cfg's html/head_include: the existing meta tags and
+showed, so its motion is CSS the browser runs while the game starts, and it gets a
+short finale after the engine removes the loading overlay. (It still follows the real
+progress; the loop for an unknown total is a fallback, since the engine takes each
+file's size from the export.) Writes export_presets.cfg's html/head_include: the existing meta tags and
 styles, plus pixel-art SVGs (crisp edges) and a small script that follows the
 engine's own <progress id="status-progress"> (kept in place, invisible).
 Run: python3 tools/author_loader.py"""
@@ -70,7 +71,7 @@ STYLE = (
     "@keyframes rw-spin{to{transform:rotate(360deg);}}"
     "#rw-pin{position:absolute;bottom:6px;right:0;width:16px;height:42px;image-rendering:pixelated;transform-origin:50% 100%;transition:transform .35s ease-in;}"
     "#rw-pin.down{transform:rotate(70deg) translate(6px,0);}"
-    # No total from the server (a compressed download): roll to the pin and knock it over, again and again.
+    # No total (a fallback: the engine takes file sizes from the export): roll to the pin and knock it over, again and again.
     "#rw-loader.idle #rw-roll{transition:none;animation:rw-run 1.8s linear infinite;}"
     "@keyframes rw-run{0%{transform:translateX(0);}78%,100%{transform:translateX(calc(100% - 48px));}}"
     "#rw-loader.idle #rw-pin{transition:none;animation:rw-knock 1.8s linear infinite;}"

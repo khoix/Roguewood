@@ -48,6 +48,12 @@ static func _fresh(graph: Dictionary, failures: Array[String]) -> void:
 		"a fresh shelf: nothing earned; plaques for the House League's five rivals and the Neon League's four, not provisional encounters", failures)
 	_expect(shelf.filter(func(t): return t.kind == "trophy").map(func(t): return t.asset) == ["trophy.house", "trophy.neon", "trophy.house_campaign"]
 		and shelf.filter(func(t): return t.kind == "decoration").size() == 3, "trophy and decoration slots carry stable asset IDs", failures)
+	# UI-37: the game's board offers House and Neon; the provisional House Campaign gets no record or trophy there.
+	var offered := ["house", "neon"]
+	_expect(Model.board(career, graph, offered).map(func(r): return r.id) == ["league.house", "league.neon"]
+		and Model.trophies(career, graph, offered).filter(func(t): return t.kind == "trophy").map(func(t): return t.id) == ["league.house", "league.neon"]
+		and Model.board(career, graph, ["slice", "campaign"]).any(func(r): return r.id == "league.house_campaign"),
+		"League records and trophies list only the Leagues the board offers (the Campaign only beside the test slice)", failures)
 	_expect(Model.latest(career, graph).is_empty(), "no unlocks yet", failures)
 
 static func _after_play(graph: Dictionary, failures: Array[String]) -> void:
