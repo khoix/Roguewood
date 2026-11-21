@@ -32,6 +32,7 @@ func _run() -> void:
 	_check(scene.clubhouse_music != null and scene.clubhouse_music.playing and scene.clubhouse_music.stream.resource_path.ends_with("clubhouse.ogg"), "the Clubhouse music plays")
 	if stage == 1:
 		await _ui12_menu()
+		await _perf1_graphics()
 		await _ui24_how_to_play()
 	match stage:
 		1: await _stage_one_clubhouse()
@@ -79,7 +80,7 @@ func _ui12_menu() -> void:
 	# UI-15 (owner, 2026-11-18): the same menu as a match's, with Throw Settings and
 	# Sound & Effects as sibling pages whose Back returns here.
 	var entries: Array = scene.club_menu_list.get_children().filter(func(c): return c is Button).map(func(c): return c.text)
-	_check(entries == ["How to Play", "Throw Settings", "Sound & Effects", "Close"], "UI-15: the Clubhouse menu's entries (%s)" % str(entries))
+	_check(entries == ["How to Play", "Throw Settings", "Sound & Effects", "Graphics", "Close"], "UI-15: the Clubhouse menu's entries (%s)" % str(entries))
 	await _tap(scene.club_menu_list.get_node("ClubOptions"))
 	var options = scene.club_options
 	await process_frame
@@ -120,6 +121,64 @@ func _ui12_menu() -> void:
 	await _tap(scene.clubhouse.tab_buttons.board)
 	_check(scene.ui_sounds.played == taps + 1 and scene.ui_sounds.last_kind == "select", "a tab tap makes the select sound")
 
+## PERF-1 (owner, 2026-11-21): Graphics, from the Clubhouse menu: Resolution and
+## Texture Detail (Low, Normal, High; Normal by default) and the Performance log, all
+## saved on the device. Low texture detail draws large art from a smaller copy (only
+## a rendered run draws, so the art is checked there); Normal puts the art back.
+func _perf1_graphics() -> void:
+	var gfx: Node = root.get_node("Graphics")
+	_check(gfx.level("resolution") == "normal" and gfx.level("textures") == "normal" and not gfx.settings.perf_log and gfx.swapped == 0,
+		"PERF-1: Graphics starts at Normal, Normal, log off, and changes nothing")
+	await _tap(scene.club_menu_button)
+	await _tap(scene.club_menu_list.get_node("ClubGraphics"))
+	await process_frame
+	_check(gfx.is_open() and not scene.club_menu.visible and gfx.resolution_choice.has_focus() and gfx.resolution_choice.selected == 1 and gfx.texture_choice.selected == 1,
+		"PERF-1: Graphics opens from the Clubhouse menu at Normal and Normal")
+	var notes: Array = [gfx.resolution_choice.get_meta("note").text, gfx.texture_choice.get_meta("note").text]
+	_check(notes[0].begins_with("Normal") and notes[1].begins_with("Normal"), "PERF-1: each choice explains itself (%s)" % str(notes))
+	var logo: TextureRect = scene.clubhouse.find_child("ClubLogo", true, false) if scene.clubhouse.find_child("ClubLogo", true, false) is TextureRect else null
+	var big: Array = root.find_children("*", "TextureRect", true, false).filter(func(t): return t.texture != null and maxi(t.texture.get_width(), t.texture.get_height()) > gfx.TEXTURE_CAP)
+	var art: TextureRect = big[0] if not big.is_empty() else logo
+	var source_path: String = art.texture.resource_path if art != null else ""
+	gfx.texture_choice.select(0)
+	gfx.texture_choice.item_selected.emit(0)
+	gfx.resolution_choice.select(0)
+	gfx.resolution_choice.item_selected.emit(0)
+	for i in 90: await process_frame
+	var saved = JSON.parse_string(FileAccess.get_file_as_string(gfx.save_dir.path_join("graphics.json")))
+	_check(saved is Dictionary and saved.resolution == "low" and saved.textures == "low" and gfx.texture_choice.get_meta("note").text.begins_with("Low"),
+		"PERF-1: Low and Low are saved on the device (%s)" % str(saved))
+	if DisplayServer.get_name() != "headless" and art != null:
+		_check(maxi(art.texture.get_width(), art.texture.get_height()) == gfx.TEXTURE_CAP and art.texture.resource_path.is_empty() and gfx.swapped > 0,
+			"PERF-1: Low draws large art from a %d px copy (%s, %d swapped)" % [gfx.TEXTURE_CAP, source_path, gfx.swapped])
+		await _capture("graphics_low")
+	gfx.texture_choice.select(1)
+	gfx.texture_choice.item_selected.emit(1)
+	gfx.resolution_choice.select(1)
+	gfx.resolution_choice.item_selected.emit(1)
+	for i in 90: await process_frame
+	if DisplayServer.get_name() != "headless" and art != null:
+		_check(art.texture.resource_path == source_path, "PERF-1: Normal puts the art back (%s)" % art.texture.resource_path)
+	_check(root.msaa_3d == Viewport.MSAA_DISABLED, "PERF-1: Normal resolution draws the lane as before")
+	# The Performance log: a long frame is recorded with where the game was.
+	await _tap(gfx.log_toggle)
+	_check(gfx.settings.perf_log and gfx.readout.visible, "PERF-1: the Performance log turns on, with its corner readout")
+	await process_frame
+	OS.delay_msec(int(gfx.LONG_FRAME_MS) + 60)
+	await process_frame
+	await process_frame
+	var last: Dictionary = gfx.log_entries.back() if not gfx.log_entries.is_empty() else {}
+	_check(int(last.get("ms", 0)) >= int(gfx.LONG_FRAME_MS) and String(last.get("where", "")).begins_with("menu") and gfx.log_label.text.contains("ms")
+		and gfx.log_text().contains("resolution normal · textures normal"), "PERF-1: a long frame is logged with where the game was (%s)" % str(last))
+	await _tap(gfx.copy_button)
+	_check(gfx.copy_button.text == "Copied", "PERF-1: Copy Log copies the log")
+	await _tap(gfx.find_child("GraphicsClearLog", true, false))
+	await _tap(gfx.log_toggle)
+	_check(not gfx.settings.perf_log and not gfx.readout.visible and gfx.log_entries.is_empty(), "PERF-1: Clear empties the log; it turns off")
+	await _action("ui_cancel")
+	_check(not gfx.is_open() and scene.club_menu.visible and scene.club_menu_list.get_node("ClubGraphics").has_focus(), "PERF-1: Escape on Graphics goes back to the Clubhouse menu")
+	await _tap(scene.club_menu_list.get_node("CloseClubMenu"))
+
 ## UI-24 (owner, 2026-11-19): How to Play offers Play Tutorial (JTUT plays it) or
 ## Talk the Talk, the words the game uses, each with its picture, tab by tab; its
 ## pictures of a throw follow the player's hand; Back and Escape step back a page.
@@ -128,7 +187,7 @@ func _ui24_how_to_play() -> void:
 	_check(Glossary.validate(Glossary.data()).is_empty(), "the glossary is valid: %s" % str(Glossary.validate(Glossary.data())))
 	await _tap(scene.club_menu_button)
 	var entries: Array = scene.club_menu_list.get_children().filter(func(c): return c is Button).map(func(c): return c.text)
-	_check(entries == ["How to Play", "Throw Settings", "Sound & Effects", "Close"] and scene.club_menu_list.get_node("ClubHowToPlay").has_focus(),
+	_check(entries == ["How to Play", "Throw Settings", "Sound & Effects", "Graphics", "Close"] and scene.club_menu_list.get_node("ClubHowToPlay").has_focus(),
 		"the Clubhouse menu still leads with How to Play")
 	await _tap(scene.club_menu_list.get_node("ClubHowToPlay"))
 	var how: VBoxContainer = scene.club_how_list

@@ -12,6 +12,7 @@ config/icon="res://assets/brand/icon.png"
 [autoload]
 
 QaRender="*res://src/platform/qa_render.gd"
+Graphics="*res://src/platform/graphics.gd"
 
 [display]
 window/size/viewport_width=720

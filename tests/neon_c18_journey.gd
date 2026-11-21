@@ -190,7 +190,7 @@ func _sound_sliders() -> void:
 	# sibling pages; each page's Back returns to the menu.
 	await _focus_accept(scene.menu_button)
 	var entries: Array = scene.menu_list.get_children().filter(func(c): return c is Button).map(func(c): return c.text)
-	_check(entries == ["Resume", "Throw Settings", "Sound & Effects", "Clubhouse", "Restart Run"], "UI-15: the match menu's entries (%s)" % str(entries))
+	_check(entries == ["Resume", "Throw Settings", "Sound & Effects", "Graphics", "Clubhouse", "Restart Run"], "UI-15: the match menu's entries (%s)" % str(entries))
 	await _focus_accept(scene.options)
 	var panel = lab.settings_panel
 	_check(panel.visible and not scene.session_menu.visible and panel.find_child("Haptics", true, false) == null and panel.find_child("SoundAndEffects", true, false) == null
@@ -198,6 +198,13 @@ func _sound_sliders() -> void:
 		"Throw Settings: no vibration toggle, no Sound & Effects row, a centred Back")
 	await _focus_accept(panel.close)
 	_check(not panel.visible and scene.session_menu.visible and scene.options.has_focus(), "Back from Throw Settings returns to the menu")
+	# PERF-1 (owner, 2026-11-21): Graphics opens from a match's menu over the paused
+	# lane; Escape returns to the menu.
+	await _focus_accept(scene.graphics_entry)
+	var gfx: Node = root.get_node("Graphics")
+	_check(gfx.is_open() and not scene.session_menu.visible and lab.input_paused and gfx.resolution_choice.has_focus(), "PERF-1: Graphics opens from the match menu, the lane paused")
+	await _action("ui_cancel")
+	_check(not gfx.is_open() and scene.session_menu.visible and scene.graphics_entry.has_focus(), "PERF-1: Escape on Graphics returns to the match menu")
 	await _focus_accept(scene.sound_entry)
 	var sound = lab.motion.sound
 	_check(sound.panel.visible and not panel.visible and not scene.session_menu.visible, "Sound & Effects opens from the menu, on its own")

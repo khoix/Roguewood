@@ -104,6 +104,8 @@ For each of AV-N3 to AV-N5:
 - **UI-33b (2026-11-20, at the owner's request):** three of your ball shaders changed. The Spare Ball's stripe is now painted on the ball (it was world-fixed). Echo's rings lean off the spin axis. Laser's line is wider. J02 (rendered) now turns every ball about the roll and spin axes and requires its surface to change; keep new ball looks in the ball's own coordinates.
 - **UI-33 (2026-11-20):** the ball's finger holes face the bowler, and small ivory roll spots mark its rolling circle and sides (lane_dressing.gd), so spin and roll read. A final ball look may restyle them, but must keep a marker that turns with the ball.
 
+- **PERF-1 (2026-11-21):** a `Graphics` autoload (src/platform/graphics.gd) adds Resolution and Texture Detail settings. At Low, art larger than 512 px is drawn from a 512 px copy (and High, smoothed mipmaps); Normal, the default and what every journey runs, draws your art untouched. Large source art drawn small costs phones GPU memory; display-sized copies would help.
+
 ## Ownership and limits
 - **Never edit:**
   - src/rules/, src/simulation/, src/persistence/, src/career/, src/procedural/, src/content/ or src/input/;
