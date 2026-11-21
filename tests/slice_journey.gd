@@ -687,6 +687,18 @@ func _award_ceremony() -> void:
 	_check(ceremony.fx.show_on and ceremony.fx.shells >= shells + 3 and ceremony.show_cues.size() > heard and ceremony.fx.alive_bursts() > 0,
 		"the fireworks keep going on the summary (%d → %d shells)" % [shells, ceremony.fx.shells])
 	await _capture("awards_summary")
+	# UI-38b: on the last screen the effects ease down over 5 s to half the music's volume.
+	var floor: float = ceremony.sfx_floor()
+	var midway: float = ceremony.sfx_level
+	for i in 200: await process_frame
+	var music_gain := db_to_linear(scene.Soundtrack.level_db(lab.settings))
+	var effects_gain: float = float(lab.settings.get("sound_volume", 0.65)) * 0.5 * ceremony.sfx_level
+	_check(ceremony.sfx_fading and floor < 1.0 and midway < 1.0 and midway > floor + 0.02 and is_equal_approx(ceremony.sfx_level, floor)
+		and absf(effects_gain - 0.5 * music_gain) < 0.002,
+		"UI-38b: the effects ease down over 5 s to half the music's volume (%.2f at 2.5 s → %.2f; effects %.3f, music %.3f)" % [midway, ceremony.sfx_level, effects_gain, music_gain])
+	var loud: Array = ceremony._voices + ceremony._show_voices
+	_check(loud.filter(func(v): return v.playing and v.has_meta("gain")).all(func(v): return v.volume_db <= linear_to_db(float(v.get_meta("gain")) * floor) + 0.1),
+		"UI-38b: sounds already playing follow the fade")
 	await _focus_accept(ceremony.continue_button)
 	_check(not ceremony.playing and ceremony.hold, "Continue ends the ceremony; its last screen stays under the fade")
 	_check(ceremony.fx.show_on, "the show goes on under the fade")

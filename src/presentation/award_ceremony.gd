@@ -67,6 +67,13 @@ var _voices: Array = []
 var _show_voices: Array = []
 var _show_clock := 0.0 # the ceremony's own time, so the throttle follows the game, not the wall clock
 var _show_sound_at := -1.0
+## UI-38b (owner, 2026-11-21): while the last award shows, the effects ease down over
+## SFX_FADE seconds until they sit at half the music's volume. sfx_level scales every
+## effect (1.0 at the start); sfx_floor() is where it ends.
+const SFX_FADE := 5.0
+var sfx_level := 1.0
+var sfx_fading := false
+var _sfx_tween: Tween
 var _hurry := false
 var _skipping := false
 var _tweens: Array = []
@@ -232,6 +239,9 @@ func _process(delta: float) -> void:
 	if visible:
 		_show_clock += delta
 		_layout()
+		if sfx_fading:
+			for voice in _voices + _show_voices:
+				if voice.playing and voice.has_meta("gain"): voice.volume_db = linear_to_db(maxf(float(voice.get_meta("gain")) * sfx_level, 0.0001))
 
 ## Starts the ceremony for `data` (RunAwards.for_run). ctx: {league_id, run, won}.
 ## UI-25: with `hold_at_end`, Continue leaves its last screen and music in place for
@@ -249,6 +259,9 @@ func present(data: Dictionary, ctx: Dictionary = {}, hold_at_end: bool = false) 
 	cues.clear()
 	show_cues.clear()
 	_show_sound_at = -1.0
+	if _sfx_tween != null and _sfx_tween.is_valid(): _sfx_tween.kill()
+	sfx_level = 1.0
+	sfx_fading = false
 	shown_trophies.clear()
 	goal_rows.clear()
 	for child in shelf.get_children(): child.queue_free()
@@ -334,6 +347,7 @@ func _intro() -> void:
 func _trophy(trophy: Dictionary) -> void:
 	step = "trophy"
 	shown_trophies.append(String(trophy.id))
+	if awards.get("goals", []).is_empty() and trophy == awards.trophies.back(): _fade_sfx()
 	summary.modulate.a = 0.25
 	stage_kicker.text = String(trophy.get("headline", "New Trophy!")).to_upper()
 	stage_name.text = String(trophy.name)
@@ -417,6 +431,7 @@ func _goals() -> void:
 	header.text = "GOALS"
 	for goal in awards.goals:
 		if not _alive(): return
+		if goal == awards.goals.back(): _fade_sfx()
 		await _goal(goal)
 
 func _goal(goal: Dictionary) -> void:
@@ -528,6 +543,7 @@ func _finale() -> void:
 ## Everything in its final place: the shelf, every goal filled, Continue ready.
 func _end_state() -> void:
 	step = "done"
+	_fade_sfx() # Skip lands here: the last screen is the summary
 	_finish_tweens()
 	stage.modulate.a = 0.0
 	spotlight.modulate.a = 0.0
@@ -559,6 +575,25 @@ func _end_state() -> void:
 	continue_button.modulate.a = 1.0
 	continue_button.grab_focus()
 
+## The effects' level, as a share of their normal level, that puts them at half the
+## music's volume: the sequence's sounds (half the effects setting) at half the awards
+## track's level. Never louder than normal; unchanged without the awards track.
+func sfx_floor() -> float:
+	var effects := float(lab.settings.get("sound_volume", 0.65)) * 0.5 if lab != null else 0.325
+	if not has_music() or effects <= 0.0: return 1.0
+	var music_gain := db_to_linear(Soundtrack.level_db(lab.settings if lab != null else {}))
+	return clampf(0.5 * music_gain / effects, 0.0, 1.0)
+
+func _fade_sfx() -> void:
+	if sfx_fading: return
+	sfx_fading = true
+	_sfx_tween = create_tween()
+	_sfx_tween.tween_property(self, "sfx_level", sfx_floor(), SFX_FADE)
+
+func _voice_gain(voice: AudioStreamPlayer, gain: float) -> void:
+	voice.set_meta("gain", gain)
+	voice.volume_db = linear_to_db(maxf(gain * sfx_level, 0.0001))
+
 ## Plays a sound (and logs it): silent under Mute or with the effects level at 0.
 func cue(id: String, pitch: float = 1.0) -> void:
 	cues.append(id)
@@ -572,7 +607,7 @@ func cue(id: String, pitch: float = 1.0) -> void:
 	if voice == null: voice = _voices[cues.size() % _voices.size()]
 	voice.stream = load(SOUNDS[id])
 	voice.pitch_scale = pitch
-	voice.volume_db = linear_to_db(maxf(volume * 0.5, 0.0001))
+	_voice_gain(voice, volume * 0.5)
 	voice.play()
 
 ## UI-31: a sound for the continuous show, on its own voices, a little under the
@@ -591,7 +626,7 @@ func _show_sound(id: String) -> void:
 	if voice == null: voice = _show_voices[show_cues.size() % _show_voices.size()]
 	voice.stream = load(SOUNDS[id])
 	voice.pitch_scale = randf_range(0.82, 1.18)
-	voice.volume_db = linear_to_db(maxf(volume * 0.38, 0.0001))
+	_voice_gain(voice, volume * 0.38)
 	voice.play()
 
 func _firework(at: Vector2) -> void:

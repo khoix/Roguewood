@@ -136,7 +136,12 @@ try {
     };
     const quarter = await at(0.25);
     const moving = { ball: css(lane.querySelector("#rw-ball")), bob: css(lane.querySelector("#rw-bob")) };
-    const most = await at(0.9), done = await at(1.0);
+    const most = await at(0.9);
+    // UI-38: at 100% the pin waits for the ball to reach it.
+    pr.value = 1;
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    const arriving = { progress: lane.dataset.progress, pinDown: pin.classList.contains("down") };
+    const done = await at(1.0);
     // No total from the server: the roll and the knockdown loop.
     pr.removeAttribute("value");
     await wait(100);
@@ -148,10 +153,12 @@ try {
     await wait(1500);
     finale.gone = !stand.isConnected;
     pr.style.display = shown;
-    return { found: true, opacity, ball: lane.querySelector("#rw-ball").getAttribute("src").startsWith("data:image/svg+xml"), quarter, moving, most, done, idle, finale };
+    return { found: true, opacity, ball: lane.querySelector("#rw-ball").getAttribute("src").startsWith("data:image/svg+xml"), quarter, moving, most, arriving, done, idle, finale };
   });
   check(loader.found && loader.opacity === "0" && loader.ball && loader.quarter.shown === "block" && loader.most.x > loader.quarter.x + 40
     && !loader.most.pinDown && loader.done.pinDown && loader.done.progress === "1.000", `the loader rolls a pixel ball toward a pin that tips at 100% (${JSON.stringify(loader)})`);
+  check(loader.found && loader.arriving.progress === "1.000" && !loader.arriving.pinDown && loader.done.pinDown,
+    `at 100% the pin falls only once the ball reaches it (${JSON.stringify(loader.arriving)})`);
   check(loader.found && loader.moving.ball.includes("rw-spin") && loader.moving.bob.includes("rw-bob"),
     `the ball's spin and bob are CSS animations (${JSON.stringify(loader.moving)})`);
   check(loader.found && loader.idle.idle && loader.idle.progress === "idle" && loader.idle.roll.includes("rw-run") && loader.idle.pin.includes("rw-knock"),
