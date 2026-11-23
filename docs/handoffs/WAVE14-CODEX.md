@@ -22,7 +22,8 @@ per-item briefs still apply.
 - AV-FIX1: DONE; transparent Spare Jar and eight native before/after captures,
   with affected checks passing. Seven other cards were fixed by the coordinator.
   See AV-FIX1.md.
-- UI-A9-H: NOT_STARTED; House alley-screen celebrations, next after merge checks.
+- UI-A9-H: IN_PROGRESS (preproduction); twenty-variant brief and provenance/
+  capture plan in docs/art/ui/UI-A9-H.md. No celebration assets enabled yet.
 - Salvage art stays outside Wave 14.
 
 ## Owner capture index
@@ -61,18 +62,24 @@ live_pin_deck_{normal,reduced}.png. Full index: UI-A6.md.
 
 ## Exact resume step
 
-AV-FIX1 and the affected local AV-N4/N5/UI-A6 merge checks are complete.
-Comet's rotation visibility is corrected; J02 and JAVN4/JAVN4R pass both modes.
-First inspect CI for this checkpoint: prior checkpoint 1ecd20a passed the full
-Bootstrap art job and E11 still review, but Bootstrap game and E12 motion jobs
-failed without accessible diagnostic logs. Do not assume the Comet correction
-resolves those failures. Obtain the actual assertion from the fresh run and fix
-only scoped art/test regressions; route coordinator-owned issues in the handoff.
-Then UI-A9-H (High): read docs/prompts/codex-wave14-ui-a9.md and UI-20, list the
-twenty scene IDs, sound slots, provenance and native captures before authoring.
-UI-A9-H is NOT_STARTED. AV-UI1 remains proposed only; no Wave 15 work.
-The scheduled twenty-minute continuation was bounded to 08:11:23–08:31:23 UTC
-on 2026-11-23. This is its stopping checkpoint; do not continue another item.
+The b5338c9 checkpoint passed full Bootstrap CI (game and art, run 45138579012)
+and E11 still review (45138579162). Its remaining E12 failure was reproduced:
+the capture tool required reveal.png, although UI-16 removed that preview and
+J08 correctly asserts its absence. The tool now checks the seven current
+capture names; no runtime or native test assertions changed. Latest local
+four-mode result and the new push's status are recorded at the end of this file.
+
+At High effort, inspect the fresh push's CI, then continue UI-A9-H from its
+handoff and docs/art/ui/UI-A9-H.md. The twenty IDs, distinct gags, slots, source
+plan, three stings, shared CRT standard and evidence plan are written. Begin
+the original prop kit and first strike/spare/boss scenes with a native review
+journey; judge the 252 × 90 result before completing the remaining variants.
+No celebration assets/scenes/audio or manifest entries exist yet. UI-A9-H is
+IN_PROGRESS (preproduction only), not DONE. No Neon/Salvage Wave 15 art and
+no proposed AV-UI1 work.
+
+This continuation is bounded to 11:58:52–12:08:52 UTC on 2026-11-23. Stop at
+the pushed checkpoint; another work window needs the owner's continuation.
 
 ## Validation environment
 
@@ -165,3 +172,13 @@ Evidence: artifacts/wave14/timed-20261123/{motion-sandbox-attempt,motion-checks}
 This brings the final targeted total to 11 passes. J08 passing locally does not
 substitute for E12's separate movie-capture workflow. No new test thresholds,
 scoring/input/audio behavior or protected gameplay files were changed.
+
+Final local E12 verification in the ten-minute window: PASS,
+`ROGUEWOOD_E12_MATRIX_OK`. All four native modes pass their unchanged J08
+assertions, with seven fresh captures each (28 total). Both encoded movies
+pass ffprobe dimensions: portrait-full 720 × 1280 and landscape-reduced
+1280 × 720. Temporary override.cfg was removed normally; project.godot and
+export_presets.cfg remain unchanged. Python compilation and git diff checks
+pass. Evidence: artifacts/wave14/resume-10min-20261123/ and artifacts/e12/.
+The new push's CI is a separate gate; inspect it at the next resume. UI-A9-H
+preproduction is recorded in its own handoff; no celebration art is complete.

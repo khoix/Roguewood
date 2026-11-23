@@ -183,3 +183,11 @@ Evidence: artifacts/wave14/timed-20261123/{motion-sandbox-attempt,motion-checks}
 This brings the final targeted total to 11 passes. J08 passing locally does not
 substitute for E12's separate movie-capture workflow. No new test thresholds,
 scoring/input/audio behavior or protected gameplay files were changed.
+
+## Follow-up CI — 2026-11-23, ten-minute continuation
+
+Comet checkpoint b5338c9 passed the full Bootstrap game and art jobs
+(run 45138579012) and E11 still review (45138579162). The remaining E12 review
+failure reproduced locally as a stale reveal.png requirement in the recording
+tool after UI-16 removed that preview. It is independent of Comet and is
+tracked in E12.md. AV-N4's local and full Bootstrap verification are complete.

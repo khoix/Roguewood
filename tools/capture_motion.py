@@ -42,7 +42,8 @@ def main():
             run(args, "ROGUEWOOD_J08_OK", output / "journey.log", timeout=900)
         finally:
             override.unlink()
-        for name in ["aim", "foil", "reveal", "rolling", "impact", "scoring", "reaction", "returned"]:
+        # UI-16 removed the inspector's reveal preview; J08 checks its absence.
+        for name in ["aim", "foil", "rolling", "impact", "scoring", "reaction", "returned"]:
             if not (output / f"{name}.png").is_file():
                 raise RuntimeError(f"Missing {mode}/{name}.png")
         if video:
