@@ -61,17 +61,18 @@ live_pin_deck_{normal,reduced}.png. Full index: UI-A6.md.
 
 ## Exact resume step
 
-AV-FIX1 is complete. Merge re-verification is IN_PROGRESS. Next, fix only the
-Comet material's own-coordinate rotation in assets/items/neon/comet.gdshader:
-J02 rendered fails Comet at roll/spin difference 0.00/0.03; the other nine balls
-pass. Keep all three coordinator UI-33b shaders unchanged. Then run J02 both
-modes and JAVN4/JAVN4R both modes, update the AV-N4 handoff/ledger if its shader
-changes, and inspect the push CI gate. Do not weaken J02's surface assertion.
-UI-A9-H follows (High recommended): read its brief and UI-20, list the twenty
-scene IDs, sound slots, provenance and native captures before authoring.
-AV-UI1 remains proposed only; no Wave 15 work.
-The owner scheduled a 20-minute continuation in 4h30 on 2026-11-23; checkpoint
-and stop when that run's twenty minutes expire.
+AV-FIX1 and the affected local AV-N4/N5/UI-A6 merge checks are complete.
+Comet's rotation visibility is corrected; J02 and JAVN4/JAVN4R pass both modes.
+First inspect CI for this checkpoint: prior checkpoint 1ecd20a passed the full
+Bootstrap art job and E11 still review, but Bootstrap game and E12 motion jobs
+failed without accessible diagnostic logs. Do not assume the Comet correction
+resolves those failures. Obtain the actual assertion from the fresh run and fix
+only scoped art/test regressions; route coordinator-owned issues in the handoff.
+Then UI-A9-H (High): read docs/prompts/codex-wave14-ui-a9.md and UI-20, list the
+twenty scene IDs, sound slots, provenance and native captures before authoring.
+UI-A9-H is NOT_STARTED. AV-UI1 remains proposed only; no Wave 15 work.
+The scheduled twenty-minute continuation was bounded to 08:11:23–08:31:23 UTC
+on 2026-11-23. This is its stopping checkpoint; do not continue another item.
 
 ## Validation environment
 
@@ -140,11 +141,27 @@ BAL-1 J03 600/260/70 and J05 match 2 25920 pass both modes. JAVN5/JAVN5R,
 JUIA6 and J22L02LIVEART pass both modes. UI-A6's art journey now presses Resume
 after Throw Settings. AV-N4's rendered audio check needed a 100 ms interval
 before a separate Sell action (QaRender accelerated it inside the wall-clock
-debounce); production audio is unchanged. JAVN4 rendered passes afterward.
-Final JAVN4R rerun remains, along with J02's actual Comet material failure above.
+debounce); production audio is unchanged. Final JAVN4/JAVN4R now pass both modes.
 Results and original failures: artifacts/wave14/resume-20261123/. No fresh full
 local matrix; full push CI remains the gate.
 
-Comet diagnosis limit: its shader already uses mesh UVs, so do not assume the
-marks are world-fixed. Inspect their mapping/visibility and contrast under both
-rotations before choosing the fix; retain local coordinates.
+Comet correction, timed continuation 2026-11-23: original mesh-local shader
+now has a broad oblique cyan sweep and gold star, preserving its palette and
+reflectivity. J02 surface changes improve from 0.00/0.03 to 0.27/0.35 under
+roll/spin. All ten balls pass; the coordinator's three UI-33b shaders are
+unchanged. Eight targeted checks pass: unit/content, J02/JAVN4/JAVN4R both modes.
+Fresh turn sheet and normal/reduced Comet captures reviewed. Owner review:
+artifacts/e04/rendered/ball_turns.png (last row) and
+artifacts/av-n4/{native,reduced}/rendered/n4_comet_trail.png.
+Evidence: artifacts/wave14/timed-20261123/comet-checks/. Prior CI full art job
+passed; game/motion failures remain unclassified pending accessible fresh CI.
+No full local matrix was rerun. See AV-N4.md for exact limits and next steps.
+
+Supplementary checks in this window: physics and J08 headless/rendered PASS.
+Digest: 75d1a3c0ceb2f8e458f7788de7e938de194633c1720aca1488b68a21eb310c6f.
+The first attempt stopped at editor import because the sandbox denied local
+sockets; the unchanged checks passed with the required execution access.
+Evidence: artifacts/wave14/timed-20261123/{motion-sandbox-attempt,motion-checks}/.
+This brings the final targeted total to 11 passes. J08 passing locally does not
+substitute for E12's separate movie-capture workflow. No new test thresholds,
+scoring/input/audio behavior or protected gameplay files were changed.

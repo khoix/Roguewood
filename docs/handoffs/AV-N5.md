@@ -146,4 +146,5 @@ lane/34-foot side captures were reviewed; labels remain visible with the new UI.
 No AV-N5 implementation changes. Physics digest remains 75d1a3c0…; J03 now
 600/260/70 and J05 match 2 25920, as BAL-1 requires, both modes pass. Results:
 artifacts/wave14/resume-20261123/. Full push CI/integration remain separate.
-Next Wave 14 item is UI-A9-H (High), after the AV-N4 Comet rotation blocker.
+Next Wave 14 item is UI-A9-H (High), after inspection of the fresh push CI gate.
+Comet now passes J02; see AV-N4.md.

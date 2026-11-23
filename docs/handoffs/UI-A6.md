@@ -79,5 +79,6 @@ available in the original directories; the 2026-11-17 full deck visual review
 remains recorded above. Physics digest remains 75d1a3c0…; BAL-1 values are now
 J03 600/260/70 and J05 match 2 25920, passing both modes. Results:
 artifacts/wave14/resume-20261123/. Full push CI is separate. UI-A9-H (High)
-is now assigned next, after the AV-N4 Comet rotation blocker; this supersedes
-the historical no-next-milestone instruction above.
+is now assigned next, after inspection of the fresh push CI gate. Comet now
+passes J02 (AV-N4.md). This supersedes the historical no-next-milestone
+instruction above.

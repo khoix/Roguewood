@@ -139,23 +139,47 @@ Second Chance. Full-wave integration remains separate from this item's results.
 
 ## Coordinator merge re-verification — 2026-11-23
 
-Coordinator 329447e merged by 489c007. Original implementation remains DONE;
-post-merge verification is IN_PROGRESS. Unit/content, J03C18 both modes pass;
-the measured Comet/Steady Hand/Metronome strike is now 4725 under BAL-1.
-JAVN4/JAVN4R headless pass. Both rendered variants initially failed only the
-Trade-In sale sound assertion: the visual cue correctly reports $3, but
-QaRender compresses purchase and sale inside the unchanged wall-clock audio
-debounce. The native art test now waits 100 ms before Sell actions and splits
-visual/audio assertions for diagnosis. JAVN4 rendered passes after this fix;
-JAVN4R final rerun is still due. Production audio/rules are unchanged.
+Affected local re-verification: PASS. Coordinator 329447e merged by 489c007;
+fresh fetch found no additional coordinator changes. Unit/content, J03C18 both
+modes pass; the Comet/Steady Hand/Metronome strike is now 4725 under BAL-1.
 
-BLOCKER: J02 rendered's new all-ball rotation check fails ball.comet, measured
-roll/spin surface differences 0.00/0.03. Other nine balls pass. Next: correct
-assets/items/neon/comet.gdshader to keep its identity markings in the ball's
-own coordinates, preserving the three coordinator UI-33b shaders. Run J02 and
-JAVN4/JAVN4R both modes, review Comet captures, update provenance, then inspect
-push CI. This checkpoint does not claim all merge checks pass.
+QaRender initially compressed purchase and sale inside the unchanged 85 ms
+wall-clock sound debounce. The native art test now waits 100 ms before Sell
+actions and checks the visual/audio cues separately. Production audio and
+scoring are unchanged. Final JAVN4 and JAVN4R pass headless and rendered.
+The reduced-input fixture limit documented above still applies.
 
-Comet diagnosis limit: its shader already uses mesh UVs, so do not assume the
-marks are world-fixed. Inspect their mapping/visibility and contrast under both
-rotations before choosing the fix; retain local coordinates.
+J02's unchanged rotation check exposed Comet's barely visible markings: its
+old narrow UV band changed only 0.00/0.03 of the sampled surface under roll/spin.
+The old material was already mesh-local; this was a visibility/mapping issue.
+The revised original shader paints a broad oblique cyan sweep, a parallel fine
+trail and a gold four-point star in quantized mesh-local coordinates. Violet
+base, palette, reflectivity and subtle emission are retained. No TIME animation,
+new nodes, gameplay changes or changes to the coordinator's three UI-33b shaders.
+
+Final unit/content and J02/JAVN4/JAVN4R in both modes: all eight checks PASS.
+J02 Comet differences are now 0.27/0.35; all ten balls pass without weakening
+assertions. Reviewed the full turn contact sheet, armed Comet card, and normal
+and reduced native trail captures. Source/provenance: docs/art/briefs/AV-N4.md
+and ASSET-LEDGER.md. Evidence: artifacts/wave14/timed-20261123/comet-checks/.
+
+Owner review: artifacts/e04/rendered/ball_turns.png (Comet is the last row),
+artifacts/av-n4/{native,reduced}/rendered/n4_comet_trail.png, and
+artifacts/av-n4/native/rendered/n4_armed.png. Captures remain uncommitted.
+
+CI on prior checkpoint 1ecd20a: Bootstrap art job 137473381557 and E11 still
+review passed. Bootstrap game job 137473381774 and E12 motion job 137473381425
+failed; available annotations only report exit code 1, and log/artifact download
+endpoints were unavailable. Their actual failing assertions remain unknown.
+A passing local J02 is not a claim those CI jobs are repaired. Fresh push CI is
+the gate; inspect it before further implementation. UI-A9-H (High) is next after
+integration checks. No hook request and no UI-A9-H authoring in this window.
+
+Supplementary checks in this window: physics and J08 headless/rendered PASS.
+Digest: 75d1a3c0ceb2f8e458f7788de7e938de194633c1720aca1488b68a21eb310c6f.
+The first attempt stopped at editor import because the sandbox denied local
+sockets; the unchanged checks passed with the required execution access.
+Evidence: artifacts/wave14/timed-20261123/{motion-sandbox-attempt,motion-checks}/.
+This brings the final targeted total to 11 passes. J08 passing locally does not
+substitute for E12's separate movie-capture workflow. No new test thresholds,
+scoring/input/audio behavior or protected gameplay files were changed.

@@ -36,3 +36,17 @@ Before DONE: flags on only these five items; unit/content, J03C18 and affected
 art journeys headless/rendered; physics and pinned score checks; provenance,
 handoff, wave index, commit/push and remote/clean-tree verification. No captures
 committed. Stop at the completed item checkpoint before AV-N5.
+
+## 2026-11-23 Comet rotation visibility revision
+
+ID/slot: ball.comet, in_play (existing material and presentation mesh).
+Original static shader math only; preserve the generated card/icon sources and
+violet/cyan/gold enamel identity. The narrow UV-gated mark was already local,
+but almost absent from J02's visible center sample. Use an oblique curved cyan
+band and parallel fine trail across the local sphere, plus a tangent-projected
+gold star. Quantize local coordinates for the pixel finish; no TIME animation.
+Keep metallic/roughness/emission values and the three coordinator UI-33b shaders.
+Provenance/hash: ASSET-LEDGER.md. No external images, samples or gameplay values.
+Verification: unit/content; J02 and JAVN4/JAVN4R headless/rendered. Review J02's
+rest/roll/spin contact sheet plus armed and normal/reduced native Comet captures.
+Final results and measured rotation differences: docs/handoffs/AV-N4.md.

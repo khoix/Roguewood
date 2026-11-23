@@ -1373,3 +1373,16 @@ AV-FIX1 completion evidence (2026-11-23): the native Binder/shop before-art
 specimens restore the original atlas region in memory only. Shipping source and
 hash above are unchanged. All three reused slots pass the transparency guard,
 with no remaining exceptions. Capture tooling and scope: handoffs/AV-FIX1.md.
+
+### AV-N4 — Comet local-surface visibility revision (Codex, 2026-11-23)
+
+ID ball.comet; existing in_play slot assets/items/neon/in_play.ball.comet.tres references
+assets/items/neon/comet.gdshader. Original authored shader math: quantized
+mesh-local sphere position, oblique curved cyan band, parallel fine trail, and
+a tangent-projected four-point gold star. No new image/audio source, external
+sample or generated pixels. Original violet/cyan/gold palette, metallic 0.38,
+roughness 0.24 and tail emission 0.07 retained; no TIME animation. Card/icon
+source atlas and the coordinator's three UI-33b shaders are unchanged.
+Shader SHA-256: `a109be58a6845eeae7b5ef2c53754fd3c8fcfb9b021ff8769a06c3c4517956fc`.
+J02's unmodified roll/spin checks now measure 0.27/0.35 rather than 0.00/0.03.
+Native normal/reduced captures and verification are indexed in AV-N4.md.
