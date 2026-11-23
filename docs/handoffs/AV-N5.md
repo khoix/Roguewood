@@ -137,3 +137,13 @@ with a merge commit, read updated claims and docs/prompts/codex-wave14-ui-a6.md,
 then make the pin-deck finish manifest-driven and give House its own static
 presentation-mesh finish. Check Divisions 1–8 and the Championship; preserve
 Neon's finish. No Salvage Wave 15 art or proposed AV-UI1 work.
+
+## Coordinator merge re-verification — 2026-11-23
+
+Coordinator 329447e merged by 489c007. Unit/content and J03C19 pass; J03C19,
+JAVN5 and JAVN5R pass headless/rendered. Rescue still banks 1265. Fresh Two-Tone
+lane/34-foot side captures were reviewed; labels remain visible with the new UI.
+No AV-N5 implementation changes. Physics digest remains 75d1a3c0…; J03 now
+600/260/70 and J05 match 2 25920, as BAL-1 requires, both modes pass. Results:
+artifacts/wave14/resume-20261123/. Full push CI/integration remain separate.
+Next Wave 14 item is UI-A9-H (High), after the AV-N4 Comet rotation blocker.

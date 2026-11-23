@@ -36,7 +36,9 @@ func _scored() -> Dictionary:
 func _trade_in() -> void:
  await super._trade_in()
  for i in 4: await process_frame
- _check(lab.motion.abilities.history.any(func(e): return e.id == "shop_upgrade.trade_in" and e.event == "confirmed_sale" and e.details.amount > 0 and e.audio_played),"Trade-In confirmed sale cue and sound")
+ var sales: Array = lab.motion.abilities.history.filter(func(e): return e.id == "shop_upgrade.trade_in" and e.event == "confirmed_sale")
+ _check(sales.any(func(e): return e.details.amount > 0),"Trade-In confirmed sale cue: "+str(sales))
+ _check(sales.any(func(e): return e.audio_played),"Trade-In confirmed sale sound: "+str(sales))
  await super._capture("n4_trade_sale")
 func _specialist_shelf() -> void:
  await super._specialist_shelf()
@@ -60,6 +62,11 @@ func _specialist_shelf() -> void:
  await super._capture("n4_specialist_offer")
  await _focus_accept(lab.shop_panel.offer_back)
 func _tap(control: Control) -> void:
+ # QaRender can buy the upgrade and sell an item inside the audio debounce's
+ # wall-clock window. Model a separate player action without changing game audio.
+ if String(control.name).begins_with("Sell_"):
+  await process_frame
+  OS.delay_msec(100)
  if control is CardView and control.item_id in ART_IDS:
   _check(not control.art_pending and control.art.texture == Assets.slot(control.item_id,"card"),"native final illustration "+control.item_id)
   var key: String = "shop_"+control.item_id.replace(".","_")

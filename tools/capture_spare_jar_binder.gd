@@ -1,6 +1,9 @@
 extends "res://tests/charm_c01_journey.gd"
 ## AV-FIX1: actual Binder preview, no Career/unlock fixtures.
+var baseline_views: Array[Resource] = []
+var before_art := false
 func _run() -> void:
+ baseline_views = preload("res://tools/spare_jar_capture_art.gd").prepare(before_art)
  for arg in OS.get_cmdline_user_args():
   if arg.begins_with("--artifact-dir="): artifact_dir = arg.trim_prefix("--artifact-dir=")
  root.size = PORTRAIT

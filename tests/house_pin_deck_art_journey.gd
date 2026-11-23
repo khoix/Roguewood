@@ -31,9 +31,11 @@ func _play_match(division: int, m: Dictionary) -> void:
   await _focus_accept(scene.options)
   await _focus_accept(lab.settings_panel.reduced_motion)
   await _focus_accept(lab.settings_panel.close)
+  await _focus_accept(scene.resume)
  await super._play_match(division,m)
  if not deck_key.is_empty():
   _check(deck_seen.has(deck_key),"native pin-deck roll captured")
   await _focus_accept(scene.options)
   await _focus_accept(lab.settings_panel.reduced_motion)
   await _focus_accept(lab.settings_panel.close)
+  await _focus_accept(scene.resume)

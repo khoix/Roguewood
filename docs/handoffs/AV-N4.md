@@ -136,3 +136,26 @@ the latest coordinator branch with a merge commit, read updated claims, and
 start AV-N5 from E17-D16/E18-C19. List IDs, slots, provenance and captures before
 authoring; preserve the native lane/side readings and Bumper Guard rescue paying
 Second Chance. Full-wave integration remains separate from this item's results.
+
+## Coordinator merge re-verification — 2026-11-23
+
+Coordinator 329447e merged by 489c007. Original implementation remains DONE;
+post-merge verification is IN_PROGRESS. Unit/content, J03C18 both modes pass;
+the measured Comet/Steady Hand/Metronome strike is now 4725 under BAL-1.
+JAVN4/JAVN4R headless pass. Both rendered variants initially failed only the
+Trade-In sale sound assertion: the visual cue correctly reports $3, but
+QaRender compresses purchase and sale inside the unchanged wall-clock audio
+debounce. The native art test now waits 100 ms before Sell actions and splits
+visual/audio assertions for diagnosis. JAVN4 rendered passes after this fix;
+JAVN4R final rerun is still due. Production audio/rules are unchanged.
+
+BLOCKER: J02 rendered's new all-ball rotation check fails ball.comet, measured
+roll/spin surface differences 0.00/0.03. Other nine balls pass. Next: correct
+assets/items/neon/comet.gdshader to keep its identity markings in the ball's
+own coordinates, preserving the three coordinator UI-33b shaders. Run J02 and
+JAVN4/JAVN4R both modes, review Comet captures, update provenance, then inspect
+push CI. This checkpoint does not claim all merge checks pass.
+
+Comet diagnosis limit: its shader already uses mesh UVs, so do not assume the
+marks are world-fixed. Inspect their mapping/visibility and contrast under both
+rotations before choosing the fix; retain local coordinates.

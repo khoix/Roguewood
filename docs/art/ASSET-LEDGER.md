@@ -1368,3 +1368,8 @@ Original deterministic synthesis (`tools/author_award_sounds.py`, numpy, seed 20
 | `goal_complete.wav` | A 70 Hz stamp thump with noise, then an E major bell chord, 1.2 s | `d344dfdacd5e836b7876ba744ef3b06b3f6415e0a30e1420d291803ab756aa0c` |
 
 The ceremony's visuals (sunburst, spotlight, fireworks, bottle rockets, confetti, goal bars and stamp) are drawn at runtime from particles and shapes in `src/presentation/award_fx.gd` and `award_ceremony.gd`; no new images. Trophies, plaques, ribbons and decorations are the existing Clubhouse art (`assets/clubhouse/`).
+
+AV-FIX1 completion evidence (2026-11-23): the native Binder/shop before-art
+specimens restore the original atlas region in memory only. Shipping source and
+hash above are unchanged. All three reused slots pass the transparency guard,
+with no remaining exceptions. Capture tooling and scope: handoffs/AV-FIX1.md.

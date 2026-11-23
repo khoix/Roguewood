@@ -1,6 +1,6 @@
 # Wave 14 Codex checkpoint
 
-Status: IN_PROGRESS — late owner-assigned AV-FIX1 transparency correction. Branch: codex/roguewood-build (2026-11-17).
+Status: IN_PROGRESS — UI-A9-H remains. Branch: codex/roguewood-build (2026-11-23).
 
 Coordinator be1d045 was merged with merge commit c9ecd381. Includes E05-R5
 and UI-9. No rebase, force-push, main push or PR. Initial synchronization
@@ -19,8 +19,10 @@ per-item briefs still apply.
   passing local checks and 64 captures. Details in AV-N5.md.
 - UI-A6: DONE; manifest pin-deck hook, static House finish, 35 passing targeted
   checks and 21 native captures. See UI-A6.md.
-- AV-FIX1: IN_PROGRESS; late owner assignment, Spare Jar transparency. Seven
-  other cards were fixed by the coordinator. See AV-FIX1.md for the timed checkpoint.
+- AV-FIX1: DONE; transparent Spare Jar and eight native before/after captures,
+  with affected checks passing. Seven other cards were fixed by the coordinator.
+  See AV-FIX1.md.
+- UI-A9-H: NOT_STARTED; House alley-screen celebrations, next after merge checks.
 - Salvage art stays outside Wave 14.
 
 ## Owner capture index
@@ -59,10 +61,17 @@ live_pin_deck_{normal,reduced}.png. Full index: UI-A6.md.
 
 ## Exact resume step
 
-The original seven Codex claims are complete. The coordinator added AV-FIX1;
-Spare Jar remains in progress. Resume docs/handoffs/AV-FIX1.md: native before/after
-shop/Binder evidence and remaining rendered checks, then finish the handoff.
-Recommended effort High for the glass/alpha correction. No Wave 15 work.
+AV-FIX1 is complete. Merge re-verification is IN_PROGRESS. Next, fix only the
+Comet material's own-coordinate rotation in assets/items/neon/comet.gdshader:
+J02 rendered fails Comet at roll/spin difference 0.00/0.03; the other nine balls
+pass. Keep all three coordinator UI-33b shaders unchanged. Then run J02 both
+modes and JAVN4/JAVN4R both modes, update the AV-N4 handoff/ledger if its shader
+changes, and inspect the push CI gate. Do not weaken J02's surface assertion.
+UI-A9-H follows (High recommended): read its brief and UI-20, list the twenty
+scene IDs, sound slots, provenance and native captures before authoring.
+AV-UI1 remains proposed only; no Wave 15 work.
+The owner scheduled a 20-minute continuation in 4h30 on 2026-11-23; checkpoint
+and stop when that run's twenty minutes expire.
 
 ## Validation environment
 
@@ -117,8 +126,25 @@ Physics digest and J03/J05 pinned scores remain unchanged. This targeted run
 includes both League journeys and their art journeys in both modes; it does not
 claim a fresh full art-shard or full CI/Web run. See UI-A6.md for scope and limits.
 
-AV-FIX1 timed checkpoint: unit/content, JAVH3BC and J11 in both modes,
-J03C10 headless and the native Binder capture tool in both modes pass. Reviewed
-Binder after captures: artifacts/av-fix1/binder/rendered/binder_portrait.png and
-binder_landscape.png. Remaining native before/after evidence and rendered shop
-verification are recorded in AV-FIX1.md; this late item is not DONE.
+AV-FIX1 completion: artifacts/av-fix1/{binder,shop}/{before,after}/rendered/
+contains eight reviewed native captures. The before specimens use original art
+in current UI; they are not old-build screenshots. All four new journeys pass
+headless/rendered. Unit/content/physics, J03C10 and the three House contacts pass;
+J11 and J11ART pass both modes; J11 rendered needed an isolated rerun of its timing budget.
+Coordinator 329447e merged by 489c007; all three UI-33b ball shaders retained.
+
+Merge re-verification checkpoint, 2026-11-23: required unit/content, J03C18,
+J03C19, J11, J22L01 and J22L02 pass (journeys in both modes). Physics digest
+75d1a3c0ceb2f8e458f7788de7e938de194633c1720aca1488b68a21eb310c6f unchanged;
+BAL-1 J03 600/260/70 and J05 match 2 25920 pass both modes. JAVN5/JAVN5R,
+JUIA6 and J22L02LIVEART pass both modes. UI-A6's art journey now presses Resume
+after Throw Settings. AV-N4's rendered audio check needed a 100 ms interval
+before a separate Sell action (QaRender accelerated it inside the wall-clock
+debounce); production audio is unchanged. JAVN4 rendered passes afterward.
+Final JAVN4R rerun remains, along with J02's actual Comet material failure above.
+Results and original failures: artifacts/wave14/resume-20261123/. No fresh full
+local matrix; full push CI remains the gate.
+
+Comet diagnosis limit: its shader already uses mesh UVs, so do not assume the
+marks are world-fixed. Inspect their mapping/visibility and contrast under both
+rotations before choosing the fix; retain local coordinates.

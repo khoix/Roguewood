@@ -68,3 +68,16 @@ remote SHA are reported with this checkpoint. All assigned Codex Wave 14 items
 are DONE. Stop here; no next Codex milestone or effort is assigned in this wave.
 No Salvage Wave 15 art or proposed AV-UI1 work. The coordinator owns central
 progress, integration checks and wave closure. No external message is sent.
+
+## Coordinator merge re-verification — 2026-11-23
+
+Coordinator 329447e merged by 489c007. The existing pin-deck hook/materials
+remain unchanged. The art journey now presses Resume after closing Throw
+Settings, matching the coordinator's menu flow. Unit/content, J22L01/J22L02,
+JUIA6 and J22L02LIVEART pass (journeys headless/rendered). Fresh captures are
+available in the original directories; the 2026-11-17 full deck visual review
+remains recorded above. Physics digest remains 75d1a3c0…; BAL-1 values are now
+J03 600/260/70 and J05 match 2 25920, passing both modes. Results:
+artifacts/wave14/resume-20261123/. Full push CI is separate. UI-A9-H (High)
+is now assigned next, after the AV-N4 Comet rotation blocker; this supersedes
+the historical no-next-milestone instruction above.

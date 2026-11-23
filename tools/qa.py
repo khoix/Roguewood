@@ -302,6 +302,15 @@ _a6_caps = tuple("deck_d%02d_opener" % i for i in range(1,9)) + ("deck_d08_boss"
 JOURNEYS["JUIA6"] = ("res://tests/house_pin_deck_art_journey.gd", "ROGUEWOOD_J22L01_OK", "artifacts/ui-a6", _a6_caps, 1800, ["--fixed-fps","60"])
 CONTENT["JUIA6"] = "house"
 
+# AV-FIX1: native before-art specimens and shipping art, no catalogue/save changes.
+for _key, _place, _before in [("JAVFIX1B", "binder", False), ("JAVFIX1BB", "binder", True),
+                              ("JAVFIX1S", "shop", False), ("JAVFIX1SB", "shop", True)]:
+    _suffix = "_before" if _before else ""
+    _version = "before" if _before else "after"
+    JOURNEYS[_key] = (f"res://tools/capture_spare_jar_{_place}{_suffix}.gd", f"ROGUEWOOD_FIX1_{_place.upper()}_OK",
+                     f"artifacts/av-fix1/{_place}/{_version}", (f"{_place}_portrait", f"{_place}_landscape"), 300, ["--fixed-fps", "60"])
+    CONTENT[_key] = "house"
+
 def engine():
     executable = os.environ.get("GODOT_BIN") or shutil.which("godot") or shutil.which("godot4")
     if not executable:

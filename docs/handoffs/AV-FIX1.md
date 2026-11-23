@@ -1,48 +1,62 @@
-# AV-FIX1 — Spare Jar transparency checkpoint
+# AV-FIX1 — Spare Jar transparency
 
-State: IN_PROGRESS. Timed High-effort window, 2026-11-17, stop at 22:26 UTC.
-Coordinator 5b782e1 merged by 6a2f4f5. Additive ledger conflict resolved by keeping
-both sections. Seven other cards were already matted by the coordinator.
+State: DONE — implementation and affected verification, 2026-11-23. Effort High.
+Implementation checkpoint f61cb0a; coordinator 329447e merged by 489c007.
+The ledger conflict kept both sections. All three UI-33b coordinator ball shaders
+are unchanged. Seven other cards were already matted by the coordinator.
 
-Spare Jar now uses a regenerated RGBA source, preserving its brass rim, green
-glass and two copper coins. An initial pass added unwanted external haze; a
-second generation pass removed it. Original source sheet remains unchanged.
-Final PNG is copied without pixel edits; card, icon and reduced views share an
-AtlasTexture region. In-play counted-jar presentation uses its existing icon
-hook; no catalogue, effects, sound or rule changes. Exact prompts, SHA and alpha
-samples are in the brief/ledger and artifacts/wave14/av-fix1/alpha-audit.json.
-The mouth is transparent, central glass alpha is 4/255 and upper background
-sample is zero. Spare Jar is removed from KNOWN_OPAQUE in the existing guard.
+## Delivered
 
-## Evidence so far
+Spare Jar uses a regenerated RGBA source, preserving its brass rim, green glass
+and two copper coins. An initial pass added external haze; a second generation
+removed it. The original sheet remains unchanged. The generated PNG is copied
+without pixel edits; card, icon and reduced views share an AtlasTexture region.
+The counted in-play jar uses its existing icon hook. No catalogue, effects,
+sound or rule changes. Exact prompts and SHA are in docs/art/briefs/AV-FIX1*
+and ASSET-LEDGER.md. Central glass alpha is 4/255; sampled mouth/background alpha
+is zero. The transparency guard now has no KNOWN_OPAQUE exceptions.
 
-Unit, content and JAVH3BC headless/rendered pass. The new contact sheet was
-visually reviewed: no dark rectangle or surrounding haze, including small icons.
-J11 headless/rendered and J03C10 headless pass, including the original counted-jar
-purchase/growth/sell/rebuy assertions. The native Binder capture tool passes in
-both modes (ROGUEWOOD_FIX1_BINDER_OK); portrait and landscape after captures
-were visually reviewed, with clear glass over the preview panel and no plate.
-Pinned Godot 4.5.2, Xorg :90 with MIT-SHM disabled; temporary XDG directories.
+## Native evidence
 
-Before contact images: artifacts/av-fix1/before/.
-After contact images: artifacts/av-h3-b/contact/rendered/.
-After native Binder: artifacts/av-fix1/binder/rendered/binder_portrait.png and
-binder_landscape.png.
-Tests/logs: artifacts/wave14/av-fix1/ and /tmp/fix1-c10-headless.log.
-The capture tool tools/capture_spare_jar_binder.gd drives the real Binder through
-native controls without Career fixtures. Use --artifact-dir, --save-dir and
---content=house with the pinned engine and --fixed-fps 60. Captures are ignored,
-never committed. No phone hardware or full-matrix claim.
+JAVFIX1B/JAVFIX1BB drive the actual Binder preview; JAVFIX1S/JAVFIX1SB play the
+opener and reroll to a real Spare Jar offer. The shop fixture grants $2000 after
+the opener, as the original item journeys do. It injects no offers or unlocks.
+The before variants load the retained original atlas region only in memory,
+with an explicit BEFORE ART log. They are original-art specimens in today's
+native UI, not screenshots of an old game build. They change no shipping files
+or Career progress. Each capture awaits RenderingServer.frame_post_draw.
+
+All eight comparisons were visually reviewed: portrait/landscape, Binder/shop,
+before/after. The new jar lets the different panel/card backgrounds show through
+its mouth and central glass without a rectangle or halo. Contact sheets also
+show icon, reduced and counted variants. The coordinator's seven mattes were
+reviewed in the three House contact sheets; no refinements were needed.
+
+## Capture index
+
+- artifacts/av-fix1/binder/{before,after}/rendered/binder_{portrait,landscape}.png
+- artifacts/av-fix1/shop/{before,after}/rendered/shop_{portrait,landscape}.png
+- artifacts/av-h3-b/contact/rendered/{contact,motion,counted}.png
+- artifacts/av-h4-{a,b}/contact/rendered/contact.png
+- artifacts/e18-c10/rendered/: native growth, paid cue, inventory, sale/rebuy.
+
+Four native journeys are registered add-only in qa.py and CI's art shard;
+artifacts/av-fix1 is uploaded with journey evidence. Captures are never committed.
+The before fixtures are tool-only and do not ship into game flows.
+
+## Verification
+
+Pinned Godot 4.5.2, Linux llvmpipe, isolated Xvfb displays, normal graphics detail.
+Merged-tree unit/content/physics, J03C10 headless/rendered, all three House
+contacts headless/rendered and all four native comparison journeys in both
+modes pass. J11 headless/rendered pass. Its first parallel rendered run hit
+PERF-1b's 60 ms worst-frame budget (79.3 ms; average 0.031 ms); the isolated
+rerun passed in 48 s with the budget and production code unchanged. Results/logs are preserved under
+artifacts/wave14/resume-20261123/. No physical-phone or full-local-matrix claim.
 
 ## Exact resume
 
-Run J03C10 rendered and collect the remaining native shop/Binder before and
-after evidence in both orientations required by the brief. Binder after captures
-are complete; shop before/after and Binder before captures remain. The retained original
-source permits a labelled before-art specimen if a baseline capture is needed;
-do not forge gameplay or Career state. Review the coordinator's seven mattes as
-needed; AV-H4 checks were already run by the coordinator, not claimed here.
-Register any permanent new art journey add-only and gate new CI steps to art.
-Then run the remaining affected checks from the brief, mark AV-FIX1 DONE, update
-WAVE14-CODEX.md and commit/push/verify. Until then this is a partial correction,
-not a completed AV-FIX1 delivery. No Wave 15 work.
+AV-FIX1 is complete. Finish the separate AV-N4/N5/UI-A6 merge verification and
+push for the full CI gate; CI status is recorded separately from this local
+implementation result. Next art item: UI-A9-H, High recommended, following its
+brief and UI-20 contract. No AV-UI1 or Wave 15 work is authorized here.
