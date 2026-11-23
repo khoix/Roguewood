@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+[ext_resource type="Script" path="res://src/presentation/ability_style.gd" id="1"]
+[resource]
+script = ExtResource("1")
+item_id = "charm.dry_run"
+shape = "neon"
+ink = Color(0.91, 0.74, 0.44, 1)
+duration = 0.85
+priority = 3

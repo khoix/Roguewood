@@ -100,6 +100,8 @@ func _initialize() -> void:
 		failures.append_array(load("res://tests/neon_n1_art_test.gd").run())
 		failures.append_array(load("res://tests/neon_n2_art_test.gd").run())
 		failures.append_array(load("res://tests/neon_n3_art_test.gd").run())
+		failures.append_array(load("res://tests/neon_n4_art_test.gd").run())
+		failures.append_array(load("res://tests/neon_n5_art_test.gd").run())
 		failures.append_array(load("res://tests/neon_pin_deck_art_test.gd").run())
 		failures.append_array(load("res://tests/card_transparency_test.gd").run())
 		failures.append_array(load("res://tests/alley_screen_test.gd").run())

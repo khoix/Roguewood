@@ -279,6 +279,38 @@ JOURNEYS["JAVN3R"] = ("res://tests/neon_n3_reduced_journey.gd", "ROGUEWOOD_J03C1
 JOURNEYS["JAVN3C"] = ("res://tests/neon_n3_contact.gd", "ROGUEWOOD_NEON_N1_CONTACT_OK", "artifacts/av-n3/contact", ("count_0","count_1","count_2","motion"), 180, ["--fixed-fps","60"])
 JOURNEYS["JAVN3BC"] = ("res://tests/neon_n3_contact_b.gd", "ROGUEWOOD_NEON_N1_CONTACT_OK", "artifacts/av-n3/contact-b", ("count_0","count_1","count_2","motion"), 180, ["--fixed-fps","60"])
 
+# AV-N4 native art, preserving J03C18's original gameplay assertions.
+_n4_ids = ["shop_upgrade.trade_in", "shop_upgrade.specialist_shelf", "ball.comet", "charm.metronome", "consumable.steady_hand"]
+_n4_caps = ("c18_shop", "c18_controlled_curve") + tuple("n4_"+key for key in ["trade_sale", "specialist", "specialist_offer", "armed", "comet_trail", "comet_paid", "metronome_paid", "steady_hand_paid", "ribbon_trophies", "mastery_progress"]) + tuple("n4_"+place+"_"+id.replace(".","_") for place in ["shop","binder"] for id in _n4_ids)
+for _key, _script, _directory in [("JAVN4", "neon_n4_art_journey", "native"), ("JAVN4R", "neon_n4_reduced_journey", "reduced")]:
+    JOURNEYS[_key] = ("res://tests/"+_script+".gd", "ROGUEWOOD_J03C18_OK", "artifacts/av-n4/"+_directory, _n4_caps, 900, ["--fixed-fps", "60"])
+    CONTENT[_key] = "neon"
+for _key, _script, _directory in [("JAVN4C", "neon_n4_contact", "contact"), ("JAVN4BC", "neon_n4_contact_b", "contact-b")]:
+    JOURNEYS[_key] = ("res://tests/"+_script+".gd", "ROGUEWOOD_NEON_N1_CONTACT_OK", "artifacts/av-n4/"+_directory, ("count_0","count_1","count_2","motion"), 180, ["--fixed-fps","60"])
+
+# AV-N5 preserves J03C19's real gameplay and adds presentation evidence.
+_n5_ids = ["pin.compass", "charm.split_pattern", "charm.dry_run", "charm.long_game", "charm.second_chance"]
+_n5_caps = ("c19_shop", "c19_two_tone", "c19_long_oil", "c19_rescue") + tuple("n5_"+key for key in ["side", "rescue", "lane_two_tone", "lane_long_oil", "lane_house_oil", "compass_paid", "split_pattern_paid", "dry_run_paid", "long_game_paid", "second_chance_paid"]) + tuple("n5_"+place+"_"+id.replace(".","_") for place in ["shop","binder"] for id in _n5_ids) + tuple("n5_"+tab+"_"+id for tab in ["trophies","goals"] for id in ["both_halves","rebound_rescue"])
+for _key, _script, _directory in [("JAVN5", "neon_n5_art_journey", "native"), ("JAVN5R", "neon_n5_reduced_journey", "reduced")]:
+    JOURNEYS[_key] = ("res://tests/"+_script+".gd", "ROGUEWOOD_J03C19_OK", "artifacts/av-n5/"+_directory, _n5_caps, 900, ["--fixed-fps", "60"])
+for _key, _script, _directory in [("JAVN5C", "neon_n5_contact", "contact"), ("JAVN5BC", "neon_n5_contact_b", "contact-b")]:
+    JOURNEYS[_key] = ("res://tests/"+_script+".gd", "ROGUEWOOD_NEON_N1_CONTACT_OK", "artifacts/av-n5/"+_directory, ("count_0","count_1","count_2","motion"), 180, ["--fixed-fps","60"])
+
+
+# UI-A6 native House pin-deck evidence across all nine stages.
+_a6_caps = tuple("deck_d%02d_opener" % i for i in range(1,9)) + ("deck_d08_boss",) + tuple("deck_d%02d_%s_%s" % (d,k,v) for d,k in [(2,"feature"),(3,"boss"),(8,"boss")] for v in ["portrait","landscape","roll"]) + ("j22_champion","j22_title","j22_tournament")
+JOURNEYS["JUIA6"] = ("res://tests/house_pin_deck_art_journey.gd", "ROGUEWOOD_J22L01_OK", "artifacts/ui-a6", _a6_caps, 1800, ["--fixed-fps","60"])
+CONTENT["JUIA6"] = "house"
+
+# AV-FIX1: native before-art specimens and shipping art, no catalogue/save changes.
+for _key, _place, _before in [("JAVFIX1B", "binder", False), ("JAVFIX1BB", "binder", True),
+                              ("JAVFIX1S", "shop", False), ("JAVFIX1SB", "shop", True)]:
+    _suffix = "_before" if _before else ""
+    _version = "before" if _before else "after"
+    JOURNEYS[_key] = (f"res://tools/capture_spare_jar_{_place}{_suffix}.gd", f"ROGUEWOOD_FIX1_{_place.upper()}_OK",
+                     f"artifacts/av-fix1/{_place}/{_version}", (f"{_place}_portrait", f"{_place}_landscape"), 300, ["--fixed-fps", "60"])
+    CONTENT[_key] = "house"
+
 def engine():
     executable = os.environ.get("GODOT_BIN") or shutil.which("godot") or shutil.which("godot4")
     if not executable:

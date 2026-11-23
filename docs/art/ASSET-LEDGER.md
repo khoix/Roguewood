@@ -1229,6 +1229,91 @@ Original deterministic mono PCM foley by tools/author_foley.py (wood material), 
 | ui_select.wav | `author_foley.py ui_select wood 1500 0.035` | `644a5039a46c3b45c9cf4c6d35e59959ea30764951e05ddf9fbad627bce9403e` |
 | ui_back.wav | `author_foley.py ui_back wood 720 0.06` | `f7863214664f83bdc3b0ae9cdaa6d46f980b1e9c138a67b99d61da23dd586457` |
 
+## AV-N4 — Controlled Curve, shop upgrades and ribbon (2026-11-16)
+
+Original image-generation outputs, unchanged transparent PNGs. Exact prompts:
+docs/art/briefs/AV-N4-{A,B,R}-prompt.txt. A contains Trade-In, Specialist Shelf
+and Comet Ball; B contains Metronome and Steady Hand. The separate Controlled
+Curve ribbon is shipped under its requested ID plus an identical runtime alias,
+because ClubhouseModel.asset_id strips the mastery prefix. No source pixels
+edited or resampled; item resources are AtlasTexture region views only.
+
+| Source | SHA-256 |
+|---|---|
+| assets/items/neon/source.AV-N4-A.png | `e506d90721402095ea13e7b2814aa7eaa3a827dc65e60e97ed9b577c4f850f0b` |
+| assets/items/neon/source.AV-N4-B.png | `ee801ad15fcd04b409f28a23de4d803ca30e2bde8433499a4e985cfe4225e706` |
+| assets/clubhouse/ribbon.mastery.controlled_curve.png | `8619c243b470202e6e00a0328f4a2a60cf5f47f745d45b8afc11e09ab8c7a8fc` |
+| assets/clubhouse/ribbon.controlled_curve.png | `8619c243b470202e6e00a0328f4a2a60cf5f47f745d45b8afc11e09ab8c7a8fc` |
+
+Original procedural Comet enamel shader, bounded twelve-point trail, ticking
+metronome, armed hand, confirmed transaction and paid-amount geometry authored
+by Codex. Reuses the existing ball presentation mesh and Pixelify Sans font; no
+physics meshes changed. Reduced motion/flash uses static geometry. Comet's flare
+waits for the measured target grade; it never predicts an accuracy reward.
+
+Original deterministic foley via tools/author_foley.py and
+tools/author_neon_n4_items.py: mono 22050 Hz PCM16, 0.32 s, peak 0.48.
+No sampled audio, external marks or third-party image source.
+
+| Sound ID | Material / frequency | SHA-256 |
+|---|---|---|
+| sound.shop_upgrade.trade_in | paper / 520 Hz | `efed0e8694c81d535ec3b5301153b7f1fdd5a241082dfa888b6df8afd8da2fac` |
+| sound.shop_upgrade.specialist_shelf | metal / 740 Hz | `1d9b68d967aca9899d2382e80910b269ab981d9417e06c3f062f244be2f1d71c` |
+| sound.ball.comet | swish / 870 Hz | `300a135ac8298520ce09c4b1a327dddbaae111ddcd9ab1e80bde7cbf57526ae2` |
+| sound.charm.metronome | wood / 610 Hz | `1ecb51d02de422fbf94a94d6eb7dd9e2c727be5990b6d8d14fc821cc9fa68daa` |
+| sound.consumable.steady_hand | cloth / 420 Hz | `490c6d8dfe1dc289b6cd3745d532454c2b20d5b25afcaf7ec14e72dc4a61fe1c` |
+
+Brief: docs/art/briefs/AV-N4.md. Native evidence and limits: docs/handoffs/AV-N4.md.
+
+## AV-N5 — Both Halves, Rebound Rescue and five mastery items (2026-11-17)
+
+Original transparent PNG outputs from image generation, unchanged. Exact prompts:
+docs/art/briefs/AV-N5-{A,B,R1,R2}-prompt.txt. A contains Compass Pin, Split Pattern
+and Dry Run; B contains Long Game and Second Chance. Separate Both Halves and
+Rebound Rescue ribbons include byte-identical aliases for the existing Clubhouse
+lookup, which strips mastery from the filename. AtlasTexture region views only;
+no source pixels edited or resampled. No third-party marks or image sources.
+
+| Source | SHA-256 |
+|---|---|
+| assets/items/neon/source.AV-N5-B.png | `e402bde9c242b777a064952955b093f86f3d58dd99d55f5201cb1c1bee82bd1f` |
+| assets/items/neon/source.AV-N5-A.png | `f64891a97e0e4ab9b65a76dda1b14b71490192b28f5b634642592587f89f281f` |
+| assets/clubhouse/ribbon.mastery.both_halves.png | `2c568c72db6106d60a9b4c682b615e99fa2f655201c707606c097e38c4515220` |
+| assets/clubhouse/ribbon.both_halves.png | `2c568c72db6106d60a9b4c682b615e99fa2f655201c707606c097e38c4515220` |
+| assets/clubhouse/ribbon.mastery.rebound_rescue.png | `faed2881b694af97d1889cf34a379534dd0be160b05a4199721a2cddd7211eb1` |
+| assets/clubhouse/ribbon.rebound_rescue.png | `faed2881b694af97d1889cf34a379534dd0be160b05a4199721a2cddd7211eb1` |
+
+Original Compass Pin enamel/rose shader, lane needle, observed side and rescue
+markers and paid-amount glyph geometry authored by Codex. Presentation meshes
+only; physics bodies and rule values unchanged. Reduced motion/flash freezes
+geometry. The existing Pixelify Sans font is reused under its recorded licence.
+
+Original deterministic material foley via tools/author_foley.py and
+tools/author_neon_n5_items.py: mono PCM16, 22050 Hz, 0.32 s, peak 0.48.
+No sampled recordings.
+
+| Sound ID | Material / frequency | SHA-256 |
+|---|---|
+| sound.pin.compass | metal / 760 Hz | `e089eb7bfe1a717b89af5ab27cbaf18165d735c7c4db0056e3ea7d45947f0d82` |
+| sound.charm.split_pattern | wood / 540 Hz | `b67179a2a77892c513d659d5cb4ee4c52ed8b4cd40a7e87421c6e229df2d607a` |
+| sound.charm.dry_run | paper / 680 Hz | `63e670270814bfa200c5eddf5ccf7786f0666ab7c94c50d6464868aa667bfb1d` |
+| sound.charm.long_game | swish / 430 Hz | `cec500ea08793bd03cfffda64fe872cbf5061114d1ac94c6a912060e56ce895e` |
+| sound.charm.second_chance | rubber / 610 Hz | `4199f8cf557527915ee78eda6d2201b6db39b026f38d73f1abb048c761e995c5` |
+
+Brief: docs/art/briefs/AV-N5.md. Native evidence and limitations: docs/handoffs/AV-N5.md.
+
+## UI-A6 — House pin-deck finish (2026-11-17)
+
+Original procedural shader by Codex: assets/leagues/house/pin_deck.gdshader and
+pin_deck.tres. Quantized walnut grain, recessed joins, brass rails and diamond
+inlays; no external images, sampled sources or generated textures. Static,
+unshaded, presentation meshes only. Neon material and shader reused unchanged.
+Manifest entries bind each League's finish. Brief: docs/art/ui/UI-A6.md.
+
+| UI-A6 source | SHA-256 |
+|---|---|
+| assets/leagues/house/pin_deck.gdshader | `143f03638c8368a3ee5a956fb8425f48fc7d451a3506e945ae6b935322c416e6` |
+| assets/leagues/house/pin_deck.tres | `297ee89f7ad07351f32c1e5eb24fadfc5919a356c41a4e6f8d19300bfd17d757` |
 ## AV-FIX1 — transparent card art for seven House items (coordinator, at the owner's request, 2026-11-17)
 The owner found card art with an opaque background. A scan of all 97 catalogue cards found eight whose generated source sheets were saved on a flat plate of about #0F181F, not transparency. Seven are fixed here; Spare Jar stays with Codex, because its glass shows the plate through it, which needs repainting rather than a matte.
 
@@ -1252,6 +1337,20 @@ The owner found card art with an opaque background. A scan of all 97 catalogue c
 - **The check:** every catalogue card, icon and reduced view fails if three or more of its four edges are more than half opaque. A subject touching one edge, like Standing Order's clipboard, passes.
 - **The exception:** `charm.spare_jar` is listed in `KNOWN_OPAQUE`. The check fails once it is fixed, so the exception is removed then.
 
+
+### AV-FIX1 — Spare Jar regenerated glass (Codex, 2026-11-17)
+
+Original reference: assets/items/d09/source.AV-H3-B.png, retained unchanged.
+Two image-generation edit passes isolated the jar and coins, then removed the
+first pass's unwanted external haze. Final generated RGBA copied without pixel
+editing: assets/items/d09/source.AV-FIX1.spare_jar.png.
+SHA-256: `ab9f64b5e8a1011e85590e3694990e42a2fd6046a230e064208e7507cfc69c54`. Exact prompts:
+docs/art/briefs/AV-FIX1-source-prompts.txt. AtlasTexture views use region
+(280,85,750,1070); no resampling or source-pixel edits. Central glass alpha 4/255,
+open mouth 0/255 and sampled upper background 0/255. Card, icon and reduced view
+share this source; the counted in-play jar continues using its existing icon
+hook. No sound, scoring or catalogue changes. Native visual completion is
+tracked separately in docs/handoffs/AV-FIX1.md.
 ## UI-22 award ceremony sounds (Claude, owner-delegated art direction, 2026-11-19)
 
 Original deterministic synthesis (`tools/author_award_sounds.py`, numpy, seed 20261119): mono 44.1 kHz, 16-bit PCM, normalized peaks 0.45–0.75; no recordings or samples. Rebuilt byte for byte by the tool. Played through the ceremony's own eight voices at the Sound Effects level; silent under Mute. Not a physical-device listening claim.
@@ -1269,3 +1368,21 @@ Original deterministic synthesis (`tools/author_award_sounds.py`, numpy, seed 20
 | `goal_complete.wav` | A 70 Hz stamp thump with noise, then an E major bell chord, 1.2 s | `d344dfdacd5e836b7876ba744ef3b06b3f6415e0a30e1420d291803ab756aa0c` |
 
 The ceremony's visuals (sunburst, spotlight, fireworks, bottle rockets, confetti, goal bars and stamp) are drawn at runtime from particles and shapes in `src/presentation/award_fx.gd` and `award_ceremony.gd`; no new images. Trophies, plaques, ribbons and decorations are the existing Clubhouse art (`assets/clubhouse/`).
+
+AV-FIX1 completion evidence (2026-11-23): the native Binder/shop before-art
+specimens restore the original atlas region in memory only. Shipping source and
+hash above are unchanged. All three reused slots pass the transparency guard,
+with no remaining exceptions. Capture tooling and scope: handoffs/AV-FIX1.md.
+
+### AV-N4 — Comet local-surface visibility revision (Codex, 2026-11-23)
+
+ID ball.comet; existing in_play slot assets/items/neon/in_play.ball.comet.tres references
+assets/items/neon/comet.gdshader. Original authored shader math: quantized
+mesh-local sphere position, oblique curved cyan band, parallel fine trail, and
+a tangent-projected four-point gold star. No new image/audio source, external
+sample or generated pixels. Original violet/cyan/gold palette, metallic 0.38,
+roughness 0.24 and tail emission 0.07 retained; no TIME animation. Card/icon
+source atlas and the coordinator's three UI-33b shaders are unchanged.
+Shader SHA-256: `a109be58a6845eeae7b5ef2c53754fd3c8fcfb9b021ff8769a06c3c4517956fc`.
+J02's unmodified roll/spin checks now measure 0.27/0.35 rather than 0.00/0.03.
+Native normal/reduced captures and verification are indexed in AV-N4.md.
