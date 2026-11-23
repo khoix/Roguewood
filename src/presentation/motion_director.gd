@@ -89,13 +89,20 @@ func _line(key: String) -> String:
 	var said: String = preload("res://src/presentation/rival_lines.gd").line(r, key) if not r.is_empty() else ""
 	return "%s\n%s" % [r.get("name", "The Custodian"), said if not said.is_empty() else fallback.get(key, "")]
 
+## PERF-2: a reaction frame is made once and reused while it is shown (a weak
+## reference, so the full-size sheet is freed while Low texture detail draws a copy).
+var _reaction_frames: Array = [null, null, null]
 func set_reaction(index: int, text: String) -> void:
 	reaction_state=index
-	var atlas:=AtlasTexture.new()
-	atlas.atlas=load("res://assets/motion/custodian.png")
-	var width:=atlas.atlas.get_width()/3.0
-	atlas.region=Rect2(index*width,0,width,atlas.atlas.get_height())
-	rival.texture=atlas
+	var frame: AtlasTexture = _reaction_frames[index].get_ref() if _reaction_frames[index] != null else null
+	if frame == null:
+		var sheet: Texture2D = load("res://assets/motion/custodian.png")
+		var width:=sheet.get_width()/3.0
+		frame=AtlasTexture.new()
+		frame.atlas=sheet
+		frame.region=Rect2(index*width,0,width,sheet.get_height())
+		_reaction_frames[index]=weakref(frame)
+	rival.texture=frame
 	reaction.text=text
 	_reaction_time=2.0
 	# UI-2: the line is spoken in the rival panel (MatchPanels).
