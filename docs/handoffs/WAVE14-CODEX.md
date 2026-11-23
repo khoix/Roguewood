@@ -22,8 +22,9 @@ per-item briefs still apply.
 - AV-FIX1: DONE; transparent Spare Jar and eight native before/after captures,
   with affected checks passing. Seven other cards were fixed by the coordinator.
   See AV-FIX1.md.
-- UI-A9-H: IN_PROGRESS (preproduction); twenty-variant brief and provenance/
-  capture plan in docs/art/ui/UI-A9-H.md. No celebration assets enabled yet.
+- UI-A9-H: IN_PROGRESS; twenty scene candidates, three sting candidates, original
+  prop kit and native normal/reduced/boss review journeys. Live manifest stays
+  disabled. Scope, checks and exact resume: UI-A9-H.md.
 - Salvage art stays outside Wave 14.
 
 ## Owner capture index
@@ -62,24 +63,16 @@ live_pin_deck_{normal,reduced}.png. Full index: UI-A6.md.
 
 ## Exact resume step
 
-The b5338c9 checkpoint passed full Bootstrap CI (game and art, run 45138579012)
-and E11 still review (45138579162). Its remaining E12 failure was reproduced:
-the capture tool required reveal.png, although UI-16 removed that preview and
-J08 correctly asserts its absence. The tool now checks the seven current
-capture names; no runtime or native test assertions changed. Latest local
-four-mode result and the new push's status are recorded at the end of this file.
+Continue UI-A9-H at High effort from docs/handoffs/UI-A9-H.md. All twenty
+candidate scenes and three candidate stings now exist; do not restart authoring
+from the old preproduction checkpoint. Inspect this push's CI, review/polish the
+full native set, audition/integrate sounds, finish full-render performance and
+Web/affected checks, then enable only the finished House manifest and verify.
+No Wave 15 art or AV-UI1. The timed session stops at 13:32:11 UTC, 2026-11-23.
 
-At High effort, inspect the fresh push's CI, then continue UI-A9-H from its
-handoff and docs/art/ui/UI-A9-H.md. The twenty IDs, distinct gags, slots, source
-plan, three stings, shared CRT standard and evidence plan are written. Begin
-the original prop kit and first strike/spare/boss scenes with a native review
-journey; judge the 252 × 90 result before completing the remaining variants.
-No celebration assets/scenes/audio or manifest entries exist yet. UI-A9-H is
-IN_PROGRESS (preproduction only), not DONE. No Neon/Salvage Wave 15 art and
-no proposed AV-UI1 work.
-
-This continuation is bounded to 11:58:52–12:08:52 UTC on 2026-11-23. Stop at
-the pushed checkpoint; another work window needs the owner's continuation.
+Owner review: artifacts/ui-a9-h/{normal,reduced}/contact.png; all twenty scenes
+at three beats in both orientations under each rendered directory; actual
+House boss wins in artifacts/ui-a9-h/boss/rendered/. Captures are not committed.
 
 ## Validation environment
 
@@ -182,3 +175,18 @@ export_presets.cfg remain unchanged. Python compilation and git diff checks
 pass. Evidence: artifacts/wave14/resume-10min-20261123/ and artifacts/e12/.
 The new push's CI is a separate gate; inspect it at the next resume. UI-A9-H
 preproduction is recorded in its own handoff; no celebration art is complete.
+
+UI-A9-H timed continuation (2026-11-23): coordinator 3dcd75a merged as 22aab8b.
+e1cae49 Bootstrap #563 game/art, E11 #170 and E12 #104 confirmed successful.
+Twenty original candidate scenes, three deterministic sound candidates and
+normal/reduced/actual-boss review tools authored. Unit/content, normal/reduced/actual-boss
+reviews headless/rendered, J03/J06/J11/J22L01/J22L02/JAVN1/JAVN2 headless and
+physics passed. All twenty reduced tableaux compare identically across time.
+Physics digest remains 75d1a3c0… . Full limitations and final run statuses are
+in UI-A9-H.md. Live manifest absent; final audio, Web, performance and CI gate
+remain. No DONE claim.
+
+Final UI-A9-H check: actual boss review passes both modes (rendered 94 s).
+Full-draw normal performance run timed out at 300 s, after all storyboards and
+strike/spare checks; no final timing report, so performance remains incomplete.
+See UI-A9-H.md for preserved failure log and exact continuation.

@@ -8,7 +8,7 @@ uniform float scanlines = 90.0;         // one per source pixel row (the 252 x 9
 uniform float curve = 0.06;             // barrel strength
 uniform float glow = 0.35;              // phosphor bloom on bright pixels
 uniform float vignette = 0.35;
-uniform float flicker = 0.0;            // brightness wobble, 0 under Reduced Flash
+uniform float flicker = 0.0;            // retained UI-20 interface; no temporal modulation
 uniform float power = 1.0;              // 0 = off (a thin line), 1 = fully on
 uniform vec2 texel = vec2(0.003968, 0.011111); // one source pixel of the 252 x 90 canvas
 
@@ -38,7 +38,7 @@ void fragment() {
 		colour *= 1.0 - scanline_strength * line;
 		vec2 v = UV * 2.0 - 1.0;
 		colour *= 1.0 - vignette * dot(v, v) * 0.5;
-		colour *= 1.0 + flicker * 0.03 * sin(TIME * 60.0);
+		// Fixed phosphor: no brightness oscillation in any accessibility mode.
 		colour *= mix(0.0, 1.0, smoothstep(0.0, 0.3, power)) + (1.0 - power) * 0.6;
 		COLOR = vec4(colour, 1.0);
 	}

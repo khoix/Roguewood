@@ -1,6 +1,7 @@
 # UI-A9-H — House alley-screen celebrations
 
-Status: PREPRODUCTION, 2026-11-23. Implementation is not complete.
+Status: IN_PROGRESS, 2026-11-23. Twenty scene candidates and three sting candidates
+are authored; final integration/verification is not complete.
 Assigned effort: High. Contract: docs/handoffs/UI-20.md; owner brief:
 docs/prompts/codex-wave14-ui-a9.md. House only; Neon belongs to Wave 15.
 
@@ -109,3 +110,28 @@ existing uniform picker. Do not alter RNG, rules or saved progress.
 
 No captures committed. Final handoff includes all paths, provenance, frame times,
 remaining device limits and the standard above. No new hook is presently needed.
+
+## Authored checkpoint, 2026-11-23
+
+All twenty IDs above now have `.tscn` resources, sharing original source geometry
+in `house/prop_kit.gd` and distinct choreography in `house/celebration.gd`.
+Stings exist beside them and rebuild with `tools/author_house_celebration_stings.py`.
+No live manifest slots have been added. JUIA9H/JUIA9HR select candidates through
+AlleyScreen's test override: every scene at 10/45/90 percent in both phone
+orientations, exact reduced-still comparisons, normal early/late differences,
+correct rival atlas identity, natural end/replay/skip, and real J03 strike/spare/
+open-frame input with unchanged independent scoring assertions. JUIA9HB uses
+actual House boss wins and verifies rival selection and Division Result gating.
+
+Current CRT: static 0.18 scanline strength, 90 rows, 0.06 curvature, 0.35 glow
+and 0.35 vignette. The `flicker` uniform remains for UI-20 compatibility but
+never modulates brightness. Power belongs to AlleyScreen; scenes own no audio
+or input. Final CRT/performance judgment remains part of completion.
+
+Later League standard: retain the UI-20 canvas/interface, silent scenes, context
+names, exactly-once completion, duration and distinct still contract above.
+Change original palette/props/choreography/stings per League. Use the new
+review's deterministic selection without changing production RNG. Record
+renderer, draw mode and sample counts beside wall-frame percentiles; on-demand
+QA renders are correctness evidence, not a rendering performance benchmark.
+No next-League implementation is included.
