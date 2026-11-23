@@ -697,7 +697,7 @@ func _league_card(row: Dictionary) -> Control:
 		figures.name = "Figures"
 		figures.add_theme_constant_override("separation", 4)
 		text.add_child(figures)
-		for pair in [[str(row.attempts), "attempts" if int(row.attempts) != 1 else "attempt"], ["D%d" % int(row.best_division), "best"], [str(row.best_total), "top total"], [str(row.best_frame), "top frame"]]:
+		for pair in [[str(row.attempts), "runs" if int(row.attempts) != 1 else "run"], ["D%d" % int(row.best_division), "best"], [str(row.best_total), "top total"], [str(row.best_frame), "top frame"]]:
 			var cell := VBoxContainer.new()
 			cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			cell.add_theme_constant_override("separation", -2)

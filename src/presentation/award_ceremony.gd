@@ -265,7 +265,9 @@ func present(data: Dictionary, ctx: Dictionary = {}, hold_at_end: bool = false) 
 	shown_trophies.clear()
 	goal_rows.clear()
 	for child in shelf.get_children(): child.queue_free()
-	for child in goals_box.get_children(): child.queue_free()
+	for child in goals_box.get_children():
+		goals_box.remove_child(child) # UI-40: a new ceremony never finds the last one's rows
+		child.queue_free()
 	_hurry = false
 	_skipping = false
 	playing = true
@@ -318,6 +320,8 @@ func _run() -> void:
 	for trophy in awards.get("trophies", []):
 		if not _alive(): return
 		await _trophy(trophy)
+	if not awards.get("kept", []).is_empty() and _alive():
+		await _kept()
 	if not awards.get("goals", []).is_empty() and _alive():
 		await _goals()
 	if _alive():
@@ -424,6 +428,23 @@ func _add_to_shelf(trophy: Dictionary) -> void:
 	if not reduced_motion:
 		cell.modulate.a = 0.0
 		_tween(cell, "modulate:a", 1.0, 0.3)
+
+## UI-40 (owner, 2026-11-23): what the run kept (first clears, titles, unlocks),
+## moved here from the result sheet, above the goals.
+func _kept() -> void:
+	step = "kept"
+	_kept_rows()
+	await _pause(0.6)
+
+func _kept_rows() -> void:
+	if goals_box.get_node_or_null("KeptHeader") != null: return
+	_label(goals_box, "KeptHeader", 26, TEAL, 6).text = "KEPT"
+	for i in awards.get("kept", []).size():
+		var text: String = awards.kept[i]
+		var line := _label(goals_box, "KeptLine%d" % (i + 1), 19, GOLD)
+		line.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+		line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		line.text = "◆  " + String(text)
 
 func _goals() -> void:
 	step = "goals"
@@ -555,6 +576,8 @@ func _end_state() -> void:
 		if String(trophy.id) not in shown_trophies:
 			shown_trophies.append(String(trophy.id))
 		_add_to_shelf(trophy)
+	if not awards.get("kept", []).is_empty():
+		_kept_rows()
 	for goal in awards.get("goals", []):
 		if not goal_rows.has(goal.id):
 			if goals_box.get_node_or_null("GoalsHeader") == null:

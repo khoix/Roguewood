@@ -138,6 +138,10 @@ func show_cards(cards: Array, marks: Dictionary, header: String, cycle_supported
 		if dealt:
 			button.deal_in(0.035 * wanted.find(card.uid))
 		button.disabled = not enabled
+		# UI-43: a ball the rule in force forbids reads as unavailable (it can still be
+		# tapped, and the toast says why).
+		button.modulate = Color(1, 1, 1, 0.45) if bool(card.get("barred", false)) else Color.WHITE
+		button.set_meta("barred", bool(card.get("barred", false)))
 	inspect_button.disabled = not enabled
 	if not enabled:
 		inspecting = false

@@ -32,6 +32,8 @@ signal throw_cue(id: String, charge: float)
 ## UI-3: true while the ball rolls and the frame scores (the shell hides its bar).
 signal chrome_compact_changed(compact: bool)
 const Sentence = preload("res://src/presentation/sentence.gd")
+const ClubhouseModel = preload("res://src/clubhouse/clubhouse_model.gd")
+const ThrowToasts = preload("res://src/presentation/throw_toasts.gd")
 const Lane = preload("res://src/simulation/lane_spec.gd")
 const LaneWorld = preload("res://src/simulation/lane_world.gd")
 const Dressing = preload("res://src/presentation/live_dressing.gd")
@@ -135,6 +137,11 @@ var input_paused := false
 ## UI-3: the player-facing prompt (the hint lines of `status`, which keeps the full
 ## sentence for tools and tests); it sits above the hand, out of the pins' way.
 var prompt: Label
+var toasts: VBoxContainer # UI-43: ThrowToasts, the hint and the brief notices above the cards
+var _prompt_state := ""
+var _hint_dismissed := false
+var _toasted := {}
+var _cancel_serial := 0
 var _pitch := 0.0 # extra camera pitch that puts the ball on the layout's ball line
 var _framed_for := Rect2() # (lab size, viewport size) the pitch was solved for
 var _touch := -1
@@ -269,7 +276,9 @@ func _ready() -> void:
 	prompt.add_theme_color_override("font_outline_color", Color.BLACK)
 	prompt.add_theme_constant_override("outline_size", 6)
 	prompt.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(prompt)
+	# UI-43: the aim hint is a pill just above the cards, under brief toasts.
+	toasts = ThrowToasts.new(prompt)
+	add_child(toasts)
 	next_rack = Button.new()
 	next_rack.name = "NextRack"
 	next_rack.text = "Next Rack"
@@ -473,6 +482,7 @@ func _on_card(uid: String) -> void:
 	elif Deck.kind(_item_of(uid)) == "ball":
 		if armed_ball != uid and not RivalRules.ball_allowed(active_rules(), _item_of(uid)):
 			last_cancel = "house_rules"
+			_cancel_serial += 1
 		else:
 			armed_ball = "" if armed_ball == uid else uid
 	elif not Tactics.kind(_item_of(uid)).is_empty():
@@ -491,6 +501,7 @@ func active_rules() -> Array:
 
 func _refuse_tactic(reason: String) -> void:
 	last_cancel = "tactic"
+	_cancel_serial += 1
 	_tactic_note = reason
 	_update_status()
 
@@ -622,7 +633,9 @@ func _refresh_hand() -> void:
 			detail += "\n%d left" % option.uses
 		elif equipment.MODEL == "deck" and not run.card_mod(option.uid).is_empty():
 			detail += "\n+ " + _names.get(run.card_mod(option.uid), "")
-		cards.append({"uid": option.uid, "item_id": option.item_id, "title": item.get("name", option.item_id), "detail": detail, "kind": option.kind, "rarity": item.get("rarity","common"), "art_index": 3 if option.kind == "tactical" else 2})
+		# UI-43: a ball the rule in force forbids is marked (dimmed) while aiming.
+		var barred: bool = state == "aim" and option.kind == "ball" and not RivalRules.ball_allowed(active_rules(), option.item_id)
+		cards.append({"uid": option.uid, "item_id": option.item_id, "title": item.get("name", option.item_id), "detail": detail, "kind": option.kind, "rarity": item.get("rarity","common"), "art_index": 3 if option.kind == "tactical" else 2, "barred": barred})
 	var marks := {}
 	if not armed_ball.is_empty(): marks[armed_ball] = "ball"
 	if not armed_tactical.is_empty(): marks[armed_tactical] = "tactical"
@@ -985,6 +998,7 @@ func _cancel(reason: String) -> void:
 	_spin_angle = 0.0
 	cancels += 1
 	last_cancel = reason
+	_cancel_serial += 1
 	state = "aim"
 	_update_status()
 
@@ -1337,8 +1351,7 @@ func _show_result() -> void:
 	else:
 		title = "Run over — %s lost" % String(last.kind).capitalize()
 		lines.append("Scored %d of the %d target." % [last.score, last.target])
-		for rule in division.rules():
-			lines.append("Rule in force: " + RivalRules.summary(rule))
+		# UI-40 (owner, 2026-11-23): no "Rule in force" on League's End.
 		if not career.first_clears.is_empty():
 			lines.append("Career progress kept: %d rival(s) cleared." % career.first_clears.size())
 		if CareerProfile.record_items(career, _owned_ids(), career_attempt):
@@ -1362,6 +1375,9 @@ func _queue_awards() -> void:
 	if award_ceremony == null or content.get("id", "") == "tutorial":
 		return
 	var awards: Dictionary = RunAwards.for_run(career, career_graph, career_attempt)
+	# UI-40 (owner, 2026-11-23): what the run kept (first clears, titles, unlocks)
+	# moves from the result sheet to the award page.
+	awards["kept"] = _result_view.get("sections", {}).get("kept", [])
 	if RunAwards.is_empty(awards):
 		return
 	var league_name := String(content.get("name", "League"))
@@ -1406,7 +1422,7 @@ func _result_sections(lines: Array, career_lines: Array, last: Dictionary) -> Di
 		var text := String(line)
 		if text.begins_with("First clear:") or text.begins_with("Champion"):
 			highlights.append(text)
-		elif text.begins_with("Rule in force:") or text.begins_with("Already cleared") or text.begins_with("Career progress kept") or text.begins_with("Campaign seed"):
+		elif text.begins_with("Already cleared") or text.begins_with("Campaign seed"):
 			notes.append(text)
 	for line in career_lines:
 		var text := String(line)
@@ -1432,9 +1448,17 @@ func _result_sections(lines: Array, career_lines: Array, last: Dictionary) -> Di
 		"subtitle": ("%s defeated." % division.rival().name) if won else lost,
 		"stats": [[str(total_score), "Total"], [reached, "Reached"], ["$%d" % run.money, "Left"], [str(attempt), "Run"]],
 		"matches": division.results.map(func(r): return {"division": int(r.get("division", 1)), "kind": String(r.kind), "score": int(r.score), "target": int(r.target), "won": bool(r.won)}),
-		"highlights": highlights,
-		"goals": CareerProfile.goals(career, career_graph.get("objectives", []), career_attempt).map(func(g): return {"name": g.name, "progress": int(g.progress), "threshold": int(g.threshold)}),
+		# UI-40 (owner, 2026-11-23): the sheet no longer lists what was kept or the
+		# goals; the award page does (`kept` travels with the awards). The Career's
+		# progress is a bar of rivals defeated: the shelf's plaques earned.
+		"kept": highlights,
+		"rivals": _rivals_defeated(),
 		"notes": notes}
+
+## UI-40: rivals defeated for the first time, of the rival plaques on the shelf.
+func _rivals_defeated() -> Dictionary:
+	var plaques: Array = ClubhouseModel.trophies(career, career_graph).filter(func(slot): return slot.kind == "plaque")
+	return {"name": "Rivals defeated", "progress": plaques.filter(func(slot): return slot.earned).size(), "threshold": plaques.size()}
 
 ## What this attempt changed in the Career, and up to three goals in progress (§16):
 ## unlocks join the pool from the next attempt, never this one.
@@ -2269,26 +2293,45 @@ func _place_prompt() -> void:
 		if tactic < 0: lines.remove_at(0)
 		else: lines[0] = lines[0].substr(tactic + 3)
 	var rect: Rect2 = regions.prompt
-	if size.y >= size.x:
-		# A phone breaks the aim hint at its separator instead of orphaning a word.
-		for i in lines.size():
-			if lines[i].begins_with("Hold the ball"): lines[i] = lines[i].replace(" · ", "\n")
-		# The assist sliders name what to set and their panel takes the throwing hand's
-		# side, so that hint goes and the other lines keep to the free side.
-		if assist_panel != null and assist_panel.visible:
-			var kept: Array = Array(lines).filter(func(line): return not line.begins_with("Set position, aim"))
-			lines = PackedStringArray(kept)
-			var beside := assist_panel.position.x > size.x * 0.25
-			rect.size.x = maxf((assist_panel.position.x if beside else size.x - assist_panel.get_rect().end.x) - rect.position.x - 8.0, 120.0)
-			if not beside: rect.position.x = assist_panel.get_rect().end.x + 8.0
-	prompt.text = "\n".join(lines)
-	# Frame done: the review says it all, and Next Rack takes the bottom edge.
-	prompt.visible = state not in ["shop", "intro", "division_over", "frame_done"] and not prompt.text.is_empty()
-	prompt.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	prompt.custom_minimum_size = Vector2(rect.size.x, 0)
-	prompt.size = Vector2(rect.size.x, 0)
-	prompt.add_theme_font_size_override("font_size", 20 if size.y >= size.x else 19)
-	prompt.position = Vector2(rect.position.x, rect.position.y - prompt.get_combined_minimum_size().y)
+	var portrait := size.y >= size.x
+	# UI-43 (owner, 2026-11-23): no wall of text under the ball. While aiming, the
+	# hint stays (a pill just above the cards) until the ball is touched; everything
+	# else (rules, the lane, tactics in play, alerts) is a brief toast above it, shown
+	# when an aim starts and when a new alert comes. Nothing shows while the ball
+	# rolls or a frame scores; the status line (tests, logs) is unchanged.
+	var aiming := state in ["aim", "tactic"]
+	if aiming and _prompt_state not in ["aim", "tactic", "holding"]:
+		_toasted.clear() # a new aim (not one resumed after a cancel)
+		_hint_dismissed = false
+		toasts.clear_toasts()
+	if state == "holding": _hint_dismissed = true
+	if not aiming and state != "holding": toasts.clear_toasts()
+	_prompt_state = state
+	var hint: Array = []
+	var notices: Array = []
+	if aiming:
+		for line in lines:
+			if line.begins_with("Hold the ball") or line.begins_with("Set position, aim") or line.begins_with("Choose how to play"): hint.append(line)
+			elif not line.is_empty(): notices.append(line)
+	# The assist sliders name what to set, so that hint goes while their panel shows;
+	# the stack keeps to the free side beside the panel (ThrowToasts.avoid).
+	if assist_panel != null and assist_panel.visible:
+		hint = hint.filter(func(line): return not line.begins_with("Set position, aim"))
+	toasts.avoid = assist_panel
+	var alerts := ["House Rules: That ball cannot be thrown here.", "No throw ("]
+	for line in notices:
+		var alert: bool = line == _tactic_note or alerts.any(func(a): return String(line).begins_with(a))
+		var key: String = line + ("#%d" % _cancel_serial if alert else "")
+		if _toasted.has(key): continue
+		_toasted[key] = true
+		toasts.show_toast(line, alert)
+	prompt.text = "\n".join(hint)
+	prompt.add_theme_font_size_override("font_size", 17 if portrait else 16)
+	toasts.reduced_motion = settings.reduced_motion
+	toasts.hint_wanted = aiming and not prompt.text.is_empty() and not (_hint_dismissed and state == "aim")
+	prompt.visible = toasts.hint_wanted
+	toasts.top_limit = ball_screen_position().y + _ball_screen_radius() + 4.0 if lane != null else -INF
+	toasts.place(rect)
 
 ## Fits the aim camera to the layout: vertical framing as before, pitched so the
 ## ball sits on the lane region's ball line (UI-A1-C: 0.667 of its height).

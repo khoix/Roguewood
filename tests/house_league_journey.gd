@@ -171,11 +171,32 @@ func _title() -> void:
 		"all five House rivals are first clears")
 	_check(["gate.proprietor_cleared", "gate.old_lou_cleared", "gate.house_champion"].all(func(g): return g in career.unlocked)
 		and int(career.championships.get("league.house", {}).get("wins", 0)) == 1, "the rival rewards and the title are in the Career")
+	# UI-40 (owner, 2026-11-23): the sheet keeps the outcome, tiles and matches, and
+	# shows the Career as a bar of rivals defeated; what was kept moves to the awards.
+	var view: Control = lab.hud.result_view
+	var headings: Array = view.find_children("ResultHeading", "", true, false).map(func(h): return h.text)
+	var rivals: Dictionary = lab._rivals_defeated()
+	var bar: Control = view.find_child("ResultRivals", true, false)
+	var kept: Array = lab._pending_awards.get("awards", {}).get("kept", [])
+	_check(view.find_children("ResultHighlight", "", true, false).is_empty() and "Goals" not in headings and "Kept" not in headings and "Rewards" not in headings
+		and bar != null and int(rivals.progress) >= 5 and bar.get_child(2).text == "%d/%d" % [int(rivals.progress), int(rivals.threshold)]
+		and kept.any(func(t): return String(t).begins_with("Champion")) and not lab.hud.result_body.text.contains("Rule in force"),
+		"UI-40: the sheet has no Kept or Goals, a bar of rivals defeated (%s, headings %s), and the kept lines wait for the awards (%s)" % [str(rivals), str(headings), str(kept)])
 	await _capture("j22_title")
 
 func _tournament() -> void:
+	var kept: Array = lab._pending_awards.get("awards", {}).get("kept", [])
 	await _focus_accept(lab.hud.menu_button)
-	await _through_awards()
+	# UI-40: the award page lists what the run kept, above the goals.
+	var ceremony = lab.award_ceremony
+	await _wait_for(func(): return ceremony.visible and ceremony.playing, "the award ceremony", 120)
+	await _focus_accept(ceremony.skip_button)
+	await _wait_for(func(): return ceremony.step == "done" and not ceremony.continue_button.disabled, "Skip shows the awards summary", 120)
+	var lines: Array = ceremony.goals_box.get_children().filter(func(n): return n.name.begins_with("KeptLine")).map(func(n): return n.text)
+	_check(ceremony.goals_box.get_node_or_null("KeptHeader") != null and lines.size() == kept.size() and lines.size() >= 3
+		and lines.any(func(t): return t.contains("Champion")), "UI-40: the award page lists what the run kept (%s)" % str(lines))
+	await _capture("j22_awards_kept")
+	await _focus_accept(ceremony.continue_button)
 	await _wait_for(func(): return scene.screen == "menu", "back to the menu", 400)
 	_check(not scene.kit.is_item_disabled(1) and scene.kit.get_item_text(1) == "Tournament Kit", "the title opens the Tournament Kit")
 	scene.kit.grab_focus()

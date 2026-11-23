@@ -572,6 +572,8 @@ func _stage_two_clubhouse() -> void:
 	var club = scene.clubhouse
 	_check(scene.enter.text == "New Run" and club.records_label.text.contains("House League · 1 run") and club.records_label.text.contains("1 title"),
 		"after a restart the board offers New Run and keeps the record")
+	var captions: Array = club.league_cards.find_children("Figures", "", true, false).map(func(f): return f.get_child(0).get_child(1).text)
+	_check(captions.has("RUN") and not captions.any(func(c): return c.contains("ATTEMPT")), "UI-42: the League Record counts runs (%s)" % str(captions))
 	await _tab("binder")
 	_check(_state("pin.wood") == "mastered" and _state("charm.encore") == "available", "Mastered and unlocked cards survive the restart")
 	await _tab("board")
