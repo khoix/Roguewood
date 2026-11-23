@@ -687,6 +687,9 @@ func _award_ceremony() -> void:
 	_check(ceremony.fx.show_on and ceremony.fx.shells >= shells + 3 and ceremony.show_cues.size() > heard and ceremony.fx.alive_bursts() > 0,
 		"the fireworks keep going on the summary (%d → %d shells)" % [shells, ceremony.fx.shells])
 	await _capture("awards_summary")
+	ceremony.goals_scroll.scroll_vertical = int(ceremony.goals_scroll.get_v_scroll_bar().max_value) # UI-44: the goal cards
+	for i in 3: await process_frame
+	await _capture("awards_summary_end")
 	# UI-38b: on the last screen the effects ease down over 5 s to half the music's volume.
 	var floor: float = ceremony.sfx_floor()
 	var midway: float = ceremony.sfx_level

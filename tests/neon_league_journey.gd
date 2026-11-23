@@ -167,7 +167,7 @@ func _title() -> void:
 	var matches: Control = view.find_child("ResultMatches", true, false)
 	_check(view.visible and not lab.hud.result_body.visible and view.find_child("ResultHeadline", true, false).text == "Neon League cleared!"
 		and view.find_child("ResultStats", true, false).get_child_count() == 4 and matches != null and matches.get_child_count() == 9
-		and view.find_children("ResultHighlight", "", true, false).is_empty() and not lab._pending_awards.get("awards", {}).get("kept", []).is_empty(),
+		and view.find_children("ResultHighlight", "", true, false).is_empty() and not lab._pending_awards.get("awards", {}).get("kept", {}).get("items", []).is_empty(),
 		"the end screen is sections: headline, four tiles and eight Division rows; what was kept waits for the awards (UI-40)")
 	_check(RULES.keys().all(func(r): return career.first_clears.has(r)), "Slick, Laser Lena, DJ Flicker and the champion are first clears")
 	_check(GATES.all(func(g): return g in career.unlocked) and int(career.championships.get("league.neon", {}).get("wins", 0)) == 1

@@ -1377,7 +1377,7 @@ func _queue_awards() -> void:
 	var awards: Dictionary = RunAwards.for_run(career, career_graph, career_attempt)
 	# UI-40 (owner, 2026-11-23): what the run kept (first clears, titles, unlocks)
 	# moves from the result sheet to the award page.
-	awards["kept"] = _result_view.get("sections", {}).get("kept", [])
+	awards["kept"] = _kept_awards()
 	if RunAwards.is_empty(awards):
 		return
 	var league_name := String(content.get("name", "League"))
@@ -1449,11 +1449,34 @@ func _result_sections(lines: Array, career_lines: Array, last: Dictionary) -> Di
 		"stats": [[str(total_score), "Total"], [reached, "Reached"], ["$%d" % run.money, "Left"], [str(attempt), "Run"]],
 		"matches": division.results.map(func(r): return {"division": int(r.get("division", 1)), "kind": String(r.kind), "score": int(r.score), "target": int(r.target), "won": bool(r.won)}),
 		# UI-40 (owner, 2026-11-23): the sheet no longer lists what was kept or the
-		# goals; the award page does (`kept` travels with the awards). The Career's
-		# progress is a bar of rivals defeated: the shelf's plaques earned.
-		"kept": highlights,
+		# goals; the award page does (_kept_awards). The Career's progress is a bar of
+		# rivals defeated: the shelf's plaques earned.
 		"rivals": _rivals_defeated(),
 		"notes": notes}
+
+## UI-44 (owner, 2026-11-23: "Make the kept and goal sections thematically
+## appropriate for this page--not just a wall of text"): what this run opened, for
+## the award page to present as pieces, not sentences. Rival plaques and titles are
+## already the page's trophies; what is left is the items that join the shop pool
+## (`items`: [{id, name}]) and the Leagues and kits the run opened (`opened`:
+## [{kind, name}]).
+func _kept_awards() -> Dictionary:
+	var items: Array = []
+	var opened: Array = []
+	var seen := {}
+	for gate in CareerProfile.gates_from(career, career_attempt):
+		for item_id in career_graph.get("items_by_gate", {}).get(gate, []):
+			if seen.has(item_id) or String(item_id).begins_with("kit."): continue # a kit is a badge below
+			seen[item_id] = true
+			items.append({"id": String(item_id), "name": String(_names.get(item_id, item_id))})
+		for kit in content.get("kits", []):
+			if String(kit.get("unlock", "")) == String(gate):
+				opened.append({"kind": "kit", "name": String(kit.get("name", kit.id))})
+		if String(gate) in league_entry.get("championship", {}).get("gates", []) and not String(content.get("opens", "")).is_empty():
+			var league_id := String(content.opens)
+			var known: Dictionary = career_graph.get("leagues", {}).get(league_id, {})
+			opened.append({"kind": "league", "name": String(known.get("name", league_id.trim_prefix("league.").capitalize() + " League"))})
+	return {"items": items, "opened": opened}
 
 ## UI-40: rivals defeated for the first time, of the rival plaques on the shelf.
 func _rivals_defeated() -> Dictionary:
