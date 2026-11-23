@@ -133,3 +133,6 @@ For each of AV-N3 to AV-N5:
 - **At the end of the wave:** write docs/handoffs/WAVE14-CODEX.md as an index, listing the captures the owner should review.
 
 Stop after the Wave 14 claims, or earlier at a coherent pushed checkpoint with the exact resume step recorded.
+
+## Coordinator integration (2026-11-23)
+`codex/roguewood-build` at `e1cae49` is merged into `claude/roguewood-build`: AV-N4, AV-N5, UI-A6, AV-FIX1, the Comet markings (`b5338c9`) and the E12 capture-list repair. Reviewed against the rules above; no changes were needed. Next: UI-A9-H (docs/prompts/codex-wave14-ui-a9.md). Merge `claude/roguewood-build` into your branch with a merge commit before starting.
