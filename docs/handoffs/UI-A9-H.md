@@ -2,9 +2,10 @@
 
 Status: IN_PROGRESS (twenty authored candidates; live activation withheld).
 Date: 2026-11-23. Effort: High. Branch: codex/roguewood-build.
-Timebox: 13:12:11–13:32:11 UTC; checkpoint/save only after the deadline.
+Latest timebox: 18:23:29–18:43:29 UTC; checkpoint/save only after the deadline.
+Earlier 13:12:11–13:32:11 session is retained below as history.
 
-## Implemented this window
+## Earlier session implementation
 
 - Fresh checkout of e1cae49; fetched origin and merged coordinator 3dcd75a
   with merge commit 22aab8b. No conflicts; both sides of documentation retained.
@@ -67,27 +68,29 @@ outside the default sandbox; no repository settings changed.
 
 ## Exact resume
 
-1. Fetch, inspect this push's full Bootstrap/E11/E12 CI, and safely merge any
-   coordinator update. Classify actual failing assertions before fixes.
-2. Review the normal/reduced contact sheets and complete motion sequences;
-   refine small prop readability and choreography before treating candidates
-   as final. Keep existing stable IDs and source provenance.
-3. Audition the three stings and check AlleyScreen playback at effects volume
-   and mute. Scenes remain silent. No audio-live claim has been made.
-4. Finish per-variant full-render frame-time comparison against ordinary rolls;
-   inspect renderer/draw mode/sample counts and repeat in isolation if needed.
-   Complete rendered affected gameplay/UI-20 checks and Web validation.
-5. Only when the whole set is finished, enable twenty paths and three sound
-   paths in the House theme manifest alone, then its completeness flag. Rerun
-   unit/content, native review modes, real trigger checks and affected journeys.
-   Push; full CI is the gate. Until then UI-A9-H remains IN_PROGRESS.
+1. Fetch, inspect the latest push's Bootstrap game/art and E11/E12, and merge
+   new coordinator commits safely. Classify actual assertions before fixes.
+2. Review/polish the full normal/reduced contact sheets and motion sequences at
+   450×800 and 800×450; small props and choreography still need final judgment.
+   All twenty candidates exist: do not restart preproduction.
+3. Audition artifacts/ui-a9-h/audio/stings-review.wav (strike, spare, boss).
+   The interface could not listen; technical PCM checks and production mixer
+   volume/mute checks passed, but subjective sound review remains outstanding.
+4. Complete affected rendered/UI-20 regressions (including J22L01, JAVN1/JAVN2),
+   then review the timing evidence and performance limits in docs/art/ui/UI-A9-H.md.
+   Both bounded full-draw profiles now pass; no need to repeat the old timeout.
+   Web passed in isolation. Repeat required checks after subsequent art changes.
+5. Only once the whole set is finished, enable twenty paths and three sound
+   paths in the House manifest alone, then its completeness flag. Re-run native
+   review modes, real triggers and affected checks. Full push CI is the gate;
+   UI-A9-H remains IN_PROGRESS until implementation, evidence and checks finish.
 
 Changed scope: assets/ui/alley_screen/{house/,crt.gdshader}; four new celebration
  test/journey scripts; tools/author_house_celebration_stings.py; add-only
  tools/qa.py, tests/run_tests.gd, .github/workflows/bootstrap.yml; asset ledger,
  art plan, this handoff and WAVE14-CODEX.md. Protected gameplay files unchanged.
 
-## Final timed checkpoint
+## Earlier timed checkpoint (superseded by latest checkpoint)
 
 JUIA9HB rendered PASS (94 s), completing its headless/rendered coverage.
 The normal `--draw all` benchmark timed out at its unchanged 300-second limit,
@@ -105,3 +108,65 @@ assertions or claim a phone performance result.
 All implementation/testing stops at the 13:32:11 UTC deadline. Only checkpoint
 commit/push and remote-SHA/clean-tree verification follow. Fresh push CI remains
 pending; no wait for it in this window. UI-A9-H remains IN_PROGRESS.
+
+
+## Latest timed checkpoint — 2026-11-23, 18:23:29–18:43:29 UTC
+
+Synchronized coordinator a1f704d with merge commit aaaabd1. Confirmed prior
+cec80a1 Bootstrap #565 (45184936750), E11 #172 (45184936441) and E12 #105
+(45184936569) all successful. No prior-push CI repair was needed.
+
+Completed this window:
+- Incremental frame-time JSON now survives interruption. JUIA9HP/JUIA9HL split
+  the full-render measurement by orientation without weakening gameplay checks.
+  Both passed in isolation (177 s portrait, 158 s landscape), all twenty scenes
+  plus ordinary rolls, complete reports and 97–181 scene samples each.
+- Portrait baseline p95 26.294 ms; scene p95 35.675–69.484 ms. Landscape baseline
+  p95 28.788 ms; scene p95 28.802–67.716 ms. Software llvmpipe desktop, whole-state
+  timing, reduced-motion assisted baseline: NOT an isolated art-cost measurement
+  or physical-phone/60fps claim. Timing preceded the final path-backed portrait
+  change; its pixels/regions are unchanged. Full method/table in the art standard.
+- JUIA9HA exercises actual AlleyScreen/theme/effects mixer: all three correct
+  stings, half-volume gain, Mute/zero-volume suppression, picture/music retained.
+  Headless and rendered pass. PCM checks pass; listening is still outstanding.
+- PERF-2-compatible texture property and five generated path-backed AtlasTexture
+  views restore Normal correctly after Low frees the original view, including
+  held reduced stills. Exact source/region/filter identity checked. No PNG edits.
+  Coordinator follow-up: unnamed runtime AtlasTexture originals have no reload
+  path after their WeakRef expires; this art uses path-backed views locally.
+  No edits to Graphics or RivalArt were made.
+- Added art-only CI steps for audio and isolated full-draw profiles; provenance
+  and the later-League standard updated. Live manifest remains absent.
+
+Validation: final unit/content, JUIA9H/JUIA9HR headless, JUIA9HA headless/rendered,
+JUIA9HR, J06 and J11 rendered pass. Earlier in this window JUIA9HB, J06, J11, J22L01,
+JAVN1/JAVN2 headless pass. Prior full boss rendered evidence remains available.
+JW01 Web passes in isolation with no script errors, save/reload/context recovery.
+The concurrent Web attempt failed the coordinator-owned loader assertion
+“at 100% the pin falls only once the ball reaches it” (pinDown true); isolated
+retry passed (pinDown false). No loader edits or assertion relaxations. Retain
+this as a contention-sensitive test observation for the coordinator.
+Physics code untouched; prior digest 75d1a3c0… remains the recorded reference,
+not a newly executed physics result. Fresh push full CI is pending; do not wait
+past the time limit. Remaining rendered checks/final art and sound judgment
+prevent DONE/live activation.
+
+Owner evidence (ignored, never committed):
+- Existing normal/reduced contact.png and rendered storyboard sequences; boss
+  wins in artifacts/ui-a9-h/boss/rendered/.
+- artifacts/ui-a9-h/profile-{portrait,landscape}/rendered/frame-times.json;
+  artifacts/ui-a9-h/performance-summary.{json,md}.
+- artifacts/ui-a9-h/audio/stings-review.wav, pcm-report.json and rendered/
+  audio_{strike,spare,boss_defeated}.png.
+- artifacts/qa/web_journey.log (passing isolated run); concurrent failure copy:
+  artifacts/ui-a9-h/resume-20261123/web-concurrent-failure.log.
+
+Modified scope this window: celebration.gd; five portraits/*.tres; new portrait
+metadata generator; main celebration art journey; audio/profile journey scripts
+and UIDs; add-only tools/qa.py and bootstrap.yml; asset ledger, art standard and
+both handoffs. No protected gameplay edits; no captures committed. Pinned Godot
+4.5.2 and Xorg :90 as above; Web requires PLAYWRIGHT_BROWSERS_PATH=/home/agent/.cache/ms-playwright.
+
+Implementation/testing ended before the 18:43:29 UTC deadline. Final rendered
+J06 (55 s) and J11 (61 s) passed. Only checkpoint save/push and remote-SHA/clean-tree
+verification follow; full CI on this push remains pending. Exact resume is above.

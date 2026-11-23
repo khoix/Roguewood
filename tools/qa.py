@@ -327,6 +327,14 @@ JOURNEYS["JUIA9HB"] = ("res://tests/house_celebration_boss_journey.gd", "ROGUEWO
                        tuple(f"boss_d{i:02d}" for i in range(1, 9)) + ("j22_champion", "j22_title", "j22_tournament"), 1800, ["--fixed-fps", "60"])
 CONTENT["JUIA9HB"] = "house"
 
+for _key, _orientation in [("JUIA9HP", "portrait"), ("JUIA9HL", "landscape")]:
+    JOURNEYS[_key] = (f"res://tests/house_celebration_profile_{_orientation}.gd", "ROGUEWOOD_UIA9H_OK",
+                     f"artifacts/ui-a9-h/profile-{_orientation}", (), 300, ["--fixed-fps", "60"])
+
+JOURNEYS["JUIA9HA"] = ("res://tests/house_celebration_audio_journey.gd", "ROGUEWOOD_UIA9HA_OK", "artifacts/ui-a9-h/audio",
+                       ("audio_strike", "audio_spare", "audio_boss_defeated"), 180, ["--fixed-fps", "60"])
+CONTENT["JUIA9HA"] = "house"
+
 def engine():
     executable = os.environ.get("GODOT_BIN") or shutil.which("godot") or shutil.which("godot4")
     if not executable:

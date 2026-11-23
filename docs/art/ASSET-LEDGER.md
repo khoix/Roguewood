@@ -1418,3 +1418,33 @@ performance/visual acceptance remain required. Captures are ignored artifacts.
 | `assets/ui/alley_screen/house/boss_defeated.wav` | `92fed7540ba37108432760e3aa96796f24b4de4d80831880e6bb43afe16f6dcb` |
 | `assets/ui/alley_screen/house/spare.wav` | `8555ffa65d8035d3e5656019f8ceaff11a4e439f8abe902471654e278b701b16` |
 | `assets/ui/alley_screen/house/strike.wav` | `826350a9050a522dada8c5ddf1162078dc697d5a0fa19a05d5362efcd2d23e68` |
+
+### UI-A9-H — PERF-2 compatible portrait views (2026-11-23 resume)
+
+Five `.tres` AtlasTexture resources in `assets/ui/alley_screen/house/portraits/`
+reference the unchanged original rival PNGs and exact defeated regions from
+`assets/rivals/manifest.json` (the same interpretation as RivalArt). No pixels
+are copied/repainted; champion resolves its own manifest entry. Reproduce with
+`python3 tools/author_house_celebration_portraits.py`. The new review asserts
+source texture, region and filter clipping against RivalArt for all ten endings.
+
+Why paths: PERF-2 remembers runtime atlas resources only weakly. Once their
+last holder releases them at Low, Normal cannot reload an unnamed resource.
+These small path-backed views are reloadable. `celebration.gd` holds only its
+`texture` property, with redraw invalidation for a held reduced still. Native
+JUIA9HA verifies Low reduces the underlying sheet to ≤512 px, the old atlas
+view is freed, and Normal reloads the original. No Graphics/RivalArt code edited.
+
+Sting PCM sources are unchanged: 44.1 kHz, -6.0005 dBFS peak, zero clipped
+samples and zero first/last samples. Audio routing/mute/zero-volume checks pass;
+this interface cannot listen to audio, so no subjective audition is claimed.
+
+| Revised/new source | SHA-256 |
+|---|---|
+| `assets/ui/alley_screen/house/celebration.gd` | `4a894d661a83b308658c397dbd68534b8f8c5cbdb2adb9445f6caff3a8ee337e` |
+| `tools/author_house_celebration_portraits.py` | `6db3981b8cfabbe5a6b187a76a1bb9facbfb03310affec025293fc8bff19e2f2` |
+| `assets/ui/alley_screen/house/portraits/custodian.tres` | `e6f36eedeb3790d879dcef0158c008c8f30150d4d5f00caec4e65c2d5c9fd2a7` |
+| `assets/ui/alley_screen/house/portraits/custodian_champion.tres` | `e6f36eedeb3790d879dcef0158c008c8f30150d4d5f00caec4e65c2d5c9fd2a7` |
+| `assets/ui/alley_screen/house/portraits/old_lou.tres` | `a2f765d402fd79afec025707c4f313fafa3afad8c949de2d380fae341f42cfce` |
+| `assets/ui/alley_screen/house/portraits/proprietor.tres` | `355a7042daa293687e7df5affed145f2e567c1aaf7625c88568c9c200a75040f` |
+| `assets/ui/alley_screen/house/portraits/surveyor.tres` | `ade6d402c70e3cf4557e039b9ebb50e1b9eb8aae74ed41d4d4647f1072a33294` |

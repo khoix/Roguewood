@@ -8,7 +8,10 @@ const FONT = preload("res://assets/ui/fonts/PixelifySans.ttf")
 var context: Dictionary = {}
 var elapsed := 0.0
 var _done := true
-var _portrait: Texture2D
+var texture: Texture2D:
+	set(value):
+		texture = value
+		queue_redraw() # PERF-2 can replace an atlas even while a reduced still is held.
 
 func _ready() -> void:
 	size = Vector2(252, 90)
@@ -23,7 +26,13 @@ func play(with: Dictionary) -> void:
 	context = with.duplicate(true)
 	elapsed = 0.0
 	_done = false
-	_portrait = RivalArt.portrait(String(context.get("rival_id", "")), "defeated") if variant.begins_with("boss.") else null
+	texture = null
+	if variant.begins_with("boss."):
+		# Path-backed views of the unchanged RivalArt regions let PERF-2 reload
+		# Normal after Low releases the original, without retaining a large sheet.
+		var id := String(context.get("rival_id", ""))
+		var path := "res://assets/ui/alley_screen/house/portraits/" + id.trim_prefix("rival.") + ".tres"
+		texture = load(path) if ResourceLoader.exists(path) else RivalArt.portrait(id,"defeated")
 	set_process(true)
 	queue_redraw()
 
@@ -99,8 +108,8 @@ func _last_chair(t: float) -> void:
 func _surveyor(t: float) -> void:
 	Kit.rect(self,21,14,63,56,Kit.GOLD)
 	Kit.rect(self,24,17,57,50,Kit.WOOD)
-	if _portrait != null:
-		draw_texture_rect(_portrait,Rect2(26,18,53,49),false)
+	if texture != null:
+		draw_texture_rect(texture,Rect2(26,18,53,49),false)
 	# The tape retracts from the title side into a comically oversized frame loop.
 	var coil := smoothstep(0.1,0.8,t)
 	var points := PackedVector2Array()
@@ -257,7 +266,7 @@ func _boss_story(t: float) -> void:
 	draw_set_transform(Vector2(52,42),bow)
 	Kit.rect(self,-31,-28,62,56,Kit.GOLD)
 	Kit.rect(self,-28,-25,56,50,Kit.WOOD)
-	if _portrait != null: draw_texture_rect(_portrait,Rect2(-26,-24,52,48),false)
+	if texture != null: draw_texture_rect(texture,Rect2(-26,-24,52,48),false)
 	draw_set_transform(Vector2.ZERO)
 	var name_parts := String(context.get("rival_name","Rival")).to_upper().split(",",false,1)
 	if name_parts.size() == 2:

@@ -27,6 +27,7 @@ var _measure := ""
 var _last_sample := 0
 var _last_bucket := ""
 var _samples: Dictionary = {}
+var _completed := false
 
 func _process(_delta: float) -> bool:
 	var bucket := _measure
@@ -40,7 +41,7 @@ func _process(_delta: float) -> bool:
 	return false
 
 func _write_frame_times() -> void:
-	var report := {"renderer":RenderingServer.get_video_adapter_name(), "display":DisplayServer.get_name(),
+	var report := {"complete":_completed, "failures":failures, "renderer":RenderingServer.get_video_adapter_name(), "display":DisplayServer.get_name(),
 		"draw_all":not "--qa-render-on-demand" in OS.get_cmdline_user_args() and DisplayServer.get_name() != "headless", "measurement":"wall milliseconds between native process frames; includes CPU/render scheduling, not GPU timing or physical-phone evidence", "samples":{}}
 	for key in _samples:
 		var values: Array = _samples[key]
@@ -49,6 +50,8 @@ func _write_frame_times() -> void:
 	if not artifact_dir.is_empty():
 		var file := FileAccess.open(artifact_dir.path_join("frame-times.json"),FileAccess.WRITE)
 		if file != null: file.store_string(JSON.stringify(report,"\t"))
+
+func orientations() -> Array: return ["portrait", "landscape"]
 
 func reduced() -> bool: return false
 
@@ -78,7 +81,7 @@ func _run() -> void:
 	await _focus_accept(scene.resume)
 	var alley = lab.alley_screen
 	_check(not alley.has_art("strike"), "unfinished set remains absent from live manifest")
-	for orientation in ["portrait", "landscape"]:
+	for orientation in orientations():
 		root.size = Vector2i(450,800) if orientation == "portrait" else Vector2i(800,450)
 		for i in 12: await process_frame
 		for spec in CASES:
@@ -91,7 +94,8 @@ func _run() -> void:
 			_check(art != null and is_equal_approx(art.duration(), spec[2]), "scene duration " + spec[1])
 			if art == null: continue
 			if spec[0] == "boss_defeated":
-				_check(art._portrait != null and art._portrait == art.RivalArt.portrait(ctx.rival_id,"defeated"), "correct rival portrait " + spec[1])
+				var expected: AtlasTexture = art.RivalArt.portrait(ctx.rival_id,"defeated")
+				_check(art.texture is AtlasTexture and art.texture.atlas == expected.atlas and art.texture.region == expected.region and art.texture.filter_clip == expected.filter_clip, "correct rival portrait source and region " + spec[1])
 			art.set_process(false)
 			# Let the production power-on finish; the scene clock alone is held.
 			for i in 14: await process_frame
@@ -115,6 +119,7 @@ func _run() -> void:
 			_measure = spec[1] + "_" + orientation
 			await _wait_for(func(): return not alley.playing(), "natural completion " + spec[1])
 			_measure = ""
+			_write_frame_times()
 			_check(not alley.visible and alley.view.render_target_update_mode == SubViewport.UPDATE_DISABLED, "hidden screen stops rendering")
 			alley.celebrate(spec[0],ctx)
 			alley.skip()
@@ -135,6 +140,7 @@ func _run() -> void:
 	await _spare_frame()
 	await _open_frame()
 	alley.variants_override = {}
+	_completed = failures.is_empty()
 	_write_frame_times()
 	if failures.is_empty(): print("ROGUEWOOD_UIA9H_OK")
 	quit(0 if failures.is_empty() else 1)

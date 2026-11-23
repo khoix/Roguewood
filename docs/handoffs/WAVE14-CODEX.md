@@ -63,16 +63,24 @@ live_pin_deck_{normal,reduced}.png. Full index: UI-A6.md.
 
 ## Exact resume step
 
-Continue UI-A9-H at High effort from docs/handoffs/UI-A9-H.md. All twenty
-candidate scenes and three candidate stings now exist; do not restart authoring
-from the old preproduction checkpoint. Inspect this push's CI, review/polish the
-full native set, audition/integrate sounds, finish full-render performance and
-Web/affected checks, then enable only the finished House manifest and verify.
-No Wave 15 art or AV-UI1. The timed session stops at 13:32:11 UTC, 2026-11-23.
+Continue UI-A9-H at High effort from docs/handoffs/UI-A9-H.md, latest timed
+checkpoint (18:23:29–18:43:29 UTC, 2026-11-23). Coordinator a1f704d merged as
+aaaabd1; cec80a1 Bootstrap #565, E11 #172 and E12 #105 passed. Fresh push CI pending.
+Twenty candidates and three stings exist. Bounded full-draw profiles now pass,
+production sting volume/mute routing passes, Low/Normal portrait restoration is
+fixed with path-backed metadata, and Web passes in isolation. Final scoped
+unit/content, native reviews and J06/J11 rendered pass; details and earlier test failures in the
+item handoff. No gameplay source or live House manifest edits.
 
-Owner review: artifacts/ui-a9-h/{normal,reduced}/contact.png; all twenty scenes
-at three beats in both orientations under each rendered directory; actual
-House boss wins in artifacts/ui-a9-h/boss/rendered/. Captures are not committed.
+Next: inspect fresh CI, review/polish full phone-size motion/reduced evidence,
+audition the stings (listening unavailable in this session), complete remaining
+rendered/UI-20 checks, then activate only the finished House set and verify.
+UI-A9-H remains IN_PROGRESS. No Wave 15 art or AV-UI1.
+
+Owner review: artifacts/ui-a9-h/{normal,reduced}/contact.png and rendered
+storyboards; boss/rendered/; audio/stings-review.wav and rendered mixer captures;
+profile-{portrait,landscape}/rendered/frame-times.json and performance-summary.md.
+Software-renderer timing is not phone performance evidence. Captures not committed.
 
 ## Validation environment
 
