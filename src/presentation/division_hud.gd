@@ -747,19 +747,7 @@ func _build_sections(sections: Dictionary, won: bool) -> void:
 	result_view.add_child(tiles)
 	for stat in sections.get("stats", []):
 		tiles.add_child(_tile(String(stat[0]), String(stat[1])))
-	var highlights: Array = sections.get("highlights", [])
-	if not highlights.is_empty():
-		_section_heading("Rewards" if won else "Kept")
-		for text in highlights:
-			var line := _label(result_view, "ResultHighlight", 19)
-			line.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-			line.text = "◆  " + String(text)
-			line.add_theme_color_override("font_color", UiTheme.BRASS)
-	var goals: Array = sections.get("goals", [])
-	if not goals.is_empty():
-		_section_heading("Goals")
-		for goal in goals:
-			result_view.add_child(_goal_row(goal))
+	# UI-40 (owner, 2026-11-23): what was kept and the goals are on the award page.
 	var matches: Array = sections.get("matches", [])
 	if not matches.is_empty():
 		_section_heading("Matches")
@@ -801,6 +789,13 @@ func _build_sections(sections: Dictionary, won: bool) -> void:
 				row.add_child(label)
 				rows[key] = row
 			rows[key].add_child(_match_chip(m))
+	# UI-40: the Career's progress as a bar of rivals defeated (was a line of text).
+	var rivals: Dictionary = sections.get("rivals", {})
+	if int(rivals.get("threshold", 0)) > 0 and int(rivals.get("progress", 0)) > 0:
+		_section_heading("Career")
+		var bar := _goal_row(rivals)
+		bar.name = "ResultRivals"
+		result_view.add_child(bar)
 	for text in sections.get("notes", []):
 		var note := _label(result_view, "ResultNote", 16)
 		note.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT

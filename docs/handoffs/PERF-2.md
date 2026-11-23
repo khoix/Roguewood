@@ -56,3 +56,10 @@ The steady 175 ms frames in frame_done could not be reproduced here. In software
 
 ## For the owner
 Try Low and Low again with the Performance Log on and send the log. Each line now says whether the long frames were CPU or GPU, and the log covers a whole session.
+
+## Follow-up PERF-2b: the readout out of iOS's top-edge blur (owner, 2026-11-23)
+- **The owner's note:** "Now the top of the game screen is blurred. Can't see the perf stats." (Screenshot of the Home Screen app: the readout blurred, the logo below it sharp.)
+- **Cause:** since iOS 26, an installed web app gets a system blur over the status bar and the band below it. Developers report that no CSS or meta tag turns it off, and that the remedy is to keep content out of the band. This comes from community reports, not Apple documentation. The readout sat 4 px from the top, inside the band.
+- **Change:** the readout sits in the bottom-left corner, left of the home indicator. J11 checks its position.
+- **Not checked:** whether the band also softens the top edge of the match's top bar on the owner's phone. That is to confirm on the phone; if it does, the layouts take a top inset in the installed app.
+- **Checks:** J11 (both modes), `unit`: PASS.

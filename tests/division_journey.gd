@@ -282,7 +282,7 @@ func _first_attempt() -> void:
 	await _focus_accept(lab.next_rack)
 	await _wait_for(func(): return lab.hud.result.visible, "result screen")
 	_check(lab.hud.result_title.text.contains("Boss lost") and lab.hud.result_body.text.contains("Scored 600 of the 800 target")
-		and lab.hud.result_body.text.contains("Rule in force: Clean Sweep"), "the loss shows the unmet score and the rule")
+		and not lab.hud.result_body.text.contains("Rule in force"), "the loss shows the unmet score, without the rule (UI-40)")
 	_check(scene.career.first_clears.is_empty() and scene.session.outcome == "lost", "no reward for a loss")
 	# UI-11 (owner, 2026-11-16): a lost boss match ends on the rival's parting shot.
 	var view: Control = lab.hud.result_view

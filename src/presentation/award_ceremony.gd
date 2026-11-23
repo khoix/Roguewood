@@ -18,10 +18,13 @@ signal finished
 const Soundtrack = preload("res://src/presentation/soundtrack.gd")
 const Art = preload("res://src/clubhouse/clubhouse_art.gd")
 const AwardFx = preload("res://src/presentation/award_fx.gd")
+const ItemAssets = preload("res://src/presentation/item_assets.gd")
 const GOLD := Color("f5cb69")
 const IVORY := Color("f4ecd8")
 const CORAL := Color("ff7a59")
 const TEAL := Color("64dacb")
+const VELVET := Color("2a1642") # UI-44: the award cards' cloth
+const BRASS := Color("b8913f") # and their trim
 const SOUNDS := {
 	"whoosh": "res://assets/audio/awards/award_whoosh.wav", "drumroll": "res://assets/audio/awards/award_drumroll.wav",
 	"reveal": "res://assets/audio/awards/award_reveal.wav", "launch": "res://assets/audio/awards/firework_launch.wav",
@@ -60,6 +63,7 @@ var subtitle: Label
 var shelf: HFlowContainer
 var goals_box: VBoxContainer
 var goals_scroll: ScrollContainer
+var kept_scroll: ScrollContainer # UI-45: New in the Shop's one sideways row
 var continue_button: Button
 var hold := false # UI-25: Continue keeps the last screen for the fade after it
 var skip_button: Button
@@ -169,6 +173,13 @@ func _build_summary() -> void:
 	shelf.add_theme_constant_override("v_separation", 10)
 	shelf.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	summary.add_child(shelf)
+	# UI-45: a gold rule between the shelf and the sections under it.
+	var rule := ColorRect.new()
+	rule.name = "SummaryRule"
+	rule.color = Color(BRASS, 0.85)
+	rule.custom_minimum_size = Vector2(0, 2)
+	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	summary.add_child(rule)
 	goals_scroll = ScrollContainer.new()
 	goals_scroll.name = "GoalsScroll"
 	goals_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -265,7 +276,10 @@ func present(data: Dictionary, ctx: Dictionary = {}, hold_at_end: bool = false) 
 	shown_trophies.clear()
 	goal_rows.clear()
 	for child in shelf.get_children(): child.queue_free()
-	for child in goals_box.get_children(): child.queue_free()
+	for child in goals_box.get_children():
+		goals_box.remove_child(child) # UI-40: a new ceremony never finds the last one's rows
+		kept_scroll = null
+		child.queue_free()
 	_hurry = false
 	_skipping = false
 	playing = true
@@ -318,6 +332,8 @@ func _run() -> void:
 	for trophy in awards.get("trophies", []):
 		if not _alive(): return
 		await _trophy(trophy)
+	if _has_kept() and _alive():
+		await _kept()
 	if not awards.get("goals", []).is_empty() and _alive():
 		await _goals()
 	if _alive():
@@ -425,10 +441,204 @@ func _add_to_shelf(trophy: Dictionary) -> void:
 		cell.modulate.a = 0.0
 		_tween(cell, "modulate:a", 1.0, 0.3)
 
+## UI-40 (owner, 2026-11-23): what the run kept moves here from the result sheet.
+## UI-44 (owner, 2026-11-23: "Make the kept and goal sections thematically
+## appropriate for this page--not just a wall of text"): the plaques and titles are
+## already this page's trophies, so the run's other gains are shown as pieces under a
+## gold banner, "New in the Shop": each item that joins the pool as a framed tile with
+## its art, presented one by one, and each League or kit it opened as a brass badge.
+func _has_kept() -> bool:
+	var kept: Dictionary = awards.get("kept", {})
+	return not kept.get("items", []).is_empty() or not kept.get("opened", []).is_empty()
+
+func _kept() -> void:
+	step = "kept"
+	await _kept_rows(true)
+
+## UI-45 (owner, 2026-11-23: "The shop section needs a clear divide/border instead
+## of a hidden scrollable section. Maybe make it one scrollable row for mobile."):
+## the section is a bordered panel of its own; its tiles and tickets are one row that
+## scrolls sideways (a slim gold bar shows there is more), so the page itself stays
+## short enough to see at once.
+func _kept_rows(animated: bool = false) -> void:
+	if goals_box.find_child("KeptHeader", true, false) != null: return
+	var kept: Dictionary = awards.get("kept", {})
+	var panel := PanelContainer.new()
+	panel.name = "KeptPanel"
+	var frame := StyleBoxFlat.new()
+	frame.bg_color = Color(0.06, 0.03, 0.10, 0.72)
+	frame.border_color = BRASS
+	frame.set_border_width_all(2)
+	frame.set_corner_radius_all(10)
+	frame.content_margin_left = 10
+	frame.content_margin_right = 10
+	frame.content_margin_top = 10
+	frame.content_margin_bottom = 8
+	panel.add_theme_stylebox_override("panel", frame)
+	panel.mouse_filter = Control.MOUSE_FILTER_PASS
+	goals_box.add_child(panel)
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 6)
+	column.mouse_filter = Control.MOUSE_FILTER_PASS
+	panel.add_child(column)
+	var header := _banner("KeptHeader", "NEW IN THE SHOP", column)
+	var note := _label(column, "KeptNote", 15, IVORY)
+	note.text = "From your next run"
+	note.visible = not kept.get("items", []).is_empty()
+	kept_scroll = ScrollContainer.new()
+	kept_scroll.name = "KeptScroll"
+	kept_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	kept_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	kept_scroll.mouse_filter = Control.MOUSE_FILTER_PASS
+	var bar := kept_scroll.get_h_scroll_bar()
+	var track := StyleBoxFlat.new()
+	track.bg_color = Color(0.0, 0.0, 0.0, 0.35)
+	track.set_corner_radius_all(3)
+	track.content_margin_top = 3
+	track.content_margin_bottom = 3
+	var grab := StyleBoxFlat.new()
+	grab.bg_color = GOLD
+	grab.set_corner_radius_all(3)
+	grab.content_margin_top = 3
+	grab.content_margin_bottom = 3
+	bar.add_theme_stylebox_override("scroll", track)
+	bar.add_theme_stylebox_override("grabber", grab)
+	bar.add_theme_stylebox_override("grabber_highlight", grab)
+	bar.add_theme_stylebox_override("grabber_pressed", grab)
+	column.add_child(kept_scroll)
+	var row := HBoxContainer.new()
+	row.name = "KeptItems"
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_theme_constant_override("separation", 10)
+	row.mouse_filter = Control.MOUSE_FILTER_PASS
+	kept_scroll.add_child(row)
+	var pieces: Array = []
+	for item in kept.get("items", []):
+		pieces.append(_item_tile(item))
+	for opened in kept.get("opened", []):
+		var ticket := _badge(opened)
+		ticket.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		pieces.append(ticket)
+	var i := 0
+	for piece in pieces:
+		row.add_child(piece)
+		if animated and not reduced_motion and not _hurry:
+			await _reveal(piece, 0.06 * mini(i, 4))
+			if not _alive(): return
+		i += 1
+	if animated:
+		goals_scroll.ensure_control_visible(panel)
+		await _pause(0.3)
+		if not _alive(): return
+		kept_scroll.scroll_horizontal = 0 # the row starts at its first piece
+
+## A piece pops onto the page: a quick swell, a tick and a few flecks of confetti.
+func _reveal(piece: Control, delay: float) -> void:
+	await _pause(delay + 0.05)
+	if not _alive(): return
+	var in_row := kept_scroll != null and kept_scroll.is_ancestor_of(piece)
+	goals_scroll.ensure_control_visible(goals_box.get_node("KeptPanel") if in_row else piece)
+	if in_row: kept_scroll.ensure_control_visible(piece)
+	piece.pivot_offset = piece.size * 0.5
+	piece.scale = Vector2(0.4, 0.4)
+	piece.modulate.a = 0.0
+	_tween(piece, "scale", Vector2.ONE, 0.32, Tween.TRANS_BACK)
+	_tween(piece, "modulate:a", 1.0, 0.18)
+	cue("tick", 1.0 + 0.05 * piece.get_index())
+	fx.confetti_burst(piece.get_global_rect().get_center() - get_global_rect().position, 14)
+	await _pause(0.28)
+
+## A gold banner with notched tails: the page's section heading.
+func _banner(node_name: String, text: String, parent: Control = null) -> Control:
+	var banner := Banner.new()
+	banner.name = node_name
+	banner.text = text
+	banner.custom_minimum_size = Vector2(300, 46)
+	banner.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	(parent if parent != null else goals_box).add_child(banner)
+	var label := _label(banner, "BannerText", 22, Color("2b1606"))
+	label.text = text
+	label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	label.offset_bottom = -6
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	return banner
+
+## The award cards' cloth: velvet with brass trim (gold when `bright`).
+static func _cloth(bright: bool = false) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = VELVET
+	style.border_color = GOLD if bright else BRASS
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(8)
+	style.set_content_margin_all(8)
+	style.shadow_color = Color(0, 0, 0, 0.45)
+	style.shadow_size = 4
+	style.shadow_offset = Vector2(0, 3)
+	return style
+
+## An item that joins the shop pool: its art in a framed tile, its name under it.
+func _item_tile(item: Dictionary) -> Control:
+	var tile := PanelContainer.new()
+	tile.name = "KeptItem_" + String(item.id).replace(".", "_")
+	tile.set_meta("item_id", String(item.id))
+	tile.add_theme_stylebox_override("panel", _cloth())
+	tile.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 4)
+	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tile.add_child(column)
+	var art := TextureRect.new()
+	art.name = "Art"
+	art.texture = ItemAssets.slot(String(item.id), "icon") as Texture2D
+	art.custom_minimum_size = Vector2(76, 76)
+	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	column.add_child(art)
+	var name_label := _label(column, "Name", 15, GOLD)
+	name_label.text = String(item.name)
+	name_label.custom_minimum_size.x = 96
+	return tile
+
+## A League or kit the run opened: an admission ticket naming it (gold for a
+## League, ivory for a kit), drawn here until they have their own art.
+func _badge(opened: Dictionary) -> Control:
+	var league := String(opened.kind) == "league"
+	var ticket := Ticket.new()
+	ticket.name = "KeptOpened_" + String(opened.name).replace(" ", "_")
+	ticket.paper = Color("e7bc70") if league else Color("efe3c6")
+	ticket.custom_minimum_size = Vector2(218, 92)
+	ticket.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var ink := Color("2b1606")
+	var row := HBoxContainer.new()
+	row.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	row.add_theme_constant_override("separation", 0)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ticket.add_child(row)
+	var stub := _label(row, "Stub", 22, ink)
+	stub.text = "◆"
+	stub.custom_minimum_size.x = 218 * Ticket.STUB
+	stub.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	var column := VBoxContainer.new()
+	column.alignment = BoxContainer.ALIGNMENT_CENTER
+	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	column.add_theme_constant_override("separation", 0)
+	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(column)
+	var kicker := _label(column, "Kicker", 13, Color("7a2e1a"))
+	kicker.text = "NEW LEAGUE" if league else "NEW KIT"
+	var name_label := _label(column, "Name", 19, ink)
+	name_label.text = String(opened.name)
+	var admit := _label(column, "Admit", 11, Color("5a4020"))
+	admit.text = "ADMIT ONE" if league else "READY FOR YOUR NEXT RUN"
+	return ticket
+
 func _goals() -> void:
 	step = "goals"
-	var header := _label(goals_box, "GoalsHeader", 26, TEAL, 6)
-	header.text = "GOALS"
+	_banner("GoalsHeader", "GOALS")
 	for goal in awards.goals:
 		if not _alive(): return
 		if goal == awards.goals.back(): _fade_sfx()
@@ -437,11 +647,8 @@ func _goals() -> void:
 func _goal(goal: Dictionary) -> void:
 	var row := PanelContainer.new()
 	row.name = "Goal_" + String(goal.id).replace(".", "_")
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color("16132a")
-	style.border_color = Color("6c5a9c")
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(6)
+	# UI-44: a goal is an award card too: velvet with brass trim (gold once complete).
+	var style := _cloth(bool(goal.completed))
 	style.set_content_margin_all(10)
 	row.add_theme_stylebox_override("panel", style)
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -456,7 +663,7 @@ func _goal(goal: Dictionary) -> void:
 	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	text.add_theme_constant_override("separation", 4)
 	line.add_child(text)
-	var name_label := _label(text, "Name", 20, IVORY)
+	var name_label := _label(text, "Name", 20, GOLD)
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	name_label.text = String(goal.name)
 	var bar := GoalBar.new()
@@ -555,10 +762,12 @@ func _end_state() -> void:
 		if String(trophy.id) not in shown_trophies:
 			shown_trophies.append(String(trophy.id))
 		_add_to_shelf(trophy)
+	if _has_kept():
+		_kept_rows()
 	for goal in awards.get("goals", []):
 		if not goal_rows.has(goal.id):
 			if goals_box.get_node_or_null("GoalsHeader") == null:
-				_label(goals_box, "GoalsHeader", 26, TEAL, 6).text = "GOALS"
+				_banner("GoalsHeader", "GOALS")
 			_skipping = true
 			_hurry = true
 			_goal(goal) # builds the row in its final state (no waits while hurrying)
@@ -748,3 +957,47 @@ class GoalBar extends Control:
 				var x := r.size.x * i / threshold
 				draw_line(Vector2(x, 0), Vector2(x, r.size.y), Color(0, 0, 0, 0.45), 2.0)
 		draw_rect(r, Color("6c5a9c"), false, 2.0)
+
+
+## UI-44: the section banner: a gold band with darker folded tails and notched ends.
+class Banner extends Control:
+	var text := ""
+	func _draw() -> void:
+		var w := size.x
+		var h := size.y - 6.0
+		var fold := Color("8a6420")
+		var band := Color("e7bc70")
+		# Swallow-tailed ends behind the band, a little lower, as a ribbon folds back.
+		var mid := h * 0.5 + 6.0
+		draw_colored_polygon(PackedVector2Array([Vector2(34, 8), Vector2(-14, 8), Vector2(-2, mid), Vector2(-14, h + 6), Vector2(34, h + 6)]), fold)
+		draw_colored_polygon(PackedVector2Array([Vector2(w - 34, 8), Vector2(w + 14, 8), Vector2(w + 2, mid), Vector2(w + 14, h + 6), Vector2(w - 34, h + 6)]), fold)
+		draw_rect(Rect2(12, 0, w - 24, h), band)
+		draw_rect(Rect2(12, 0, w - 24, 3), Color("fff0c4"))
+		draw_rect(Rect2(12, h - 3, w - 24, 3), Color("b8913f"))
+
+
+## UI-44: an admission ticket: notched at both sides, a perforated stub at the left.
+class Ticket extends Control:
+	const STUB := 0.24
+	var paper := Color("e7bc70")
+	func _draw() -> void:
+		var w := size.x
+		var h := size.y
+		var n := 9.0 # the notch's radius
+		var outline := PackedVector2Array([Vector2(0, 0), Vector2(w, 0)])
+		for i in 13: # the right notch, cut inward
+			var a := -PI * 0.5 - PI * i / 12.0
+			outline.append(Vector2(w, h * 0.5) + Vector2(cos(a), -sin(a) * -1.0) * n)
+		outline.append_array([Vector2(w, h), Vector2(0, h)])
+		for i in 13: # the left notch
+			var a := PI * 0.5 - PI * i / 12.0
+			outline.append(Vector2(0, h * 0.5) + Vector2(cos(a), sin(a)) * n)
+		draw_colored_polygon(outline, paper)
+		var closed := outline.duplicate()
+		closed.append(outline[0])
+		draw_polyline(closed, Color("8a6420"), 2.0)
+		var x := w * STUB
+		var y := 8.0
+		while y < h - 8.0: # the perforation
+			draw_line(Vector2(x, y), Vector2(x, minf(y + 5.0, h - 8.0)), Color("8a6420"), 2.0)
+			y += 10.0

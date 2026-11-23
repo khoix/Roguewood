@@ -848,7 +848,7 @@ func _begin_attempt(attempt: int, saved: Dictionary = {}) -> void:
 		lab.restore_from = {}
 	lab.attempt_finished.connect(func(outcome): session.outcome = outcome)
 	lab.retry_requested.connect(func(): _begin_attempt(int(session.attempt) + 1), CONNECT_DEFERRED)
-	lab.menu_requested.connect(exit_to_clubhouse, CONNECT_DEFERRED)
+	lab.menu_requested.connect(func(): exit_to_clubhouse(true), CONNECT_DEFERRED) # the result sheet (UI-46: it fades)
 	lab.frame_scored.connect(_on_frame_scored)
 	lab.money_changed.connect(func(money): session.money = money)
 	lab.chrome = [menu_button]
@@ -875,16 +875,25 @@ func _on_frame_scored(scored: Dictionary) -> void:
 ## UI-23: from a run to the Clubhouse, slowly. UI-25: a run's awards come first
 ## (after its result sheet); the run then fades out, taking no input, and the
 ## Clubhouse appears without a fade, taking input at once.
-func exit_to_clubhouse() -> void:
+## UI-46 (owner, 2026-11-23): "remove the slow fade transition to the clubhouse from
+## everywhere but transitions from award to clubhouse or League's End to clubhouse."
+## Only the result sheet's own way out (`slow`) and the end of the awards fade; the
+## match menu's Clubhouse and the tutorial's end go there at once.
+func exit_to_clubhouse(slow: bool = false) -> void:
 	if exiting:
 		return
 	if lab == null:
 		_show_menu()
 		return
+	var awards: bool = lab.has_method("awards_pending") and lab.awards_pending()
+	if not slow and not awards:
+		session_menu.hide()
+		_show_menu()
+		return
 	exiting = true
 	session_menu.hide()
 	menu_button.hide()
-	if lab.has_method("awards_pending") and lab.awards_pending():
+	if awards:
 		await lab.present_pending_awards()
 		if lab == null or screen != "session":
 			exiting = false

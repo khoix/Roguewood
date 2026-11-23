@@ -19,7 +19,7 @@ static func for_run(career: Dictionary, graph: Dictionary, uid: int) -> Dictiona
 	return {"trophies": trophies(career, graph, uid), "goals": goals(career, graph, uid)}
 
 static func is_empty(awards: Dictionary) -> bool:
-	return awards.get("trophies", []).is_empty() and awards.get("goals", []).is_empty()
+	return awards.get("trophies", []).is_empty() and awards.get("goals", []).is_empty() and awards.get("kept", {}).get("items", []).is_empty() and awards.get("kept", {}).get("opened", []).is_empty()
 
 ## The shelf's slots this run earned, titles first, then plaques, then decorations.
 static func trophies(career: Dictionary, graph: Dictionary, uid: int) -> Array:
