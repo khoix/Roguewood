@@ -13,16 +13,29 @@ extends Node
 ##   game was, GPU memory) and a lost WebGL context, with a corner readout; the log can
 ##   be copied from the page to send.
 ## At the defaults nothing here runs: no sweep, no readout, nothing changed.
+## PERF-2 (the owner's phone log, 2026-11-21: GPU memory climbed from 136 to 385 MB at
+## Low before the page reloaded): copies are kept only while something draws them,
+## plus the most recent few (RECENT_BYTES), so art that leaves the screen is freed at
+## Low as it is at Normal. The log groups a run of long frames at one place into one
+## line and notes each frame's CPU time and draw calls (CPU-bound or GPU-bound).
 const UiTheme = preload("res://src/presentation/house_ui_theme.gd")
 const LEVELS := ["low", "normal", "high"]
 const DEFAULTS := {"resolution": "normal", "textures": "normal", "perf_log": false}
 const LOW_DENSITY := 2.0
 const TEXTURE_CAP := 512
 const LONG_FRAME_MS := 150.0
-const LOG_SIZE := 60
+const LOG_SIZE := 200
+## PERF-2: recently drawn copies kept after nothing draws them (re-copying costs a
+## GPU read on the web); older ones are freed with the last node that drew them.
+const RECENT_BYTES := 24 * 1048576
+const RECENT_COUNT := 96 # atlas copies are small, but are counted too
 const SWEEP_PER_FRAME := 40
+## PERF-2: a frame's sweep stops once it has spent this long (copies, and art read
+## back from disk when a level returns to Normal after Low freed the originals).
+const SWEEP_BUDGET_USEC := 8000
 const REVISIT_SECONDS := 3.0
 const ORIGINAL := &"rw_graphics_original"
+const DRAWN_PROPS := ["texture", "identity"]
 
 var settings: Dictionary = DEFAULTS.duplicate()
 var save_dir := "user://saves"
@@ -38,7 +51,10 @@ var log_label: Label
 var copy_button: Button
 var back_button: Button
 var _on_back: Callable
-var _copies := {} # source texture id -> its copy at the current level
+var _copies := {} # source path (or runtime texture id) -> weak reference to its copy
+var _recent: Array = [] # PERF-2: copies kept briefly after use, oldest first
+var _recent_bytes := 0
+var recent_cap := RECENT_BYTES # tests lower it to see a copy freed
 var _made := {} # ids of copies made here, never processed again
 var _queue: Array = [] # weak references to nodes still to check
 var _held: Array = [] # weak references to every node that can hold art
@@ -79,7 +95,10 @@ func _load() -> void:
 		if settings[key] not in LEVELS: settings[key] = "normal"
 	var log_text_saved := FileAccess.get_file_as_string(_path("perf_log.json"))
 	var saved = JSON.parse_string(log_text_saved) if not log_text_saved.is_empty() else null
-	if saved is Array: log_entries = saved
+	if saved is Array:
+		log_entries = saved
+		for e in log_entries:
+			if e is Dictionary: e.erase("tick") # a new session's clock restarts
 
 func _save() -> void:
 	DirAccess.make_dir_recursive_absolute(save_dir)
@@ -146,6 +165,8 @@ func _node_added(node: Node) -> void:
 ## On a level change: every node that can hold art, a few a frame.
 func _restart_sweep() -> void:
 	_copies.clear()
+	_recent.clear()
+	_recent_bytes = 0
 	_held.clear()
 	for node in get_tree().root.find_children("*", "", true, false):
 		if _can_hold_art(node): _held.append(weakref(node))
@@ -170,9 +191,10 @@ func _sweep(delta: float) -> void:
 		_sweep_at = 0.0
 		_held = _held.filter(func(ref): return ref.get_ref() != null)
 		_queue = _held.duplicate()
+		_prune()
 	_copied_this_frame = false
 	var count := 0
-	while not _queue.is_empty() and count < SWEEP_PER_FRAME:
+	while not _queue.is_empty() and count < SWEEP_PER_FRAME and Time.get_ticks_usec() - start < SWEEP_BUDGET_USEC:
 		var ref: WeakRef = _queue.pop_back()
 		var node = ref.get_ref()
 		count += 1
@@ -214,7 +236,13 @@ static func _texture_props(node: Node) -> Array:
 	if node is TextureRect or node is Sprite2D or node is Sprite3D or node is NinePatchRect: return ["texture"]
 	if node is TextureButton: return ["texture_normal"]
 	if node is Button: return ["icon"]
-	return []
+	# PERF-2: scripted views that draw their own art (portraits, item glyphs) hold it
+	# in one of these; drawn from a copy, their full-size sheet can be freed.
+	var own: Array = []
+	if node.get_script() != null:
+		for prop in DRAWN_PROPS:
+			if prop in node: own.append(prop)
+	return own
 
 func _treat_material(material: Material) -> void:
 	var names: Array = []
@@ -272,7 +300,10 @@ func _for_level(source: Texture2D) -> Texture2D:
 	if source == null or _made.has(_id(source)) or level("textures") == "normal": return source
 	if maxi(source.get_width(), source.get_height()) <= TEXTURE_CAP and not (source is AtlasTexture): return source
 	var cache_key = source.resource_path if not source.resource_path.is_empty() else _id(source)
-	if _copies.has(cache_key): return _copies[cache_key]
+	var kept: Texture2D = _copies[cache_key].get_ref() if _copies.has(cache_key) else null
+	if kept != null:
+		_keep(kept)
+		return kept
 	var copy: Texture2D = null
 	if source is AtlasTexture:
 		if source.atlas != null and maxi(source.atlas.get_width(), source.atlas.get_height()) > TEXTURE_CAP:
@@ -287,11 +318,50 @@ func _for_level(source: Texture2D) -> Texture2D:
 		_copied_this_frame = true
 		copy = _image_copy(source)
 	if copy == null: copy = source
-	_copies[cache_key] = copy
+	_copies[cache_key] = weakref(copy)
 	if copy != source:
 		_made[_id(copy)] = level("textures")
 		swapped += 1
+		_keep(copy)
 	return copy
+
+## PERF-2: the most recent copies stay for a while after nothing draws them; the rest
+## live only as long as a node or material draws them.
+func _keep(copy: Texture2D) -> void:
+	var at := _recent.find(copy)
+	if at >= 0:
+		_recent.remove_at(at)
+		_recent.append(copy)
+		return
+	_recent.append(copy)
+	_recent_bytes += _bytes(copy)
+	_trim_recent()
+
+func _trim_recent() -> void:
+	while (_recent_bytes > recent_cap or _recent.size() > RECENT_COUNT) and not _recent.is_empty():
+		_recent_bytes -= _bytes(_recent.pop_front())
+
+## Tests lower the cap to see a copy freed with the last node that drew it.
+func set_recent_cap(bytes: int) -> void:
+	recent_cap = bytes
+	_trim_recent()
+
+static func _bytes(texture: Texture2D) -> int:
+	return 0 if texture is AtlasTexture else texture.get_width() * texture.get_height() * 4
+
+## Copies still alive (drawn, or kept as recent), and their size in bytes.
+func live_copies() -> Dictionary:
+	_prune()
+	var bytes := 0
+	for ref in _copies.values(): bytes += _bytes(ref.get_ref())
+	return {"count": _copies.size(), "bytes": bytes, "recent_bytes": _recent_bytes}
+
+## Forgets copies that were freed (and the ids of copies no longer alive).
+func _prune() -> void:
+	for key in _copies.keys():
+		if _copies[key].get_ref() == null: _copies.erase(key)
+	for id in _made.keys():
+		if not is_instance_id_valid(id): _made.erase(id)
 
 func _image_copy(source: Texture2D) -> Texture2D:
 	var image := source.get_image()
@@ -356,7 +426,27 @@ func where() -> String:
 
 func _record(ms: float, what: String = "") -> void:
 	long_frames += 1
-	var entry := {"at": Time.get_datetime_string_from_system(false, true), "ms": roundi(ms), "where": where(), "vram": snappedf(_vram(), 0.1), "added": _added}
+	var here := where()
+	var now := Time.get_ticks_msec()
+	# PERF-2: a long frame's own CPU time (scripts and physics) and draw calls; a frame
+	# far longer than its CPU time is waiting on the GPU.
+	var cpu := (Performance.get_monitor(Performance.TIME_PROCESS) + Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS)) * 1000.0
+	var draws := int(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME))
+	var last: Dictionary = log_entries.back() if not log_entries.is_empty() else {}
+	# PERF-2: a run of long frames at the same place is one line (count, longest).
+	if what.is_empty() and not last.has("what") and last.get("where", "") == here and last.has("tick") and now - int(last.tick) <= 2000:
+		last.count = int(last.get("count", 1)) + 1
+		last.ms = maxi(int(last.ms), roundi(ms))
+		last.cpu = maxf(float(last.get("cpu", 0.0)), snappedf(cpu, 0.1))
+		last.draws = maxi(int(last.get("draws", 0)), draws)
+		last.vram = maxf(float(last.vram), snappedf(_vram(), 0.1))
+		last.tick = now
+		last.until = Time.get_datetime_string_from_system(false, true)
+		_log_dirty = true
+		_refresh_page()
+		return
+	var entry := {"at": Time.get_datetime_string_from_system(false, true), "ms": roundi(ms), "where": here, "vram": snappedf(_vram(), 0.1), "added": _added,
+		"cpu": snappedf(cpu, 0.1), "draws": draws, "count": 1, "tick": now}
 	if not what.is_empty(): entry.what = what
 	log_entries.append(entry)
 	while log_entries.size() > LOG_SIZE: log_entries.pop_front()
@@ -384,7 +474,10 @@ func _read_context_loss() -> void:
 func log_text() -> String:
 	var lines: Array = ["Roguewood performance log · %s · density %.1f · resolution %s · textures %s" % [OS.get_name(), density(), level("resolution"), level("textures")]]
 	for e in log_entries:
-		lines.append("%s  %s  %s  %.0f MB%s" % [e.at, ("%d ms" % e.ms) if int(e.ms) > 0 else "—", e.where, float(e.vram), ("  " + String(e.what)) if e.has("what") else ""])
+		var timing := ("%d ms" % e.ms) if int(e.ms) > 0 else "—"
+		if int(e.get("count", 1)) > 1: timing = "%d frames to %s, longest %d ms" % [int(e.count), String(e.get("until", "")).get_slice(" ", 1), int(e.ms)]
+		var cost := "  cpu %.0f ms · %d draws" % [float(e.cpu), int(e.get("draws", 0))] if e.has("cpu") and int(e.ms) > 0 else ""
+		lines.append("%s  %s  %s  %.0f MB%s%s" % [e.at, timing, e.where, float(e.vram), cost, ("  " + String(e.what)) if e.has("what") else ""])
 	if log_entries.is_empty(): lines.append("No long frames recorded.")
 	return "\n".join(lines)
 

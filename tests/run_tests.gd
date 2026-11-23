@@ -104,6 +104,7 @@ func _initialize() -> void:
 		failures.append_array(load("res://tests/neon_n5_art_test.gd").run())
 		failures.append_array(load("res://tests/neon_pin_deck_art_test.gd").run())
 		failures.append_array(load("res://tests/card_transparency_test.gd").run())
+		failures.append_array(load("res://tests/perf2_test.gd").run())
 		failures.append_array(load("res://tests/alley_screen_test.gd").run())
 		failures.append_array(load("res://tests/rival_lines_test.gd").run())
 		failures.append_array(load("res://tests/run_awards_test.gd").run())

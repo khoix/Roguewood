@@ -562,7 +562,7 @@ func _tile(parent: Control, node_name: String, item_id: String, mod: String, cap
 	tile.custom_minimum_size = tile_size
 	tile.set_meta("art_tile", true) # ModificationArt badges it but keeps its art
 	tile.icon = ItemAssets.slot(item_id, "icon") as Texture2D if not item_id.is_empty() else null
-	tile.set_meta("own_icon", tile.icon)
+	tile.set_meta("own_item", item_id) # PERF-2: the id, not the texture (which would keep its full-size sheet)
 	tile.expand_icon = true
 	tile.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	tile.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
@@ -947,7 +947,7 @@ func _preview(index: int, on: bool) -> void:
 		# Larger while previewed, so the new modification reads at a glance.
 		ModArt._badge(tile, placing if on else String(v.get("mod", "")), int(tile.custom_minimum_size.x * 0.46) if on else extent)
 	else:
-		tile.icon = (ItemAssets.slot(placing, "icon") as Texture2D) if on else tile.get_meta("own_icon", null)
+		tile.icon = (ItemAssets.slot(placing, "icon") as Texture2D) if on else (ItemAssets.slot(String(tile.get_meta("own_item", "")), "icon") as Texture2D if not String(tile.get_meta("own_item", "")).is_empty() else null)
 		ModArt._badge(tile, String(v.get("keeps_mod", "")) if on else String(v.get("mod", "")), extent)
 	tile.set_meta("previewing", placing if on else "")
 	if on and is_inside_tree():

@@ -160,6 +160,26 @@ func _perf1_graphics() -> void:
 			await process_frame
 			spent += gfx.sweep_usec
 		_check(spent / 120.0 < 300.0 and gfx.sweep_worst_usec < 60000, "PERF-1b: the texture sweep costs %.3f ms a frame (worst %.1f ms)" % [spent / 120000.0, gfx.sweep_worst_usec / 1000.0])
+		# PERF-2 (the owner's phone log: GPU memory climbed through a run at Low): a copy
+		# is freed with the last node that drew it, once it leaves the recent few.
+		var shown := TextureRect.new()
+		var original := ImageTexture.create_from_image(Image.create(1024, 1024, false, Image.FORMAT_RGBA8)) # nothing else draws it
+		shown.texture = original
+		root.add_child(shown)
+		for i in 240:
+			await process_frame
+			if shown.texture != original: break
+		var copy: WeakRef = weakref(shown.texture)
+		var made: bool = shown.texture != original and maxi(shown.texture.get_width(), shown.texture.get_height()) == gfx.TEXTURE_CAP
+		shown.queue_free()
+		shown = null
+		await process_frame
+		var kept: bool = copy.get_ref() != null # one of the recent copies
+		gfx.set_recent_cap(0)
+		await process_frame
+		_check(made and kept and copy.get_ref() == null and gfx.live_copies().recent_bytes == 0,
+			"PERF-2: a Low copy stays while recent, then is freed with the last node that drew it (made %s, kept %s)" % [made, kept])
+		gfx.set_recent_cap(gfx.RECENT_BYTES)
 	gfx.texture_choice.select(1)
 	gfx.texture_choice.item_selected.emit(1)
 	gfx.resolution_choice.select(1)
@@ -178,6 +198,15 @@ func _perf1_graphics() -> void:
 	var last: Dictionary = gfx.log_entries.back() if not gfx.log_entries.is_empty() else {}
 	_check(int(last.get("ms", 0)) >= int(gfx.LONG_FRAME_MS) and String(last.get("where", "")).begins_with("menu") and gfx.log_label.text.contains("ms")
 		and gfx.log_text().contains("resolution normal · textures normal"), "PERF-1: a long frame is logged with where the game was (%s)" % str(last))
+	# PERF-2: a second long frame at the same place joins the first line, with the
+	# frames' CPU time and draw calls.
+	var lines: int = gfx.log_entries.size()
+	OS.delay_msec(int(gfx.LONG_FRAME_MS) + 60)
+	await process_frame
+	await process_frame
+	last = gfx.log_entries.back()
+	_check(gfx.log_entries.size() == lines and int(last.get("count", 1)) >= 2 and last.has("cpu") and last.has("draws")
+		and gfx.log_text().contains("frames to") and gfx.log_text().contains("cpu "), "PERF-2: a run of long frames is one line, with CPU time and draw calls (%s)" % gfx.log_text().get_slice("\n", 1))
 	await _tap(gfx.copy_button)
 	_check(gfx.copy_button.text == "Copied", "PERF-1: Copy Log copies the log")
 	await _tap(gfx.find_child("GraphicsClearLog", true, false))
