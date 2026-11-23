@@ -203,12 +203,22 @@ func _tournament() -> void:
 	# a badge for each League or kit opened, and the goals as velvet award cards.
 	var tiles: Array = ceremony.goals_box.find_children("KeptItem_*", "", true, false)
 	var badges: Array = ceremony.goals_box.find_children("KeptOpened_*", "", true, false)
-	var header = ceremony.goals_box.get_node_or_null("KeptHeader")
+	var header = ceremony.goals_box.find_child("KeptHeader", true, false)
 	_check(header != null and header.get_child(0).text == "NEW IN THE SHOP" and tiles.size() == kept.items.size() and badges.size() == kept.opened.size()
 		and tiles.all(func(t): return t.find_child("Art", true, false).texture != null) and ceremony.goals_box.find_children("KeptLine*", "", true, false).is_empty(),
 		"UI-44: the award page shows %d item tiles with art and %d badges, not lines of text (header %s, kept %d/%d, missing art %s)" % [tiles.size(), badges.size(),
 			str(header.get_child(0).text) if header != null else "none", kept.items.size(), kept.opened.size(),
 			str(tiles.filter(func(t): return t.find_child("Art", true, false).texture == null).map(func(t): return t.name))])
+	# UI-45 (owner, 2026-11-23: "a clear divide/border instead of a hidden scrollable
+	# section ... one scrollable row for mobile"): a bordered panel, its pieces in one
+	# row that scrolls sideways, under a gold rule below the shelf.
+	var row: Control = ceremony.goals_box.find_child("KeptItems", true, false)
+	var pieces: Array = row.get_children() if row != null else []
+	var panel = ceremony.goals_box.get_node_or_null("KeptPanel")
+	_check(panel != null and panel.get_theme_stylebox("panel").border_width_top > 0 and row is HBoxContainer and pieces.size() == tiles.size() + badges.size()
+		and ceremony.kept_scroll.horizontal_scroll_mode == ScrollContainer.SCROLL_MODE_AUTO and ceremony.kept_scroll.get_h_scroll_bar().max_value > ceremony.kept_scroll.size.x
+		and ceremony.summary.get_node_or_null("SummaryRule") != null and panel.get_global_rect().size.y < 320.0,
+		"UI-45: New in the Shop is a bordered panel with one sideways row (%d pieces, %.0f px wide in %.0f, panel %.0f px tall)" % [pieces.size(), ceremony.kept_scroll.get_h_scroll_bar().max_value, ceremony.kept_scroll.size.x, panel.get_global_rect().size.y if panel != null else 0.0])
 	var goal_rows: Array = ceremony.goals_box.get_children().filter(func(n): return String(n.name).begins_with("Goal_"))
 	_check(ceremony.awards.get("goals", []).is_empty() or ceremony.goals_box.get_node_or_null("GoalsHeader") is Control and ceremony.goals_box.get_node("GoalsHeader").get_child(0).text == "GOALS"
 		and goal_rows.all(func(r): return r.get_theme_stylebox("panel").bg_color == ceremony.VELVET), "UI-44: the goals sit under their own banner, as velvet award cards (%d)" % goal_rows.size())

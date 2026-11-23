@@ -63,6 +63,7 @@ var subtitle: Label
 var shelf: HFlowContainer
 var goals_box: VBoxContainer
 var goals_scroll: ScrollContainer
+var kept_scroll: ScrollContainer # UI-45: New in the Shop's one sideways row
 var continue_button: Button
 var hold := false # UI-25: Continue keeps the last screen for the fade after it
 var skip_button: Button
@@ -172,6 +173,13 @@ func _build_summary() -> void:
 	shelf.add_theme_constant_override("v_separation", 10)
 	shelf.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	summary.add_child(shelf)
+	# UI-45: a gold rule between the shelf and the sections under it.
+	var rule := ColorRect.new()
+	rule.name = "SummaryRule"
+	rule.color = Color(BRASS, 0.85)
+	rule.custom_minimum_size = Vector2(0, 2)
+	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	summary.add_child(rule)
 	goals_scroll = ScrollContainer.new()
 	goals_scroll.name = "GoalsScroll"
 	goals_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -270,6 +278,7 @@ func present(data: Dictionary, ctx: Dictionary = {}, hold_at_end: bool = false) 
 	for child in shelf.get_children(): child.queue_free()
 	for child in goals_box.get_children():
 		goals_box.remove_child(child) # UI-40: a new ceremony never finds the last one's rows
+		kept_scroll = null
 		child.queue_free()
 	_hurry = false
 	_skipping = false
@@ -446,51 +455,91 @@ func _kept() -> void:
 	step = "kept"
 	await _kept_rows(true)
 
+## UI-45 (owner, 2026-11-23: "The shop section needs a clear divide/border instead
+## of a hidden scrollable section. Maybe make it one scrollable row for mobile."):
+## the section is a bordered panel of its own; its tiles and tickets are one row that
+## scrolls sideways (a slim gold bar shows there is more), so the page itself stays
+## short enough to see at once.
 func _kept_rows(animated: bool = false) -> void:
-	if goals_box.get_node_or_null("KeptHeader") != null: return
+	if goals_box.find_child("KeptHeader", true, false) != null: return
 	var kept: Dictionary = awards.get("kept", {})
-	var header := _banner("KeptHeader", "NEW IN THE SHOP")
-	var note := _label(goals_box, "KeptNote", 15, IVORY)
+	var panel := PanelContainer.new()
+	panel.name = "KeptPanel"
+	var frame := StyleBoxFlat.new()
+	frame.bg_color = Color(0.06, 0.03, 0.10, 0.72)
+	frame.border_color = BRASS
+	frame.set_border_width_all(2)
+	frame.set_corner_radius_all(10)
+	frame.content_margin_left = 10
+	frame.content_margin_right = 10
+	frame.content_margin_top = 10
+	frame.content_margin_bottom = 8
+	panel.add_theme_stylebox_override("panel", frame)
+	panel.mouse_filter = Control.MOUSE_FILTER_PASS
+	goals_box.add_child(panel)
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 6)
+	column.mouse_filter = Control.MOUSE_FILTER_PASS
+	panel.add_child(column)
+	var header := _banner("KeptHeader", "NEW IN THE SHOP", column)
+	var note := _label(column, "KeptNote", 15, IVORY)
 	note.text = "From your next run"
-	var tiles := HFlowContainer.new()
-	tiles.name = "KeptItems"
-	tiles.alignment = FlowContainer.ALIGNMENT_CENTER
-	tiles.add_theme_constant_override("h_separation", 10)
-	tiles.add_theme_constant_override("v_separation", 10)
-	tiles.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	goals_box.add_child(tiles)
 	note.visible = not kept.get("items", []).is_empty()
-	var i := 0
+	kept_scroll = ScrollContainer.new()
+	kept_scroll.name = "KeptScroll"
+	kept_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	kept_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	kept_scroll.mouse_filter = Control.MOUSE_FILTER_PASS
+	var bar := kept_scroll.get_h_scroll_bar()
+	var track := StyleBoxFlat.new()
+	track.bg_color = Color(0.0, 0.0, 0.0, 0.35)
+	track.set_corner_radius_all(3)
+	track.content_margin_top = 3
+	track.content_margin_bottom = 3
+	var grab := StyleBoxFlat.new()
+	grab.bg_color = GOLD
+	grab.set_corner_radius_all(3)
+	grab.content_margin_top = 3
+	grab.content_margin_bottom = 3
+	bar.add_theme_stylebox_override("scroll", track)
+	bar.add_theme_stylebox_override("grabber", grab)
+	bar.add_theme_stylebox_override("grabber_highlight", grab)
+	bar.add_theme_stylebox_override("grabber_pressed", grab)
+	column.add_child(kept_scroll)
+	var row := HBoxContainer.new()
+	row.name = "KeptItems"
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_theme_constant_override("separation", 10)
+	row.mouse_filter = Control.MOUSE_FILTER_PASS
+	kept_scroll.add_child(row)
+	var pieces: Array = []
 	for item in kept.get("items", []):
-		var tile := _item_tile(item)
-		tiles.add_child(tile)
+		pieces.append(_item_tile(item))
+	for opened in kept.get("opened", []):
+		var ticket := _badge(opened)
+		ticket.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		pieces.append(ticket)
+	var i := 0
+	for piece in pieces:
+		row.add_child(piece)
 		if animated and not reduced_motion and not _hurry:
-			await _reveal(tile, 0.08 * i)
+			await _reveal(piece, 0.06 * mini(i, 4))
 			if not _alive(): return
 		i += 1
-	# The tickets take their own row under the tiles.
-	var tickets := HFlowContainer.new()
-	tickets.name = "KeptTickets"
-	tickets.alignment = FlowContainer.ALIGNMENT_CENTER
-	tickets.add_theme_constant_override("h_separation", 12)
-	tickets.add_theme_constant_override("v_separation", 10)
-	tickets.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	goals_box.add_child(tickets)
-	for opened in kept.get("opened", []):
-		var badge := _badge(opened)
-		tickets.add_child(badge)
-		if animated and not reduced_motion and not _hurry:
-			await _reveal(badge, 0.0)
-			if not _alive(): return
 	if animated:
-		goals_scroll.ensure_control_visible(header)
+		goals_scroll.ensure_control_visible(panel)
 		await _pause(0.3)
+		if not _alive(): return
+		kept_scroll.scroll_horizontal = 0 # the row starts at its first piece
 
 ## A piece pops onto the page: a quick swell, a tick and a few flecks of confetti.
 func _reveal(piece: Control, delay: float) -> void:
 	await _pause(delay + 0.05)
 	if not _alive(): return
-	goals_scroll.ensure_control_visible(piece)
+	var in_row := kept_scroll != null and kept_scroll.is_ancestor_of(piece)
+	goals_scroll.ensure_control_visible(goals_box.get_node("KeptPanel") if in_row else piece)
+	if in_row: kept_scroll.ensure_control_visible(piece)
 	piece.pivot_offset = piece.size * 0.5
 	piece.scale = Vector2(0.4, 0.4)
 	piece.modulate.a = 0.0
@@ -501,14 +550,14 @@ func _reveal(piece: Control, delay: float) -> void:
 	await _pause(0.28)
 
 ## A gold banner with notched tails: the page's section heading.
-func _banner(node_name: String, text: String) -> Control:
+func _banner(node_name: String, text: String, parent: Control = null) -> Control:
 	var banner := Banner.new()
 	banner.name = node_name
 	banner.text = text
 	banner.custom_minimum_size = Vector2(300, 46)
 	banner.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	goals_box.add_child(banner)
+	(parent if parent != null else goals_box).add_child(banner)
 	var label := _label(banner, "BannerText", 22, Color("2b1606"))
 	label.text = text
 	label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
