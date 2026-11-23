@@ -1,6 +1,6 @@
 # Wave 14 Codex checkpoint
 
-Status: IN_PROGRESS. Branch: codex/roguewood-build (2026-11-16).
+Status: IN_PROGRESS — UI-A9-H remains. Branch: codex/roguewood-build (2026-11-23).
 
 Coordinator be1d045 was merged with merge commit c9ecd381. Includes E05-R5
 and UI-9. No rebase, force-push, main push or PR. Initial synchronization
@@ -13,7 +13,17 @@ per-item briefs still apply.
 - AV-T03: DONE; verification and 85 captures in AV-T03.md. Supersedes AV-T02 held-ball visuals.
 - UI-A7: DONE; local hall motion, pixel 3D ball, native/web checks and loader review in UI-A7.md.
 - AV-N3: DONE; six identities/effects/sounds, required native checks and 64 captures in AV-N3.md.
-- AV-N4, AV-N5, UI-A6: not started. No DONE handoffs to skip.
+- AV-N4: DONE; five identities/effects/sounds, the Controlled Curve ribbon,
+  203 passing local checks and 52 captures. Details in AV-N4.md.
+- AV-N5: DONE; five identities/effects/sounds, two mastery ribbons, 211 distinct
+  passing local checks and 64 captures. Details in AV-N5.md.
+- UI-A6: DONE; manifest pin-deck hook, static House finish, 35 passing targeted
+  checks and 21 native captures. See UI-A6.md.
+- AV-FIX1: DONE; transparent Spare Jar and eight native before/after captures,
+  with affected checks passing. Seven other cards were fixed by the coordinator.
+  See AV-FIX1.md.
+- UI-A9-H: IN_PROGRESS (preproduction); twenty-variant brief and provenance/
+  capture plan in docs/art/ui/UI-A9-H.md. No celebration assets enabled yet.
 - Salvage art stays outside Wave 14.
 
 ## Owner capture index
@@ -31,14 +41,45 @@ AV-N3: artifacts/av-n3/{native,reduced}/rendered/, 28 captures each. Review
 captures; all six shop/Binder identities are included. Contact sheets in
 artifacts/av-n3/{contact,contact-b}/rendered/. Full index: AV-N3.md.
 
+AV-N4: artifacts/av-n4/{native,reduced}/rendered/, 22 captures each. Review
+`n4_specialist`, `n4_specialist_offer`, `n4_trade_sale`, `n4_comet_trail` and
+the three `*_paid` captures. All five shop/Binder identities are included.
+Contact sheets and the labelled earned ribbon specimen are in
+artifacts/av-n4/{contact,contact-b}/rendered/. Full index and native mastery
+limits: AV-N4.md.
+
+AV-N5: artifacts/av-n5/{native,reduced}/rendered/, 28 captures each. Review
+`n5_lane_two_tone`, `n5_lane_long_oil`, `n5_lane_house_oil`, `n5_side`,
+`n5_rescue` and the five `*_paid` captures. All five shop/Binder identities and
+both native Trophies/Goals rows are included. Contact sheets and the labelled
+earned ribbon specimens are in artifacts/av-n5/{contact,contact-b}/rendered/.
+Full index and native mastery limits: AV-N5.md.
+
+UI-A6: artifacts/ui-a6/rendered/. Review deck_d02_feature, deck_d03_boss and
+deck_d08_boss with _portrait, _landscape and _roll suffixes. Eight opener captures
+cover Divisions 1–8. Neon comparison: artifacts/e22-l02-art/live/rendered/
+live_pin_deck_{normal,reduced}.png. Full index: UI-A6.md.
+
 ## Exact resume step
 
-Merge the latest origin/claude/roguewood-build with a merge commit (UI-12c was 68b8244 at
-last fetch), read updated claims, and continue with AV-N4 (High): E17-D15 and
-E18-C18: shop_upgrade.trade_in, shop_upgrade.specialist_shelf, ball.comet,
-charm.metronome, consumable.steady_hand and ribbon.mastery.controlled_curve. List IDs, slots,
-provenance and captures before authoring; the native shop must show Specialist
-Shelf's marked offer in slot 7. Follow with AV-N5 (High), then UI-A6 (Medium).
+The b5338c9 checkpoint passed full Bootstrap CI (game and art, run 45138579012)
+and E11 still review (45138579162). Its remaining E12 failure was reproduced:
+the capture tool required reveal.png, although UI-16 removed that preview and
+J08 correctly asserts its absence. The tool now checks the seven current
+capture names; no runtime or native test assertions changed. Latest local
+four-mode result and the new push's status are recorded at the end of this file.
+
+At High effort, inspect the fresh push's CI, then continue UI-A9-H from its
+handoff and docs/art/ui/UI-A9-H.md. The twenty IDs, distinct gags, slots, source
+plan, three stings, shared CRT standard and evidence plan are written. Begin
+the original prop kit and first strike/spare/boss scenes with a native review
+journey; judge the 252 × 90 result before completing the remaining variants.
+No celebration assets/scenes/audio or manifest entries exist yet. UI-A9-H is
+IN_PROGRESS (preproduction only), not DONE. No Neon/Salvage Wave 15 art and
+no proposed AV-UI1 work.
+
+This continuation is bounded to 11:58:52–12:08:52 UTC on 2026-11-23. Stop at
+the pushed checkpoint; another work window needs the owner's continuation.
 
 ## Validation environment
 
@@ -66,3 +107,78 @@ resumed. Logs/results: artifacts/wave14/av-n3/ and /tmp/n3-*.log.
 
 AV-N3 required checks pass. The supplementary matrix recorded 72 passing checks;
 remaining full-wave coverage is listed in AV-N3.md and is not claimed complete.
+
+AV-N4 environment: pinned Godot 4.5.2, Xorg :93 with MIT-SHM disabled, same
+temporary XDG directories and LP_NUM_THREADS=2. Logs/results and the asset
+reproduction audit: artifacts/wave14/av-n4/. Final verification is recorded in
+AV-N4.md; the central claims/progress file remains the coordinator's.
+Additional rendered art checks used isolated displays :91/:92 with one llvmpipe
+thread each. All 203 local checks passed, including all 167 configured art-shard
+journey modes and the protected gameplay batch. These results supersede AV-N3's
+incomplete art-matrix coverage on this merged tree. Full CI/Web and remaining
+gameplay integration are still the coordinator's wave-closing work.
+
+AV-N5 environment: pinned Godot 4.5.2, Xorg :90 with MIT-SHM disabled and the same
+temporary XDG directories; extra art checks used isolated :91/:92. Coordinator
+8bafa27 was merged by 0cbd9a4 before authoring. Results, capture manifests and
+asset/scope audits are in artifacts/wave14/av-n5/. The broad matrix has 211
+distinct passing checks, including all 175 configured art-shard journey modes.
+JAVC04B rendered timed out under concurrent software rendering, then passed
+alone with its original 900-second timeout. Final label checks and full details
+are recorded in AV-N5.md. No captures are committed. Full CI/Web and wave
+closure remain the coordinator's work.
+
+UI-A6: pinned Godot 4.5.2, isolated Xorg :90, same temporary XDG directories.
+All 35 targeted checks pass; results and audits are in artifacts/wave14/ui-a6/.
+Physics digest and J03/J05 pinned scores remain unchanged. This targeted run
+includes both League journeys and their art journeys in both modes; it does not
+claim a fresh full art-shard or full CI/Web run. See UI-A6.md for scope and limits.
+
+AV-FIX1 completion: artifacts/av-fix1/{binder,shop}/{before,after}/rendered/
+contains eight reviewed native captures. The before specimens use original art
+in current UI; they are not old-build screenshots. All four new journeys pass
+headless/rendered. Unit/content/physics, J03C10 and the three House contacts pass;
+J11 and J11ART pass both modes; J11 rendered needed an isolated rerun of its timing budget.
+Coordinator 329447e merged by 489c007; all three UI-33b ball shaders retained.
+
+Merge re-verification checkpoint, 2026-11-23: required unit/content, J03C18,
+J03C19, J11, J22L01 and J22L02 pass (journeys in both modes). Physics digest
+75d1a3c0ceb2f8e458f7788de7e938de194633c1720aca1488b68a21eb310c6f unchanged;
+BAL-1 J03 600/260/70 and J05 match 2 25920 pass both modes. JAVN5/JAVN5R,
+JUIA6 and J22L02LIVEART pass both modes. UI-A6's art journey now presses Resume
+after Throw Settings. AV-N4's rendered audio check needed a 100 ms interval
+before a separate Sell action (QaRender accelerated it inside the wall-clock
+debounce); production audio is unchanged. Final JAVN4/JAVN4R now pass both modes.
+Results and original failures: artifacts/wave14/resume-20261123/. No fresh full
+local matrix; full push CI remains the gate.
+
+Comet correction, timed continuation 2026-11-23: original mesh-local shader
+now has a broad oblique cyan sweep and gold star, preserving its palette and
+reflectivity. J02 surface changes improve from 0.00/0.03 to 0.27/0.35 under
+roll/spin. All ten balls pass; the coordinator's three UI-33b shaders are
+unchanged. Eight targeted checks pass: unit/content, J02/JAVN4/JAVN4R both modes.
+Fresh turn sheet and normal/reduced Comet captures reviewed. Owner review:
+artifacts/e04/rendered/ball_turns.png (last row) and
+artifacts/av-n4/{native,reduced}/rendered/n4_comet_trail.png.
+Evidence: artifacts/wave14/timed-20261123/comet-checks/. Prior CI full art job
+passed; game/motion failures remain unclassified pending accessible fresh CI.
+No full local matrix was rerun. See AV-N4.md for exact limits and next steps.
+
+Supplementary checks in this window: physics and J08 headless/rendered PASS.
+Digest: 75d1a3c0ceb2f8e458f7788de7e938de194633c1720aca1488b68a21eb310c6f.
+The first attempt stopped at editor import because the sandbox denied local
+sockets; the unchanged checks passed with the required execution access.
+Evidence: artifacts/wave14/timed-20261123/{motion-sandbox-attempt,motion-checks}/.
+This brings the final targeted total to 11 passes. J08 passing locally does not
+substitute for E12's separate movie-capture workflow. No new test thresholds,
+scoring/input/audio behavior or protected gameplay files were changed.
+
+Final local E12 verification in the ten-minute window: PASS,
+`ROGUEWOOD_E12_MATRIX_OK`. All four native modes pass their unchanged J08
+assertions, with seven fresh captures each (28 total). Both encoded movies
+pass ffprobe dimensions: portrait-full 720 × 1280 and landscape-reduced
+1280 × 720. Temporary override.cfg was removed normally; project.godot and
+export_presets.cfg remain unchanged. Python compilation and git diff checks
+pass. Evidence: artifacts/wave14/resume-10min-20261123/ and artifacts/e12/.
+The new push's CI is a separate gate; inspect it at the next resume. UI-A9-H
+preproduction is recorded in its own handoff; no celebration art is complete.

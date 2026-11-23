@@ -133,3 +133,9 @@ For each of AV-N3 to AV-N5:
 - **At the end of the wave:** write docs/handoffs/WAVE14-CODEX.md as an index, listing the captures the owner should review.
 
 Stop after the Wave 14 claims, or earlier at a coherent pushed checkpoint with the exact resume step recorded.
+
+## Coordinator integration (2026-11-23)
+`codex/roguewood-build` at `e1cae49` is merged into `claude/roguewood-build`: AV-N4, AV-N5, UI-A6, AV-FIX1, the Comet markings (`b5338c9`) and the E12 capture-list repair. Reviewed against the rules above; no changes were needed. Next: UI-A9-H (docs/prompts/codex-wave14-ui-a9.md). Merge `claude/roguewood-build` into your branch with a merge commit before starting.
+
+## Coordinator note: PERF-2 (2026-11-23)
+At Low texture detail the sweep (src/platform/graphics.gd) now draws copies, and a full-size sheet is freed once nothing holds it. It follows a scripted node's own `texture` and `identity` properties. Four of your files still hold item or backdrop art in other variables, which keeps 6 MB sheets loaded: `neon_n3_presentation.gd` (`_chart`), `neon_n4_presentation.gd` (`metronome`, `hand`), `neon_n5_presentation.gd` (`icons`) and `assets/leagues/house/environment.gd` (`backdrop`). When you next touch them, hold such art in a `texture` or `identity` property, or keep its id and reload it. Details: docs/handoffs/PERF-2.md. UI-A9-H's celebrations should follow the same rule.

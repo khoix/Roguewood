@@ -9,7 +9,7 @@ extends RefCounted
 ## once one of them is fixed, so the exception is then removed rather than kept.
 const EDGE_OPAQUE := 0.5
 const PLATE_EDGES := 3
-const KNOWN_OPAQUE := ["charm.spare_jar"] # glass: needs repainting, not a matte (Codex, AV-FIX1)
+const KNOWN_OPAQUE: Array[String] = [] # AV-FIX1: all remaining plates corrected.
 
 ## The share of opaque pixels along each edge: [top, bottom, left, right].
 static func edge_opaque(texture: Texture2D) -> Array:

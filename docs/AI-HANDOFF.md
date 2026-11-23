@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-11-20. Current state only; everything older is in docs/AI-HANDOFF-HISTORY.md (moved verbatim by QA-6, owner 2026-11-20, so this file stays under about 200 lines). E01–E16 DONE and merged; E17–E22 IN_PROGRESS; E23–E29 NOT_STARTED. Waves 1–13 are merged (Wave 13 by PR #33). **Wave 14 is open**: its early merges are PRs #34 and #36–#50 (latest: PR #50, main `75d2dfa`, 2026-11-20). PR #51 (UI-30, UI-31) is merged (main `5f4df32`). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
+Updated: 2026-11-23. Current state only; everything older is in docs/AI-HANDOFF-HISTORY.md (moved verbatim by QA-6, owner 2026-11-20, so this file stays under about 200 lines). E01–E16 DONE and merged; E17–E22 IN_PROGRESS; E23–E29 NOT_STARTED. Waves 1–13 are merged (Wave 13 by PR #33). **Wave 14 is open**: its early merges are PRs #34 and #36–#50 (latest: PR #50, main `75d2dfa`, 2026-11-20). PRs #51–#60 are merged too (latest: PR #60, main `a8622be`, 2026-11-21). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
 
 ## Read first
 
@@ -29,7 +29,7 @@ The owner asked for tests that take less time and fewer tokens. For both agents:
 
 ## Current state
 - **Integration:** the owner merges `claude/roguewood-build` into main by PR. Claude restarts or fast-forwards it from main after each merge. Codex pushes `codex/roguewood-build` and opens no PRs.
-- **Merged:** PRs #51 (main `5f4df32`), #52 (`4c54786`), #53 (`b78b7c2`), #54 (`2605a3b`), #55 (`6536427`) #56 (`6204f4c`), #57 (`7f5f45f`), #58 (`90ed9d3`) and #59 (`14a1652`), 2026-11-20/21.
+- **Merged:** PRs #51 (main `5f4df32`), #52 (`4c54786`), #53 (`b78b7c2`), #54 (`2605a3b`), #55 (`6536427`) #56 (`6204f4c`), #57 (`7f5f45f`), #58 (`90ed9d3`), #59 (`14a1652`) and #60 (`a8622be`), 2026-11-20/21.
 - **For the next PR** (merged into `claude/roguewood-build` after #51): QA-1…QA-8, the testing changes above. Full local matrix: 28 min (was 64). CI #533 PASS: game 21 min, art 31 min (were 44–60 and 60–77).
 - **UI-32 DONE** (handoffs/UI-32.md; the owner's play notes, 2026-11-20): the shop's **Inventory** (Charms in a drag-to-reorder row on top, the other items below, tap to review or sell) and the payout and rack as a themed slip (payout rows and total; the rack as a triangle of pin art; reserves; Charms and Deck chips). Checks: `unit`, `content` and all 73 shop journeys headless; J05, J06, JTUT, JAVC04B, J03C07–C10 and J11 rendered: PASS.
 - **BAL-1 DONE** (handoffs/BAL-1.md; agreed with the owner, 2026-11-20): a release inside the ring adds 10 Value; sweet and perfect add +1 and +2 Mult on top (a plain strike 560 / 600 / 750 / 900). The simulation moves 0–5 points of League wins and 4–9 of Division 1 clears; the targets stay. New fixed values: J03 600/260/70, J05 match 2 25920.
@@ -52,7 +52,19 @@ The owner asked for tests that take less time and fewer tokens. For both agents:
 - **PR #59 merged** (owner, 2026-11-21; main `14a1652`): PERF-1.
 - **PERF-1b DONE** (handoffs/PERF-1.md, follow-up; the owner's report that Low or High textures dropped a phone under 20 fps): the art sweep reloaded every full-size original each pass. It now skips art already at its level, follows only art nodes, caches shader samplers and makes one copy a frame: 0.03 ms a frame. J11 holds it to a budget.
 - **UI-39 DONE** (handoffs/UI-39.md; the owner's request): How to Play's **Practice**: the House Ball and ten Wood pins, no shop, rules, cards or Charms; endless ten-frame games scored as normal (Next Game; best game on the bar); nothing counts. Throw Settings' Practice toggle is gone (a test fixture, `use_practice()`, keeps E09's target-free Division for journeys). Frame context `match_frame` 1–10.
-- **Codex** has been out of tokens since 2026-11-19 and returns about Friday 2026-11-21. Its Wave 14 queue: AV-N4, AV-N5, UI-A6, then UI-A9-H, and the proposed AV-UI1.
+- **PR #60 merged** (owner, 2026-11-21; main `a8622be`): PERF-1b and UI-39.
+- **Codex integrated** (2026-11-23; `codex/roguewood-build` at `e1cae49`, merged into `claude/roguewood-build` with a merge commit; reviewed against the session's write rules: league_theme.gd changes only UI-A6's pin-deck hook, catalogue.json only its items' `assets` slots and completeness flags, qa.py, run_tests.gd and the workflow add-only):
+  - **AV-N4 DONE** (handoffs/AV-N4.md): art, effects and sounds for Trade-In, Specialist Shelf, Comet Ball, Metronome and Steady Hand, and the Controlled Curve ribbon; JAVN4, JAVN4R, JAVN4C, JAVN4BC.
+  - **AV-N5 DONE** (handoffs/AV-N5.md): Compass Pin, Split Pattern, Dry Run, Long Game and Second Chance, and the Both Halves and Rebound Rescue ribbons; JAVN5, JAVN5R, JAVN5C, JAVN5BC. All 28 Neon items now have final art.
+  - **UI-A6 DONE** (handoffs/UI-A6.md): each League manifest names its pin-deck finish (`pin_deck`); House has its own; Neon's is unchanged; a League without one keeps plain walls. JUIA6 (the full House League).
+  - **AV-FIX1 DONE** (handoffs/AV-FIX1.md): Spare Jar's glass repainted with transparency; the card guard has no exceptions left. JAVFIX1B, JAVFIX1BB, JAVFIX1S, JAVFIX1SB.
+  - **Comet Ball** (`b5338c9`): its markings are painted in the mesh's own space, so they turn with the ball through roll and spin.
+  - **E12 motion review repaired** (`e1cae49`, handoffs/E12.md): it had failed on most Codex pushes since 2026-11-16 with "Missing portrait-full/reveal.png". UI-16 removed the inspector's reveal preview; tools/capture_motion.py still required its capture. It now requires the seven current captures per mode; J08's assertions are unchanged. Codex reports `ROGUEWOOD_E12_MATRIX_OK` locally, and the E12 motion review passes in CI on `e1cae49` (run 45170994021).
+  - **Checks** (merged tree): `unit`, `content`, `integration`, `web`; J02 (both modes), J03C18, J03C19, J11, J11ART (rendered), J22L01, J22L02, JAVN4 (both modes), JAVN5, JUIA6 and JAVFIX1B: 17 of 17 PASS. CI Bootstrap #564 on `3dcd75a` PASS (game and art, which runs every AV-N4, AV-N5, UI-A6 and AV-FIX1 journey); E11 still review PASS.
+- **Codex's queue:** UI-A9-H (House celebrations; brief docs/prompts/codex-wave14-ui-a9.md), then the proposed AV-UI1. **Checkpoint `cec80a1`** (2026-11-23, IN_PROGRESS; handoffs/UI-A9-H.md on Codex's branch): 20 celebration candidates, three sting candidates and native review journeys (JUIA9H, JUIA9HR, JUIA9HB). The live manifest stays off. Codex stopped at a 20-minute deadline, with the full-frame benchmark timed out. CI on `cec80a1`: Bootstrap, E11 and E12 PASS. It is not integrated: next come visual and audio review, then performance and Web checks before activation.
+- **PERF-2 DONE** (handoffs/PERF-2.md; the owner's PERF-1 phone log): GPU memory climbed to 385 MB at Low and the page then reloaded, most likely ended for memory. Low's copy cache never let go, and full-size sheets stayed loaded beside their copies (rival portraits, scripted views, the Sell list). Now copies live while drawn plus 24 MB of recent ones; portraits and reaction frames are held weakly; the sweep follows scripted `texture` and `identity` and stops after 8 ms a frame. The log keeps 200 entries, groups a run of long frames into one line, and notes CPU time and draw calls. House League at Low: textures 213 → 165 MB, copies steady at about 110 (were 223 and climbing). Codex's follow-up: the Neon presentations and the House backdrop keep icons in variables. Not tried on a phone.
+- **Waiting on the owner:** a second phone log with PERF-2 (Graphics → Low and Low, Performance Log on, then Copy Log). Its lines now say whether long frames are CPU or GPU, and it covers a whole session.
+- **Follow-up:** the Splitter Ball (E17-D01, not in the game) unlocks on the first House Campaign title, which players can no longer reach (UI-16); it needs another unlock when it lands.
 
 ## Decisions and invariants
 
@@ -168,7 +180,7 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
   - **Source sheets:** source.AV-H3-B.png and source.AV-H4-A/B.png.
   - **The fix:** a clean alpha matte, ledger entries, and a unit guard that every card is transparent at its border.
   - **When:** in Codex's current queue, ahead of Wave 15 if the owner wants it on the phone sooner.
-  - **Update (2026-11-17), at the owner's request:** the coordinator matted seven with tools/author_card_mattes.py (ledger, AV-FIX1). A unit guard (tests/card_transparency_test.gd) now fails on any card with a background plate. **Spare Jar remains for Codex:** its glass needs repainting. Checks: `unit`, `content`, JAVH3BC, JAVH4AC and JAVH4BC (both modes), and J03C08–J03C11: PASS.
+  - **Update (2026-11-17), at the owner's request:** the coordinator matted seven with tools/author_card_mattes.py (ledger, AV-FIX1). A unit guard (tests/card_transparency_test.gd) now fails on any card with a background plate. Spare Jar was left for Codex (its glass needed repainting); **AV-FIX1 is DONE** (2026-11-23, handoffs/AV-FIX1.md). Checks: `unit`, `content`, JAVH3BC, JAVH4AC and JAVH4BC (both modes), and J03C08–J03C11: PASS.
 
 ## Wave 14 claims (coordinator: Claude, 2026-11-15)
 Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build` at the "Wave 13 closed" commit or later. Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave14-session.md, a new session from 2026-11-15 with AV-T02 first; it replaces codex-wave14.md). Scope: docs/ROADMAP.md, the Wave 14 row and "League template" (wave a for Salvage).
@@ -198,7 +210,7 @@ The full log (every entry and its checks) is in AI-HANDOFF-HISTORY.md; each item
   - E17-L03 (the Salvage spec), E18-C20 (Salvage's rules and lanes), E05-R5 (the flywheel; the owner chose model A);
   - the owner's notes: UI-9 to UI-29, MUSIC-1, the soundtrack;
   - the E12 motion review fix.
-- **Codex, DONE and merged:** AV-T02, AV-T03, UI-A7 and AV-N3.
+- **Codex, DONE and merged:** AV-T02, AV-T03, UI-A7 and AV-N3. **DONE and integrated** into `claude/roguewood-build` (2026-11-23): AV-N4, AV-N5, UI-A6, AV-FIX1, the Comet fix and the E12 repair.
 - **Owner's choices on record:** spin model A; at least 5 strike and 5 spare celebrations per League and 2 per boss (UI-A9-H in Wave 14, UI-A9-N in Wave 15); the alley screen (UI-20) stays off until Codex's art.
 - **PR #50 merged** (owner, 2026-11-20; main `75d2dfa`): UI-27, UI-28 and UI-29.
 - **UI-30 DONE** (handoffs/UI-30.md), owner 2026-11-20: a new pin placed where a modified pin stands takes over its modification (unless they exclude each other); the old pin moves or sells without it, and the placement sheet says so. Held on `claude/gracious-hopper-2npyl2` at the owner's request until #50 merged, then merged into `claude/roguewood-build` for the next PR.
@@ -206,7 +218,7 @@ The full log (every entry and its checks) is in AI-HANDOFF-HISTORY.md; each item
 - **Full CI matrix (local) on `90330f6`** (UI-30 and UI-31): 252 of 252 commands PASS.
 - **UI-31 follow-up** (owner, 2026-11-20): a League title won again is no new award; it no longer opens or appears on the award page. CI #529 failed on J12R01 because the show's sound throttle used the wall clock; it now counts the ceremony's own time. #528's art job hung in `apt-get update` (Ubuntu mirror) until the 90-minute limit.
 - **Next:**
-  - Codex's AV-N4, AV-N5 and UI-A6 (AV-T02, AV-T03, UI-A7 and AV-N3 are merged), then UI-A9-H, and the proposed AV-UI1 (the final button sounds);
+  - Codex's UI-A9-H (AV-N4, AV-N5, UI-A6 and AV-FIX1 are integrated), and the proposed AV-UI1 (the final button sounds);
   - then the full matrix and the "Wave 14 closed" commit.
 
 ## Standing user preferences

@@ -1,5 +1,6 @@
 {
   "schema_version": 1,
+  "pin_deck": "res://assets/leagues/neon/pin_deck.tres",
   "league_id": "league.neon",
   "delivery_status": "integrated",
   "source": "source.environment.png",
