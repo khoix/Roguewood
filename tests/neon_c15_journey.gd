@@ -45,7 +45,7 @@ func _run() -> void:
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	_check(not lab.division.practice and lab.equipment.MODEL == "deck", "a real match with the deck")
 	await _strike_out()
 	await _to_shop("opener")
@@ -73,7 +73,7 @@ func _run() -> void:
 	# Accurate releases need the contracting ring, so reduced motion goes off from here.
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	_check(not lab.settings.reduced_motion, "reduced motion is off for the timed releases")
 	var curved := await _card_frame(cards.blacklight, [CURVED_STRIKE], CURVED_SPIN, "feature 2: Blacklight card, curved", CURVED_TARGET)
 	_check(curved.scored.result.category == "strike" and curved.reports[0].launch.spin == CURVED_SPIN and _logged("Blacklight"), "a curved strike with its card: Blacklight applies")

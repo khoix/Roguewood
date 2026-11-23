@@ -178,9 +178,27 @@ func mod_hosts(mod_id: String) -> Array:
 		hosts.append(owned.ref)
 	return hosts
 
-## Ways to take a new item: [{target, replaces (ref or ""), sale, moves_to}]. A full
-## slot is offered only as an explicit replacement that sells what it replaces;
-## nothing is ever dropped silently.
+## UI-30 (owner, 2026-11-20): a new pin placed where a modified pin stands takes
+## over its modification, unless the two exclude each other (then the modification
+## stays with the old pin). Returns the modification that would carry, or "".
+func carried_mod(item_id: String, target: String) -> String:
+	if slot_kind(item(item_id).get("category", "")) != "pin":
+		return ""
+	if not (target.begins_with("rack:") or target.begins_with("reserve:")):
+		return ""
+	var old = entry_at(target)
+	if old == null or String(old.mod).is_empty():
+		return ""
+	var mod_id: String = old.mod
+	if item_id in item(mod_id).get("incompatibilities", []) or mod_id in item(item_id).get("incompatibilities", []):
+		return ""
+	return mod_id
+
+## Ways to take a new item: [{target, replaces (ref or ""), sale, moves_to,
+## keeps_mod}]. A full slot is offered only as an explicit replacement that sells
+## what it replaces; nothing is ever dropped silently. keeps_mod names a
+## modification the new pin takes over (UI-30); the replaced pin then sells or
+## moves without it.
 func placements(item_id: String) -> Array:
 	var out: Array = []
 	match slot_kind(item(item_id).get("category", "")):
@@ -202,16 +220,18 @@ func placements(item_id: String) -> Array:
 			var free := reserves.find(null)
 			for position in range(1, RACK_SIZE + 1):
 				var ref := "rack:%d" % position
+				var keeps := carried_mod(item_id, ref)
 				if free >= 0:
-					out.append({"target": ref, "replaces": "", "sale": 0, "moves_to": "reserve:%d" % (free + 1)})
+					out.append({"target": ref, "replaces": "", "sale": 0, "moves_to": "reserve:%d" % (free + 1), "keeps_mod": keeps})
 				else:
-					out.append({"target": ref, "replaces": ref, "sale": sale_value(ref), "moves_to": ""})
+					out.append({"target": ref, "replaces": ref, "sale": sale_value(ref, keeps.is_empty()), "moves_to": "", "keeps_mod": keeps})
 			for i in reserves.size():
 				var ref := "reserve:%d" % (i + 1)
 				if reserves[i] == null:
 					out.append({"target": ref, "replaces": "", "sale": 0, "moves_to": ""})
 				else:
-					out.append({"target": ref, "replaces": ref, "sale": sale_value(ref), "moves_to": ""})
+					var keeps := carried_mod(item_id, ref)
+					out.append({"target": ref, "replaces": ref, "sale": sale_value(ref, keeps.is_empty()), "moves_to": "", "keeps_mod": keeps})
 		"mod":
 			for ref in mod_hosts(item_id):
 				out.append({"target": ref, "replaces": "", "sale": 0, "moves_to": ""})
@@ -219,16 +239,19 @@ func placements(item_id: String) -> Array:
 			out.append({"target": "upgrade:new", "replaces": "", "sale": 0, "moves_to": ""})
 	return out
 
-## Sale value of an owned entry, including its modification. The House ball is
-## never owned here, so it can never be sold.
-func sale_value(ref: String) -> int:
+## Sale value of an owned entry, including its modification unless with_mod is
+## false (the modification carries to a new pin, UI-30). The House ball is never
+## owned here, so it can never be sold.
+func sale_value(ref: String, with_mod: bool = true) -> int:
 	var entry = entry_at(ref)
 	if entry == null:
 		return 0
 	var value := Economy.sale_value(int(entry.paid), int(item(entry.item_id).get("resale_price", 0)))
-	if not String(entry.mod).is_empty():
+	var paid := int(entry.paid)
+	if with_mod and not String(entry.mod).is_empty():
 		value += Economy.sale_value(int(entry.mod_paid), int(item(entry.mod).get("resale_price", 0)))
-	return Upgrades.sale(value, int(entry.paid) + int(entry.get("mod_paid", 0)), self) # Trade-In (E18-C18)
+		paid += int(entry.get("mod_paid", 0))
+	return Upgrades.sale(value, paid, self) # Trade-In (E18-C18)
 
 ## Rack pins hold the lineup, so they are replaced or swapped, never sold empty.
 ## Shop upgrades are kept for the attempt.
@@ -246,7 +269,7 @@ func pay(amount: int, kind: String, item_id: String = "") -> Array[String]:
 	if amount < 0:
 		errors.append("negative price")
 	elif amount > money:
-		errors.append("insufficient funds: need $%d, have $%d" % [amount, money])
+		errors.append("insufficient funds: Need $%d, have $%d" % [amount, money])
 	if errors.is_empty():
 		money -= amount
 		_record(kind, amount, item_id)
@@ -371,8 +394,16 @@ func place(item_id: String, paid: int, target: String) -> Array[String]:
 		host.mod = item_id
 		host.mod_paid = paid
 		return errors
+	var keeps: String = plan.get("keeps_mod", "")
 	if not plan.replaces.is_empty():
-		credit(sale_value(plan.replaces), "sale", entry_at(plan.replaces).item_id)
+		credit(int(plan.sale), "sale", entry_at(plan.replaces).item_id)
+	var placed := _entry(item_id, paid)
+	if not keeps.is_empty(): # UI-30: the modification stays in its place, on the new pin
+		var old: Dictionary = entry_at(target)
+		placed.mod = old.mod
+		placed.mod_paid = old.mod_paid
+		old.mod = ""
+		old.mod_paid = 0
 	var parts := target.split(":")
 	match parts[0]:
 		"card":
@@ -389,9 +420,9 @@ func place(item_id: String, paid: int, target: String) -> Array[String]:
 		"rack":
 			if not plan.moves_to.is_empty():
 				reserves[int(plan.moves_to.split(":")[1]) - 1] = rack[int(parts[1])]
-			rack[int(parts[1])] = _entry(item_id, paid)
+			rack[int(parts[1])] = placed
 		"reserve":
-			reserves[int(parts[1]) - 1] = _entry(item_id, paid)
+			reserves[int(parts[1]) - 1] = placed
 		"upgrade":
 			upgrades.append(_entry(item_id, paid))
 			if Upgrades.kind(item_id) == "reserve_slot":
@@ -457,6 +488,21 @@ func move_charm_left(slot: int) -> Array[String]:
 	var moved = charms[slot - 1]
 	charms[slot - 1] = charms[slot - 2]
 	charms[slot - 2] = moved
+	return errors
+
+## UI-32 (owner, 2026-11-20): the Inventory's Charm row is reordered by drag and
+## drop: the Charm at `from` (1-based) moves to slot `to`, the others closing up
+## around it. Moving to its own slot changes nothing.
+func move_charm(from: int, to: int) -> Array[String]:
+	var errors: Array[String] = []
+	if from < 1 or from > charms.size():
+		errors.append("no Charm to move at slot %d" % from)
+	elif to < 1 or to > charms.size():
+		errors.append("no Charm slot %d" % to)
+	if errors.is_empty() and from != to:
+		var moved = charms[from - 1]
+		charms.remove_at(from - 1)
+		charms.insert(to - 1, moved)
 	return errors
 
 func _set_pin(ref: String, entry: Variant) -> void:

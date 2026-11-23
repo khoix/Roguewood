@@ -31,7 +31,7 @@ func _run() -> void:
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	_check(not lab.division.practice, "a real match, not Practice")
 	await _strike_out()
 	await _to_shop("opener")
@@ -70,7 +70,7 @@ func _run() -> void:
 	_check(not lab.motion.abilities.history.any(func(e): return e.id == "charm.trophy_case"),"restored trophy does not replay growth")
 	await _capture("c09_restored_trophy")
 	var index: int = lab.run.charms.map(func(e): return e.item_id).find("charm.late_rally")
-	await _tap(lab.shop_panel.owned_list.get_node("Sell_charm_%d" % (index + 1)))
+	await _tap(lab.shop_panel.sell_button("charm:%d" % (index + 1))) # UI-32: Charms are in the Inventory row
 	await process_frame
 	_check(not lab.run.charms.any(func(e): return e.item_id == "charm.late_rally"), "Late Rally sold to free a slot")
 	await _buy(["charm.front_line"])

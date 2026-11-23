@@ -79,6 +79,7 @@ async function load(label, tap = true) {
       theme: document.querySelector('meta[name="theme-color"]')?.getAttribute("content"),
       homeName: document.querySelector('meta[name="apple-mobile-web-app-title"]')?.getAttribute("content"),
       title: document.title,
+      cap: window.rwDensity ? window.rwDensity.cap : null, // PERF-1: the density cap while the engine loads
     };
   });
   if (!tap) await page.screenshot({ path: path.join(outDir, "web_loading.png") });
@@ -108,34 +109,80 @@ try {
   check(head.theme === "#0b1116" && head.homeName === "Roguewood" && head.title === "Roguewood", `theme colour, home-screen name and page title (${JSON.stringify(head)})`);
   // UI-10: the loading progress is a pixel ball rolling down a short lane toward a pin,
   // driven by the engine's own progress element (kept, invisible); the pin tips at 100%.
-  // The engine removes its loading overlay once it starts, so the loader is run again
-  // on a stand-in overlay with the same ids.
+  // UI-36: the spin, bob and roll are CSS animations and transitions (they keep playing
+  // while a phone's main thread starts the game), an unknown download size loops the
+  // roll and knockdown, and when the engine removes its overlay the knockdown plays out
+  // before the overlay fades. The engine removes its overlay once it starts, so the
+  // loader is run again on a stand-in overlay with the same ids.
   const loader = await page.evaluate(async () => {
     if (!document.querySelector("#rw-loader-js") || typeof window.rwLoaderStart !== "function") return { found: false };
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
     const stand = document.createElement("div");
     stand.id = "status";
     stand.style.cssText = "position:absolute;inset:0;width:600px;height:400px;";
     stand.innerHTML = '<progress id="status-progress"></progress>';
     document.body.appendChild(stand);
-    window.rwLoaderStart();
+    window.rwLoaderStart(stand);
     await new Promise((r) => requestAnimationFrame(r));
     const lane = stand.querySelector("#rw-loader"), pr = stand.querySelector("#status-progress");
     if (!lane) return { found: false, started: true };
-    const shown = pr.style.display;
+    const roll = lane.querySelector("#rw-roll"), pin = lane.querySelector("#rw-pin");
+    const css = (el) => el.getAnimations().map((a) => a.animationName || a.transitionProperty).filter(Boolean);
+    const shown = pr.style.display, opacity = getComputedStyle(pr).opacity;
     const at = async (value) => {
       pr.style.display = "block"; pr.max = 1; pr.value = value;
-      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-      const m = new DOMMatrixReadOnly(getComputedStyle(lane.querySelector("#rw-ball")).transform);
-      return { x: m.m41, shown: getComputedStyle(lane).display, progress: lane.dataset.progress, pinDown: lane.querySelector("#rw-pin").classList.contains("down") };
+      await wait(700);
+      const m = new DOMMatrixReadOnly(getComputedStyle(roll).transform);
+      return { x: m.m41, shown: getComputedStyle(lane).display, progress: lane.dataset.progress, pinDown: pin.classList.contains("down") };
     };
-    const quarter = await at(0.25), most = await at(0.9), done = await at(1.0);
-    pr.style.display = shown;
-    const opacity = getComputedStyle(pr).opacity;
+    const quarter = await at(0.25);
+    const moving = { ball: css(lane.querySelector("#rw-ball")), bob: css(lane.querySelector("#rw-bob")) };
+    const most = await at(0.9);
+    // UI-38: at 100% the pin waits for the ball to reach it.
+    pr.value = 1;
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    const arriving = { progress: lane.dataset.progress, pinDown: pin.classList.contains("down") };
+    const done = await at(1.0);
+    // No total from the server: the roll and the knockdown loop.
+    pr.removeAttribute("value");
+    await wait(100);
+    const idle = { progress: lane.dataset.progress, idle: lane.classList.contains("idle"), roll: css(roll), pin: css(pin) };
+    // The engine removes the overlay: it comes back for the knockdown, then fades and goes.
     stand.remove();
-    return { found: true, opacity, ball: lane.querySelector("#rw-ball").getAttribute("src").startsWith("data:image/svg+xml"), quarter, most, done };
+    await wait(200);
+    const finale = { back: stand.isConnected, pinDown: pin.classList.contains("down"), progress: lane.dataset.progress, taps: getComputedStyle(stand).pointerEvents };
+    await wait(1500);
+    finale.gone = !stand.isConnected;
+    pr.style.display = shown;
+    return { found: true, opacity, ball: lane.querySelector("#rw-ball").getAttribute("src").startsWith("data:image/svg+xml"), quarter, moving, most, arriving, done, idle, finale };
   });
   check(loader.found && loader.opacity === "0" && loader.ball && loader.quarter.shown === "block" && loader.most.x > loader.quarter.x + 40
     && !loader.most.pinDown && loader.done.pinDown && loader.done.progress === "1.000", `the loader rolls a pixel ball toward a pin that tips at 100% (${JSON.stringify(loader)})`);
+  check(loader.found && loader.arriving.progress === "1.000" && !loader.arriving.pinDown && loader.done.pinDown,
+    `at 100% the pin falls only once the ball reaches it (${JSON.stringify(loader.arriving)})`);
+  check(loader.found && loader.moving.ball.includes("rw-spin") && loader.moving.bob.includes("rw-bob"),
+    `the ball's spin and bob are CSS animations (${JSON.stringify(loader.moving)})`);
+  check(loader.found && loader.idle.idle && loader.idle.progress === "idle" && loader.idle.roll.includes("rw-run") && loader.idle.pin.includes("rw-knock"),
+    `with no known download size the ball rolls and knocks the pin over in a loop (${JSON.stringify(loader.idle)})`);
+  check(loader.found && loader.finale.back && loader.finale.pinDown && loader.finale.progress === "1.000" && loader.finale.taps === "none" && loader.finale.gone,
+    `when the engine removes its overlay, the knockdown plays out, taps pass through, then it goes (${JSON.stringify(loader.finale)})`);
+  // PERF-1: the page caps the canvas's pixel density for the Resolution setting, and
+  // the engine follows it live (here a cap of 0.5 halves the canvas, then is lifted).
+  const density = await page.evaluate(async () => {
+    const canvas = document.querySelector("canvas");
+    const frames = (n) => new Promise((r) => { let i = 0; const f = () => (++i >= n ? r() : requestAnimationFrame(f)); requestAnimationFrame(f); });
+    const before = { dpr: window.devicePixelRatio, width: canvas.width, cap: window.rwDensity ? window.rwDensity.cap : null };
+    if (!window.rwDensity) return { before };
+    window.rwDensity.cap = 0.5;
+    await frames(20);
+    const capped = { dpr: window.devicePixelRatio, width: canvas.width };
+    window.rwDensity.cap = 0;
+    await frames(20);
+    return { before, capped, after: { dpr: window.devicePixelRatio, width: canvas.width }, inner: window.innerWidth };
+  });
+  check(density.before.cap === 0 && density.capped && density.capped.dpr === 0.5 && Math.abs(density.capped.width - density.inner * 0.5) <= 1
+    && density.after.width === density.before.width, `PERF-1: the canvas follows the density cap live (${JSON.stringify(density)})`);
+  check(titled.s.graphics && titled.s.graphics.resolution === "normal" && titled.s.graphics.textures === "normal", `PERF-1: Graphics starts at Normal (${JSON.stringify(titled.s.graphics)})`);
   await page.screenshot({ path: path.join(outDir, "web_title.png") });
   // The browser's first tap, on the title, is the user gesture that lets audio start.
   await click(titled.s.title.at);
@@ -185,13 +232,39 @@ try {
   check(true, `roll 1 settled (state ${s.state}) and the attempt is saved`);
   await page.waitForTimeout(1500); // let the browser flush user:// to IndexedDB
 
+  // PERF-1: a saved Low resolution caps the density while the engine loads (the
+  // game's own saved setting, Normal here, then takes over once it starts).
+  await page.evaluate(() => localStorage.setItem("rw.resolution", "low"));
   const second = await load("reload");
+  const cap = await page.evaluate(() => window.rwDensity && window.rwDensity.cap);
+  check(second.head.cap === 2 && cap === 0 && second.s.graphics.resolution === "normal",
+    `PERF-1: a saved Low resolution caps the density at 2x while the engine loads; the game's setting then rules (${second.head.cap} → ${cap})`);
   check(second.s.saved && second.s.continue.visible, "after a reload the menu offers Continue Attempt from IndexedDB");
   await click(second.s.continue.at);
   s = await waitFor((s) => s.screen === "session" && s.history >= 1, "the attempt resumes with its roll", 30000);
   check(s.history >= 1, `the resumed attempt keeps its committed roll (history ${s.history}, state ${s.state})`);
   await page.screenshot({ path: path.join(outDir, "web_resumed.png") });
   check(errors.length === 0, `no script errors (${errors.slice(0, 3).join(" | ")})`);
+  // PERF-1: a lost WebGL context (forced here) shows the reload screen, not the
+  // engine's alert; a tap reloads, and the Performance log records the loss.
+  let dialogs = 0;
+  page.on("dialog", (d) => { dialogs++; d.dismiss().catch(() => {}); });
+  const lost = await page.evaluate(async () => {
+    const gl = document.querySelector("canvas").getContext("webgl2");
+    const ext = gl && gl.getExtension("WEBGL_lose_context");
+    if (!ext) return { ext: false };
+    ext.loseContext();
+    for (let i = 0; i < 50 && !document.getElementById("rw-lost"); i++) await new Promise((r) => setTimeout(r, 100));
+    const o = document.getElementById("rw-lost");
+    return { ext: true, shown: !!o && getComputedStyle(o).display === "flex", text: o ? o.innerText.split("\n")[0] : "", noted: !!localStorage.getItem("rw.contextLost") };
+  });
+  await page.screenshot({ path: path.join(outDir, "web_context_lost.png") });
+  check(lost.ext && lost.shown && lost.text === "The lane lost its picture" && lost.noted && dialogs === 0,
+    `PERF-1: a lost WebGL context shows the reload screen, no alert (${JSON.stringify(lost)}, ${dialogs} dialogs)`);
+  status = null;
+  await Promise.all([page.waitForNavigation({ waitUntil: "load" }), page.click("#rw-lost button")]);
+  s = await waitFor((s) => s.screen === "title" && s.graphics, "PERF-1: the reload starts the game again", 120000);
+  check(s.graphics.lost, `PERF-1: after the reload the Performance log records the lost context (${JSON.stringify(s.graphics)})`);
   if (injectFailure) check(false, "Injected diagnostic failure");
 } catch (e) {
   if (!failures.length) check(false, String(e));

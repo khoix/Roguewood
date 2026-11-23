@@ -86,7 +86,8 @@ func _rival() -> Dictionary:
 func _line(key: String) -> String:
 	var r := _rival()
 	var fallback := {"entrance": "Show me a clean rack.", "impressed": "Clean sweep. Well played.", "confident": "A clever line."}
-	return "%s\n%s" % [r.get("name", "The Custodian"), r.get("reactions", {}).get(key, fallback.get(key, ""))]
+	var said: String = preload("res://src/presentation/rival_lines.gd").line(r, key) if not r.is_empty() else ""
+	return "%s\n%s" % [r.get("name", "The Custodian"), said if not said.is_empty() else fallback.get(key, "")]
 
 func set_reaction(index: int, text: String) -> void:
 	reaction_state=index

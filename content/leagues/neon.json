@@ -93,7 +93,7 @@
           "name": "Slick",
           "initials": "SL",
           "rule": "boss_rule.oil_slick",
-          "intro": "Slick runs the oil machine and never wipes it down. Under Oil Slick every hook is halved: the same charge curves half as far, so a straight line, or a strong spin ball to win the curve back, takes this lane.",
+          "intro": "Slick runs the oil machine and never wipes it down. Under Oil Slick every hook is halved: The same charge curves half as far, so a straight line, or a strong spin ball to win the curve back, takes this lane.",
           "first_clear": {
             "unlocks": [
               "gate.slick_cleared"
@@ -149,7 +149,7 @@
           "name": "Laser Lena",
           "initials": "LL",
           "rule": "boss_rule.narrow_lane",
-          "intro": "Laser Lena paints the lane edges in light. Under Narrow Lane each gutter edge moves two boards in, so a wide curve drops off the lane: aim tight, roll straight, or bend it late.",
+          "intro": "Laser Lena paints the lane edges in light. Under Narrow Lane each gutter edge moves two boards in, so a wide curve drops off the lane: Aim tight, roll straight, or bend it late.",
           "first_clear": {
             "unlocks": [
               "gate.laser_lena_cleared"
@@ -205,7 +205,7 @@
           "name": "DJ Flicker",
           "initials": "DF",
           "rule": "boss_rule.strobe",
-          "intro": "DJ Flicker drops the beat on your timing. Under Strobe the ring's sweet and perfect zones are half their size, so accuracy Mult is hard to earn: build Value, strikes or power that do not need a perfect release.",
+          "intro": "DJ Flicker drops the beat on your timing. Under Strobe the ring's sweet and perfect zones are half their size, so accuracy Mult is hard to earn: Build Value, strikes or power that do not need a perfect release.",
           "first_clear": {
             "unlocks": [
               "gate.dj_flicker_cleared"
@@ -261,7 +261,7 @@
           "name": "Slick",
           "initials": "SL",
           "rule": "boss_rule.oil_slick",
-          "intro": "Slick runs the oil machine and never wipes it down. Under Oil Slick every hook is halved: the same charge curves half as far, so a straight line, or a strong spin ball to win the curve back, takes this lane.",
+          "intro": "Slick runs the oil machine and never wipes it down. Under Oil Slick every hook is halved: The same charge curves half as far, so a straight line, or a strong spin ball to win the curve back, takes this lane.",
           "first_clear": {
             "unlocks": [
               "gate.slick_cleared"
@@ -317,7 +317,7 @@
           "name": "Laser Lena",
           "initials": "LL",
           "rule": "boss_rule.narrow_lane",
-          "intro": "Laser Lena paints the lane edges in light. Under Narrow Lane each gutter edge moves two boards in, so a wide curve drops off the lane: aim tight, roll straight, or bend it late.",
+          "intro": "Laser Lena paints the lane edges in light. Under Narrow Lane each gutter edge moves two boards in, so a wide curve drops off the lane: Aim tight, roll straight, or bend it late.",
           "first_clear": {
             "unlocks": [
               "gate.laser_lena_cleared"
@@ -373,7 +373,7 @@
           "name": "DJ Flicker",
           "initials": "DF",
           "rule": "boss_rule.strobe",
-          "intro": "DJ Flicker drops the beat on your timing. Under Strobe the ring's sweet and perfect zones are half their size, so accuracy Mult is hard to earn: build Value, strikes or power that do not need a perfect release.",
+          "intro": "DJ Flicker drops the beat on your timing. Under Strobe the ring's sweet and perfect zones are half their size, so accuracy Mult is hard to earn: Build Value, strikes or power that do not need a perfect release.",
           "first_clear": {
             "unlocks": [
               "gate.dj_flicker_cleared"
@@ -429,7 +429,7 @@
           "name": "Slick",
           "initials": "SL",
           "rule": "boss_rule.oil_slick",
-          "intro": "Slick runs the oil machine and never wipes it down. Under Oil Slick every hook is halved: the same charge curves half as far, so a straight line, or a strong spin ball to win the curve back, takes this lane.",
+          "intro": "Slick runs the oil machine and never wipes it down. Under Oil Slick every hook is halved: The same charge curves half as far, so a straight line, or a strong spin ball to win the curve back, takes this lane.",
           "first_clear": {
             "unlocks": [
               "gate.slick_cleared"
@@ -489,7 +489,7 @@
             "boss_rule.oil_slick"
           ],
           "of": "rival.dj_flicker",
-          "intro": "DJ Flicker headlines the Neon title night with Slick on the oil: the ring's sweet and perfect zones are halved and every hook is halved too, on the two-tone pattern. Its dry left half gives back some of the curve; a straight, powerful game still scores.",
+          "intro": "DJ Flicker headlines the Neon title night with Slick on the oil: The ring's sweet and perfect zones are halved and every hook is halved too, on the two-tone pattern. Its dry left half gives back some of the curve; a straight, powerful game still scores.",
           "first_clear": {
             "unlocks": [
               "gate.neon_champion_cleared"

@@ -37,7 +37,16 @@ func snapshot() -> Dictionary:
 	var view := get_viewport()
 	var to_window := view.get_final_transform()
 	var out := {"screen": shell.screen, "fps": Engine.get_frames_per_second(), "window": [view.get_visible_rect().size.x, view.get_visible_rect().size.y],
-		"saved": bool(shell._saved_attempt().ok)}
+		"saved": bool(shell._saved_attempt().ok),
+		# PERF-1: the engine's own GPU and memory figures (MB), for phone budgets.
+		"vram": snappedf(Performance.get_monitor(Performance.RENDER_VIDEO_MEM_USED) / 1048576.0, 0.1),
+		"tex": snappedf(Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED) / 1048576.0, 0.1),
+		"buf": snappedf(Performance.get_monitor(Performance.RENDER_BUFFER_MEM_USED) / 1048576.0, 0.1),
+		"mem": snappedf(Performance.get_monitor(Performance.MEMORY_STATIC) / 1048576.0, 0.1)}
+	var gfx := get_node_or_null("/root/Graphics")
+	if gfx != null:
+		out.graphics = {"resolution": gfx.level("resolution"), "textures": gfx.level("textures"), "log": gfx.log_entries.size(),
+			"lost": gfx.log_entries.any(func(e): return String(e.get("what", "")).contains("context lost"))}
 	# UI-7: the title screen, while it is up (its start is the whole screen).
 	var title: Control = shell.title
 	out.title = {"visible": title != null and title.is_visible_in_tree(), "at": _point(to_window * title.get_global_rect().get_center()) if title != null else [0, 0]}

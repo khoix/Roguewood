@@ -13,7 +13,7 @@ func _run() -> void:
 	lab = scene.lab
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	var found := false
 	for uid in lab.card_hand.card_data:
 		var data: Dictionary = lab.card_hand.card_data[uid]
@@ -54,7 +54,7 @@ func _run() -> void:
 	root.size = Vector2i(800, 450)
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	for i in range(12): await process_frame
 	await _capture("ball_reduced")
 	await _focus_accept(lab.next_rack)

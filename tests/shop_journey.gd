@@ -15,7 +15,8 @@ extends SceneTree
 ## FrameBuilder/FrameRules resolution.
 ## Fixture setup (not UI): to reach a full Charm row without many matches, the
 ## journey grants $30 and seats four reward-only Crown Charms through the inventory
-## API, logged as "fixture" in the ledger. Every decision after that is UI input.
+## API, logged as "fixture" in the ledger; for UI-30 it grants $20 more and puts an
+## Oak modification on one rack pin. Every decision after that is UI input.
 ## Run with --fixed-fps 60.
 const Contracts = preload("res://src/contracts/contracts.gd")
 const Rules = preload("res://src/rules/frame_rules.gd")
@@ -115,7 +116,7 @@ func _focus_accept(control: Control) -> void:
 func _window(canvas: Vector2) -> Vector2:
 	return root.get_screen_transform() * canvas
 
-func _tap(control: Control) -> void:
+func _tap(control: Control, finish := true) -> void:
 	# A player scrolls a control into view before tapping it (UI-3's portrait shop
 	# scrolls under its pinned actions).
 	await _reach(control)
@@ -133,7 +134,7 @@ func _tap(control: Control) -> void:
 		event.pressed = pressed
 		Input.parse_input_event(event)
 		await process_frame
-	await _confirm(control)
+	if finish: await _confirm(control)
 
 func _click(control: Control) -> void:
 	var at := control.get_global_rect().get_center()
@@ -186,14 +187,16 @@ func _run() -> void:
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.practice) # E09: targets off; this journey tests its own subsystem
-	await _focus_accept(lab.settings_panel.close)
+	lab.settings_panel.use_practice()
+	await process_frame # E09: targets off; this journey tests its own subsystem
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	_check(lab.run.money == Economy.STARTING_MONEY and lab.status.text.contains("$%d" % Economy.STARTING_MONEY), "the run starts with $6 on show")
 	await _first_match()
 	await _settlement()
 	await _offers_and_purchase()
 	await _reroll_and_funds()
 	await _placements()
+	await _carried_mod()
 	await _full_slot()
 	await _removal_and_sale()
 	await _next_match()
@@ -258,7 +261,29 @@ func _settlement() -> void:
 	_check(summary.balance_before == held and summary.interest == Economy.interest(held) and summary.payout == Economy.MATCH_PAYOUT,
 		"interest on the $%d held, then the $3 payout" % held)
 	_check(lab.run.money == held + summary.interest + summary.payout and lab.shop_panel.money.text == "$%d" % lab.run.money, "the shop shows the settled balance")
-	_check(lab.shop_panel.summary.text.contains("payout $3") and lab.shop_panel.summary.text.contains("interest $%d" % summary.interest), "settlement is explained")
+	_check(lab.shop_panel.summary.text.contains("Payout $3") and lab.shop_panel.summary.text.contains("interest $%d" % summary.interest), "settlement is explained")
+	# UI-32 (owner, 2026-11-20): Payout & Rack opens a themed slip, not plain text.
+	var panel = lab.shop_panel
+	if not panel.ledger.visible: await _focus_accept(panel.details_button)
+	var slip: Control = panel.ledger
+	var total: int = summary.payout + summary.interest + summary.item_income
+	_check(slip.visible and not panel.summary.visible and not panel.rack_label.visible and slip.find_child("PayoutTitle", true, false).text == "MATCH 1 PAYOUT"
+		and slip.find_child("PayoutTotal", true, false).text == "+$%d" % total, "Payout & Rack opens the slip: match 1, +$%d" % total)
+	var amounts: Array = slip.find_child("PayoutRows", true, false).get_children().filter(func(c): return c.name.begins_with("Amount")).map(func(c): return c.text)
+	_check(amounts == ["$%d" % summary.payout, "$%d" % summary.interest, "$%d" % summary.item_income], "its rows: payout, interest, item income (%s)" % str(amounts))
+	var triangle: Control = slip.find_child("RackTriangle", true, false)
+	var pins: Array = triangle.find_children("Pin_*", "TextureRect", true, false)
+	_check(pins.size() == 10 and pins.all(func(p): return p.texture != null and p.get_meta("item_id") == lab.run.rack[int(String(p.name).get_slice("_", 1))].item_id)
+		and slip.find_child("Reserves", true, false).get_child_count() == 1 + lab.run.reserves.size(), "the rack as a triangle of its pins' art, and the reserve slots")
+	var chips: Array = slip.find_child("Counts", true, false).get_children().map(func(c): return c.get_child(0).text)
+	_check(chips == ["Charms %d/5" % lab.run.charms.size(), "Deck %d/16" % lab.run.cards.size()], "Charms and Deck counts as chips (%s)" % str(chips))
+	for i in 4: await process_frame
+	var view: Rect2 = panel._scroll.get_global_rect()
+	var top: float = slip.get_global_rect().position.y
+	_check(top >= view.position.y - 1.0 and top + 80.0 <= view.end.y and (top < view.position.y + 40.0 or panel._scroll.scroll_vertical >= int(panel._scroll.get_v_scroll_bar().max_value - panel._scroll.size.y) - 2),
+		"the opened slip scrolls into view (top %.0f, view %s)" % [top, str(view)])
+	await _capture("ledger")
+	if panel.details_button.visible: await _focus_accept(panel.details_button)
 	_check(scene.session.money == lab.run.money, "the session tracks the run's money")
 	await _capture("shop")
 
@@ -299,8 +324,9 @@ func _offers_and_purchase() -> void:
 	for i in 3: await process_frame
 	_check(panel.offer_sheet.visible and run.money == money and run.charms.is_empty(), "opening an offer buys nothing")
 	_check(panel.offer_title.text == run.item(bought).name and panel.buy_button.text == "Buy $%d" % price and panel.buy_button.has_focus()
-		and not panel.offer_detail.text.is_empty() and panel.offer_card.item_id == bought and panel.offer_price.text.contains("you have $%d" % money),
+		and not panel.offer_detail.text.is_empty() and panel.offer_card.item_id == bought and panel.offer_price.text == "$%d" % price and panel.offer_price.get_global_rect().get_center().x > panel.offer_title.get_global_rect().get_center().x,
 		"the opened offer shows the card, its text, its price and Buy")
+	await _capture("offer")
 	_check(panel.offer_sheet.get_global_rect().end.x <= lab.size.x and panel.offer_sheet.get_global_rect().end.y <= lab.size.y and panel.offer_sheet.position.x >= 0.0,
 		"the offer sheet fits the screen (%s in %s)" % [str(panel.offer_sheet.get_global_rect()), str(lab.size)])
 	_check(panel.offer_sheet.get_global_rect().position.y >= 0.0, "the offer sheet starts on the screen")
@@ -382,6 +408,55 @@ func _placements() -> void:
 		var host = run.entry_at(hosts[0])
 		_check(host.mod == mod_id and hosts[0] not in run.mod_hosts(mod_id), "the modification is attached to the chosen host, one per item")
 
+## UI-30 (owner, 2026-11-20): a new pin bought for a modified pin's place takes
+## over the modification; the old pin moves to a reserve without it.
+func _carried_mod() -> void:
+	var shop = lab.shop
+	var run = lab.run
+	var place := -1
+	for position in range(2, 11):
+		if place < 0 and String(run.rack[position].mod).is_empty():
+			place = position
+	# Fixture setup: an Oak modification on that pin, and money for one more pin.
+	run.rack[place].mod = "pin_mod.lab_oak"
+	run.rack[place].mod_paid = 3
+	var old_pin: String = run.rack[place].item_id
+	_grant(20)
+	var other := func() -> int:
+		var i := _pin_offer()
+		return i if i >= 0 and shop.offers[i].item_id != old_pin and shop.plan(i, run).ok else -1
+	for attempt in 12:
+		if other.call() >= 0:
+			break
+		await _click(lab.shop_panel.reroll_button)
+	var pin: int = other.call()
+	_check(pin >= 0, "a different pin is on offer")
+	if pin < 0:
+		return
+	var pin_id: String = shop.offers[pin].item_id
+	var oak: String = run.item("pin_mod.lab_oak").name
+	await _focus_accept(lab.shop_panel.button_for_offer(pin))
+	var index: int = lab._choice.get("targets", []).find("rack:%d" % place)
+	_check(lab.shop_panel.choice_sheet.visible and index >= 0, "the modified pin's place is offered")
+	if index < 0:
+		return
+	_check(lab.shop_panel.choice_label(index).contains("%s stays on the new pin" % oak), "the place says its modification stays (%s)" % lab.shop_panel.choice_label(index))
+	# A finger selects the place; its preview is read before Confirm.
+	await _tap(lab.shop_panel.choice_button(index), false)
+	_check(lab.shop_panel.choice_sheet.visible and lab.shop_panel._choice_selected == index and String(run.rack[place].item_id) == old_pin,
+		"a tap selects the place and waits for Confirm")
+	var after := "After: %s + %s" % [run.item(pin_id).name, oak]
+	_check(lab.shop_panel.choice_detail.text.contains(after) and lab.shop_panel.choice_button(index).get_meta("previewing", "") == pin_id
+		and lab.shop_panel._choice_visuals[index].get("keeps_mod", "") == "pin_mod.lab_oak", "the picked place previews the new pin with the modification (%s)" % lab.shop_panel.choice_detail.text)
+	await _capture("carried_mod")
+	var free: int = run.reserves.find(null)
+	await _tap(lab.shop_panel.choice_confirm)
+	_check(not lab.shop_panel.choice_sheet.visible and run.rack[place].item_id == pin_id and run.rack[place].mod == "pin_mod.lab_oak" and int(run.rack[place].mod_paid) == 3,
+		"the new pin carries the modification")
+	_check(free >= 0 and run.reserves[free] != null and run.reserves[free].item_id == old_pin and String(run.reserves[free].mod).is_empty(),
+		"the old pin moves to a reserve without it")
+	_check(run.owned_count("pin_mod.lab_oak") == 1, "the modification is not duplicated")
+
 func _pin_offer() -> int:
 	var i := _offer_of(["pin"])
 	return i if i >= 0 and lab.run.item(lab.shop.offers[i].item_id).category == "pin" else -1
@@ -443,8 +518,8 @@ func _removal_and_sale() -> void:
 	money = run.money
 	# UI-5b: one Sell control opens a sheet of rows; the shop itself lists no Sell buttons.
 	var sellable: int = run.entries().filter(func(e): return run.can_sell(e.ref)).size()
-	_check(not lab.shop_panel.sell_sheet.visible and lab.shop_panel.sell_open.text.begins_with("Sell · %d" % sellable)
-		and not lab.shop_panel._main.find_children("Sell_*", "Button", true, false).size() > 0, "one Sell control counts what can be sold (%s)" % lab.shop_panel.sell_open.text)
+	_check(not lab.shop_panel.sell_sheet.visible and lab.shop_panel.sell_open.text == "Inventory"
+		and not lab.shop_panel._main.find_children("Sell_*", "Button", true, false).size() > 0, "one Inventory control (UI-32) opens what can be sold (%s)" % lab.shop_panel.sell_open.text)
 	# UI-12: Sell shows the owned items as tiles; a tap opens the item to confirm.
 	var panel = lab.shop_panel
 	panel.sell_open.grab_focus()
@@ -465,10 +540,41 @@ func _removal_and_sale() -> void:
 	await process_frame
 	_check(panel.sell_confirm_sheet.visible and run.money == before and panel.sell_confirm.text == "Sell +$%d" % value and panel.sell_confirm_title.text != "",
 		"a tap on an item opens it with a Sell confirmation (%s)" % panel.sell_confirm.text)
+	# UI-34 (owner, 2026-11-20): the opened item shows its full rules, and no "sells for".
+	var rules: String = lab._owned_rules(run.item(run.entry_at(card_ref).item_id), String(run.entry_at(card_ref).mod))
+	_check(panel.sell_confirm_rules.visible and panel.sell_confirm_rules.text == rules and not rules.is_empty()
+		and not panel.sell_confirm_text.text.to_lower().contains("sells for"), "the opened item shows its full rules, without a sale line (%s)" % panel.sell_confirm_rules.text)
+	# UI-35 (owner, 2026-11-20): the item sheet darkens the Inventory behind it, with the
+	# game's one scrim, and a tap outside closes only the item.
+	var scrim := preload("res://src/presentation/house_ui_theme.gd").SCRIM
+	_check(panel._dim.visible and panel._dim.color == scrim and panel.sell_sheet.get_index() < panel._dim.get_index()
+		and panel._dim.get_index() < panel.sell_confirm_sheet.get_index(), "the opened item darkens the Inventory behind it")
 	await _capture("sell_confirm")
 	await _tap(panel.sell_confirm)
 	_check(run.money == money + value and run.entry_at(card_ref) == null, "selling pays the sale value")
-	var rows: int = lab.shop_panel.owned_list.get_children().filter(func(c): return c is Button and String(c.name).begins_with("Sell_") and not c.is_queued_for_deletion()).size()
+	_check(panel.sell_sheet.visible and panel._dim.visible and panel._dim.get_index() < panel.sell_sheet.get_index(), "back on the Inventory, the dim sits under it again")
+	for i in 4: await process_frame # the sale rebuilds the tiles
+	var other: Button = (panel.owned_list.get_children() + panel.charm_row.get_children()).filter(func(c): return c is Button and not c.is_queued_for_deletion())[0]
+	var spot := other.get_global_rect().get_center()
+	for pressed in [true, false]:
+		var touch := InputEventScreenTouch.new()
+		touch.position = _window(spot)
+		touch.pressed = pressed
+		Input.parse_input_event(touch)
+		await process_frame
+	for i in 3: await process_frame
+	_check(panel.sell_confirm_sheet.visible, "another item opens over the Inventory")
+	var corner := Vector2(6.0, lab.size.y - 6.0) # outside both sheets, on the dim
+	for pressed in [true, false]:
+		var tap := InputEventMouseButton.new()
+		tap.button_index = MOUSE_BUTTON_LEFT
+		tap.pressed = pressed
+		tap.position = _window(corner)
+		tap.global_position = tap.position
+		Input.parse_input_event(tap)
+		await process_frame
+	_check(not panel.sell_confirm_sheet.visible and panel.sell_sheet.visible, "a tap outside closes the item, not the Inventory")
+	var rows: int = (lab.shop_panel.owned_list.get_children() + lab.shop_panel.charm_row.get_children()).filter(func(c): return c is Button and String(c.name).begins_with("Sell_") and not c.is_queued_for_deletion()).size()
 	_check(lab.shop_panel.sell_sheet.visible and rows == sellable - 1, "the sheet stays open for the next sale, one row fewer (rows %d, were %d)" % [rows, sellable])
 	var sell_rect: Rect2 = lab.shop_panel.sell_sheet.get_global_rect()
 	_check(sell_rect.position.x >= 0.0 and sell_rect.position.y >= 0.0 and sell_rect.end.x <= lab.size.x and sell_rect.end.y <= lab.size.y, "the Sell sheet fits the screen (%s)" % str(sell_rect))
@@ -482,7 +588,8 @@ func _removal_and_sale() -> void:
 		await _focus_accept(lab.shop_panel.sell_button(newest))
 		_check(run.money == money - cost + Economy.sale_value(cost, 0) and run.money < money, "buying then selling loses money ($%d → $%d)" % [money, run.money])
 	var stats: Dictionary = run.stats()
-	_check(run.money == int(run.ledger[0].amount) + stats.net + 30, "the wallet equals the ledger (plus the $30 fixture grant)")
+	var granted: int = run.ledger.filter(func(r): return r.kind == "fixture").reduce(func(sum, r): return sum + int(r.amount), 0)
+	_check(granted == 50 and run.money == int(run.ledger[0].amount) + stats.net + granted, "the wallet equals the ledger (plus the $50 of fixture grants)")
 
 ## The shop reflows for landscape: a three-column shelf, every offer on screen (UI-2).
 func _landscape() -> void:

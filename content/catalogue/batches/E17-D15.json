@@ -9,7 +9,7 @@
       "id": "shop_upgrade.trade_in",
       "landed_in": "E18-C18",
       "design": {
-        "trigger": "Kept for the run: every sale returns $1 more than its usual sale value, but never more than the item cost (kit and reward items, which cost nothing, take the $1 on their base value).",
+        "trigger": "Kept for the run: Every sale returns $1 more than its usual sale value, but never more than the item cost (kit and reward items, which cost nothing, take the $1 on their base value).",
         "primitives": [
           "upgrade.sell_bonus"
         ],
@@ -29,7 +29,7 @@
       "id": "shop_upgrade.specialist_shelf",
       "landed_in": "E18-C18",
       "design": {
-        "trigger": "Kept for the run: the shop shows one more offer, of any category, drawn only from items carrying the League's specialist tags (in Neon: curve, hook, accuracy, precision, straight).",
+        "trigger": "Kept for the run: The shop shows one more offer, of any category, drawn only from items carrying the League's specialist tags (in Neon: Curve, hook, accuracy, precision, straight).",
         "primitives": [
           "upgrade.specialist_offer"
         ],

@@ -6,7 +6,7 @@ const Rules = preload("res://src/rules/frame_rules.gd")
 const Builder = preload("res://src/rules/frame_builder.gd")
 const ScoreLog = preload("res://src/rules/score_log.gd")
 
-static func report(roll_index: int, fallen: Array, racked: Array, accuracy: String = "clean") -> Dictionary:
+static func report(roll_index: int, fallen: Array, racked: Array, accuracy: String = "miss") -> Dictionary: # BAL-1: fixtures isolate their items; the grade ladder has its own tests
 	var id := "t-%d-%s" % [roll_index, str(fallen.size())]
 	var launch := {"schema_version": 1, "launch_id": id, "ball_id": "ball.house", "roll_index": roll_index, "start_x": 0.0,
 		"direction_x": 0.0, "direction_forward": 1.0, "power": 0.5, "spin": 0.0, "target_x": 0.11, "ring_radius": 0.3}
@@ -39,7 +39,7 @@ static func run() -> Array[String]:
 	var open := scored([report(1, [1, 2, 3, 4, 5, 6, 7, 8], all), report(2, [9], [9, 10], "miss")])
 	_expect(open.ok and open.category == "open" and open.score == 90, "lab open scores 90", failures)
 	var precise := scored([report(1, [1, 2, 3, 4, 5, 6, 7, 8], all, "sweet"), report(2, [9], [9, 10], "perfect")])
-	_expect(precise.ok and precise.score == 90 * 3, "best accuracy awarded once per frame", failures)
+	_expect(precise.ok and precise.score == (90 + 10) * 3, "best accuracy awarded once per frame (BAL-1: +10 Value inside the ring)", failures)
 	var gutter := scored([report(1, [], all, "miss"), report(2, [], all, "miss")])
 	_expect(gutter.ok and gutter.category == "open" and gutter.score == 0, "double gutter scores 0", failures)
 	_expect(not scored([report(1, [1, 2], all)]).ok, "incomplete frame refused", failures)
@@ -63,7 +63,13 @@ static func _log_cases(strike: Dictionary, failures: Array[String]) -> void:
 	_expect(pin_order == range(1, 11), "fallen pins resolve by original position", failures)
 	_expect(steps[1].text == "Pin 1 Wood +10 Value" and steps[1].symbol == "+" and steps[1].pin_value == 50.0, "pin step names item, symbol and running value", failures)
 	_expect(steps[-1].phase == "bank" and steps[-1].score == 560 and steps[-1].text == "Bank ⌊140 × 4⌋ = 560", "log ends with the single bank", failures)
-	_expect(steps[-2].phase == "accuracy" and steps[-2].text == "Accuracy clean +0 Mult", "accuracy step once before Charms and bank", failures)
+	_expect(steps[-2].phase == "accuracy" and steps[-2].text == "Miss +0 Mult", "accuracy step once before Charms and bank (%s)" % steps[-2].text, failures)
+	var all_pins := range(1, 11)
+	for grade in [["clean", "Clean +10 Value", 600], ["sweet", "Sweet +10 Value +1 Mult", 750], ["perfect", "Perfect +10 Value +2 Mult", 900]]:
+		var graded := scored([report(1, all_pins, all_pins, grade[0])])
+		var said: Array = ScoreLog.steps(graded, graded.frame, {}).filter(func(s): return s.phase == "accuracy")
+		_expect(graded.score == grade[2] and said.size() == 1 and said[0].text == grade[1] and said[0].pin_value == 150.0,
+			"BAL-1: a %s strike says \"%s\" and banks %d (%s)" % [grade[0], grade[1], grade[2], str(said)], failures)
 	# Design's ordering example: Ruby pins and two Charms in both orders.
 	var ruby: Dictionary = strike.frame.duplicate(true)
 	for index in [8, 9]:

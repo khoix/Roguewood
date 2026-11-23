@@ -32,7 +32,7 @@ func _run() -> void:
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	await _to_boss("Division 1")
 	_check(lab.hud.intro_body.text.contains("Clean Sweep") and lab.hud.intro_body.text.contains("House Rules"), "the champion's introduction names both rules")
 	await _focus_accept(lab.hud.intro_button)
@@ -44,7 +44,7 @@ func _run() -> void:
 	for option in lab.equipment.options():
 		if option.kind == "ball":
 			await _tap(lab.card_hand.button_for(option.uid))
-			refused = lab.armed_ball_id() == "ball.house" and lab.status.text.contains("House Rules: that ball cannot be thrown here.")
+			refused = lab.armed_ball_id() == "ball.house" and lab.status.text.contains("House Rules: That ball cannot be thrown here.")
 			break
 	_check(refused, "arming a ball card is refused under House Rules, with a note")
 	var seals: HBoxContainer = lab.hud.extra_rule_badges
@@ -74,7 +74,7 @@ func _run() -> void:
 	var wood_rack := {"pins": {}, "charms": [], "pin_mods": {}}
 	for p in range(1, 11): wood_rack.pins[p] = "pin.wood"
 	var wood := Rules.resolve(Builder.build(wood_rack, lab.content.catalogue, plain.reports, {}, plain.context).frame)
-	_check(plain.banked == wood.score and _logged("House Pins: every pin was scored as plain Wood"), "the Ruby rack banks exactly the Wood resolution (%d), and the explanation says so" % wood.score)
+	_check(plain.banked == wood.score and _logged("House Pins: Every pin was scored as plain Wood"), "the Ruby rack banks exactly the Wood resolution (%d), and the explanation says so" % wood.score)
 	_check(lab.hud.badge.icon == preload("res://src/presentation/rival_art.gd").rule_badge("boss_rule.house_pins") and not lab.hud.extra_rule_badges.visible, "Old Lou shows House Pins without stale champion seal")
 	await _capture("c05_house_pins")
 	if "--inject-failure" in OS.get_cmdline_user_args(): _check(false, "Injected diagnostic failure")

@@ -1,9 +1,11 @@
 extends PanelContainer
 ## In-session throw settings: handedness, flick sensitivity, reduced motion, larger
-## touch targets, the accessible controls (the equipment model is the deck, ADR 004) and
-## E09 practice mode. Values live in the shell's settings
+## touch targets and the accessible controls (the equipment model is the deck, ADR 004;
+## E09's practice is a test fixture since UI-39). Values live in the shell's settings
 ## dictionary so they survive Restart Session; saving them is E25 work.
 signal changed
+## UI-15 (owner, 2026-11-18): Back returns to the menu that opened this page.
+signal back
 ## Flick sensitivity 0.4 (owner's phone trial, 2026-11-08) and the depth spin view
 ## (owner's choice over flat, 2026-11-09; flat stays in Options).
 const DEFAULTS := {"handedness": "right", "sensitivity": 0.4, "spin_view": "depth", "reduced_motion": false, "large_targets": false, "assist": false,
@@ -15,11 +17,11 @@ const Held = preload("res://src/input/held_ball.gd")
 const TUNABLE := [
 	# E05-R5 (owner, 2026-11-15): which spin model the held ball uses, then the flywheel's own constants.
 	["spin_model", "Spin model", 0.0, 2.0, 1.0, "%.0f"],
-	["flywheel_gain", "Flywheel: spin from circling", 15000.0, 300000.0, 5000.0, "%.0f"],
-	["flywheel_half_life", "Flywheel: spin half-life (s)", 0.1, 3.0, 0.05, "%.2f"],
-	["flywheel_max", "Flywheel: spin at full charge (rad/s)", 10.0, 60.0, 1.0, "%.0f"],
-	["flywheel_window_ms", "Flywheel: path window (ms)", 30.0, 150.0, 5.0, "%.0f"],
-	["spin_tick_ms", "Flywheel: tick per turn (ms, 0 off)", 0.0, 30.0, 1.0, "%.0f"],
+	["flywheel_gain", "Flywheel: Spin from circling", 15000.0, 300000.0, 5000.0, "%.0f"],
+	["flywheel_half_life", "Flywheel: Spin half-life (s)", 0.1, 3.0, 0.05, "%.2f"],
+	["flywheel_max", "Flywheel: Spin at full charge (rad/s)", 10.0, 60.0, 1.0, "%.0f"],
+	["flywheel_window_ms", "Flywheel: Path window (ms)", 30.0, 150.0, 5.0, "%.0f"],
+	["spin_tick_ms", "Flywheel: Tick per turn (ms, 0 off)", 0.0, 30.0, 1.0, "%.0f"],
 	["full_charge_speed", "Ball spin for full charge (rad/s)", 12.5, 75.0, 0.5, "%.1f"],
 	["gravity", "Gravity on the held ball", 0.0, 15.0, 0.5, "%.1f"],
 	["pin_reach", "How far the ball hangs (× ball radius)", 0.5, 2.0, 0.05, "%.2f"],
@@ -37,7 +39,6 @@ var reduced_motion: CheckButton
 var reduced_flash: CheckButton
 var large_targets: CheckButton
 var assist: CheckButton
-var practice: CheckButton
 var close: Button
 var _sensitivity_label: Label
 var haptics: CheckButton
@@ -72,7 +73,7 @@ func _ready() -> void:
 	_pages.add_child(box)
 	_main_box = box
 	var title := Label.new()
-	title.text = "Throw settings"
+	title.text = "Throw Settings"
 	title.add_theme_font_size_override("font_size", 30)
 	box.add_child(title)
 	handedness = OptionButton.new()
@@ -103,31 +104,37 @@ func _ready() -> void:
 	spin_view.select(1 if settings.get("spin_view", "depth") == "depth" else 0)
 	spin_view.item_selected.connect(func(index): _store("spin_view", "depth" if index == 1 else "flat"))
 	box.add_child(spin_view)
-	reduced_motion = _toggle(box, "ReducedMotion", "Reduced motion (steady camera & foil)", "reduced_motion")
-	reduced_flash = _toggle(box, "ReducedFlash", "Reduced flash (no impact accents)", "reduced_flash")
-	large_targets = _toggle(box, "LargeTargets", "Larger touch targets", "large_targets")
-	assist = _toggle(box, "AssistControls", "Assist controls (no gestures)", "assist")
+	reduced_motion = _toggle(box, "ReducedMotion", "Reduced Motion (steady camera & foil)", "reduced_motion")
+	reduced_flash = _toggle(box, "ReducedFlash", "Reduced Flash (no impact accents)", "reduced_flash")
+	large_targets = _toggle(box, "LargeTargets", "Larger Touch Targets", "large_targets")
+	assist = _toggle(box, "AssistControls", "Assist Controls (no gestures)", "assist")
 	# UI-11 (owner, 2026-11-16): no vibration toggle; the charge cues always vibrate
 	# where the device can (settings.haptics stays true).
 	tuning_button = Button.new()
 	tuning_button.name = "ThrowTuning"
-	tuning_button.text = "Throw tuning (test)…"
+	tuning_button.text = "Throw Tuning (Test)…"
 	tuning_button.custom_minimum_size = Vector2(0, 56)
 	tuning_button.pressed.connect(func(): _show_tuning(true))
 	box.add_child(tuning_button)
 	# ADR 004 decided the draw-and-cycle deck (owner, 2026-11-04): the player's Options
 	# no longer offer direct selection. It stays a test fixture (use_equipment).
-	# E09: practice drops the Division's targets (applies to an attempt not yet thrown).
-	practice = _toggle(box, "PracticeMode", "Practice (no targets; no unlocks)", "practice")
+	# UI-39 (owner, 2026-11-21): no Practice toggle here; How to Play's Practice is
+	# the practice mode. settings.practice stays a test fixture (use_practice).
+	# UI-15 (owner, 2026-11-18): Back, centred at the bottom, returns to the menu.
 	close = Button.new()
 	close.name = "CloseSettings"
-	close.text = "Done"
+	close.text = "Back"
 	close.custom_minimum_size = Vector2(220, 64)
-	close.size_flags_horizontal = Control.SIZE_SHRINK_CENTER # UI-11: Done sits centred at the bottom
-	close.pressed.connect(hide)
+	close.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	close.pressed.connect(go_back)
 	box.add_child(close)
 	_build_tuning()
 	_refresh()
+
+## Leave the page for the menu that opened it (Back, or Escape).
+func go_back() -> void:
+	hide()
+	back.emit()
 
 ## A second page in the same panel: sliders for the held-ball constants, for
 ## tuning the throw on a real phone through the web build.
@@ -139,7 +146,7 @@ func _build_tuning() -> void:
 	tuning_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_pages.add_child(tuning_box)
 	var title := Label.new()
-	title.text = "Throw tuning (test)"
+	title.text = "Throw Tuning (Test)"
 	title.add_theme_font_size_override("font_size", 30)
 	tuning_box.add_child(title)
 	for row in TUNABLE:
@@ -159,7 +166,7 @@ func _build_tuning() -> void:
 		_tuning_sliders[row[0]] = slider
 	var reset := Button.new()
 	reset.name = "ResetTuning"
-	reset.text = "Reset to defaults"
+	reset.text = "Reset to Defaults"
 	reset.custom_minimum_size = Vector2(0, 52)
 	reset.pressed.connect(func():
 		settings.throw_tuning = {}
@@ -192,6 +199,11 @@ func _store_tuning(key: String, value: float) -> void:
 ## Test fixture only: switches the equipment model (direct selection is not a player option).
 func use_equipment(model: String) -> void:
 	_store("equipment", model)
+
+## Test fixture only (UI-39: no longer a player option): E09's target-free Division,
+## for journeys that test their own subsystem. Applies before the first throw.
+func use_practice(on: bool = true) -> void:
+	_store("practice", on)
 
 func _toggle(box: Container, node_name: String, text: String, key: String) -> CheckButton:
 	var toggle := CheckButton.new()

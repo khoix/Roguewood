@@ -70,10 +70,10 @@
           "initials": "TS",
           "color": "#d8cf8a",
           "rule": "boss_rule.dead_straight",
-          "intro": "Every line measured, every angle true. The Surveyor allows no charged spin: each ball rolls exactly where it is aimed, so placement and straight-line equipment win this lane.",
+          "intro": "Every line measured, every angle true. The Surveyor allows no charged spin: Each ball rolls exactly where it is aimed, so placement and straight-line equipment win this lane.",
           "first_clear": {
             "unlocks": [],
-            "text": "Practice only: nothing is unlocked here."
+            "text": "Practice only: Nothing is unlocked here."
           },
           "reactions": {
             "entrance": "Plumb, level, true. Show me a straight line.",

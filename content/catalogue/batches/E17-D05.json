@@ -390,7 +390,7 @@
       "id": "boss_rule.house_pins",
       "landed_in": "E18-C05",
       "design": {
-        "trigger": "For every frame of the boss match, each racked pin scores as a plain Wood pin (+10 Value when it falls): its own effects are switched off. Modifications on pins, balls, tactical cards and Charms work as normal.",
+        "trigger": "For every frame of the boss match, each racked pin scores as a plain Wood pin (+10 Value when it falls): Its own effects are switched off. Modifications on pins, balls, tactical cards and Charms work as normal.",
         "primitives": [
           "rule.plain_rack"
         ],
@@ -411,7 +411,7 @@
       "id": "lane_condition.house_oil",
       "landed_in": "E18-C05",
       "design": {
-        "trigger": "The standard House oil pattern: the front and mid lane are oiled and the backend is dry, so a charged spin hooks late. Every other lane condition is described against this one.",
+        "trigger": "The standard House oil pattern: The front and mid lane are oiled and the backend is dry, so a charged spin hooks late. Every other lane condition is described against this one.",
         "primitives": [
           "lane.oil_pattern"
         ],
@@ -471,7 +471,7 @@
       "id": "boss_rule.strobe",
       "landed_in": "E18-C13",
       "design": {
-        "trigger": "For every roll of the boss match, the target ring's perfect and sweet zones are half their usual size: each band of the contracting ring is halved, measured from the ring's smallest radius (perfect from 0.06 to 0.07 instead of 0.08; sweet to 0.11 instead of 0.16), so both grades stay reachable but take a later, tighter release. Clean and miss grading are unchanged.",
+        "trigger": "For every roll of the boss match, the target ring's perfect and sweet zones are half their usual size: Each band of the contracting ring is halved, measured from the ring's smallest radius (perfect from 0.06 to 0.07 instead of 0.08; sweet to 0.11 instead of 0.16), so both grades stay reachable but take a later, tighter release. Clean and miss grading are unchanged.",
         "primitives": [
           "rule.ring_scale"
         ],
@@ -492,7 +492,7 @@
       "id": "boss_rule.rust",
       "landed_in": "E18-C20",
       "design": {
-        "trigger": "For every frame of the boss match, all attached ball and pin modifications are switched off: their effects and payouts do not apply. The host items work as normal and the modifications return afterwards.",
+        "trigger": "For every frame of the boss match, all attached ball and pin modifications are switched off: Their effects and payouts do not apply. The host items work as normal and the modifications return afterwards.",
         "primitives": [
           "rule.no_mods"
         ],

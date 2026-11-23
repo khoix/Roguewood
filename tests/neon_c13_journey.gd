@@ -37,7 +37,7 @@ func _run() -> void:
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	await _slick()
 	await _lena()
 	await _champion()
@@ -52,7 +52,7 @@ func _slick() -> void:
 	await _wait_for(func(): return lab.state == "aim", "Slick's match ready")
 	_check(lab.division.rules() == ["boss_rule.oil_slick"] and lab.lane.lane_condition == "lane_condition.long_oil", "Slick: Oil Slick on Long Oil")
 	_check(lab.lane.rules == {"hook_scale": 0.5} and lab.hook_scale() == 0.5, "the lane halves the hook: %s" % str(lab.lane.rules))
-	_check(lab.status.text.contains("Oil Slick: every hook is halved") and lab.status.text.contains("Lane: Long Oil"), "the status names the rule and the lane: %s" % lab.status.text)
+	_check(lab.status.text.contains("Oil Slick: Every hook is halved") and lab.status.text.contains("Lane: Long Oil"), "the status names the rule and the lane: %s" % lab.status.text)
 	await _capture("c13_oil_slick")
 	var curved := await _rule_frame([CURVE, CLEANUP], [0.5, 0.0], "Slick curved frame")
 	var first: Dictionary = curved.reports[0]
@@ -66,7 +66,7 @@ func _lena() -> void:
 	await _wait_for(func(): return lab.state == "aim", "Laser Lena's match ready")
 	var edge := Lane.LANE_HALF_WIDTH - 2.0 * Lane.BOARD_WIDTH
 	_check(lab.division.rules() == ["boss_rule.narrow_lane"] and lab.lane.lane_condition == "lane_condition.two_tone", "Laser Lena: Narrow Lane on Two-Tone")
-	_check(is_equal_approx(lab.lane.gutter_edge(), edge) and lab.status.text.contains("Narrow Lane: each gutter edge is two boards in") and lab.status.text.contains("Lane: Two-Tone"),
+	_check(is_equal_approx(lab.lane.gutter_edge(), edge) and lab.status.text.contains("Narrow Lane: Each gutter edge is two boards in") and lab.status.text.contains("Lane: Two-Tone"),
 		"the edges are two boards in, and the status says so: %s" % lab.status.text)
 	await _capture("c13_narrow_lane")
 	var drifted := await _rule_frame([DRIFT, STRIKE], [0.0, 0.0], "Laser Lena drift frame")
@@ -109,7 +109,7 @@ func _champion() -> void:
 	lab._update_status()
 	await process_frame
 	_check(lab.lane.rules == {"zone_scale": 0.5, "hook_scale": 0.5} and lab.zone_scale() == 0.5, "the lane halves the ring zones and the hook")
-	_check(lab.status.text.contains("Strobe: the ring's sweet and perfect zones are half their size") and lab.status.text.contains("Oil Slick"), "the status names both rules")
+	_check(lab.status.text.contains("Strobe: The ring's sweet and perfect zones are half their size") and lab.status.text.contains("Oil Slick"), "the status names both rules")
 	_check(Ring.grade(0.075, lab.zone_scale()) == "sweet" and Ring.grade(0.075) == "perfect", "under Strobe the ring at 0.075 grades sweet, not perfect")
 	await _capture("c13_champion")
 	var before: int = lab.history.size()

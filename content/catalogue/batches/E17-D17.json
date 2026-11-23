@@ -24,7 +24,7 @@
           "charges": 0,
           "exhaustion": "none"
         },
-        "downside": "A scrap rack: two Tin pins are worth half a Wood pin when they fall (though they pay for frames left standing), and two Rubber pins scatter unpredictably.",
+        "downside": "A scrap rack: Two Tin pins are worth half a Wood pin when they fall (though they pay for frames left standing), and two Rubber pins scatter unpredictably.",
         "synergy_tags": [
           "material",
           "rack",
@@ -73,7 +73,7 @@
       "id": "lane_condition.grit",
       "landed_in": "E18-C20",
       "design": {
-        "trigger": "Grit on the lane's front 30 ft (9.14 m) raises the ball's rolling friction there, so it reaches the oil's end and the pins with less speed. The oil, the hook and the backend are unchanged: a heavy ball or a harder throw carries through, and a light one is deflected more.",
+        "trigger": "Grit on the lane's front 30 ft (9.14 m) raises the ball's rolling friction there, so it reaches the oil's end and the pins with less speed. The oil, the hook and the backend are unchanged: A heavy ball or a harder throw carries through, and a light one is deflected more.",
         "primitives": [
           "lane.front_friction"
         ],
@@ -93,7 +93,7 @@
       "id": "lane_condition.warped_boards",
       "landed_in": "E18-C20",
       "design": {
-        "trigger": "Between 20 ft and 40 ft (6.10 m to 12.19 m) the boards are warped, and the ball drifts steadily toward the right while it crosses them. Its speed and hook are unchanged elsewhere: aiming left of the usual line, or a hook that curves back left, meets the pocket.",
+        "trigger": "Between 20 ft and 40 ft (6.10 m to 12.19 m) the boards are warped, and the ball drifts steadily toward the right while it crosses them. Its speed and hook are unchanged elsewhere: Aiming left of the usual line, or a hook that curves back left, meets the pocket.",
         "primitives": [
           "lane.board_drift"
         ],

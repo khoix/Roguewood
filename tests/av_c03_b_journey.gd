@@ -7,7 +7,7 @@ func _play_batch() -> void:
  if lab.settings.reduced_motion:
   await _focus_accept(scene.options)
   await _focus_accept(lab.settings_panel.reduced_motion)
-  await _focus_accept(lab.settings_panel.close)
+  await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
  timed_grades=true
  var first:=await _frame([C03_SPLIT,C03_CONVERT],"two timed grades, full back row, behind")
  _check(first.result.category=="spare" and first.result.facts.accurate==2,"two real sweet/perfect releases")

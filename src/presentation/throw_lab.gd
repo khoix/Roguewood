@@ -31,6 +31,7 @@ signal tactic_played(action: Dictionary)
 signal throw_cue(id: String, charge: float)
 ## UI-3: true while the ball rolls and the frame scores (the shell hides its bar).
 signal chrome_compact_changed(compact: bool)
+const Sentence = preload("res://src/presentation/sentence.gd")
 const Lane = preload("res://src/simulation/lane_spec.gd")
 const LaneWorld = preload("res://src/simulation/lane_world.gd")
 const Dressing = preload("res://src/presentation/live_dressing.gd")
@@ -67,6 +68,7 @@ const ItemPhysics = preload("res://src/simulation/item_physics.gd")
 const Tactics = preload("res://src/rules/tactics.gd")
 const Upgrades = preload("res://src/rules/upgrades.gd")
 const LeagueTheme = preload("res://src/presentation/league_theme.gd")
+const RunAwards = preload("res://src/clubhouse/run_awards.gd")
 const TacticSheet = preload("res://src/presentation/tactic_sheet.gd")
 const NEAR_VICTORY := 0.75 # share of the target that makes a rival nervous
 const HOUSE := "ball.house"
@@ -198,6 +200,10 @@ var pending_launch: Dictionary = {} # committed launch not yet resolved: {launch
 var _result_view: Dictionary = {}
 var _replay_only := false # showing a restored, already banked frame
 var _content: Dictionary = {}
+var aim_magnifier: Control # UI-14
+var alley_screen: Control # UI-20: celebrations in the magnifier's window
+var award_ceremony: Control # UI-22: what a run earned, presented when it ends
+var _pending_awards: Dictionary = {} # UI-25: shown when the player leaves the result sheet
 
 func _ready() -> void:
 	SettingsPanel.with_defaults(settings)
@@ -278,7 +284,7 @@ func _ready() -> void:
 	if not content.errors.is_empty():
 		push_error("Content set %s invalid: %s" % [content.id, str(content.errors)])
 	_catalogue = content.catalogue
-	if content.get("id", "") in ["house", "neon", "tutorial"]: # UI-13: the tutorial wears the House theme
+	if content.get("id", "") in ["house", "neon", "tutorial", "practice"]: # UI-13: the tutorial (and UI-39 practice) wear the House theme
 		league_theme = LeagueTheme.for_league(content.get("theme", content.get("league_id", "")))
 		if league_theme != null:
 			add_child(league_theme)
@@ -312,7 +318,7 @@ func _ready() -> void:
 	league_entry = career_graph.get("leagues", {}).get(career_graph.get("league_of_set", {}).get(content.id, ""), {})
 	shop.unlocked = career.unlocked.duplicate() # a snapshot: later unlocks wait for the next attempt (§16)
 	divisions = content.divisions
-	division = League.create(divisions, settings.get("practice", false))
+	division = League.create(divisions, settings.get("practice", false) or practice_lane())
 	division.campaign = content.get("campaign", {}).duplicate(true)
 	_content = content.hashes
 	score_panel = ScorePanel.new()
@@ -346,7 +352,7 @@ func _ready() -> void:
 	shop_panel.continue_pressed.connect(_start_next_match)
 	shop_panel.choice_made.connect(_on_choice)
 	shop_panel.choice_cancelled.connect(_on_choice_cancelled)
-	shop_panel.charm_moved.connect(_on_charm_moved)
+	shop_panel.charm_reordered.connect(_on_charm_reordered)
 	shop_panel.hide()
 	add_child(shop_panel)
 	panels = MatchPanels.new()
@@ -359,7 +365,7 @@ func _ready() -> void:
 	hud.layout(TOP_UI_HEIGHT, TOP_UI_HEIGHT + 300.0)
 	resized.connect(_layout_resolution)
 	hud.intro_done.connect(_on_intro_done)
-	hud.retry_pressed.connect(func(): retry_requested.emit())
+	hud.retry_pressed.connect(_leave_for_new_run)
 	hud.menu_pressed.connect(func(): menu_requested.emit())
 	settings_panel = SettingsPanel.new()
 	settings_panel.settings = settings
@@ -376,6 +382,17 @@ func _ready() -> void:
 	motion.lab = self
 	add_child(motion)
 	move_child(motion, 2)
+	# UI-14: the top bar becomes a magnifier while the target reticle is moved.
+	aim_magnifier = preload("res://src/presentation/aim_magnifier.gd").new()
+	aim_magnifier.lab = self
+	add_child(aim_magnifier)
+	alley_screen = preload("res://src/presentation/alley_screen.gd").new()
+	alley_screen.lab = self
+	add_child(alley_screen)
+	alley_screen.finished.connect(_on_alley_finished)
+	award_ceremony = preload("res://src/presentation/award_ceremony.gd").new()
+	award_ceremony.lab = self
+	add_child(award_ceremony)
 	panels.host_equipment_strip(motion.equipment_art) # UI-3: out of the lane
 	if not restore_from.is_empty():
 		_restore(restore_from)
@@ -501,12 +518,12 @@ func _tactic_step() -> void:
 	match _tactic.kind:
 		"relocate_pin":
 			if not _tactic.has("position"):
-				text = "Nudge: which standing pin moves?"
+				text = "Nudge: Which standing pin moves?"
 				for option in Tactics.nudge_options(rack):
 					labels.append("Pin %d · %s" % [option.position, name_at.call(run.rack[option.position])])
 					values.append(option.position)
 			else:
-				text = "Nudge: move pin %d to which empty spot?" % _tactic.position
+				text = "Nudge: Move pin %d to which empty spot?" % _tactic.position
 				for option in Tactics.nudge_options(rack):
 					if option.position == _tactic.position:
 						for q in option.to:
@@ -514,7 +531,7 @@ func _tactic_step() -> void:
 							values.append(q)
 		"reserve_swap":
 			if not _tactic.has("reserve"):
-				text = "Reserve Call: which reserve pin plays this frame?"
+				text = "Reserve Call: Which reserve pin plays this frame?"
 				for r in Tactics.reserve_options(run):
 					labels.append("%s · reserve %d" % [name_at.call(run.reserves[r - 1]), r])
 					values.append(r)
@@ -617,7 +634,7 @@ func _refresh_hand() -> void:
 		if state == "frame_done":
 			header = "Keep a card? (optional) · hold or double-tap to inspect" if not division.match_over() else "Match over — the deck recombines and reshuffles"
 		elif cycling:
-			header = "Cycle: tap a card to discard it and draw one"
+			header = "Cycle: Tap a card to discard it and draw one"
 	else:
 		header = "Bag · House always ready · specials %d uses left this match" % counts.special_uses
 	var choosing: bool = state == "aim" or (state == "frame_done" and equipment.can_retain() and not division.match_over())
@@ -640,7 +657,8 @@ func _refresh_hand() -> void:
 	card_hand.cycle_button.text = "Cancel" if cycling else "Cycle"
 	# The roll view (UI-3): the hand leaves once the ball is away, and while the ball
 	# is held, so the whole lower screen is room to swirl (owner, 2026-11-08).
-	card_hand.visible = state not in ["holding", "rolling", "result", "scoring", "shop", "intro", "division_over"] and (portrait or not regions.get("fold", false) or panels.show_hand)
+	card_hand.visible = state not in ["holding", "rolling", "result", "scoring", "shop", "intro", "division_over"] and (portrait or not regions.get("fold", false) or panels.show_hand) \
+		and not practice_lane() # UI-39: the practice lane has no cards
 	card_hand.set_mode("fan" if portrait else "flank", settings.handedness == "left")
 	card_hand.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	card_hand.grow_vertical = Control.GROW_DIRECTION_END
@@ -650,6 +668,17 @@ func _refresh_hand() -> void:
 
 func _effect_text(item: Dictionary) -> String:
 	return ScoreLog.item_text(item, _names)
+
+## UI-34 (owner, 2026-11-20): an owned item's full rules, as its offer showed them:
+## its effect, any tradeoff, and its modification's effect.
+func _owned_rules(item: Dictionary, mod: String) -> String:
+	var rules := _effect_text(item)
+	if not String(item.get("downside", "")).is_empty():
+		rules += "\nTradeoff: " + String(item.downside)
+	if not mod.is_empty():
+		var mod_item: Dictionary = run.item(mod)
+		rules += "\n%s: %s" % [mod_item.get("name", mod), Sentence.cap(_effect_text(mod_item))]
+	return rules
 
 ## In-world target marker; the readable ring itself is drawn by the aim overlay.
 func _build_ring() -> void:
@@ -708,7 +737,8 @@ func _apply_settings() -> void:
 	if settings.assist and state == "aim" and lane:
 		_assist_preview(assist_panel.values())
 	# Practice applies to an attempt that has not thrown yet, otherwise to the next attempt.
-	if division != null and settings.get("practice", false) != division.practice and _launch_serial == 0:
+	# (A test fixture since UI-39; How to Play's practice lane is always in practice.)
+	if division != null and not practice_lane() and settings.get("practice", false) != division.practice and _launch_serial == 0:
 		division = League.create(divisions, settings.practice)
 		_checkpoint("aim")
 	if hud != null:
@@ -968,6 +998,9 @@ func _on_roll_finished(report: Dictionary) -> void:
 		_react("gutter")
 	elif report.roll_result.roll_index == 1 and report.roll_result.fallen_positions.size() == 10:
 		_react("strike")
+	# UI-20: a strike or a spare celebrates on the alley screen (when the League has art).
+	if report.knockdown_log.standing.is_empty():
+		celebrate("strike" if report.roll_result.roll_index == 1 else "spare")
 	state = "result"
 	_result_timer = 0.0
 	_update_status()
@@ -1043,7 +1076,7 @@ func _score_frame() -> void:
 	var grown: Array = run.apply_frame(result, built.frame) # growth and the strike streak, banked with the frame
 	for change in run.transformed: # rolled once on the effects stream; saved with the frame below
 		steps.append({"phase": "rule", "symbol": "✕", "pin": int(change.position), "pin_value": steps[-1].pin_value, "mult": steps[-1].mult, "score": banked.score,
-			"text": "%s at %d cracked: now a %s." % [_names.get(change.from, change.from), int(change.position), _names.get(change.into, change.into)]})
+			"text": "%s at %d cracked: Now a %s." % [_names.get(change.from, change.from), int(change.position), _names.get(change.into, change.into)]})
 	Tactics.restore_swaps(run, frame_actions) # a Reserve Call lasts one frame; saved with the frame below
 	var outcome: Dictionary = division.record_frame(banked.score)
 	total_score += int(banked.score)
@@ -1073,6 +1106,7 @@ func _on_scored() -> void:
 		_replay_only = false
 		_frame_done()
 		return
+	var boss_win: bool = scored.match_over and scored.match_won and not division.practice and division.is_boss()
 	if scored.match_over:
 		_react("victory" if scored.match_won else "defeat")
 	elif not division.practice and division.match_score >= NEAR_VICTORY * division.target():
@@ -1080,12 +1114,34 @@ func _on_scored() -> void:
 	elif scored.result.category == "open":
 		_react("open")
 	_frame_done()
+	if boss_win and _celebrate_boss():
+		next_rack.hide() # Division Result waits for the celebration, or a tap on it
 	frame_scored.emit(scored.duplicate(true))
+
+## UI-20: queues a celebration on the alley screen; false when none plays (the
+## League has no art for it yet, or this is the tutorial).
+func celebrate(event: String, context: Dictionary = {}) -> bool:
+	if alley_screen == null or content.get("id", "") == "tutorial":
+		return false
+	return alley_screen.celebrate(event, context)
+
+func _celebrate_boss() -> bool:
+	var rival: Dictionary = division.rival_for(division.boss())
+	return celebrate("boss_defeated", {"rival_id": String(rival.get("id", "")), "rival_name": String(rival.get("name", "")),
+		"rival_color": String(rival.get("color", "")), "championship": division.division_number() == division.division_count()})
+
+func _on_alley_finished(event: String) -> void:
+	if event == "boss_defeated" and state == "frame_done" and not next_rack.visible:
+		next_rack.show()
+		next_rack.grab_focus()
 
 func _frame_done() -> void:
 	state = "frame_done"
 	next_rack.text = "Next Rack"
-	if division.match_over():
+	if division.match_over() and practice_lane():
+		_practice_games.append(int(division.match_score))
+		next_rack.text = "Next Game"
+	elif division.match_over():
 		if division.outcome == "lost":
 			next_rack.text = "See Result"
 		elif division.outcome == "won":
@@ -1101,6 +1157,9 @@ func _frame_done() -> void:
 func _next_rack() -> void:
 	if state != "frame_done":
 		return
+	if division.match_over() and practice_lane():
+		_next_practice_game()
+		return
 	if division.match_over():
 		if division.is_finished():
 			_show_result()
@@ -1113,6 +1172,29 @@ func _next_rack() -> void:
 	var errors: Array[String] = equipment.start_frame(keep_card)
 	if not errors.is_empty():
 		push_error("Frame start: " + str(errors))
+	_clear_choices()
+	_new_roll()
+
+## UI-39 (owner, 2026-11-21): How to Play's practice lane. The House Ball only, ten
+## Wood pins, no Charms, cards, shop or rival rules; games of ten frames, scored as
+## normal, one after another for as long as the player likes.
+func practice_lane() -> bool:
+	return content.get("id", "") == "practice"
+
+## The practice lane's games so far (each game's score), and its best.
+var _practice_games: Array = []
+func practice_best() -> int:
+	return _practice_games.max() if not _practice_games.is_empty() else 0
+
+## A new game straight after the last: no shop, no payout.
+func _next_practice_game() -> void:
+	_kept_last_frame = ""
+	_advance_frame()
+	match_number += 1
+	match_frame = 1
+	division.next_match()
+	equipment.start_match()
+	equipment.start_frame()
 	_clear_choices()
 	_new_roll()
 
@@ -1248,7 +1330,7 @@ func _show_result() -> void:
 			var title_won: Dictionary = CareerProfile.record_championship(career, league_entry, career_attempt, _owned_ids(), division.practice)
 			var wins := int(career.championships.get(league_entry.id, {}).get("wins", 0))
 			if title_won.first:
-				lines.append("Champion: first %s title. %s" % [league_entry.name, league_entry.championship.text])
+				lines.append("Champion: First %s title. %s" % [league_entry.name, league_entry.championship.text])
 			elif wins > 1:
 				lines.append("Champion again: %d %s titles (a record, not a repeat unlock)." % [wins, league_entry.name])
 		_save_career()
@@ -1268,8 +1350,50 @@ func _show_result() -> void:
 	_checkpoint("division_over")
 	hud.show_result(title, _result_view.body, _result_view.won, _retry_label(), _result_view.sections)
 	hud.endless_button.visible = _can_endless()
+	_queue_awards()
 	_update_status()
 	attempt_finished.emit(division.outcome)
+
+## UI-22: when the run earned a trophy or moved a goal, the award ceremony presents
+## it (never in the tutorial, or for a restored result). UI-25 (owner, 2026-11-19):
+## it follows the result sheet ("League's End"), playing when the player leaves it.
+func _queue_awards() -> void:
+	_pending_awards = {}
+	if award_ceremony == null or content.get("id", "") == "tutorial":
+		return
+	var awards: Dictionary = RunAwards.for_run(career, career_graph, career_attempt)
+	if RunAwards.is_empty(awards):
+		return
+	var league_name := String(content.get("name", "League"))
+	_pending_awards = {"awards": awards, "context": {"league_id": String(content.get("league_id", "")), "run": attempt,
+		"title": "Run %d · %s · %s" % [attempt, league_name, "Champion" if division.outcome == "won" else "Run complete"]}}
+	# UI-29 (owner, 2026-11-19): the award screen always ends in the Clubhouse, so a
+	# run with awards waiting offers one way on: Continue (to the awards, then the
+	# fade, then the Clubhouse). New Run and Retry start from the Clubhouse instead.
+	hud.retry_button.hide()
+	hud.menu_button.text = "Continue"
+	hud.menu_button.grab_focus()
+
+## The run's awards are waiting for the player to leave the result sheet.
+func awards_pending() -> bool:
+	return not _pending_awards.is_empty()
+
+## UI-25: plays the waiting ceremony over the result sheet and returns when its
+## Continue is pressed; it stays on screen, with its music, for what follows.
+func present_pending_awards() -> void:
+	if _pending_awards.is_empty(): return
+	var pending := _pending_awards
+	_pending_awards = {}
+	award_ceremony.present(pending.awards, pending.context, true)
+	await award_ceremony.finished
+
+## The result sheet's New Run (or Retry): the ceremony first, when there is one.
+func _leave_for_new_run() -> void:
+	if award_ceremony != null and award_ceremony.visible: return
+	if awards_pending(): # UI-29: awards lead to the Clubhouse, never into a run
+		menu_requested.emit()
+		return
+	retry_requested.emit()
 
 ## UI-8: the result sheet's sections (DivisionHud._build_sections), from the same
 ## facts as its full text: the outcome in one line, the attempt's numbers, every
@@ -1298,7 +1422,7 @@ func _result_sections(lines: Array, career_lines: Array, last: Dictionary) -> Di
 	var headline := ("%s cleared!" % place) if won else "League's End"
 	var quip := ""
 	if not won and String(last.kind) == "boss" and not division.rival().is_empty():
-		quip = String(division.rival().get("reactions", {}).get("victorious", ""))
+		quip = preload("res://src/presentation/rival_lines.gd").line(division.rival(), "victorious")
 	if not quip.is_empty():
 		headline = "“%s”" % quip
 		lost = "— %s · %s" % [division.rival().name, lost]
@@ -1330,7 +1454,7 @@ func _career_lines() -> Array:
 		else:
 			lines.append("Unlocked: %s join%s the shop pool from your next run." % [", ".join(items.map(func(i): return _names.get(i, i))), "s" if items.size() == 1 else ""])
 	if division.practice:
-		lines.append("Practice: discoveries and practice records only; no unlocks or mastery progress.")
+		lines.append("Practice: Discoveries and practice records only; no unlocks or mastery progress.")
 	var goals: Array = CareerProfile.goals(career, career_graph.get("objectives", []), career_attempt)
 	if not goals.is_empty():
 		lines.append("Goals: " + " · ".join(goals.map(func(g): return "%s %d/%d" % [g.name, mini(g.progress, g.threshold), g.threshold])))
@@ -1442,7 +1566,7 @@ func _on_offer(index: int) -> void:
 		return
 	var plan: Dictionary = shop.plan(index, run)
 	if not plan.ok:
-		shop_message = "Can't buy that: %s." % plan.reason
+		shop_message = "Can't buy that: %s." % Sentence.cap(String(plan.reason))
 		_refresh_shop()
 		return
 	var options: Array = plan.placements
@@ -1454,7 +1578,7 @@ func _on_offer(index: int) -> void:
 	var full: bool = options.all(func(o): return not o.replaces.is_empty())
 	var prompt := "Place %s ($%d)" % [item_name, plan.price]
 	if full:
-		prompt = "No free slot for %s ($%d): replace one (it is sold) or Cancel." % [item_name, plan.price]
+		prompt = "No free slot for %s ($%d): Replace one (it is sold) or Cancel." % [item_name, plan.price]
 	elif RunInventory.slot_kind(run.item(plan.item_id).category) == "mod":
 		prompt = "Attach %s ($%d) to:" % [item_name, plan.price]
 	_choice = {"kind": "buy", "index": index, "targets": options.map(func(o): return o.target)}
@@ -1464,7 +1588,7 @@ func _on_offer(index: int) -> void:
 func _finish_buy(index: int, target: String) -> void:
 	var item_id: String = shop.offers[index].item_id
 	var errors: Array[String] = shop.buy(index, target, run)
-	shop_message = ("Bought %s." % _names.get(item_id, item_id)) if errors.is_empty() else "Can't buy that: %s." % ", ".join(errors)
+	shop_message = ("Bought %s." % _names.get(item_id, item_id)) if errors.is_empty() else "Can't buy that: %s." % Sentence.cap(", ".join(errors))
 	if errors.is_empty():
 		_checkpoint("shop") # payment, the item and the sold offer: one transaction
 	_refresh_shop()
@@ -1480,7 +1604,7 @@ func _on_choice(index: int) -> void:
 			var uid: String = choice.targets[index]
 			var removed: String = _names.get(run.cards[uid].item_id, "")
 			var errors: Array[String] = shop.remove_card(uid, run)
-			shop_message = ("Removed %s from the deck." % removed) if errors.is_empty() else "Can't remove: %s." % ", ".join(errors)
+			shop_message = ("Removed %s from the deck." % removed) if errors.is_empty() else "Can't remove: %s." % Sentence.cap(", ".join(errors))
 			if errors.is_empty():
 				_checkpoint("shop")
 			_refresh_shop()
@@ -1496,7 +1620,7 @@ func _on_reroll() -> void:
 	if state != "shop" or not _choice.is_empty():
 		return
 	var errors: Array[String] = shop.reroll(run)
-	shop_message = "New offers." if errors.is_empty() else "Can't reroll: %s." % ", ".join(errors)
+	shop_message = "New offers." if errors.is_empty() else "Can't reroll: %s." % Sentence.cap(", ".join(errors))
 	if errors.is_empty():
 		_checkpoint("shop") # paid and drawn: reloading cannot undo or repeat a reroll
 	_refresh_shop()
@@ -1505,7 +1629,7 @@ func _on_remove() -> void:
 	if state != "shop" or not _choice.is_empty():
 		return
 	if run.money < Economy.REMOVAL_PRICE:
-		shop_message = "Can't remove: insufficient funds."
+		shop_message = "Can't remove: Insufficient funds."
 		_refresh_shop()
 		return
 	var targets: Array = []
@@ -1524,17 +1648,18 @@ func _on_sell(ref: String) -> void:
 	var label := _ref_label(ref)
 	var value: int = run.sale_value(ref)
 	var errors: Array[String] = run.sell(ref)
-	shop_message = ("Sold %s for $%d." % [label, value]) if errors.is_empty() else "Can't sell: %s." % ", ".join(errors)
+	shop_message = ("Sold %s for $%d." % [label, value]) if errors.is_empty() else "Can't sell: %s." % Sentence.cap(", ".join(errors))
 	if errors.is_empty():
 		_checkpoint("shop")
 	_refresh_shop()
 
-## Reorders Charms between matches (saved like any other shop change).
-func _on_charm_moved(slot: int) -> void:
+## Reorders Charms between matches (saved like any other shop change). UI-32: the
+## Inventory's Charm row drags a Charm from one slot to another.
+func _on_charm_reordered(from: int, to: int) -> void:
 	if state != "shop" or not _choice.is_empty():
 		return
-	var errors: Array[String] = run.move_charm_left(slot)
-	shop_message = ("Moved %s to Charm slot %d." % [_names.get(run.charms[slot - 2].item_id, ""), slot - 1]) if errors.is_empty() else "Can't move: %s." % ", ".join(errors)
+	var errors: Array[String] = run.move_charm(from, to)
+	shop_message = ("Moved %s to Charm slot %d." % [_names.get(run.charms[to - 1].item_id, ""), to]) if errors.is_empty() else "Can't move: %s." % Sentence.cap(", ".join(errors))
 	if errors.is_empty():
 		_checkpoint("shop")
 	_refresh_shop()
@@ -1543,7 +1668,7 @@ func _on_charm_moved(slot: int) -> void:
 ## rival, its rule and the first-clear reward.
 func _next_match_preview() -> String:
 	if division.practice:
-		return "Next: another practice match (no target)."
+		return "Next: Another practice match (no target)."
 	var next: Dictionary = division.upcoming()
 	var where := "Division %d " % int(next.division) if division.division_count() > 1 else ""
 	var text := "Next: %s%s — target %d in two frames." % [where, next.match.name, int(next.match.target)]
@@ -1561,7 +1686,7 @@ func _next_match_preview() -> String:
 ## UI-5b: the shop's one-line preview. The boss's rule is behind the ⓘ on the bar.
 func _next_match_short() -> String:
 	if division.practice:
-		return "Next: a practice match"
+		return "Next: A practice match"
 	var next: Dictionary = division.upcoming()
 	var where := "Division %d " % int(next.division) if division.division_count() > 1 else ""
 	var text := "Next: %s%s · target %d" % [where, next.match.name, int(next.match.target)]
@@ -1610,11 +1735,14 @@ func _choice_visual(option: Dictionary, item_id: String, verb: String = "") -> D
 		verb = "Replace" if not String(option.get("replaces", "")).is_empty() else ("Attach" if is_mod else "Place")
 	var caption: String = parts[1] if parts[0] == "rack" else ("New" if target.ends_with(":new") else (_names.get(entry.item_id, "") if entry != null else place))
 	var then := _placement_label(option) if verb != "Remove" else "Removed from the run; no refund."
+	var keeps: String = option.get("keeps_mod", "")
 	if is_mod and entry != null: # UI-13: the result, as the preview shows it
 		then = "After: %s + %s" % [_names.get(entry.item_id, entry.item_id), _names.get(item_id, item_id)]
+	elif not keeps.is_empty(): # UI-30: the new pin takes over the modification
+		then += "\nAfter: %s + %s" % [_names.get(item_id, item_id), _names.get(keeps, keeps)]
 	return {"target": target, "item_id": entry.item_id if entry != null else item_id, "mod": String(entry.mod) if entry != null else "",
-		"caption": caption, "detail": "%s · now: %s\n%s" % [place, now, then], "verb": verb,
-		"placing": item_id if verb != "Remove" else "", "placing_mod": is_mod} # UI-13: previewed on the picked place
+		"caption": caption, "detail": "%s · now: %s\n%s" % [place, Sentence.cap(now), then], "verb": verb,
+		"placing": item_id if verb != "Remove" else "", "placing_mod": is_mod, "keeps_mod": keeps} # UI-13: previewed on the picked place
 
 ## The ten pins for the placement map: {item_id, mod} by position.
 func _rack_art() -> Array:
@@ -1632,10 +1760,15 @@ func _placement_label(option: Dictionary) -> String:
 		return "Add to Charm slot %d" % (run.charms.size() + 1)
 	var parts := target.split(":")
 	var place := ("Rack %s" % parts[1]) if parts[0] == "rack" else ("Reserve %s" % parts[1]) if parts[0] == "reserve" else ""
+	var keeps: String = option.get("keeps_mod", "")
+	var stays := "%s stays on the new pin" % _names.get(keeps, keeps) if not keeps.is_empty() else "" # UI-30
 	if not option.moves_to.is_empty():
-		return "%s — %s moves to %s" % [place, _names.get(run.entry_at(target).item_id, ""), option.moves_to.replace("reserve:", "Reserve ")]
+		return "%s — %s moves to %s%s" % [place, _names.get(run.entry_at(target).item_id, ""), option.moves_to.replace("reserve:", "Reserve "),
+			" (%s)" % stays if not stays.is_empty() else ""]
 	if not option.replaces.is_empty():
-		return "Replace %s (sell +$%d)" % [_ref_label(option.replaces), option.sale]
+		if keeps.is_empty():
+			return "Replace %s (sell +$%d)" % [_ref_label(option.replaces), option.sale]
+		return "Replace %s %s (sell +$%d, %s)" % [place, _names.get(run.entry_at(target).item_id, ""), option.sale, stays]
 	if run.entry_at(target) != null:
 		return "Modify " + _ref_label(target)
 	return place
@@ -1690,14 +1823,11 @@ func _refresh_shop() -> void:
 	var rack_text := "Rack: " + ", ".join(pins)
 	if not common.is_empty() and counts[common] >= 3:
 		var others: Array = pins.filter(func(entry): return entry.substr(entry.find(" ") + 1) != common)
-		rack_text = "Rack: " + (("all %d %s" % [counts[common], common]) if others.is_empty() else ", ".join(others) + ", the other %d %s" % [counts[common], common])
+		rack_text = "Rack: " + (("All %d %s" % [counts[common], common]) if others.is_empty() else ", ".join(others) + ", the other %d %s" % [counts[common], common])
 	var reserves: Array = run.reserves.map(func(e): return "empty" if e == null else _names.get(e.item_id, ""))
-	rack_text += "\nReserves: " + ", ".join(reserves) + " · Charms %d/%d · Deck %d/%d" % [run.charms.size(), RunInventory.CHARM_SLOTS, run.cards.size(), RunInventory.DECK_CAP]
+	rack_text += "\nReserves: " + Sentence.cap(", ".join(reserves)) + " · Charms %d/%d · Deck %d/%d" % [run.charms.size(), RunInventory.CHARM_SLOTS, run.cards.size(), RunInventory.DECK_CAP]
 	if not run.upgrades.is_empty():
 		rack_text += "\nUpgrades (kept for the run): " + Upgrades.summary(run, _names)
-	var charm_moves: Array = []
-	for i in range(1, run.charms.size()):
-		charm_moves.append({"slot": i + 1, "label": "◀ Move %s before %s" % [_names.get(run.charms[i].item_id, ""), _names.get(run.charms[i - 1].item_id, "")]})
 	var sellables: Array = []
 	for owned in run.entries():
 		if run.can_sell(owned.ref):
@@ -1709,17 +1839,27 @@ func _refresh_shop() -> void:
 			var with_mod: String = "" if String(entry.mod).is_empty() else " + " + _names.get(entry.mod, entry.mod)
 			sellables.append({"ref": owned.ref, "label": "%s  +$%d" % [_ref_label(owned.ref), run.sale_value(owned.ref)], # the sheet's title says Sell
 				"item_id": entry.item_id, "mod": String(entry.mod), "name": item.get("name", entry.item_id), "value": run.sale_value(owned.ref),
-				"place": place, "text": _effect_text(item),
-				"detail": "%s%s · %s · sells for $%d" % [item.get("name", entry.item_id), with_mod, place, run.sale_value(owned.ref)]})
-	var summary := "Match %d paid: payout $%d · interest $%d (on $%d held) · item income $%d" % [settlement.match, settlement.payout,
+				"place": place, "text": _effect_text(item), "rules": _owned_rules(item, String(entry.mod)),
+				# UI-34 (owner, 2026-11-20): no "sells for $" here; the tile and Sell say it.
+				"detail": "%s%s · %s" % [item.get("name", entry.item_id), with_mod, place]})
+	var summary := "Match %d paid: Payout $%d · interest $%d (on $%d held) · item income $%d" % [settlement.match, settlement.payout,
 		settlement.interest, settlement.balance_before, settlement.item_income]
+	var notes: Array = []
 	if Upgrades.owned(run, "interest_cap"):
-		summary += " · Savings Book: interest cap $%d" % (Economy.INTEREST_CAP + Upgrades.INTEREST_BONUS)
+		summary += " · Savings Book: Interest cap $%d" % (Economy.INTEREST_CAP + Upgrades.INTEREST_BONUS)
+		notes.append("Savings Book: Interest cap $%d" % (Economy.INTEREST_CAP + Upgrades.INTEREST_BONUS))
+	# UI-32: the same numbers for the shop's payout and rack slip.
+	var pin_view := func(e): return {} if e == null else {"item_id": e.item_id, "mod": String(e.mod), "name": _names.get(e.item_id, e.item_id) + (" + " + _names.get(e.mod, "") if not String(e.mod).is_empty() else "")}
+	var payout := {"match": settlement.match, "payout": settlement.payout, "interest": settlement.interest, "held": settlement.balance_before,
+		"item_income": settlement.item_income, "notes": notes}
+	var holdings := {"pins": range(1, 11).map(func(p): return pin_view.call(run.rack[p])), "reserves": run.reserves.map(pin_view),
+		"charms": [run.charms.size(), RunInventory.CHARM_SLOTS], "deck": [run.cards.size(), RunInventory.DECK_CAP],
+		"rack_line": rack_text.get_slice("\n", 0).trim_prefix("Rack: "), "upgrades": Upgrades.summary(run, _names) if not run.upgrades.is_empty() else ""}
 	shop_panel.show_view({"title": "Pro Shop", "summary": summary, "preview": _next_match_preview(), "preview_short": _next_match_short(), "money": run.money, "offers": offers,
 		"reroll_cost": shop.reroll_cost(run), "can_reroll": run.money >= shop.reroll_cost(run),
 		"removal_price": Economy.REMOVAL_PRICE, "can_remove": run.money >= Economy.REMOVAL_PRICE and not run.cards.is_empty(),
-		"rack": rack_text, "charm_moves": charm_moves, "sellables": sellables,
-		"charm_order": "" if run.charms.is_empty() else "Charm order (left to right): " + ", ".join(run.charms.map(func(e): return _names.get(e.item_id, e.item_id))), "message": shop_message, "columns": 3, "landscape": size.x > size.y})
+		"rack": rack_text, "sellables": sellables, "payout": payout, "holdings": holdings,
+		"message": shop_message, "columns": 3, "landscape": size.x > size.y})
 	money_changed.emit(run.money)
 
 func _normalized(position: Vector2) -> Vector2:
@@ -1935,18 +2075,19 @@ func _compose_status() -> void:
 			else:
 				status.text = lead + "\nHold the ball, swirl to curve, flick up · tap the lane to aim"
 			if spin_disabled():
-				status.text += "\nDead Straight: spin is disabled — every throw rolls straight."
+				status.text += "\nDead Straight: Spin is disabled — every throw rolls straight."
 			if not RivalRules.ball_allowed(active_rules(), "ball.hook"):
-				status.text += "\nHouse Rules: only the House Ball may be thrown; tactical cards are allowed."
+				status.text += "\nHouse Rules: Only the House Ball may be thrown; tactical cards are allowed."
 			for rule in active_rules():
 				if RivalRules.kind(rule) in ["hook_scale", "lane_width", "ring_scale", "no_item_income", "pin_value_scale", "no_mods"]:
-					status.text += "\n" + RivalRules.summary(rule).replace(" — ", ": ")
+					var said := RivalRules.summary(rule).split(" — ", true, 1)
+					status.text += "\n" + (said[0] + ": " + Sentence.cap(said[1]) if said.size() == 2 else said[0])
 			if lane != null and lane.lane_condition.begins_with("lane_condition.") and lane.lane_condition != "lane_condition.house_oil":
 				status.text += "\nLane: %s" % _lane_text(lane.lane_condition)
 			for action in frame_actions:
 				status.text += "\n" + Tactics.text(action, _names)
 			if last_cancel == "house_rules":
-				status.text += "\nHouse Rules: that ball cannot be thrown here."
+				status.text += "\nHouse Rules: That ball cannot be thrown here."
 			elif last_cancel == "tactic":
 				status.text += "\n" + _tactic_note
 			elif not last_cancel.is_empty():
@@ -1969,25 +2110,40 @@ func _compose_status() -> void:
 				var result: Dictionary = scored_frames[-1].result
 				status.text += " · %s %s · Total %s" % [String(result.category).capitalize(), ScoreLog._n(result.score), ScoreLog._n(total_score)]
 
+## The match score the top bar shows. While a frame's tally plays, it holds the
+## score from before that frame, so the bar does not give the tally away (owner,
+## 2026-11-18); it catches up when the tally finishes.
+func shown_score() -> int:
+	if state == "scoring" and not scored_frames.is_empty():
+		return int(division.match_score) - int(scored_frames[-1].get("banked", 0))
+	return int(division.match_score)
+
 ## The match bar: which match, its target, the banked score and frames left; the
 ## badge inspects the rival's rule (boss) or previews the boss (earlier matches).
 func _refresh_hud() -> void:
 	if hud == null or division == null:
 		return
+	var shown := shown_score()
 	var m: Dictionary = division.current()
 	var left: int = division.frames_left()
 	var frames := "%d frame%s left" % [left, "" if left == 1 else "s"]
 	var view := {"text": "", "badge": "", "rule_text": "", "frames": frames}
-	if division.practice:
-		view.text = "Practice · no target · score %d · %s · no unlocks" % [division.match_score, frames]
+	if practice_lane():
+		var best := practice_best()
+		view.text = "Practice · Game %d · Score %d · %s%s" % [match_number, shown, frames, (" · Best %d" % best) if best > 0 else ""]
+		view.title = "Practice · Game %d" % match_number
+		view.short_title = view.title
+		view.score = ScoreLog._n(shown)
+	elif division.practice:
+		view.text = "Practice · no target · score %d · %s · no unlocks" % [shown, frames]
 		view.title = "Practice · no unlocks"
-		view.score = ScoreLog._n(division.match_score)
+		view.score = ScoreLog._n(shown)
 	else:
 		var index: int = division.spec.matches.find(m) + 1
-		view.text = "%s %d/3 · Target %d · Score %d · %s" % [m.name, index, division.target(), division.match_score, frames]
+		view.text = "%s %d/3 · Target %d · Score %d · %s" % [m.name, index, division.target(), shown, frames]
 		view.title = "%s %d/3" % [m.name, index]
 		view.short_title = view.title # the roll view's slim bar has no room for the Division or the rival
-		view.score = "%s / %s" % [ScoreLog._n(division.match_score), ScoreLog._n(division.target())]
+		view.score = "%s / %s" % [ScoreLog._n(shown), ScoreLog._n(division.target())]
 		if division.division_count() > 1:
 			view.text = "D%d/%d · %s" % [division.division_number(), division.division_count(), view.text]
 			view.title = "D%d/%d · %s" % [division.division_number(), division.division_count(), view.title]
@@ -2168,6 +2324,10 @@ func _refresh_panels() -> void:
 	if panels == null: return
 	var last: Dictionary = scored_frames[-1].result if not scored_frames.is_empty() else {}
 	panels.show_slip(last, total_score)
+	panels.practice = practice_lane() # UI-39: no rival or Charms panel
+	if practice_lane() and not hud.money_hidden:
+		hud.money_hidden = true
+		hud.money.get_parent().hide()
 	if division.practice:
 		panels.show_rival({}, "", false)
 	else:

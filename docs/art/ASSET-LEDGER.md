@@ -1351,3 +1351,20 @@ open mouth 0/255 and sampled upper background 0/255. Card, icon and reduced view
 share this source; the counted in-play jar continues using its existing icon
 hook. No sound, scoring or catalogue changes. Native visual completion is
 tracked separately in docs/handoffs/AV-FIX1.md.
+## UI-22 award ceremony sounds (Claude, owner-delegated art direction, 2026-11-19)
+
+Original deterministic synthesis (`tools/author_award_sounds.py`, numpy, seed 20261119): mono 44.1 kHz, 16-bit PCM, normalized peaks 0.45–0.75; no recordings or samples. Rebuilt byte for byte by the tool. Played through the ceremony's own eight voices at the Sound Effects level; silent under Mute. Not a physical-device listening claim.
+
+| File (`assets/audio/awards/`) | Recipe | WAV SHA-256 |
+|---|---|---|
+| `award_whoosh.wav` | Noise through a low-pass swept 400 → 5600 → 400 Hz, 0.55 s | `d0225e8c0ee291a920f0e42e1a5ea60b8f378c62aecb2df5e54ab3672e857ae3` |
+| `award_drumroll.wav` | 44 high-passed noise taps every 24 ms, swelling, 1.1 s | `c37cb11315727f9362ba5904e6e297d5e5aa295921c8264d269aeadfb3edb8c5` |
+| `award_reveal.wav` | Bell arpeggio C5 E5 G5 C6 E6 (four inharmonic partials) over a 6 kHz shimmer, 1.6 s | `a818c402c9daf921a46ed756422a284b4f229b8a216a3f5258304eb1e483b074` |
+| `firework_launch.wav` | Sine chirp 700 → 2600 Hz with a 3 kHz noise hiss, 0.8 s | `babe5df77decf7e6376097779b7cc940a78c66741ddad766452c44ce662adf07` |
+| `firework_burst.wav` | A sine thump falling from 130 Hz, low-passed noise, then ~70 decaying crackle clicks, 1.6 s | `ace71bc923b6d9449128e702e75dd45714df57e34c6841b66b05fcf6ce50139a` |
+| `bottle_rocket.wav` | Sine chirp 1200 → 3200 Hz with an 18 Hz waver, then a noise pop at 0.56 s, 0.85 s | `6ef1dc715f0ef30f06117fbfa8efcd9c6ad0e52506c9ccbee6713c36c56ab850` |
+| `confetti_pop.wav` | A sharp high-passed noise pop, then a 9 Hz amplitude-fluttered paper rustle, 1.0 s | `d6d269838c03248caa16adb69b63e8ea50dd1863917e75c88057627066a9aae7` |
+| `goal_tick.wav` | An 880 Hz sine blip, 70 ms (its pitch rises in play as a bar fills) | `f88be3af118ad4dad7b64cebd21f5a734ec8567e12f8ec6887feb1e27a0dd1bf` |
+| `goal_complete.wav` | A 70 Hz stamp thump with noise, then an E major bell chord, 1.2 s | `d344dfdacd5e836b7876ba744ef3b06b3f6415e0a30e1420d291803ab756aa0c` |
+
+The ceremony's visuals (sunburst, spotlight, fireworks, bottle rockets, confetti, goal bars and stamp) are drawn at runtime from particles and shapes in `src/presentation/award_fx.gd` and `award_ceremony.gd`; no new images. Trophies, plaques, ribbons and decorations are the existing Clubhouse art (`assets/clubhouse/`).

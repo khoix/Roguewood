@@ -29,6 +29,42 @@ static func for_league(league_id: String) -> Node:
 func _asset(id: String) -> String:
 	return manifest.get("assets", {}).get(id, "")
 
+## UI-20: the celebration variants the manifest lists for an event (resource paths).
+## `boss_defeated` maps each rival id to its two. Empty until Codex's UI-A9 lands.
+func celebrations(event: String, rival_id: String = "") -> Array:
+	return celebrations_in(manifest, event, rival_id)
+
+static func celebrations_in(data: Dictionary, event: String, rival_id: String = "") -> Array:
+	var entry = data.get("celebrations", {}).get(event, [])
+	if event == "boss_defeated":
+		entry = entry.get(rival_id, []) if entry is Dictionary else []
+	return (entry as Array).filter(func(p): return p is String and not String(p).is_empty()) if entry is Array else []
+
+## UI-20: the event's sting (a list gives one per variant; any one is picked).
+func celebration_sound(event: String, rng: RandomNumberGenerator = null) -> AudioStream:
+	var entry = manifest.get("celebration_sounds", {}).get(event, "")
+	if entry is Array:
+		if entry.is_empty(): return null
+		entry = entry[rng.randi_range(0, entry.size() - 1) if rng != null else 0]
+	return load(entry) if entry is String and not entry.is_empty() and ResourceLoader.exists(entry) else null
+
+## UI-20: what a League's set lacks once its theme says it is complete
+## (`celebrations_complete`): at least 5 strikes and 5 spares, exactly 2 per rival.
+static func celebration_gaps(data: Dictionary, rival_ids: Array) -> Array[String]:
+	var gaps: Array[String] = []
+	if not bool(data.get("celebrations_complete", false)): return gaps
+	for event in ["strike", "spare"]:
+		var list := celebrations_in(data, event)
+		if list.size() < 5: gaps.append("%s: %d of at least 5 %s celebrations" % [data.get("league_id", "?"), list.size(), event])
+		for path in list:
+			if not ResourceLoader.exists(path): gaps.append("missing celebration " + path)
+	for rival in rival_ids:
+		var list := celebrations_in(data, "boss_defeated", rival)
+		if list.size() != 2: gaps.append("%s: %d of 2 boss celebrations for %s" % [data.get("league_id", "?"), list.size(), rival])
+		for path in list:
+			if not ResourceLoader.exists(path): gaps.append("missing celebration " + path)
+	return gaps
+
 ## The stage for a Division; `championship` selects the Championship entry.
 func stage(division: int, championship: bool) -> Dictionary:
 	for s in manifest.get("stages", []):

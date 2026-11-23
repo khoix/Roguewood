@@ -120,8 +120,8 @@ func _run() -> void:
 	lab.trial_log_path = trials_path
 	# Practice (E09): this journey tests throwing, so the Division's targets are off.
 	await _focus_accept(scene.options)
-	lab.settings_panel.practice.grab_focus()
-	await _accept()
+	lab.settings_panel.use_practice() # UI-39: a test fixture now, not a player option
+	await process_frame
 	# The owner's phone defaults (2026-11-08): flick sensitivity 0.4 and the flat spin
 	# view. This journey's gestures are calibrated at sensitivity 1.0 and its first
 	# checks are of the depth view, so it sets both through the Options controls.
@@ -132,6 +132,9 @@ func _run() -> void:
 	lab.settings_panel.spin_view.item_selected.emit(1)
 	_check(is_equal_approx(lab._flick.tuning.sensitivity, 1.0) and lab.settings.spin_view == "depth", "Options set sensitivity ×1.0 and depth spin")
 	lab.settings_panel.close.grab_focus()
+	await _accept()
+	_check(scene.session_menu.visible and scene.options.has_focus(), "UI-15: Back from Throw Settings returns to the menu")
+	scene.resume.grab_focus()
 	await _accept()
 	_check(lab.division.practice, "practice mode via Options")
 	await _wait_for(func(): return lab.state == "aim" and lab.lane.state == "ready", "aim state")
@@ -146,6 +149,7 @@ func _run() -> void:
 	await _curves_and_target()
 	await _held_ball()
 	await _spin_models()
+	await _every_ball_turns()
 	await _flat_spin()
 	await _mouse_throw()
 	await _assist_throw()
@@ -197,7 +201,14 @@ func _two_roll_frame() -> Array:
 		var launch: Dictionary = lab.lane.launch.duplicate(true)
 		_check(launch.launch_id == "lab-%d" % (launch_index + 1), "launch ids ignore cancelled gestures")
 		_check(launch.roll_index == 1 and launch.spin == 0.0 and launch.direction_x == 0.0, "straight first-roll launch")
+		# UI-33 (owner, 2026-11-20): the rolling ball visibly turns. The physics ball
+		# carries the grip and the roll spots, and its basis turns as it rolls.
+		var ball: Node3D = lab.lane.ball
+		var spots: Array = ball.get_children().filter(func(c): return String(c.name).begins_with("RollSpot") or String(c.name).begins_with("FingerHole"))
+		var turned_from: Basis = ball.global_transform.basis
 		for i in 40: await process_frame
+		var turned: float = rad_to_deg(turned_from.get_rotation_quaternion().angle_to(ball.global_transform.basis.get_rotation_quaternion()))
+		_check(spots.size() >= 7 and turned > 90.0, "the rolling ball turns as it rolls (%.0f° in 40 frames) and carries its grip and roll spots (%d)" % [turned, spots.size()])
 		await _capture("rolling")
 		if not await _wait_for(func(): return lab.state == "result", "roll 1 settles", ROLL_FRAMES): return []
 		await _capture("roll1")
@@ -344,6 +355,7 @@ func _curves_and_target() -> void:
 	await _touch(tap, false)
 	_check(absf(lab.target_x - pocket / Lane.LANE_HALF_WIDTH) < 0.01, "tap moves the target ring under the finger")
 	await _capture("target")
+	await _magnifier(tap)
 	# Short flick: too little travel to throw.
 	var cancels: int = lab.cancels
 	await _gesture(Vector2.ZERO, 0, Vector2(0, -6), 3)
@@ -369,6 +381,69 @@ func _curves_and_target() -> void:
 		var hook := Lane.hook_at_target(report.launch, report.knockdown_log)
 		_check(not is_nan(hook) and signf(hook) == signf(sweep) and absf(hook) > 0.05, "%s hooks %+.3f m the matching way" % [label, hook])
 		print("J02 %s spin=%+.3f hook_m=%+.3f ring=%.3f accuracy=%s fallen=%s" % [label, launch.spin, hook, launch.ring_radius, report.roll_result.accuracy, str(report.roll_result.fallen_positions)])
+
+## UI-14 (owner, 2026-11-18): dragging the reticle turns the top bar into a magnifier
+## of the pin deck around the target; it follows the drag and is gone on release.
+func _magnifier(at: Vector2, capture := "magnifier") -> void:
+	var mag = lab.aim_magnifier
+	var home := at
+	_check(not mag.visible and mag.alpha == 0.0 and mag.view.render_target_update_mode == SubViewport.UPDATE_DISABLED,
+		"%s: before the reticle is moved the magnifier is hidden and renders nothing (a quick tap does not open it)" % capture)
+	await _touch(at, true)
+	for i in 3: await process_frame
+	_check(not mag.visible, "%s: a touch on the lane does not open it at once" % capture)
+	for i in 12: await process_frame
+	_check(mag.visible and mag.alpha > 0.0, "%s: a touch held on the lane opens it, before any drag" % capture)
+	for i in 4:
+		at += Vector2(4, 0) * _px()
+		await _drag(at, Vector2(4, 0) * _px())
+	for i in 10: await process_frame
+	var bar: Rect2 = lab.hud.bar.get_global_rect()
+	var rect: Rect2 = mag.get_global_rect()
+	var portrait: bool = lab.size.y > lab.size.x
+	_check(mag.visible and mag.alpha >= 0.99 and mag.view.render_target_update_mode == SubViewport.UPDATE_ALWAYS
+		and rect.position.is_equal_approx(bar.position) and rect.size.y >= bar.size.y - 0.5
+		and rect.size.x <= bar.size.x + 0.5 and absf(rect.size.x / rect.size.y - mag.ASPECT) < 0.05,
+		"%s: while the reticle is dragged the top HUD is a magnifier (%s over the bar %s)" % [capture, str(rect), str(bar)])
+	if portrait:
+		_check(absf(rect.size.x - bar.size.x) < 1.0, "portrait: the magnifier spans the top bar")
+	else:
+		var head: Vector2 = lab.get_global_transform() * lab.screen_point(Lane.world(0.0, Lane.HEAD_PIN_F, 0.0))
+		_check(not rect.has_point(head), "landscape: the magnifier leaves the pins in view (%s, head pin at %s)" % [str(rect), str(head)])
+	_check(mag.view.world_3d == lab._viewport.world_3d, "the magnifier shows the lab's own lane")
+	var local := Rect2(Vector2.ZERO, rect.size)
+	var head_base: Vector2 = mag.lane_position(Lane.world(0.0, Lane.HEAD_PIN_F, 0.0))
+	var head_top: Vector2 = mag.lane_position(Lane.world(0.0, Lane.HEAD_PIN_F, Lane.PIN_HEIGHT))
+	var left: Vector2 = mag.lane_position(Lane.world(-Lane.LANE_HALF_WIDTH, Lane.TARGET_PLANE_F, 0.0))
+	var right: Vector2 = mag.lane_position(Lane.world(Lane.LANE_HALF_WIDTH, Lane.TARGET_PLANE_F, 0.0))
+	var reticle: Vector2 = mag.reticle_position()
+	_check(local.has_point(head_base) and local.has_point(head_top) and local.has_point(reticle) and left.x >= 0.0 and right.x <= rect.size.x,
+		"%s: the view holds the head pin, base to top, the reticle and the lane's width (pin %s..%s, reticle %s, lane %.0f..%.0f in %s)" % [capture, str(head_base), str(head_top), str(reticle), left.x, right.x, str(rect.size)])
+	var on_lane: float = (lab.screen_point(Lane.world(Lane.LANE_HALF_WIDTH, Lane.TARGET_PLANE_F, 0.0)) - lab.screen_point(Lane.world(-Lane.LANE_HALF_WIDTH, Lane.TARGET_PLANE_F, 0.0))).length()
+	_check(right.x - left.x >= 4.0 * on_lane, "%s: the magnifier is zoomed in (the lane %.0f px across, against %.0f px on the lane)" % [capture, right.x - left.x, on_lane])
+	print("J02 %s magnifier=%s lane_px=%.0f main_lane_px=%.0f zoom=%.1f" % [capture, str(rect.size), right.x - left.x, on_lane, (right.x - left.x) / on_lane])
+	_check(mag.camera.global_transform.is_equal_approx(lab._camera.global_transform),
+		"%s: the magnifier looks from the player's own camera" % capture)
+	var seen: Vector2 = mag.lane_position(mag.target_point())
+	_check(reticle.distance_to(seen) < 2.0, "%s: the zoomed ring sits where the zoomed lane shows the target (%s, %s)" % [capture, str(reticle), str(seen)])
+	var before: float = lab.target_x
+	for i in 6:
+		at += Vector2(-8, 0) * _px()
+		await _drag(at, Vector2(-8, 0) * _px())
+	await process_frame
+	var moved: Vector2 = mag.reticle_position()
+	_check(lab.target_x < before and moved.x < reticle.x - 4.0 and local.has_point(moved),
+		"%s: the reticle moves across the magnifier with the target (%.0f to %.0f px)" % [capture, reticle.x, moved.x])
+	await _drag(home, home - at) # back near the head pin for the capture
+	for i in 2: await process_frame
+	await _capture(capture)
+	await _touch(home, false)
+	for i in 15: await process_frame
+	_check(not mag.visible and mag.view.render_target_update_mode == SubViewport.UPDATE_DISABLED, "on release the magnifier is gone and stops rendering")
+	await _touch(home, true) # the target back where the throws expect it
+	await _touch(home, false)
+	for i in 3: await process_frame
+	_check(not mag.visible, "%s: the restoring tap does not open it" % capture)
 
 func _mouse_button(canvas: Vector2, pressed: bool) -> void:
 	var event := InputEventMouseButton.new()
@@ -425,7 +500,7 @@ func _held_ball() -> void:
 	await _focus_accept(lab.settings_panel.tuning_box.get_node("ResetTuning"))
 	_check(lab._flick.tuning.full_charge_speed == Held.DEFAULTS.full_charge_speed and lab.settings.throw_tuning.is_empty(), "Reset restores the default tuning")
 	await _focus_accept(lab.settings_panel.tuning_box.get_node("CloseTuning"))
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	_check(not lab.settings_panel.visible, "settings close after tuning")
 
 ## E05-R5 (owner, 2026-11-15): the flywheel. Swing + flywheel (A) is the default: a
@@ -462,7 +537,7 @@ func _spin_models() -> void:
 	await _ui("ui_right", 1)
 	_check(int(lab._flick.tuning.spin_model) == 2 and lab.settings_panel._tuning_labels.spin_model.text.contains("Spin in place (B)"), "the tuning page switches to spin in place (B)")
 	await _focus_accept(lab.settings_panel.tuning_box.get_node("CloseTuning"))
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	await _ready_to_throw()
 	at = lab.ball_screen_position()
 	center = at + Vector2(0.0, -radius)
@@ -488,7 +563,73 @@ func _spin_models() -> void:
 	await _focus_accept(lab.settings_panel.tuning_box.get_node("ResetTuning"))
 	_check(int(lab._flick.tuning.spin_model) == 1, "Reset returns to swing + flywheel (A)")
 	await _focus_accept(lab.settings_panel.tuning_box.get_node("CloseTuning"))
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
+
+## UI-33b (owner, 2026-11-20): "check all ball types and make sure they are actually
+## spinning appropriately." Rendered only: every ball's own surface, its grip and roll
+## spots hidden, must look different after a 50° turn about the roll axis and
+## after one about the spin axis (a pattern fixed to the world, as the Spare Ball's
+## stripe was, or one that a turn maps onto itself, fails).
+func _every_ball_turns() -> void:
+	if DisplayServer.get_name() == "headless": return
+	await _ready_to_throw()
+	var Assets = preload("res://src/presentation/item_assets.gd")
+	var ball: Node3D = lab.lane.aim_ball
+	var marks: Array = ball.get_children().filter(func(c): return String(c.name).begins_with("FingerHole") or String(c.name).begins_with("RollSpot"))
+	for mark in marks: mark.visible = false
+	var body: MeshInstance3D = ball.get_children().filter(func(c): return c is MeshInstance3D)[0]
+	var original: Material = body.material_override
+	var rest: Basis = ball.basis
+	var ids: Array = Contracts.read_json("res://content/catalogue.json").items.filter(func(i): return i.category == "ball").map(func(i): return String(i.id))
+	var still: Array = []
+	var seen: Array = []
+	var sheet: Array = [] # a contact sheet: each ball at rest, rolled and spun
+	for id in ids:
+		var material := Assets.slot(id, "in_play") as Material
+		body.material_override = material if material != null else original # no art yet: the default ball
+		var shots: Array = []
+		for turn in [Basis.IDENTITY, Basis(Vector3.RIGHT, deg_to_rad(50.0)), Basis(Vector3.FORWARD, deg_to_rad(50.0))]: # 50°: no symmetry hides a turn
+			ball.basis = rest * turn
+			await RenderingServer.frame_post_draw
+			shots.append(_ball_crop())
+		sheet.append(shots)
+		var roll := _changed(shots[0], shots[1])
+		var spin := _changed(shots[0], shots[2])
+		seen.append("%s %.2f/%.2f" % [id, roll, spin])
+		if roll < 0.05 or spin < 0.05: still.append(id)
+	print("J02 ball turns (changed share, rolled/spun 50°): " + ", ".join(seen))
+	var cell := 96
+	var contact := Image.create(cell * 3 + 8, (cell + 4) * sheet.size(), false, Image.FORMAT_RGB8)
+	contact.fill(Color(0.06, 0.07, 0.09))
+	for row in sheet.size():
+		for col in 3:
+			var crop: Image = sheet[row][col].duplicate()
+			crop.convert(Image.FORMAT_RGB8)
+			crop.resize(cell, cell, Image.INTERPOLATE_NEAREST)
+			contact.blit_rect(crop, Rect2i(0, 0, cell, cell), Vector2i(col * (cell + 4), row * (cell + 4)))
+	if not artifact_dir.is_empty(): contact.save_png(artifact_dir.path_join("ball_turns.png"))
+	ball.basis = rest
+	body.material_override = original
+	for mark in marks: mark.visible = true
+	_check(ids.size() >= 10 and still.is_empty(), "every ball's surface turns with it, rolled and spun (%s)%s" % [", ".join(seen), "; still: " + ", ".join(still) if not still.is_empty() else ""])
+
+## The ball's square on the lane view, from the lane's own render.
+func _ball_crop() -> Image:
+	var view: Image = lab._viewport.get_texture().get_image()
+	var at: Vector2 = lab._camera.unproject_position(lab.lane.aim_ball.global_position)
+	var edge: Vector2 = lab._camera.unproject_position(lab.lane.aim_ball.global_position + lab._camera.global_transform.basis.x * Lane.BALL_RADIUS * lab.lane.ball_scale())
+	var r: float = at.distance_to(edge) * 0.8 # inside the outline: the surface only
+	return view.get_region(Rect2i(Vector2i(at - Vector2(r, r)), Vector2i(int(r * 2.0), int(r * 2.0))))
+
+## The share of pixels that changed noticeably between two crops.
+func _changed(a: Image, b: Image) -> float:
+	var changed := 0
+	for y in a.get_height():
+		for x in a.get_width():
+			var p := a.get_pixel(x, y)
+			var q := b.get_pixel(x, y)
+			if absf(p.r - q.r) + absf(p.g - q.g) + absf(p.b - q.b) > 0.12: changed += 1
+	return float(changed) / maxf(1.0, a.get_width() * a.get_height())
 
 ## Flat spin (owner, 2026-11-08): the held ball never changes size on screen while
 ## it swirls, nor when the finger goes well below its start, and turns about the line
@@ -515,6 +656,20 @@ func _flat_spin() -> void:
 		at = next
 		radii.append(lab._ball_screen_radius())
 		depths.append(depth.call())
+	# UI-33: the grip faces the bowler and turns with the held spin.
+	var held: Node3D = lab.lane.aim_ball
+	var holes: Array = held.get_children().filter(func(c): return String(c.name).begins_with("FingerHole"))
+	var camera: Vector3 = lab._camera.global_position
+	var facing: bool = holes.size() == 3 and holes.all(func(h): return h.global_position.distance_to(camera) < held.global_position.distance_to(camera))
+	var grip_before: Vector2 = lab._camera.unproject_position(holes[0].global_position) - lab._camera.unproject_position(held.global_position) if holes.size() == 3 else Vector2.ZERO
+	for i in 6:
+		var swirl := deg_to_rad(90.0 + 12.0 * 72) + 0.21 * (i + 1) # the same brisk swirl, carried on
+		var turn := center + Vector2(cos(swirl), sin(swirl)) * radius
+		await _drag(turn, turn - at)
+		at = turn
+	var grip_after: Vector2 = lab._camera.unproject_position(holes[0].global_position) - lab._camera.unproject_position(held.global_position) if holes.size() == 3 else Vector2.ZERO
+	_check(facing and absf(rad_to_deg(grip_before.angle_to(grip_after))) > 20.0,
+		"the grip faces the bowler and turns on screen with the held spin (%.0f°)" % rad_to_deg(grip_before.angle_to(grip_after)))
 	await _capture("flat_spin")
 	for i in 12: # then well below its start, toward the bottom of the screen
 		at += Vector2(0, 15) * _px()
@@ -611,7 +766,7 @@ func _assist_throw() -> void:
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.assist)
 	_check(lab.settings.reduced_motion and lab.settings.assist and lab.assist_panel.visible, "settings toggle reduced motion and assist controls")
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	_check(not lab.settings_panel.visible, "settings close")
 	var panel: Control = lab.assist_panel
 	panel.spin_slider.grab_focus()
@@ -636,7 +791,7 @@ func _assist_throw() -> void:
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.assist)
 	await _focus_accept(lab.settings_panel.reduced_motion)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	_check(not lab.settings.assist and not lab.assist_panel.visible, "assist controls turn off")
 
 ## Rotating to landscape keeps hit-testing and gesture units correct.
@@ -647,6 +802,8 @@ func _landscape_throw() -> void:
 	_check(lab.size.x > lab.size.y, "lab fills a landscape viewport")
 	var at: Vector2 = lab.ball_screen_position()
 	_check(Rect2(Vector2.ZERO, lab.size).has_point(at - lab.get_global_transform().origin), "ball visible after resize")
+	var aim: Vector2 = lab.get_global_transform() * lab.screen_point(Lane.world(lab.target_x * Lane.LANE_HALF_WIDTH, Lane.TARGET_PLANE_F, 0.0))
+	await _magnifier(aim, "magnifier_landscape")
 	await _gesture(Vector2.ZERO, 0, Vector2(0, -40), 8)
 	_check(lab.state == "rolling" and lab.lane.launch.power > 0.0, "flick works after resize")
 	for i in 30: await process_frame

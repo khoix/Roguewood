@@ -38,7 +38,7 @@ func _run() -> void:
 	await _focus_accept(lab.settings_panel.assist)
 	lab.settings_panel.use_equipment("direct") # fixture: direct selection is no longer a player option (ADR 004)
 	print("%s fixture: direct selection set through settings_panel.use_equipment (not a player option since UI-1)" % get_script().resource_path.get_file())
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	_check(not lab.division.practice and lab.equipment.MODEL == "direct", "a real match with direct selection")
 	await _strike_out()
 	await _to_shop("opener")
@@ -115,7 +115,7 @@ func _feature() -> void:
 		"Nudge is refused before roll 1")
 	# Reserve Call: reserve 1 (the bought pin) into position 1 for this frame.
 	var wood: Dictionary = lab.run.rack[1]
-	_check(await _play("consumable.reserve_call") and lab.tactic_sheet.prompt.text.contains("which reserve pin"), "Reserve Call opens its chooser")
+	_check(await _play("consumable.reserve_call") and lab.tactic_sheet.prompt.text.contains("Which reserve pin"), "Reserve Call opens its chooser")
 	await _choose(0)
 	_check(lab.tactic_sheet.prompt.text.contains("replaces which rack pin") and lab.tactic_sheet.choices.get_child_count() == 10, "it then lists the ten rack positions")
 	await _choose(0)
@@ -145,7 +145,7 @@ func _feature() -> void:
 	await _choose(0)
 	var pin: int = options[0].position
 	var spot: int = options[0].to[0]
-	_check(lab.tactic_sheet.prompt.text.contains("move pin %d" % pin) and lab.tactic_sheet.choices.get_child_count() == options[0].to.size(), "then its adjacent fallen spots")
+	_check(lab.tactic_sheet.prompt.text.contains("Move pin %d" % pin) and lab.tactic_sheet.choices.get_child_count() == options[0].to.size(), "then its adjacent fallen spots")
 	_check(lab.tactic_sheet.rack_diagram.visible and lab.tactic_sheet.rack_diagram.get_child_count() == 10, "Nudge shows the ten rack spots")
 	var enabled: Array = lab.tactic_sheet.rack_diagram.get_children().filter(func(b): return not b.disabled)
 	_check(enabled.map(func(b): return b.get_meta("rack_position")) == options[0].to, "diagram highlights exactly the legal adjacent empty spots")
@@ -167,7 +167,7 @@ func _feature() -> void:
 		str(reports.map(func(r): return r.roll_result.fallen_positions)), called_pin, pin, spot])
 	_check(built.ok and scored.banked == expected.score and scored.frame.pins.any(func(p): return int(p.position) == 1 and p.item_id == called_pin),
 		"the frame banks the independent resolution with %s at position 1 (%d vs %d)" % [called_pin, scored.banked, expected.score])
-	_check(_logged("Reserve Call: ") and _logged("Nudge: pin %d moved to spot %d" % [pin, spot]), "the explanation names both tactics")
+	_check(_logged("Reserve Call: ") and _logged("Nudge: Pin %d moved to spot %d" % [pin, spot]), "the explanation names both tactics")
 	_check(lab.run.rack[1].item_id == wood.item_id and lab.run.reserves[0].item_id == called_pin and lab.frame_actions[0].restored, "after the frame both pins are back in place")
 	await _capture("c06_feature_frame")
 	while not lab.division.match_over():

@@ -62,7 +62,7 @@ func _run() -> void:
 	await _capture("inventory")
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	await _capture("reduced")
 	root.size = Vector2i(1280,720)
 	await _capture("landscape")

@@ -33,6 +33,11 @@ func _capture(label: String) -> void:
 				_check(card.get_global_rect().end.x <= club.size.x + 1, "binder card fits horizontally")
 		await super._capture(label + "_" + str(dimensions.x))
 		if club.current_tab == "trophies":
+			# UI-37: the shelf lists only the Leagues the board offers (the slice and the
+			# Campaign here); the art review shows every League's trophy.
+			club.league_sets = []
+			club.refresh()
+			for i in 4: await process_frame
 			var scroll: ScrollContainer = club.pages.trophies.get_parent()
 			var neon_row: Control = _shelf("league.neon")
 			_check(neon_row != null, "Neon trophy shelf row exists")
@@ -46,5 +51,7 @@ func _capture(label: String) -> void:
 			for i in 4: await process_frame
 			await super._capture(label + "_bottom_" + str(dimensions.x))
 			scroll.scroll_vertical = 0
+			club.league_sets = scene.league_sets
+			club.refresh()
 	root.size = PORTRAIT
 	for i in 6: await process_frame

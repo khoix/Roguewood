@@ -13,6 +13,20 @@ Repository: https://github.com/khoix/Roguewood.
 3. **Your assignment:** read docs/AI-HANDOFF.md, "Wave 14 claims", "Wave 14 progress" and "Ownership, lanes and hand-offs". Those claims are your assignment and limits; repo state wins over this prompt.
 4. **Check what is already done:** look in docs/handoffs/ for AV-N3.md, AV-N4.md, AV-N5.md, UI-A6.md, AV-T02.md and WAVE14-CODEX.md, and skip any item already DONE.
 
+## New since your last session: testing and CI (owner, 2026-11-20)
+The owner asked for tests that take less time and fewer tokens. The details are in docs/AI-HANDOFF.md, "Testing and CI"; in short:
+- **docs/AI-HANDOFF.md is now short** (current state only, about 200 lines). Older entries are in docs/AI-HANDOFF-HISTORY.md; read it only when you need a past result.
+- **qa.py is quiet:** a pass prints one `PASS` line; a failure prints its error lines, the last 40 lines and the log's path. `--verbose` or `QA_VERBOSE=1` prints everything.
+- **Check what your item touches, in parallel:** `python3 tools/qa.py batch unit content J03C18 J03C18:rendered JAVN3BC:rendered`, for example. It runs three at a time, prints one line each, and ends with any failure's tail.
+- **CI is the full gate.** You no longer re-run every art journey locally; push, and the art shard runs them all. `python3 tools/qa.py matrix --shard art` runs CI's own art list locally if CI is down.
+- **Rendered journeys draw only the frames a capture waits for** (and every 30th), through the `QaRender` autoload in project.godot. It is inert in the game. Captures are pixel-identical to drawing every frame. If an art step ever needs every frame drawn (a timing-sensitive capture without `await RenderingServer.frame_post_draw`), pass `--draw=all` and tell the coordinator.
+- **New captures:** wait for `RenderingServer.frame_post_draw` before reading `root.get_texture()`, as the existing journeys do.
+- **CI:**
+  - one run per push (no separate pull-request run);
+  - a newer push to your branch cancels the older run;
+  - pushes of only docs or Markdown run nothing;
+  - package installs go through `tools/ci_retry.sh`. Use it in any new step that installs packages.
+
 ## Order
 ### 1. AV-T02 (next; Medium): the spinning held ball's look
 - **Brief:** docs/prompts/codex-wave14-av-t02.md. Context: docs/handoffs/E05-R5.md and ADR 011, "Revision: the flywheel".
@@ -85,6 +99,13 @@ For each of AV-N3 to AV-N5:
 - **Boss introductions wait for Begin.** The shared `_aim()` helpers press `lab.hud.intro_button`.
 - **Salvage:** E17-L03 and E18-C20 are done. Salvage's rivals and theme are Wave 15; do not start them.
 
+- **UI-32 (2026-11-20):** the shop's Sell sheet is now the Inventory. Charms sit in a drag-to-reorder row (`charm_row`, tiles `Sell_charm_N`) above the other items. Find a tile with `shop_panel.sell_button(ref)`. Payout & Rack is a slip (`ledger`); `summary` and `rack_label` stay, hidden, with the text.
+- **BAL-1 (2026-11-20):** a release inside the ring adds 10 Value (FrameRules.INSIDE_VALUE). Expected scores in your journeys should come from the actual release grade.
+- **UI-33b (2026-11-20, at the owner's request):** three of your ball shaders changed. The Spare Ball's stripe is now painted on the ball (it was world-fixed). Echo's rings lean off the spin axis. Laser's line is wider. J02 (rendered) now turns every ball about the roll and spin axes and requires its surface to change; keep new ball looks in the ball's own coordinates.
+- **UI-33 (2026-11-20):** the ball's finger holes face the bowler, and small ivory roll spots mark its rolling circle and sides (lane_dressing.gd), so spin and roll read. A final ball look may restyle them, but must keep a marker that turns with the ball.
+
+- **PERF-1 (2026-11-21):** a `Graphics` autoload (src/platform/graphics.gd) adds Resolution and Texture Detail settings. At Low, art larger than 512 px is drawn from a 512 px copy (and High, smoothed mipmaps); Normal, the default and what every journey runs, draws your art untouched. Large source art drawn small costs phones GPU memory; display-sized copies would help.
+
 ## Ownership and limits
 - **Never edit:**
   - src/rules/, src/simulation/, src/persistence/, src/career/, src/procedural/, src/content/ or src/input/;
@@ -94,7 +115,7 @@ For each of AV-N3 to AV-N5:
 - **Allowed in src/presentation/league_theme.gd:** only UI-A6's pin-deck hook.
 - **A hook you need that does not exist** goes to the coordinator as a request in your handoff.
 - **Add-only:** tools/qa.py, the CI workflow and run_tests.gd. Every new art step has `if: matrix.shard == 'art'`.
-- **These must stay identical:** the physics digest `75d1a3c0…`; J03 560/240/70; J05 21060.
+- **These must stay identical:** the physics digest `75d1a3c0…`; J03 600/260/70 and J05's match 2 at 25920 (BAL-1, 2026-11-20: a release inside the ring adds 10 Value; these were 560/240/70 before).
 - **These must keep passing:**
   - J02, JAVT01, J06, J08, J11, J11ART, J22L01 and J22L02;
   - J03C13, J03C15 to J03C20;

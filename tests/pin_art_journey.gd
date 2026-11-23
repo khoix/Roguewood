@@ -55,7 +55,7 @@ func _run() -> void:
 	await _capture("pin_rack")
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	await _capture("pin_reduced")
 	# Diagnostic close view of the same live bodies, labelled separately from the
 	# normal player camera. Only this test changes the camera transform.

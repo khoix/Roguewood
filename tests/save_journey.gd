@@ -153,7 +153,7 @@ func _settings() -> void:
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 
 func _enter() -> void:
 	await _focus_accept(scene.enter)
@@ -346,9 +346,10 @@ func _stage7() -> void:
 	await _capture("resumed_roll2")
 	await _throw(CLEANUP)
 	await _scored()
-	await _focus_accept(lab.next_rack)
-	await _throw(STRIKE)
-	await _scored()
+	if not lab.division.match_over(): # BAL-1: the spare's clean bonus may already win it
+		await _focus_accept(lab.next_rack)
+		await _throw(STRIKE)
+		await _scored()
 	_check(lab.division.match_over() and lab.next_rack.text == "Collect & Shop", "the feature is won")
 	await _focus_accept(lab.next_rack)
 	await _wait_for(func(): return lab.state == "shop", "shop before the boss")

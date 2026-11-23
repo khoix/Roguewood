@@ -40,8 +40,8 @@ func _run() -> void:
 	root.add_child(scene)
 	await process_frame
 	await _wait_for(func(): return scene.enter.has_focus(), "menu focus")
-	_check(scene.content.id == "house" and scene.league.item_count == 3 and scene.league.get_item_text(1) == "Neon League" and not scene.league.is_item_disabled(1),
-		"the board lists the Neon League after the House League, open from the start")
+	_check(scene.content.id == "house" and scene.league.item_count == 2 and not scene.league.get_item_text(scene.league.item_count - 1).contains("Campaign") and scene.league.get_item_text(1) == "Neon League" and not scene.league.is_item_disabled(1),
+		"the board lists the Neon League after the House League, open from the start, and no test Campaign")
 	await _choose_neon()
 	_check(scene.content.id == "neon" and scene.content.divisions.size() == 8 and scene.kit.item_count == 1 and scene.kit.get_item_text(0) == "Neon Kit"
 		and not scene.kit.is_item_disabled(0) and scene.enter.text == "Enter League", "choosing it offers the eight-Division League and the Neon Kit")
@@ -57,7 +57,7 @@ func _run() -> void:
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	# The Neon theme (E22-L02-ART) is live: music, the flank backdrop behind the lane
 	# (still, since reduced motion is on) and the Neon frame kit on the attempt's screens.
 	_check(lab.league_theme != null and lab.league_theme.music != null and lab.league_theme.music.playing
@@ -175,7 +175,8 @@ func _title() -> void:
 
 func _next_attempt() -> void:
 	await _focus_accept(lab.hud.menu_button)
-	await _wait_for(func(): return scene.screen == "menu", "back to the menu")
+	await _through_awards()
+	await _wait_for(func(): return scene.screen == "menu", "back to the menu", 400)
 	_check(scene.content.id == "neon" and scene.enter.text == "New Run", "the board stays on the Neon League")
 	var trophy: Array = ClubModel.trophies(scene.career, scene.career_graph).filter(func(t): return t.id == "league.neon")
 	_check(trophy.size() == 1 and trophy[0].earned, "the Neon League trophy is on the shelf")

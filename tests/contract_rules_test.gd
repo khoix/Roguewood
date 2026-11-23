@@ -20,7 +20,8 @@ static func run() -> Array[String]:
 	var frame := {"schema_version": 1, "pins": pins, "rolls": [roll_one, roll_two], "charms": []}
 	var snapshot := frame.duplicate(true)
 	var resolved := Rules.resolve(frame)
-	if not resolved.ok or resolved.get("score") != 60: failures.append("fixture boundary expected 3 Wood pins × (1 + Sweet1) = 60")
+	# BAL-1 (2026-11-20): a sweet release adds 10 Value and 1 Mult.
+	if not resolved.ok or resolved.get("score") != 80: failures.append("fixture boundary expected (3 Wood pins + Sweet 10) × (1 + Sweet 1) = 80, got %s" % str(resolved.get("score")))
 	if frame != snapshot: failures.append("resolution mutated consumed records")
 	var restored = JSON.parse_string(JSON.stringify(frame))
 	if Rules.resolve(restored) != resolved: failures.append("persisted fixture altered resolution")

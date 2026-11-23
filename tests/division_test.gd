@@ -46,7 +46,7 @@ static func _flow(spec: Dictionary, failures: Array[String]) -> void:
 	var first: Dictionary = d.record_frame(560)
 	_expect(first.over and first.won and d.match_over() and d.frames_left() == 1 and d.results[0].frames == 1, "crossing the target ends the match after that frame", failures)
 	_expect(d.record_frame(100).has("error") and d.match_score == 560, "no frames after the match is over", failures)
-	_expect(d.next_match().is_empty() and d.current().kind == "feature" and d.match_score == 0 and d.frames_left() == 2, "next match: the feature", failures)
+	_expect(d.next_match().is_empty() and d.current().kind == "feature" and d.match_score == 0 and d.frames_left() == 2, "next match: The feature", failures)
 	_expect(not d.next_match().is_empty(), "cannot skip a match in progress", failures)
 	var a: Dictionary = d.record_frame(240)
 	_expect(not a.over and d.match_score == 240, "below target, the match continues", failures)

@@ -30,7 +30,11 @@ func _run() -> void:
 	_ui9_board()
 	# The owner's soundtrack (2026-11-16): the Clubhouse has its own music.
 	_check(scene.clubhouse_music != null and scene.clubhouse_music.playing and scene.clubhouse_music.stream.resource_path.ends_with("clubhouse.ogg"), "the Clubhouse music plays")
-	if stage == 1: await _ui12_menu()
+	if stage == 1:
+		await _ui12_menu()
+		await _perf1_graphics()
+		await _ui24_how_to_play()
+		await _ui39_practice()
 	match stage:
 		1: await _stage_one_clubhouse()
 		2: await _stage_two_clubhouse()
@@ -59,6 +63,10 @@ func _ui9_board() -> void:
 		and footer.find_child("FooterRule", true, false) != null, "UI-10: the board ends with a short rule and the footer line")
 	_check(club.league_cards.get_child_count() == club.records_label.text.split("\n").size() and club.records_label.visible == false,
 		"each League's record is a card (%d)" % club.league_cards.get_child_count())
+	var offers_campaign: bool = "campaign" in scene.league_sets
+	_check(club.league_sets == scene.league_sets and club.league_cards.get_child_count() == scene.league_sets.size()
+		and club.records_label.text.contains("House Campaign") == offers_campaign,
+		"UI-37: the League records hold only the Leagues the board offers (%s)" % ", ".join(scene.league_sets))
 
 ## UI-12 (owner's play notes, 2026-11-16): the Clubhouse has a menu at its top right,
 ## with Options and Sound & effects on the same session settings as a match; the
@@ -70,38 +78,42 @@ func _ui12_menu() -> void:
 	var taps: int = scene.ui_sounds.played
 	await _tap(button)
 	_check(scene.club_menu.visible and scene.ui_sounds.played > taps and scene.ui_sounds.last_kind == "tap", "a tap opens the Clubhouse menu, with a tap sound")
+	# UI-15 (owner, 2026-11-18): the same menu as a match's, with Throw Settings and
+	# Sound & Effects as sibling pages whose Back returns here.
+	var entries: Array = scene.club_menu_list.get_children().filter(func(c): return c is Button).map(func(c): return c.text)
+	_check(entries == ["How to Play", "Throw Settings", "Sound & Effects", "Graphics", "Close"], "UI-15: the Clubhouse menu's entries (%s)" % str(entries))
 	await _tap(scene.club_menu_list.get_node("ClubOptions"))
 	var options = scene.club_options
 	await process_frame
-	_check(not scene.club_menu.visible and options.is_open() and options.settings_panel.get_global_rect().intersects(scene.get_global_rect()), "Options opens from the Clubhouse menu")
+	_check(not scene.club_menu.visible and options.is_open() and options.settings_panel.visible and not options.sound.panel.visible
+		and options.settings_panel.get_global_rect().intersects(scene.get_global_rect()), "Throw Settings opens from the Clubhouse menu, on its own")
+	_check(options.settings_panel.find_child("SoundAndEffects", true, false) == null and options.settings_panel.close.text == "Back", "Throw Settings has no Sound & Effects row, and a Back")
 	var music: AudioStreamPlayer = scene.clubhouse_music
-	await _wait_for(func(): return is_equal_approx(scene.music_duck, 0.5), "the Clubhouse music eases down under Options")
-	_check(absf(music.volume_db - (scene.Soundtrack.level_db(scene.throw_settings) + linear_to_db(0.5))) < 0.01, "Options halves the Clubhouse music (%.1f dB)" % music.volume_db)
+	await _wait_for(func(): return is_equal_approx(scene.music_duck, 0.5), "the Clubhouse music eases down under Throw Settings")
+	_check(absf(music.volume_db - (scene.Soundtrack.level_db(scene.throw_settings) + linear_to_db(0.5))) < 0.01, "Throw Settings halves the Clubhouse music (%.1f dB)" % music.volume_db)
 	options.settings_panel.sensitivity.value = 0.6
 	_check(is_equal_approx(float(scene.throw_settings.sensitivity), 0.6), "a setting changed in the Clubhouse is the session's")
-	var sound_row: Button = options.settings_panel.find_child("SoundAndEffects", true, false)
-	await _tap(sound_row)
-	_check(options.sound.panel.visible, "Sound & effects opens from the Clubhouse's Options")
+	await _tap(options.settings_panel.close)
+	_check(not options.is_open() and scene.club_menu.visible and scene.club_menu_list.get_node("ClubOptions").has_focus() and scene.ui_sounds.last_kind == "back",
+		"Back from Throw Settings returns to the Clubhouse menu, with the back sound")
+	await _tap(scene.club_menu_list.get_node("ClubSound"))
+	_check(not scene.club_menu.visible and options.sound.panel.visible and not options.settings_panel.visible, "Sound & Effects opens from the Clubhouse menu, on its own")
+	await _wait_for(func(): return is_equal_approx(scene.music_duck, 0.5), "the Clubhouse music eases down under Sound & Effects")
 	options.sound.music_slider.value = 0.5
 	await process_frame
 	_check(is_equal_approx(float(scene.throw_settings.music_volume), 0.5) and absf(music.volume_db - (scene.Soundtrack.level_db(scene.throw_settings) + linear_to_db(0.5))) < 0.01
 		and scene.Soundtrack.level_db(scene.throw_settings) < scene.Soundtrack.MUSIC_DB - 5.0, "the music slider lowers the Clubhouse music")
 	options.sound.music_slider.value = 1.0
-	options.sound.panel.hide()
-	var done: Button = options.settings_panel.close
-	await _tap(done)
-	_check(not options.is_open() and scene.ui_sounds.last_kind == "back" and button.has_focus(), "Done closes Options with the back sound, back on the menu button")
+	await _action("ui_cancel")
+	_check(not options.is_open() and scene.club_menu.visible and scene.club_menu_list.get_node("ClubSound").has_focus(), "Escape on Sound & Effects goes back to the Clubhouse menu")
+	await _tap(scene.club_menu_list.get_node("CloseClubMenu"))
+	_check(not scene.club_menu.visible and button.has_focus(), "Close closes the Clubhouse menu, back on the menu button")
 	await _wait_for(func(): return is_equal_approx(scene.music_duck, 1.0), "the Clubhouse music eases back")
 	scene.throw_settings.sensitivity = 0.4
-	# Escape closes the menu; Sound & effects opens straight on its page.
+	# Escape closes the menu itself.
 	await _focus_accept(button)
 	await _action("ui_cancel")
 	_check(not scene.club_menu.visible and button.has_focus(), "Escape closes the Clubhouse menu")
-	await _focus_accept(button)
-	await _focus_accept(scene.club_menu_list.get_node("ClubSound"))
-	_check(options.is_open() and options.sound.panel.visible, "the menu's Sound & effects opens on its page")
-	options.close()
-	await process_frame
 	scene.throw_settings.sound_muted = true
 	taps = scene.ui_sounds.played
 	await _tap(scene.clubhouse.tab_buttons.binder)
@@ -109,6 +121,259 @@ func _ui12_menu() -> void:
 	scene.throw_settings.sound_muted = false
 	await _tap(scene.clubhouse.tab_buttons.board)
 	_check(scene.ui_sounds.played == taps + 1 and scene.ui_sounds.last_kind == "select", "a tab tap makes the select sound")
+
+## PERF-1 (owner, 2026-11-21): Graphics, from the Clubhouse menu: Resolution and
+## Texture Detail (Low, Normal, High; Normal by default) and the Performance log, all
+## saved on the device. Low texture detail draws large art from a smaller copy (only
+## a rendered run draws, so the art is checked there); Normal puts the art back.
+func _perf1_graphics() -> void:
+	var gfx: Node = root.get_node("Graphics")
+	_check(gfx.level("resolution") == "normal" and gfx.level("textures") == "normal" and not gfx.settings.perf_log and gfx.swapped == 0,
+		"PERF-1: Graphics starts at Normal, Normal, log off, and changes nothing")
+	await _tap(scene.club_menu_button)
+	await _tap(scene.club_menu_list.get_node("ClubGraphics"))
+	await process_frame
+	_check(gfx.is_open() and not scene.club_menu.visible and gfx.resolution_choice.has_focus() and gfx.resolution_choice.selected == 1 and gfx.texture_choice.selected == 1,
+		"PERF-1: Graphics opens from the Clubhouse menu at Normal and Normal")
+	var notes: Array = [gfx.resolution_choice.get_meta("note").text, gfx.texture_choice.get_meta("note").text]
+	_check(notes[0].begins_with("Normal") and notes[1].begins_with("Normal"), "PERF-1: each choice explains itself (%s)" % str(notes))
+	var logo: TextureRect = scene.clubhouse.find_child("ClubLogo", true, false) if scene.clubhouse.find_child("ClubLogo", true, false) is TextureRect else null
+	var big: Array = root.find_children("*", "TextureRect", true, false).filter(func(t): return t.texture != null and maxi(t.texture.get_width(), t.texture.get_height()) > gfx.TEXTURE_CAP)
+	var art: TextureRect = big[0] if not big.is_empty() else logo
+	var source_path: String = art.texture.resource_path if art != null else ""
+	gfx.texture_choice.select(0)
+	gfx.texture_choice.item_selected.emit(0)
+	gfx.resolution_choice.select(0)
+	gfx.resolution_choice.item_selected.emit(0)
+	for i in 90: await process_frame
+	var saved = JSON.parse_string(FileAccess.get_file_as_string(gfx.save_dir.path_join("graphics.json")))
+	_check(saved is Dictionary and saved.resolution == "low" and saved.textures == "low" and gfx.texture_choice.get_meta("note").text.begins_with("Low"),
+		"PERF-1: Low and Low are saved on the device (%s)" % str(saved))
+	if DisplayServer.get_name() != "headless" and art != null:
+		_check(maxi(art.texture.get_width(), art.texture.get_height()) == gfx.TEXTURE_CAP and art.texture.resource_path.is_empty() and gfx.swapped > 0,
+			"PERF-1: Low draws large art from a %d px copy (%s, %d swapped)" % [gfx.TEXTURE_CAP, source_path, gfx.swapped])
+		await _capture("graphics_low")
+		# PERF-1b (owner: Low or High textures dropped a phone under 20 fps): once the art
+		# is swapped, following it costs next to nothing a frame.
+		var spent := 0
+		for i in 120:
+			await process_frame
+			spent += gfx.sweep_usec
+		_check(spent / 120.0 < 300.0 and gfx.sweep_worst_usec < 60000, "PERF-1b: the texture sweep costs %.3f ms a frame (worst %.1f ms)" % [spent / 120000.0, gfx.sweep_worst_usec / 1000.0])
+	gfx.texture_choice.select(1)
+	gfx.texture_choice.item_selected.emit(1)
+	gfx.resolution_choice.select(1)
+	gfx.resolution_choice.item_selected.emit(1)
+	for i in 90: await process_frame
+	if DisplayServer.get_name() != "headless" and art != null:
+		_check(art.texture.resource_path == source_path, "PERF-1: Normal puts the art back (%s)" % art.texture.resource_path)
+	_check(root.msaa_3d == Viewport.MSAA_DISABLED, "PERF-1: Normal resolution draws the lane as before")
+	# The Performance log: a long frame is recorded with where the game was.
+	await _tap(gfx.log_toggle)
+	_check(gfx.settings.perf_log and gfx.readout.visible, "PERF-1: the Performance log turns on, with its corner readout")
+	await process_frame
+	OS.delay_msec(int(gfx.LONG_FRAME_MS) + 60)
+	await process_frame
+	await process_frame
+	var last: Dictionary = gfx.log_entries.back() if not gfx.log_entries.is_empty() else {}
+	_check(int(last.get("ms", 0)) >= int(gfx.LONG_FRAME_MS) and String(last.get("where", "")).begins_with("menu") and gfx.log_label.text.contains("ms")
+		and gfx.log_text().contains("resolution normal · textures normal"), "PERF-1: a long frame is logged with where the game was (%s)" % str(last))
+	await _tap(gfx.copy_button)
+	_check(gfx.copy_button.text == "Copied", "PERF-1: Copy Log copies the log")
+	await _tap(gfx.find_child("GraphicsClearLog", true, false))
+	await _tap(gfx.log_toggle)
+	_check(not gfx.settings.perf_log and not gfx.readout.visible and gfx.log_entries.is_empty(), "PERF-1: Clear empties the log; it turns off")
+	await _action("ui_cancel")
+	_check(not gfx.is_open() and scene.club_menu.visible and scene.club_menu_list.get_node("ClubGraphics").has_focus(), "PERF-1: Escape on Graphics goes back to the Clubhouse menu")
+	await _tap(scene.club_menu_list.get_node("CloseClubMenu"))
+
+## UI-39 (owner, 2026-11-21): How to Play's Practice: the House Ball and ten Wood
+## pins, no shop, rules, cards or Charms; games of ten frames scored as normal, one
+## after another. Nothing counts: the Career and the League choice are as before.
+func _ui39_practice() -> void:
+	var attempts: int = int(scene.career.get("attempts", 0))
+	var chosen: String = scene.content.id
+	var assist_was: bool = bool(scene.throw_settings.get("assist", false))
+	scene.throw_settings.assist = true # the deterministic assist throws (J03)
+	await _tap(scene.club_menu_button)
+	await _tap(scene.club_menu_list.get_node("ClubHowToPlay"))
+	await _tap(scene.club_how_list.get_node("ClubPractice"))
+	await _wait_for(func(): return scene.screen == "session" and scene.lab != null and scene.content.id == "practice" and scene.lab.state == "aim", "Practice opens its lane", ROLL_FRAMES)
+	lab = scene.lab
+	_check(lab.practice_lane() and lab.division.practice and lab.save_store == null and lab.active_rules().is_empty(), "UI-39: Practice is a practice lane: no rules, nothing saved")
+	_check(lab.equipment.options().is_empty() and lab.armed_ball_id() == "ball.house" and lab.run.charms.is_empty() and lab.run.loadout().pins.values().all(func(id): return id == "pin.wood"),
+		"UI-39: the House Ball only, ten Wood pins, no cards or Charms")
+	_check(not lab.hud.money.get_parent().visible and not lab.panels.rival.visible and not lab.panels.charms.visible and not lab.card_hand.visible,
+		"UI-39: no money, rival, Charms or card hand on screen")
+	_check(lab.hud.info.text.begins_with("Practice · Game 1"), "UI-39: the bar says Practice · Game 1 (%s)" % lab.hud.info.text)
+	await _capture("practice_lane")
+	# A whole game of ten frames, scored as normal.
+	var banked := 0
+	for frame in 10:
+		await _throw(STRIKE)
+		await _wait_for(func(): return lab.state in ["aim", "scoring"], "the second roll or the tally", ROLL_FRAMES)
+		if lab.state == "aim": await _throw(LEAVE) # pins left standing: the second roll
+		var scored: Dictionary = await _scored()
+		banked += int(scored.banked)
+		if frame < 9:
+			_check(not scored.match_over and lab.next_rack.text == "Next Rack", "UI-39: frame %d is followed by the next rack" % (frame + 1))
+			await _focus_accept(lab.next_rack)
+	var first_game: int = lab.division.match_score
+	_check(lab.division.match_over() and first_game == banked and first_game > 0 and lab.next_rack.text == "Next Game", "UI-39: ten frames make a game (%d), then Next Game" % first_game)
+	await _focus_accept(lab.next_rack)
+	await _wait_for(func(): return lab.state == "aim", "the next game", ROLL_FRAMES)
+	_check(lab.match_number == 2 and lab.match_frame == 1 and lab.division.match_score == 0 and not lab.shop_panel.visible and lab.practice_best() == first_game
+		and lab.hud.info.text.begins_with("Practice · Game 2") and lab.hud.info.text.contains("Best %d" % first_game), "UI-39: no shop; game 2 begins, with game 1 as the best (%s)" % lab.hud.info.text)
+	await _focus_accept(scene.menu_button)
+	await _focus_accept(scene.back)
+	await _wait_for(func(): return scene.screen == "menu", "back to the Clubhouse", ROLL_FRAMES)
+	_check(scene.content.id == chosen and int(scene.career.get("attempts", 0)) == attempts, "UI-39: leaving practice keeps the League choice and the Career (%s, %d attempts)" % [scene.content.id, int(scene.career.get("attempts", 0))])
+	scene.throw_settings.assist = assist_was
+	lab = null
+
+## UI-24 (owner, 2026-11-19): How to Play offers Play Tutorial (JTUT plays it) or
+## Talk the Talk, the words the game uses, each with its picture, tab by tab; its
+## pictures of a throw follow the player's hand; Back and Escape step back a page.
+func _ui24_how_to_play() -> void:
+	var Glossary = load("res://src/clubhouse/glossary.gd")
+	_check(Glossary.validate(Glossary.data()).is_empty(), "the glossary is valid: %s" % str(Glossary.validate(Glossary.data())))
+	await _tap(scene.club_menu_button)
+	var entries: Array = scene.club_menu_list.get_children().filter(func(c): return c is Button).map(func(c): return c.text)
+	_check(entries == ["How to Play", "Throw Settings", "Sound & Effects", "Graphics", "Close"] and scene.club_menu_list.get_node("ClubHowToPlay").has_focus(),
+		"the Clubhouse menu still leads with How to Play")
+	await _tap(scene.club_menu_list.get_node("ClubHowToPlay"))
+	var how: VBoxContainer = scene.club_how_list
+	var choices: Array = how.get_children().filter(func(c): return c is Button).map(func(c): return c.text)
+	_check(scene.club_menu.visible and how.visible and not scene.club_menu_list.visible and choices == ["Play Tutorial", "Practice", "Talk the Talk", "Back"]
+		and how.get_node("ClubPlayTutorial").has_focus(), "How to Play offers Play Tutorial and Talk the Talk (%s)" % str(choices))
+	await _capture("how_to_play")
+	await _action("ui_cancel")
+	_check(scene.club_menu.visible and scene.club_menu_list.visible and not how.visible and scene.club_menu_list.get_node("ClubHowToPlay").has_focus(),
+		"Escape on How to Play returns to the menu's entries")
+	await _tap(scene.club_menu_list.get_node("ClubHowToPlay"))
+	await _tap(how.get_node("HowToPlayBack"))
+	_check(scene.club_menu.visible and scene.club_menu_list.visible and not how.visible and scene.ui_sounds.last_kind == "back", "Back on How to Play returns to the menu, with the back sound")
+	await _tap(scene.club_menu_list.get_node("ClubHowToPlay"))
+	await _tap(how.get_node("ClubTalkTheTalk"))
+	var page = scene.club_glossary
+	await process_frame
+	var screen_rect: Rect2 = scene.get_global_rect()
+	_check(page.is_open() and not scene.club_menu.visible and page.section == "run" and page.tab_buttons.run.has_focus() and page.tab_buttons.run.button_pressed
+		and screen_rect.encloses(page.panel.get_global_rect()), "Talk the Talk opens on The Run, inside the screen")
+	await _wait_for(func(): return is_equal_approx(scene.music_duck, 0.5), "the Clubhouse music eases down under Talk the Talk")
+	var sections: Array = Glossary.sections()
+	var tab_names: Array = page.tabs.get_children().map(func(b): return b.text)
+	var tabs: Array = page.tab_buttons.values()
+	var panel_end: float = page.panel.get_global_rect().end.x
+	var in_row := func(b: Button) -> bool: return is_equal_approx(b.global_position.y, tabs[0].global_position.y) and b.size.y >= 52 and b.get_global_rect().end.x <= panel_end + 1
+	_check(tab_names == sections.map(func(s): return s.get("tab", s.name)) and tabs.all(in_row), "five tabs on one row inside the page (%s)" % str(tab_names))
+	await _capture("glossary_run")
+	# Every word of every tab, with its picture: walk on with Next, or tap a tab.
+	var words := 0
+	for i in sections.size():
+		var section: Dictionary = sections[i]
+		if i > 0:
+			if i % 2 == 1: await _tap(page.next_button)
+			else: await _tap(page.tab_buttons[section.id])
+			await process_frame
+		_check(page.section == section.id and page.tab_buttons[section.id].button_pressed and page.scroll.scroll_vertical == 0
+			and page.entries.size() == section.terms.size(), "the %s tab shows its %d words, from the top" % [section.name, section.terms.size()])
+		var expect_next: String = ("Next: " + String(sections[i + 1].name)) if i < sections.size() - 1 else ""
+		_check((page.next_button.text if page.next_button != null else "") == expect_next, "the %s tab ends on '%s'" % [section.name, expect_next])
+		for term in section.terms:
+			var row: Control = page.entries[term.id]
+			var picture: Control = page.diagram(term.id)
+			_check(picture != null and picture.kind() == term.diagram.kind and picture.size.x >= 150 and row.find_child("Word", true, false).text == term.term
+				and row.find_child("Meaning", true, false).text == term.text and row.get_global_rect().end.x <= page.panel.get_global_rect().end.x + 1,
+				"%s: its picture (%s) and meaning, inside the page" % [term.term, term.diagram.kind])
+			words += 1
+		if section.id == "lane":
+			var bar: VScrollBar = page.scroll.get_v_scroll_bar()
+			_check(bar.max_value > page.scroll.size.y, "Lane & Ball's words scroll")
+			await _capture("glossary_lane")
+			page.scroll.ensure_control_visible(page.entries.pocket)
+			await process_frame
+			_check(page.diagram("pocket").handedness == "right" and page.diagram("pocket").side() > 0, "the pocket is drawn for a right-hander")
+			await _capture("glossary_pocket")
+			await _ui27_overlay(page)
+		if section.id == "score": await _capture("glossary_scoring")
+		if section.id == "cards": await _capture("glossary_cards")
+	_check(words == Glossary.terms().size() and words >= 40, "every word shown (%d)" % words)
+	# The pictures of a throw follow the hand in Throw Settings.
+	await _action("ui_cancel")
+	_check(not page.is_open() and scene.club_menu.visible and how.visible and how.get_node("ClubTalkTheTalk").has_focus(), "Escape on Talk the Talk returns to How to Play")
+	scene.throw_settings.handedness = "left"
+	await _tap(how.get_node("ClubTalkTheTalk"))
+	page.show_section("lane")
+	await process_frame
+	page.scroll.ensure_control_visible(page.entries.pocket)
+	await process_frame
+	_check(page.diagram("pocket").handedness == "left" and page.diagram("pocket").side() < 0 and page.diagram("hook").side() < 0, "a left-hander's pocket and hook are mirrored")
+	await _capture("glossary_pocket_left")
+	scene.throw_settings.handedness = "right"
+	# Landscape: a centred column.
+	root.size = Vector2i(1280, 720)
+	for i in 8: await process_frame
+	var column: Rect2 = page.panel.get_global_rect()
+	_check(absf(column.get_center().x - scene.get_global_rect().get_center().x) < 2.0 and column.size.x < scene.size.x * 0.75 and scene.get_global_rect().encloses(column),
+		"in landscape Talk the Talk is a centred column")
+	await _capture("glossary_landscape")
+	root.size = PORTRAIT
+	for i in 8: await process_frame
+	await _tap(page.back_button)
+	_check(not page.is_open() and how.visible and how.get_node("ClubTalkTheTalk").has_focus(), "Back on Talk the Talk returns to How to Play")
+	await _tap(how.get_node("HowToPlayBack"))
+	await _tap(scene.club_menu_list.get_node("CloseClubMenu"))
+	_check(not scene.club_menu.visible and scene.club_menu_button.has_focus(), "the menu closes")
+	await _wait_for(func(): return is_equal_approx(scene.music_duck, 1.0), "the Clubhouse music eases back")
+
+## UI-27 (owner, 2026-11-19): Talk the Talk scrolls from anywhere, its tabs are the
+## Clubhouse's, and a tapped word opens large in an overlay.
+func _ui27_overlay(page) -> void:
+	var stops := func(root_node: Node) -> bool:
+		for node in root_node.find_children("*", "Control", true, false):
+			if (node as Control).mouse_filter == Control.MOUSE_FILTER_STOP: return true
+		return false
+	_check(not stops.call(page.list) and page.list.get_children().all(func(r): return (r as Control).mouse_filter == Control.MOUSE_FILTER_PASS),
+		"no word's row stops a drag: a finger anywhere scrolls the list")
+	_check(page.scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_SHOW_NEVER, "the list scrolls by finger, with no bar, as the Clubhouse's pages")
+	var tab: Button = page.tab_buttons.lane
+	_check(page.tabs.get_parent().name == "GlossaryTabTrack" and tab.get_theme_stylebox("pressed") is StyleBoxFlat
+		and (tab.get_theme_stylebox("pressed") as StyleBoxFlat).border_color == Color("d8b873"), "the tabs are the Clubhouse's segments in a track")
+	# A press that ends in a scroll opens nothing.
+	var row: Control = page.entries.hook
+	page.scroll.ensure_control_visible(row)
+	await process_frame
+	var before: int = page.scroll.scroll_vertical
+	var press := InputEventScreenTouch.new()
+	press.index = 0
+	press.pressed = true
+	press.position = row.get_global_rect().get_center()
+	page._row_input(press, "hook")
+	page.scroll.scroll_vertical = before + 120
+	var lift := press.duplicate()
+	lift.pressed = false
+	page._row_input(lift, "hook")
+	_check(not page.overlay.visible, "a press that scrolled the list opens nothing")
+	page.scroll.scroll_vertical = before
+	await process_frame
+	# A tap opens the word large.
+	await _tap(row)
+	await process_frame
+	var big: Control = page.overlay_picture
+	_check(page.overlay.visible and page.shown_term == "hook" and page.overlay_word.text == "Hook" and page.overlay_meaning.text == page.diagram("hook").get_parent().get_parent().find_child("Meaning", true, false).text
+		and big.kind() == "lane" and big.size.x > page.diagram("hook").size.x * 1.8 and page.overlay_close.has_focus()
+		and scene.get_global_rect().encloses(page.overlay.find_child("TermCard", true, false).get_global_rect()), "a tapped word opens large: picture, name and meaning, on screen")
+	await _capture("glossary_overlay")
+	await _tap(page.overlay_close)
+	_check(not page.overlay.visible and page.is_open() and page.section == "lane", "Close returns to the list")
+	page.entries.pocket.grab_focus()
+	await _action("ui_accept")
+	_check(page.overlay.visible and page.shown_term == "pocket", "Enter on a focused word opens it")
+	var scrim := preload("res://src/presentation/house_ui_theme.gd").SCRIM # UI-35: one scrim for every overlay
+	_check(page.overlay.get_child(0).color == scrim and page.dim.color == scrim, "the word overlay and the guide darken with the game's one scrim")
+	await _action("ui_cancel")
+	_check(not page.overlay.visible and page.is_open(), "Escape closes the open word, not the guide")
 
 ## UI-9: on the Trophies and Goals pages a finger that lands on a row or a button
 ## drags the page; a Follow press that ended in a scroll follows nothing.
@@ -183,7 +448,8 @@ func _earned(id: String) -> bool:
 
 func _back_to_clubhouse() -> void:
 	await _focus_accept(lab.hud.menu_button)
-	await _wait_for(func(): return scene.screen == "menu" and scene.lab == null and scene.clubhouse.visible, "the Clubhouse after the result")
+	await _through_awards()
+	await _wait_for(func(): return scene.screen == "menu" and scene.lab == null and scene.clubhouse.visible, "the Clubhouse after the result", 400)
 	lab = null
 
 func _stage_one_clubhouse() -> void:
@@ -225,6 +491,7 @@ func _stage_one_clubhouse() -> void:
 		"the categories are tabs above the scrolling page, Charms chosen")
 	_check(chosen.global_position.x - 3.0 >= scroll.global_position.x and chosen.get_global_rect().end.x + 3.0 <= scroll.get_global_rect().end.x,
 		"the page's edges leave room for the chosen card's ring: %s in %s" % [str(chosen.get_global_rect()), str(scroll.get_global_rect())])
+	_check(club.binder_preview.get_child(0).color == preload("res://src/presentation/house_ui_theme.gd").SCRIM, "the Binder preview darkens with the game's one scrim (UI-35)")
 	await _capture("clubhouse_preview")
 	await _focus_accept(club.preview_close)
 	_check(not club.binder_preview.visible and chosen.has_focus(), "Close returns to the chosen card")

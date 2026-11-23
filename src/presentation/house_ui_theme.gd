@@ -20,6 +20,9 @@ const IVORY := Color("f4e6cd")
 const BRASS := Color("e7bc70")
 const SEA_GLASS := Color("95d9cb")
 const INK := Color("101820")
+## UI-35 (owner, 2026-11-20): one scrim behind every overlay, so whatever is under
+## a sheet, menu or preview darkens the same way everywhere in the game.
+const SCRIM := Color(0.03, 0.05, 0.08, 0.72)
 
 ## A copy of one kit frame ("hud", "panel", "slip", "menu", "shop") with the
 ## given content margins, so callers can tighten padding without editing the kit.

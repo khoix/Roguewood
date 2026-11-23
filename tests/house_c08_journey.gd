@@ -30,8 +30,9 @@ func _run() -> void:
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.practice)
-	await _focus_accept(lab.settings_panel.close)
+	lab.settings_panel.use_practice()
+	await process_frame
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	_check(lab.division.practice, "Practice is on before the first throw")
 	await _play_out()
 	lab.run.credit(8000, "fixture: C08 Charm sampling")
@@ -61,7 +62,7 @@ func _run() -> void:
 	var index: int = lab.run.charms.map(func(e): return e.item_id).find("charm.opening_act")
 	var money: int = lab.run.money
 	var sale: int = lab.run.sale_value("charm:%d" % (index + 1))
-	await _tap(lab.shop_panel.owned_list.get_node("Sell_charm_%d" % (index + 1)))
+	await _tap(lab.shop_panel.sell_button("charm:%d" % (index + 1))) # UI-32: Charms are in the Inventory row
 	await process_frame
 	_check(not lab.run.charms.any(func(e): return e.item_id == "charm.opening_act") and lab.run.money == money + sale, "Opening Act sold for $%d to free a slot" % sale)
 	await _buy(["charm.holdouts"])

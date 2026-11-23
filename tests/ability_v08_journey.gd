@@ -49,7 +49,7 @@ func _run() -> void:
   _seat(["charm.banana_ball","charm.plumb_line"])
   var curved := await _frame([[-0.15,0.0,0.7]],"curved strike",0.25)
   _check(curved.result.category=="strike" and _ids().count("charm.banana_ball")==1 and not _ids().has("charm.plumb_line"),"real curved strike triggers Banana, not Plumb")
-  _check(curved.frame.rolls[0].curved and curved.banked==840,"native calibrated curve banks 840")
+  _check(curved.frame.rolls[0].curved and curved.banked==_bal1(840,curved),"native calibrated curve banks 840 (+10 Value inside the ring)")
   await _controls(curved)
   await _next_frame()
   await _frame([GUTTER,GUTTER],"curved non-strike",0.25)
@@ -157,8 +157,7 @@ func _controls(scored: Dictionary) -> void:
  for i in 12: await process_frame
  await _capture("stage%d_landscape"%stage)
  _check(Rect2(Vector2.ZERO,lab.size).encloses(lab.score_panel.get_rect()),"score controls fit landscape")
- await _focus_accept(scene.options)
- await _focus_accept(lab.settings_panel.find_child("SoundAndEffects",true,false))
+ await _focus_accept(scene.sound_entry)
  var sound: Node=lab.motion.sound
  await _focus_accept(sound.mute_button)
  var played: int=sound.played
@@ -173,10 +172,12 @@ func _controls(scored: Dictionary) -> void:
  await process_frame
  _check(not lab.motion.abilities.glyph.enabled,"native effect toggle")
  await _focus_accept(sound.effects_button)
- await _focus_accept(sound.panel.get_child(0).get_child(sound.panel.get_child(0).get_child_count()-1))
+ await _focus_accept(sound.back_button)
+ _check(scene.session_menu.visible and scene.sound_entry.has_focus(),"UI-15: Back from Sound & Effects returns to the menu")
+ await _focus_accept(scene.options)
  await _focus_accept(lab.settings_panel.reduced_motion)
  await _focus_accept(lab.settings_panel.reduced_flash)
- await _focus_accept(lab.settings_panel.close)
+ await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
  root.size=Vector2i(720,1280)
  lab.score_panel.reduced_motion=true
  lab.score_panel.play(scored.steps,lab.frame_reports,scored.title,1)

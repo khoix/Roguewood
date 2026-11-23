@@ -1,4 +1,5 @@
 extends SceneTree
+const ScoreLog = preload("res://src/rules/score_log.gd")
 ## J03 scoring journey (E06): strike, spare and open frames played through real
 ## input (focused Options toggles, keyboard steps on the assist sliders and Throw),
 ## then checked against an independent FrameRules resolution: banked score, ordered
@@ -114,9 +115,13 @@ func _run() -> void:
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.practice) # E09: targets off; this journey tests its own subsystem
-	await _focus_accept(lab.settings_panel.close)
+	lab.settings_panel.use_practice()
+	await process_frame # E09: targets off; this journey tests its own subsystem
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	_check(lab.settings.assist and lab.settings.reduced_motion, "assist and reduced motion on")
+	# UI-20: the lab has no League art, so nothing celebrates until variants are given.
+	_check(not lab.alley_screen.has_art("strike") and not lab.alley_screen.has_art("spare"), "no celebration without art (the owner: not before Codex's)")
+	lab.alley_screen.variants_override = {"strike": CELEBRATIONS, "spare": CELEBRATIONS}
 	await _strike_frame()
 	await _spare_frame()
 	await _open_frame()
@@ -144,9 +149,14 @@ func _throw(position: float, aim: float, power: float) -> Dictionary:
 ## Waits for scoring, then checks it against an independent resolution.
 func _verify_frame(category: String, label: String, during: Callable = Callable()) -> void:
 	await _wait_for(func(): return lab.state == "scoring", label + " scoring starts", ROLL_FRAMES)
+	# The owner (2026-11-18): the top bar holds the score from before the frame while its tally plays.
+	var before: int = int(lab.division.match_score) - int(lab.scored_frames[-1].banked)
+	_check(lab.shown_score() == before and lab.hud.score_label.text.begins_with(ScoreLog._n(before)) and (int(lab.scored_frames[-1].banked) == 0 or not lab.hud.score_label.text.begins_with(ScoreLog._n(lab.division.match_score))),
+		"%s: the top bar keeps the pre-frame score %d during the tally (%s)" % [label, before, lab.hud.score_label.text])
 	if during.is_valid():
 		await during.call()
 	await _wait_for(func(): return lab.state == "frame_done", label + " scoring finishes", ROLL_FRAMES)
+	_check(lab.hud.score_label.text.begins_with(ScoreLog._n(lab.division.match_score)), "%s: the top bar shows the banked score once the tally finishes (%s)" % [label, lab.hud.score_label.text])
 	var reports: Array = lab.frame_reports
 	var built: Dictionary = FrameBuilder.build(FrameBuilder.lab_loadout(), Contracts.read_json(FrameBuilder.LAB_CATALOGUE), reports)
 	_check(built.ok, label + " frame builds from the roll reports")
@@ -160,14 +170,18 @@ func _verify_frame(category: String, label: String, during: Callable = Callable(
 	for report in reports:
 		fallen += report.roll_result.fallen_positions.size()
 	var base: Array = {"strike": [40, 4], "spare": [20, 2], "open": [0, 1]}[category]
-	_check(expected.score == (base[0] + 10 * fallen) * base[1], "%s base score is (%d + 10×%d) × %d" % [label, base[0], fallen, base[1]])
+	# BAL-1: a release inside the ring adds 10 Value; sweet and perfect add Mult too.
+	var grade: String = ScoreLog.grade_name(built.frame)
+	var inside: int = int(Rules.INSIDE_VALUE) if grade != "miss" else 0
+	_check(expected.score == (base[0] + 10 * fallen + inside) * (base[1] + int(Rules.GRADES[grade])),
+		"%s base score is (%d + 10×%d + %d) × (%d + %d), %s" % [label, base[0], fallen, inside, base[1], int(Rules.GRADES[grade]), grade])
 	var lines: Array = panel.log_list.get_children().map(func(child): return child.text)
 	_check(lines.size() == panel.steps.size() and lines[0].contains(category.capitalize()) and lines[-1].contains("Bank") and lines[-1].ends_with("= %d" % expected.score), label + " log opens with category and ends with the bank")
 	var pins: Array = panel.steps.filter(func(step): return step.pin > 0).map(func(step): return step.pin)
 	var sorted_pins := pins.duplicate()
 	sorted_pins.sort()
 	_check(pins == sorted_pins and pins.size() == fallen, label + " log credits each fallen pin once in rack order")
-	_check(lines.filter(func(text): return text.contains("Accuracy")).size() == 1, label + " one accuracy award")
+	_check(panel.steps.filter(func(step): return step.phase == "accuracy").size() == 1, label + " one accuracy award")
 	for report in reports:
 		for position in report.roll_result.fallen_positions:
 			_check(panel._roll_of.get(int(position)) == int(report.roll_result.roll_index), "%s rack shows pin %d taken by roll %d" % [label, position, report.roll_result.roll_index])
@@ -181,8 +195,38 @@ func _next_frame() -> void:
 		await _focus_accept(lab.shop_panel.continue_button)
 	await _wait_for(func(): return lab.state == "aim" and lab.roll_index == 1, "next rack", ROLL_FRAMES)
 
+## UI-20's placeholder, listed five times as a League's five variants would be.
+const CELEBRATIONS := ["res://src/presentation/alley_screen_placeholder.gd", "res://src/presentation/alley_screen_placeholder.gd",
+	"res://src/presentation/alley_screen_placeholder.gd", "res://src/presentation/alley_screen_placeholder.gd", "res://src/presentation/alley_screen_placeholder.gd"]
+
+## UI-20: the alley screen plays `event` over the magnifier's window, rendering.
+func _check_celebration(event: String) -> void:
+	var alley: Control = lab.alley_screen
+	await _wait_for(func(): return alley.playing(), event + " celebration starts")
+	_check(alley.current_event == event and alley.current_path in CELEBRATIONS and alley.visible and alley.view.render_target_update_mode == SubViewport.UPDATE_ALWAYS,
+		"the %s celebration plays on the alley screen (%s)" % [event, alley.current_event])
+	var window: Rect2 = lab.aim_magnifier.panel_rect(lab, lab.get_viewport_rect().size)
+	_check(alley.get_global_rect().is_equal_approx(window), "it fills the magnifier's window over the top HUD")
+	_check(bool(alley.current_context.reduced_motion) == bool(lab.settings.reduced_motion) and float(alley.crt.get_shader_parameter("flicker")) == (0.0 if lab.settings.get("reduced_flash", false) else 1.0),
+		"it follows Reduced Motion and Reduced Flash")
+
 func _strike_frame() -> void:
 	await _throw(0.1, 0.0, 0.7)
+	await _check_celebration("strike")
+	for i in 6: await process_frame
+	await _capture("celebration_strike")
+	# A tap on the alley screen skips it; it hides and stops rendering.
+	var on_screen: Vector2 = root.get_screen_transform() * lab.alley_screen.get_global_rect().get_center()
+	for pressed in [true, false]:
+		var touch := InputEventScreenTouch.new()
+		touch.index = 0
+		touch.position = on_screen
+		touch.pressed = pressed
+		Input.parse_input_event(touch)
+		await process_frame
+	await process_frame
+	_check(not lab.alley_screen.playing() and not lab.alley_screen.visible and lab.alley_screen.view.render_target_update_mode == SubViewport.UPDATE_DISABLED,
+		"a tap skips the celebration; hidden, it renders nothing")
 	await _verify_frame("strike", "strike", func():
 		for i in 20: await process_frame
 		await _capture("scoring")
@@ -204,8 +248,13 @@ func _strike_frame() -> void:
 	await _next_frame()
 
 func _spare_frame() -> void:
+	var before: int = lab.alley_screen.played.size()
 	await _throw(-0.4, 0.0, 0.6)
+	_check(lab.alley_screen.played.size() == before, "a first roll that leaves pins does not celebrate")
 	await _throw(0.0, 0.0, 0.6)
+	await _check_celebration("spare")
+	await _wait_for(func(): return not lab.alley_screen.playing(), "the spare celebration ends by itself", 300)
+	_check(not lab.alley_screen.visible, "the spare celebration ends by itself and hides")
 	await _verify_frame("spare", "spare", func():
 		var panel: Control = lab.score_panel
 		_check(panel.playing, "the next frame's reveal counts step by step again")
@@ -215,8 +264,10 @@ func _spare_frame() -> void:
 	await _next_frame()
 
 func _open_frame() -> void:
+	var before: int = lab.alley_screen.played.size()
 	await _throw(-0.4, 0.0, 0.6)
 	var gutter: Dictionary = await _throw(0.8, 2.0, 0.6)
 	_check(gutter.knockdown_log.gutter, "second roll is a gutter ball")
 	await _verify_frame("open", "open")
+	_check(lab.alley_screen.played.size() == before, "an open frame does not celebrate")
 	await _capture("open")

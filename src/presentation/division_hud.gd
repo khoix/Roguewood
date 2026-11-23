@@ -14,6 +14,9 @@ signal retry_pressed
 signal menu_pressed
 
 
+const RivalLines = preload("res://src/presentation/rival_lines.gd")
+var last_line := "" # the reaction line on show (owner, 2026-11-19: drawn from a library)
+var intro_line := "" # the introduction's entrance line
 var bar: PanelContainer
 var info: Label
 var extra_rule_badges: HBoxContainer
@@ -41,6 +44,7 @@ var current_rival: Dictionary = {}
 var reduced_motion := false
 var side_box: BoxContainer
 var money: Label
+var money_hidden := false # UI-39: the practice lane has no money
 var title_label: Label
 var _titles := ["", ""] # the bar's title, and the short one the slim roll-view bar shows
 var _slim := false
@@ -350,7 +354,7 @@ func _build_intro() -> void:
 	intro_story_button = Button.new()
 	intro_story_button.name = "IntroStoryToggle"
 	intro_story_button.flat = true
-	intro_story_button.text = "Scouting report +"
+	intro_story_button.text = "Scouting Report +"
 	intro_story_button.add_theme_font_size_override("font_size", 18)
 	intro_story_button.add_theme_color_override("font_color", UiTheme.BRASS)
 	intro_story_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -365,7 +369,7 @@ func _build_intro() -> void:
 
 func _toggle_story() -> void:
 	intro_story.visible = not intro_story.visible
-	intro_story_button.text = "Scouting report −" if intro_story.visible else "Scouting report +"
+	intro_story_button.text = "Scouting Report −" if intro_story.visible else "Scouting Report +"
 
 ## One rule as a card: its seal, its name and what it does.
 func _rule_card(rule: String) -> Control:
@@ -469,7 +473,7 @@ func layout_regions(bar_rect: Rect2, bubble: Rect2, portrait: bool, slim: bool =
 	badge.custom_minimum_size = Vector2(0, 40)
 	# The roll view's slim bar: the match and its score only.
 	badges.visible = not slim
-	money_slot.visible = not slim
+	money_slot.visible = not slim and not money_hidden
 	frames_label.visible = not slim
 	_bar_width = bar_rect.size.x
 	_bar_portrait = portrait
@@ -602,7 +606,8 @@ func show_reaction(rival: Dictionary, key: String) -> void:
 		reaction.hide()
 		return
 	_portrait(reaction_portrait, rival, key)
-	reaction_text.text = "%s: “%s”" % [rival.name, rival.reactions.get(key, "")]
+	last_line = RivalLines.line(rival, key)
+	reaction_text.text = "%s: “%s”" % [rival.name, last_line]
 	reaction.show()
 
 func hide_reaction() -> void:
@@ -633,12 +638,14 @@ func show_intro(rival: Dictionary, target: int, rule_summary: String, reward: St
 	var frames := int(match_info.get("frames", 2))
 	var frames_words := {1: "one frame", 2: "two frames", 3: "three frames"}
 	var body := "Posted target %d in %s.\n%s\nFirst clear: %s" % [target, frames_words.get(frames, "%d frames" % frames), rule_summary, reward]
+	var entrance := RivalLines.line(rival, "entrance") # one line for the whole introduction
+	intro_line = entrance
 	if not seen_before:
-		body = rival.intro + "\n\n" + body + "\n\n“%s”" % rival.reactions.get("entrance", "")
+		body = rival.intro + "\n\n" + body + "\n\n“%s”" % entrance
 	intro_body.text = body
 	intro_kicker.text = String(match_info.get("kicker", "Boss match")).to_upper()
-	intro_quote_text.text = "“%s”" % rival.reactions.get("entrance", "")
-	intro_quote.visible = not String(rival.reactions.get("entrance", "")).is_empty()
+	intro_quote_text.text = "“%s”" % entrance
+	intro_quote.visible = not entrance.is_empty()
 	for child in intro_rules.get_children():
 		intro_rules.remove_child(child)
 		child.queue_free()
@@ -655,7 +662,7 @@ func show_intro(rival: Dictionary, target: int, rule_summary: String, reward: St
 	intro_reward_text.text = "First clear: " + reward
 	intro_story.text = String(rival.get("intro", ""))
 	intro_story.visible = false
-	intro_story_button.text = "Scouting report +"
+	intro_story_button.text = "Scouting Report +"
 	intro_story_button.visible = not intro_story.text.is_empty()
 	intro_scroll.scroll_vertical = 0
 	intro.show()

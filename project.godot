@@ -9,6 +9,11 @@ boot_splash/image="res://assets/brand/splash.png"
 boot_splash/fullsize=false
 config/icon="res://assets/brand/icon.png"
 
+[autoload]
+
+QaRender="*res://src/platform/qa_render.gd"
+Graphics="*res://src/platform/graphics.gd"
+
 [display]
 window/size/viewport_width=720
 window/size/viewport_height=1280

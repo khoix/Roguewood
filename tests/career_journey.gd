@@ -68,7 +68,7 @@ func _assist_on() -> void:
 	await _focus_accept(scene.options)
 	if not lab.settings_panel.reduced_motion.button_pressed: await _focus_accept(lab.settings_panel.reduced_motion)
 	if not lab.settings_panel.assist.button_pressed: await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 
 ## Division 1 through the shop after The Surveyor: Echo strike, strikes, strikes.
 func _beat_surveyor() -> void:
@@ -177,7 +177,7 @@ func _stage_two() -> void:
 	_check("gate.surveyor_cleared" in _disk().unlocked, "losing later keeps the unlock on disk")
 	await _capture("career_lost")
 	var old_id: int = lab.get_instance_id()
-	await _focus_accept(lab.hud.retry_button)
+	await _new_run_from_result()
 	await _wait_for(func(): return scene.lab != null and scene.lab.get_instance_id() != old_id and scene.lab.state == "aim", "Retry starts a new attempt")
 	lab = scene.lab
 	lab.trial_log_path = ""
@@ -201,13 +201,15 @@ func _stage_three() -> void:
 	await _wait_for(func(): return scene.screen == "menu", "Clubhouse")
 	await _enter(scene.enter)
 	_check(lab.career_attempt == 3, "Enter League begins attempt uid 3")
-	# Practice before the first throw: the policy is on the toggle and the match bar.
+	# Practice before the first throw (E09's target-free Division, a test fixture since
+	# UI-39 moved practice to How to Play): the policy is on the match bar.
 	await _focus_accept(scene.options)
-	_check(lab.settings_panel.practice.text.contains("no unlocks"), "the Practice toggle states the policy before starting")
-	await _focus_accept(lab.settings_panel.practice)
+	_check(lab.settings_panel.find_child("PracticeMode", true, false) == null, "UI-39: Throw Settings has no Practice toggle")
+	lab.settings_panel.use_practice()
+	await process_frame
 	if not lab.settings_panel.assist.button_pressed: await _focus_accept(lab.settings_panel.assist)
 	if not lab.settings_panel.reduced_motion.button_pressed: await _focus_accept(lab.settings_panel.reduced_motion)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	_check(lab.division.practice and lab.hud.info.text.contains("no unlocks"), "practice is on; the match bar says no unlocks")
 	await _capture("career_practice")
 	await _throw(LEAVE)

@@ -85,15 +85,22 @@ func _run() -> void:
 	await _accept()
 	if scene.session.get("score") != 999 or not scene.session_menu.visible: failures.append("the first Restart press must only ask")
 	await _accept()
-	await _wait_for(func(): return scene.session == initial, "reset")
+	# The owner (2026-11-19): Restart Run is a fresh run: the next run number and its
+	# own seed, with the score and Division back at the start.
+	var fresh := func() -> bool:
+		var now: Dictionary = scene.session
+		return int(now.get("attempt", 0)) == int(initial.attempt) + 1 and now.get("score") == 0 and now.get("division") == 1 \
+			and now.get("kit_id") == initial.kit_id and now.get("content") == initial.content
+	await _wait_for(fresh, "reset")
 	await _capture("reset")
-	if scene.session != initial: failures.append("restart input did not reset deterministically")
+	if not fresh.call(): failures.append("restart input did not start a fresh run (%s, was %s)" % [scene.session, initial])
+	if int(scene.session.get("seed", 0)) == int(initial.seed): failures.append("the restarted run kept the old seed")
 	if scene.session_menu.visible: failures.append("the menu stayed open after Restart")
 	scene.menu_button.grab_focus()
 	await _accept()
 	scene.back.grab_focus()
 	await _accept()
-	await _wait_for(func(): return scene.screen == "menu", "return")
+	await _wait_for(func(): return scene.screen == "menu", "return", 6000) # UI-25: a 3.3 s fade out
 	await _capture("returned")
 	if "--inject-failure" in OS.get_cmdline_user_args(): failures.append("Injected diagnostic failure")
 	if scene.screen != "menu" or not scene.session.is_empty(): failures.append("Clubhouse input did not clear session")

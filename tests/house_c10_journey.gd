@@ -34,10 +34,11 @@ func _run() -> void:
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.practice)
+	lab.settings_panel.use_practice()
+	await process_frame
 	lab.settings_panel.use_equipment("direct") # fixture: direct selection is no longer a player option (ADR 004)
 	print("%s fixture: direct selection set through settings_panel.use_equipment (not a player option since UI-1)" % get_script().resource_path.get_file())
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	_check(lab.division.practice and lab.equipment.MODEL == "direct", "Practice with direct selection")
 	await _play_out()
 	lab.run.credit(2000, "fixture: C10 item sampling")
@@ -50,13 +51,13 @@ func _run() -> void:
 	_check(_bag("ball.workhorse") != null and _bag("ball.spare_ball") != null, "the bag holds both new balls")
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	var strike := await _armed_frame("ball.workhorse", [STRIKE], "Workhorse strike")
 	_check(strike.result.category == "strike" and _logged("Workhorse") and _logged("Oak Pin"), "a Workhorse strike: Workhorse and the Oak Pin at 1 apply")
 	await _capture("c10_strike")
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	await _focus_accept(lab.next_rack)
 	var spare := await _armed_frame("ball.spare_ball", [LEAVE, CLEANUP], "leave, Spare Ball cleanup")
 	_check(spare.result.category == "spare" and _logged("Spare Ball") and int(_charm("charm.spare_jar").growth) == 1,
@@ -64,7 +65,7 @@ func _run() -> void:
 	await _capture("c10_spare")
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	await _next()
 	var open := await _armed_frame("", [LEAVE, GUTTER], "leave and gutter")
 	var tin_standing: bool = not open.frame.rolls.any(func(r): return 6 in r.fallen_positions.map(func(p): return int(p)))
@@ -100,7 +101,7 @@ func _bag(item_id: String) -> Variant:
 func _sell_kit_balls() -> void:
 	for owned in lab.run.entries():
 		if owned.ref.begins_with("card:") and owned.entry.item_id in ["ball.hook", "ball.hammer", "ball.echo"]:
-			var button: Node = lab.shop_panel.owned_list.get_node_or_null("Sell_" + String(owned.ref).replace(":", "_").replace("-", "_"))
+			var button: Node = lab.shop_panel.sell_button(String(owned.ref))
 			if button == null:
 				_check(false, "a Sell button for " + owned.ref)
 				continue
@@ -297,7 +298,7 @@ func _jar_lifecycle() -> void:
 	await _capture("jar_shop")
 	for owned in lab.run.entries():
 		if owned.entry.item_id != "charm.spare_jar": continue
-		var button: Node = lab.shop_panel.owned_list.get_node("Sell_"+String(owned.ref).replace(":","_").replace("-","_"))
+		var button: Node = lab.shop_panel.sell_button(String(owned.ref))
 		await _tap(button)
 		break
 	await process_frame

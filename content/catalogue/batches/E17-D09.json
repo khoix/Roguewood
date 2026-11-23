@@ -85,7 +85,7 @@
       "id": "charm.spare_jar",
       "landed_in": "E18-C10",
       "design": {
-        "trigger": "+8 Value for every spare converted since it was bought: each spare drops a pin in the jar after the frame banks, so it counts from the next frame. Selling it empties the jar.",
+        "trigger": "+8 Value for every spare converted since it was bought: Each spare drops a pin in the jar after the frame banks, so it counts from the next frame. Selling it empties the jar.",
         "primitives": [],
         "pool": "Shop Charm slot; initial pool from Division 1.",
         "presentation_needs": "A tip jar that fills with small pins; the count shows on the card and the new pin drops in after the bank.",

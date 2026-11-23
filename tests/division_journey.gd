@@ -93,6 +93,28 @@ func _confirm(control) -> void: # untyped: a pressed row may already be freed
 		pending.grab_focus()
 		await _action("ui_accept")
 
+## UI-29: from a result sheet to the next run. With awards waiting the sheet offers
+## only Continue (the awards, then the Clubhouse), and Enter League starts the run.
+func _new_run_from_result() -> void:
+	if lab.hud.retry_button.visible:
+		await _focus_accept(lab.hud.retry_button)
+		return
+	await _focus_accept(lab.hud.menu_button)
+	await _through_awards()
+	await _wait_for(func(): return scene.screen == "menu" and scene.lab == null, "the awards end in the Clubhouse", 400)
+	await _focus_accept(scene.enter)
+
+## UI-25: leaving a result sheet plays the run's waiting award ceremony first; a
+## journey that is not about it goes through as a player can (Skip, then Continue).
+func _through_awards() -> void:
+	for i in 4: await process_frame
+	if lab == null or not is_instance_valid(lab): return
+	var ceremony = lab.get("award_ceremony")
+	if ceremony == null or not ceremony.visible or not ceremony.playing: return
+	await _focus_accept(ceremony.skip_button)
+	await _wait_for(func(): return ceremony.step == "done" and not ceremony.continue_button.disabled, "Skip shows the awards summary", 120)
+	await _focus_accept(ceremony.continue_button)
+
 func _focus_accept(control: Control) -> void:
 	await _reach(control)
 	control.grab_focus()
@@ -139,7 +161,7 @@ func _run() -> void:
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	_check(not lab.division.practice and lab.settings.assist, "a Division attempt with assist controls")
 	await _first_attempt()
 	await _second_attempt()
@@ -221,7 +243,7 @@ func _first_attempt() -> void:
 	# rival's story waits behind "Scouting report".
 	var hud = lab.hud
 	_check(not hud.intro_body.visible and hud.intro_kicker.text.begins_with("BOSS MATCH") and hud.intro_title.text == "The Custodian"
-		and hud.intro_quote.visible and hud.intro_quote_text.text.contains(lab.division.rival().reactions.entrance), "the kicker, the name and the rival's line in a bubble")
+		and hud.intro_quote.visible and hud.intro_quote_text.text == "“%s”" % hud.intro_line and _says(lab.division.rival(), "entrance", hud.intro_line), "the kicker, the name and the rival's line in a bubble")
 	var rule_card: Control = hud.intro_rules.get_child(0) if hud.intro_rules.get_child_count() == 1 else null
 	_check(rule_card != null and rule_card.find_child("RuleName", true, false).text == "Clean Sweep" and rule_card.find_child("RuleEffect", true, false).text.contains("open frames"),
 		"one card for Clean Sweep: its name and what it does")
@@ -235,7 +257,7 @@ func _first_attempt() -> void:
 	await _capture("intro")
 	await _focus_accept(lab.hud.intro_button)
 	await _wait_for(func(): return lab.state == "aim" and not lab.hud.intro.visible, "intro skipped")
-	_check(lab.hud.reaction.visible and lab.hud.reaction_text.text.contains(lab.division.rival().reactions.entrance), "the rival's entrance reaction")
+	_check(lab.hud.reaction.visible and _says(lab.division.rival(), "entrance", lab.hud.last_line), "the rival's entrance reaction")
 	# Reactions are visual only and sit clear of the ball and the rack.
 	var bubble: Rect2 = lab.hud.reaction.get_global_rect()
 	var head_pin: Vector2 = lab.get_global_transform() * lab.screen_point(Vector3(0.0, 0.0, -18.288))
@@ -245,7 +267,7 @@ func _first_attempt() -> void:
 	await _capture("boss")
 	await _throw(STRIKE) # thrown while the reaction is on screen
 	var first := await _scored()
-	_check(first.banked == 560 and not first.match_over and lab.division.target() == 800, "a boss strike banks in full; the target stays 800")
+	_check(first.banked == 600 and not first.match_over and lab.division.target() == 800, "a clean boss strike banks in full (BAL-1: 600); the target stays 800")
 	await _focus_accept(lab.next_rack)
 	var leave := await _throw(LEAVE)
 	_check(not leave.knockdown_log.standing.is_empty(), "the leave leaves pins")
@@ -253,24 +275,24 @@ func _first_attempt() -> void:
 	await _throw(GUTTER)
 	var open := await _scored()
 	var lines: Array = lab.score_panel.log_list.get_children().map(func(c): return c.text)
-	_check(open.result.category == "open" and open.result.score > 0 and open.banked == 0 and lines.any(func(l): return l.contains("Clean Sweep: an open frame banks nothing")),
+	_check(open.result.category == "open" and open.result.score > 0 and open.banked == 0 and lines.any(func(l): return l.contains("Clean Sweep: An open frame banks nothing")),
 		"Clean Sweep banks the open frame as 0 and says so")
-	_check(open.match_over and not open.match_won and lab.division.outcome == "lost" and lab.next_rack.text == "See Result", "560 of 800: the boss is lost")
-	_check(lab.hud.reaction_text.text.contains(lab.division.rival().reactions.victorious), "the rival reacts to winning")
+	_check(open.match_over and not open.match_won and lab.division.outcome == "lost" and lab.next_rack.text == "See Result", "600 of 800: the boss is lost")
+	_check(_says(lab.division.rival(), "victorious", lab.hud.last_line), "the rival reacts to winning")
 	await _focus_accept(lab.next_rack)
 	await _wait_for(func(): return lab.hud.result.visible, "result screen")
-	_check(lab.hud.result_title.text.contains("Boss lost") and lab.hud.result_body.text.contains("Scored 560 of the 800 target")
+	_check(lab.hud.result_title.text.contains("Boss lost") and lab.hud.result_body.text.contains("Scored 600 of the 800 target")
 		and lab.hud.result_body.text.contains("Rule in force: Clean Sweep"), "the loss shows the unmet score and the rule")
 	_check(scene.career.first_clears.is_empty() and scene.session.outcome == "lost", "no reward for a loss")
 	# UI-11 (owner, 2026-11-16): a lost boss match ends on the rival's parting shot.
 	var view: Control = lab.hud.result_view
 	var headline: Label = view.find_child("ResultHeadline", true, false)
 	var subtitle: Label = view.find_child("ResultSubtitle", true, false)
-	_check(headline.text == "“%s”" % lab.division.rival().reactions.victorious and subtitle.text.begins_with("— %s" % lab.division.rival().name)
+	_check(_says(lab.division.rival(), "victorious", headline.text.trim_prefix("“").trim_suffix("”")) and subtitle.text.begins_with("— %s" % lab.division.rival().name)
 		and not headline.text.contains("Attempt over"), "the end screen leads with the rival's parting shot (%s)" % headline.text)
 	await _capture("lost")
 	var old_id: int = lab.get_instance_id() # never capture the freed lab itself
-	await _focus_accept(lab.hud.retry_button)
+	await _new_run_from_result()
 	await _wait_for(func(): return scene.lab != null and scene.lab.get_instance_id() != old_id and scene.lab.state == "aim", "retry starts a new attempt")
 	lab = scene.lab
 	_check(scene.session.attempt == 2 and lab.attempt == 2 and lab.total_score == 0 and lab.run.money == Economy.STARTING_MONEY and lab.division.current().kind == "opener",
@@ -295,20 +317,20 @@ func _second_attempt() -> void:
 	await _focus_accept(lab.next_rack)
 	await _throw(STRIKE)
 	var win := await _scored()
-	_check(win.match_over and win.match_won and lab.division.outcome == "won" and lab.division.match_score == 1120 and lab.next_rack.text == "Division Result", "two strikes defeat the boss")
-	_check(lab.hud.reaction_text.text.contains(lab.division.rival().reactions.defeated), "the rival concedes")
+	_check(win.match_over and win.match_won and lab.division.outcome == "won" and lab.division.match_score == 1200 and lab.next_rack.text == "Division Result", "two clean strikes (1200) defeat the boss")
+	_check(_says(lab.division.rival(), "defeated", lab.hud.last_line), "the rival concedes")
 	await _focus_accept(lab.next_rack)
 	await _wait_for(func(): return lab.hud.result.visible, "victory screen")
 	_check(lab.hud.result_title.text.contains("The Custodian defeated") and lab.hud.result_body.text.contains("First clear: Lab Lead"), "victory banks the first-clear reward")
 	_check(scene.career.first_clears.has("rival.lab_custodian") and "gate.lab_rival" in scene.career.unlocked and scene.session.outcome == "won", "the reward is in the Career record at once")
 	await _capture("won")
 	var old_id: int = lab.get_instance_id() # never capture the freed lab itself
-	await _focus_accept(lab.hud.retry_button) # "New Attempt"
+	await _new_run_from_result()
 	await _wait_for(func(): return scene.lab != null and scene.lab.get_instance_id() != old_id and scene.lab.state == "aim", "a new attempt")
 	lab = scene.lab
 
 func _third_attempt() -> void:
-	_check(scene.session.attempt == 3 and "gate.lab_rival" in lab.shop.unlocked and lab.hud.rule_text.text.contains("already cleared"), "the first clear carries into the next attempt")
+	_check(lab.career_attempt == 3 and "gate.lab_rival" in lab.shop.unlocked and lab.hud.rule_text.text.contains("already cleared"), "the first clear carries into the next attempt")
 	for frame in 2:
 		await _throw(LEAVE)
 		await _aim()
@@ -325,6 +347,12 @@ func _third_attempt() -> void:
 	_check(lab.hud.result_body.text.contains("Career progress kept: 1 rival(s) cleared") and scene.career.first_clears.has("rival.lab_custodian"), "a later loss keeps the first clear")
 	await _capture("lost_again")
 	await _focus_accept(lab.hud.menu_button)
-	await _wait_for(func(): return scene.screen == "menu" and scene.lab == null, "Clubhouse returns to the menu")
+	await _through_awards()
+	await _wait_for(func(): return scene.screen == "menu" and scene.lab == null, "Clubhouse returns to the menu", 400)
 	_check(scene.career.first_clears.has("rival.lab_custodian"), "the Career record outlives the session")
 	lab = null
+
+## The rival said `line`, one of its lines for `mood` (the library, owner 2026-11-19),
+## and the reaction bubble shows it.
+func _says(rival: Dictionary, mood: String, line: String) -> bool:
+	return not line.is_empty() and line in preload("res://src/presentation/rival_lines.gd").candidates(rival, mood)

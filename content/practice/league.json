@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "id": "league.practice",
+  "name": "Practice",
+  "theme": "league.house",
+  "_note": "UI-39 (owner, 2026-11-21): How to Play's practice lane. The House Ball only (no cards), ten Wood pins, no Charms, no shop and no rival's rules: endless games of ten frames, scored as normal. The Division plays in practice mode (its target-free match, repeated), so the opener, feature, boss and rival below only satisfy the Division format and never appear. Played on a throwaway Career with saving off, so nothing here counts.",
+  "kit": {
+    "id": "kit.practice",
+    "name": "Practice",
+    "pins": [
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.wood",
+      "pin.wood"
+    ],
+    "deck": [],
+    "money": 0
+  },
+  "divisions": [
+    {
+      "schema_version": 1,
+      "division": 1,
+      "name": "Practice",
+      "frames_per_match": 10,
+      "matches": [
+        {
+          "id": "match.practice_opener",
+          "kind": "opener",
+          "name": "Opener",
+          "target": 1
+        },
+        {
+          "id": "match.practice_feature",
+          "kind": "feature",
+          "name": "Feature",
+          "target": 2
+        },
+        {
+          "id": "match.practice_boss",
+          "kind": "boss",
+          "name": "Boss",
+          "target": 3,
+          "rival": "rival.surveyor"
+        }
+      ],
+      "rivals": [
+        {
+          "id": "rival.surveyor",
+          "name": "The Surveyor",
+          "initials": "TS",
+          "color": "#d8cf8a",
+          "rule": "boss_rule.dead_straight",
+          "intro": "Every line measured, every angle true. The Surveyor allows no charged spin: Each ball rolls exactly where it is aimed, so placement and straight-line equipment win this lane.",
+          "first_clear": {
+            "unlocks": [],
+            "text": "Practice only: Nothing is unlocked here."
+          },
+          "reactions": {
+            "entrance": "Plumb, level, true. Show me a straight line.",
+            "confident": "Off by a board. I measured it.",
+            "impressed": "A true line. Precisely as charted.",
+            "threatened": "Your figures are… converging on mine.",
+            "defeated": "The survey is complete. You hold the line.",
+            "victorious": "Out of true. Recalibrate and return."
+          }
+        }
+      ]
+    }
+  ]
+}

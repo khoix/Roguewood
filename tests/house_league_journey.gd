@@ -45,7 +45,7 @@ func _run() -> void:
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	_check(lab.league_theme != null and lab.league_theme.music != null and lab.league_theme.music.playing, "the League's music loop is playing")
 	for division in range(1, 9):
 		await _division(division)
@@ -175,7 +175,8 @@ func _title() -> void:
 
 func _tournament() -> void:
 	await _focus_accept(lab.hud.menu_button)
-	await _wait_for(func(): return scene.screen == "menu", "back to the menu")
+	await _through_awards()
+	await _wait_for(func(): return scene.screen == "menu", "back to the menu", 400)
 	_check(not scene.kit.is_item_disabled(1) and scene.kit.get_item_text(1) == "Tournament Kit", "the title opens the Tournament Kit")
 	scene.kit.grab_focus()
 	await _action("ui_accept")

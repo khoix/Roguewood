@@ -56,7 +56,7 @@ func select_stage(index:int) -> void:
  if view_choice!=null:_detail()
 func _detail() -> void:
  if detail==null:return
- detail.text=[manifest.stages[stage_index].art_intent,"Long Oil: 47 ft • Two-Tone: left 34 ft / right 40 ft • matte hatch = dry","Neon frames • native text • original trophy • quiet flank drift"][view_index]
+ detail.text=[manifest.stages[stage_index].art_intent,"Long Oil: 47 ft • Two-Tone: Left 34 ft / right 40 ft • matte hatch = dry","Neon frames • native text • original trophy • quiet flank drift"][view_index]
 func _layout() -> void:
  if camera!=null:camera.projection=Camera3D.PROJECTION_PERSPECTIVE
  super._layout()

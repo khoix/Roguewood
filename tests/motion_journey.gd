@@ -30,7 +30,7 @@ func _run() -> void:
 	if reduced_only:
 		await _focus_accept(lab.settings_panel.reduced_motion)
 		await _focus_accept(lab.settings_panel.reduced_flash)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	await _capture("aim")
 	var uid:=_find("ball")
 	var before: Dictionary=lab.equipment.counts().duplicate(true)
@@ -42,39 +42,41 @@ func _run() -> void:
 	_check(Rect2(Vector2.ZERO, lab.size).encloses(lab.inspector.panel.get_global_rect()), "inspection fits viewport: lab=%s panel=%s" % [lab.size, lab.inspector.panel.get_global_rect()])
 	_check(lab.armed_ball.is_empty(),"inspection does not arm the card")
 	_check(lab.equipment.counts()==before,"inspection does not consume a card")
+	# The owner (2026-11-18): no finish preview and no Skip reveal; Close is centred.
+	_check(lab.inspector.find_child("FinishSample", true, false) == null and lab.inspector.find_child("SkipReveal", true, false) == null, "inspection has no finish preview and no Skip reveal")
+	var close_rect: Rect2 = lab.inspector.close_button.get_global_rect()
+	var panel_rect: Rect2 = lab.inspector.panel.get_global_rect()
+	_check(absf(close_rect.get_center().x - panel_rect.get_center().x) <= 1.0, "Close is centred (%.1f vs %.1f)" % [close_rect.get_center().x, panel_rect.get_center().x])
+	_check(lab.inspector.close_button.has_focus(), "Close has focus")
 	# A real pointer movement changes foil; reduced motion fixes its direction.
-	await _focus_accept(lab.inspector.finish)
-	await _action("ui_down",3)
-	await _action("ui_accept")
 	var pointer:=InputEventMouseMotion.new()
-	pointer.position=_window(lab.inspector.art.get_global_rect().position+lab.inspector.art.size*Vector2(0.8,0.4))
+	pointer.position=_window(lab.inspector.tilt_area().position+lab.inspector.tilt_area().size*Vector2(0.8,0.4))
 	Input.parse_input_event(pointer)
 	await process_frame
 	var tilt: Vector2=lab.inspector.tilt
+	# The owner (2026-11-19): the whole card tilts as one unit, not the picture inside it.
+	var turned: Vector2 = lab.inspector.tilt_material.get_shader_parameter("tilt")
+	_check(lab.inspector.art.rotation == 0.0 and lab.inspector.card_view.is_ancestor_of(lab.inspector.art) and lab.inspector.tilt_view.is_ancestor_of(lab.inspector.card_view),
+		"the picture stays put inside the card; the card's own view carries the tilt")
+	_check(turned == Vector2.ZERO if reduced_only else (turned.x < 0.0 and absf(turned.x) > 0.05), "the whole card turns toward the pointer (%s), not under reduced motion" % turned)
+	var slot: Rect2 = lab.inspector.tilt_area()
+	var drawn: Rect2 = lab.inspector.tilt_view.get_global_rect()
+	_check(drawn.encloses(slot) and drawn.size.x > slot.size.x, "the card's view has room around the card for its nearer corners (%s around %s)" % [drawn, slot])
 	var phase: float=lab.inspector.foil.get_shader_parameter("progress")
 	_check(tilt==Vector2.ZERO if reduced_only else tilt.length()>0.01,"foil follows pointer only in full motion")
 	_check(lab.inspector.art.material==null and lab.inspector.foil.get_shader_parameter("reduced")==reduced_only and (is_equal_approx(phase,0.42) if reduced_only else phase>0.42),"the card's UI-A2 material takes the tilt (phase %.2f); the old art foil is off" % phase)
 	var drag := InputEventScreenDrag.new()
 	drag.index = 0
-	drag.position = _window(lab.inspector.art.get_global_rect().position + lab.inspector.art.size * Vector2(0.2, 0.6))
+	drag.position = _window(lab.inspector.tilt_area().position + lab.inspector.tilt_area().size * Vector2(0.2, 0.6))
 	Input.parse_input_event(drag)
 	await process_frame
 	var touch_tilt: Vector2 = lab.inspector.tilt
 	_check(touch_tilt == Vector2.ZERO if reduced_only else touch_tilt.x < 0, "touch drag controls foil without playing a card")
 	_check(lab.state == "aim" and lab.armed_ball.is_empty(), "inspection drag cannot start a throw")
 	await _capture("foil")
-	await _focus_accept(lab.inspector.finish)
-	await _action("ui_down")
-	await _action("ui_accept")
-	_check(lab.inspector.reveal_count==1,"legendary preview starts once")
-	if not reduced_only:
-		_check(lab.inspector.revealing,"reveal animates")
-		await _focus_accept(lab.inspector.skip_button)
-	_check(not lab.inspector.revealing and lab.inspector.art.scale==Vector2.ONE,"skip/reduced reveal settles immediately")
-	await _capture("reveal")
 	await _action("ui_cancel")
 	_check(not lab.inspector.visible,"Escape closes inspection")
-	_check(lab.equipment.counts()==before and lab.armed_ball.is_empty(),"finish previews never alter equipment")
+	_check(lab.equipment.counts()==before and lab.armed_ball.is_empty(),"inspection never alters equipment")
 	await _tap(_card(uid))
 	_check(lab.armed_ball==uid,"card still playable after inspection")
 	var camera_before: Vector3=lab._camera.position

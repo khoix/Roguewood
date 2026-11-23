@@ -62,7 +62,7 @@
           "initials": "TS",
           "color": "#d8cf8a",
           "rule": "boss_rule.dead_straight",
-          "intro": "Every line measured, every angle true. The Surveyor allows no charged spin: each ball rolls exactly where it is aimed, so placement and straight-line equipment win this lane.",
+          "intro": "Every line measured, every angle true. The Surveyor allows no charged spin: Each ball rolls exactly where it is aimed, so placement and straight-line equipment win this lane.",
           "first_clear": {
             "unlocks": [
               "gate.surveyor_cleared"
@@ -113,7 +113,7 @@
           "initials": "TC",
           "color": "#9fd8ff",
           "rule": "boss_rule.clean_sweep",
-          "intro": "Every lane spotless, every frame finished. The Custodian banks only clean work: strikes and spares. Leave a pin standing and the frame is swept away.",
+          "intro": "Every lane spotless, every frame finished. The Custodian banks only clean work: Strikes and spares. Leave a pin standing and the frame is swept away.",
           "first_clear": {
             "unlocks": [
               "gate.custodian_cleared"

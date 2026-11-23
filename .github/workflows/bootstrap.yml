@@ -1,7 +1,17 @@
 name: Bootstrap
+# QA-1 (owner, 2026-11-20): one run per commit. A pull request shows its head
+# commit's push checks, so the pull_request trigger only ran everything twice; a
+# newer push to the same branch cancels the older run (never on main).
+# QA-2: a push that changes only docs or Markdown runs nothing (no test reads them).
 on:
   push:
-  pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+  workflow_dispatch:
+concurrency:
+  group: bootstrap-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 permissions:
   contents: read
 jobs:
@@ -16,6 +26,8 @@ jobs:
         shard: [game, art]
     runs-on: ubuntu-24.04
     timeout-minutes: 90
+    env:
+      QA_VERBOSE: "1" # QA-5: CI logs keep every run's full output; locally qa.py is quiet
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Install pinned Godot and export templates
@@ -35,6 +47,13 @@ jobs:
           cp templates/linux_debug.x86_64 "$HOME/.local/share/godot/export_templates/${VERSION}.stable/"
           cp templates/web_nothreads_release.zip "$HOME/.local/share/godot/export_templates/${VERSION}.stable/"
           echo "GODOT_BIN=$RUNNER_TEMP/godot/Godot_v${VERSION}-stable_linux.x86_64" >> "$GITHUB_ENV"
+      - name: Install display packages (time-limited, retried)
+        # QA-3: Ubuntu's mirror has hung or refused (#524, #528). Each attempt is
+        # capped at 5 minutes and retried, so an outage fails in minutes, not at the
+        # 90-minute job limit; a partial index update (one mirror down) is tolerated.
+        timeout-minutes: 20
+        shell: bash
+        run: tools/ci_retry.sh apt xvfb xauth libgl1-mesa-dri
       - name: Verify editor import, startup, and exported build
         if: matrix.shard == 'game'
         run: |
@@ -47,8 +66,11 @@ jobs:
           python3 tools/qa.py export
       - name: Web export and browser journey (E26-W01)
         if: matrix.shard == 'game'
+        timeout-minutes: 30
+        shell: bash
         run: |
-          (cd tests/web && npm install --no-save --no-package-lock playwright@1.63.0 && npx playwright install --with-deps chromium)
+          (cd tests/web && npm install --no-save --no-package-lock playwright@1.63.0)
+          tools/ci_retry.sh playwright
           python3 tools/qa.py web
       - name: Keep the Web build for self-hosting (E26-W01)
         if: matrix.shard == 'game'
@@ -61,8 +83,6 @@ jobs:
       - name: Native gameplay journeys headless and rendered
         if: matrix.shard == 'game'
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y xvfb xauth libgl1-mesa-dri
           python3 tools/qa.py e2e --journey J01
           xvfb-run -a python3 tools/qa.py e2e --journey J01 --rendered
           xvfb-run -a python3 tools/verify_diagnostics.py
@@ -126,6 +146,7 @@ jobs:
           xvfb-run -a python3 tools/qa.py e2e --journey J11 --rendered
           python3 tools/qa.py e2e --journey JTUT
           xvfb-run -a python3 tools/qa.py e2e --journey JTUT --rendered
+          python3 tools/qa.py e2e --journey JSEED
           python3 tools/qa.py e2e --journey J12
           xvfb-run -a python3 tools/qa.py e2e --journey J12 --rendered
           python3 tools/qa.py experiment
@@ -136,8 +157,6 @@ jobs:
       - name: Art, effects and rival journeys (J08, E19-E21) headless and rendered
         if: matrix.shard == 'art'
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y xvfb xauth libgl1-mesa-dri
           python3 tools/qa.py e2e --journey JAVT01
           xvfb-run -a python3 tools/qa.py e2e --journey JAVT01 --rendered
           python3 tools/qa.py e2e --journey J08

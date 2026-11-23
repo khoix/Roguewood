@@ -273,7 +273,7 @@
         "charges": 1,
         "exhaustion": "consume"
       },
-      "downside": "Lab fixture: one use, then exhausted for the run.",
+      "downside": "Lab fixture: One use, then exhausted for the run.",
       "synergy_tags": [
         "lab",
         "tactical"
@@ -680,7 +680,7 @@
         "charges": 1,
         "exhaustion": "consume"
       },
-      "downside": "Lab fixture: one use, then exhausted for the run.",
+      "downside": "Lab fixture: One use, then exhausted for the run.",
       "synergy_tags": [],
       "incompatibilities": [],
       "assets": {

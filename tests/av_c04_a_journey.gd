@@ -86,7 +86,8 @@ func _play_batch() -> void:
  _check(await _arm("ball.echo"),"actual Echo card for modification repeat")
  var first:=await _frame([STRIKE],"Echo repeats attached Brass Cap")
  var accuracy:int=Rules.GRADES[first.frame.rolls[0].accuracy]
- _check(first.result.pin_value==190 and first.result.mult==6+accuracy and first.income==1,"190 Value, six Mult plus actual release grade, one after-bank coin")
+ var inside:int=10 if first.frame.rolls[0].accuracy!="miss" else 0 # BAL-1
+ _check(first.result.pin_value==190+inside and first.result.mult==6+accuracy and first.income==1,"190 Value, six Mult plus actual release grade, one after-bank coin")
  _check(_ids().count("pin_mod.brass_cap")==2 and _ids().count("pin_mod.gilt_leaf")==1 and _ids().count("pin_mod.keystone")==1,"one repeat, one deferred payout, one count")
  var key:Array=frame_cues.filter(func(e):return e.id=="pin_mod.keystone")
  _check(key.size()==1 and key[0].details.count==10 and key[0].details.amount==40,"Keystone actual ten and forty")
@@ -94,7 +95,7 @@ func _play_batch() -> void:
  await _controls(first)
  await _next_frame()
  var plain:=await _frame([STRIKE],"modified House strike")
- _check(plain.result.retriggers==0 and plain.banked==900 and plain.income==1,"House has no invented repeat; 180 Value x5 Mult and one coin")
+ _check(plain.result.retriggers==0 and plain.banked==(180+(10 if plain.frame.rolls[0].accuracy!="miss" else 0))*(5+int(Rules.GRADES[plain.frame.rolls[0].accuracy])) and plain.income==1,"House has no invented repeat; 180 Value (+10 inside the ring) x5 Mult and one coin")
  _check(_ids().count("pin_mod.brass_cap")==1,"one non-repeated Brass Cap")
  await _next_frame()
  await _frame([GUTTER,GUTTER],"no modified pin falls")

@@ -132,6 +132,18 @@ func _run() -> void:
 			scroll.scroll_vertical = 0
 	await _tap(club.tab_buttons.board)
 	await _settle()
+	# UI-15: the Clubhouse menu and its two pages.
+	await _press(scene.club_menu_button)
+	await _settle()
+	await _capture("club_menu")
+	for page in ["throw", "sound"]:
+		await _press(scene.club_menu_list.get_node("ClubSound" if page == "sound" else "ClubOptions"))
+		await _settle()
+		await _capture("club_" + page)
+		scene.club_options.go_back()
+		await _settle()
+	scene.close_club_menu()
+	await _settle()
 	# A first attempt.
 	await _press(scene.enter)
 	# UI-13: a new player's first Enter League opens the tutorial; the tour shows its
@@ -159,6 +171,15 @@ func _run() -> void:
 		await _action("ui_cancel")
 		await _settle(10)
 		if lab.card_hand.inspecting: await _tap(lab.card_hand.inspect_button)
+	await _press(scene.menu_button)
+	await _settle()
+	await _capture("menu")
+	await _press(scene.sound_entry)
+	await _settle()
+	await _capture("sound")
+	await _press(lab.motion.sound.back_button)
+	await _settle()
+	await _capture("menu_after_back")
 	await _press(scene.options)
 	await _settle()
 	await _capture("options")
@@ -174,6 +195,7 @@ func _run() -> void:
 	await _tap(lab.settings_panel.tuning_box.get_node("CloseTuning"))
 	await _press(lab.settings_panel.assist)
 	await _press(lab.settings_panel.close)
+	await _press(scene.resume)
 	await _settle()
 	await _capture("aim_assist")
 	await _throw(STRIKE, "rolling")

@@ -1,0 +1,698 @@
+{
+  "schema_version": 1,
+  "note": "Owner, 2026-11-19: a bigger library of things for rivals and bosses to say. Each rival's signature line in its League file (reactions) stays; these add to it. One line is picked at random for each moment, never the same one twice in a row. Moods: entrance (the introduction and the first reaction), confident (an open frame or a gutter), impressed (a strike), threatened (the player near the target), defeated (the player wins), victorious (the rival wins; also the result's parting shot).",
+  "lines": {
+    "rival.surveyor": {
+      "entrance": [
+        "I've staked out this lane to the millimetre.",
+        "Bring a level head. I brought a level.",
+        "Every board numbered. Every throw recorded.",
+        "No curves. No excuses. Only geometry.",
+        "The benchmark is set. Try to meet it.",
+        "I calibrated the pins this morning. Twice.",
+        "Straight lines only. I'll be checking."
+      ],
+      "confident": [
+        "Two degrees off. That compounds, you know.",
+        "Outside tolerance. Noted in the log.",
+        "Your line wandered. Lines shouldn't wander.",
+        "That's not a line. That's a suggestion.",
+        "I'll mark that one as a rough estimate.",
+        "The numbers don't lie. You did miss.",
+        "A survey of that throw finds… gaps."
+      ],
+      "impressed": [
+        "Square to the deck. I approve.",
+        "That's a line I'd put on a map.",
+        "Within tolerance. Well within.",
+        "Ten for ten. The arithmetic is sound.",
+        "Textbook trajectory. I'm taking notes.",
+        "Plumb. Level. Perfect.",
+        "Even my instruments agree with that one."
+      ],
+      "threatened": [
+        "Your margins are… narrowing mine.",
+        "Hm. I may need to re-measure.",
+        "Recalculating. Recalculating.",
+        "The gap is closing faster than projected.",
+        "This wasn't in the survey.",
+        "Steady. Steady. Numbers can still change.",
+        "I'd like to double-check those figures."
+      ],
+      "defeated": [
+        "Measured, verified, beaten. Fair is fair.",
+        "I'll file the report. You win.",
+        "Your line was truer than mine today.",
+        "The figures don't lie. Well rolled.",
+        "Survey closed. Lane transferred to you.",
+        "I'll recalibrate. You've earned the lane.",
+        "Straight and true. I can respect that."
+      ],
+      "victorious": [
+        "Measured twice, beaten once. Try again.",
+        "My survey stands. Yours needs work.",
+        "Bring a ruler next time.",
+        "Off the mark. Precisely as predicted.",
+        "Back to the drawing board for you.",
+        "A straight line is the shortest path. You took the long one.",
+        "Data says: Practise."
+      ]
+    },
+    "rival.custodian": {
+      "entrance": [
+        "Wipe your feet. This lane's just been done.",
+        "I clean up after everyone. Let's see your mess.",
+        "Strikes and spares. Anything else is litter.",
+        "My broom's ready. Is your arm?",
+        "Leave it the way you found it: Empty.",
+        "Every pin down, or it's going in the bin.",
+        "Spotless lanes, spotless frames. House policy."
+      ],
+      "confident": [
+        "Leftovers. I'll sweep those up.",
+        "Missed a spot.",
+        "Tsk. Pins everywhere.",
+        "That's going straight in the skip.",
+        "Messy, messy, messy.",
+        "I'll need the big mop for that one.",
+        "Not a clean frame in sight."
+      ],
+      "impressed": [
+        "Now that's tidy work.",
+        "Swept clean. Lovely.",
+        "Not a pin out of place. Well, none left.",
+        "I couldn't have cleared it better myself.",
+        "Spick and span.",
+        "A clean sheet. I like it.",
+        "Neat as a fresh-mopped floor."
+      ],
+      "threatened": [
+        "Careful… you're making my job easy.",
+        "Don't you dare leave a pin standing now.",
+        "You're cleaner than I expected.",
+        "Hm. Maybe I should have dusted harder.",
+        "One mess and it's all mine. One.",
+        "You keep this up and I'm out of work.",
+        "My broom is trembling."
+      ],
+      "defeated": [
+        "Clean as a whistle. The lane is yours.",
+        "Not a speck. I hand over the keys.",
+        "I'll put the broom away. Well done.",
+        "That's the tidiest beating I've had.",
+        "Nothing left to sweep. You win.",
+        "Fine work. I'll even polish your trophy.",
+        "Spotless from start to finish."
+      ],
+      "victorious": [
+        "Swept out. Mind the door.",
+        "I'll clean up what's left of your score.",
+        "Too many leftovers. Try again.",
+        "Back to the broom cupboard with you.",
+        "Messy finish. I've seen worse. Not much.",
+        "Next time, clear the table.",
+        "Bin day came early."
+      ]
+    },
+    "rival.proprietor": {
+      "entrance": [
+        "Welcome to my alley. Mind the house ball.",
+        "My lanes, my ball, my rules. Pull up a chair.",
+        "Everybody bowls with the house ball here.",
+        "First game's on me. The loss is on you.",
+        "The house has been winning since before you were born.",
+        "Step right up. The house is open.",
+        "You play my way in my place."
+      ],
+      "confident": [
+        "Ha! The house thanks you for your business.",
+        "That one's going on your tab.",
+        "Another one for the house.",
+        "You see? The house knows its lanes.",
+        "Bad bounce. Good for business.",
+        "The house ball does what the house wants.",
+        "I'd tip the waiter, but you're doing my job."
+      ],
+      "impressed": [
+        "Well now. That's a house record contender.",
+        "Even the house ball likes you.",
+        "That one goes on the wall.",
+        "You'd be good for business, kid.",
+        "Fine bowling. I might hire you.",
+        "The regulars will talk about that one.",
+        "Strike! Ring the bell, somebody."
+      ],
+      "threatened": [
+        "Easy now. Don't break the house.",
+        "That's quite a run you're having in my place.",
+        "Someone check the books.",
+        "Hey, hey. The house doesn't lose.",
+        "I'm starting to regret the free game.",
+        "You're getting a little too comfortable.",
+        "Who let this one in?"
+      ],
+      "defeated": [
+        "The house tips its hat. Well played.",
+        "Even the house loses once in a while.",
+        "I'll put your name on the board.",
+        "Drinks are on me tonight.",
+        "You beat the house. Don't tell anyone.",
+        "My lanes, your win. I'll allow it.",
+        "Come back anytime. You're good for the legend."
+      ],
+      "victorious": [
+        "The house always wins. Always.",
+        "Thanks for playing. Tell your friends.",
+        "Better luck next time, friend.",
+        "The house ball sends its regards.",
+        "Close only counts in horseshoes.",
+        "Your tab is settled. In my favour.",
+        "Come again. The house will be waiting."
+      ]
+    },
+    "rival.old_lou": {
+      "entrance": [
+        "Pull up, kid. Let's bowl like it's 1985.",
+        "Wood pins, real lanes, no gimmicks.",
+        "I racked these pins before you could walk.",
+        "Forget the fancy stuff. Just bowl.",
+        "Back in my day we bowled with plain wood. Still do.",
+        "Show me what's under all that gear.",
+        "Old pins, old lanes, old Lou. Let's go."
+      ],
+      "confident": [
+        "Heh. Rookie mistake.",
+        "Gear won't fix that, kid.",
+        "Seen that a thousand times. Usually from rookies.",
+        "Keep your eye on the arrows.",
+        "That's what fancy pins'll do to you.",
+        "Steady, kid. Bowling's a long game.",
+        "Not bad. For a Tuesday."
+      ],
+      "impressed": [
+        "Now you're bowling!",
+        "Ha! That's how we did it in the old days.",
+        "Clean as a whistle. Good arm.",
+        "That one'd make the old league proud.",
+        "You remind me of me. Forty years ago.",
+        "Pure wood and pure skill. Lovely.",
+        "Now THAT'S a strike."
+      ],
+      "threatened": [
+        "Easy, kid. My heart's not what it was.",
+        "Where'd you learn to bowl like that?",
+        "Hold your horses there.",
+        "Huh. Maybe you've got something after all.",
+        "I'm getting too old for this.",
+        "Who's been coaching you?",
+        "Slow down. Let an old man catch up."
+      ],
+      "defeated": [
+        "Well, kid. You earned it. Fair and square.",
+        "Forty years and still learning. Good game.",
+        "Shake an old man's hand. You beat me.",
+        "Plain wood and you still won. Respect.",
+        "You'll do just fine on these lanes.",
+        "Go on, then. The lane's yours. I'll rack 'em.",
+        "That's real bowling. I'm proud of you."
+      ],
+      "victorious": [
+        "Experience wins again, kid.",
+        "Practise your fundamentals. Then come back.",
+        "Gear's no substitute for skill.",
+        "Not today, kid. Not today.",
+        "Old Lou's still got it.",
+        "Keep at it. You'll get there. Maybe.",
+        "Forty years, kid. Forty years."
+      ]
+    },
+    "rival.custodian_champion": {
+      "entrance": [
+        "Title night. I polished the trophy myself.",
+        "Clean frames, house ball. The full inspection.",
+        "Champions leave no mess. Let's see if you're one.",
+        "The whole House is watching. Mind your manners.",
+        "One last sweep before the crown."
+      ],
+      "confident": [
+        "Not championship tidy, I'm afraid.",
+        "That's a mess on title night.",
+        "Into the bin it goes. Even tonight.",
+        "Champions don't leave leftovers.",
+        "Sloppy. The title deserves better."
+      ],
+      "impressed": [
+        "Title-worthy. I'll grant you that.",
+        "A champion's strike. Clean.",
+        "The House applauds. Quietly.",
+        "Not even the Proprietor could argue that one.",
+        "That's the cleanest frame of the night."
+      ],
+      "threatened": [
+        "The crown is wobbling…",
+        "Steady hands, now. For both of us.",
+        "You're cleaning up my title.",
+        "No. Not on title night.",
+        "One messy frame. That's all I need from you."
+      ],
+      "defeated": [
+        "The House has a new champion. A tidy one.",
+        "Take the crown. I've dusted it for you.",
+        "Spotless to the end. You're the champion.",
+        "I hand over the keys to the whole House.",
+        "Clean, clear, champion. Well done."
+      ],
+      "victorious": [
+        "The title stays clean. Come back tidier.",
+        "Not tonight. The House keeps its champion.",
+        "Swept off the title stage.",
+        "Champions don't make messes. You did.",
+        "The crown stays with me. Polish your game."
+      ]
+    },
+    "rival.slick": {
+      "entrance": [
+        "Fresh coat tonight. Extra shiny.",
+        "Hope you brought grip. You'll need it.",
+        "Oil's my art form. The lane is my canvas.",
+        "Step careful. It's slippery out here.",
+        "Curves? Not on my oil, they don't.",
+        "I never wipe the lanes. Never.",
+        "Smooth operator, smooth lanes."
+      ],
+      "confident": [
+        "Whoops. Slipped right off.",
+        "The oil giveth, the oil taketh away.",
+        "Should've gone straight, friend.",
+        "Slippery, isn't it?",
+        "Smooth. Just not for you.",
+        "That hook went right on vacation.",
+        "Nothing sticks on my lane."
+      ],
+      "impressed": [
+        "You read the oil. Not bad.",
+        "Huh. Didn't slide at all.",
+        "That's some grip you've got.",
+        "Straight through the shine. Nice.",
+        "Okay, okay. Smooth move.",
+        "You found the dry line. Clever.",
+        "Even I couldn't slide that one off."
+      ],
+      "threatened": [
+        "Now hold on. My oil's not working.",
+        "You're sticking to it… how?",
+        "Maybe I need another coat.",
+        "Who told you about the dry boards?",
+        "Stop reading my lane!",
+        "I'm the slippery one here.",
+        "This is getting a little too smooth for me."
+      ],
+      "defeated": [
+        "Okay. You out-slicked Slick.",
+        "The oil bows to you. Take the lane.",
+        "Smooth game, friend. You earned it.",
+        "Guess I'll go wipe the lanes. Just this once.",
+        "You read my oil like a book.",
+        "Slick's beaten. Don't spread it around.",
+        "All slide, no stick. Well played."
+      ],
+      "victorious": [
+        "Slid right out of the match.",
+        "Better footwork next time.",
+        "The oil wins. The oil always wins.",
+        "Come back when you can stand up straight.",
+        "Slip, slide, goodbye.",
+        "Too smooth for you tonight.",
+        "Keep it straight next time."
+      ]
+    },
+    "rival.laser_lena": {
+      "entrance": [
+        "Welcome to the light show. Stay inside the lines.",
+        "My beams, my rules. Keep it tight.",
+        "Precision or nothing. The lasers are watching.",
+        "The gutters are closer than you think.",
+        "Let's see you thread a needle of light.",
+        "Mind the edges. They glow for a reason.",
+        "Bright lights, narrow lanes."
+      ],
+      "confident": [
+        "Bzzt. Off the beam.",
+        "The light caught that one.",
+        "Too wide. The lasers saw it.",
+        "Outside the lines. Again.",
+        "Missed the window.",
+        "That's a gutter in neon.",
+        "Light travels straight. Your ball didn't."
+      ],
+      "impressed": [
+        "Laser precision. I like it.",
+        "Right through the beam. Clean.",
+        "That's a bright idea.",
+        "Pinpoint. Nice.",
+        "You lit up the deck.",
+        "Threaded perfectly.",
+        "Brilliant. Literally."
+      ],
+      "threatened": [
+        "You're dodging my beams…",
+        "Getting a little too accurate there.",
+        "Hm. Maybe I need more lasers.",
+        "You're glowing a bit too bright for me.",
+        "Stop finding the gaps.",
+        "This is not how the light show ends.",
+        "Steady… steady… don't you dare."
+      ],
+      "defeated": [
+        "Laser-perfect. The lane's yours.",
+        "You outshone me. Well done.",
+        "Lights up for the winner.",
+        "Clean through every beam. Impressive.",
+        "I'll dim the lights. You earned the spotlight.",
+        "Precision beats flash. Respect.",
+        "You thread light like a pro."
+      ],
+      "victorious": [
+        "Fade to black.",
+        "The light show's over. You missed it.",
+        "Tighter lines next time.",
+        "Off the beam, out of the match.",
+        "The lasers win again.",
+        "Too wide. Too bad.",
+        "Better aim, brighter future."
+      ]
+    },
+    "rival.dj_flicker": {
+      "entrance": [
+        "Lights down, volume up. Let's bowl.",
+        "Welcome to my set. Keep the beat.",
+        "Timing is everything on my floor.",
+        "The ring pulses to my track. Can you keep up?",
+        "One, two, three, four… release!",
+        "This lane's got a BPM. Find it.",
+        "Turn it up! Strobes on!"
+      ],
+      "confident": [
+        "Scratch! Off the beat.",
+        "That's a skipped track.",
+        "The crowd went quiet.",
+        "Wrong tempo, friend.",
+        "Record scratch.",
+        "Lost the rhythm there.",
+        "Too early. Or too late. Either way, wrong."
+      ],
+      "impressed": [
+        "Now that's a banger!",
+        "The crowd goes wild!",
+        "Perfect timing. Chef's kiss.",
+        "On the one!",
+        "That one goes on the mixtape.",
+        "Bass drop, pin drop!",
+        "You're vibing with the strobe."
+      ],
+      "threatened": [
+        "Hey, who's running this set?",
+        "You're stealing my crowd…",
+        "Easy on the rhythm, there.",
+        "I might need to change the track.",
+        "Too smooth. Way too smooth.",
+        "You're on beat and I don't like it.",
+        "Okay, now I'm nervous. Turn it down."
+      ],
+      "defeated": [
+        "Mic drop. You won the night.",
+        "The crowd's chanting your name.",
+        "You kept the beat better than me.",
+        "Headliner material. Respect.",
+        "Lights up. The floor is yours.",
+        "That's the best set I've heard all year.",
+        "Encore! For you, not me."
+      ],
+      "victorious": [
+        "That's a wrap. Better luck next set.",
+        "Off-beat and out.",
+        "The DJ wins. As always.",
+        "Missed the drop, missed the match.",
+        "Practise your timing and come back.",
+        "Show's over. Hit the bar.",
+        "Run it back… when you've got rhythm."
+      ]
+    },
+    "rival.dj_flicker_champion": {
+      "entrance": [
+        "Headline slot. Biggest night of the year.",
+        "Title night: Strobes fast, lanes slick.",
+        "The whole of Neon came to hear this set.",
+        "Champion's mix. Keep up if you can.",
+        "Last track of the League. Make it count."
+      ],
+      "confident": [
+        "Title night and you're off-beat? Yikes.",
+        "The headliner doesn't wait for you.",
+        "Slipped on the oil, missed the drop.",
+        "That's not championship rhythm.",
+        "The crowd paid for better than that."
+      ],
+      "impressed": [
+        "Title-worthy drop!",
+        "Even Slick's oil couldn't stop that.",
+        "That's a headliner move.",
+        "The whole floor felt that one.",
+        "Encore-worthy."
+      ],
+      "threatened": [
+        "This is MY title night…",
+        "You're about to steal the headline.",
+        "Don't you dare drop the mic.",
+        "Hold the music. Hold it.",
+        "The crowd's switching sides."
+      ],
+      "defeated": [
+        "New headliner in town. Neon is yours.",
+        "Crown and crowd: Both yours.",
+        "Best set of the year. And it wasn't mine.",
+        "Take a bow, champ. They're cheering for you.",
+        "Lights up on the Neon champion."
+      ],
+      "victorious": [
+        "The headliner stays the headliner.",
+        "Title night's over. Better luck next season.",
+        "You missed the final drop.",
+        "Neon keeps its champion tonight.",
+        "Come back when you can keep time and grip."
+      ]
+    },
+    "rival.miser_moll": {
+      "entrance": [
+        "No freebies in my yard, love.",
+        "Pennies don't grow on pins, you know.",
+        "My match, my rules: Nobody gets paid.",
+        "Keep your hands where I can see them. And your coins.",
+        "Every point's free. Everything else costs.",
+        "I'll take the till. You take your chances.",
+        "Let's see what you score with empty pockets."
+      ],
+      "confident": [
+        "Wasted effort. I won't pay for that.",
+        "Cheap shot. Literally.",
+        "Not worth a penny, that.",
+        "I'd charge you for that one if I could.",
+        "Money down the gutter, love.",
+        "Even my change jar's embarrassed.",
+        "Frugal, I am. Foolish, you are."
+      ],
+      "impressed": [
+        "Points for nothing. Lovely to see.",
+        "Didn't cost you a penny. Clever.",
+        "That's value for money.",
+        "Ooh. Rich in skill, if nothing else.",
+        "Worth every coin you didn't spend.",
+        "Bargain of a strike, that.",
+        "Hm. You might be worth investing in."
+      ],
+      "threatened": [
+        "Now, don't get greedy.",
+        "You're spending my patience.",
+        "Points add up, don't they? Drat.",
+        "Who's counting? Oh, I am. Badly.",
+        "This is costing me sleep.",
+        "Easy there. Some of us are saving.",
+        "Stop it. You're bankrupting me."
+      ],
+      "defeated": [
+        "Fine. Take your clear. It's on the house. This once.",
+        "Beaten for free. That stings.",
+        "You earned it. Don't expect change.",
+        "Well spent, love. Well spent.",
+        "Take it. Mind you don't waste it.",
+        "Cheapest loss I've ever had. Ouch.",
+        "I'll write it off as a loss."
+      ],
+      "victorious": [
+        "Saved my money and my lane.",
+        "Come back when you're richer. In skill.",
+        "No refunds, love.",
+        "That's how you penny-pinch a victory.",
+        "You couldn't afford this match.",
+        "Thrift wins again.",
+        "Back to saving, then. Off you go."
+      ]
+    },
+    "rival.grimewell": {
+      "entrance": [
+        "Smell that? That's character.",
+        "Ten pins and forty years of grime.",
+        "Don't touch the pins. You'll ruin the patina.",
+        "A little dirt never hurt anyone. Much.",
+        "Welcome to the grimiest lane in the yard.",
+        "Polish is for people with nothing to hide.",
+        "Gunk, grease and glory. Let's bowl."
+      ],
+      "confident": [
+        "Grime two, you nothing.",
+        "Dull throw for dull pins.",
+        "The dirt got that one.",
+        "Not so shiny now, eh?",
+        "Muck beats luck.",
+        "Clogged right up, that throw.",
+        "Grime wins that round."
+      ],
+      "impressed": [
+        "Oh, that cut right through the gunk.",
+        "Who needs polish? Not you, apparently.",
+        "Grimy pins, clean strike. Lovely.",
+        "Dirty work, well done.",
+        "That made the grime jump.",
+        "Even the filth is impressed.",
+        "Mucky but marvellous."
+      ],
+      "threatened": [
+        "Here, don't you scrub my lane.",
+        "You're clearing my pins too fast.",
+        "Is that… soap I smell?",
+        "My grime's losing its grip.",
+        "Stop shining up the place.",
+        "That's a lot of score for dirty pins.",
+        "You're making me look clean, and I hate it."
+      ],
+      "defeated": [
+        "Fine. You can polish one. Just one.",
+        "Beaten by a clean player. Disgusting.",
+        "You dug through the grime and won.",
+        "The muck bows to you.",
+        "Take the lane. Mind the sludge.",
+        "Even grime knows when it's beaten.",
+        "Dirty pins, fair fight. You won."
+      ],
+      "victorious": [
+        "The grime stays undefeated.",
+        "Back to the dirt with you.",
+        "Too clean to win here.",
+        "Muck one, you zero.",
+        "Come back with a stronger stomach.",
+        "Grime wins. Grime always wins.",
+        "Leave your polish at the door next time."
+      ]
+    },
+    "rival.scrapjack": {
+      "entrance": [
+        "Everything's scrap eventually. Even you.",
+        "Bolted-on bits? Not in my match.",
+        "Welcome to the scrapyard. Leave your mods at the gate.",
+        "Strip it down. Let's see the real bowler.",
+        "Rust never sleeps. Neither do I.",
+        "I can smell fresh paint. Not for long.",
+        "Bare metal only. House rule."
+      ],
+      "confident": [
+        "Rusted right through.",
+        "See? Nothing under the paint.",
+        "Scrap value: Zero.",
+        "Should've welded that one down.",
+        "Rattling about, aren't you?",
+        "One more for the scrap heap.",
+        "Strip the mods and what's left? That."
+      ],
+      "impressed": [
+        "Solid metal. Good build.",
+        "That's welded tight.",
+        "Rust couldn't touch that.",
+        "Built to last. Nice.",
+        "Raw power, no bolt-ons. Respect.",
+        "Now that's a sturdy throw.",
+        "Ha! Bare-knuckle bowling."
+      ],
+      "threatened": [
+        "Your bare bones are beating my rust…",
+        "How are you still rolling?",
+        "I need a bigger wrench.",
+        "That's not supposed to work without mods.",
+        "You're tougher than you look.",
+        "My scrapyard's getting cleaned out.",
+        "Stop it. You're making rust look bad."
+      ],
+      "defeated": [
+        "Solid work. The yard's yours.",
+        "Couldn't scrap you if I tried.",
+        "Built like a tank. Well played.",
+        "Take the lane. And my best wrench.",
+        "No mods, no problem. You won.",
+        "You're the first thing I couldn't rust.",
+        "Good build. I'll salvage my pride."
+      ],
+      "victorious": [
+        "Scrapped. Next!",
+        "Rust wins. Rust always wins.",
+        "Come back with something sturdier.",
+        "Sold for parts.",
+        "To the crusher with you.",
+        "You fell apart in the end.",
+        "Back to the workshop. Weld better."
+      ]
+    },
+    "rival.scrapjack_champion": {
+      "entrance": [
+        "Title night in the yard. Everything gets stripped.",
+        "Rust and grime: A champion's welcome.",
+        "Biggest scrap heap of the year tonight.",
+        "The Salvage crown is made of scrap. Earn it.",
+        "Last match. Let's see what survives."
+      ],
+      "confident": [
+        "Rusty and dull. Not champion stuff.",
+        "That's scrap, not a title throw.",
+        "The yard keeps what's left of that.",
+        "Stripped bare and still short.",
+        "Grime got you on title night."
+      ],
+      "impressed": [
+        "That survived the rust and the grime. Wow.",
+        "Champion-grade metal, that.",
+        "You built something solid. Finally.",
+        "Rust, grit, grime… and you still struck.",
+        "That's a title-worthy weld."
+      ],
+      "threatened": [
+        "The crown's starting to rattle…",
+        "You can't be winning with nothing on.",
+        "My title's rusting away.",
+        "Somebody get me a bigger wrench.",
+        "Not the crown. Not tonight."
+      ],
+      "defeated": [
+        "The yard has a new boss. A sturdy one.",
+        "Crown's yours. Keep it oiled.",
+        "Nothing left to strip. You win the title.",
+        "Champion of the scrapyard. Well built.",
+        "The Salvage title goes to the toughest. You."
+      ],
+      "victorious": [
+        "The crown stays rusty. Mine.",
+        "Scrapped on title night.",
+        "Come back with something that lasts.",
+        "Salvage keeps its champion.",
+        "You fell to pieces at the finish."
+      ]
+    }
+  }
+}

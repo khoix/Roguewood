@@ -283,4 +283,4 @@ static func league_access(graph: Dictionary, career: Dictionary, league_id: Stri
 	var missing: Array = league.access.filter(func(g): return g not in career.get("unlocked", []))
 	if missing.is_empty():
 		return ""
-	return "Locked: needs " + ", ".join(missing.map(func(g): return graph.gates.get(g, {}).get("name", g)))
+	return "Locked: Needs " + ", ".join(missing.map(func(g): return graph.gates.get(g, {}).get("name", g)))

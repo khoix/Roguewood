@@ -96,8 +96,8 @@ func _ready() -> void:
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 10)
 	box.add_child(row)
-	skip_button = _button(row, "CoachSkip", "Skip tutorial", func(): _finish("skip"))
-	extra_button = _button(row, "CoachExtra", "Keep practising", func(): _finish("practice"))
+	skip_button = _button(row, "CoachSkip", "Skip Tutorial", func(): _finish("skip"))
+	extra_button = _button(row, "CoachExtra", "Keep Practising", func(): _finish("practice"))
 	next_button = _button(row, "CoachNext", "Next", _next)
 	Clubhouse.secondary_style(skip_button)
 	Clubhouse.secondary_style(extra_button)
@@ -132,59 +132,59 @@ func _button(parent: Control, node_name: String, text: String, action: Callable)
 func _build_steps() -> void:
 	var aiming := func(): return lab.state == "aim" and lab.lane != null and lab.lane.state == "ready"
 	steps = [
-		{"id": "welcome", "title": "Learn to Bowl", "text": "A practice lane: nothing here counts toward your Career. Follow the hand.",
+		{"id": "welcome", "title": "Learn to Bowl", "text": "A practice lane: Nothing here counts toward your Career. Follow the hand.",
 			"enter": aiming, "pause": true},
-		{"id": "target", "title": "Win the match", "text": "Reach the match's target before your frames run out, and the match is won. Here: %d points in %d frames." % [_target(), _frames()],
+		{"id": "target", "title": "Win the Match", "text": "Reach the match's target before your frames run out, and the match is won. Here: %d points in %d frames." % [_target(), _frames()],
 			"enter": aiming, "rect": func(): return _rect_of(lab.hud.bar), "pause": true},
-		{"id": "cards", "title": "Your cards", "text": "These cards are your balls. Tap one to throw it; press and hold one to read it. You draw again every frame.",
+		{"id": "cards", "title": "Your Cards", "text": "These cards are your balls. Tap one to throw it; press and hold one to read it. You draw again every frame.",
 			"enter": aiming, "done": func(): return not String(lab.armed_ball).is_empty(), "next": true,
 			"rect": func(): return _rect_of(lab.card_hand), "gesture": "tap", "point": _card_point, "pause": true},
-		{"id": "aim", "title": "Aim", "text": "Tap the lane to aim. The ring shows where the ball will head.",
+		{"id": "aim", "title": "Aim", "dock": true, "text": "Tap the lane to aim. The ring shows where the ball will head.",
 			"enter": aiming, "done": func(): return absf(lab.target_x - _start_target) > 0.02,
 			"rect": _lane_rect, "gesture": "tap", "point": _aim_point,
 			"on_enter": func(): _start_target = lab.target_x},
-		{"id": "throw", "title": "Throw", "text": "Hold the ball and swirl it in circles to charge a curve, then flick up to roll it.",
+		{"id": "throw", "title": "Throw", "dock": true, "text": "Hold the ball and swirl it in circles to charge a curve, then flick up to roll it.",
 			"enter": aiming, "done": func(): return lab.state == "rolling",
 			"rect": _throw_rect, "gesture": "swirl_flick", "point": func(): return lab.ball_screen_position()},
-		{"id": "spare", "title": "Roll again", "text": "Pins still standing? Every frame gives you two rolls. Knock the rest down for a spare.", "dim": false,
+		{"id": "spare", "title": "Roll Again", "dock": true, "text": "Pins still standing? Every frame gives you two rolls. Knock the rest down for a spare.", "dim": false,
 			"enter": func(): return aiming.call() and lab.roll_index == 2, "done": func(): return lab.state == "rolling",
 			"skip_if": func(): return lab.state in ["scoring", "frame_done"]},
 		{"id": "scoring", "title": "Scoring", "text": "Each pin that falls adds Value. Balls and Charms add Mult. Value × Mult is banked as the frame's score.",
 			"enter": func(): return lab.state in ["scoring", "frame_done"] and lab.score_panel.visible, "rect": func(): return _rect_of(lab.score_panel), "pause": true},
-		{"id": "next_rack", "title": "Next frame", "text": "Tap Next Rack for your second frame.",
+		{"id": "next_rack", "title": "Next Frame", "text": "Tap Next Rack for your second frame.",
 			"enter": func(): return lab.state == "frame_done" and lab.next_rack.visible and not lab.division.match_over(),
 			"done": func(): return lab.state != "frame_done", "skip_if": func(): return lab.division.match_over(), "rect": func(): return _rect_of(lab.next_rack), "gesture": "tap",
 			"point": func(): return _rect_of(lab.next_rack).get_center()},
-		{"id": "throw_again", "title": "Your turn", "text": "Throw your second frame.", "dim": false,
+		{"id": "throw_again", "title": "Your Turn", "dock": true, "text": "Throw your second frame.", "dim": false,
 			"enter": aiming, "done": func(): return lab.state == "rolling", "skip_if": func(): return lab.division.match_over()},
-		{"id": "spare_again", "title": "Roll again", "text": "Throw again for the pins still standing.", "dim": false,
+		{"id": "spare_again", "title": "Roll Again", "dock": true, "text": "Throw again for the pins still standing.", "dim": false,
 			"enter": func(): return aiming.call() and lab.roll_index == 2, "done": func(): return lab.state == "rolling",
 			"skip_if": func(): return lab.state in ["scoring", "frame_done"] or lab.division.match_over()},
-		{"id": "collect", "title": "Match won", "text": "Collect your winnings and visit the Pro Shop.",
+		{"id": "collect", "title": "Match Won", "text": "Collect your winnings and visit the Pro Shop.",
 			"enter": func(): return lab.state == "frame_done" and lab.next_rack.visible and lab.division.match_over() and lab.division.outcome != "lost",
 			"done": func(): return lab.state == "shop", "rect": func(): return _rect_of(lab.next_rack), "gesture": "tap",
 			"point": func(): return _rect_of(lab.next_rack).get_center()},
-		{"id": "shop", "title": "The Pro Shop", "text": "Between matches you can buy balls, pins, Charms and more. Tap a card to read it.",
-			"enter": _shop_idle, "rect": func(): return _rect_of(lab.shop_panel.offers_grid)},
-		{"id": "buy", "title": "Buy one", "text": "Try it: tap the %s, a pin modification." % _workshop_name(),
-			"enter": _shop_idle, "done": func(): return lab.shop_panel.offer_sheet.visible or lab.shop_panel.choice_sheet.visible,
+		# Owner (2026-11-18): one step that points at the item to buy; the rest of the
+		# shop stays readable under a light dim, and only that item takes a tap.
+		{"id": "shop", "title": "The Pro Shop", "text": "Between matches, buy balls, pins, Charms and more. Try it: Tap the %s." % _workshop_name(),
+			"enter": _shop_dealt, "done": func(): return lab.shop_panel.offer_sheet.visible or lab.shop_panel.choice_sheet.visible, "light": true, "below": true,
 			"rect": func(): return _rect_of(_workshop_offer()), "gesture": "tap", "point": func(): return _rect_of(_workshop_offer()).get_center()},
-		{"id": "confirm_buy", "title": "Buy", "text": "Its full rule and price are here. Tap Buy.",
+		{"id": "confirm_buy", "title": "Buy", "text": "Its full rule and price are here. Tap Buy.", "light": true,
 			"enter": func(): return lab.state == "shop" and lab.shop_panel.offer_sheet.visible,
 			"done": func(): return lab.shop_panel.choice_sheet.visible or _workshop_sold(),
 			"rect": func(): return _rect_of(lab.shop_panel.buy_button), "gesture": "tap", "point": func(): return _rect_of(lab.shop_panel.buy_button).get_center()},
-		{"id": "place", "title": "Place it", "text": "This is your rack. Tap a pin to see what is on it now, then Confirm.", "card": false,
+		{"id": "place", "title": "Place It", "text": "This is your rack. Tap a pin to see what is on it now, then Confirm.", "card": false,
 			"enter": func(): return lab.state == "shop" and lab.shop_panel.choice_sheet.visible,
 			"done": _workshop_sold, "rect": func(): return _rect_of(lab.shop_panel.choice_sheet), "gesture": "tap", "point": _pin_point},
-		{"id": "sell", "title": "Sell", "text": "Short of money? Sell what you no longer need. Open Sell.",
+		{"id": "sell", "title": "Sell", "light": true, "text": "Short of money? Sell what you no longer need. Open Inventory.",
 			"enter": _shop_idle, "done": func(): return lab.shop_panel.sell_sheet.visible,
 			"rect": func(): return _rect_of(lab.shop_panel.sell_open), "gesture": "tap", "point": func(): return _rect_of(lab.shop_panel.sell_open).get_center()},
-		{"id": "sell_sheet", "title": "Your items", "text": "Tap an item to see what it sells for, then Sell or Back. Tap Done when you are finished.", "card": false,
+		{"id": "sell_sheet", "title": "Your Items", "text": "Tap an item to see what it sells for, then Sell or Back. Tap Done when you are finished.", "card": false,
 			"enter": func(): return lab.state == "shop" and lab.shop_panel.sell_sheet.visible, "done": func(): return not lab.shop_panel.sell_sheet.visible,
-			"rect": func(): return _rect_of(lab.shop_panel.sell_close), "gesture": "tap", "point": func(): return _rect_of(lab.shop_panel.sell_close).get_center()},
-		{"id": "rival", "title": "The boss", "text": "Every Division ends with a boss. Their rule changes the game: The Surveyor allows no curve. Tap the badge any time to read it.",
+			"rect": func(): return _rect_of(lab.shop_panel.sell_sheet), "gesture": "tap", "point": func(): return _rect_of(lab.shop_panel.sell_close).get_center()},
+		{"id": "rival", "title": "The Boss", "text": "Every Division ends with a boss. Their rule changes the game: The Surveyor allows no curve. Tap the badge any time to read it.",
 			"enter": _shop_idle, "rect": func(): return _rect_of(lab.hud.badge), "pause": true},
-		{"id": "ready", "title": "You're ready!", "text": "That is a Roguewood run: throw, score, shop, beat the boss. Win Divisions to climb the League.",
+		{"id": "ready", "title": "You're Ready!", "text": "That is a Roguewood run: Throw, score, shop, beat the boss. Win Divisions to climb the League.",
 			"enter": _shop_idle, "final": true, "pause": true},
 	]
 
@@ -197,6 +197,15 @@ func _frames() -> int:
 func _shop_idle() -> bool:
 	var shop = lab.shop_panel
 	return lab.state == "shop" and shop.visible and not shop.offer_sheet.visible and not shop.choice_sheet.visible and not shop.sell_sheet.visible
+
+## The shop is idle and its cards have finished dealing in, so the spotlight never
+## lands on a card that is still fading in.
+func _shop_dealt() -> bool:
+	if not _shop_idle(): return false
+	for i in lab.shop.offers.size():
+		var card: Control = lab.shop_panel.button_for_offer(i)
+		if card.is_visible_in_tree() and card.get("_face") != null and card._face.modulate.a < 0.99: return false
+	return true
 
 func _workshop_index() -> int:
 	for i in lab.shop.offers.size():
@@ -299,7 +308,7 @@ func _show(s: Dictionary) -> void:
 	title_label.text = s.title
 	body.text = s.text
 	var final: bool = s.get("final", false)
-	next_button.text = ("Start your run" if first_run else "Back to the Clubhouse") if final else "Next"
+	next_button.text = ("Start Your Run" if first_run else "Back to the Clubhouse") if final else "Next"
 	next_button.visible = final or not s.has("done") or s.get("next", false)
 	extra_button.visible = final
 	skip_button.visible = not final
@@ -370,9 +379,9 @@ func _show_lost() -> void:
 	_shown = true
 	lab.input_paused = true
 	counter.visible = false
-	title_label.text = "Not this time"
+	title_label.text = "Not This Time"
 	body.text = "Miss a match's target and the run is over. The practice lane resets, so you can try again."
-	next_button.text = "Try again"
+	next_button.text = "Try Again"
 	next_button.visible = true
 	extra_button.visible = false
 	skip_button.visible = true
@@ -382,7 +391,9 @@ func _show_lost() -> void:
 ## whichever side has more room, and the whole screen dims when nothing is spotlit.
 func _layout(s: Dictionary) -> void:
 	var screen: Vector2 = root.get_viewport_rect().size
-	var dim: bool = s.get("dim", true)
+	# Owner (2026-11-17): while the player holds and swirls the ball, the lane is theirs:
+	# no dimming and no hand; the card stays docked out of the way.
+	var dim: bool = s.get("dim", true) and not _quiet(s)
 	var target: Rect2 = s.rect.call() if s.has("rect") else Rect2()
 	_hole = target.grow(PAD) if target.has_area() else Rect2()
 	_hole = _hole.intersection(Rect2(Vector2.ZERO, screen)) if _hole.has_area() else Rect2()
@@ -392,38 +403,53 @@ func _layout(s: Dictionary) -> void:
 			Rect2(0, _hole.position.y, _hole.position.x, _hole.size.y), Rect2(_hole.end.x, _hole.position.y, screen.x - _hole.end.x, _hole.size.y)]
 	elif dim:
 		panes = [Rect2(Vector2.ZERO, screen)]
+	var shade := 0.45 if s.get("light", false) else 0.74 # light: the shop stays readable around the spotlight
 	for i in dims.size():
+		dims[i].color.a = shade
 		dims[i].visible = i < panes.size()
 		if i < panes.size():
 			dims[i].position = panes[i].position
 			dims[i].size = panes[i].size
+	var portrait := screen.y >= screen.x
+	var docked: bool = s.get("dock", false)
 	var width := minf(screen.x - 32.0, 520.0)
+	if docked and not portrait:
+		width = clampf(screen.x * 0.26, 260.0, 360.0) # a column at the side, clear of the lane
 	# Wrapped text measures its height from its width, so the labels get theirs first.
 	for label in [counter, title_label, body]:
 		label.custom_minimum_size.x = width - 36.0
 	var height: float = card.get_combined_minimum_size().y
 	var y: float
-	if not dim:
-		# The player's own throw: the card waits at the bottom, over the hand of cards,
-		# clear of the pins and of the ball (where the flick starts).
-		y = screen.y - height - 12.0
+	if docked or not dim:
+		# Owner (2026-11-17): on the throwing steps the card is pinned out of the way:
+		# at the bottom in portrait (over the hand of cards, clear of the pins and the
+		# ball, where the flick starts), beside the lane in landscape.
+		y = screen.y - height - 12.0 if portrait else _rect_of(lab.hud.bar).end.y + 12.0
 	elif not _hole.has_area():
 		y = (screen.y - height) * 0.5
+	elif s.get("below", false) and screen.y - _hole.end.y >= height + 20.0:
+		y = _hole.end.y + 10.0 # below it, where it covers nothing the step needs (the shop's offers stay in view)
 	elif _hole.position.y > screen.y - _hole.end.y:
 		y = _hole.position.y - height - 18.0 # above the spotlight
 	else:
 		y = _hole.end.y + 18.0 # below it
 	y = clampf(y, 12.0, maxf(12.0, screen.y - height - 12.0))
 	# Only when it moves: re-laying the card out every frame could drop a tap.
-	var place := Rect2(Vector2(floorf((screen.x - width) * 0.5), floorf(y)), Vector2(width, height))
+	var x := floorf((screen.x - width) * 0.5) if portrait or not docked else screen.x - width - 12.0
+	var place := Rect2(Vector2(x, floorf(y)), Vector2(width, height))
 	if place != _card_place:
 		_card_place = place
 		card.position = place.position
 		card.size = place.size
 
+## True while the player holds the ball on a throwing step.
+func _quiet(s: Dictionary) -> bool:
+	return s.get("dock", false) and is_instance_valid(lab) and lab.state == "holding"
+
 func _draw_art() -> void:
 	if not _shown or _lost_shown or step >= steps.size(): return
 	var s: Dictionary = steps[step]
+	if _quiet(s): return
 	if _hole.has_area() and s.get("dim", true):
 		var glow := 0.65 + (0.0 if reduced else 0.35 * sin(_time * 4.0))
 		art.draw_rect(_hole, Color(UiTheme.BRASS, glow), false, 3.0)

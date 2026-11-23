@@ -71,7 +71,7 @@ func _capture(label:String) -> void:
   await _aim()
   await _focus_accept(scene.options)
   await _focus_accept(lab.settings_panel.reduced_motion)
-  await _focus_accept(lab.settings_panel.close)
+  await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
   var uid:=""
   for card in lab.run.cards:
    if lab.run.cards[card].mod=="ball_mod.grip_tape":uid=card

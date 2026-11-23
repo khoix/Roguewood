@@ -106,6 +106,28 @@ func _confirm(control) -> void: # untyped: a pressed row may already be freed
 		pending.grab_focus()
 		await _action("ui_accept")
 
+## UI-29: from a result sheet to the next run. With awards waiting the sheet offers
+## only Continue (the awards, then the Clubhouse), and Enter League starts the run.
+func _new_run_from_result() -> void:
+	if lab.hud.retry_button.visible:
+		await _focus_accept(lab.hud.retry_button)
+		return
+	await _focus_accept(lab.hud.menu_button)
+	await _through_awards()
+	await _wait_for(func(): return scene.screen == "menu" and scene.lab == null, "the awards end in the Clubhouse", 400)
+	await _focus_accept(scene.enter)
+
+## UI-25: leaving a result sheet plays the run's waiting award ceremony first; a
+## journey that is not about it goes through as a player can (Skip, then Continue).
+func _through_awards() -> void:
+	for i in 4: await process_frame
+	if lab == null or not is_instance_valid(lab): return
+	var ceremony = lab.get("award_ceremony")
+	if ceremony == null or not ceremony.visible or not ceremony.playing: return
+	await _focus_accept(ceremony.skip_button)
+	await _wait_for(func(): return ceremony.step == "done" and not ceremony.continue_button.disabled, "Skip shows the awards summary", 120)
+	await _focus_accept(ceremony.continue_button)
+
 func _focus_accept(control: Control) -> void:
 	await _reach(control)
 	control.grab_focus()
@@ -131,6 +153,67 @@ func _tap(control: Control) -> void:
 		Input.parse_input_event(event)
 		await process_frame
 	await _confirm(control)
+
+var lift_seen := false # UI-34: the last _drag_between lifted a card
+var lift_follow := INF # and how far its centre sat from the finger halfway
+var lift_captured := false
+
+## BAL-1: what a frame's best release adds, [Value, Mult]: 10 Value inside the
+## ring, and the grade's Mult (FrameRules).
+func _grade_bonus(reports: Array) -> Array:
+	var Rules = preload("res://src/rules/frame_rules.gd")
+	var best := "miss"
+	for report in reports:
+		var grade: String = report.roll_result.accuracy
+		if Rules.GRADES[grade] > Rules.GRADES[best] or (best == "miss" and grade != "miss"): best = grade
+	return [int(Rules.INSIDE_VALUE) if best != "miss" else 0, int(Rules.GRADES[best])]
+
+## A finger-like press, hold and drag from one control to another (UI-34: a Charm
+## lifts after a long press and follows the finger). hold: frames held still first.
+func _drag_between(from: Control, to: Control, hold := 30) -> void:
+	var start := from.get_global_rect().get_center()
+	var end := to.get_global_rect().get_center()
+	var event := InputEventMouseButton.new()
+	event.button_index = MOUSE_BUTTON_LEFT
+	event.pressed = true
+	event.button_mask = MOUSE_BUTTON_MASK_LEFT
+	event.position = _window(start)
+	event.global_position = event.position
+	Input.parse_input_event(event)
+	await process_frame
+	for i in hold: await process_frame
+	lift_seen = lab.shop_panel.lifted != null if lab != null else false
+	for i in range(1, 13):
+		var motion := InputEventMouseMotion.new()
+		motion.button_mask = MOUSE_BUTTON_MASK_LEFT
+		motion.position = _window(start.lerp(end, i / 12.0))
+		motion.global_position = motion.position
+		motion.relative = (end - start) / 12.0
+		Input.parse_input_event(motion)
+		await process_frame
+		if i == 6 and lab != null and lab.shop_panel.lifted != null: # halfway: the card is under the finger
+			lift_follow = lab.shop_panel.lifted.get_global_rect().get_center().distance_to(start.lerp(end, 0.5))
+			if not lift_captured:
+				lift_captured = true
+				await _capture("slice_inventory_lift")
+	var release := InputEventMouseButton.new()
+	release.button_index = MOUSE_BUTTON_LEFT
+	release.pressed = false
+	release.position = _window(end)
+	release.global_position = release.position
+	Input.parse_input_event(release)
+	for i in 4: await process_frame
+
+func _shift_left() -> void:
+	for pressed in [true, false]:
+		var key := InputEventKey.new()
+		key.keycode = KEY_LEFT
+		key.physical_keycode = KEY_LEFT
+		key.shift_pressed = true
+		key.pressed = pressed
+		Input.parse_input_event(key)
+		await process_frame
+	for i in 3: await process_frame
 
 func _window(canvas: Vector2) -> Vector2:
 	return root.get_screen_transform() * canvas
@@ -176,7 +259,7 @@ func _circle_throw(sweep_deg: float) -> Dictionary:
 func _toggle_assist() -> void:
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 
 func _slide(slider: HSlider, value: float) -> void:
 	slider.grab_focus()
@@ -200,7 +283,7 @@ func _run() -> void:
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	_check(lab.run.money == 6 and lab.run.cards.size() == 6 and lab.run.loadout().pins.values().all(func(p): return p == "pin.wood")
 		and lab.run.deck_cards().values().count("ball.echo") == 2, "the House Kit: ten Wood pins, two each of Hook, Hammer and Echo, $6")
 	await _division_one()
@@ -306,8 +389,9 @@ func _division_one() -> void:
 	var roll := await _throw(STRIKE)
 	_check(roll.launch.ball_id == "ball.echo" and roll.roll_result.fallen_positions.size() == 10, "the Echo Ball strikes")
 	var echo := await _scored()
-	_check(echo.banked == (40 + 100 + 10) * 4 and _log_lines().any(func(l): return l.contains("(retrigger 1 · Roll 1 Echo Ball)")),
-		"Echo repeats one Wood pin: 600, explained in the log")
+	var bonus := _grade_bonus([roll])
+	_check(echo.banked == (40 + 100 + 10 + bonus[0]) * (4 + bonus[1]) and _log_lines().any(func(l): return l.contains("(retrigger 1 · Roll 1 Echo Ball)")),
+		"Echo repeats one Wood pin: (150 + %d) × (4 + %d), explained in the log (banked %d)" % [bonus[0], bonus[1], echo.banked])
 	_check(echo.match_over and echo.match_won and lab.next_rack.text == "Collect & Shop", "600 wins the 300 opener in one frame")
 	await _capture("slice_echo")
 	await _to_shop("opener")
@@ -323,12 +407,39 @@ func _division_one() -> void:
 	first.append_array(await _buy_charms())
 	print("J06 bought in Division 1: %s" % str(first))
 	if lab.run.charms.size() >= 2:
+		# UI-32 (owner, 2026-11-20): the Inventory's Charm row reorders by drag and drop.
+		var shop = lab.shop_panel
 		var order: Array = lab.run.charms.map(func(e): return e.item_id)
-		await _focus_accept(lab.shop_panel.move_button(2))
+		await _focus_accept(shop.sell_open)
 		await process_frame
-		_check(lab.run.charms[0].item_id == order[1] and lab.run.charms[1].item_id == order[0] and lab.shop_panel.message.text.contains("Moved"), "a Charm moves one slot left")
-		await _focus_accept(lab.shop_panel.move_button(2)) # and back: additions stay first
-		await process_frame
+		_check(shop.sell_sheet.visible and shop.sell_title.text == "Inventory" and shop.charm_row.get_child_count() == order.size()
+			and shop.charm_tile(1).get_meta("ref") == "charm:1" and shop.charm_tile(1).get_global_rect().end.y <= shop.owned_list.get_global_rect().position.y + 1.0,
+			"Inventory opens on the Charms in scoring order, above the other items")
+		var row: Rect2 = shop.charm_row.get_global_rect()
+		_check(row.position.x >= shop.sell_sheet.get_global_rect().position.x and row.end.x <= shop.sell_sheet.get_global_rect().end.x,
+			"every Charm fits the row (%s)" % str(row))
+		await _capture("slice_inventory")
+		# UI-34: a quick drag with no hold lifts nothing and moves nothing.
+		await _drag_between(shop.charm_tile(2), shop.charm_tile(1), 0)
+		_check(not lift_seen and lab.run.charms.map(func(e): return e.item_id) == order and not shop.sell_confirm_sheet.visible, "a drag without a long press moves nothing")
+		await _drag_between(shop.charm_tile(2), shop.charm_tile(1))
+		_check(lift_seen and lift_follow < 12.0, "a long press lifts the Charm, and the card follows the finger (%.1f px off halfway)" % lift_follow)
+		_check(lab.run.charms[0].item_id == order[1] and lab.run.charms[1].item_id == order[0] and shop.message.text.contains("Moved") and shop.sell_sheet.visible
+			and not shop.sell_confirm_sheet.visible and shop.lifted == null, "dropping Charm 2 on Charm 1 swaps them, without opening it, and the Inventory stays open")
+		var last := order.size()
+		await _drag_between(shop.charm_tile(1), shop.charm_tile(last))
+		var moved: Array = lab.run.charms.map(func(e): return e.item_id)
+		_check(moved[last - 1] == order[1] and moved[0] == order[0], "a Charm dragged onto the last slot goes last; the rest close up (%s)" % str(moved))
+		# Keyboard and gamepad: Shift+Left moves the focused Charm (here back to its place).
+		for i in range(last, 1, -1):
+			shop.charm_tile(i).grab_focus()
+			await _shift_left()
+		var back: Array = lab.run.charms.map(func(e): return e.item_id)
+		_check(back == order.slice(1, 2) + order.slice(0, 1) + order.slice(2), "Shift+Left moves the focused Charm one slot left (%s)" % str(back))
+		shop.charm_tile(2).grab_focus()
+		await _shift_left()
+		_check(lab.run.charms.map(func(e): return e.item_id) == order, "and back to the bought order: additions stay first")
+		await _focus_accept(shop.sell_close)
 	await _capture("slice_shop")
 	await _leave_shop()
 	await _wait_for(func(): return lab.state == "intro" and lab.hud.intro.visible, "The Surveyor's introduction")
@@ -337,7 +448,7 @@ func _division_one() -> void:
 	await _focus_accept(lab.hud.intro_button)
 	await _aim()
 	# Dead Straight: the assist spin control is locked...
-	_check(lab.spin_disabled() and not lab.assist_panel.spin_slider.editable and lab.status.text.contains("spin is disabled"),
+	_check(lab.spin_disabled() and not lab.assist_panel.spin_slider.editable and lab.status.text.contains("Spin is disabled"),
 		"Dead Straight: the spin control is disabled and the status says so")
 	await _slide(lab.assist_panel.spin_slider, 0.5)
 	_check(lab.assist_panel.spin_slider.value == 0.0, "the disabled spin control ignores input")
@@ -350,6 +461,11 @@ func _division_one() -> void:
 		"a charged circle gesture is committed with zero spin (%.2f charged)" % lab.trials[-1].input.spin)
 	await _toggle_assist()
 	await _wait_for(func(): return lab.state in ["aim", "scoring"], "after the gesture roll", ROLL_FRAMES)
+	# UI-20: the House League has no celebration art yet, so nothing has played. For the
+	# boss win, the journey supplies The Surveyor's two (the placeholder) to check the flow.
+	_check(lab.alley_screen.played.is_empty() and not lab.alley_screen.has_art("strike"), "no celebration plays before the League has art")
+	var placeholder := "res://src/presentation/alley_screen_placeholder.gd"
+	lab.alley_screen.variants_override = {"boss_defeated": {"rival.surveyor": [placeholder, placeholder]}}
 	if lab.state == "aim":
 		await _throw(STRIKE)
 	var boss := await _scored()
@@ -359,6 +475,14 @@ func _division_one() -> void:
 		if lab.state != "scoring" and not lab.history[-1].knockdown_log.standing.is_empty():
 			await _throw(STRIKE)
 		boss = await _scored()
+	var alley: Control = lab.alley_screen
+	_check(alley.playing() and alley.current_event == "boss_defeated" and alley.current_context.rival_id == "rival.surveyor"
+		and alley.current_context.rival_name == "The Surveyor" and alley.current_path == placeholder, "beating the boss plays its celebration, naming The Surveyor")
+	_check(not lab.next_rack.visible, "Division Result waits for the boss celebration")
+	await _capture("celebration_boss")
+	await _wait_for(func(): return not alley.playing() and lab.next_rack.visible, "the boss celebration ends, then the button appears", 300)
+	_check(lab.next_rack.visible and lab.next_rack.has_focus() and not alley.visible, "after the celebration, the button appears with focus")
+	alley.variants_override = {}
 	_check(boss.match_won and lab.division.division_cleared() and lab.division.outcome == "" and lab.next_rack.text == "Division Cleared · Shop",
 		"beating The Surveyor clears Division 1; the attempt continues")
 	await _to_shop("division cleared")
@@ -410,7 +534,7 @@ func _division_two() -> void:
 	await _aim()
 	await _throw(GUTTER)
 	var open := await _scored()
-	_check(open.result.category == "open" and open.result.score > 0 and open.banked == 0 and _log_lines().any(func(l): return l.contains("Clean Sweep: an open frame banks nothing")),
+	_check(open.result.category == "open" and open.result.score > 0 and open.banked == 0 and _log_lines().any(func(l): return l.contains("Clean Sweep: An open frame banks nothing")),
 		"Clean Sweep banks the open frame as 0 and says so")
 	await _capture("slice_clean_sweep")
 	await _focus_accept(lab.next_rack)
@@ -419,20 +543,38 @@ func _division_two() -> void:
 	print("J06 Custodian: %d/%d" % [lab.division.match_score, lab.division.target()])
 	_check(last.match_over and last.match_won and lab.division.outcome == "won" and lab.next_rack.text == "Division Result",
 		"the bought build's strike alone beats The Custodian's 2400")
+	# UI-22: the award ceremony, in full motion (the journey plays with Reduced Motion on).
+	await _focus_accept(scene.options)
+	await _focus_accept(lab.settings_panel.reduced_motion)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	await _focus_accept(lab.next_rack)
 	await _wait_for(func(): return lab.hud.result.visible, "victory screen")
+	# UI-25 (owner, 2026-11-19): the result sheet comes first; the ceremony waits for
+	# the player to leave it.
+	for i in 30: await process_frame
+	_check(not lab.award_ceremony.visible and lab.awards_pending(), "the result sheet comes first, the awards waiting")
+	# UI-29 (owner, 2026-11-19): the award screen ends in the Clubhouse, so the sheet
+	# offers one way on, Continue; no New Run that would skip past it into a run.
+	_check(not lab.hud.retry_button.visible and lab.hud.menu_button.visible and lab.hud.menu_button.text == "Continue" and lab.hud.menu_button.has_focus(),
+		"with awards waiting the sheet offers only Continue")
 	_check(lab.hud.result_title.text.contains("The Custodian defeated — House League cleared!") and lab.hud.result_body.text.contains("First clear: Standing Order")
 		and lab.hud.result_body.text.contains("D1 Boss") and lab.hud.result_body.text.contains("D2 Boss"), "the League victory lists both Divisions and banks the reward")
 	_check(scene.career.first_clears.has("rival.custodian") and scene.career.first_clears.has("rival.surveyor") and scene.session.outcome == "won"
-		and lab.hud.retry_button.text == "New Run", "both first clears are in the Career")
+		, "both first clears are in the Career")
 	await _capture("slice_won")
 
 func _second_attempt() -> void:
-	var old_id: int = lab.get_instance_id()
-	await _focus_accept(lab.hud.retry_button)
-	await _wait_for(func(): return scene.lab != null and scene.lab.get_instance_id() != old_id and scene.lab.state == "aim", "retry starts attempt 2")
+	await _focus_accept(lab.hud.menu_button)
+	# UI-25 and UI-29: Continue plays the award ceremony; it then fades out to the
+	# Clubhouse (never straight into a run), and Enter League starts the next run.
+	await _award_ceremony()
+	await _wait_for(func(): return scene.transition_playing(), "the fade out after the awards", 30)
+	await _wait_for(func(): return scene.screen == "menu" and scene.lab == null, "the awards end in the Clubhouse", 400)
+	_check(scene.clubhouse.visible and not scene.transition_playing(), "after the award screen the Clubhouse, not a new run")
+	await _focus_accept(scene.enter)
+	await _wait_for(func(): return scene.lab != null and scene.lab.state == "aim", "Enter League starts attempt 2")
 	lab = scene.lab
-	_check(scene.session.attempt == 2 and lab.division.division_number() == 1 and lab.run.money == Economy.STARTING_MONEY and lab.run.charms.is_empty(), "attempt 2 starts over at Division 1")
+	_check(lab.career_attempt == 2 and lab.division.division_number() == 1 and lab.run.money == Economy.STARTING_MONEY and lab.run.charms.is_empty(), "attempt 2 starts over at Division 1")
 	_check("gate.surveyor_cleared" in lab.shop.unlocked and "gate.custodian_cleared" in lab.shop.unlocked and lab.hud.rule_text.text.contains("already cleared"),
 		"both unlocks join attempt 2's shop pool")
 	for frame in 2:
@@ -443,11 +585,120 @@ func _second_attempt() -> void:
 		if frame == 0:
 			await _focus_accept(lab.next_rack)
 	_check(lab.division.outcome == "lost" and lab.division.results[0].score < 300, "two open frames lose the opener")
+	# UI-22: Reduced Motion back on (as the journey plays) for the loss's ceremony.
+	await _focus_accept(scene.options)
+	await _focus_accept(lab.settings_panel.reduced_motion)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	await _focus_accept(lab.next_rack)
 	await _wait_for(func(): return lab.hud.result.visible, "loss screen")
+	var ceremony: Control = lab.award_ceremony
+	for i in 30: await process_frame
+	var pending: bool = lab.awards_pending()
+	_check(not ceremony.visible, "the loss's result sheet comes first (UI-25)")
+	print("J06 loss ceremony: %s" % ("waiting" if pending else "none"))
 	_check(lab.hud.result_body.text.contains("Career progress kept: 2 rival(s) cleared") and lab.hud.retry_button.text == "Retry League", "a later loss keeps both first clears")
 	await _capture("slice_lost_again")
+	# UI-25 (owner, 2026-11-19): Clubhouse leaves the result sheet; the ceremony plays
+	# first, then the run fades out (UI-23), and the Clubhouse appears without a fade.
 	await _focus_accept(lab.hud.menu_button)
-	await _wait_for(func(): return scene.screen == "menu" and scene.lab == null, "Clubhouse returns to the menu")
+	if pending:
+		await _wait_for(func(): return ceremony.visible and ceremony.playing, "Clubhouse opens the waiting ceremony")
+		_check(scene.exiting and not scene.transition_playing() and not scene.menu_button.visible, "the ceremony plays before any fade, the menu out of reach")
+		# Only goal progress: a quieter PROGRESS ceremony, and under Reduced Motion no
+		# travelling effects at all.
+		_check(ceremony.awards.trophies.is_empty() and ceremony.title.text == "PROGRESS", "a run that only moved goals opens on PROGRESS")
+		await _wait_for(func(): return ceremony.step == "done", "the progress ceremony ends", 600)
+		_check(not ceremony.cues.has("drumroll") and not ceremony.cues.has("launch") and ceremony.fx.bursts == 0 and ceremony.fx.confetti_shots == 0
+			and ceremony.fx.airborne() == 0 and ceremony.fx.shells == 0 and ceremony.show_cues.is_empty(), "no travelling effects under Reduced Motion, the show included (%s)" % str(ceremony.cues))
+		_check(ceremony.awards.goals.all(func(g): return g.completed or g.scope == "career"), "UI-31: only real progress (no within-run goal that starts over)")
+		await _focus_accept(ceremony.continue_button)
+	var start := Engine.get_process_frames()
+	await _wait_for(func(): return scene.transition_playing(), "the fade out starts", 30)
+	_check(scene.exiting and scene.curtain.mouse_filter == Control.MOUSE_FILTER_STOP and lab.input_paused and (ceremony.visible == pending),
+		"the run fades out after the ceremony, which stays under the fade, and takes no input")
+	for i in 45: await process_frame
+	_check(scene.curtain.color.a > 0.3 and scene.curtain.color.a < 0.75 and lab.motion.sound.fade < 0.75 and lab.motion.sound.fade > 0.25,
+		"the screen and the run's music fade out together (%.2f, %.2f)" % [scene.curtain.color.a, lab.motion.sound.fade])
+	if pending:
+		_check(ceremony.has_music() and ceremony.music.volume_db < scene.Soundtrack.level_db(lab.settings) - 3.0, "the awards music fades with it (%.1f dB)" % ceremony.music.volume_db)
+	await _wait_for(func(): return scene.screen == "menu" and scene.lab == null, "Clubhouse returns to the menu", 400)
+	var seconds := float(Engine.get_process_frames() - start) / 60.0
+	_check(not scene.transition_playing() and scene.curtain.color.a == 0.0 and not scene.exiting, "no fade into the Clubhouse: it is there at once")
+	_check(scene.clubhouse_music == null or (scene.clubhouse_music.playing and absf(scene.clubhouse_music.volume_db - scene.Soundtrack.level_db(scene.throw_settings)) < 0.01),
+		"the Clubhouse music starts at its level")
+	_check(seconds >= 1.5 and seconds <= 1.95, "the fade out takes %.2f s (UI-31: 1.65, half of 3.3)" % seconds)
 	_check(scene.career.first_clears.has("rival.surveyor"), "the Career outlives the session")
 	lab = null
+
+## UI-22: the League win's award ceremony: each new trophy with its own Clubhouse
+## art, the effects and their sounds, the goals, Skip and Continue. UI-25: it plays
+## when the player leaves the result sheet (here by New Run).
+func _award_ceremony() -> void:
+	var ceremony: Control = lab.award_ceremony
+	var Art = preload("res://src/clubhouse/clubhouse_art.gd")
+	await _wait_for(func(): return ceremony.visible and ceremony.playing, "Continue opens the waiting ceremony")
+	_check(ceremony.visible and ceremony.playing and not lab.settings.reduced_motion and lab.hud.result.visible, "the award ceremony opens over the result sheet, in full motion")
+	var ids: Array = ceremony.awards.trophies.map(func(t): return t.id)
+	_check(ids.slice(0, 3) == ["league.house", "rival.custodian", "rival.surveyor"] or ids.slice(0, 3) == ["league.house", "rival.surveyor", "rival.custodian"],
+		"it presents the House title first, then both rivals' plaques (%s)" % str(ids))
+	_check(ceremony.title.text == "AWARDS", "a run that earned trophies opens on AWARDS")
+	# The owner's awards track loops under the ceremony; the League's music steps aside.
+	_check(ceremony.has_music() and ceremony.music.stream.resource_path == "res://assets/audio/music/awards.ogg" and ceremony.music.stream.loop,
+		"the ceremony plays the owner's looping awards track")
+	await _wait_for(func(): return lab.motion.sound.duck < 0.2, "the League's music steps aside for it", 120)
+	# The first trophy: a drumroll under the gathering sunburst, then the reveal.
+	await _wait_for(func(): return ceremony.step == "trophy" and "reveal" in ceremony.cues, "the first trophy is revealed", 600)
+	var first: Dictionary = ceremony.awards.trophies[0]
+	_check(ceremony.stage_art.texture != null and ceremony.stage_art.texture.resource_path == Art.path_for(first.asset) and Art.has_art(first.asset),
+		"the trophy shown is its own Clubhouse art (%s)" % first.asset)
+	_check(ceremony.stage_kicker.text == "LEAGUE CHAMPION!" and ceremony.stage_name.text == first.name, "the title is announced by name")
+	_check(ceremony.cues.slice(0, 3) == ["whoosh", "rocket", "rocket"] and "drumroll" in ceremony.cues, "the opening whoosh and bottle rockets, then a drumroll (%s)" % str(ceremony.cues))
+	await _wait_for(func(): return ceremony.fx.bursts > 0 and "burst" in ceremony.cues and ceremony.fx.confetti_shots > 0, "fireworks and confetti, with their sounds", 300)
+	# UI-31: the show runs from the start: shells of several kinds, confetti falling
+	# from the top and streamers, with their own sounds.
+	await _wait_for(func(): return ceremony.fx.shells >= 3 and "burst" in ceremony.show_cues, "the continuous show is under way", 600)
+	_check(ceremony.fx.show_on and ceremony.fx._stream != null and ceremony.fx._stream.emitting and ceremony.fx._streamers.size() == ceremony.fx.STREAMERS,
+		"confetti falls from the top and streamers drift the whole time")
+	for i in 6: await process_frame
+	await _capture("awards_trophy")
+	# A tap hurries the moment along; Skip goes straight to the summary.
+	var at: Vector2 = root.get_screen_transform() * ceremony.get_global_rect().get_center()
+	for pressed in [true, false]:
+		var touch := InputEventScreenTouch.new()
+		touch.index = 0
+		touch.position = at
+		touch.pressed = pressed
+		Input.parse_input_event(touch)
+		await process_frame
+	await _wait_for(func(): return ceremony.shown_trophies.size() >= 2, "a tap moves on to the next trophy", 240)
+	await _focus_accept(ceremony.skip_button)
+	_check(ceremony.step == "done" and ceremony.continue_button.has_focus() and not ceremony.skip_button.visible, "Skip goes to the summary, with Continue ready")
+	for t in ceremony.awards.trophies:
+		_check(ceremony.shelf.get_node_or_null("Shelf_" + String(t.id).replace(".", "_")) != null, "the shelf holds %s" % t.name)
+	for g in ceremony.awards.goals:
+		var row: Dictionary = ceremony.goal_rows.get(g.id, {})
+		_check(not row.is_empty() and is_equal_approx(row.bar.value, float(g.after)) and row.stamp.visible == g.completed,
+			"the goal %s stands at %d of %d" % [g.name, g.after, g.threshold])
+	_check(ceremony.awards.goals.all(func(g): return g.completed or g.scope == "career"), "UI-31: only real progress (no within-run goal that starts over)")
+	# UI-31: the fireworks keep going on the summary, for as long as it is up.
+	var shells: int = ceremony.fx.shells
+	var heard: int = ceremony.show_cues.size()
+	for i in 150: await process_frame
+	_check(ceremony.fx.show_on and ceremony.fx.shells >= shells + 3 and ceremony.show_cues.size() > heard and ceremony.fx.alive_bursts() > 0,
+		"the fireworks keep going on the summary (%d → %d shells)" % [shells, ceremony.fx.shells])
+	await _capture("awards_summary")
+	# UI-38b: on the last screen the effects ease down over 5 s to half the music's volume.
+	var floor: float = ceremony.sfx_floor()
+	var midway: float = ceremony.sfx_level
+	for i in 200: await process_frame
+	var music_gain := db_to_linear(scene.Soundtrack.level_db(lab.settings))
+	var effects_gain: float = float(lab.settings.get("sound_volume", 0.65)) * 0.5 * ceremony.sfx_level
+	_check(ceremony.sfx_fading and floor < 1.0 and midway < 1.0 and midway > floor + 0.02 and is_equal_approx(ceremony.sfx_level, floor)
+		and absf(effects_gain - 0.5 * music_gain) < 0.002,
+		"UI-38b: the effects ease down over 5 s to half the music's volume (%.2f at 2.5 s → %.2f; effects %.3f, music %.3f)" % [midway, ceremony.sfx_level, effects_gain, music_gain])
+	var loud: Array = ceremony._voices + ceremony._show_voices
+	_check(loud.filter(func(v): return v.playing and v.has_meta("gain")).all(func(v): return v.volume_db <= linear_to_db(float(v.get_meta("gain")) * floor) + 0.1),
+		"UI-38b: sounds already playing follow the fade")
+	await _focus_accept(ceremony.continue_button)
+	_check(not ceremony.playing and ceremony.hold, "Continue ends the ceremony; its last screen stays under the fade")
+	_check(ceremony.fx.show_on, "the show goes on under the fade")

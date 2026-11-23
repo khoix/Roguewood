@@ -4,6 +4,7 @@ extends PanelContainer
 ## explicit replacements) with Cancel. A view only: the lab and the pure Shop and
 ## RunInventory own every rule and number. Touch, mouse and keyboard/gamepad focus
 ## all work. Developmental look; card art and foil are E12/E19.
+const Sentence = preload("res://src/presentation/sentence.gd")
 const ItemAssets = preload("res://src/presentation/item_assets.gd")
 const CardView = preload("res://src/presentation/card_view.gd")
 const UiTheme = preload("res://src/presentation/house_ui_theme.gd")
@@ -22,7 +23,7 @@ signal sell_pressed(ref: String)
 signal continue_pressed
 signal choice_made(index: int)
 signal choice_cancelled
-signal charm_moved(slot: int)
+signal charm_reordered(from_slot: int, to_slot: int) # UI-32: 1-based Charm slots
 
 var title: Label
 var summary: Label
@@ -35,12 +36,19 @@ var remove_button: Button
 var continue_button: Button
 var rack_label: Label
 var owned_list: Container # UI-12: the Sell tiles (HFlowContainer "Owned")
-var charm_box: VBoxContainer # the Charm order and its moves, under the tiles
+var charm_box: VBoxContainer # UI-32: the Inventory's Charm section (heading, row, hint), first
+var charm_row: HBoxContainer # the Charms in scoring order, reordered by drag and drop
+var charm_hint: Label
+var items_heading: Label
+var ledger: PanelContainer # UI-32: the payout and rack, as a slip (summary and rack_label keep the text)
+var _dragging_charm := false
+var _refocus_charm := 0
 var sell_detail: Label
 var sell_confirm_sheet: PanelContainer
 var sell_card: CardView
 var sell_confirm_title: Label
 var sell_confirm_text: Label
+var sell_confirm_rules: Label
 var sell_confirm: Button
 var sell_back: Button
 var _sell_pending := ""
@@ -87,6 +95,7 @@ var sell_sheet: PanelContainer
 var sell_title: Label
 var sell_close: Button
 var _dim: ColorRect
+var _dim_tapped := -1 # the frame of the last tap on the dim
 var _offers: Array = []
 var _offer_index := -1
 var _money := 0
@@ -174,23 +183,34 @@ func _ready() -> void:
 	sell_open.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	details_button = _button(tools, "ShopDetails", func():
 		_details_open = not _details_open
-		_show_details())
+		_show_details()
+		if _details_open: _reveal_ledger()) # UI-32: the slip opens into view
 	details_button.custom_minimum_size = Vector2(0, 56)
 	details_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	details_button.size_flags_stretch_ratio = 1.5
-	_main.move_child(summary, -1) # actions, message, Sell and Details, then the payout
+	_main.move_child(summary, -1) # actions, message, Inventory and Details, then the payout
 	rack_label = _label(_main, "RackSummary", 20)
 	rack_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	# UI-32 (owner, 2026-11-20): the payout and the rack as a themed slip. The two
+	# labels stay, hidden, with the full text (tools, tests and the art hooks read it).
+	ledger = PanelContainer.new()
+	ledger.name = "PayoutRack"
+	ledger.add_theme_stylebox_override("panel", UiTheme.frame("slip", 18.0, 14.0))
+	_main.add_child(ledger)
+	_main.move_child(ledger, summary.get_index())
 	# A dimmed layer under the two sheets; a tap on it closes them.
 	_dim = ColorRect.new()
 	_dim.name = "SheetDim"
-	_dim.color = Color(0.03, 0.05, 0.08, 0.6)
+	_dim.color = UiTheme.SCRIM
 	_dim.top_level = true
 	_dim.hide()
-	_dim.gui_input.connect(func(event):
-		if (event is InputEventMouseButton or event is InputEventScreenTouch) and event.pressed:
-			close_offer()
-			close_sell())
+	_dim.gui_input.connect(func(event): # a tap outside closes the top sheet only
+		# A tap arrives twice, as touch and as its emulated mouse (or the reverse): once a frame.
+		if (event is InputEventMouseButton or event is InputEventScreenTouch) and event.pressed and Engine.get_process_frames() != _dim_tapped:
+			_dim_tapped = Engine.get_process_frames()
+			if sell_confirm_sheet.visible: close_sell_confirm()
+			elif offer_sheet.visible: close_offer()
+			elif sell_sheet.visible: close_sell())
 	add_child(_dim)
 	# The Sell sheet: everything that can be sold (and the Charm order), in rows.
 	sell_sheet = _sheet("SellSheet")
@@ -208,6 +228,30 @@ func _ready() -> void:
 	sell_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	sell_column.add_theme_constant_override("separation", 10)
 	sell_scroll.add_child(sell_column)
+	# UI-32 (owner, 2026-11-20): the Charms first, in a row in scoring order, reordered
+	# by drag and drop (Shift+Left/Right with keyboard focus); the other items below.
+	# A tap on any item opens it to review or sell, as before.
+	charm_box = VBoxContainer.new()
+	charm_box.name = "CharmSection"
+	charm_box.add_theme_constant_override("separation", 6)
+	sell_column.add_child(charm_box)
+	var charm_heading := _label(charm_box, "CharmHeading", 20)
+	charm_heading.text = "Charms · scored left to right"
+	charm_heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	charm_heading.add_theme_color_override("font_color", UiTheme.BRASS)
+	charm_row = HBoxContainer.new()
+	charm_row.name = "CharmRow"
+	charm_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	charm_row.add_theme_constant_override("separation", 6)
+	charm_box.add_child(charm_row)
+	charm_hint = _label(charm_box, "CharmHint", 16)
+	charm_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	charm_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	charm_hint.add_theme_color_override("font_color", Color("9aa8a6"))
+	items_heading = _label(sell_column, "ItemsHeading", 20)
+	items_heading.text = "Your Items"
+	items_heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	items_heading.add_theme_color_override("font_color", UiTheme.BRASS)
 	var flow := HFlowContainer.new()
 	flow.name = "Owned"
 	flow.alignment = FlowContainer.ALIGNMENT_CENTER
@@ -216,10 +260,6 @@ func _ready() -> void:
 	flow.add_theme_constant_override("v_separation", 8)
 	sell_column.add_child(flow)
 	owned_list = flow
-	charm_box = VBoxContainer.new()
-	charm_box.name = "CharmOrderBox"
-	charm_box.add_theme_constant_override("separation", 6)
-	sell_column.add_child(charm_box)
 	sell_detail = _label(sell_box, "SellDetail", 18)
 	sell_detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	sell_detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -240,9 +280,14 @@ func _ready() -> void:
 	sell_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	sell_card.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	confirm_box.add_child(sell_card)
-	sell_confirm_text = _label(confirm_box, "SellConfirmText", 22)
+	sell_confirm_text = _label(confirm_box, "SellConfirmText", 18) # where it sits
 	sell_confirm_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	sell_confirm_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	sell_confirm_text.add_theme_color_override("font_color", Color("9aa8a6"))
+	# UI-34 (owner, 2026-11-20): the item's full rules, as its offer showed them.
+	sell_confirm_rules = _label(confirm_box, "SellConfirmRules", 22)
+	sell_confirm_rules.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	sell_confirm_rules.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	var confirm_row := HBoxContainer.new()
 	confirm_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	confirm_row.add_theme_constant_override("separation", 12)
@@ -260,8 +305,22 @@ func _ready() -> void:
 	var offer_box := VBoxContainer.new()
 	offer_box.add_theme_constant_override("separation", 8)
 	offer_sheet.add_child(offer_box)
-	offer_title = _label(offer_box, "OfferTitle", 28)
+	# UI-26 (owner, 2026-11-19): the price sits at the top right, beside the name.
+	var offer_head := HBoxContainer.new()
+	offer_head.name = "OfferHead"
+	offer_box.add_child(offer_head)
+	var balance := Control.new() # matches the price's side, so the name stays centred
+	balance.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	balance.size_flags_stretch_ratio = 0.3
+	offer_head.add_child(balance)
+	offer_title = _label(offer_head, "OfferTitle", 28)
 	offer_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	offer_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	offer_price = _label(offer_head, "OfferPrice", 28)
+	offer_price.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	offer_price.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	offer_price.size_flags_stretch_ratio = 0.3
+	offer_price.add_theme_color_override("font_color", Color(1.0, 0.85, 0.35))
 	offer_card = CardView.new()
 	offer_card.name = "OfferCard"
 	offer_card.focus_mode = Control.FOCUS_NONE
@@ -274,9 +333,6 @@ func _ready() -> void:
 	offer_detail = _label(offer_box, "OfferDetail", 22)
 	offer_detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	offer_detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	offer_price = _label(offer_box, "OfferPrice", 22)
-	offer_price.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	offer_price.add_theme_color_override("font_color", Color(1.0, 0.85, 0.35))
 	offer_reason = _label(offer_box, "OfferReason", 20)
 	offer_reason.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	offer_reason.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -352,14 +408,36 @@ func _sheet(node_name: String) -> PanelContainer:
 	add_child(sheet)
 	return sheet
 
+## UI-35 (owner, 2026-11-20): "Bringing up the preview cards overlay in the inventory
+## does not darken the background like others." One dim serves every sheet; it sits
+## just under the topmost open sheet, so a sheet opened over another (an item over the
+## Inventory) darkens it too. The newest sheet is drawn on top.
+func _raise(sheet: Control) -> void:
+	move_child(sheet, -1)
+	_restack_dim()
+
+func _sheets_open() -> Array:
+	return [choice_sheet, sell_sheet, offer_sheet, sell_confirm_sheet].filter(func(s): return s != null and s.visible)
+
+func _restack_dim() -> void:
+	var open := _sheets_open()
+	if open.is_empty():
+		_dim.hide()
+		return
+	var top: Control = open[0]
+	for sheet in open:
+		if sheet.get_index() > top.get_index(): top = sheet
+	_dim.position = Vector2.ZERO
+	_dim.size = get_viewport_rect().size
+	_dim.show()
+	move_child(_dim, top.get_index() - (1 if _dim.get_index() < top.get_index() else 0))
+
 ## Centres a sheet on the screen at up to `wanted` size, over the dimmed layer.
 func _fit_sheet(sheet: Control, wanted: Vector2) -> void:
 	var screen := get_viewport_rect().size
-	_dim.position = Vector2.ZERO
-	_dim.size = screen
-	_dim.show()
 	sheet.size = Vector2(minf(wanted.x, screen.x - 32.0), minf(wanted.y, screen.y - 120.0))
 	sheet.position = ((screen - sheet.size) * 0.5).floor()
+	_raise(sheet)
 
 ## A tapped offer opens large, with its full text and price. Buying is the Buy
 ## button's job; an offer that cannot be bought still opens, and says why.
@@ -378,9 +456,9 @@ func open_offer(index: int) -> void:
 	offer_title.text = String(offer.get("name", ""))
 	offer_kind.text = String(offer.get("kind", ""))
 	offer_detail.text = String(offer.get("detail", ""))
-	offer_price.text = "Costs $%d · you have $%d" % [int(offer.get("price", 0)), _money]
+	offer_price.text = "$%d" % int(offer.get("price", 0))
 	var reason := String(offer.get("reason", ""))
-	offer_reason.text = "" if offer.state == "buy" else "Can't buy: %s." % (reason if not reason.is_empty() else "not available")
+	offer_reason.text = "" if offer.state == "buy" else "Can't buy: %s." % Sentence.cap(reason if not reason.is_empty() else "not available")
 	offer_reason.visible = not offer_reason.text.is_empty()
 	buy_button.text = "Buy $%d" % int(offer.get("price", 0))
 	buy_button.disabled = offer.state != "buy"
@@ -403,16 +481,16 @@ func close_offer() -> void:
 	_offer_index = -1
 	offer_sheet.hide()
 	offer_sheet.modulate.a = 1.0
-	_dim.visible = sell_sheet.visible
+	_restack_dim()
 	if index >= 0 and index < offer_buttons.size() and offer_buttons[index].is_visible_in_tree() and not offer_buttons[index].disabled:
 		offer_buttons[index].grab_focus()
 
 func _open_sell() -> void:
-	if choice_sheet.visible or owned_list.get_child_count() + charm_box.get_child_count() == 0: return
+	if choice_sheet.visible or owned_list.get_child_count() + charm_row.get_child_count() == 0: return
 	close_offer()
 	sell_sheet.show()
 	_fit_sell()
-	for child in owned_list.get_children() + charm_box.get_children():
+	for child in charm_row.get_children() + owned_list.get_children():
 		if child is Button:
 			child.grab_focus()
 			break
@@ -421,7 +499,15 @@ func _fit_sell() -> void:
 	var screen := get_viewport_rect().size
 	var columns := maxi(1, int((minf(560.0, screen.x - 32.0) - 48.0 + 8.0) / (_sell_tile_size().x + 8.0)))
 	var rows := ceili(owned_list.get_child_count() / float(columns))
-	_fit_sheet(sell_sheet, Vector2(560.0, (_sell_tile_size().y + 8.0) * rows + 62.0 * charm_box.get_child_count() + 230.0))
+	var charms := (_charm_tile_size().y + 90.0) if charm_box.visible else 0.0
+	var items := ((_sell_tile_size().y + 8.0) * rows + 36.0) if owned_list.get_child_count() > 0 else 0.0
+	_fit_sheet(sell_sheet, Vector2(560.0, charms + items + 190.0))
+
+## Five Charms fit one row on a phone.
+func _charm_tile_size() -> Vector2:
+	var screen := get_viewport_rect().size
+	var width := floorf(clampf((minf(560.0, screen.x - 32.0) - 60.0 - 6.0 * 4.0) / 5.0, 64.0, 100.0))
+	return Vector2(width, floorf(width * 1.22))
 
 func _sell_tile_size() -> Vector2:
 	var screen := get_viewport_rect().size
@@ -443,6 +529,8 @@ func open_sell_confirm(ref: String) -> void:
 		sell_card.set_state("", "", "", String(owned.get("text", "")))
 	sell_confirm_title.text = String(owned.get("name", owned.label))
 	sell_confirm_text.text = String(owned.get("detail", owned.label))
+	sell_confirm_rules.text = String(owned.get("rules", owned.get("text", "")))
+	sell_confirm_rules.visible = not sell_confirm_rules.text.is_empty()
 	sell_confirm.text = "Sell +$%d" % int(owned.get("value", 0))
 	sell_confirm_sheet.show()
 	sell_confirm.grab_focus()
@@ -461,7 +549,7 @@ func close_sell_confirm() -> void:
 	_sell_pending = ""
 	sell_confirm_sheet.hide()
 	sell_confirm_sheet.modulate.a = 1.0
-	_dim.visible = sell_sheet.visible or offer_sheet.visible
+	_restack_dim()
 	var tile := sell_button(ref)
 	if tile != null and tile.is_visible_in_tree(): tile.grab_focus()
 
@@ -508,9 +596,10 @@ func pending_confirm(control) -> Button:
 
 func close_sell() -> void:
 	if not sell_sheet.visible: return
+	if lifted != null: _end_charm_drag()
 	close_sell_confirm()
 	sell_sheet.hide()
-	_dim.visible = offer_sheet.visible
+	_restack_dim()
 	if sell_open.is_visible_in_tree(): sell_open.grab_focus()
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -552,10 +641,11 @@ func _show_details() -> void:
 		else: button.add_theme_font_size_override("font_size", 19)
 	offers_grid.size_flags_horizontal = Control.SIZE_FILL if _landscape else Control.SIZE_SHRINK_CENTER
 	var shown := _landscape or _details_open
-	summary.visible = shown
-	rack_label.visible = shown
+	summary.visible = false # UI-32: the slip shows them; the labels keep the text
+	rack_label.visible = false
+	ledger.visible = shown
 	details_button.visible = not _landscape
-	details_button.text = "Hide details" if _details_open else "Payout & rack"
+	details_button.text = "Hide Details" if _details_open else "Payout & Rack"
 
 static func _style(_color: Color) -> StyleBox:
 	return UiTheme.frame("panel", 14.0, 12.0)
@@ -576,8 +666,9 @@ func _button(parent: Control, node_name: String, action: Callable, flags: int = 
 	return button
 
 ## view: {title, summary, money, offers: [{text, state}], reroll_cost, can_reroll,
-## removal_price, can_remove, rack, sellables: [{ref, label}], charm_order, charm_moves:
-## [{slot, label}], message, columns}.
+## removal_price, can_remove, rack, sellables: [{ref, label, item_id, mod, name, value,
+## detail}] (Charms by their `charm:N` refs, in the Inventory's Charm row), payout and
+## holdings (UI-32's slip, see _build_ledger), message, columns}.
 ## Offer states: "buy", "poor" (unaffordable), "blocked", "sold", "empty".
 func show_view(view: Dictionary) -> void:
 	title.text = view.title
@@ -646,23 +737,34 @@ func show_view(view: Dictionary) -> void:
 		button.disabled = offer.state in ["sold", "empty"] or item_id.is_empty() or choice_sheet.visible
 	reroll_button.text = "Reroll $%d" % view.reroll_cost
 	reroll_button.disabled = not view.can_reroll or choice_sheet.visible
-	remove_button.text = "Remove a card $%d" % view.removal_price
+	remove_button.text = "Remove a Card $%d" % view.removal_price
 	remove_button.disabled = not view.can_remove or choice_sheet.visible
 	continue_button.disabled = choice_sheet.visible
 	message.text = view.get("message", "")
 	var refused: bool = message.text.begins_with("Can't")
 	message.add_theme_color_override("font_color", Color(1.0, 0.55, 0.45) if refused else Color(0.6, 0.95, 0.7))
 	rack_label.text = view.rack
-	for box in [owned_list, charm_box]:
+	_build_ledger(view)
+	if lifted != null: _end_charm_drag() # a rebuild ends any lift
+	var focused_ref := ""
+	var focused := get_viewport().gui_get_focus_owner() if is_inside_tree() else null
+	for box in [owned_list, charm_row]:
 		for child in box.get_children():
+			if child == focused: focused_ref = String(child.get_meta("ref", ""))
 			box.remove_child(child)
 			child.queue_free()
 	_sellables = {}
-	for owned in view.sellables:
+	var charms: Array = view.sellables.filter(func(o): return String(o.ref).begins_with("charm:"))
+	charms.sort_custom(func(a, b): return int(String(a.ref).get_slice(":", 1)) < int(String(b.ref).get_slice(":", 1)))
+	var others: Array = view.sellables.filter(func(o): return not String(o.ref).begins_with("charm:"))
+	for owned in charms + others:
 		var ref: String = owned.ref
 		_sellables[ref] = owned
+		var is_charm := ref.begins_with("charm:")
 		var caption := "%s\n+$%d" % [String(owned.get("name", owned.label)), int(owned.get("value", 0))] if owned.has("value") else String(owned.label)
-		var tile := _tile(owned_list, "Sell_" + ref.replace(":", "_").replace("-", "_"), String(owned.get("item_id", "")), String(owned.get("mod", "")), caption, _sell_tile_size())
+		var tile := _tile(charm_row if is_charm else owned_list, "Sell_" + ref.replace(":", "_").replace("-", "_"), String(owned.get("item_id", "")),
+			String(owned.get("mod", "")), caption, _charm_tile_size() if is_charm else _sell_tile_size())
+		tile.set_meta("ref", ref)
 		tile.tooltip_text = owned.label
 		tile.disabled = choice_sheet.visible
 		# A tap opens the item to confirm; accept sells at once (deferred: selling
@@ -670,30 +772,47 @@ func show_view(view: Dictionary) -> void:
 		tile.pressed.connect(func():
 			var by_pointer := _pointer
 			_pointer = false
+			if _dragging_charm: return # the release that ended a drag is not a tap
 			if by_pointer: open_sell_confirm(ref)
 			else: call_deferred("emit_signal", "sell_pressed", ref))
 		tile.focus_entered.connect(func(): sell_detail.text = String(owned.get("detail", owned.label)))
-	sell_detail.text = "Tap an item to sell it." if not view.sellables.is_empty() else ""
+		if is_charm:
+			var slot := int(ref.get_slice(":", 1))
+			tile.add_theme_font_size_override("font_size", 13)
+			var number := Label.new() # the scoring position
+			number.name = "Slot"
+			number.text = str(slot)
+			number.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			number.add_theme_font_size_override("font_size", 14)
+			number.add_theme_color_override("font_color", UiTheme.BRASS)
+			number.position = Vector2(6, 2)
+			tile.add_child(number)
+			# UI-34: a long press lifts the Charm; it follows the finger to its new slot.
+			tile.gui_input.connect(func(event): _charm_pointer(event, slot, tile))
+			# Keyboard and gamepad: Shift+Left/Right moves the focused Charm.
+			tile.gui_input.connect(func(event):
+				if event is InputEventKey and event.pressed and event.shift_pressed and event.keycode in [KEY_LEFT, KEY_RIGHT]:
+					var to := slot + (-1 if event.keycode == KEY_LEFT else 1)
+					tile.accept_event()
+					if to >= 1 and to <= charms.size() and not choice_sheet.visible:
+						_refocus_charm = to
+						charm_reordered.emit.call_deferred(slot, to))
+	charm_box.visible = not charms.is_empty()
+	charm_hint.text = "Press and hold a Charm, then drag it to a new slot. Tap any item to review or sell it." if charms.size() > 1 else "Tap any item to review or sell it."
+	items_heading.visible = not others.is_empty() and not charms.is_empty()
+	sell_detail.text = "" if view.sellables.is_empty() else ("Tap an item to review or sell it." if charms.size() < 2 else "")
 	if sell_confirm_sheet.visible and not _sellables.has(_sell_pending): close_sell_confirm()
-	# Charm order (E13), under the tiles: each Charm after the first can move one slot left.
-	if not String(view.get("charm_order", "")).is_empty():
-		var order := _label(charm_box, "CharmOrder", 20)
-		order.text = view.charm_order
-		order.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	for move in view.get("charm_moves", []):
-		var slot: int = move.slot
-		var button := _button(charm_box, "MoveCharm_%d" % slot, func(): charm_moved.emit(slot), CONNECT_DEFERRED)
-		button.text = move.label
-		button.custom_minimum_size = Vector2(0, 52)
-		button.disabled = choice_sheet.visible
-	# One Sell control for all of it; the sheet stays open across sales until it is empty.
-	var moves: int = view.get("charm_moves", []).size()
-	sell_open.text = ("Sell · %d" % view.sellables.size()) if moves == 0 else "Sell · %d · order" % view.sellables.size()
-	sell_open.disabled = (view.sellables.is_empty() and moves == 0) or choice_sheet.visible
-	sell_title.text = "Sell" if moves == 0 else "Sell, or change the Charm order"
+	# One Inventory control for all of it; the sheet stays open across sales and moves.
+	sell_open.text = "Inventory"
+	sell_open.disabled = view.sellables.is_empty() or choice_sheet.visible
+	sell_title.text = "Inventory"
 	if sell_sheet.visible:
 		if sell_open.disabled: close_sell()
-		else: _fit_sell.call_deferred()
+		else:
+			_fit_sell.call_deferred()
+			var back: Button = charm_tile(_refocus_charm) if _refocus_charm > 0 else (sell_button(focused_ref) if not focused_ref.is_empty() else null)
+			if back != null: back.grab_focus.call_deferred()
+	_refocus_charm = 0
 
 ## After a reflow the focused action scrolls into view against the old layout
 ## (follow_focus), which hid the title when a shop first opened in landscape.
@@ -766,6 +885,7 @@ func show_choices(prompt: String, labels: Array, visuals: Array = [], rack: Arra
 	choice_sheet.show()
 	choice_sheet.size = Vector2(width, minf(64.0 * (labels.size() + 2) + 60.0, viewport_size.y - 160.0))
 	choice_sheet.position = ((viewport_size - choice_sheet.size) * 0.5).floor()
+	_raise(choice_sheet)
 	if labels.is_empty():
 		cancel_choice.grab_focus()
 	else:
@@ -813,8 +933,10 @@ func select_choice(index: int) -> void:
 	choice_confirm.disabled = false
 
 ## UI-13 (owner, 2026-11-17): the picked place shows what is about to go there: a
-## modification's badge on the pin, or the new item's art in the place (its old
-## occupant's badge leaves with it). Picking another place restores this one.
+## modification's badge on the pin, or the new item's art in the place. A new pin
+## keeps the place's modification badge when it takes the modification over
+## (UI-30); otherwise the badge leaves with the old pin. Picking another place
+## restores this one.
 func _preview(index: int, on: bool) -> void:
 	var v: Dictionary = _choice_visuals[index]
 	var tile := choice_button(index)
@@ -826,7 +948,7 @@ func _preview(index: int, on: bool) -> void:
 		ModArt._badge(tile, placing if on else String(v.get("mod", "")), int(tile.custom_minimum_size.x * 0.46) if on else extent)
 	else:
 		tile.icon = (ItemAssets.slot(placing, "icon") as Texture2D) if on else tile.get_meta("own_icon", null)
-		ModArt._badge(tile, "" if on else String(v.get("mod", "")), extent)
+		ModArt._badge(tile, String(v.get("keeps_mod", "")) if on else String(v.get("mod", "")), extent)
 	tile.set_meta("previewing", placing if on else "")
 	if on and is_inside_tree():
 		tile.pivot_offset = tile.size * 0.5
@@ -842,6 +964,7 @@ func choice_label(index: int) -> String:
 func hide_choices() -> void:
 	choice_sheet.hide()
 	_choice_selected = -1
+	_restack_dim()
 
 func button_for_offer(index: int) -> Button:
 	return offer_buttons[index]
@@ -849,8 +972,257 @@ func button_for_offer(index: int) -> Button:
 func choice_button(index: int) -> Button:
 	return choice_sheet.find_child("Choice_%d" % index, true, false) as Button
 
-func move_button(slot: int) -> Button:
-	return charm_box.get_node_or_null("MoveCharm_%d" % slot)
-
+## The Inventory tile for an owned item (a Charm's is in the Charm row).
 func sell_button(ref: String) -> Button:
-	return owned_list.get_node_or_null("Sell_" + ref.replace(":", "_").replace("-", "_"))
+	var node_name := "Sell_" + ref.replace(":", "_").replace("-", "_")
+	return (charm_row.get_node_or_null(node_name) if ref.begins_with("charm:") else owned_list.get_node_or_null(node_name)) as Button
+
+## The Charm tile at a 1-based slot.
+func charm_tile(slot: int) -> Button:
+	return charm_row.get_node_or_null("Sell_charm_%d" % slot) as Button
+
+# --- UI-34: the Charm row's long-press lift ---------------------------------
+# The owner (2026-11-20): "on long press, the charm card should become an object that
+# moves with the player's finger." Held LIFT_AFTER without moving, a Charm's tile lifts
+# into a card (a copy of the tile, a little larger) that follows the finger; the slot
+# under it is ringed, and releasing there moves the Charm. A press that moves first is
+# not a hold, and a release after a lift is not a tap. Touch reaches this as Godot's
+# emulated mouse, so one path serves the finger and the mouse.
+
+const LIFT_AFTER := 0.3 # seconds held still before a Charm lifts
+const LIFT_SLOP := 14.0 # pixels a press may wander and still be a hold
+var lifted: Control = null # the card following the finger
+var _lift_slot := 0
+var _press_slot := 0
+var _press_at := Vector2.ZERO
+var _press_time := 0.0
+
+func _charm_pointer(event: InputEvent, slot: int, tile: Button) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if event.pressed:
+			_press_slot = slot if charm_row.get_child_count() > 1 and not choice_sheet.visible else 0
+			_press_at = event.global_position
+			_press_time = 0.0
+		else:
+			_press_slot = 0
+			if lifted != null:
+				_drop_lifted(event.global_position)
+				tile.accept_event() # the release that ends a lift is not a tap
+	elif event is InputEventMouseMotion:
+		if lifted != null:
+			_follow(event.global_position)
+			tile.accept_event()
+		elif _press_slot > 0 and event.global_position.distance_to(_press_at) > LIFT_SLOP:
+			_press_slot = 0
+
+func _process(delta: float) -> void:
+	if _press_slot > 0 and lifted == null:
+		_press_time += delta
+		if _press_time >= LIFT_AFTER: _lift(_press_slot)
+
+func _lift(slot: int) -> void:
+	var tile := charm_tile(slot)
+	_press_slot = 0
+	if tile == null or not sell_sheet.visible: return
+	_lift_slot = slot
+	_dragging_charm = true
+	lifted = tile.duplicate(0) as Control # its art, name, price and badge; no signals
+	lifted.name = "LiftedCharm"
+	lifted.top_level = true
+	lifted.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	lifted.z_index = 50
+	lifted.size = tile.size
+	lifted.pivot_offset = tile.size * 0.5
+	lifted.scale = Vector2(1.15, 1.15)
+	sell_sheet.add_child(lifted)
+	var ring := lifted.get_node_or_null("Selected")
+	if ring != null: ring.show() # lit while held
+	tile.modulate.a = 0.35 # the slot it came from
+	_follow(_press_at)
+
+## The lifted card sits under the finger; the slot it would land in is ringed.
+func _follow(at: Vector2) -> void:
+	if lifted == null: return
+	lifted.global_position = at - lifted.size * 0.5
+	var target := _slot_at(at)
+	for i in charm_row.get_child_count():
+		var ring := charm_row.get_child(i).get_node_or_null("Selected")
+		if ring != null: ring.visible = i + 1 == target and target != _lift_slot
+
+## The Charm slot under a point: the nearest tile across, within the row's height.
+func _slot_at(at: Vector2) -> int:
+	var row := charm_row.get_global_rect().grow(24.0)
+	if not row.has_point(at): return 0
+	var best := 0
+	var nearest := INF
+	for i in charm_row.get_child_count():
+		var away := absf(charm_row.get_child(i).get_global_rect().get_center().x - at.x)
+		if away < nearest:
+			nearest = away
+			best = i + 1
+	return best
+
+func _drop_lifted(at: Vector2) -> void:
+	var target := _slot_at(at)
+	var from := _lift_slot
+	_end_charm_drag()
+	if target > 0 and target != from:
+		_refocus_charm = target
+		charm_reordered.emit.call_deferred(from, target) # the row is rebuilt by the result
+
+func _end_charm_drag() -> void:
+	if lifted != null:
+		lifted.queue_free()
+		lifted = null
+	_lift_slot = 0
+	_press_slot = 0
+	for tile in charm_row.get_children():
+		tile.modulate.a = 1.0
+		var ring := tile.get_node_or_null("Selected")
+		if ring != null: ring.hide()
+	(func(): _dragging_charm = false).call_deferred()
+
+# --- UI-32: the payout and rack slip -----------------------------------------
+
+## Scrolls the shop so the opened slip starts at the top of the view.
+func _reveal_ledger() -> void:
+	for i in 2: await get_tree().process_frame
+	if is_inside_tree() and ledger.visible:
+		_scroll.scroll_vertical = int(maxf(0.0, ledger.position.y - 8.0))
+
+const INK := Color("2a221c") # dark inks on the cream slip
+const RUST := Color("8a4419")
+const EARNED := Color("2f6b3a")
+
+## view.payout: {match, payout, interest, held, item_income, notes}; view.holdings:
+## {pins: [{item_id, mod, name}] by position, reserves: [{item_id, mod, name} or {}],
+## charms: [n, max], deck: [n, max], rack_line, upgrades}.
+func _build_ledger(view: Dictionary) -> void:
+	for child in ledger.get_children():
+		ledger.remove_child(child)
+		child.queue_free()
+	var pay: Dictionary = view.get("payout", {})
+	var held: Dictionary = view.get("holdings", {})
+	var column := VBoxContainer.new()
+	column.name = "Slip"
+	column.add_theme_constant_override("separation", 8)
+	ledger.add_child(column)
+	if not pay.is_empty():
+		var head := HBoxContainer.new()
+		head.name = "PayoutHead"
+		column.add_child(head)
+		var title_label := _ink(head, "PayoutTitle", "MATCH %d PAYOUT" % int(pay.get("match", 0)), 22, RUST)
+		title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var total := int(pay.get("payout", 0)) + int(pay.get("interest", 0)) + int(pay.get("item_income", 0))
+		_ink(head, "PayoutTotal", "+$%d" % total, 28, EARNED)
+		var rows := GridContainer.new()
+		rows.name = "PayoutRows"
+		rows.columns = 2
+		rows.add_theme_constant_override("h_separation", 12)
+		rows.add_theme_constant_override("v_separation", 2)
+		column.add_child(rows)
+		var lines := [["Match payout", int(pay.get("payout", 0))], ["Interest · on $%d held" % int(pay.get("held", 0)), int(pay.get("interest", 0))],
+			["Item income · during the match", int(pay.get("item_income", 0))]]
+		for i in lines.size():
+			var line: Array = lines[i]
+			_ink(rows, "Line_%d" % i, line[0], 18, INK).size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			var amount := _ink(rows, "Amount_%d" % i, "$%d" % line[1], 18, INK if line[1] == 0 else EARNED)
+			amount.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		for note in pay.get("notes", []):
+			_ink(column, "Note_%d" % column.get_child_count(), String(note), 16, RUST).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		var rule := ColorRect.new()
+		rule.name = "Rule"
+		rule.color = Color(INK, 0.35)
+		rule.custom_minimum_size = Vector2(0, 2)
+		column.add_child(rule)
+	if held.is_empty(): return
+	_ink(column, "RackTitle", "YOUR RACK", 22, RUST)
+	var body := HBoxContainer.new()
+	body.name = "RackBody"
+	body.add_theme_constant_override("separation", 14)
+	column.add_child(body)
+	# The rack as the player sees it down the lane: back row first.
+	var triangle := VBoxContainer.new()
+	triangle.name = "RackTriangle"
+	triangle.add_theme_constant_override("separation", 2)
+	body.add_child(triangle)
+	var pins: Array = held.get("pins", [])
+	for row in RACK_ROWS:
+		var line := HBoxContainer.new()
+		line.alignment = BoxContainer.ALIGNMENT_CENTER
+		line.add_theme_constant_override("separation", 2)
+		triangle.add_child(line)
+		for position in row:
+			var pin: Dictionary = pins[position - 1] if position - 1 < pins.size() else {}
+			line.add_child(_pin_icon("Pin_%d" % position, pin, Vector2(30, 36)))
+	var side := VBoxContainer.new()
+	side.name = "RackSide"
+	side.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	side.add_theme_constant_override("separation", 6)
+	body.add_child(side)
+	_ink(side, "RackLine", String(held.get("rack_line", "")), 17, INK).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var reserve_row := HBoxContainer.new()
+	reserve_row.name = "Reserves"
+	reserve_row.add_theme_constant_override("separation", 4)
+	side.add_child(reserve_row)
+	_ink(reserve_row, "ReservesLabel", "Reserves", 16, INK)
+	var reserves: Array = held.get("reserves", [])
+	for i in reserves.size():
+		var slot := PanelContainer.new()
+		slot.name = "Reserve_%d" % (i + 1)
+		var frame := StyleBoxFlat.new()
+		frame.bg_color = Color(INK, 0.08)
+		frame.border_color = Color(INK, 0.45)
+		frame.set_border_width_all(2)
+		frame.set_corner_radius_all(4)
+		slot.add_theme_stylebox_override("panel", frame)
+		slot.add_child(_pin_icon("Pin", reserves[i], Vector2(26, 30)))
+		reserve_row.add_child(slot)
+	var chips := HFlowContainer.new()
+	chips.name = "Counts"
+	chips.add_theme_constant_override("h_separation", 6)
+	chips.add_theme_constant_override("v_separation", 6)
+	side.add_child(chips)
+	for chip in [["Charms", held.get("charms", [0, 0])], ["Deck", held.get("deck", [0, 0])]]:
+		_chip(chips, "%s %d/%d" % [chip[0], int(chip[1][0]), int(chip[1][1])])
+	if not String(held.get("upgrades", "")).is_empty():
+		_ink(column, "Upgrades", "Upgrades, kept for the run: " + String(held.upgrades), 16, INK).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+
+func _ink(parent: Control, node_name: String, text: String, font_size: int, color: Color) -> Label:
+	var label := _label(parent, node_name, font_size)
+	label.text = text
+	label.add_theme_color_override("font_color", color)
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return label
+
+## A pin's art with its modification's badge, or a faint empty place.
+func _pin_icon(node_name: String, pin: Dictionary, extent: Vector2) -> Control:
+	var icon := TextureRect.new()
+	icon.name = node_name
+	icon.custom_minimum_size = extent
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	icon.mouse_filter = Control.MOUSE_FILTER_PASS
+	var item_id := String(pin.get("item_id", ""))
+	icon.texture = ItemAssets.slot(item_id, "icon") as Texture2D if not item_id.is_empty() else null
+	icon.tooltip_text = String(pin.get("name", "Empty"))
+	icon.set_meta("item_id", item_id)
+	if item_id.is_empty(): icon.modulate.a = 0.35
+	if not String(pin.get("mod", "")).is_empty(): ModArt._badge(icon, String(pin.mod), int(extent.x * 0.45))
+	return icon
+
+func _chip(parent: Control, text: String) -> void:
+	var chip := PanelContainer.new()
+	chip.name = "Chip"
+	var style := StyleBoxFlat.new()
+	style.bg_color = INK
+	style.set_corner_radius_all(10)
+	style.content_margin_left = 10
+	style.content_margin_right = 10
+	style.content_margin_top = 3
+	style.content_margin_bottom = 3
+	chip.add_theme_stylebox_override("panel", style)
+	parent.add_child(chip)
+	_ink(chip, "Text", text, 16, UiTheme.IVORY)
+

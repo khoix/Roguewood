@@ -55,7 +55,7 @@ static func _pins(effects: Array = [WOOD], item_id: String = "pin.wood") -> Arra
 	return pins
 
 static func _roll(index: int, fallen: Array, effects: Array = []) -> Dictionary:
-	return {"roll_index": index, "ball_id": "ball.house", "fallen_positions": fallen, "accuracy": "clean", "effects": effects.duplicate(true),
+	return {"roll_index": index, "ball_id": "ball.house", "fallen_positions": fallen, "accuracy": "miss", "effects": effects.duplicate(true),
 		"first_direct": fallen[0] if not fallen.is_empty() else 0, "last_fallen": fallen[-1] if not fallen.is_empty() else 0, "curved": false}
 
 static func _frame(rolls: Array, pins: Array = _pins(), charms: Array = [], rules: Array = []) -> Dictionary:
@@ -84,7 +84,7 @@ static func _dull(failures: Array[String]) -> void:
 	var event: Dictionary = dull.events.filter(func(e): return e.get("op", "") == "add_value")[0] if dull.ok else {}
 	_expect(event.get("amount", 0.0) == 5.0 and event.get("dulled_from", 0.0) == 10.0, "the event keeps the full amount it was dulled from", failures)
 	var steps := ScoreLog.steps(dull, _frame([_roll(1, all)], _pins(), [], [DULL]))
-	_expect(steps.any(func(s): return String(s.text).contains("Dull Pins: half of 10")), "the log marks each halved step", failures)
+	_expect(steps.any(func(s): return String(s.text).contains("Dull Pins: Half of 10")), "the log marks each halved step", failures)
 	_expect(not RivalRules.bank([DULL], dull).notes.is_empty() and RivalRules.bank([DULL], dull).score == 360, "Dull Pins banks the dulled score, with a rule line", failures)
 	var bad := _frame([_roll(1, all)])
 	bad.context["pin_value_scale"] = 1.5

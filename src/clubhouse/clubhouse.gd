@@ -11,6 +11,7 @@ extends Control
 ## asset ID through ClubhouseArt. E16-ART supplies final identities. No new currency.
 signal career_changed
 const Model = preload("res://src/clubhouse/clubhouse_model.gd")
+const UiTheme = preload("res://src/presentation/house_ui_theme.gd")
 const Art = preload("res://src/clubhouse/clubhouse_art.gd")
 const CardView = preload("res://src/presentation/card_view.gd")
 const Career = preload("res://src/persistence/career_profile.gd")
@@ -24,6 +25,7 @@ const STATE_ORDER := ["locked", "available", "discovered", "mastered"]
 
 var career: Dictionary = {}
 var graph: Dictionary = {}
+var league_sets: Array = [] # the content sets the League Board offers; empty lists every League
 var current_tab := "board"
 var category := ""
 var selected_item := ""
@@ -541,7 +543,7 @@ func _build_preview() -> void:
 	binder_preview.hide()
 	add_child(binder_preview)
 	var shade := ColorRect.new()
-	shade.color = Color(0.02, 0.03, 0.07, 0.86)
+	shade.color = UiTheme.SCRIM # UI-35: one scrim behind every overlay
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	shade.gui_input.connect(func(event):
 		if event is InputEventMouseButton and event.pressed: close_preview())
@@ -632,7 +634,7 @@ func refresh() -> void:
 		"goals": _refresh_goals()
 
 func _refresh_board() -> void:
-	var rows: Array = Model.board(career, graph)
+	var rows: Array = Model.board(career, graph, league_sets)
 	records_label.text = "\n".join(rows.map(func(row): return Model.record_line(row) + ("" if row.access.is_empty() else " · " + row.access)))
 	var latest: Array = Model.latest(career, graph)
 	latest_label.text = "\n".join(latest.map(func(l): return l.text)) if not latest.is_empty() else "No unlocks yet. Beat a rival for the first time to add an item to the pool."
@@ -871,7 +873,7 @@ func filter_button(key: String) -> Button:
 
 func _refresh_trophies() -> void:
 	_clear(trophy_grid)
-	for slot in Model.trophies(career, graph):
+	for slot in Model.trophies(career, graph, league_sets):
 		if _narrow:
 			trophy_grid.add_child(_trophy_row(slot))
 			continue

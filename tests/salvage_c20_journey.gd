@@ -33,7 +33,7 @@ func _run() -> void:
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.close)
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	await _moll()
 	await _grimewell()
 	await _scrapjack()
@@ -47,7 +47,7 @@ func _moll() -> void:
 	await _focus_accept(lab.hud.intro_button)
 	await _wait_for(func(): return lab.state == "aim", "Miser Moll's match ready")
 	_check(lab.division.rules() == ["boss_rule.frugal_house"] and lab.lane.lane_condition == "lane_condition.warped_boards", "Miser Moll: Frugal House on Warped Boards")
-	_check(lab.status.text.contains("Frugal House: items pay no money") and lab.status.text.contains("Lane: Warped Boards"), "the status names the rule and the lane: %s" % lab.status.text)
+	_check(lab.status.text.contains("Frugal House: Items pay no money") and lab.status.text.contains("Lane: Warped Boards"), "the status names the rule and the lane: %s" % lab.status.text)
 	await _capture("c20_frugal_house")
 	var money: int = lab.run.money
 	var gutters := await _rule_frame([GUTTER, GUTTER], [0.0, 0.0], "Miser Moll gutter frame")
@@ -55,7 +55,7 @@ func _moll() -> void:
 	_check(7 in standing and 10 in standing, "both Tin pins stood (standing %s)" % str(standing))
 	var scored: Dictionary = lab.scored_frames[-1]
 	var kept: Array = scored.steps.filter(func(s): return s.phase == "after_bank" and String(s.text).contains("kept by the house"))
-	_check(kept.size() == 2 and scored.steps.any(func(s): return String(s.text).contains("Frugal House: item payouts paid nothing ($2 kept by the house)")),
+	_check(kept.size() == 2 and scored.steps.any(func(s): return String(s.text).contains("Frugal House: Item payouts paid nothing ($2 kept by the house)")),
 		"the log marks both Tin payouts as kept by the house, and names the $2")
 	_check(int(scored.income) == 0 and lab.run.money == money, "the run is paid nothing for the frame ($%d before and after)" % money)
 	await _win("Miser Moll")
@@ -66,12 +66,12 @@ func _grimewell() -> void:
 	await _focus_accept(lab.hud.intro_button)
 	await _wait_for(func(): return lab.state == "aim", "Grimewell's match ready")
 	_check(lab.division.rules() == ["boss_rule.dull_pins"] and lab.lane.lane_condition == "lane_condition.grit", "Grimewell: Dull Pins on Grit")
-	_check(lab.status.text.contains("Dull Pins: every pin's Value is halved") and lab.status.text.contains("Lane: Grit"), "the status names the rule and the lane: %s" % lab.status.text)
+	_check(lab.status.text.contains("Dull Pins: Every pin's Value is halved") and lab.status.text.contains("Lane: Grit"), "the status names the rule and the lane: %s" % lab.status.text)
 	_check(not lab.card_rules({"ball_id": "ball.house", "mod": "ball_mod.bumper_guard"}).is_empty(), "without Rust, a Bumper Guard would rebound the roll")
 	await _capture("c20_dull_pins")
 	await _win("Grimewell")
 	var scored: Dictionary = lab.scored_frames[-1]
-	_check(scored.steps.any(func(s): return String(s.text).contains("Dull Pins: half of 10")) and scored.steps.any(func(s): return String(s.text).contains("Dull Pins: every pin's Value was halved")),
+	_check(scored.steps.any(func(s): return String(s.text).contains("Dull Pins: Half of 10")) and scored.steps.any(func(s): return String(s.text).contains("Dull Pins: Every pin's Value was halved")),
 		"the log marks the halved pins and the rule")
 
 func _scrapjack() -> void:
@@ -87,7 +87,7 @@ func _scrapjack() -> void:
 	var rules: Array = lab.division.rules()
 	_check(rules == ["boss_rule.rust", "boss_rule.dull_pins"] and lab.hud.badge.text.contains("Rust") and lab.hud.badge.text.contains("Dull Pins") and lab.lane.lane_condition == "lane_condition.grit",
 		"the champion carries Rust and Dull Pins on Grit, and the badge shows both: %s" % lab.hud.badge.text)
-	_check(lab.status.text.contains("Rust: every ball and pin modification is switched off") and lab.status.text.contains("Dull Pins"), "the status names both rules")
+	_check(lab.status.text.contains("Rust: Every ball and pin modification is switched off") and lab.status.text.contains("Dull Pins"), "the status names both rules")
 	_check(lab.card_rules({"ball_id": "ball.house", "mod": "ball_mod.bumper_guard"}).is_empty(), "under Rust the Bumper Guard brings nothing to the roll")
 	_check(lab.run.loadout().pin_mods == {1: "pin_mod.brass_cap"} and RivalRules.frame_loadout(rules, lab.run.loadout()).pin_mods.is_empty(), "the rack keeps its Brass Cap; the scored rack has none")
 	await _capture("c20_champion")

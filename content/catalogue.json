@@ -64,7 +64,7 @@
         "charges": 0,
         "exhaustion": "cycle"
       },
-      "downside": "Overcurves easily: a full charge can carry past the pocket.",
+      "downside": "Overcurves easily: A full charge can carry past the pocket.",
       "synergy_tags": [
         "curve",
         "hook"
@@ -387,7 +387,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "Heavier: harder to knock down, so strikes come less easily.",
+      "downside": "Heavier: Harder to knock down, so strikes come less easily.",
       "synergy_tags": [
         "standing",
         "anchor"
@@ -505,7 +505,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "Bouncier: scatters unpredictably.",
+      "downside": "Bouncier: Scatters unpredictably.",
       "synergy_tags": [
         "scatter",
         "physics"
@@ -1343,7 +1343,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "Small on its own: only worth +10 Mult on a full clear, and a gutter frame gets nothing.",
+      "downside": "Small on its own: Only worth +10 Mult on a full clear, and a gutter frame gets nothing.",
       "synergy_tags": [
         "baseline",
         "mult",
@@ -1625,7 +1625,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "Gives up curve: any curved roll in the frame cancels it, so it fights Hook builds.",
+      "downside": "Gives up curve: Any curved roll in the frame cancels it, so it fights Hook builds.",
       "synergy_tags": [
         "straight",
         "precision",
@@ -1684,7 +1684,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "Maintenance risk: one fall in five turns it into a Wood pin.",
+      "downside": "Maintenance risk: One fall in five turns it into a Wood pin.",
       "synergy_tags": [
         "value",
         "fragile",
@@ -1907,7 +1907,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "Rewards aim, not pins: a sloppy release on a strike still earns nothing.",
+      "downside": "Rewards aim, not pins: A sloppy release on a strike still earns nothing.",
       "synergy_tags": [
         "precision",
         "accuracy",
@@ -2015,7 +2015,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "Only works when behind: a strong first frame switches it off for the match.",
+      "downside": "Only works when behind: A strong first frame switches it off for the match.",
       "synergy_tags": [
         "comeback",
         "mult"
@@ -2240,7 +2240,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "Money, not score: a strike with it banks no extra points.",
+      "downside": "Money, not score: A strike with it banks no extra points.",
       "synergy_tags": [
         "economy",
         "strike"
@@ -2346,7 +2346,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "Small, and only on a fall: a standing capped pin adds nothing.",
+      "downside": "Small, and only on a fall: A standing capped pin adds nothing.",
       "synergy_tags": [
         "mult",
         "rack"
@@ -2640,7 +2640,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "No change: the standard oil pattern.",
+      "downside": "No change: The standard oil pattern.",
       "synergy_tags": [
         "baseline",
         "house"
@@ -3043,7 +3043,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "More choice, not cheaper choice: the extra offer costs full price and rerolls cost the same. Kept for the run; cannot be sold.",
+      "downside": "More choice, not cheaper choice: The extra offer costs full price and rerolls cost the same. Kept for the run; cannot be sold.",
       "synergy_tags": [
         "selection",
         "shop",
@@ -3141,7 +3141,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "Pays only for one pin: a frame that leaves the head pin standing gets nothing.",
+      "downside": "Pays only for one pin: A frame that leaves the head pin standing gets nothing.",
       "synergy_tags": [
         "positional",
         "strike",
@@ -3365,7 +3365,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "Money only: it adds no points, so it needs the strikes before it pays.",
+      "downside": "Money only: It adds no points, so it needs the strikes before it pays.",
       "synergy_tags": [
         "economy",
         "strike",
@@ -3418,7 +3418,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "Rewards missing: it adds nothing to a strike or a spare.",
+      "downside": "Rewards missing: It adds nothing to a strike or a spare.",
       "synergy_tags": [
         "standing",
         "open",
@@ -4750,7 +4750,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "Curved throws hook later and less: the oil runs 7 ft further down the lane.",
+      "downside": "Curved throws hook later and less: The oil runs 7 ft further down the lane.",
       "synergy_tags": [
         "straight",
         "precision",
@@ -4840,7 +4840,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "The ball loses speed on the gritty front of the lane and reaches the rack slower: light balls are deflected more and carry fewer pins.",
+      "downside": "The ball loses speed on the gritty front of the lane and reaches the rack slower: Light balls are deflected more and carry fewer pins.",
       "synergy_tags": [
         "material",
         "power",
@@ -4885,7 +4885,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "A warped band of boards drifts the ball toward the right gutter: a line that is right on House Oil arrives right of the pocket here.",
+      "downside": "A warped band of boards drifts the ball toward the right gutter: A line that is right on House Oil arrives right of the pocket here.",
       "synergy_tags": [
         "lane",
         "side",
@@ -5107,7 +5107,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "It needs both at once: a straight frame or a sloppy release earns nothing.",
+      "downside": "It needs both at once: A straight frame or a sloppy release earns nothing.",
       "synergy_tags": [
         "curve",
         "accuracy",
@@ -5383,7 +5383,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "More hook on every throw with that card: on House Oil a full charge can carry past the pocket.",
+      "downside": "More hook on every throw with that card: On House Oil a full charge can carry past the pocket.",
       "synergy_tags": [
         "curve",
         "hook",
@@ -5442,7 +5442,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "It lights only if a curved ball meets its pin first: elsewhere in the rack, or on a straight roll, it does nothing.",
+      "downside": "It lights only if a curved ball meets its pin first: Elsewhere in the rack, or on a straight roll, it does nothing.",
       "synergy_tags": [
         "curve",
         "rack",
@@ -5602,7 +5602,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "No Hammer or Echo Ball: six cards split between curve and straight, with no power or retrigger ball.",
+      "downside": "No Hammer or Echo Ball: Six cards split between curve and straight, with no power or retrigger ball.",
       "synergy_tags": [
         "curve",
         "straight",
@@ -5770,7 +5770,7 @@
         "charges": 1,
         "exhaustion": "consume"
       },
-      "downside": "One throw only, and a bigger hook is easier to miss with: under Narrow Lane it carries a wide line off the edge sooner.",
+      "downside": "One throw only, and a bigger hook is easier to miss with: Under Narrow Lane it carries a wide line off the edge sooner.",
       "synergy_tags": [
         "tactical",
         "curve",
@@ -5880,7 +5880,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "Only a rebound off the gutter edge pays, and only Bumper Guard gives one: without it the Charm does nothing.",
+      "downside": "Only a rebound off the gutter edge pays, and only Bumper Guard gives one: Without it the Charm does nothing.",
       "synergy_tags": [
         "gutter",
         "money",
@@ -5938,7 +5938,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "A curved strike pays nothing, and so does every spare: it is money for a straight game only.",
+      "downside": "A curved strike pays nothing, and so does every spare: It is money for a straight game only.",
       "synergy_tags": [
         "straight",
         "money",
@@ -6029,7 +6029,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "Only offered in a League with specialists, and the extra offer is always one of them: a curve, hook, accuracy or straight item, wanted or not. Cannot be sold.",
+      "downside": "Only offered in a League with specialists, and the extra offer is always one of them: A curve, hook, accuracy or straight item, wanted or not. Cannot be sold.",
       "synergy_tags": [
         "shop",
         "selection",
@@ -6520,7 +6520,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "Only a spare or strike with a rebound off the gutter edge counts, and only Bumper Guard gives one: without it the Charm does nothing.",
+      "downside": "Only a spare or strike with a rebound off the gutter edge counts, and only Bumper Guard gives one: Without it the Charm does nothing.",
       "synergy_tags": [
         "gutter",
         "rebound",

@@ -9,7 +9,7 @@
       "id": "consumable.double_take",
       "landed_in": "E18-C11",
       "design": {
-        "trigger": "Arm it with a throw: the first pin that throw knocks down directly scores its effects one more time, like an Echo Ball's repeat, with any ball. Exhausted for the run.",
+        "trigger": "Arm it with a throw: The first pin that throw knocks down directly scores its effects one more time, like an Echo Ball's repeat, with any ball. Exhausted for the run.",
         "primitives": [],
         "pool": "Shop Tactical slot; initial pool from Division 1.",
         "presentation_needs": "A doubled pin outline over the first pin hit; the repeat shows in the explanation as from Double Take.",

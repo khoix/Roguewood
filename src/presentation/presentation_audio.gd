@@ -21,11 +21,14 @@ var effects_button: CheckButton
 var volume_slider: HSlider # sound effects
 var music_slider: HSlider
 var music_volume := 1.0 # of the League music's own level
+var back_button: Button
+signal back # UI-15: the page's Back, to the menu that opened it
 ## UI-12 (owner's play notes, 2026-11-16): while the Pro Shop or Options is open the
 ## music eases to half its level (sound effects keep theirs) and eases back on close.
 const MENU_DUCK := 0.5
 const DUCK_SECONDS := 0.4
 var duck := 1.0
+var fade := 1.0 # UI-23: leaving for the Clubhouse fades the League's music out (fade_music)
 func _ready() -> void:
 	name = "PresentationAudio"
 	muted = lab.settings.get("sound_muted", false)
@@ -37,16 +40,6 @@ func _ready() -> void:
 		add_child(voice)
 		voices.append(voice)
 		priorities.append(0)
-	var button := Button.new()
-	button.name = "SoundAndEffects"
-	button.text = "Sound & effects"
-	button.custom_minimum_size.y = 56
-	# UI-11 (owner, 2026-11-16): Sound & effects is its own full-width row like the
-	# other settings, above Done, which stays centred at the bottom.
-	var options: VBoxContainer = lab.settings_panel.close.get_parent()
-	options.add_child(button)
-	options.move_child(button, lab.settings_panel.close.get_index())
-	button.pressed.connect(func(): panel.show(); mute_button.grab_focus())
 	panel = PanelContainer.new()
 	panel.name = "SoundEffectsPanel"
 	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -64,18 +57,18 @@ func _ready() -> void:
 	box.add_theme_constant_override("separation",16)
 	panel.add_child(box)
 	var title := Label.new()
-	title.text = "Sound & effects"
+	title.text = "Sound & Effects"
 	title.add_theme_font_size_override("font_size",28)
 	box.add_child(title)
 	mute_button = CheckButton.new()
-	mute_button.text = "Mute sound"
+	mute_button.text = "Mute Sound"
 	mute_button.button_pressed = muted
 	mute_button.custom_minimum_size.y = 48
 	mute_button.toggled.connect(func(value): muted = value; lab.settings["sound_muted"] = value; _mix())
 	box.add_child(mute_button)
 	# UI-11 (owner, 2026-11-16): music and sound effects each have a slider.
 	var music_label := Label.new()
-	music_label.text = "Music volume"
+	music_label.text = "Music Volume"
 	box.add_child(music_label)
 	music_slider = HSlider.new()
 	music_slider.name = "MusicVolume"
@@ -87,7 +80,7 @@ func _ready() -> void:
 	music_slider.value_changed.connect(func(value): music_volume = value; lab.settings["music_volume"] = value; _mix())
 	box.add_child(music_slider)
 	var label := Label.new()
-	label.text = "Sound effects volume"
+	label.text = "Sound Effects Volume"
 	box.add_child(label)
 	volume_slider = HSlider.new()
 	volume_slider.name = "EffectsVolume"
@@ -99,16 +92,18 @@ func _ready() -> void:
 	volume_slider.value_changed.connect(func(value): volume = value; lab.settings["sound_volume"] = value; _mix())
 	box.add_child(volume_slider)
 	effects_button = CheckButton.new()
-	effects_button.text = "Ability effects"
+	effects_button.text = "Ability Effects"
 	effects_button.button_pressed = enabled
 	effects_button.custom_minimum_size.y = 48
 	effects_button.toggled.connect(func(value): enabled = value; lab.settings["ability_effects"] = value)
 	box.add_child(effects_button)
-	var close := Button.new()
-	close.text = "Back to options"
-	close.custom_minimum_size.y = 48
-	close.pressed.connect(func(): panel.hide(); button.grab_focus())
-	box.add_child(close)
+	back_button = Button.new()
+	back_button.name = "SoundBack"
+	back_button.text = "Back"
+	back_button.custom_minimum_size = Vector2(220, 64)
+	back_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	back_button.pressed.connect(go_back)
+	box.add_child(back_button)
 	panel.hide()
 	lab.throw_cue.connect(_throw_cue)
 
@@ -126,11 +121,16 @@ func _mix() -> void:
 func _mix_music() -> void:
 	var theme = lab.get("league_theme") if lab != null else null
 	if theme == null or theme.music == null: return
-	var level: float = 0.0 if muted else music_volume * duck
+	var level: float = 0.0 if muted else music_volume * duck * fade
 	var want: float = float(theme.MUSIC_DB) + linear_to_db(maxf(level, 0.0001))
 	if not is_equal_approx(theme.music.volume_db, want):
 		theme.music.volume_db = want
 
+
+## UI-23: fades the League's music to silence over `seconds` (leaving for the Clubhouse).
+func fade_music(seconds: float) -> void:
+	var t := create_tween()
+	t.tween_property(self, "fade", 0.0, seconds)
 
 func cue(id: String, stream: AudioStream, priority: int = 1) -> void:
 	var now := Time.get_ticks_msec()
@@ -153,11 +153,25 @@ func cue(id: String, stream: AudioStream, priority: int = 1) -> void:
 	max_active = maxi(max_active, voices.filter(func(v): return v.playing).size())
 
 func menu_open() -> bool:
-	return lab.settings_panel.visible or (lab.get("shop_panel") != null and lab.shop_panel.visible)
+	return lab.settings_panel.visible or panel.visible or (lab.get("shop_panel") != null and lab.shop_panel.visible)
+
+## UI-15 (owner, 2026-11-18): Sound & Effects is its own page, opened from the menu
+## beside Throw Settings; Back returns to that menu.
+func open() -> void:
+	panel.move_to_front() # over the lane's later layers
+	panel.show()
+	mute_button.grab_focus()
+
+func go_back() -> void:
+	panel.hide()
+	back.emit()
 
 func _process(delta: float) -> void:
-	if not lab.settings_panel.visible: panel.hide()
-	duck = move_toward(duck, MENU_DUCK if menu_open() else 1.0, delta * (1.0 - MENU_DUCK) / DUCK_SECONDS)
+	var target := MENU_DUCK if menu_open() else 1.0
+	var ceremony = lab.get("award_ceremony")
+	if ceremony != null and ceremony.visible and (ceremony.playing or ceremony.hold):
+		target = ceremony.music_duck() # UI-22: the ceremony's own music takes over
+	duck = move_toward(duck, target, delta * (1.0 - MENU_DUCK) / DUCK_SECONDS)
 	_mix_music() # the music may start after the panel is built
 
 func _exit_tree() -> void:

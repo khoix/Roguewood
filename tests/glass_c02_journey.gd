@@ -28,8 +28,9 @@ func _run() -> void:
 	await _focus_accept(scene.options)
 	await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.assist)
-	await _focus_accept(lab.settings_panel.practice)
-	await _focus_accept(lab.settings_panel.close)
+	lab.settings_panel.use_practice()
+	await process_frame
+	await _focus_accept(lab.settings_panel.close);await _focus_accept(scene.resume)
 	for position in range(1, 11):
 		lab.run.rack[position] = Inventory._entry("pin.glass", 0)
 	_check(lab.run.place("charm.glass_cutter", 0, "charm:new").is_empty(), "fixture: seat Glass Cutter")
@@ -87,7 +88,7 @@ func _glass_frame(label: String) -> Array:
 		"%s breaks exactly the replayed pins %s" % [label, str(broke)])
 	for position in broke:
 		_check(lab.run.rack[position].item_id == "pin.wood", "%s: Glass at %d is now Wood" % [label, position])
-		_check(_log_lines().any(func(l): return l.contains("Glass Pin at %d cracked: now a Wood Pin." % position)), "%s: the explanation names the break at %d" % [label, position])
+		_check(_log_lines().any(func(l): return l.contains("Glass Pin at %d cracked: Now a Wood Pin." % position)), "%s: the explanation names the break at %d" % [label, position])
 	_check(_log_lines().any(func(l): return l.contains("20% chance to become Wood Pin")) and _log_lines().any(func(l): return l.contains("Glass Cutter")),
 		"%s: the log shows the chance and Glass Cutter" % label)
 	return broke

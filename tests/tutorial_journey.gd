@@ -85,6 +85,10 @@ func _swirl_throw() -> void:
 		var next := center + Vector2(cos(angle), sin(angle)) * radius
 		await _drag(next, next - at)
 		at = next
+	# Owner (2026-11-17): while the player swirls, the lane is clear: no dimming, no hand.
+	if is_instance_valid(coach) and coach.current_id() == "throw":
+		_check(lab.state == "holding" and coach.dims.all(func(d): return not d.visible) and coach._quiet(coach.steps[coach.step]),
+			"while the ball is held the lane is clear (no dimming, no hand)")
 	for i in 8:
 		at += Vector2(0, -32) * _px()
 		await _drag(at, Vector2(0, -32) * _px())
@@ -124,10 +128,16 @@ func _gutter() -> void:
 	await _touch(at, false)
 	await _wait_for(func(): return lab.state != "rolling" and lab.state != "aim" or (lab.state == "aim" and lab.roll_index == 2 and lab.lane.state == "ready"), "the gutter ball settles", ROLL_FRAMES)
 
+## UI-24: How to Play, then its Play Tutorial (beside Talk the Talk).
+func _play_tutorial() -> void:
+	await _tap(scene.club_menu_list.get_node("ClubHowToPlay"))
+	_check(scene.club_how_list.visible and scene.club_how_list.get_node("ClubPlayTutorial").text == "Play Tutorial", "How to Play offers Play Tutorial")
+	await _tap(scene.club_how_list.get_node("ClubPlayTutorial"))
+
 ## Losing the practice opener: the coach offers a fresh lane, which starts again at Aim.
 func _lose_and_retry() -> void:
 	await _tap(scene.club_menu_button)
-	await _tap(scene.club_menu_list.get_node("ClubTutorial"))
+	await _play_tutorial()
 	await _wait_for(func(): return scene.coach != null and scene.coach.card_ready(), "How to Play, to lose")
 	coach = scene.coach
 	lab = scene.lab
@@ -149,7 +159,7 @@ func _lose_and_retry() -> void:
 			await _step("next_rack")
 			await _tap(lab.next_rack)
 	await _wait_for(func(): return coach.current_id() == "lost" and coach.card_ready(), "losing the opener offers a fresh lane", ROLL_FRAMES)
-	_check(lab.division.outcome == "lost" and coach.next_button.text == "Try again" and coach.skip_button.visible, "the lost card offers Try again or Skip (%d of %d)" % [lab.division.match_score, lab.division.target()])
+	_check(lab.division.outcome == "lost" and coach.next_button.text == "Try Again" and coach.skip_button.visible, "the lost card offers Try again or Skip (%d of %d)" % [lab.division.match_score, lab.division.target()])
 	await _capture("tut_lost")
 	await _tap(coach.next_button)
 	await _wait_for(func(): return scene.coach != null and scene.coach != coach and scene.lab != lab and scene.coach.card_ready(), "Try again deals a fresh practice lane")
@@ -181,8 +191,8 @@ func _run() -> void:
 	var career_before: Dictionary = scene.career.duplicate(true)
 	# How to Play, from the Clubhouse menu.
 	await _tap(scene.club_menu_button)
-	_check(scene.club_menu.visible and scene.club_menu_list.get_node("ClubTutorial").text == "How to Play", "the Clubhouse menu offers How to Play")
-	await _tap(scene.club_menu_list.get_node("ClubTutorial"))
+	_check(scene.club_menu.visible and scene.club_menu_list.get_node("ClubHowToPlay").text == "How to Play", "the Clubhouse menu offers How to Play")
+	await _play_tutorial()
 	await _wait_for(func(): return scene.screen == "session" and scene.coach != null, "the tutorial opens")
 	lab = scene.lab
 	coach = scene.coach
@@ -192,7 +202,7 @@ func _run() -> void:
 		"the practice lane: the tutorial set, its fixed kit, a throwaway Career and no saves")
 	_check(lab.league_theme != null, "the practice lane wears the House theme")
 	await _step("welcome")
-	_check(coach.counter.text == "Step 1 of 14", "the main steps are numbered (%s)" % coach.counter.text)
+	_check(coach.counter.text == "Step 1 of 13", "the main steps are numbered (%s)" % coach.counter.text)
 	_check(coach.next_button.visible and coach.skip_button.visible and coach.dims.filter(func(d): return d.visible).size() == 1 and lab.input_paused,
 		"the welcome dims the whole screen, offers Next and Skip, and holds the lane still")
 	await _capture("tut_welcome")
@@ -227,6 +237,21 @@ func _run() -> void:
 	# Throw: hold, swirl, flick.
 	await _step("throw")
 	_check(coach._hole.has_point(lab.ball_screen_position()) and coach.steps[coach.step].gesture == "swirl_flick", "the throw step frames the ball and shows the swirl and flick")
+	var screen: Vector2 = coach.root.get_viewport_rect().size
+	var ball := Rect2(lab.ball_screen_position() - Vector2(40, 40), Vector2(80, 80))
+	_check(absf(coach.card.get_global_rect().end.y - (screen.y - 12.0)) <= 2.0 and not coach.card.get_global_rect().intersects(ball),
+		"portrait: the throw card is pinned to the bottom, clear of the ball (%s)" % str(coach.card.get_global_rect()))
+	# Landscape: pinned beside the lane instead.
+	root.size = Vector2i(800, 450)
+	for i in 8: await process_frame
+	screen = coach.root.get_viewport_rect().size
+	ball = Rect2(lab.ball_screen_position() - Vector2(30, 30), Vector2(60, 60))
+	var side: Rect2 = coach.card.get_global_rect()
+	_check(side.end.x >= screen.x - 14.0 and side.size.x <= screen.x * 0.3 + 1.0 and not side.intersects(ball),
+		"landscape: the throw card is a column at the side, clear of the ball (%s in %s)" % [str(side), str(screen)])
+	await _capture("tut_throw_landscape")
+	root.size = PORTRAIT
+	for i in 8: await process_frame
 	coach._time = 0.4 * coach.PERIOD
 	await process_frame
 	await _capture("tut_throw")
@@ -260,13 +285,18 @@ func _run() -> void:
 	await _step("shop")
 	var shop = lab.shop_panel
 	_check(lab.shop.offers.slice(0, 5).map(func(o): return o.item_id) == lab.content.tutorial_offers, "the first shop sells the tutorial's fixed offers")
-	_spotlit(shop.offers_grid, "shop")
-	await _capture("tut_shop")
-	await _tap(coach.next_button)
-	await _step("buy")
+	# Owner (2026-11-18): the shop step points straight at the item to buy, and the rest
+	# of the shop stays readable under a light dim that takes no taps.
 	var offer: Control = coach._workshop_offer()
-	_check(lab.shop.offers[coach._workshop_index()].item_id == "pin_mod.brass_cap" and coach.body.text.contains(lab.run.item("pin_mod.brass_cap").name), "the buy step points at the Brass Cap")
-	_spotlit(offer, "buy")
+	_check(lab.shop.offers[coach._workshop_index()].item_id == "pin_mod.brass_cap" and coach.body.text.contains(lab.run.item("pin_mod.brass_cap").name)
+		and not coach.next_button.visible and coach.steps[coach.step].gesture == "tap", "the shop step points at the Brass Cap, with no Next")
+	_spotlit(offer, "shop")
+	_check(coach.dims.all(func(d): return not d.visible or is_equal_approx(d.color.a, 0.45)), "the shop is dimmed lightly, so it stays readable")
+	var other: Control = lab.shop_panel.button_for_offer(0)
+	await _tap(other)
+	_check(not shop.offer_sheet.visible and coach.current_id() == "shop", "another offer cannot be tapped during the shop step")
+	_check(not coach.card.get_global_rect().intersects(shop.offers_grid.get_global_rect()), "the coach's card leaves the shop's offers in view")
+	await _capture("tut_shop")
 	await _tap(offer)
 	await _step("confirm_buy")
 	_spotlit(shop.buy_button, "confirm buy")
@@ -297,6 +327,7 @@ func _run() -> void:
 	_check(lab.run.entries().any(func(e): return e.ref.begins_with("rack:") and String(e.entry.get("mod", "")) == "pin_mod.brass_cap"), "the Brass Cap is on the rack")
 	await _tap(shop.sell_open)
 	await _step("sell_sheet")
+	_check(coach._hole.grow(1.0).encloses(shop.sell_sheet.get_global_rect()), "the Sell step spotlights the whole Sell sheet, not only Done")
 	await _capture("tut_sell")
 	await _tap(shop.sell_close)
 	await _step("rival")
@@ -304,7 +335,7 @@ func _run() -> void:
 	await _capture("tut_rival")
 	await _tap(coach.next_button)
 	await _step("ready")
-	_check(coach.next_button.text == "Back to the Clubhouse" and coach.extra_button.visible and coach.extra_button.text == "Keep practising", "the last card offers the Clubhouse or more practice")
+	_check(coach.next_button.text == "Back to the Clubhouse" and coach.extra_button.visible and coach.extra_button.text == "Keep Practising", "the last card offers the Clubhouse or more practice")
 	await _capture("tut_ready")
 	await _tap(coach.next_button)
 	await _wait_for(func(): return scene.screen == "menu" and scene.coach == null and scene.content.id != "tutorial", "back in the Clubhouse")
@@ -319,14 +350,14 @@ func _run() -> void:
 	await _lose_and_retry()
 	# Skip, from a second How to Play; then reduced motion's still hand.
 	await _tap(scene.club_menu_button)
-	await _tap(scene.club_menu_list.get_node("ClubTutorial"))
+	await _play_tutorial()
 	await _wait_for(func(): return scene.coach != null and scene.coach.card_ready(), "How to Play again")
 	coach = scene.coach
 	await _tap(coach.skip_button)
 	await _wait_for(func(): return scene.screen == "menu" and scene.coach == null, "Skip returns to the Clubhouse")
 	scene.throw_settings.reduced_motion = true
 	await _tap(scene.club_menu_button)
-	await _tap(scene.club_menu_list.get_node("ClubTutorial"))
+	await _play_tutorial()
 	await _wait_for(func(): return scene.coach != null and scene.coach.card_ready(), "How to Play, reduced motion")
 	coach = scene.coach
 	lab = scene.lab

@@ -39,6 +39,7 @@ var charm_head: BoxContainer
 ## Portrait's Charm rail leaves while a frame is reviewed: the hand and the review
 ## take the whole screen below the info row then (the lab sets this before apply).
 var rail_hidden := false
+var practice := false # UI-39: How to Play's practice lane (no rival, no Charms)
 const RAIL_WIDTH := 52.0
 var _charm_frame: StyleBox
 var _charm_plate: StyleBoxFlat
@@ -228,7 +229,7 @@ static func compute(screen: Vector2, left_handed: bool, hand_height: float, comp
 func apply(layout: Dictionary, playing: bool) -> void:
 	regions = layout
 	var fold: bool = layout.fold
-	fold_bar.visible = playing and fold
+	fold_bar.visible = playing and fold and not practice # UI-39: no hand or details to fold
 	if fold:
 		_place(fold_bar, layout.fold_bar)
 	var details_shown: bool = playing and (not fold or show_details) and not layout.get("compact", false)
@@ -245,6 +246,9 @@ func apply(layout: Dictionary, playing: bool) -> void:
 		_place(pair[0], layout[pair[1]])
 	if portrait:
 		charms.visible = details_shown and not rail_hidden
+	if practice: # UI-39: the practice lane has no rival and no Charms
+		rival.visible = false
+		charms.visible = false
 	if _strip is FlowContainer:
 		_strip.alignment = FlowContainer.ALIGNMENT_CENTER if portrait else FlowContainer.ALIGNMENT_BEGIN
 	rival_portrait.custom_minimum_size = Vector2(34, 34) if portrait else Vector2(64, 64)
