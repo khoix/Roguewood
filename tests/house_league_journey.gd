@@ -152,6 +152,9 @@ func _seat_build() -> void:
 func _save_and_resume() -> void:
 	var money: int = lab.run.money
 	await _focus_accept(scene.back)
+	# UI-46 (owner, 2026-11-23): leaving mid-run from the menu has no slow fade; only
+	# League's End and the awards fade to the Clubhouse.
+	_check(not scene.transition_playing() and not scene.exiting and scene.screen == "menu", "UI-46: the menu's Clubhouse goes there at once, without the fade")
 	await _wait_for(func(): return scene.screen == "menu" and scene.continue_button.visible and scene.continue_button.has_focus(), "Continue Attempt offered")
 	await _action("ui_accept")
 	await _wait_for(func(): return scene.lab != null and scene.lab.state == "shop", "the attempt resumes in Division 5's shop")
