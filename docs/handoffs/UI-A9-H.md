@@ -2,7 +2,7 @@
 
 Status: IN_PROGRESS (twenty authored candidates; live activation withheld).
 Date: 2026-11-23. Effort: High. Branch: codex/roguewood-build.
-Latest timebox: 18:23:29–18:43:29 UTC; checkpoint/save only after the deadline.
+Latest timebox: 23:28:44–23:48:44 UTC; checkpoint/save only after the deadline.
 Earlier 13:12:11–13:32:11 session is retained below as history.
 
 ## Earlier session implementation
@@ -68,22 +68,23 @@ outside the default sandbox; no repository settings changed.
 
 ## Exact resume
 
-1. Fetch, inspect the latest push's Bootstrap game/art and E11/E12, and merge
-   new coordinator commits safely. Classify actual assertions before fixes.
-2. Review/polish the full normal/reduced contact sheets and motion sequences at
-   450×800 and 800×450; small props and choreography still need final judgment.
-   All twenty candidates exist: do not restart preproduction.
+1. Fetch, inspect the latest push's Bootstrap game/art and E11/E12, and safely
+   merge new coordinator commits. Prior 744be2a CI is confirmed successful.
+2. Start with artifacts/ui-a9-h/review/index.html and the latest checkpoint below.
+   The twenty candidates have been polished and reviewed in timed native story
+   beats; do not restart authoring. Retain the eight-beat and reduced evidence.
 3. Audition artifacts/ui-a9-h/audio/stings-review.wav (strike, spare, boss).
-   The interface could not listen; technical PCM checks and production mixer
-   volume/mute checks passed, but subjective sound review remains outstanding.
-4. Complete affected rendered/UI-20 regressions (including J22L01, JAVN1/JAVN2),
-   then review the timing evidence and performance limits in docs/art/ui/UI-A9-H.md.
-   Both bounded full-draw profiles now pass; no need to repeat the old timeout.
-   Web passed in isolation. Repeat required checks after subsequent art changes.
-5. Only once the whole set is finished, enable twenty paths and three sound
-   paths in the House manifest alone, then its completeness flag. Re-run native
-   review modes, real triggers and affected checks. Full push CI is the gate;
-   UI-A9-H remains IN_PROGRESS until implementation, evidence and checks finish.
+   No listening capability was available in these sessions. Technical PCM and
+   actual mixer volume/mute checks passed; subjective audition is still unrun.
+4. Inspect this push's art-shard JUIA9HP/JUIA9HL timing artifacts first; reuse
+   complete, draw_all reports for this exact revision. If unavailable, rerun those
+   profiles in isolation. Previous complete timing remains version-specific, not a claim
+   about this polish or physical phones. Resolve any explicitly pending checks
+   in the latest timed checkpoint. Do not relax performance/correctness assertions.
+5. Once the whole set is finished, enable twenty paths, three sounds and the
+   completeness flag in the House manifest alone. Re-run content/unit, real
+   strike/spare/boss triggers, normal/reduced review, UI-20/affected journeys and
+   Web. Full push CI is the gate; UI-A9-H remains IN_PROGRESS until complete.
 
 Changed scope: assets/ui/alley_screen/{house/,crt.gdshader}; four new celebration
  test/journey scripts; tools/author_house_celebration_stings.py; add-only
@@ -110,7 +111,7 @@ commit/push and remote-SHA/clean-tree verification follow. Fresh push CI remains
 pending; no wait for it in this window. UI-A9-H remains IN_PROGRESS.
 
 
-## Latest timed checkpoint — 2026-11-23, 18:23:29–18:43:29 UTC
+## Previous timed checkpoint — 2026-11-23, 18:23:29–18:43:29 UTC
 
 Synchronized coordinator a1f704d with merge commit aaaabd1. Confirmed prior
 cec80a1 Bootstrap #565 (45184936750), E11 #172 (45184936441) and E12 #105
@@ -170,3 +171,83 @@ both handoffs. No protected gameplay edits; no captures committed. Pinned Godot
 Implementation/testing ended before the 18:43:29 UTC deadline. Final rendered
 J06 (55 s) and J11 (61 s) passed. Only checkpoint save/push and remote-SHA/clean-tree
 verification follow; full CI on this push remains pending. Exact resume is above.
+
+
+## Latest timed checkpoint — 2026-11-23, 23:28:44–23:48:44 UTC
+
+Merged coordinator c74aace as c895c5d (UI-40–46/PERF-2b updates); no conflicts.
+Confirmed 744be2a Bootstrap #569 (45241313372): game job 137926401699 and art job
+137926402504 successful; E11 #174 (45241313448), E12 #106 (45241313503) successful.
+No prior-push CI repair required. Coordinator-owned source changes arrived only
+through the merge, including src/rules/content_set.gd; no worker edits there.
+
+Art changes: grounded bookend pin and scorebooks, visible delivered pin/arc,
+constellation pins shrinking inside the top border, clearer boss text/prop spacing,
+smaller broom props, raised Encore audience, and Proprietor keys settling
+below the name. All stable IDs, twenty scenes, durations, original portrait pixels,
+stings and CRT parameters are retained. Source hashes/provenance in ASSET-LEDGER.
+No live manifest entries; no Wave 15 or AV-UI1 work.
+
+Review tooling: JUIA9HM adds eight beats per scene/orientation under default flash
+settings. JUIA9H retains normal/reduced-flash coverage; JUIA9HR both accessibility
+settings. The capture helper saves full phone frames and native CRT crops from
+one readback, converting logical coordinates via the viewport final transform.
+An initial logical-coordinate crop error was fixed; superseded captures are not
+final evidence. tools/review_house_celebrations.py builds the ignored HTML index,
+80 storyboard sheets, four contact sheets, and a 440-crop index, including reduced
+CRT equality checks. Timed held frames are not live video/performance evidence.
+
+Validated after merge: unit/content, J03, JUIA9H/JUIA9HR/JUIA9HA headless; J03,
+J06, J22L01, JAVN1/JAVN2 rendered; JUIA9HA and actual House boss JUIA9HB rendered.
+Final scoped unit/content and JUIA9HM/JUIA9HR headless passed before the last keys
+coordinate adjustment; normal motion/reduced rendered also passed. Latest capture
+refresh/check outcomes are recorded below before stopping. Physics freshly PASS:
+75d1a3c0ceb2f8e458f7788de7e938de194633c1720aca1488b68a21eb310c6f (123 simulations).
+
+One concurrent J11 rendered failure: “PERF-1b: the texture sweep costs 0.054 ms a
+frame (worst 185.4 ms)”. Saved artifacts/ui-a9-h/resume-2330/j11-concurrent-failure.log.
+No platform/test threshold changes. Isolated retry outcome follows below. Initial
+rendered launches failed because the previous X server had exited; restored :91,
+then reran them. Two capture runs were deliberately stopped after later art fixes
+superseded their source. They are not claimed passing.
+
+Evidence: artifacts/ui-a9-h/review/index.html, capture-index.json,
+{motion,reduced}_{portrait,landscape}_contact.png and <variant>_<orientation>_<mode>.png;
+raw full phone/crop frames in motion/rendered and reduced/rendered; actual boss
+captures in boss/rendered; source audition clip in audio/stings-review.wav.
+All artifacts ignored, never committed. Godot 4.5.2 and temporary XDG paths as
+above, isolated Xorg :91. Fresh push full CI is pending; no waiting past deadline.
+Modified worker files: House celebration.gd/prop_kit.gd; main/motion art journeys
+and new UID; new review-sheet tool; add-only qa.py/bootstrap.yml; ledger, art
+standard, this handoff and WAVE14-CODEX.md. No protected worker source edits.
+
+Isolated J11 rendered retry PASS (53 s), with its performance assertion unchanged.
+The concurrent failure is retained as a load-sensitive observation, not a claimed
+platform fix. Review-index generation passed: 440 native crops, 80 storyboard
+sheets, four contact sheets; all reduced CRT crops byte-identical across beats.
+
+Web JW01 PASS in isolation on the final art revision (62 s): export, loader,
+actual mouse throw, save/reload continuation and lost-context recovery; no script
+errors. As the live manifest is still off, this is export/platform coverage, not
+a claim of live House celebration playback in Web.
+
+Visual judgment: twenty portrait motion storyboards and both orientation contact
+sheets reviewed at native crop scale; all five strike and spare gags and each
+rival's two endings remain distinct, main event words/rival names readable. The
+small captions/props are secondary; original warm palette and restrained static
+CRT retained. Constellation and key early-frame corrections came from this review.
+No physical-phone trial or real-time video judgment is claimed.
+
+Final unit/content and JUIA9HM/JUIA9HR headless PASS after the last keys adjustment
+(4/4). Early/middle/final key frames inspected: the ring remains below the rival
+name and settles on the cushion; reduced end pose is unchanged by this adjustment.
+Pending work is audition, current-revision full-draw timing review, activation and
+post-activation verification. The native evidence has not been called phone
+hardware testing. No full CI wait in this timebox.
+
+Final rendered JUIA9H PASS (106 s) and JUIA9HM PASS (129 s) after the keys fix.
+JUIA9HR rendered PASS (103 s) on the same final stills; the later keys change only
+affects motion before t=1. Final review index regenerated successfully from all
+440 crops. No implementation/test process remains running. Implementation and
+testing stopped before 23:48:44 UTC; only checkpoint save/push/SHA verification
+follow. Fresh push Bootstrap/E11/E12 are pending. UI-A9-H remains IN_PROGRESS.

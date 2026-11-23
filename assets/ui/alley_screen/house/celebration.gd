@@ -182,7 +182,8 @@ func _constellation(t: float) -> void:
 	for i in points.size():
 		var rise := smoothstep(i*0.035,0.55+i*0.035,t)
 		var p := Vector2(points[i].x,68).lerp(points[i],rise)
-		if t < 0.65: Kit.pin(self,p,0.0)
+		# Shrink toward the star so rising pin heads stay inside the CRT safe area.
+		if t < 0.65: Kit.pin(self,p+Vector2(0,8*rise),0.0,false,lerpf(1.0,0.45,rise))
 		else: Kit.sparkle(self,p)
 		if t > 0.6 and i > 0: draw_line(points[i-1],points[i],Kit.TEAL,1)
 	if t > 0.7:
@@ -209,7 +210,13 @@ func _bookend(t: float) -> void:
 	var close := smoothstep(0.15,0.75,t)
 	var left := lerpf(151,174,close)
 	var right := lerpf(222,204,close)
-	Kit.pin(self,Vector2(194,52-close*8),0.0,true)
+	# The pin stays supported by the shelf; the closing scorebooks hide its
+	# lower body while its face peeks over them, instead of floating in midair.
+	Kit.pin(self,Vector2(194,63-close*3),0.0,true)
+	for x in [left+10,right-9]:
+		Kit.rect(self,x,44,9,20,Kit.TEAL)
+		Kit.rect(self,x+2,45,5,17,Kit.IVORY)
+		for y in [49,54,59]: Kit.rect(self,x+3,y,4,1,Kit.WOOD)
 	Kit.rect(self,145,66,91,5,Kit.GOLD)
 	for x in [left,right]:
 		Kit.rect(self,x,39,10,26,Kit.WOOD)
@@ -228,7 +235,11 @@ func _delivery(t: float) -> void:
 	for wheel in [5,23]:
 		Kit.rect(self,x+wheel,63,6,6,Kit.INK)
 		Kit.rect(self,x+wheel+2,65,2,2,Kit.LIGHT)
-	Kit.pin(self,Vector2(x+14+tip*23,53+tip*9),tip*1.5,true)
+	# Lift over the rim, then settle upright so the delivered pin remains
+	# recognizable above the box in the final/reduced tableau.
+	var pin_x := lerpf(x+14,225,tip)
+	var pin_y := lerpf(53,63,tip)-sin(tip*PI)*13
+	Kit.pin(self,Vector2(pin_x,pin_y),sin(tip*PI)*0.65,true)
 	Kit.rect(self,208,56,28,15,Kit.WOOD)
 	Kit.rect(self,210,58,24,2,Kit.GOLD)
 	_word("SPARE",Rect2(209,69,26,10),8,Kit.IVORY)
@@ -252,8 +263,8 @@ func _lasso(t: float) -> void:
 	_word("SPARE!",Rect2(17,42,130,30),29,Kit.LIGHT)
 	_word("THAT'S A WRAP",Rect2(17,60,130,12),10,Kit.IVORY)
 
-func _broom(p: Vector2, angle: float) -> void:
-	draw_set_transform(p.round(),angle)
+func _broom(p: Vector2, angle: float, scale_factor: float = 1.0) -> void:
+	draw_set_transform(p.round(),angle,Vector2.ONE*scale_factor)
 	Kit.rect(self,-1,-24,3,30,Kit.GOLD)
 	draw_colored_polygon(PackedVector2Array([Vector2(-4,2),Vector2(5,2),Vector2(11,14),Vector2(-10,14)]),Kit.GOLD)
 	for x in range(-8,10,3): Kit.rect(self,x,7,1,7,Kit.WOOD)
@@ -274,7 +285,7 @@ func _boss_story(t: float) -> void:
 		_word(name_parts[1].strip_edges(),Rect2(93,28,142,10),10,Kit.TEAL)
 	else:
 		_word(name_parts[0],Rect2(93,24,142,16),14,Kit.IVORY)
-	_word("DEFEATED!",Rect2(95,71,140,24),23,Kit.LIGHT)
+	_word("DEFEATED!",Rect2(95,76,140,22),21,Kit.LIGHT)
 	match variant:
 		"boss.surveyor.level":
 			Kit.rect(self,115,43,104,11,Kit.GOLD)
@@ -288,7 +299,7 @@ func _boss_story(t: float) -> void:
 		"boss.custodian.sweep":
 			var x := lerpf(116,183,settle)
 			for i in 3: Kit.pin(self,Vector2(x+i*12,51),1.1,true)
-			_broom(Vector2(x-13,42),0.5)
+			_broom(Vector2(x-13,42),0.5,0.8)
 			Kit.rect(self,213,34,3,22,Kit.GOLD)
 			draw_colored_polygon(PackedVector2Array([Vector2(201,48),Vector2(222,48),Vector2(232,58),Vector2(195,58)]),Kit.TEAL)
 			if t > 0.8:
@@ -314,7 +325,7 @@ func _boss_story(t: float) -> void:
 		"boss.proprietor.keys":
 			Kit.rect(self,126,51,91,8,Kit.WOOD)
 			Kit.rect(self,129,49,85,7,Kit.TEAL)
-			draw_set_transform(Vector2(172,lerpf(24,40,settle)),(1-settle)*TAU)
+			draw_set_transform(Vector2(172,lerpf(34,40,settle)),(1-settle)*PI*0.5)
 			draw_arc(Vector2.ZERO,7,0,TAU,20,Kit.LIGHT,2)
 			for i in 3:
 				var x := -9+i*8
@@ -335,12 +346,12 @@ func _boss_story(t: float) -> void:
 			for i in 6:
 				var x := 111+i*22
 				var clap := sin(t*TAU*2+i)*0.18 if t < 1 else 0.0
-				Kit.pin(self,Vector2(x,55),clap)
-				draw_line(Vector2(x-6,48),Vector2(x-10,41+clap*10),Kit.IVORY,2)
-				draw_line(Vector2(x+6,48),Vector2(x+10,41-clap*10),Kit.IVORY,2)
+				Kit.pin(self,Vector2(x,49),clap)
+				draw_line(Vector2(x-6,42),Vector2(x-10,35+clap*10),Kit.IVORY,2)
+				draw_line(Vector2(x+6,42),Vector2(x+10,35-clap*10),Kit.IVORY,2)
 		"boss.custodian_champion.crown":
-			_broom(Vector2(142,44),-0.65)
-			_broom(Vector2(192,44),0.65)
+			_broom(Vector2(142,43),-0.65,0.65)
+			_broom(Vector2(192,43),0.65,0.65)
 			# The wreath descends onto this champion's own portrait, never the regular Custodian.
 			var center := Vector2(52,lerpf(3,41,settle))
 			for i in 16:

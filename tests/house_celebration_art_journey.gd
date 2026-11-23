@@ -54,6 +54,25 @@ func _write_frame_times() -> void:
 func orientations() -> Array: return ["portrait", "landscape"]
 
 func reduced() -> bool: return false
+func reduced_flash() -> bool: return true
+func story_frames() -> Array: return [0.1, 0.45, 0.9]
+
+func _capture(label: String) -> void:
+	print("UIA9H capture " + label)
+	if DisplayServer.get_name() == "headless" or artifact_dir.is_empty(): return
+	await RenderingServer.frame_post_draw
+	# One native readback supplies both the full phone frame and the CRT crop.
+	var frame: Image = root.get_texture().get_image()
+	if frame == null or frame.is_empty():
+		_check(false, "Cannot capture " + label)
+		return
+	_check(frame.save_png(artifact_dir.path_join(label+".png")) == OK, "save " + label)
+	if lab == null or not lab.alley_screen.visible: return
+	# The game lays out at 540×960 / 1280×720, then stretches to the phone.
+	# Convert logical panel bounds to the captured viewport's physical pixels.
+	var rect := Rect2i(root.get_final_transform() * lab.alley_screen.get_global_rect())
+	_check(Rect2i(Vector2i.ZERO,frame.get_size()).encloses(rect), "CRT crop inside native frame")
+	_check(frame.get_region(rect).save_png(artifact_dir.path_join(label+"_screen.png")) == OK, "save CRT crop " + label)
 
 func _rival_context(key: String) -> Dictionary:
 	var names := {"custodian_champion":"The Custodian, House Champion", "custodian":"The Custodian", "surveyor":"The Surveyor", "proprietor":"The Proprietor", "old_lou":"Old Lou"}
@@ -75,7 +94,7 @@ func _run() -> void:
 	lab = scene.lab
 	lab.trial_log_path = ""
 	await _focus_accept(scene.options)
-	await _focus_accept(lab.settings_panel.reduced_flash)
+	if reduced_flash(): await _focus_accept(lab.settings_panel.reduced_flash)
 	if reduced(): await _focus_accept(lab.settings_panel.reduced_motion)
 	await _focus_accept(lab.settings_panel.close)
 	await _focus_accept(scene.resume)
@@ -88,7 +107,7 @@ func _run() -> void:
 			var path := "res://assets/ui/alley_screen/house/" + String(spec[1]) + ".tscn"
 			alley.variants_override = {spec[0]: [path]}
 			var ctx := _rival_context(spec[1])
-			ctx.merge({"reduced_motion":reduced(), "reduced_flash":true})
+			ctx.merge({"reduced_motion":reduced(), "reduced_flash":reduced_flash()})
 			_check(alley.celebrate(spec[0],ctx), "native screen accepts " + spec[1])
 			var art = alley.current
 			_check(art != null and is_equal_approx(art.duration(), spec[2]), "scene duration " + spec[1])
@@ -100,7 +119,7 @@ func _run() -> void:
 			# Let the production power-on finish; the scene clock alone is held.
 			for i in 14: await process_frame
 			var first: Image
-			for fraction in [0.1,0.45,0.9]:
+			for fraction in story_frames():
 				art.elapsed = art.duration()*fraction
 				art.queue_redraw()
 				await process_frame
@@ -112,7 +131,7 @@ func _run() -> void:
 					elif reduced(): _check(first.get_data() == pixels.get_data(), "reduced still pixels " + spec[1])
 					elif fraction == 0.9: _check(first.get_data() != pixels.get_data(), "distinct moving story frames " + spec[1])
 			_check(alley.view.size == Vector2i(252,90), "display-sized render target")
-			_check(float(alley.crt.get_shader_parameter("flicker")) == 0.0, "reduced flash disables flicker")
+			_check(float(alley.crt.get_shader_parameter("flicker")) == (0.0 if reduced_flash() else 1.0), "CRT follows flash setting")
 			# Let each scene finish through its real process/finished path.
 			# Measure a complete natural playback with capture readbacks excluded.
 			art.play(ctx)

@@ -193,3 +193,32 @@ AlleyScreen → theme → mixer path, correct streams, effects gain, Mute, zero
 volume and uninterrupted music. It does not change the shipping manifest.
 The final scene holds its portrait as `texture`; path-backed atlas metadata
 keeps PERF-2 reloadable without retaining originals. See the ledger generator.
+
+
+## Phone-size polish and review index — 2026-11-23 late resume
+
+The final staging pass fixes supported/visible spare pins, constellation head
+clipping during ascent, and boss prop/name/title collisions. Stable IDs, event
+lengths, source portraits and all reduced still identities remain unchanged.
+
+Run JUIA9HM rendered for eight beats (0/10/20/30/45/60/75/90 percent) under default
+flash settings; JUIA9H still covers normal motion with reduced flash, and JUIA9HR
+covers both accessibility options. All inherit real strike/spare/open scoring,
+natural completion, skip/replay and source-frame motion/still assertions.
+JUIA9HM's separate 600-second budget covers 320 full-phone captures plus native
+CRT crops; original review and performance timeouts are unchanged. Capture only
+once per frame, and derive both full frame and crop from that same readback.
+Convert logical layout coordinates through the viewport's final transform first:
+the game lays out at 540×960 or 1280×720 while evidence is 450×800 or 800×450.
+
+After JUIA9HM and JUIA9HR rendered, run:
+`python3 tools/review_house_celebrations.py` (Pillow). It requires the complete set,
+checks the reduced CRT stills, and writes artifacts/ui-a9-h/review/index.html,
+capture-index.json, 80 eight-/three-beat sheets and four orientation/mode contact
+sheets. Review native crops and click through to the whole phone screenshot.
+Held timed poses show choreography; they do not claim a live motion recording,
+actual-phone validation, or capture-only rendering-performance numbers.
+
+The earlier full-draw timing table belongs to the previous staging revision.
+Do not relabel it as a remeasurement of this polish. Stings remain technically
+verified but not subjectively auditioned; live manifest entries remain absent.

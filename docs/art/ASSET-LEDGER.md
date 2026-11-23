@@ -1448,3 +1448,30 @@ this interface cannot listen to audio, so no subjective audition is claimed.
 | `assets/ui/alley_screen/house/portraits/old_lou.tres` | `a2f765d402fd79afec025707c4f313fafa3afad8c949de2d380fae341f42cfce` |
 | `assets/ui/alley_screen/house/portraits/proprietor.tres` | `355a7042daa293687e7df5affed145f2e567c1aaf7625c88568c9c200a75040f` |
 | `assets/ui/alley_screen/house/portraits/surveyor.tres` | `ade6d402c70e3cf4557e039b9ebb50e1b9eb8aae74ed41d4d4647f1072a33294` |
+
+
+## UI-A9-H — phone-size staging polish (2026-11-23, 23:28 UTC resume)
+
+Original House geometry only; no new external images, samples, fonts or borrowed
+layouts. Source palettes, portraits, sting PCM and stable variant IDs unchanged.
+Bookend scorebooks now support the peeking pin; the delivery pin arcs over the box
+rim and remains visible in its final still. Constellation pins shrink as they rise
+so their heads stay inside the CRT. Boss title/prop spacing is separated; Encore's
+pins and the champion's crossed brooms no longer crowd the lettering, and the
+Custodian's sweep handle stays below the name. The Proprietor's keys settle
+through a quarter-turn below the name rather than swinging through the lettering. The shared pin kit adds an optional
+scale parameter (default 1), used only by the constellation gag.
+
+Reproducible sources (drawn natively by Godot; no raster source transformation):
+
+| Path | SHA-256 |
+|---|---|
+| `assets/ui/alley_screen/house/celebration.gd` | `a363fd35e03446a7927f765a402ae1de1d35c1f4a3640d3fc40a512716492ef3` |
+| `assets/ui/alley_screen/house/prop_kit.gd` | `996d8d02affa12ebb3fb65e6ce9132bd7c9d9249ab26e3d61f85c2082159574e` |
+
+JUIA9HM captures eight timed beats per variant/orientation with default CRT settings;
+JUIA9HR supplies the reduced stills. tools/review_house_celebrations.py composes
+ignored review sheets from native screenshot crops, never modifies source art.
+The capture helper converts logical layout bounds through the viewport's final
+transform before cropping physical screenshot pixels. Full phone frames accompany
+each crop. These held story beats are not a live video or performance measurement.

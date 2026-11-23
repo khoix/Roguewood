@@ -335,6 +335,10 @@ JOURNEYS["JUIA9HA"] = ("res://tests/house_celebration_audio_journey.gd", "ROGUEW
                        ("audio_strike", "audio_spare", "audio_boss_defeated"), 180, ["--fixed-fps", "60"])
 CONTENT["JUIA9HA"] = "house"
 
+# Default-flash CRT and denser motion evidence; retain the original three-beat review.
+JOURNEYS["JUIA9HM"] = ("res://tests/house_celebration_motion_journey.gd", "ROGUEWOOD_UIA9H_OK", "artifacts/ui-a9-h/motion",
+                       _a9h_caps, 600, ["--fixed-fps", "60"])
+
 def engine():
     executable = os.environ.get("GODOT_BIN") or shutil.which("godot") or shutil.which("godot4")
     if not executable:

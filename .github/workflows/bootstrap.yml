@@ -429,6 +429,11 @@ jobs:
             python3 tools/qa.py e2e --journey "$journey"
             xvfb-run -a python3 tools/qa.py e2e --journey "$journey" --rendered
           done
+      - name: House celebration default-CRT motion review (UI-A9-H)
+        if: matrix.shard == 'art'
+        run: |
+          python3 tools/qa.py e2e --journey JUIA9HM
+          xvfb-run -a python3 tools/qa.py e2e --journey JUIA9HM --rendered
       - name: House celebration sound routing (UI-A9-H)
         if: matrix.shard == 'art'
         run: |

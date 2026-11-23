@@ -63,24 +63,27 @@ live_pin_deck_{normal,reduced}.png. Full index: UI-A6.md.
 
 ## Exact resume step
 
-Continue UI-A9-H at High effort from docs/handoffs/UI-A9-H.md, latest timed
-checkpoint (18:23:29–18:43:29 UTC, 2026-11-23). Coordinator a1f704d merged as
-aaaabd1; cec80a1 Bootstrap #565, E11 #172 and E12 #105 passed. Fresh push CI pending.
-Twenty candidates and three stings exist. Bounded full-draw profiles now pass,
-production sting volume/mute routing passes, Low/Normal portrait restoration is
-fixed with path-backed metadata, and Web passes in isolation. Final scoped
-unit/content, native reviews and J06/J11 rendered pass; details and earlier test failures in the
-item handoff. No gameplay source or live House manifest edits.
+Resume UI-A9-H at High effort from its latest 23:28:44–23:48:44 UTC checkpoint
+(2026-11-23). Coordinator c74aace merged as c895c5d; prior 744be2a Bootstrap #569
+(game/art), E11 #174 and E12 #106 passed. Fresh checkpoint CI pending.
+Twenty original candidates are polished; the eight-beat JUIA9HM review covers
+default CRT settings, with normal/reduced-flash and reduced still companions.
+Native crops now account for viewport scaling. J11 isolated and Web pass; physics
+was rerun unchanged. Final unit/content and normal/default-CRT native reviews
+pass; the regenerated review index contains 440 crops. Staging fixes and check outcomes
+are itemized in UI-A9-H.md; fresh physics digest remains 75d1a3c0….
 
-Next: inspect fresh CI, review/polish full phone-size motion/reduced evidence,
-audition the stings (listening unavailable in this session), complete remaining
-rendered/UI-20 checks, then activate only the finished House set and verify.
-UI-A9-H remains IN_PROGRESS. No Wave 15 art or AV-UI1.
+Next: inspect fresh CI, audition the three stings (listening unavailable here),
+inspect the fresh CI full-draw reports (or rerun isolated profiles), and resolve any
+explicit pending checks in the item handoff. Then enable only the finished House
+manifest and verify real triggers/affected checks. UI-A9-H remains IN_PROGRESS;
+no live entries, Wave 15 or AV-UI1.
 
-Owner review: artifacts/ui-a9-h/{normal,reduced}/contact.png and rendered
-storyboards; boss/rendered/; audio/stings-review.wav and rendered mixer captures;
-profile-{portrait,landscape}/rendered/frame-times.json and performance-summary.md.
-Software-renderer timing is not phone performance evidence. Captures not committed.
+Owner review: artifacts/ui-a9-h/review/index.html, four contact sheets and 80 timed
+storyboards; motion/rendered and reduced/rendered full phone frames; boss/rendered;
+audio/stings-review.wav. Review index links every crop to its original screenshot.
+Held story beats are not live video or phone-performance measurements. No captures
+committed. Full details and exact resume: docs/handoffs/UI-A9-H.md.
 
 ## Validation environment
 

@@ -26,8 +26,8 @@ static func stage(c: CanvasItem) -> void:
 		for y in [4, 83]:
 			rect(c, x, y, 3, 3, LIGHT)
 
-static func pin(c: CanvasItem, p: Vector2, angle: float = 0.0, surprised: bool = false) -> void:
-	c.draw_set_transform(p.round(), angle)
+static func pin(c: CanvasItem, p: Vector2, angle: float = 0.0, surprised: bool = false, scale_factor: float = 1.0) -> void:
+	c.draw_set_transform(p.round(), angle, Vector2.ONE*scale_factor)
 	c.draw_colored_polygon(PackedVector2Array([Vector2(-3,-22),Vector2(3,-22),Vector2(5,-19),Vector2(4,-14),Vector2(3,-11),Vector2(6,-6),Vector2(7,0),Vector2(5,3),Vector2(-5,3),Vector2(-7,0),Vector2(-6,-6),Vector2(-3,-11),Vector2(-4,-14),Vector2(-5,-19)]), INK)
 	rect(c,-3,-21,6,8,IVORY)
 	rect(c,-2,-13,4,5,IVORY)
