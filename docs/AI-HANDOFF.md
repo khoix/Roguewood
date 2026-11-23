@@ -70,6 +70,7 @@ The owner asked for tests that take less time and fewer tokens. For both agents:
   - **UI-42:** the League Record says "runs", not "attempts".
   - **UI-43:** no wall of text under the ball. The aim hint is one line in a pill just above the cards and stays until the player touches the ball; the rule, the lane, tactics and alerts are brief toasts above it, one at a time, at the start of every aim (owner). The stack never rises above the ball's lower edge and keeps clear of the assist panel; nothing shows while the ball is held or rolls. A ball a rule forbids is dimmed in the hand. The status text is unchanged.
   - **Checks:** see each handoff (J02, J03C05, J06, J10, J11, J22L01, J22L02, JTUT and others, headless and rendered).
+- **PERF-2b DONE** (handoffs/PERF-2.md; owner: the top of the screen is blurred, the readout unreadable): iOS 26 blurs the band below the status bar in an installed web app; the readout moved to the bottom-left corner. To confirm on the phone: whether the band also softens the match's top bar.
 - **Waiting on the owner:** a second phone log with PERF-2 (Graphics → Low and Low, Performance Log on, then Copy Log). Its lines now say whether long frames are CPU or GPU, and it covers a whole session.
 - **Follow-up:** the Splitter Ball (E17-D01, not in the game) unlocks on the first House Campaign title, which players can no longer reach (UI-16); it needs another unlock when it lands.
 

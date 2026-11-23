@@ -606,7 +606,16 @@ func _build_page() -> void:
 	layer.layer = 95
 	add_child(layer)
 	readout = Label.new()
-	readout.position = Vector2(8, 4)
+	readout.name = "PerfReadout"
+	# PERF-2b (owner, 2026-11-23: "the top of the game screen is blurred. Can't see
+	# the perf stats"): on iOS 26 an installed web app gets a system blur over the
+	# status bar and the band below it, which no page setting turns off. The readout
+	# sits in the bottom-left corner instead (left of the home indicator).
+	readout.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+	readout.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	readout.offset_left = 8
+	readout.offset_bottom = -6
+	readout.offset_top = -6
 	readout.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	readout.add_theme_font_size_override("font_size", 14)
 	readout.add_theme_color_override("font_outline_color", Color.BLACK)

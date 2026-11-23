@@ -192,6 +192,11 @@ func _perf1_graphics() -> void:
 	await _tap(gfx.log_toggle)
 	_check(gfx.settings.perf_log and gfx.readout.visible, "PERF-1: the Performance log turns on, with its corner readout")
 	await process_frame
+	var corner: Rect2 = gfx.readout.get_global_rect()
+	var screen: Vector2 = gfx.readout.get_viewport_rect().size
+	_check(corner.position.x <= 12.0 and corner.end.y <= screen.y and corner.end.y >= screen.y - 12.0 and corner.size.y > 0.0,
+		"PERF-2b: the readout sits in the bottom-left corner, clear of iOS's top-edge blur (%s in %s)" % [str(corner), str(screen)])
+	await process_frame
 	OS.delay_msec(int(gfx.LONG_FRAME_MS) + 60)
 	await process_frame
 	await process_frame
