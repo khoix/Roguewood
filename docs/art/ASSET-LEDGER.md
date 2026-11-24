@@ -1489,3 +1489,13 @@ real context. No new external source or generated image/audio.
 celebration.gd SHA-256: `df86739f167a7b7ce8a117a32342acbb20de3cf5f3a72bf1aeff4f1def2276de`.
 The review page's audition copies are byte-identical source WAVs; hashes and
 durations are in ignored review/audio-index.json. Listening remains unverified.
+
+## UI-A9-H — delivery caption clearance (2026-11-24, 11:23 UTC resume)
+
+Original procedural House scene revision by Codex. The delivery cart starts at
+x=168 instead of x=141 so its rolling ball never crosses SPECIAL DELIVERY.
+The final x=179, delivered pin, reduced still, palette, sound and scene duration
+are unchanged. No external source or generated imagery. Eight-beat native review
+adds a pixel-region regression for the stable caption in both orientations.
+
+celebration.gd SHA-256: `e555516d80c7bd810303b1fb601dbd50c021226e0237f5dd14393fe4c36e82fa`.

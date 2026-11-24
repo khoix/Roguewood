@@ -1,6 +1,6 @@
 # Wave 14 Codex checkpoint
 
-Status: IN_PROGRESS — UI-A9-H remains. Branch: codex/roguewood-build (2026-11-23).
+Status: IN_PROGRESS — UI-A9-H remains. Branch: codex/roguewood-build (2026-11-24).
 
 Coordinator be1d045 was merged with merge commit c9ecd381. Includes E05-R5
 and UI-9. No rebase, force-push, main push or PR. Initial synchronization
@@ -63,21 +63,23 @@ live_pin_deck_{normal,reduced}.png. Full index: UI-A6.md.
 
 ## Exact resume step
 
-Resume UI-A9-H at High effort from its 2026-11-24 04:34:27–04:49:27 UTC timed
-checkpoint in UI-A9-H.md (15 minutes). Coordinator 77a591d merged as 624a439.
+Resume UI-A9-H at High effort from its 2026-11-24 11:23:51–11:38:51 UTC timed
+checkpoint in UI-A9-H.md (15 minutes). Coordinator 1c6bc40 merged as 1cc7943.
 The House set is LIVE by the owner's go-ahead, via coordinator 017ac8a; preserve
-all manifest paths/IDs. Prior e8223a6 Bootstrap #574 game/art, E11 #175 and E12 #107
+all manifest paths/IDs. Prior 1e30632 Bootstrap #582 game/art, E11 #178 and E12 #108
 passed. Fresh push CI pending. Older activation-withheld instructions are history.
 
-This window verifies real manifest strike/spare/boss/sound playback without test
-entries or variant overrides, and refreshes isolated full-render measurements.
-The handoff records precise outcomes and any pending work. The original three
-stings are also individually playable in the ignored review page. Subjective
-listening remains unverified; technical PCM/mixer checks are not an audition.
+Visual staging review completed for all twenty. Delivery's opening ball now
+clears its caption, with a native pixel regression and fresh captures. The latest
+checkpoint records exact tests. Earlier full-render tables precede PERF-3 and this
+small motion change; inspect new CI's bounded profile artifacts. The original
+three stings are individually playable in the ignored review page; subjective
+listening remains unverified. PCM/mixer checks are not an audition.
 
-Next: inspect fresh CI and any explicitly pending checks, then complete the sting
-audition when listening is available. Keep UI-A9-H IN_PROGRESS until verification
-is complete; no extra owner-approval queue, manifest rollback, Wave 15 or AV-UI1.
+Next: inspect fresh CI and any explicitly pending checks, then complete sting
+audition when listening is available. The active-Web observer hook request is in
+UI-A9-H.md. Keep IN_PROGRESS until verification is complete; no extra owner
+approval queue, manifest rollback, Wave 15 or AV-UI1.
 Owner evidence: artifacts/ui-a9-h/review/index.html (440 visual crops and sting
 players), live/rendered real rolls, boss/rendered actual wins, audio/rendered,
 and profile-{portrait,landscape}/rendered/frame-times.json. No captures committed.
@@ -232,3 +234,62 @@ Implementation and testing stopped at 04:49:10 UTC, before the 04:49:27 deadline
 No test process remains running. Only checkpoint save, push and remote-SHA/clean
 tree verification follow. Fresh Bootstrap game/art and E11/E12 remain pending;
 subjective sting audition remains unrun. Resume at the Exact resume above.
+
+
+## Latest continuation — 2026-11-24 11:23:51–11:38:51 UTC
+
+Coordinator 1c6bc40 merged as 1cc7943 (PERF-3/UI-48). Previous checkpoint 1e30632:
+Bootstrap #582 game/art, E11 #178 and E12 #108 all SUCCESS. Live House manifest
+retained unchanged. Reviewed all twenty portrait story sequences and complete
+landscape/reduced contacts. Fixed delivery's starting ball crossing its caption;
+final pose/duration/sound unchanged. Native caption-region regression added.
+Final JUIA9HM rendered PASS (127 s); native portrait/landscape opening crops show
+the whole subtitle clear. Final unit/content/JUIA9H/JUIA9HR/J06 headless PASS.
+
+See UI-A9-H.md latest checkpoint for subsequent rendered checks and evidence.
+Visual staging review is complete; actual sting audition remains unperformed
+because listening is unavailable. This is no additional owner-approval queue.
+The new CI gate is pending; previous timing tables precede PERF-3/this motion
+adjustment, so inspect this push's JUIA9HP/JUIA9HL reports before using numbers.
+The existing browser observer lacks alley state; a read-only status hook for
+active Web celebration coverage is routed to coordinator in UI-A9-H.md.
+
+Final-revision JUIA9H/JUIA9HR rendered PASS (54/45 s); reduced CRT still
+comparisons and the caption regression pass. Merged-tree J22L01/J22L02 and
+JAVN1/JAVN2 rendered PASS (81/71/32/32 s). Review index regenerated from all
+440 native crops after both modes. The slice-review no-art assertion is unchanged;
+its label now explicitly names the slice fixture to avoid confusing it with the
+live House manifest. Last source edit after these checks changes comments/assertion wording only.
+
+Final isolated Web PASS (64 s) on the merged tree and caption revision;
+export/loader, real mouse throw, IndexedDB reload and context-loss recovery.
+No script errors. Evidence: artifacts/qa/web_journey.log and artifacts/e26-w01/.
+This remains generic platform coverage with the active-celebration boundary above.
+
+Final isolated J11 rendered PASS (53 s), unchanged timing assertions. No
+other engine ran during Web/J11. Final review artifacts regenerated successfully.
+All scoped correctness checks passed; one final portrait full-draw profile was
+started in isolation before stopping. Its explicit outcome follows below.
+Landscape remeasurement is deferred to fresh CI; older numbers are not relabelled.
+
+Runtime this window: pinned Godot4.5.2, live isolated Xorg :93, LP_NUM_THREADS=1,
+/tmp/roguewood-xdg/{cache,data,config}, Web Playwright browser cache as before.
+
+Final isolated JUIA9HP --draw all PASS (171 s): complete=true, draw_all=true,
+no failures, twenty scene buckets and the ordinary-roll comparison. Portrait
+roll n=1372, p50/p95/p99=21.591/27.279/35.853 ms;
+scene p95 range 36.388–45.094 ms; delivery
+n=97, p95=36.650 ms. Godot4.5.2/X11/llvmpipe, LP_NUM_THREADS=1,
+one engine running. Whole-state software wall-frame comparison, not isolated
+art overhead or a phone/60fps claim. Final report preserved separately at
+artifacts/ui-a9-h/resume-1123/final-portrait-frame-times.json; prior portrait saved
+as prior-portrait-frame-times.json. Landscape is NOT remeasured here; inspect
+fresh CI for a matched final-revision pair. No mixed-revision performance table.
+
+Implementation/testing stopped at 11:37:39 UTC within the 11:38:51 deadline.
+Only checkpoint save/push/remote verification and the requested future scheduling
+follow. UI-A9-H remains IN_PROGRESS: actual sting audition and fresh full CI
+remain outstanding; active-Web observation hook is routed to the coordinator.
+Next resume: inspect this push CI and both profile reports, retain live manifest,
+audition the three stings if listening is possible, then resolve genuine remaining
+validation gaps. Do not restart completed visual polish or start Wave 15.

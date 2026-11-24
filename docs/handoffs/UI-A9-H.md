@@ -1,8 +1,8 @@
 # UI-A9-H — House celebrations checkpoint
 
 Status: IN_PROGRESS (House set LIVE by owner/coordinator; sting audition remains unverified).
-Date: 2026-11-23. Effort: High. Branch: codex/roguewood-build.
-Latest timebox: 2026-11-24 04:34:27–04:49:27 UTC (15 minutes).
+Date: 2026-11-24. Effort: High. Branch: codex/roguewood-build.
+Latest timebox: 2026-11-24 11:23:51–11:38:51 UTC (15 minutes).
 Earlier 13:12:11–13:32:11 session is retained below as history.
 
 ## Earlier session implementation
@@ -79,8 +79,9 @@ outside the default sandbox; no repository settings changed.
    was unavailable here; PCM and production mixer verification are not listening.
    This is an unperformed review, not an owner-approval queue or reason to disable
    the owner's live manifest. Record the actual result when audition is possible.
-4. Complete any explicitly pending live-check/CI results below. Review changes at
-   450×800 and 800×450 if further art changes are needed. Keep both accessibility
+4. The latest timed visual review is complete, including the delivery caption fix.
+   Complete explicitly pending CI results below. Review any further changes at
+   450×800 and 800×450. Keep both accessibility
    modes, all twenty stable variants and silent scene ownership. No Wave 15/AV-UI1.
    Mark DONE only when implementation, captures and affected checks are complete.
 
@@ -251,7 +252,7 @@ testing stopped before 23:48:44 UTC; only checkpoint save/push/SHA verification
 follow. Fresh push Bootstrap/E11/E12 are pending. UI-A9-H remains IN_PROGRESS.
 
 
-## Latest timed checkpoint — 2026-11-24, 04:34:27–04:49:27 UTC
+## Previous timed checkpoint — 2026-11-24, 04:34:27–04:49:27 UTC
 
 Merged coordinator 77a591d as 624a439. Includes owner-authorized live House
 manifest (017ac8a), UI-47 touch/Charm quick view and PERF-2c. All twenty paths,
@@ -341,3 +342,98 @@ Implementation and testing stopped at 04:49:10 UTC, before the 04:49:27 deadline
 No test process remains running. Only checkpoint save, push and remote-SHA/clean
 tree verification follow. Fresh Bootstrap game/art and E11/E12 remain pending;
 subjective sting audition remains unrun. Resume at the Exact resume above.
+
+
+## Latest timed checkpoint — 2026-11-24, 11:23:51–11:38:51 UTC
+
+Merged coordinator 1c6bc40 as 1cc7943 (PERF-3 shared per-roll resources/logging,
+UI-48 Late Rally wording). House manifest remains live and unchanged. Follow-up
+PERF-3 note about d04 overlay shader reuse is recorded by coordinator; this session
+does not touch that unrelated file or begin Wave 15.
+
+Previous checkpoint 1e30632 full CI confirmed successful: Bootstrap #582,
+run 45329032660, art job 138225433140 and game job 138225433298; E11 #178,
+run 45329032678; E12 #108, run 45329032633. No failing assertion to repair.
+
+Reviewed every variant's eight-beat portrait story sheet and the complete normal
+landscape/reduced portrait contact sheets. Distinct gags, correct rival identity,
+champion's two-line name, quiet scanlines and separate final stills remain legible.
+One concrete polish defect: delivery's opening ball crossed its small caption.
+Moved only the cart's starting x (141→168), retaining final x=179 and the delivery
+arc/ending, event duration, sound and reduced still. Added a native pixel-region
+assertion that the delivery caption remains identical across the held beats.
+This is staging/readability review, not live video or physical-phone evidence.
+
+Own modified files: assets/ui/alley_screen/house/celebration.gd,
+tests/house_celebration_art_journey.gd, docs/art/ASSET-LEDGER.md,
+docs/art/ui/UI-A9-H.md and both handoffs. No manifest, protected gameplay,
+project settings, source audio or screenshots changed. Final checks follow below.
+
+Prior full-draw timing tables describe the earlier source revision and precede
+PERF-3; do not call them a remeasurement of this tiny motion adjustment. The new
+push's art CI reruns JUIA9HP/JUIA9HL; inspect those complete reports next. Sting
+listening remains technically unavailable/unperformed, not an approval queue.
+The sound files, PCM/mixer evidence and separate review players are unchanged.
+
+
+Final-revision checks so far: unit/content and JUIA9H/JUIA9HR/J06 headless PASS
+(5/5). JUIA9HM rendered PASS (127 s), including unobscured caption assertions in
+both orientations. New opening CRT crops inspected at native size: the whole
+SPECIAL DELIVERY line is clear, ball/cart remain separate, pin readable.
+The earlier merged-tree batch also passed all seven checks (unit/content,
+JUIA9H/JUIA9HR/JUIA9HA/JUIA9HV/J22L02); source chronology is retained rather
+than calling the earlier unit run verification of the later caption edit.
+
+Visual review conclusion: the polished set's twenty distinct scenes and final
+CRT pass this desktop phone-size staging review. Spare gags retain their own
+silhouettes; boss props preserve portrait/name hierarchy and distinct endings.
+The final delivery pose is unchanged; all reduced stills remain distinct and
+static. No unresolved visual defect identified in the held-beat evidence. This
+does not stand in for actual audio listening, live-video or target-device review.
+
+Technical coverage boundary for coordinator: current Web QA status in
+src/platform/web_qa.gd exposes lab state/history but no alley event/path/playing
+state. Generic JW01 remains export/platform coverage, not exhaustive active
+House animation playback in Web. If adding an automated browser celebration
+assertion, a read-only QA status hook for those fields and screen bounds belongs
+to the coordinator; no such hook was added or production state driven here.
+
+Final-revision JUIA9H/JUIA9HR rendered PASS (54/45 s); reduced CRT still
+comparisons and the caption regression pass. Merged-tree J22L01/J22L02 and
+JAVN1/JAVN2 rendered PASS (81/71/32/32 s). Review index regenerated from all
+440 native crops after both modes. The slice-review no-art assertion is unchanged;
+its label now explicitly names the slice fixture to avoid confusing it with the
+live House manifest. Last source edit after these checks changes comments/assertion wording only.
+
+Final isolated Web PASS (64 s) on the merged tree and caption revision;
+export/loader, real mouse throw, IndexedDB reload and context-loss recovery.
+No script errors. Evidence: artifacts/qa/web_journey.log and artifacts/e26-w01/.
+This remains generic platform coverage with the active-celebration boundary above.
+
+Final isolated J11 rendered PASS (53 s), unchanged timing assertions. No
+other engine ran during Web/J11. Final review artifacts regenerated successfully.
+All scoped correctness checks passed; one final portrait full-draw profile was
+started in isolation before stopping. Its explicit outcome follows below.
+Landscape remeasurement is deferred to fresh CI; older numbers are not relabelled.
+
+Runtime this window: pinned Godot4.5.2, live isolated Xorg :93, LP_NUM_THREADS=1,
+/tmp/roguewood-xdg/{cache,data,config}, Web Playwright browser cache as before.
+
+Final isolated JUIA9HP --draw all PASS (171 s): complete=true, draw_all=true,
+no failures, twenty scene buckets and the ordinary-roll comparison. Portrait
+roll n=1372, p50/p95/p99=21.591/27.279/35.853 ms;
+scene p95 range 36.388–45.094 ms; delivery
+n=97, p95=36.650 ms. Godot4.5.2/X11/llvmpipe, LP_NUM_THREADS=1,
+one engine running. Whole-state software wall-frame comparison, not isolated
+art overhead or a phone/60fps claim. Final report preserved separately at
+artifacts/ui-a9-h/resume-1123/final-portrait-frame-times.json; prior portrait saved
+as prior-portrait-frame-times.json. Landscape is NOT remeasured here; inspect
+fresh CI for a matched final-revision pair. No mixed-revision performance table.
+
+Implementation/testing stopped at 11:37:39 UTC within the 11:38:51 deadline.
+Only checkpoint save/push/remote verification and the requested future scheduling
+follow. UI-A9-H remains IN_PROGRESS: actual sting audition and fresh full CI
+remain outstanding; active-Web observation hook is routed to the coordinator.
+Next resume: inspect this push CI and both profile reports, retain live manifest,
+audition the three stings if listening is possible, then resolve genuine remaining
+validation gaps. Do not restart completed visual polish or start Wave 15.

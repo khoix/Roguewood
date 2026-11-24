@@ -1,5 +1,5 @@
 extends "res://tests/scoring_journey.gd"
-## UI-A9-H preproduction review: real game + real AlleyScreen, test-only selection.
+## UI-A9-H deterministic review: real game + real AlleyScreen in the slice fixture.
 ## Deterministic story frames do not alter the production picker or live manifest.
 const CASES := [
 	["strike", "strike_pinwheel", 1.8],
@@ -99,7 +99,7 @@ func _run() -> void:
 	await _focus_accept(lab.settings_panel.close)
 	await _focus_accept(scene.resume)
 	var alley = lab.alley_screen
-	_check(not alley.has_art("strike"), "unfinished set remains absent from live manifest")
+	_check(not alley.has_art("strike"), "slice fixture has no celebration entries")
 	for orientation in orientations():
 		root.size = Vector2i(450,800) if orientation == "portrait" else Vector2i(800,450)
 		for i in 12: await process_frame
@@ -138,6 +138,9 @@ func _run() -> void:
 					if first == null: first = pixels
 					elif reduced(): _check(first.get_data() == pixels.get_data(), "reduced still pixels " + spec[1])
 					elif fraction == 0.9: _check(first.get_data() != pixels.get_data(), "distinct moving story frames " + spec[1])
+					if spec[1] == "spare_delivery":
+						var caption := Rect2i(17,50,121,13)
+						_check(first.get_region(caption).get_data() == pixels.get_region(caption).get_data(), "delivery caption stays unobscured " + orientation)
 			_check(alley.view.size == Vector2i(252,90), "display-sized render target")
 			_check(float(alley.crt.get_shader_parameter("flicker")) == (0.0 if reduced_flash() else 1.0), "CRT follows flash setting")
 			# Let each scene finish through its real process/finished path.
