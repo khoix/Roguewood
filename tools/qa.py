@@ -311,6 +311,34 @@ for _key, _place, _before in [("JAVFIX1B", "binder", False), ("JAVFIX1BB", "bind
                      f"artifacts/av-fix1/{_place}/{_version}", (f"{_place}_portrait", f"{_place}_landscape"), 300, ["--fixed-fps", "60"])
     CONTENT[_key] = "house"
 
+# UI-A9-H first storyboards: test-only overrides keep incomplete art out of play.
+_a9h_caps = tuple(f"{scene}_{orientation}_{frame}" for scene in
+                 ["strike_pinwheel", "strike_domino", "strike_curtain", "strike_score_stamp", "strike_constellation",
+                  "spare_last_chair", "spare_magnet", "spare_bookend", "spare_delivery", "spare_lasso", "boss_surveyor_tape",
+                  "boss_surveyor_level", "boss_custodian_sweep", "boss_custodian_polish", "boss_proprietor_receipt", "boss_proprietor_keys", "boss_old_lou_record", "boss_old_lou_encore", "boss_custodian_champion_crown", "boss_custodian_champion_house_lights"]
+                 for orientation in ["portrait", "landscape"] for frame in ["10", "45", "90"])
+_a9h_caps += ("celebration_strike", "scoring", "strike", "spare", "open")
+for _key, _script, _directory in [("JUIA9H", "house_celebration_art_journey", "normal"),
+                                  ("JUIA9HR", "house_celebration_reduced_journey", "reduced")]:
+    JOURNEYS[_key] = (f"res://tests/{_script}.gd", "ROGUEWOOD_UIA9H_OK", f"artifacts/ui-a9-h/{_directory}",
+                     _a9h_caps, 300, ["--fixed-fps", "60"])
+
+JOURNEYS["JUIA9HB"] = ("res://tests/house_celebration_boss_journey.gd", "ROGUEWOOD_J22L01_OK", "artifacts/ui-a9-h/boss",
+                       tuple(f"boss_d{i:02d}" for i in range(1, 9)) + ("j22_champion", "j22_title", "j22_tournament"), 1800, ["--fixed-fps", "60"])
+CONTENT["JUIA9HB"] = "house"
+
+for _key, _orientation in [("JUIA9HP", "portrait"), ("JUIA9HL", "landscape")]:
+    JOURNEYS[_key] = (f"res://tests/house_celebration_profile_{_orientation}.gd", "ROGUEWOOD_UIA9H_OK",
+                     f"artifacts/ui-a9-h/profile-{_orientation}", (), 300, ["--fixed-fps", "60"])
+
+JOURNEYS["JUIA9HA"] = ("res://tests/house_celebration_audio_journey.gd", "ROGUEWOOD_UIA9HA_OK", "artifacts/ui-a9-h/audio",
+                       ("audio_strike", "audio_spare", "audio_boss_defeated"), 180, ["--fixed-fps", "60"])
+CONTENT["JUIA9HA"] = "house"
+
+# Default-flash CRT and denser motion evidence; retain the original three-beat review.
+JOURNEYS["JUIA9HM"] = ("res://tests/house_celebration_motion_journey.gd", "ROGUEWOOD_UIA9H_OK", "artifacts/ui-a9-h/motion",
+                       _a9h_caps, 600, ["--fixed-fps", "60"])
+
 def engine():
     executable = os.environ.get("GODOT_BIN") or shutil.which("godot") or shutil.which("godot4")
     if not executable:

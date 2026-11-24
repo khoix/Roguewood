@@ -129,6 +129,10 @@ func _through_awards() -> void:
 	await _focus_accept(ceremony.continue_button)
 
 func _focus_accept(control: Control) -> void:
+	# UI-A9-H live (2026-11-24): after a boss win, Division Result waits for the alley
+	# screen's celebration (UI-20), as a player does.
+	if lab != null and is_instance_valid(lab) and control == lab.next_rack and not control.visible and lab.get("alley_screen") != null and lab.alley_screen.playing():
+		await _wait_for(func(): return control.visible, "Division Result after the celebration", 900)
 	await _reach(control)
 	control.grab_focus()
 	await _action("ui_accept")
