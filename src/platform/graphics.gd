@@ -79,6 +79,31 @@ func _ready() -> void:
 	get_tree().node_added.connect(_node_added)
 	_apply_resolution()
 	_read_context_loss()
+	# PERF-3: marks at the start and end of every frame's _process calls, for each
+	# long frame's script time (the engine's own monitor is a periodic sample).
+	_first = FrameMark.new()
+	_first.process_priority = -1000000
+	_last_mark = FrameMark.new()
+	_last_mark.process_priority = 1000000
+	for mark in [_first, _last_mark]:
+		mark.process_mode = Node.PROCESS_MODE_ALWAYS
+		add_child(mark)
+
+class FrameMark extends Node:
+	var stamp := 0
+	var previous := 0
+	func _process(_delta: float) -> void:
+		previous = stamp
+		stamp = Time.get_ticks_usec()
+
+var _first: FrameMark
+var _last_mark: FrameMark
+var _away := false # PERF-3: the app was in the background; that gap is not a long frame
+const AWAY_MS := 10000.0
+
+func _notification(what: int) -> void:
+	if what in [NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_WM_WINDOW_FOCUS_OUT]:
+		_away = true
 
 # --- Settings ---------------------------------------------------------------
 
@@ -397,9 +422,16 @@ func _process(delta: float) -> void:
 		_added = 0
 		return
 	var now := Time.get_ticks_usec()
+	var rid := get_tree().root.get_viewport_rid()
+	if _last_usec == 0: RenderingServer.viewport_set_measure_render_time(rid, true)
 	if _last_usec > 0:
 		var ms := (now - _last_usec) / 1000.0
-		if ms >= LONG_FRAME_MS: _record(ms)
+		# PERF-3 (the owner's log: 38 s, 229 s, 2,199 s "frames"): time away from the
+		# app is not a frame.
+		if ms >= LONG_FRAME_MS and not _away and ms < AWAY_MS:
+			var script := (_last_mark.stamp - _first.previous) / 1000.0 if _last_mark.stamp > _first.previous and _first.previous > 0 else 0.0
+			_record(ms, "", script, RenderingServer.viewport_get_measured_render_time_cpu(rid))
+	_away = false
 	_last_usec = now
 	_added = 0
 	if readout != null and Engine.get_process_frames() % 15 == 0:
@@ -424,20 +456,22 @@ func where() -> String:
 	if lab != null and is_instance_valid(lab): text += " · %s · roll %d" % [lab.state, lab.history.size() + 1]
 	return text
 
-func _record(ms: float, what: String = "") -> void:
+func _record(ms: float, what: String = "", script: float = 0.0, render: float = 0.0) -> void:
 	long_frames += 1
 	var here := where()
 	var now := Time.get_ticks_msec()
-	# PERF-2: a long frame's own CPU time (scripts and physics) and draw calls; a frame
-	# far longer than its CPU time is waiting on the GPU.
-	var cpu := (Performance.get_monitor(Performance.TIME_PROCESS) + Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS)) * 1000.0
+	# PERF-3: a long frame's script time (its _process calls, first to last) and the
+	# renderer's CPU time. The rest of the frame is input and signal handlers (a button's
+	# work), loading, freeing, physics, and waiting on the GPU. (PERF-2's "cpu" was the
+	# engine's monitor, a periodic sample, not that frame's.)
 	var draws := int(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME))
 	var last: Dictionary = log_entries.back() if not log_entries.is_empty() else {}
 	# PERF-2: a run of long frames at the same place is one line (count, longest).
 	if what.is_empty() and not last.has("what") and last.get("where", "") == here and last.has("tick") and now - int(last.tick) <= 2000:
 		last.count = int(last.get("count", 1)) + 1
 		last.ms = maxi(int(last.ms), roundi(ms))
-		last.cpu = maxf(float(last.get("cpu", 0.0)), snappedf(cpu, 0.1))
+		last.script = maxf(float(last.get("script", 0.0)), snappedf(script, 0.1))
+		last.render = maxf(float(last.get("render", 0.0)), snappedf(render, 0.1))
 		last.draws = maxi(int(last.get("draws", 0)), draws)
 		last.vram = maxf(float(last.vram), snappedf(_vram(), 0.1))
 		last.tick = now
@@ -446,7 +480,7 @@ func _record(ms: float, what: String = "") -> void:
 		_refresh_page()
 		return
 	var entry := {"at": Time.get_datetime_string_from_system(false, true), "ms": roundi(ms), "where": here, "vram": snappedf(_vram(), 0.1), "added": _added,
-		"cpu": snappedf(cpu, 0.1), "draws": draws, "count": 1, "tick": now}
+		"script": snappedf(script, 0.1), "render": snappedf(render, 0.1), "draws": draws, "count": 1, "tick": now}
 	if not what.is_empty(): entry.what = what
 	log_entries.append(entry)
 	while log_entries.size() > LOG_SIZE: log_entries.pop_front()
@@ -476,7 +510,11 @@ func log_text() -> String:
 	for e in log_entries:
 		var timing := ("%d ms" % e.ms) if int(e.ms) > 0 else "—"
 		if int(e.get("count", 1)) > 1: timing = "%d frames to %s, longest %d ms" % [int(e.count), String(e.get("until", "")).get_slice(" ", 1), int(e.ms)]
-		var cost := "  cpu %.0f ms · %d draws" % [float(e.cpu), int(e.get("draws", 0))] if e.has("cpu") and int(e.ms) > 0 else ""
+		var cost := ""
+		if e.has("script") and int(e.ms) > 0:
+			cost = "  script %.0f ms · render %.0f ms · %d draws" % [float(e.script), float(e.get("render", 0.0)), int(e.get("draws", 0))]
+		elif e.has("cpu") and int(e.ms) > 0: # a log saved before PERF-3
+			cost = "  cpu %.0f ms · %d draws" % [float(e.cpu), int(e.get("draws", 0))]
 		lines.append("%s  %s  %s  %.0f MB%s%s" % [e.at, timing, e.where, float(e.vram), cost, ("  " + String(e.what)) if e.has("what") else ""])
 	if log_entries.is_empty(): lines.append("No long frames recorded.")
 	return "\n".join(lines)
