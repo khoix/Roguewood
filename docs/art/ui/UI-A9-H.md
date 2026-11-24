@@ -1,7 +1,8 @@
 # UI-A9-H — House alley-screen celebrations
 
-Status: IN_PROGRESS, 2026-11-23. Twenty scene candidates and three sting candidates
-are authored; final integration/verification is not complete.
+Status: IN_PROGRESS, 2026-11-24. The twenty scenes and three stings are LIVE
+(owner/coordinator 017ac8a); sting audition remains unverified. Earlier “absent
+manifest” notes below record pre-activation history.
 Assigned effort: High. Contract: docs/handoffs/UI-20.md; owner brief:
 docs/prompts/codex-wave14-ui-a9.md. House only; Neon belongs to Wave 15.
 
@@ -222,3 +223,70 @@ actual-phone validation, or capture-only rendering-performance numbers.
 The earlier full-draw timing table belongs to the previous staging revision.
 Do not relabel it as a remeasurement of this polish. Stings remain technically
 verified but not subjectively auditioned; live manifest entries remain absent.
+
+
+## Current-production full-render profiles — 2026-11-24
+
+Production tree: coordinator 77a591d merged as 624a439; House art sources unchanged from e8223a6.
+Both bounded journeys passed in isolation: JUIA9HP 179 s, JUIA9HL 153 s. Godot 4.5.2; X11; llvmpipe LLVM 19.1.7; LP_NUM_THREADS=1.
+Each report is complete, draw_all=true, has no failures, twenty scene buckets and an ordinary-roll bucket. No other engine/test ran during either profile.
+
+These are wall-frame intervals in the deterministic slice review fixture, including CPU/render scheduling. The ordinary-roll control uses reduced-motion assist; scenes use normal motion on the aim HUD. This is a whole-state comparison, not isolated effect overhead, GPU timing, or physical-phone/60fps evidence.
+
+| Orientation | Roll n | Roll p50 / p95 / p99 ms | Scene p95 min / max ms |
+|---|---|---|---|
+| portrait | 1372 | 23.175 / 32.775 / 48.301 | 38.771 / 49.221 |
+| landscape | 1372 | 20.932 / 26.655 / 32.137 | 31.966 / 40.598 |
+
+| Variant | Portrait n / p95 ms | Landscape n / p95 ms |
+|---|---|---|
+| boss_custodian_champion_crown | 181 / 40.580 | 181 / 37.852 |
+| boss_custodian_champion_house_lights | 181 / 44.333 | 181 / 40.598 |
+| boss_custodian_polish | 181 / 44.265 | 181 / 32.810 |
+| boss_custodian_sweep | 181 / 42.563 | 181 / 31.966 |
+| boss_old_lou_encore | 181 / 42.177 | 181 / 38.480 |
+| boss_old_lou_record | 181 / 43.151 | 181 / 31.997 |
+| boss_proprietor_keys | 181 / 39.339 | 181 / 35.157 |
+| boss_proprietor_receipt | 181 / 40.964 | 181 / 33.262 |
+| boss_surveyor_level | 181 / 45.033 | 181 / 39.768 |
+| boss_surveyor_tape | 181 / 47.412 | 181 / 34.678 |
+| spare_bookend | 97 / 41.021 | 97 / 33.823 |
+| spare_delivery | 97 / 38.771 | 97 / 36.791 |
+| spare_lasso | 97 / 44.969 | 97 / 36.512 |
+| spare_last_chair | 97 / 49.221 | 97 / 34.327 |
+| spare_magnet | 97 / 43.640 | 97 / 38.042 |
+| strike_constellation | 109 / 45.335 | 109 / 35.042 |
+| strike_curtain | 109 / 48.886 | 109 / 34.819 |
+| strike_domino | 109 / 44.558 | 109 / 32.986 |
+| strike_pinwheel | 109 / 45.730 | 109 / 34.134 |
+| strike_score_stamp | 109 / 47.406 | 109 / 32.831 |
+
+Raw reports: artifacts/ui-a9-h/profile-{portrait,landscape}/rendered/frame-times.json. Summary: artifacts/ui-a9-h/performance-20261124.{json,md}.
+These supersede the earlier staging-revision measurements for current-production reporting, without claiming target-device acceptance.
+
+
+## Caption clearance review — 2026-11-24, 11:23 UTC
+
+All twenty eight-beat portrait story sheets and complete landscape/reduced
+contacts reviewed. Delivery's starting ball previously crossed its subtitle;
+cart starting x moves from 141 to 168, keeping final x=179 and the reduced still.
+The normal review now compares the caption's native pixel region across all held
+beats. Later Leagues should reserve a motion-safe caption region throughout the
+gag, including the opening pose, rather than checking only the final tableau.
+No changes to event lengths, CRT parameters, audio, IDs or manifest selection.
+
+The timing tables above precede this adjustment and coordinator PERF-3. They
+remain historical complete full-draw measurements, not new measurements of this
+revision. Fresh push CI reruns both bounded profiles. Audible quality remains
+unverified despite passing PCM/mixer checks; no listening claim is made.
+
+Final isolated JUIA9HP --draw all PASS (171 s): complete=true, draw_all=true,
+no failures, twenty scene buckets and the ordinary-roll comparison. Portrait
+roll n=1372, p50/p95/p99=21.591/27.279/35.853 ms;
+scene p95 range 36.388–45.094 ms; delivery
+n=97, p95=36.650 ms. Godot4.5.2/X11/llvmpipe, LP_NUM_THREADS=1,
+one engine running. Whole-state software wall-frame comparison, not isolated
+art overhead or a phone/60fps claim. Final report preserved separately at
+artifacts/ui-a9-h/resume-1123/final-portrait-frame-times.json; prior portrait saved
+as prior-portrait-frame-times.json. Landscape is NOT remeasured here; inspect
+fresh CI for a matched final-revision pair. No mixed-revision performance table.

@@ -339,6 +339,10 @@ CONTENT["JUIA9HA"] = "house"
 JOURNEYS["JUIA9HM"] = ("res://tests/house_celebration_motion_journey.gd", "ROGUEWOOD_UIA9H_OK", "artifacts/ui-a9-h/motion",
                        _a9h_caps, 600, ["--fixed-fps", "60"])
 
+JOURNEYS["JUIA9HV"] = ("res://tests/house_celebration_live_journey.gd", "ROGUEWOOD_UIA9HV_OK", "artifacts/ui-a9-h/live",
+                       ("live_strike", "live_spare", "celebration_strike", "scoring", "strike", "spare", "open"), 300, ["--fixed-fps", "60"])
+CONTENT["JUIA9HV"] = "house"
+
 def engine():
     executable = os.environ.get("GODOT_BIN") or shutil.which("godot") or shutil.which("godot4")
     if not executable:
