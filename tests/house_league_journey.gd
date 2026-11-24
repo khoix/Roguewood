@@ -197,9 +197,44 @@ func _check_review_layout(division: int, frame: int) -> void:
 	var height_kept: bool = is_equal_approx(rack.size.y, 160.0 if portrait else 190.0)
 	_check(absf(x - _rack_x) < 1.0 and top >= note_bottom - 1.0 and height_kept,
 		"UI-49: D%d frame %d: the rack holds its place (%.0f vs %.0f) and height (%.0f), and its back row clears the Charm notes (%.0f vs %.0f)" % [division, frame + 1, x, _rack_x, rack.size.y, top, note_bottom])
+	# UI-50 (owner, 2026-11-24): the Charm notes are centred in the panel.
+	var row: ScrollContainer = lab.score_panel.notes_scroll
+	if notes.visible:
+		var strip: Control = lab.score_panel.notes
+		_check(row.visible and absf(strip.get_global_rect().get_center().x - row.get_global_rect().get_center().x) < 1.5
+			and absf(row.get_global_rect().get_center().x - lab.score_panel.get_global_rect().get_center().x) < 2.0,
+			"UI-50: D%d frame %d: the Charm notes are centred (%.0f, row %.0f, panel %.0f)" % [division, frame + 1,
+			strip.get_global_rect().get_center().x, row.get_global_rect().get_center().x, lab.score_panel.get_global_rect().get_center().x])
 	if notes.visible and not _review_captured:
 		_review_captured = true
 		await _capture("j22_frame_review")
+		await _notes_overflow(x)
+
+## UI-50: more notes than fit scroll sideways inside the panel; the rack stays put.
+func _notes_overflow(rack_x: float) -> void:
+	var panel = lab.score_panel
+	var rack_y: float = panel.rack_view.get_global_rect().position.y
+	var extra: Array = []
+	for i in 4:
+		var note := PanelContainer.new()
+		note.name = "OverflowNote%d" % i
+		note.custom_minimum_size = Vector2(150, 48)
+		panel.add_note(note)
+		extra.append(note)
+	for i in 3: await process_frame
+	var row: ScrollContainer = panel.notes_scroll
+	var bar := row.get_h_scroll_bar()
+	var inside: bool = panel.get_global_rect().grow(1.0).encloses(row.get_global_rect())
+	_check(inside and panel.notes.size.x > row.size.x and bar.max_value > bar.page and absf(panel.rack_view.get_global_rect().get_center().x - rack_x) < 1.0
+		and absf(panel.rack_view.get_global_rect().position.y - rack_y) < 0.5 and panel.notes_beyond() == [false, true],
+		"UI-50: overflowing notes scroll within the panel (row %.0f px, notes %.0f px, inside %s), the rack holds still, and the right edge shows more" % [row.size.x, panel.notes.size.x, inside])
+	row.scroll_horizontal = int(bar.max_value)
+	await process_frame
+	_check(row.scroll_horizontal > 0 and panel.notes_beyond() == [true, false], "UI-50: the notes row scrolls, and its edges show which side has more")
+	await _capture("j22_notes_overflow")
+	row.scroll_horizontal = 0
+	for note in extra: note.queue_free()
+	await process_frame
 
 func _second_roll() -> bool:
 	await _wait_for(func(): return lab.state == "scoring" or (lab.state == "aim" and lab.lane.state == "ready"), "roll 2 or scoring", ROLL_FRAMES)
