@@ -1547,3 +1547,7 @@ pulse-wave blips. Not listened to by Claude; the owner reviews in play.
 | `assets/audio/ui_tap.neon.wav` | 40 ms | `d488f0b3e3bf3896b00e80916b82026354d9018a8a1d8cc51d0c4516bc089f02` |
 | `assets/audio/ui_select.neon.wav` | 50 ms | `6433db6195b29c621ae3df395543348628caefd22a4c35f562e1339f1394698f` |
 | `assets/audio/ui_back.neon.wav` | 60 ms | `5894fd263d42ccc361aed8819b3e94d274ffbca63909e99fd96268b6418f81bb` |
+
+## PACK-A — Web art compression (Claude, 2026-11-24)
+
+An import setting only; no source image changed. Every painted sheet imports as lossy WebP at 0.9 (`tools/web_textures.py`; the brand icon and splash stay lossless). The Web export leaves out the never-loaded files the tool lists. Source hashes above are unchanged.

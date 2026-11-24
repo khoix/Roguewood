@@ -412,6 +412,12 @@ def run(args, marker=None, log_path=None, timeout=120):
         raise RuntimeError(f"Missing completion marker: {marker}")
 
 
+# PACK-A (owner, 2026-11-24): the Web download's budget. index.pck measured 46.4 MB
+# once painted art imported as lossy WebP (was 124.7 MB). A League's art (Salvage,
+# Wave 15) raises it on purpose, in the same change that adds the art.
+WEB_PCK_BUDGET_MB = 55
+
+
 def web_journey(exe, inject_failure):
     import functools, http.server, threading
     target = ROOT / "build/web/index.html"
@@ -425,6 +431,9 @@ def web_journey(exe, inject_failure):
     artifact_dir.mkdir(parents=True)
     (artifact_dir / "sizes.json").write_text(json.dumps(sizes, indent=1))
     print("Web build sizes (bytes):", json.dumps(sizes))
+    pck_mb = sizes.get("index.pck", 0) / 1e6
+    if pck_mb > WEB_PCK_BUDGET_MB:
+        raise RuntimeError("index.pck is %.1f MB, over the %d MB Web budget (PACK-A): check tools/web_textures.py --check, or raise WEB_PCK_BUDGET_MB with the art that needs it" % (pck_mb, WEB_PCK_BUDGET_MB))
 
     class Quiet(http.server.SimpleHTTPRequestHandler):
         def log_message(self, *args):
@@ -575,6 +584,8 @@ def _dispatch(args):
         print(f"Godot {VERSION}; Python {sys.version.split()[0]}; project={ROOT}")
         return
     run([exe, "--headless", "--path", str(ROOT), "--editor", "--import"])
+    if args.command == "content":
+        run([sys.executable, str(ROOT / "tools/web_textures.py"), "--check"]) # PACK-A: art import rule
     if args.command in ("unit", "content", "integration"):
         run([exe, "--headless", "--path", str(ROOT), "--script", "res://tests/run_tests.gd", "--", args.command], "ROGUEWOOD_" + args.command.upper() + "_OK")
     elif args.command == "physics":

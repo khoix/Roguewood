@@ -127,4 +127,5 @@ How these were measured (2026-11-24; build of 01:58, before the Neon celebration
 - The full CI run (game and art shards) and `qa.py matrix` before the wave closes.
 
 ## Status
-PROPOSAL, for the owner to review. Nothing is built. The owner decides whether to proceed, and in which order (PACK-A, PACK-B0, PACK-B1–B4).
+- **PACK-A: DONE** (owner approved, 2026-11-24; handoffs/PACK-A.md). `index.pck` went from 124.7 to 46.4 MB.
+- **PACK-B0–B4:** proposed, awaiting the owner.
