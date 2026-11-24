@@ -1475,3 +1475,17 @@ ignored review sheets from native screenshot crops, never modifies source art.
 The capture helper converts logical layout bounds through the viewport's final
 transform before cropping physical screenshot pixels. Full phone frames accompany
 each crop. These held story beats are not a live video or performance measurement.
+
+
+## UI-A9-H — live verification fallback (2026-11-24)
+
+Live-manifest audio testing exposed an empty rival_name in direct/review events.
+The generic boss layout now displays RIVAL if splitting that empty name produces
+no lines, rather than indexing an empty array. Supplied rival names, all original
+geometry, portraits, three PCM files and manifest paths are unchanged. Native
+review explicitly draws every boss scene with an empty name before restoring its
+real context. No new external source or generated image/audio.
+
+celebration.gd SHA-256: `df86739f167a7b7ce8a117a32342acbb20de3cf5f3a72bf1aeff4f1def2276de`.
+The review page's audition copies are byte-identical source WAVs; hashes and
+durations are in ignored review/audio-index.json. Listening remains unverified.

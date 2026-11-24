@@ -7,6 +7,9 @@ crops and links to their complete phone screenshots. Story beats are held captur
 not a video recording or rendering-performance measurement.
 """
 import html
+import hashlib
+import shutil
+import wave
 import json
 from pathlib import Path
 from PIL import Image, ImageDraw
@@ -65,11 +68,26 @@ def main():
                 contact.paste(im,(x,y+24))
             contact.save(OUT / f'{mode}_{orientation}_contact.png')
     (OUT / 'capture-index.json').write_text(json.dumps(index,indent=2)+'\n')
+    audio_dir = OUT / 'audio'
+    audio_dir.mkdir(exist_ok=True)
+    audio_index = []
+    players = []
+    for event in ['strike', 'spare', 'boss_defeated']:
+        source = ROOT / 'assets/ui/alley_screen/house' / (event + '.wav')
+        target = audio_dir / source.name
+        shutil.copyfile(source, target)
+        with wave.open(str(target)) as wav:
+            seconds = wav.getnframes() / wav.getframerate()
+        audio_index.append({'event': event, 'seconds': seconds,
+                            'sha256': hashlib.sha256(target.read_bytes()).hexdigest(),
+                            'source': str(source.relative_to(ROOT))})
+        players.append(f'<p>{event.replace("_", " ").title()} · {seconds:.2f} s<br><audio controls preload="none" src="audio/{event}.wav"></audio></p>')
+    (OUT / 'audio-index.json').write_text(json.dumps(audio_index, indent=2)+'\n')
     contacts = ''.join(f'<li><a href="{m}_{o}_contact.png">{m} · {o}</a></li>' for m in ['motion','reduced'] for o in ['portrait','landscape'])
     page = '''<!doctype html><meta charset="utf-8"><title>House celebration review</title>
 <style>body{background:#142b30;color:#f4e4c0;font:16px system-ui;margin:24px}a{color:#ffdf99}summary{padding:12px;cursor:pointer}details{border-bottom:1px solid #603c32}.beats{display:flex;overflow-x:auto;gap:16px}figure{margin:0 0 20px;flex-shrink:0}img{display:block;image-rendering:pixelated}figcaption{padding:6px}</style>
 <h1>House celebrations</h1><p>Native CRT crops at 450×800 portrait and 800×450 landscape. Click an image for the complete phone screenshot. Eight held story beats show staging and timing; these are not a live recording or performance evidence. The production journey separately checks natural completion and real scoring triggers.</p>
-<p>Motion uses default flash settings. Reduced uses both accessibility settings; all three reduced CRT crops are byte-identical.</p><ul>'''+contacts+'</ul>' + ''.join(sections)
+<p>Motion uses default flash settings. Reduced uses both accessibility settings; all three reduced CRT crops are byte-identical.</p><ul>'''+contacts+'</ul><h2>Sting audition</h2><p>Original strike, spare and boss stings. Listening review remains unverified.</p>'+''.join(players)+'<h2>Visual storyboards</h2>' + ''.join(sections)
     (OUT / 'index.html').write_text(page+'\n')
     print(f'{len(index)} native CRT crops indexed; 80 story sheets and 4 contact sheets in {OUT}')
 

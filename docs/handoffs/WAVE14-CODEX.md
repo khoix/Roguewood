@@ -23,8 +23,8 @@ per-item briefs still apply.
   with affected checks passing. Seven other cards were fixed by the coordinator.
   See AV-FIX1.md.
 - UI-A9-H: IN_PROGRESS; twenty scene candidates, three sting candidates, original
-  prop kit and native normal/reduced/boss review journeys. Live manifest stays
-  disabled. Scope, checks and exact resume: UI-A9-H.md.
+  prop kit and native normal/reduced/boss review journeys. Live manifest was
+  enabled by the coordinator at the owner's go-ahead (017ac8a). Scope, checks and exact resume: UI-A9-H.md.
 - Salvage art stays outside Wave 14.
 
 ## Owner capture index
@@ -63,27 +63,24 @@ live_pin_deck_{normal,reduced}.png. Full index: UI-A6.md.
 
 ## Exact resume step
 
-Resume UI-A9-H at High effort from its latest 23:28:44–23:48:44 UTC checkpoint
-(2026-11-23). Coordinator c74aace merged as c895c5d; prior 744be2a Bootstrap #569
-(game/art), E11 #174 and E12 #106 passed. Fresh checkpoint CI pending.
-Twenty original candidates are polished; the eight-beat JUIA9HM review covers
-default CRT settings, with normal/reduced-flash and reduced still companions.
-Native crops now account for viewport scaling. J11 isolated and Web pass; physics
-was rerun unchanged. Final unit/content and normal/default-CRT native reviews
-pass; the regenerated review index contains 440 crops. Staging fixes and check outcomes
-are itemized in UI-A9-H.md; fresh physics digest remains 75d1a3c0….
+Resume UI-A9-H at High effort from its 2026-11-24 04:34:27–04:49:27 UTC timed
+checkpoint in UI-A9-H.md (15 minutes). Coordinator 77a591d merged as 624a439.
+The House set is LIVE by the owner's go-ahead, via coordinator 017ac8a; preserve
+all manifest paths/IDs. Prior e8223a6 Bootstrap #574 game/art, E11 #175 and E12 #107
+passed. Fresh push CI pending. Older activation-withheld instructions are history.
 
-Next: inspect fresh CI, audition the three stings (listening unavailable here),
-inspect the fresh CI full-draw reports (or rerun isolated profiles), and resolve any
-explicit pending checks in the item handoff. Then enable only the finished House
-manifest and verify real triggers/affected checks. UI-A9-H remains IN_PROGRESS;
-no live entries, Wave 15 or AV-UI1.
+This window verifies real manifest strike/spare/boss/sound playback without test
+entries or variant overrides, and refreshes isolated full-render measurements.
+The handoff records precise outcomes and any pending work. The original three
+stings are also individually playable in the ignored review page. Subjective
+listening remains unverified; technical PCM/mixer checks are not an audition.
 
-Owner review: artifacts/ui-a9-h/review/index.html, four contact sheets and 80 timed
-storyboards; motion/rendered and reduced/rendered full phone frames; boss/rendered;
-audio/stings-review.wav. Review index links every crop to its original screenshot.
-Held story beats are not live video or phone-performance measurements. No captures
-committed. Full details and exact resume: docs/handoffs/UI-A9-H.md.
+Next: inspect fresh CI and any explicitly pending checks, then complete the sting
+audition when listening is available. Keep UI-A9-H IN_PROGRESS until verification
+is complete; no extra owner-approval queue, manifest rollback, Wave 15 or AV-UI1.
+Owner evidence: artifacts/ui-a9-h/review/index.html (440 visual crops and sting
+players), live/rendered real rolls, boss/rendered actual wins, audio/rendered,
+and profile-{portrait,landscape}/rendered/frame-times.json. No captures committed.
 
 ## Validation environment
 
@@ -201,3 +198,37 @@ Final UI-A9-H check: actual boss review passes both modes (rendered 94 s).
 Full-draw normal performance run timed out at 300 s, after all storyboards and
 strike/spare checks; no final timing report, so performance remains incomplete.
 See UI-A9-H.md for preserved failure log and exact continuation.
+
+## Latest UI-A9-H checkpoint — 2026-11-24 04:34:27–04:49:27 UTC
+
+Coordinator 77a591d merged as 624a439; owner-authorized live manifest retained.
+e8223a6 Bootstrap #574 game/art, E11 #175 and E12 #107 all SUCCESS. Fresh CI
+will be pending at this timed stop. Both isolated full-draw profiles passed
+(179/153 s), with current per-variant table in docs/art/ui/UI-A9-H.md; software
+whole-state timing is not physical-phone or isolated effect overhead evidence.
+
+New JUIA9HV passed headless/rendered for real manifest strike/spare/open input,
+active stings and independent scoring. Boss/audio journeys now use live manifest
+without overrides; boss passed both modes. Live audio exposed an empty-name
+PackedStringArray indexing error in one boss scene. Scoped RIVAL fallback and
+all-boss empty-name draw regression added; final unit and normal/audio headless
+and rendered checks pass. The earlier ten-check headless batch also passed.
+No protected source edits or changed assertions/thresholds. Physics unchanged.
+
+Review artifacts/ui-a9-h/review/index.html now includes byte-identical individual
+sting players and audio-index.json alongside native contact/story captures.
+Listening remains unverified, not an approval queue. Exact continuation and
+complete evidence/check details are in UI-A9-H.md: inspect new CI, audition when
+possible, finish affected validation; preserve live manifest and IN_PROGRESS.
+
+Final isolated Web PASS (65 s) on the live-manifest merged tree, including
+export/loader, mouse throw, IndexedDB reload and lost-context recovery with no
+script errors (artifacts/qa/web_journey.log). This generic Web journey does not
+claim exhaustive browser playback of all twenty House variants. Native live
+strike/spare portrait captures inspected: legible CRT title, props inside frame.
+
+Final isolated J11 rendered PASS (55 s), without changing timing assertions.
+Implementation and testing stopped at 04:49:10 UTC, before the 04:49:27 deadline.
+No test process remains running. Only checkpoint save, push and remote-SHA/clean
+tree verification follow. Fresh Bootstrap game/art and E11/E12 remain pending;
+subjective sting audition remains unrun. Resume at the Exact resume above.

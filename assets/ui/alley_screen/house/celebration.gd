@@ -280,6 +280,8 @@ func _boss_story(t: float) -> void:
 	if texture != null: draw_texture_rect(texture,Rect2(-26,-24,52,48),false)
 	draw_set_transform(Vector2.ZERO)
 	var name_parts := String(context.get("rival_name","Rival")).to_upper().split(",",false,1)
+	# Direct/review events may carry UI-20's empty default name.
+	if name_parts.is_empty(): name_parts.append("RIVAL")
 	if name_parts.size() == 2:
 		_word(name_parts[0],Rect2(93,18,142,12),12,Kit.IVORY)
 		_word(name_parts[1].strip_edges(),Rect2(93,28,142,10),10,Kit.TEAL)

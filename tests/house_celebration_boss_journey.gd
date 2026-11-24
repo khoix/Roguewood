@@ -1,5 +1,5 @@
 extends "res://tests/house_league_journey.gd"
-## Actual House boss wins with candidate art supplied only through the review override.
+## Actual House boss wins from the shipping manifest, with no review overrides.
 const ENDINGS := {
 	"rival.surveyor":["boss_surveyor_tape","boss_surveyor_level"],
 	"rival.custodian":["boss_custodian_sweep","boss_custodian_polish"],
@@ -13,7 +13,10 @@ func _play_match(division: int, m: Dictionary) -> void:
 	var paths := {}
 	for id in ENDINGS:
 		paths[id] = ENDINGS[id].map(func(key): return "res://assets/ui/alley_screen/house/"+key+".tscn")
-	alley.variants_override = {"boss_defeated":paths}
+	_check(alley.variants_override.is_empty(),"actual boss journey uses live manifest")
+	for id in ENDINGS:
+		var listed: Array = lab.league_theme.celebrations("boss_defeated",id)
+		_check(listed.size() == 2 and listed.all(func(path): return path in paths[id]),"live manifest contains both authored endings: " + id)
 	# The House manifest is live (coordinator, 2026-11-24): strikes play their own
 	# scenes too, so only boss celebrations are counted, and the boss scene may wait
 	# in the queue behind the last strike's.

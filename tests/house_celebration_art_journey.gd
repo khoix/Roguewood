@@ -116,6 +116,14 @@ func _run() -> void:
 				var expected: AtlasTexture = art.RivalArt.portrait(ctx.rival_id,"defeated")
 				_check(art.texture is AtlasTexture and art.texture.atlas == expected.atlas and art.texture.region == expected.region and art.texture.filter_clip == expected.filter_clip, "correct rival portrait source and region " + spec[1])
 			art.set_process(false)
+			if spec[0] == "boss_defeated":
+				# Exercise the empty-name contract on every boss scene, not a random pick.
+				art.context.rival_name = ""
+				art.queue_redraw()
+				await process_frame
+				if DisplayServer.get_name() != "headless": await RenderingServer.frame_post_draw
+				art.context.rival_name = ctx.rival_name
+				art.queue_redraw()
 			# Let the production power-on finish; the scene clock alone is held.
 			for i in 14: await process_frame
 			var first: Image
