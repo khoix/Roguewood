@@ -78,3 +78,29 @@ static func ball(c: CanvasItem, p: Vector2, streak: Vector2 = Vector2.ZERO) -> v
 static func spark(c: CanvasItem, p: Vector2, color: Color, size: float = 3.0) -> void:
 	c.draw_line(p - Vector2(size, 0), p + Vector2(size, 0), color, 1.0)
 	c.draw_line(p - Vector2(0, size), p + Vector2(0, size), color, 1.0)
+
+## A word whose letters light one at a time: `lit` 0..1 runs across the letters,
+## `hue` 0..1 shifts the lit letters from `from` toward `to` along the word (the soft
+## colour sweep). Centred in `rect_`.
+static func letters(c: CanvasItem, text: String, rect_: Rect2, font_size: int, from: Color, to: Color, lit: float, hue: float = 0.0) -> void:
+	var fs := font_size
+	while fs > 8 and FONT.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > rect_.size.x:
+		fs -= 1
+	var x := roundf(rect_.position.x + (rect_.size.x - FONT.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x) * 0.5)
+	var count := text.length()
+	for i in count:
+		var ch := text[i]
+		var on := clampf(lit * count - i, 0.0, 1.0)
+		var phase := fposmod(float(i) / maxf(count - 1, 1) - hue, 1.0)
+		var color := from.lerp(to, 0.5 - 0.5 * cos(phase * TAU)) if hue > 0.0 else from
+		var p := Vector2(x, rect_.position.y)
+		if on > 0.05:
+			for o in [Vector2(-1, 0), Vector2(1, 0), Vector2(0, -1), Vector2(0, 1)]:
+				c.draw_string(FONT, p + o, ch, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(color, 0.35 * on))
+		c.draw_string(FONT, p, ch, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(color.lerp(WHITE, 0.25), 0.2 + 0.8 * on))
+		x += FONT.get_string_size(ch, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
+
+## A soft disc (a glow), several faint passes.
+static func glow(c: CanvasItem, p: Vector2, radius: float, color: Color, strength: float = 1.0) -> void:
+	for k in 3:
+		c.draw_circle(p, radius * (1.0 - k * 0.28), Color(color, 0.08 * strength))

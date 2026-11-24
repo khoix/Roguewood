@@ -339,6 +339,14 @@ CONTENT["JUIA9HA"] = "house"
 JOURNEYS["JUIA9HM"] = ("res://tests/house_celebration_motion_journey.gd", "ROGUEWOOD_UIA9H_OK", "artifacts/ui-a9-h/motion",
                        _a9h_caps, 600, ["--fixed-fps", "60"])
 
+# UI-A9-N (Claude, 2026-11-24): the eighteen Neon celebrations, and the live set in a
+# full Neon League.
+JOURNEYS["JUIA9N"] = ("res://tests/neon_celebration_journey.gd", "ROGUEWOOD_UIA9N_OK", "artifacts/ui-a9-n/scenes",
+                      ("strike_laser_sweep", "spare_bank_shot", "boss_dj_flicker_champion_encore_reduced"), 300, [])
+JOURNEYS["JUIA9NB"] = ("res://tests/neon_celebration_boss_journey.gd", "ROGUEWOOD_J22L02_OK", "artifacts/ui-a9-n/boss",
+                       tuple(f"neon_boss_d{i:02d}" for i in range(1, 9)) + ("j22n_champion",), 1800, ["--fixed-fps", "60"])
+CONTENT["JUIA9NB"] = "house"
+
 JOURNEYS["JUIA9HV"] = ("res://tests/house_celebration_live_journey.gd", "ROGUEWOOD_UIA9HV_OK", "artifacts/ui-a9-h/live",
                        ("live_strike", "live_spare", "celebration_strike", "scoring", "strike", "spare", "open"), 300, ["--fixed-fps", "60"])
 CONTENT["JUIA9HV"] = "house"

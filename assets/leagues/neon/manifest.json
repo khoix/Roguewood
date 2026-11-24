@@ -187,5 +187,45 @@
   "rule_visuals": {
     "boss_rule.narrow_lane": "rule_visual.boss_rule.narrow_lane",
     "boss_rule.strobe": "rule_visual.boss_rule.strobe"
-  }
+  },
+  "celebrations": {
+    "strike": [
+      "res://assets/ui/alley_screen/neon/strike_laser_sweep.tscn",
+      "res://assets/ui/alley_screen/neon/strike_tube_sign.tscn",
+      "res://assets/ui/alley_screen/neon/strike_equalizer.tscn",
+      "res://assets/ui/alley_screen/neon/strike_skyline.tscn",
+      "res://assets/ui/alley_screen/neon/strike_mirror_ball.tscn"
+    ],
+    "spare": [
+      "res://assets/ui/alley_screen/neon/spare_bank_shot.tscn",
+      "res://assets/ui/alley_screen/neon/spare_laser_slash.tscn",
+      "res://assets/ui/alley_screen/neon/spare_claw.tscn",
+      "res://assets/ui/alley_screen/neon/spare_spotlight.tscn",
+      "res://assets/ui/alley_screen/neon/spare_split_bridge.tscn"
+    ],
+    "boss_defeated": {
+      "rival.slick": [
+        "res://assets/ui/alley_screen/neon/boss_slick_slip.tscn",
+        "res://assets/ui/alley_screen/neon/boss_slick_squeegee.tscn"
+      ],
+      "rival.laser_lena": [
+        "res://assets/ui/alley_screen/neon/boss_laser_lena_lights_out.tscn",
+        "res://assets/ui/alley_screen/neon/boss_laser_lena_tangle.tscn"
+      ],
+      "rival.dj_flicker": [
+        "res://assets/ui/alley_screen/neon/boss_dj_flicker_power_down.tscn",
+        "res://assets/ui/alley_screen/neon/boss_dj_flicker_scratch.tscn"
+      ],
+      "rival.dj_flicker_champion": [
+        "res://assets/ui/alley_screen/neon/boss_dj_flicker_champion_headline.tscn",
+        "res://assets/ui/alley_screen/neon/boss_dj_flicker_champion_encore.tscn"
+      ]
+    }
+  },
+  "celebration_sounds": {
+    "strike": "res://assets/ui/alley_screen/neon/strike.wav",
+    "spare": "res://assets/ui/alley_screen/neon/spare.wav",
+    "boss_defeated": "res://assets/ui/alley_screen/neon/boss_defeated.wav"
+  },
+  "celebrations_complete": true
 }

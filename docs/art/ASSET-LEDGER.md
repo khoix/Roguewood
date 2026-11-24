@@ -1499,3 +1499,31 @@ are unchanged. No external source or generated imagery. Eight-beat native review
 adds a pixel-region regression for the stable caption in both orientations.
 
 celebration.gd SHA-256: `e555516d80c7bd810303b1fb601dbd50c021226e0237f5dd14393fe4c36e82fa`.
+
+## UI-A9-N — Neon celebrations (Claude, 2026-11-24; live)
+
+Eighteen original scene compositions at 252 × 90, drawn in code: five strikes
+(Laser Sweep, Tube Sign, Equalizer, Skyline, Mirror Ball), five spares (Bank Shot,
+Laser Slash, Claw, Spotlight, Split Bridge), and two endings for each Neon rival:
+Slick (Slip, Squeegee), Laser Lena (Lights Out, Tangle), DJ Flicker (Power Down,
+Scratch) and DJ Flicker, Neon Champion (Headline, Encore, with a gold flourish).
+Geometry and motion are authored in `assets/ui/alley_screen/neon/{neon_kit,celebration}.gd`;
+each `.tscn` selects its variant. No external reference image, stock animation,
+borrowed gag layout or sample. Pixelify Sans and the RivalArt portraits are reused
+unchanged under their existing entries; names come from context.
+
+Three original deterministic PCM stings from
+`python3 tools/author_neon_celebration_stings.py`: 44.1 kHz mono, signed 16-bit,
+peak -6 dBFS; a detuned pulse lead, a sine bass and a filtered-noise sweep.
+Durations: strike 0.85 s, spare 0.65 s, boss 1.25 s (as the House set). RMS about
+-19, -18 and -23 dBFS (House: -20, -19, -25). No third-party audio. Not auditioned
+by Claude (no listening); the owner reviews in play.
+
+| Source/output | SHA-256 |
+|---|---|
+| `assets/ui/alley_screen/neon/neon_kit.gd` | `a31ddff52a57f04332c7c919d2c2d11d59e01f2268da9a2aacc43cdcd6f5cd67` |
+| `assets/ui/alley_screen/neon/celebration.gd` | `bf8c967282a5776376b8e94cfe8192c3a501094634d10d34d00cc81c63d29cab` |
+| `tools/author_neon_celebration_stings.py` | `0c4c07bc897231810b43492fb8c56beb825db3f304abdeeff63d682c1c339ae3` |
+| `assets/ui/alley_screen/neon/strike.wav` | `c1d9de8caf6c88ddf0bf842a3c0e912698a0bcdc755ae447bc78a998e9a77b03` |
+| `assets/ui/alley_screen/neon/spare.wav` | `d3e573dd1efe8a8031fc522566d9d6988e986b5f8578ae23805e4e135f8b0600` |
+| `assets/ui/alley_screen/neon/boss_defeated.wav` | `10dd6d0e60536e2f72db545d0e7edd72ec0822fba9aef4b7d974141ddc24a8a8` |
