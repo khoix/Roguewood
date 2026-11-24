@@ -1221,7 +1221,7 @@ straight-creased banknote. Both freeze their geometry under reduced effects.
 Brief: docs/art/briefs/AV-N3.md. Native evidence and capture paths: AV-N3 handoff.
 
 ## UI-12 button sounds (2026-11-16, provisional)
-Original deterministic mono PCM foley by tools/author_foley.py (wood material), no recordings or outside source. Played by `src/presentation/ui_sounds.gd` on every button press. Codex's final set (proposed AV-UI1, handoffs/UI-12.md) can replace them at the same paths.
+Original deterministic mono PCM foley by tools/author_foley.py (wood material), no recordings or outside source. Played by `src/presentation/ui_sounds.gd` on every button press. Superseded by AV-UI1 (2026-11-24, below) at the same paths; the hashes here are historical.
 
 | File | Command | SHA-256 |
 |---|---|---|
@@ -1475,3 +1475,75 @@ ignored review sheets from native screenshot crops, never modifies source art.
 The capture helper converts logical layout bounds through the viewport's final
 transform before cropping physical screenshot pixels. Full phone frames accompany
 each crop. These held story beats are not a live video or performance measurement.
+
+
+## UI-A9-H — live verification fallback (2026-11-24)
+
+Live-manifest audio testing exposed an empty rival_name in direct/review events.
+The generic boss layout now displays RIVAL if splitting that empty name produces
+no lines, rather than indexing an empty array. Supplied rival names, all original
+geometry, portraits, three PCM files and manifest paths are unchanged. Native
+review explicitly draws every boss scene with an empty name before restoring its
+real context. No new external source or generated image/audio.
+
+celebration.gd SHA-256: `df86739f167a7b7ce8a117a32342acbb20de3cf5f3a72bf1aeff4f1def2276de`.
+The review page's audition copies are byte-identical source WAVs; hashes and
+durations are in ignored review/audio-index.json. Listening remains unverified.
+
+## UI-A9-H — delivery caption clearance (2026-11-24, 11:23 UTC resume)
+
+Original procedural House scene revision by Codex. The delivery cart starts at
+x=168 instead of x=141 so its rolling ball never crosses SPECIAL DELIVERY.
+The final x=179, delivered pin, reduced still, palette, sound and scene duration
+are unchanged. No external source or generated imagery. Eight-beat native review
+adds a pixel-region regression for the stable caption in both orientations.
+
+celebration.gd SHA-256: `e555516d80c7bd810303b1fb601dbd50c021226e0237f5dd14393fe4c36e82fa`.
+
+## UI-A9-N — Neon celebrations (Claude, 2026-11-24; live)
+
+Eighteen original scene compositions at 252 × 90, drawn in code: five strikes
+(Laser Sweep, Tube Sign, Equalizer, Skyline, Mirror Ball), five spares (Bank Shot,
+Laser Slash, Claw, Spotlight, Split Bridge), and two endings for each Neon rival:
+Slick (Slip, Squeegee), Laser Lena (Lights Out, Tangle), DJ Flicker (Power Down,
+Scratch) and DJ Flicker, Neon Champion (Headline, Encore, with a gold flourish).
+Geometry and motion are authored in `assets/ui/alley_screen/neon/{neon_kit,celebration}.gd`;
+each `.tscn` selects its variant. No external reference image, stock animation,
+borrowed gag layout or sample. Pixelify Sans and the RivalArt portraits are reused
+unchanged under their existing entries; names come from context.
+
+Three original deterministic PCM stings from
+`python3 tools/author_neon_celebration_stings.py`: 44.1 kHz mono, signed 16-bit,
+peak -6 dBFS; a detuned pulse lead, a sine bass and a filtered-noise sweep.
+Durations: strike 0.85 s, spare 0.65 s, boss 1.25 s (as the House set). RMS about
+-19, -18 and -23 dBFS (House: -20, -19, -25). No third-party audio. Not auditioned
+by Claude (no listening); the owner reviews in play.
+
+| Source/output | SHA-256 |
+|---|---|
+| `assets/ui/alley_screen/neon/neon_kit.gd` | `a31ddff52a57f04332c7c919d2c2d11d59e01f2268da9a2aacc43cdcd6f5cd67` |
+| `assets/ui/alley_screen/neon/celebration.gd` | `bf8c967282a5776376b8e94cfe8192c3a501094634d10d34d00cc81c63d29cab` |
+| `tools/author_neon_celebration_stings.py` | `0c4c07bc897231810b43492fb8c56beb825db3f304abdeeff63d682c1c339ae3` |
+| `assets/ui/alley_screen/neon/strike.wav` | `c1d9de8caf6c88ddf0bf842a3c0e912698a0bcdc755ae447bc78a998e9a77b03` |
+| `assets/ui/alley_screen/neon/spare.wav` | `d3e573dd1efe8a8031fc522566d9d6988e986b5f8578ae23805e4e135f8b0600` |
+| `assets/ui/alley_screen/neon/boss_defeated.wav` | `10dd6d0e60536e2f72db545d0e7edd72ec0822fba9aef4b7d974141ddc24a8a8` |
+
+## AV-UI1 — the final button sounds (Claude, 2026-11-24)
+
+Replaces UI-12's provisional taps at the same paths and adds Neon's set. Original
+deterministic mono PCM from `python3 tools/author_ui_sounds.py` (22.05 kHz, signed
+16-bit), no recordings or samples. Levelled to UI-12's loudness (-25 dBFS RMS; peaks
+-9 to -14 dBFS) so they sit under the foley. House: a dry wooden knock (two wood
+modes and a felt thump), select with a small brass ting, back lower and softer.
+Neon (`*.neon.wav`, played during a Neon match by `src/presentation/ui_sounds.gd`):
+pulse-wave blips. Not listened to by Claude; the owner reviews in play.
+
+| Output | Length | SHA-256 |
+|---|---|---|
+| `tools/author_ui_sounds.py` | | `156b201809f580a1eba0c43f2cac90073945d8b692c98f587f424d14336a905a` |
+| `assets/audio/ui_tap.wav` | 45 ms | `dbccc77368e6d2a4194f55b9a8f27c9a6f280ccce7f892dddec1848ab181aaeb` |
+| `assets/audio/ui_select.wav` | 40 ms | `2798182aa811f342fc7e860327e82a0dff18d833bb7a5efe0b55b8f659583978` |
+| `assets/audio/ui_back.wav` | 65 ms | `96f996c5f07c6f58be206f9ab2283da2a56c1f30c3b8ba24c9a876a75c6f990e` |
+| `assets/audio/ui_tap.neon.wav` | 40 ms | `d488f0b3e3bf3896b00e80916b82026354d9018a8a1d8cc51d0c4516bc089f02` |
+| `assets/audio/ui_select.neon.wav` | 50 ms | `6433db6195b29c621ae3df395543348628caefd22a4c35f562e1339f1394698f` |
+| `assets/audio/ui_back.neon.wav` | 60 ms | `5894fd263d42ccc361aed8819b3e94d274ffbca63909e99fd96268b6418f81bb` |

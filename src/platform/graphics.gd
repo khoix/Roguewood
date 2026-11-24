@@ -83,6 +83,7 @@ func _ready() -> void:
 	# long frame's script time (the engine's own monitor is a periodic sample).
 	_first = FrameMark.new()
 	_first.process_priority = -1000000
+	_first.on_start = _frame_started
 	_last_mark = FrameMark.new()
 	_last_mark.process_priority = 1000000
 	for mark in [_first, _last_mark]:
@@ -92,9 +93,30 @@ func _ready() -> void:
 class FrameMark extends Node:
 	var stamp := 0
 	var previous := 0
+	var on_start := Callable()
 	func _process(_delta: float) -> void:
 		previous = stamp
 		stamp = Time.get_ticks_usec()
+		if on_start.is_valid(): on_start.call()
+
+## PERF-4 (the owner's log: the hitch at each new aim remained, with little script
+## or render time): the game's heavy steps report their time (`span`), and a long
+## frame lists its largest, so a phone's log names the step that stalls.
+var _spans := {}
+var _prev_spans := {}
+func span(label: String, start_usec: int) -> void:
+	if not bool(settings.perf_log): return
+	_spans[label] = int(_spans.get(label, 0)) + Time.get_ticks_usec() - start_usec
+
+func _frame_started() -> void:
+	_prev_spans = _spans
+	_spans = {}
+
+## The previous frame's largest spans, as "name N ms" (at most three).
+func _top_spans() -> Array:
+	var labels: Array = _prev_spans.keys()
+	labels.sort_custom(func(a, b): return int(_prev_spans[a]) > int(_prev_spans[b]))
+	return labels.slice(0, 3).filter(func(k): return int(_prev_spans[k]) >= 1000).map(func(k): return "%s %d ms" % [k, roundi(int(_prev_spans[k]) / 1000.0)])
 
 var _first: FrameMark
 var _last_mark: FrameMark
@@ -465,6 +487,8 @@ func _record(ms: float, what: String = "", script: float = 0.0, render: float = 
 	# work), loading, freeing, physics, and waiting on the GPU. (PERF-2's "cpu" was the
 	# engine's monitor, a periodic sample, not that frame's.)
 	var draws := int(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME))
+	var steps := _top_spans()
+	var textures := snappedf(Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED) / 1048576.0, 0.1)
 	var last: Dictionary = log_entries.back() if not log_entries.is_empty() else {}
 	# PERF-2: a run of long frames at the same place is one line (count, longest).
 	if what.is_empty() and not last.has("what") and last.get("where", "") == here and last.has("tick") and now - int(last.tick) <= 2000:
@@ -473,6 +497,9 @@ func _record(ms: float, what: String = "", script: float = 0.0, render: float = 
 		last.script = maxf(float(last.get("script", 0.0)), snappedf(script, 0.1))
 		last.render = maxf(float(last.get("render", 0.0)), snappedf(render, 0.1))
 		last.draws = maxi(int(last.get("draws", 0)), draws)
+		for step in steps:
+			if step not in last.get("steps", []): last["steps"] = last.get("steps", []) + [step]
+		last.tex = maxf(float(last.get("tex", 0.0)), textures)
 		last.vram = maxf(float(last.vram), snappedf(_vram(), 0.1))
 		last.tick = now
 		last.until = Time.get_datetime_string_from_system(false, true)
@@ -480,7 +507,7 @@ func _record(ms: float, what: String = "", script: float = 0.0, render: float = 
 		_refresh_page()
 		return
 	var entry := {"at": Time.get_datetime_string_from_system(false, true), "ms": roundi(ms), "where": here, "vram": snappedf(_vram(), 0.1), "added": _added,
-		"script": snappedf(script, 0.1), "render": snappedf(render, 0.1), "draws": draws, "count": 1, "tick": now}
+		"script": snappedf(script, 0.1), "render": snappedf(render, 0.1), "draws": draws, "count": 1, "tick": now, "steps": steps, "tex": textures}
 	if not what.is_empty(): entry.what = what
 	log_entries.append(entry)
 	while log_entries.size() > LOG_SIZE: log_entries.pop_front()
@@ -513,6 +540,8 @@ func log_text() -> String:
 		var cost := ""
 		if e.has("script") and int(e.ms) > 0:
 			cost = "  script %.0f ms · render %.0f ms · %d draws" % [float(e.script), float(e.get("render", 0.0)), int(e.get("draws", 0))]
+			if e.has("tex"): cost += " · tex %.0f MB" % float(e.tex)
+			if not e.get("steps", []).is_empty(): cost += " · " + ", ".join(e.steps)
 		elif e.has("cpu") and int(e.ms) > 0: # a log saved before PERF-3
 			cost = "  cpu %.0f ms · %d draws" % [float(e.cpu), int(e.get("draws", 0))]
 		lines.append("%s  %s  %s  %.0f MB%s%s" % [e.at, timing, e.where, float(e.vram), cost, ("  " + String(e.what)) if e.has("what") else ""])

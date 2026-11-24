@@ -42,6 +42,7 @@ func _ready() -> void:
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 8)
 	add_child(box)
+	box.sort_children.connect(_lift_notes.bind(box))
 	var header_row := HBoxContainer.new()
 	header_row.custom_minimum_size.y = 64
 	box.add_child(header_row)
@@ -52,6 +53,7 @@ func _ready() -> void:
 	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	header_row.add_child(header)
 	var row := HBoxContainer.new()
+	_rack_row = row
 	row.add_theme_constant_override("separation", 24)
 	row.alignment = BoxContainer.ALIGNMENT_CENTER # UI-3: the review is centred
 	box.add_child(row)
@@ -64,6 +66,11 @@ func _ready() -> void:
 	counters.name = "ScoreCounters"
 	counters.add_theme_font_size_override("font_size", 34)
 	counters.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	# UI-49 (owner, 2026-11-24: "the pin status is moving laterally with text changes
+	# and needs to be fixed in place"): the counters keep one width, their width at
+	# three-digit numbers, so the centred row (and the rack in it) no longer moves as
+	# the numbers change. Wider numbers shrink to fit it.
+	counters.clip_text = true
 	row.add_child(counters)
 	log_scroll = ScrollContainer.new()
 	log_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -111,7 +118,9 @@ func fit(portrait: bool) -> void:
 	header.get_parent().custom_minimum_size.y = 40 if portrait else 64
 	header.add_theme_font_size_override("font_size", 26 if portrait else 30)
 	rack_view.custom_minimum_size = Vector2(190, 160) if portrait else Vector2(210, 190)
-	counters.add_theme_font_size_override("font_size", 32 if portrait else 34)
+	_counter_size = 32 if portrait else 34
+	counters.add_theme_font_size_override("font_size", _counter_size)
+	_fit_counters()
 	log_scroll.custom_minimum_size.y = 72 if portrait else 150
 
 ## reports: the frame's LaneWorld reports, used only for roll attribution.
@@ -273,6 +282,44 @@ func _refresh_counters() -> void:
 	counters.text = "%s Value\n× %s Mult" % [ScoreLog._n(now.pin_value), ScoreLog._n(now.mult)]
 	if now.score >= 0:
 		counters.text += "\n= %s" % ScoreLog._n(now.score)
+	_fit_counters()
+
+var _counter_size := 34
+var _reference: Label
+## UI-49: numbers wider than the counters' fixed width shrink to fit it.
+func _fit_counters() -> void:
+	if not counters.is_inside_tree(): return
+	# Measured by a hidden Label of the review's own font, as the counters measured
+	# themselves before UI-49: the width three-digit counters take.
+	if _reference == null:
+		_reference = Label.new()
+		_reference.visible = false
+		counters.add_child(_reference)
+	var room := _measure("999 Value\n× 999 Mult", _counter_size)
+	counters.custom_minimum_size.x = room
+	var px := _counter_size
+	while px > 16 and _measure(counters.text, px) > room:
+		px -= 2
+	counters.add_theme_font_size_override("font_size", px)
+
+func _measure(text: String, px: int) -> float:
+	_reference.add_theme_font_size_override("font_size", px)
+	_reference.text = text
+	return _reference.get_minimum_size().x
+
+var _rack_row: Control
+## UI-49 (owner, 2026-11-24: shift the Charm note up "a little bit"; the layout stays
+## as it was): a note row placed between the header and the rack (the Trophy Case
+## and Late Rally cards) is lifted after the column is laid out, just clear of the
+## rack's back-row highlight ring (drawn 176 px above the rack's bottom). Nothing
+## else moves.
+func _lift_notes(box: VBoxContainer) -> void:
+	if _rack_row == null: return
+	var lift := maxf(176.0 + 2.0 - rack_view.custom_minimum_size.y - box.get_theme_constant("separation"), 0.0)
+	for child in box.get_children():
+		if child == _rack_row: return
+		if child is Control and child != header.get_parent():
+			(child as Control).position.y -= lift
 
 func current_pin() -> int:
 	return steps[shown - 1].pin if shown > 0 and playing else 0

@@ -434,6 +434,18 @@ jobs:
         run: |
           python3 tools/qa.py e2e --journey JUIA9HM
           xvfb-run -a python3 tools/qa.py e2e --journey JUIA9HM --rendered
+      - name: House live manifest triggers (UI-A9-H)
+        if: matrix.shard == 'art'
+        run: |
+          python3 tools/qa.py e2e --journey JUIA9HV
+          xvfb-run -a python3 tools/qa.py e2e --journey JUIA9HV --rendered
+      - name: Neon celebrations, scenes and the live Neon League (UI-A9-N)
+        if: matrix.shard == 'art'
+        run: |
+          python3 tools/qa.py e2e --journey JUIA9N
+          xvfb-run -a python3 tools/qa.py e2e --journey JUIA9N --rendered
+          python3 tools/qa.py e2e --journey JUIA9NB
+          xvfb-run -a python3 tools/qa.py e2e --journey JUIA9NB --rendered
       - name: House celebration sound routing (UI-A9-H)
         if: matrix.shard == 'art'
         run: |

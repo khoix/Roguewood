@@ -1,6 +1,5 @@
 extends "res://tests/scoring_journey.gd"
-## Test-only sound entries exercise the shipping AlleyScreen -> theme -> mixer
-## path without prematurely enabling the incomplete House manifest.
+## Live House manifest → AlleyScreen → mixer verification; no theme/variant overrides.
 const SOUND_CASES := {"strike":"strike_pinwheel", "spare":"spare_last_chair", "boss_defeated":"boss_surveyor_tape"}
 
 func _run() -> void:
@@ -20,12 +19,10 @@ func _run() -> void:
 	var theme = lab.league_theme
 	_check(theme != null,"House theme available for sound path")
 	if theme == null: quit(1); return
-	var saved: Dictionary = theme.manifest.duplicate(true)
-	var entries := {}
+	_check(bool(theme.manifest.get("celebrations_complete",false)),"live House set declared complete")
+	_check(alley.variants_override.is_empty(),"audio journey uses live scene selection")
 	for event in SOUND_CASES:
-		entries[event] = "res://assets/ui/alley_screen/house/"+event+".wav"
-		alley.variants_override[event] = ["res://assets/ui/alley_screen/house/"+SOUND_CASES[event]+".tscn"]
-	theme.manifest["celebration_sounds"] = entries
+		_check(theme.manifest.get("celebration_sounds",{}).get(event,"") == "res://assets/ui/alley_screen/house/"+event+".wav","live sting slot: " + event)
 	await _focus_accept(scene.sound_entry)
 	await _slide(sound.volume_slider,0.5)
 	await _focus_accept(sound.back_button)
@@ -67,8 +64,7 @@ func _run() -> void:
 		alley.skip()
 	_check(theme.music != null and theme.music.playing,"celebrations do not stop the music")
 	await _check_low_portrait()
-	theme.manifest = saved
-	alley.variants_override = {}
+	_check(alley.variants_override.is_empty(),"sound checks leave live selection intact")
 	if failures.is_empty(): print("ROGUEWOOD_UIA9HA_OK")
 	quit(0 if failures.is_empty() else 1)
 

@@ -360,7 +360,10 @@ func _ready() -> void:
 	shop_panel.reroll_pressed.connect(_on_reroll)
 	shop_panel.remove_pressed.connect(_on_remove)
 	shop_panel.sell_pressed.connect(_on_sell)
-	shop_panel.continue_pressed.connect(_start_next_match)
+	shop_panel.continue_pressed.connect(func():
+		var at := Time.get_ticks_usec()
+		_start_next_match()
+		_span("next match", at))
 	shop_panel.choice_made.connect(_on_choice)
 	shop_panel.choice_cancelled.connect(_on_choice_cancelled)
 	shop_panel.charm_reordered.connect(_on_charm_reordered)
@@ -631,6 +634,9 @@ func _on_cycle() -> void:
 func _refresh_hand() -> void:
 	if card_hand == null or equipment == null:
 		return
+	# PERF-4: the run's cards and Charms keep their art loaded while in the run.
+	var owned: Array = run.deck_cards().values() + run.charms.map(func(e): return String(e.item_id))
+	preload("res://src/presentation/item_assets.gd").hold(owned)
 	var cards: Array = []
 	for option in equipment.options():
 		var item := FrameBuilder.item(_catalogue, option.item_id)
@@ -716,6 +722,7 @@ func _build_ring() -> void:
 ## A fresh lane for the next roll; saves the aim checkpoint unless a restore is
 ## rebuilding a lane for a state that is already saved.
 func _new_roll(save: bool = true) -> void:
+	var started := Time.get_ticks_usec()
 	if lane:
 		_viewport.remove_child(lane)
 		lane.free()
@@ -728,12 +735,17 @@ func _new_roll(save: bool = true) -> void:
 	_viewport.add_child(lane)
 	lane.lane_condition = division.current().get("lane_condition", "lane.house")
 	_arm_lane_rules()
+	var setup_at := Time.get_ticks_usec()
 	lane.setup(rack, _dressing, ItemPhysics.profiles(_catalogue, run.loadout().pins))
+	_span("lane setup", setup_at)
 	if league_theme != null:
 		var last: bool = division.division_number() == division.division_count()
 		league_theme.show_stage(_viewport, division.division_number(), last and division.is_boss())
 		league_theme.dress_lane(lane, lane.lane_condition)
-	lane.roll_finished.connect(_on_roll_finished)
+	lane.roll_finished.connect(func(report):
+		var at := Time.get_ticks_usec()
+		_on_roll_finished(report)
+		_span("roll end", at))
 	start_x = assist_panel.values().start_x if settings.assist else 0.0
 	lane.place_ball(start_x)
 	state = "aim"
@@ -742,6 +754,7 @@ func _new_roll(save: bool = true) -> void:
 	_update_status()
 	if save:
 		_checkpoint("aim")
+	_span("new roll", started)
 
 func _apply_settings() -> void:
 	if settings.handedness != _handedness:
@@ -1144,7 +1157,10 @@ func _on_scored() -> void:
 func celebrate(event: String, context: Dictionary = {}) -> bool:
 	if alley_screen == null or content.get("id", "") == "tutorial":
 		return false
-	return alley_screen.celebrate(event, context)
+	var at := Time.get_ticks_usec()
+	var played: bool = alley_screen.celebrate(event, context)
+	_span("celebration", at)
+	return played
 
 func _celebrate_boss() -> bool:
 	var rival: Dictionary = division.rival_for(division.boss())
@@ -1485,6 +1501,12 @@ func _kept_awards() -> Dictionary:
 			opened.append({"kind": "league", "name": String(known.get("name", league_id.trim_prefix("league.").capitalize() + " League"))})
 	return {"items": items, "opened": opened}
 
+## PERF-4: the game's heavy steps report their time to the Performance log, which
+## lists a long frame's largest (Graphics.span); nothing runs while the log is off.
+func _span(label: String, start_usec: int) -> void:
+	var gfx := get_node_or_null("/root/Graphics")
+	if gfx != null and gfx.has_method("span"): gfx.span(label, start_usec)
+
 ## UI-47 (owner, 2026-11-24): "make the in-game charm column tappable to extend out
 ## a quick view/bubble overlay with a short description of what that charm is/does."
 func _on_charm_tapped(at: Vector2) -> void:
@@ -1563,9 +1585,11 @@ func _checkpoint(phase: String) -> void:
 		"frame_tactics": frame_tactics, "frame_actions": frame_actions, "frame_mods": frame_mods, "kept_last_frame": _kept_last_frame, "equipment_model": _equipment_model,
 		"settlement": settlement, "last_scored": last_scored, "pending": pending_launch if phase == "committed" else null,
 		"result": _result_view if phase == "division_over" else null}
+	var saving := Time.get_ticks_usec()
 	var payload := Snapshot.build({"attempt": attempt, "seed": equipment_seed, "phase": phase, "lab": lab, "run": run, "shop": shop,
 		"division": division, "equipment": equipment, "career_attempt": career_attempt}, _content, content.id)
 	var errors: Array[String] = save_store.write("attempt", payload)
+	_span("save", saving)
 	if not errors.is_empty():
 		push_warning("Attempt not saved: " + str(errors))
 		return
@@ -2139,9 +2163,15 @@ func _update_status() -> void:
 	_place_prompt()
 
 func _compose_status() -> void:
+	var at := Time.get_ticks_usec()
 	_layout_resolution()
+	_span("layout", at)
+	at = Time.get_ticks_usec()
 	_refresh_hand()
+	_span("hand", at)
+	at = Time.get_ticks_usec()
 	_refresh_hud()
+	_span("hud", at)
 	assist_panel.spin_slider.editable = not spin_disabled()
 	if state in ["shop", "intro", "division_over"]:
 		status.text = ""

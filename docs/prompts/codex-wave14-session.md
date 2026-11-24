@@ -149,3 +149,8 @@ Remaining for you: art polish (the spare poses, small boss props) and the sting 
 
 ## Coordinator note: PERF-3 (2026-11-24)
 The phone hitched before every aim partly because shaders were created anew each roll. The lane dressing now keeps one of each. `assets/items/d04/overlay.gd` still writes a new `Shader` for every decal (`_decal`). When you next touch it, keep one shared shader (a static or preloaded `.gdshader`) and give each decal only its own ShaderMaterial. The same applies to any new per-roll art. Details: docs/handoffs/PERF-3.md.
+
+## Coordinator note: UI-A9-N and AV-UI1 moved to Claude (2026-11-24)
+- **The owner reassigned them while you were out:** UI-A9-N (the Neon celebrations) and AV-UI1 (the button sounds) are Claude's now. Do not start either.
+- **UI-A9-N is live:** 18 scenes and three stings in `assets/ui/alley_screen/neon/` (handoffs/UI-A9-N.md), with JUIA9N and JUIA9NB in the art shard.
+- **UI-A9-H** stays yours: polish only, no sting choice pending; the owner reviews the live stings in play.

@@ -129,6 +129,7 @@ func _play_match(division: int, m: Dictionary) -> void:
 		if await _second_roll():
 			await _throw(STRIKE)
 		var scored := await _scored()
+		await _check_review_layout(division, frame)
 		var built := Builder.build(loadout, lab.content.catalogue, lab.history.slice(before), {}, context)
 		var banked: int = RivalRules.bank(rules, Rules.resolve(built.frame)).score if built.ok else -1
 		print("%s D%d %s frame %d: %s banked=%d expected=%d score=%d/%d rules=%s" % [tag, division, m.kind, frame + 1, scored.result.category, scored.banked, banked,
@@ -176,6 +177,29 @@ func _charm_quick_view() -> void:
 	await _touch(lane_spot, true)
 	await _touch(lane_spot, false)
 	_check(not view.visible and lab.state == "aim" and is_equal_approx(lab.target_x, target), "UI-47: a tap on the lane only closes it")
+
+## UI-49 (owner, 2026-11-24): in the frame review the rack stays in one place as the
+## counters change, and its back row stays below the Charm notes above it.
+var _rack_x := -1.0
+var _review_captured := false
+
+func _check_review_layout(division: int, frame: int) -> void:
+	if tag != "J22L01" or not lab.score_panel.visible: return
+	await process_frame
+	var rack: Control = lab.score_panel.rack_view
+	var x: float = rack.get_global_rect().get_center().x
+	var notes: Control = lab.motion.house_counts.cards
+	var top: float = rack.get_global_rect().end.y - 176.0 # the back row's highlight ring
+	var note_bottom: float = notes.get_global_rect().end.y if notes.visible else -INF
+	if _rack_x < 0.0: _rack_x = x
+	# The owner (2026-11-24): the layout stays as it was; only the note moves up.
+	var portrait: bool = lab.size.y > lab.size.x
+	var height_kept: bool = is_equal_approx(rack.size.y, 160.0 if portrait else 190.0)
+	_check(absf(x - _rack_x) < 1.0 and top >= note_bottom - 1.0 and height_kept,
+		"UI-49: D%d frame %d: the rack holds its place (%.0f vs %.0f) and height (%.0f), and its back row clears the Charm notes (%.0f vs %.0f)" % [division, frame + 1, x, _rack_x, rack.size.y, top, note_bottom])
+	if notes.visible and not _review_captured:
+		_review_captured = true
+		await _capture("j22_frame_review")
 
 func _second_roll() -> bool:
 	await _wait_for(func(): return lab.state == "scoring" or (lab.state == "aim" and lab.lane.state == "ready"), "roll 2 or scoring", ROLL_FRAMES)

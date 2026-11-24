@@ -4,17 +4,27 @@ extends Node
 ## screen needs no wiring. Close, Done and Back buttons take the back sound; toggles and
 ## the Clubhouse tabs the select sound; everything else the tap. A button can opt out
 ## with the meta "ui_sound" set to "", or pick a sound by naming it there.
-## The sounds are provisional (tools/author_foley.py, wood); the final set is Codex's.
+## AV-UI1 (2026-11-24): the final set, tools/author_ui_sounds.py. The House's wood
+## and brass everywhere, and Neon's synthetic clicks during a Neon match (a League
+## without its own set keeps the House's).
 const SOUNDS := {
 	"tap": preload("res://assets/audio/ui_tap.wav"),
 	"select": preload("res://assets/audio/ui_select.wav"),
 	"back": preload("res://assets/audio/ui_back.wav"),
+}
+const LEAGUE_SOUNDS := {
+	"league.neon": {
+		"tap": preload("res://assets/audio/ui_tap.neon.wav"),
+		"select": preload("res://assets/audio/ui_select.neon.wav"),
+		"back": preload("res://assets/audio/ui_back.neon.wav"),
+	},
 }
 const BACK_WORDS := ["Close", "Done", "Back", "Resume", "Cancel"]
 const MIN_GAP_FRAMES := 2 # one press that fires two buttons' signals sounds once
 var settings: Dictionary = {}
 var played := 0
 var last_kind := ""
+var last_stream: AudioStream # for tests
 var _voices: Array[AudioStreamPlayer] = []
 var _next := 0
 var _last_frame := -100
@@ -65,12 +75,24 @@ func play(kind: String) -> void:
 	_last_frame = frame
 	var voice := _voices[_next]
 	_next = (_next + 1) % _voices.size()
-	voice.stream = SOUNDS[kind]
+	voice.stream = sound_for(kind, league())
+	last_stream = voice.stream
 	# As PresentationAudio's effects level; a tap sits a little under the foley.
 	voice.volume_db = linear_to_db(maxf(0.0001, level * 0.35 * 0.8))
 	voice.play()
 	played += 1
 	last_kind = kind
+
+## The League of the match in play, or "" (the Clubhouse and menus).
+func league() -> String:
+	var host := get_parent()
+	var lab = host.get("lab") if host != null else null
+	if lab == null or not is_instance_valid(lab) or not lab.is_inside_tree(): return ""
+	var content = lab.get("content")
+	return String(content.get("league_id", "")) if content is Dictionary else ""
+
+static func sound_for(kind: String, league_id: String) -> AudioStream:
+	return LEAGUE_SOUNDS.get(league_id, {}).get(kind, SOUNDS.get(kind))
 
 func _exit_tree() -> void:
 	for voice in _voices:

@@ -1,5 +1,5 @@
 extends Control
-## House storyboards. Not listed in the live manifest until all 20 pass.
+## House storyboards, selected by the live House manifest.
 signal finished
 const Kit = preload("res://assets/ui/alley_screen/house/prop_kit.gd")
 const RivalArt = preload("res://src/presentation/rival_art.gd")
@@ -228,7 +228,8 @@ func _bookend(t: float) -> void:
 func _delivery(t: float) -> void:
 	var arrive := smoothstep(0,0.55,t)
 	var tip := smoothstep(0.55,0.95,t)
-	var x := lerpf(141,179,arrive)
+	# Keep the rolling ball clear of the caption even before the cart arrives.
+	var x := lerpf(168,179,arrive)
 	Kit.ball(self,Vector2(x-18,62),arrive*TAU)
 	Kit.rect(self,x,58,28,5,Kit.GOLD)
 	Kit.rect(self,x,46,3,13,Kit.GOLD)
@@ -280,6 +281,8 @@ func _boss_story(t: float) -> void:
 	if texture != null: draw_texture_rect(texture,Rect2(-26,-24,52,48),false)
 	draw_set_transform(Vector2.ZERO)
 	var name_parts := String(context.get("rival_name","Rival")).to_upper().split(",",false,1)
+	# Direct/review events may carry UI-20's empty default name.
+	if name_parts.is_empty(): name_parts.append("RIVAL")
 	if name_parts.size() == 2:
 		_word(name_parts[0],Rect2(93,18,142,12),12,Kit.IVORY)
 		_word(name_parts[1].strip_edges(),Rect2(93,28,142,10),10,Kit.TEAL)
