@@ -7,6 +7,20 @@ const LATHE_SEGMENTS := 24
 const STRIPES := [[0.247, 0.262], [0.272, 0.287]]
 
 var _materials: Dictionary = {}
+## PERF-3 (the owner's phone log, 2026-11-24: a 250-470 ms frame at almost every new
+## aim): the lane's world is rebuilt for every roll (fresh physics, ADR 002), and it
+## made new meshes each time, for the GPU to take again. This dressing lives for the
+## whole session, so it keeps one of each mesh and hands it to every roll.
+var _meshes: Dictionary = {}
+func _cached(key: String, build: Callable) -> Mesh:
+	if not _meshes.has(key): _meshes[key] = build.call()
+	return _meshes[key]
+
+func _box_mesh(size: Vector3) -> Mesh:
+	return _cached("box:%s" % size, func():
+		var box := BoxMesh.new()
+		box.size = size
+		return box)
 var _pin_mesh: ArrayMesh
 var _ball_mesh: SphereMesh
 
@@ -30,39 +44,39 @@ func _mesh_child(parent: Node3D, mesh: Mesh, material: Material, offset: Vector3
 func dress_static(body: StaticBody3D, size: Vector3, role: String) -> void:
 	var colors := {"lane": Color(0.78, 0.55, 0.32), "cap": Color(0.16, 0.13, 0.22), "kickback": Color(0.22, 0.12, 0.3),
 		"pit": Color(0.03, 0.02, 0.05), "cushion": Color(0.06, 0.04, 0.09)}
-	var box := BoxMesh.new()
-	box.size = size
-	_mesh_child(body, box, _material(role, colors.get(role, Color.GRAY), 0.55 if role == "lane" else 0.9))
+	_mesh_child(body, _box_mesh(size), _material(role, colors.get(role, Color.GRAY), 0.55 if role == "lane" else 0.9))
 	if role == "lane":
 		_lane_markings(body)
 
 func _lane_markings(body: StaticBody3D) -> void:
 	# Body origin is the slab center; markings sit just above its top face.
 	var top := -body.position.y + 0.001
-	var approach := BoxMesh.new()
-	approach.size = Vector3(Lane.LANE_HALF_WIDTH * 2.0, 0.001, Lane.APPROACH_LENGTH)
+	var approach := _box_mesh(Vector3(Lane.LANE_HALF_WIDTH * 2.0, 0.001, Lane.APPROACH_LENGTH))
 	_mesh_child(body, approach, _material("approach", Color(0.86, 0.68, 0.45)), Lane.world(0.0, -Lane.APPROACH_LENGTH * 0.5, top) - body.position * Vector3(1, 0, 1))
-	var foul := BoxMesh.new()
-	foul.size = Vector3(Lane.LANE_HALF_WIDTH * 2.0, 0.002, 0.02)
+	var foul := _box_mesh(Vector3(Lane.LANE_HALF_WIDTH * 2.0, 0.002, 0.02))
 	_mesh_child(body, foul, _material("foul", Color(0.85, 0.12, 0.15)), Lane.world(0.0, 0.0, top) - body.position * Vector3(1, 0, 1))
-	var arrow := PrismMesh.new()
-	arrow.size = Vector3(0.05, 0.16, 0.002)
+	var arrow := _cached("arrow", func():
+		var prism := PrismMesh.new()
+		prism.size = Vector3(0.05, 0.16, 0.002)
+		return prism)
 	for board in range(-3, 4):
 		var marker := _mesh_child(body, arrow, _material("arrow", Color(0.25, 0.12, 0.08)), Lane.world(board * 0.127, 3.7 + (3 - absf(board)) * 0.3, top) - body.position * Vector3(1, 0, 1))
 		marker.rotation = Vector3(-PI * 0.5, 0.0, 0.0)
-	var deck := BoxMesh.new()
-	deck.size = Vector3(Lane.LANE_HALF_WIDTH * 2.0, 0.001, Lane.PIT_F - Lane.HEAD_PIN_F + 0.35)
+	var deck := _box_mesh(Vector3(Lane.LANE_HALF_WIDTH * 2.0, 0.001, Lane.PIT_F - Lane.HEAD_PIN_F + 0.35))
 	_mesh_child(body, deck, _material("deck", Color(0.84, 0.62, 0.38)), Lane.world(0.0, (Lane.HEAD_PIN_F - 0.35 + Lane.PIT_F) * 0.5, top) - body.position * Vector3(1, 0, 1))
 
 func dress_gutter(body: StaticBody3D, faces: PackedVector3Array) -> void:
-	var tool := SurfaceTool.new()
-	tool.begin(Mesh.PRIMITIVE_TRIANGLES)
-	for vertex in faces:
-		tool.add_vertex(vertex)
-	tool.generate_normals()
+	# PERF-3: each side's channel is the same every roll (keyed by its faces).
+	var mesh := _cached("gutter:%d" % hash(faces), func():
+		var tool := SurfaceTool.new()
+		tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+		for vertex in faces:
+			tool.add_vertex(vertex)
+		tool.generate_normals()
+		return tool.commit())
 	var material := _material("gutter", Color(0.12, 0.11, 0.16), 0.4)
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
-	_mesh_child(body, tool.commit(), material)
+	_mesh_child(body, mesh, material)
 
 func dress_pin(pin: RigidBody3D) -> void:
 	if _pin_mesh == null:
