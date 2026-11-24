@@ -3591,7 +3591,7 @@
         "charges": 0,
         "exhaustion": "none"
       },
-      "downside": "Needs a bad first frame to pay, and does nothing in Practice, which has no target.",
+      "downside": "Needs a bad first frame to pay.",
       "synergy_tags": [
         "comeback",
         "timing",
