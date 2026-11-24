@@ -59,11 +59,17 @@ func _ready() -> void:
 	rack_view.name = "RackDiagram"
 	rack_view.custom_minimum_size = Vector2(210, 190)
 	rack_view.draw.connect(_draw_rack)
+	# UI-49 (owner, 2026-11-24: "the pin status is moving laterally with text changes
+	# and needs to be fixed in place"): the rack and the counters each hold half the
+	# row, so the rack no longer re-centres as the numbers change width.
+	rack_view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(rack_view)
 	counters = Label.new()
 	counters.name = "ScoreCounters"
 	counters.add_theme_font_size_override("font_size", 34)
 	counters.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	counters.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	counters.clip_text = true
 	row.add_child(counters)
 	log_scroll = ScrollContainer.new()
 	log_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -110,8 +116,12 @@ func _gui_input(event: InputEvent) -> void:
 func fit(portrait: bool) -> void:
 	header.get_parent().custom_minimum_size.y = 40 if portrait else 64
 	header.add_theme_font_size_override("font_size", 26 if portrait else 30)
-	rack_view.custom_minimum_size = Vector2(190, 160) if portrait else Vector2(210, 190)
-	counters.add_theme_font_size_override("font_size", 32 if portrait else 34)
+	# UI-49 (owner: the Charm note above "is being overlapped by the pin status"):
+	# the back row and its ring are drawn 174 px above the rack's bottom, so the rack
+	# is tall enough to hold them (portrait was 160 px; the rings rose above it).
+	rack_view.custom_minimum_size = Vector2(190, 184) if portrait else Vector2(210, 190)
+	_counter_size = 32 if portrait else 34
+	counters.add_theme_font_size_override("font_size", _counter_size)
 	log_scroll.custom_minimum_size.y = 72 if portrait else 150
 
 ## reports: the frame's LaneWorld reports, used only for roll attribution.
@@ -273,6 +283,19 @@ func _refresh_counters() -> void:
 	counters.text = "%s Value\n× %s Mult" % [ScoreLog._n(now.pin_value), ScoreLog._n(now.mult)]
 	if now.score >= 0:
 		counters.text += "\n= %s" % ScoreLog._n(now.score)
+	_fit_counters()
+
+var _counter_size := 34
+## UI-49: large numbers shrink to fit the counters' half of the row (they ran off
+## the panel's edge).
+func _fit_counters() -> void:
+	var room := counters.size.x
+	if room <= 0.0: return
+	var font := counters.get_theme_font("font")
+	var px := _counter_size
+	while px > 16 and font.get_multiline_string_size(counters.text, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x > room:
+		px -= 2
+	counters.add_theme_font_size_override("font_size", px)
 
 func current_pin() -> int:
 	return steps[shown - 1].pin if shown > 0 and playing else 0
