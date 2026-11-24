@@ -610,12 +610,17 @@ func _build_page() -> void:
 	# PERF-2b (owner, 2026-11-23: "the top of the game screen is blurred. Can't see
 	# the perf stats"): on iOS 26 an installed web app gets a system blur over the
 	# status bar and the band below it, which no page setting turns off. The readout
-	# sits in the bottom-left corner instead (left of the home indicator).
-	readout.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+	# sits at the bottom instead. PERF-2c (owner, 2026-11-24: "Just move the perf
+	# stats to the bottom right"): the bottom-right corner, kept in from the edges so
+	# the screen's rounded corner does not cut it.
+	readout.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	readout.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	readout.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	readout.offset_left = 8
-	readout.offset_bottom = -6
-	readout.offset_top = -6
+	readout.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	readout.offset_right = -28
+	readout.offset_left = -28
+	readout.offset_bottom = -30
+	readout.offset_top = -30
 	readout.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	readout.add_theme_font_size_override("font_size", 14)
 	readout.add_theme_color_override("font_outline_color", Color.BLACK)
