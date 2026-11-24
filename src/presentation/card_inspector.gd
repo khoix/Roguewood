@@ -101,6 +101,13 @@ func _ready() -> void:
 	box.add_child(close_button)
 	hide()
 
+## PERF-4 (the owner's phone log, 2026-11-24): this fixture art is a 1983 x 793 sheet;
+## building it for every card dealt decoded the sheet again each time (15-50 ms per
+## card on desktop), only for a catalogue card to ignore it. Callers ask for it only
+## when the item has no card art of its own (`fallback_for`).
+static func fallback_for(item_id: String, index: int) -> Texture2D:
+	return illustration(index) if ItemAssets.slot(item_id, "card") == null else null
+
 static func illustration(index: int) -> AtlasTexture:
 	var atlas := AtlasTexture.new()
 	atlas.atlas = load("res://assets/art_direction/card-art.png")
@@ -119,7 +126,7 @@ func inspect(card: Dictionary, origin: Control, reduce: bool) -> void:
 	title.text = card.title
 	card_view.reduced_motion = reduce
 	card_view.visible = true
-	card_view.set_item(item_id, {}, str(card.title), illustration(int(card.get("art_index", 0))))
+	card_view.set_item(item_id, {}, str(card.title), fallback_for(item_id, int(card.get("art_index", 0))))
 	ItemAssets._ensure()
 	var rules: String = ScoreLog.item_text(ItemAssets._items.get(item_id, {})) if ItemAssets._items.has(item_id) else str(card.detail)
 	# Full rules live here; the card face carries only the short rule.

@@ -28,6 +28,19 @@ static func run() -> Array[String]:
 	if refs.any(func(r): return r.get_ref() != null) or not gfx._recent.is_empty():
 		failures.append("PERF-2: with no budget, a copy lives only while drawn")
 	gfx.free()
+	# PERF-4: a catalogue card never builds the fixture art (a 1983 px sheet); the
+	# run's cards keep their art loaded while in the run, and release it after.
+	var ItemAssets = preload("res://src/presentation/item_assets.gd")
+	var Inspector = preload("res://src/presentation/card_inspector.gd")
+	if Inspector.fallback_for("ball.hook", 2) != null or Inspector.fallback_for("lab.no_such_item", 2) == null:
+		failures.append("PERF-4: only an item without card art gets the fixture illustration")
+	ItemAssets.hold(["ball.hook", "charm.trophy_case"])
+	var art_held: Array = ItemAssets.held_paths()
+	if not art_held.has(String(ItemAssets._items["ball.hook"].assets.card)) or not art_held.has(String(ItemAssets._items["charm.trophy_case"].assets.icon)):
+		failures.append("PERF-4: the run's cards and Charms keep their card and icon art (%s)" % str(art_held))
+	ItemAssets.hold([])
+	if not ItemAssets.held_paths().is_empty():
+		failures.append("PERF-4: art leaves with the item")
 	var id: String = RivalArt._manifest.keys()[0] if not RivalArt._manifest.is_empty() else ""
 	if id.is_empty():
 		RivalArt.entry("")

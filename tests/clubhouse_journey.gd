@@ -210,7 +210,7 @@ func _perf1_graphics() -> void:
 	await process_frame
 	await process_frame
 	last = gfx.log_entries.back()
-	_check(gfx.log_entries.size() == lines and int(last.get("count", 1)) >= 2 and last.has("script") and last.has("render") and last.has("draws")
+	_check(gfx.log_entries.size() == lines and int(last.get("count", 1)) >= 2 and last.has("script") and last.has("render") and last.has("draws") and last.has("tex") and last.has("steps")
 		and gfx.log_text().contains("frames to") and gfx.log_text().contains("script ") and gfx.log_text().contains("render "),
 		"PERF-2/3: a run of long frames is one line, with script time, render time and draw calls (%s)" % gfx.log_text().get_slice("\n", 1))
 	# PERF-3 (the owner's log: 38 s to 2,199 s "frames"): time away from the app is no

@@ -129,7 +129,7 @@ func show_cards(cards: Array, marks: Dictionary, header: String, cycle_supported
 		button.reduced_motion = reduced_motion
 		cards_row.move_child(button, wanted.find(card.uid))
 		if button.item_id != card.item_id or button.item_id.is_empty():
-			button.set_item(card.item_id, {}, card.title, preload("res://src/presentation/card_inspector.gd").illustration(int(card.get("art_index", 2))))
+			button.set_item(card.item_id, {}, card.title, preload("res://src/presentation/card_inspector.gd").fallback_for(card.item_id, int(card.get("art_index", 2))))
 		var mark: String = marks.get(card.uid, "")
 		var tag: String = {"ball": "ARMED", "tactical": "TACTIC", "keep": "KEEP"}.get(mark, "")
 		var state: String = {"ball": "armed", "tactical": "tactic", "keep": "keep"}.get(mark, "")
