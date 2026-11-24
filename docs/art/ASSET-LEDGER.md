@@ -1221,7 +1221,7 @@ straight-creased banknote. Both freeze their geometry under reduced effects.
 Brief: docs/art/briefs/AV-N3.md. Native evidence and capture paths: AV-N3 handoff.
 
 ## UI-12 button sounds (2026-11-16, provisional)
-Original deterministic mono PCM foley by tools/author_foley.py (wood material), no recordings or outside source. Played by `src/presentation/ui_sounds.gd` on every button press. Codex's final set (proposed AV-UI1, handoffs/UI-12.md) can replace them at the same paths.
+Original deterministic mono PCM foley by tools/author_foley.py (wood material), no recordings or outside source. Played by `src/presentation/ui_sounds.gd` on every button press. Superseded by AV-UI1 (2026-11-24, below) at the same paths; the hashes here are historical.
 
 | File | Command | SHA-256 |
 |---|---|---|
@@ -1527,3 +1527,23 @@ by Claude (no listening); the owner reviews in play.
 | `assets/ui/alley_screen/neon/strike.wav` | `c1d9de8caf6c88ddf0bf842a3c0e912698a0bcdc755ae447bc78a998e9a77b03` |
 | `assets/ui/alley_screen/neon/spare.wav` | `d3e573dd1efe8a8031fc522566d9d6988e986b5f8578ae23805e4e135f8b0600` |
 | `assets/ui/alley_screen/neon/boss_defeated.wav` | `10dd6d0e60536e2f72db545d0e7edd72ec0822fba9aef4b7d974141ddc24a8a8` |
+
+## AV-UI1 — the final button sounds (Claude, 2026-11-24)
+
+Replaces UI-12's provisional taps at the same paths and adds Neon's set. Original
+deterministic mono PCM from `python3 tools/author_ui_sounds.py` (22.05 kHz, signed
+16-bit), no recordings or samples. Levelled to UI-12's loudness (-25 dBFS RMS; peaks
+-9 to -14 dBFS) so they sit under the foley. House: a dry wooden knock (two wood
+modes and a felt thump), select with a small brass ting, back lower and softer.
+Neon (`*.neon.wav`, played during a Neon match by `src/presentation/ui_sounds.gd`):
+pulse-wave blips. Not listened to by Claude; the owner reviews in play.
+
+| Output | Length | SHA-256 |
+|---|---|---|
+| `tools/author_ui_sounds.py` | | `156b201809f580a1eba0c43f2cac90073945d8b692c98f587f424d14336a905a` |
+| `assets/audio/ui_tap.wav` | 45 ms | `dbccc77368e6d2a4194f55b9a8f27c9a6f280ccce7f892dddec1848ab181aaeb` |
+| `assets/audio/ui_select.wav` | 40 ms | `2798182aa811f342fc7e860327e82a0dff18d833bb7a5efe0b55b8f659583978` |
+| `assets/audio/ui_back.wav` | 65 ms | `96f996c5f07c6f58be206f9ab2283da2a56c1f30c3b8ba24c9a876a75c6f990e` |
+| `assets/audio/ui_tap.neon.wav` | 40 ms | `d488f0b3e3bf3896b00e80916b82026354d9018a8a1d8cc51d0c4516bc089f02` |
+| `assets/audio/ui_select.neon.wav` | 50 ms | `6433db6195b29c621ae3df395543348628caefd22a4c35f562e1339f1394698f` |
+| `assets/audio/ui_back.neon.wav` | 60 ms | `5894fd263d42ccc361aed8819b3e94d274ffbca63909e99fd96268b6418f81bb` |

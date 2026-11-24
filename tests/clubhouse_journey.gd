@@ -78,6 +78,7 @@ func _ui12_menu() -> void:
 	var taps: int = scene.ui_sounds.played
 	await _tap(button)
 	_check(scene.club_menu.visible and scene.ui_sounds.played > taps and scene.ui_sounds.last_kind == "tap", "a tap opens the Clubhouse menu, with a tap sound")
+	_check(scene.ui_sounds.last_stream == scene.ui_sounds.SOUNDS.tap, "AV-UI1: the Clubhouse's buttons take the House sounds")
 	# UI-15 (owner, 2026-11-18): the same menu as a match's, with Throw Settings and
 	# Sound & Effects as sibling pages whose Back returns here.
 	var entries: Array = scene.club_menu_list.get_children().filter(func(c): return c is Button).map(func(c): return c.text)

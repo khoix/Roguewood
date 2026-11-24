@@ -17,6 +17,11 @@ func _play_match(division: int, m: Dictionary) -> void:
 	var bosses := func(): return alley.played.filter(func(p): return p.event == "boss_defeated").size()
 	var before: int = bosses.call()
 	await super._play_match(division, m)
+	# AV-UI1: a button pressed in a Neon match (the match's own Begin, Next, keep)
+	# makes a Neon click.
+	var ui: Node = scene.ui_sounds
+	_check(ui.league() == "league.neon" and ui.played > 0 and ui.last_stream == ui.sound_for(ui.last_kind, "league.neon")
+		and String(ui.last_stream.resource_path).ends_with(".neon.wav"), "AV-UI1: D%d's buttons make Neon's sounds (%s)" % [division, ui.last_stream.resource_path if ui.last_stream else "none"])
 	var strikes: Array = alley.played.filter(func(p): return p.event == "strike")
 	_check(not strikes.is_empty() and strikes.all(func(p): return String(p.path).begins_with("res://assets/ui/alley_screen/neon/strike_")),
 		"UI-A9-N: D%d strikes play Neon's strike scenes" % division)
