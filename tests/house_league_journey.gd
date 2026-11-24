@@ -181,6 +181,8 @@ func _charm_quick_view() -> void:
 ## UI-49 (owner, 2026-11-24): in the frame review the rack stays in one place as the
 ## counters change, and its back row stays below the Charm notes above it.
 var _rack_x := -1.0
+var _review_captured := false
+
 func _check_review_layout(division: int, frame: int) -> void:
 	if tag != "J22L01" or not lab.score_panel.visible: return
 	await process_frame
@@ -192,6 +194,9 @@ func _check_review_layout(division: int, frame: int) -> void:
 	if _rack_x < 0.0: _rack_x = x
 	_check(absf(x - _rack_x) < 1.0 and top >= note_bottom - 1.0,
 		"UI-49: D%d frame %d: the rack holds its place (%.0f vs %.0f) and its back row clears the Charm notes (%.0f vs %.0f)" % [division, frame + 1, x, _rack_x, top, note_bottom])
+	if notes.visible and not _review_captured:
+		_review_captured = true
+		await _capture("j22_frame_review")
 
 func _second_roll() -> bool:
 	await _wait_for(func(): return lab.state == "scoring" or (lab.state == "aim" and lab.lane.state == "ready"), "roll 2 or scoring", ROLL_FRAMES)
