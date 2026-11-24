@@ -149,3 +149,6 @@ Remaining for you: art polish (the spare poses, small boss props) and the sting 
 
 ## Coordinator note: PERF-3 (2026-11-24)
 The phone hitched before every aim partly because shaders were created anew each roll. The lane dressing now keeps one of each. `assets/items/d04/overlay.gd` still writes a new `Shader` for every decal (`_decal`). When you next touch it, keep one shared shader (a static or preloaded `.gdshader`) and give each decal only its own ShaderMaterial. The same applies to any new per-roll art. Details: docs/handoffs/PERF-3.md.
+
+## Coordinator note: UI-A9-N preview (2026-11-24)
+- At the owner's request while you were out, three code-drawn Neon celebrations were made as a preview in `assets/ui/alley_screen/neon/` (handoffs/UI-A9-N-PREVIEW.md). They are in no manifest. UI-A9-N stays yours in Wave 15 unless the owner reassigns it: adopt, restyle or replace them.
