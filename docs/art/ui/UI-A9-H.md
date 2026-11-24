@@ -1,6 +1,7 @@
 # UI-A9-H — House alley-screen celebrations
 
-Status: PREPRODUCTION, 2026-11-23. Implementation is not complete.
+Status: IN_PROGRESS, 2026-11-23. Twenty scene candidates and three sting candidates
+are authored; final integration/verification is not complete.
 Assigned effort: High. Contract: docs/handoffs/UI-20.md; owner brief:
 docs/prompts/codex-wave14-ui-a9.md. House only; Neon belongs to Wave 15.
 
@@ -109,3 +110,115 @@ existing uniform picker. Do not alter RNG, rules or saved progress.
 
 No captures committed. Final handoff includes all paths, provenance, frame times,
 remaining device limits and the standard above. No new hook is presently needed.
+
+## Authored checkpoint, 2026-11-23
+
+All twenty IDs above now have `.tscn` resources, sharing original source geometry
+in `house/prop_kit.gd` and distinct choreography in `house/celebration.gd`.
+Stings exist beside them and rebuild with `tools/author_house_celebration_stings.py`.
+No live manifest slots have been added. JUIA9H/JUIA9HR select candidates through
+AlleyScreen's test override: every scene at 10/45/90 percent in both phone
+orientations, exact reduced-still comparisons, normal early/late differences,
+correct rival atlas identity, natural end/replay/skip, and real J03 strike/spare/
+open-frame input with unchanged independent scoring assertions. JUIA9HB uses
+actual House boss wins and verifies rival selection and Division Result gating.
+
+Current CRT: static 0.18 scanline strength, 90 rows, 0.06 curvature, 0.35 glow
+and 0.35 vignette. The `flicker` uniform remains for UI-20 compatibility but
+never modulates brightness. Power belongs to AlleyScreen; scenes own no audio
+or input. Final CRT/performance judgment remains part of completion.
+
+Later League standard: retain the UI-20 canvas/interface, silent scenes, context
+names, exactly-once completion, duration and distinct still contract above.
+Change original palette/props/choreography/stings per League. Use the new
+review's deterministic selection without changing production RNG. Record
+renderer, draw mode and sample counts beside wall-frame percentiles; on-demand
+QA renders are correctness evidence, not a rendering performance benchmark.
+No next-League implementation is included.
+
+## Full-render measurements, timed resume 2026-11-23
+
+JUIA9HP and JUIA9HL split the existing native review by orientation and omit
+PNG readbacks; they retain all source-frame, natural completion, replay/skip
+and actual strike/spare/open-frame scoring assertions. Run each rendered with
+`--draw all`. Timing reports are saved after every scene, with `complete:false`
+until the whole journey passes. CI runs these on the art shard and uploads
+`artifacts/ui-a9-h/` including the reports.
+
+Both runs completed: portrait 177 s, landscape 158 s. Godot 4.5.2, llvmpipe
+(LLVM 19.1.7, 256 bits), LP_NUM_THREADS=1, one native renderer running at a time.
+Each variant has 97–181 measured native frame intervals; roll baseline has
+1,372 samples per orientation. These are wall times including CPU/render
+scheduling, not GPU timer measurements or physical-phone acceptance. The roll
+fixture uses reduced-motion assist for deterministic scores, while the scene
+review uses normal motion and the aim HUD. Consequently the ratio includes
+whole-screen/state differences; it does not isolate celebration overhead.
+
+| Orientation | Roll p50 / p95 / p99 ms | Celebration p95 range ms |
+|---|---|---|
+| Portrait 450×800 | 20.875 / 26.294 / 31.592 | 35.675–69.484 |
+| Landscape 800×450 | 21.910 / 28.788 / 37.008 | 28.802–67.716 |
+
+These software-renderer times do not establish a 60 fps phone budget. Matched
+aim-screen controls and target-device measurements are the next performance
+refinements if judging effect overhead or phone viability. Raw reports and
+summary: artifacts/ui-a9-h/profile-{portrait,landscape}/rendered/frame-times.json
+and artifacts/ui-a9-h/performance-summary.{json,md}.
+
+| Variant | Portrait n / p95 ms | Landscape n / p95 ms |
+|---|---|---|
+| boss_custodian_champion_crown | 181 / 40.005 | 181 / 35.305 |
+| boss_custodian_champion_house_lights | 181 / 40.526 | 181 / 37.011 |
+| boss_custodian_polish | 181 / 38.920 | 181 / 38.986 |
+| boss_custodian_sweep | 181 / 39.965 | 181 / 33.653 |
+| boss_old_lou_encore | 181 / 36.723 | 181 / 32.170 |
+| boss_old_lou_record | 181 / 39.646 | 181 / 39.644 |
+| boss_proprietor_keys | 181 / 39.054 | 181 / 34.356 |
+| boss_proprietor_receipt | 181 / 38.067 | 181 / 32.062 |
+| boss_surveyor_level | 181 / 45.701 | 181 / 34.291 |
+| boss_surveyor_tape | 181 / 38.744 | 181 / 40.225 |
+| spare_bookend | 97 / 38.826 | 97 / 67.716 |
+| spare_delivery | 97 / 35.884 | 97 / 30.534 |
+| spare_lasso | 97 / 35.675 | 97 / 36.929 |
+| spare_last_chair | 97 / 49.302 | 97 / 38.890 |
+| spare_magnet | 97 / 35.967 | 97 / 45.032 |
+| strike_constellation | 109 / 65.379 | 109 / 52.664 |
+| strike_curtain | 109 / 65.263 | 109 / 42.143 |
+| strike_domino | 109 / 69.484 | 109 / 28.802 |
+| strike_pinwheel | 109 / 45.741 | 109 / 36.520 |
+| strike_score_stamp | 109 / 50.574 | 109 / 55.384 |
+
+Sound test JUIA9HA uses ephemeral theme entries to verify the production
+AlleyScreen → theme → mixer path, correct streams, effects gain, Mute, zero
+volume and uninterrupted music. It does not change the shipping manifest.
+The final scene holds its portrait as `texture`; path-backed atlas metadata
+keeps PERF-2 reloadable without retaining originals. See the ledger generator.
+
+
+## Phone-size polish and review index — 2026-11-23 late resume
+
+The final staging pass fixes supported/visible spare pins, constellation head
+clipping during ascent, and boss prop/name/title collisions. Stable IDs, event
+lengths, source portraits and all reduced still identities remain unchanged.
+
+Run JUIA9HM rendered for eight beats (0/10/20/30/45/60/75/90 percent) under default
+flash settings; JUIA9H still covers normal motion with reduced flash, and JUIA9HR
+covers both accessibility options. All inherit real strike/spare/open scoring,
+natural completion, skip/replay and source-frame motion/still assertions.
+JUIA9HM's separate 600-second budget covers 320 full-phone captures plus native
+CRT crops; original review and performance timeouts are unchanged. Capture only
+once per frame, and derive both full frame and crop from that same readback.
+Convert logical layout coordinates through the viewport's final transform first:
+the game lays out at 540×960 or 1280×720 while evidence is 450×800 or 800×450.
+
+After JUIA9HM and JUIA9HR rendered, run:
+`python3 tools/review_house_celebrations.py` (Pillow). It requires the complete set,
+checks the reduced CRT stills, and writes artifacts/ui-a9-h/review/index.html,
+capture-index.json, 80 eight-/three-beat sheets and four orientation/mode contact
+sheets. Review native crops and click through to the whole phone screenshot.
+Held timed poses show choreography; they do not claim a live motion recording,
+actual-phone validation, or capture-only rendering-performance numbers.
+
+The earlier full-draw timing table belongs to the previous staging revision.
+Do not relabel it as a remeasurement of this polish. Stings remain technically
+verified but not subjectively auditioned; live manifest entries remain absent.

@@ -422,6 +422,29 @@ jobs:
             python3 tools/qa.py e2e --journey "$journey"
             xvfb-run -a python3 tools/qa.py e2e --journey "$journey" --rendered
           done
+      - name: House celebration storyboards (UI-A9-H)
+        if: matrix.shard == 'art'
+        run: |
+          for journey in JUIA9H JUIA9HR JUIA9HB; do
+            python3 tools/qa.py e2e --journey "$journey"
+            xvfb-run -a python3 tools/qa.py e2e --journey "$journey" --rendered
+          done
+      - name: House celebration default-CRT motion review (UI-A9-H)
+        if: matrix.shard == 'art'
+        run: |
+          python3 tools/qa.py e2e --journey JUIA9HM
+          xvfb-run -a python3 tools/qa.py e2e --journey JUIA9HM --rendered
+      - name: House celebration sound routing (UI-A9-H)
+        if: matrix.shard == 'art'
+        run: |
+          python3 tools/qa.py e2e --journey JUIA9HA
+          xvfb-run -a python3 tools/qa.py e2e --journey JUIA9HA --rendered
+      - name: House celebration full-frame measurements (UI-A9-H)
+        if: matrix.shard == 'art'
+        run: |
+          for journey in JUIA9HP JUIA9HL; do
+            xvfb-run -a python3 tools/qa.py e2e --journey "$journey" --rendered --draw all
+          done
       - name: Preserve journey diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -435,6 +458,7 @@ jobs:
             artifacts/av-n4/
             artifacts/av-n5/
             artifacts/ui-a6/
+            artifacts/ui-a9-h/
             artifacts/av-fix1/
             artifacts/av-h3-a/
             artifacts/av-h3-b/
