@@ -14,12 +14,17 @@ func _play_match(division: int, m: Dictionary) -> void:
 	for id in ENDINGS:
 		paths[id] = ENDINGS[id].map(func(key): return "res://assets/ui/alley_screen/house/"+key+".tscn")
 	alley.variants_override = {"boss_defeated":paths}
-	var before: int = alley.played.size()
+	# The House manifest is live (coordinator, 2026-11-24): strikes play their own
+	# scenes too, so only boss celebrations are counted, and the boss scene may wait
+	# in the queue behind the last strike's.
+	var bosses := func(): return alley.played.filter(func(p): return p.event == "boss_defeated").size()
+	var before: int = bosses.call()
 	await super._play_match(division,m)
 	if m.kind != "boss":
-		_check(alley.played.size() == before,"ordinary match has no boss celebration")
+		_check(bosses.call() == before,"ordinary match has no boss celebration")
 		return
-	_check(alley.played.size() == before+1,"one celebration per actual boss win")
+	await _wait_for(func(): return alley.playing() and alley.current_event == "boss_defeated","the boss celebration's turn",600)
+	_check(bosses.call() == before+1,"one celebration per actual boss win")
 	_check(alley.playing() and alley.current_event == "boss_defeated","boss art plays before Division Result")
 	_check(alley.current_path in paths[m.rival] and alley.current_context.rival_id == m.rival,"actual rival selects its own endings")
 	_check(not lab.next_rack.visible,"Division Result waits for celebration")

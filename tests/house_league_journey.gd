@@ -191,6 +191,14 @@ func _title() -> void:
 	# the pool, and the League and kit the title opens.
 	_check(["charm.house_special", "charm.wood_grain"].all(func(i): return i in kept_items) and "league:Royal League" in opened and "kit:Tournament Kit" in opened,
 		"UI-44: the awards will show the unlocked items and the Royal League and Tournament Kit (%s, %s)" % [str(kept_items), str(opened)])
+	# UI-A9-H live (owner, 2026-11-24: enable the celebrations once viable): real
+	# strikes and the champion's defeat play the House manifest's own scenes.
+	var played: Array = lab.alley_screen.played
+	var strikes: Array = lab.league_theme.celebrations("strike")
+	var champion: Array = lab.league_theme.celebrations("boss_defeated", "rival.custodian_champion")
+	_check(strikes.size() == 5 and champion.size() == 2 and played.any(func(p): return p.event == "strike" and p.path in strikes)
+		and played.any(func(p): return p.event == "boss_defeated" and p.path in champion),
+		"UI-A9-H: real House strikes and the champion's defeat play the manifest's celebrations (%s)" % str(played.map(func(p): return "%s:%s" % [p.event, String(p.path).get_file()]).slice(-4)))
 	await _capture("j22_title")
 
 func _tournament() -> void:
