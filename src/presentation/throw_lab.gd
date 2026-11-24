@@ -34,6 +34,7 @@ signal chrome_compact_changed(compact: bool)
 const Sentence = preload("res://src/presentation/sentence.gd")
 const ClubhouseModel = preload("res://src/clubhouse/clubhouse_model.gd")
 const ThrowToasts = preload("res://src/presentation/throw_toasts.gd")
+const CharmQuickView = preload("res://src/presentation/charm_quick_view.gd")
 const Lane = preload("res://src/simulation/lane_spec.gd")
 const LaneWorld = preload("res://src/simulation/lane_world.gd")
 const Dressing = preload("res://src/presentation/live_dressing.gd")
@@ -137,6 +138,7 @@ var input_paused := false
 ## UI-3: the player-facing prompt (the hint lines of `status`, which keeps the full
 ## sentence for tools and tests); it sits above the hand, out of the pins' way.
 var prompt: Label
+var charm_view: Control # UI-47: a Charm's quick view, from a tap on the rail
 var toasts: VBoxContainer # UI-43: ThrowToasts, the hint and the brief notices above the cards
 var _prompt_state := ""
 var _hint_dismissed := false
@@ -403,6 +405,10 @@ func _ready() -> void:
 	award_ceremony.lab = self
 	add_child(award_ceremony)
 	panels.host_equipment_strip(motion.equipment_art) # UI-3: out of the lane
+	charm_view = CharmQuickView.new()
+	add_child(charm_view)
+	panels.charms_tapped.connect(_on_charm_tapped)
+	charm_view.dismissed.connect(_on_charm_view_dismissed)
 	if not restore_from.is_empty():
 		_restore(restore_from)
 		return
@@ -843,6 +849,7 @@ func hook_scale() -> float:
 func _input(event: InputEvent) -> void:
 	if input_paused: return
 	if inspector and inspector.visible: return
+	if charm_view != null and charm_view.visible: return # UI-47: the next tap only closes it
 	if event is InputEventScreenTouch:
 		if event.pressed and state == "aim" and _touch == -1 and _target_touch == -1 and not _over_ui(event.position):
 			if _on_ball(event.position) and not settings.assist:
@@ -1477,6 +1484,37 @@ func _kept_awards() -> Dictionary:
 			var known: Dictionary = career_graph.get("leagues", {}).get(league_id, {})
 			opened.append({"kind": "league", "name": String(known.get("name", league_id.trim_prefix("league.").capitalize() + " League"))})
 	return {"items": items, "opened": opened}
+
+## UI-47 (owner, 2026-11-24): "make the in-game charm column tappable to extend out
+## a quick view/bubble overlay with a short description of what that charm is/does."
+func _on_charm_tapped(at: Vector2) -> void:
+	_open_charm_at(at, "")
+
+func _on_charm_view_dismissed(at: Vector2, closed_id: String) -> void:
+	if panels.charms.visible and panels.charms.get_global_rect().has_point(at):
+		_open_charm_at(at, closed_id) # another Charm on the rail opens at once
+
+func _open_charm_at(at: Vector2, skip_id: String) -> void:
+	if state not in ["aim", "frame_done", "tactic"]: return
+	var piece: Array = panels.charm_piece_at(at)
+	if piece.is_empty(): return
+	var id := _rail_item(piece[0])
+	if id.is_empty() or id == skip_id: return
+	var item := FrameBuilder.item(_catalogue, id)
+	var rules := _owned_rules(item, "")
+	if id.begins_with("kit."): rules = "Your starting kit." if rules.strip_edges().is_empty() else rules
+	var subtitle := "%s %s" % [String(item.get("rarity", "")).capitalize(), String(item.get("category", "")).capitalize()]
+	var rect: Rect2 = charm_view.get_global_transform().affine_inverse() * piece[1]
+	charm_view.open(id, String(item.get("name", _names.get(id, id))), subtitle.strip_edges(), rules, rect, rect.get_center().x > size.x * 0.5)
+
+## The item a rail piece shows: an owned Charm, or the kit.
+func _rail_item(piece: Node) -> String:
+	var ids: Array = run.charms.map(func(e): return String(e.item_id))
+	ids.append(String(content.get("kit", {}).get("id", "")))
+	for id in ids:
+		var key: String = String(id).replace(".", "_")
+		if not key.is_empty() and (piece.name == key or piece.name == "Charm_" + key): return String(id)
+	return ""
 
 ## UI-40: rivals defeated for the first time, of the rival plaques on the shelf.
 func _rivals_defeated() -> Dictionary:
@@ -2323,6 +2361,7 @@ func _place_prompt() -> void:
 	# when an aim starts and when a new alert comes. Nothing shows while the ball
 	# rolls or a frame scores; the status line (tests, logs) is unchanged.
 	var aiming := state in ["aim", "tactic"]
+	if charm_view != null and charm_view.visible and state not in ["aim", "tactic", "frame_done"]: charm_view.close() # UI-47
 	if aiming and _prompt_state not in ["aim", "tactic", "holding"]:
 		_toasted.clear() # a new aim (not one resumed after a cancel)
 		_hint_dismissed = false

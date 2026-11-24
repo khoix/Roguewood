@@ -97,6 +97,9 @@ func _ready() -> void:
 	charm_count.add_theme_font_size_override("font_size", 18)
 	charm_count.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	charm_head.add_child(charm_count)
+	# UI-47: a tap on the rail opens a Charm's quick view (ThrowLab resolves which).
+	charms.mouse_filter = Control.MOUSE_FILTER_STOP
+	charms.gui_input.connect(_on_charms_input)
 	charm_icons = HFlowContainer.new()
 	charm_icons.name = "CharmIcons"
 	charm_icons.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -353,7 +356,36 @@ func _process(_delta: float) -> void:
 
 ## Controls that take touches (the lab never starts a throw over them).
 func blocking_controls() -> Array:
-	return [fold_bar]
+	return [fold_bar, charms]
+
+## UI-47 (owner, 2026-11-24): a tap (not a drag) on the Charm rail, in global
+## coordinates; ThrowLab finds the Charm under it and opens its quick view.
+signal charms_tapped(at: Vector2)
+var _press_at := Vector2.INF
+func _on_charms_input(event: InputEvent) -> void:
+	var pressed: bool
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT: pressed = event.pressed
+	elif event is InputEventScreenTouch: pressed = event.pressed
+	else: return
+	var at: Vector2 = charms.get_global_transform() * event.position
+	if pressed:
+		_press_at = at
+	elif _press_at != Vector2.INF and _press_at.distance_to(at) < 16.0:
+		_press_at = Vector2.INF
+		charms_tapped.emit(at)
+	charms.accept_event()
+
+## The rail's pieces under a global point: [node, its global rect], or [] (the art
+## strip's tiles, else this row's own icons and name tags).
+func charm_piece_at(at: Vector2) -> Array:
+	var holders: Array = []
+	if _strip != null and _strip.visible: holders.append(_strip)
+	holders.append(charm_icons)
+	for holder in holders:
+		for piece in holder.get_children():
+			if piece is Control and piece.visible and piece.get_global_rect().has_point(at):
+				return [piece, piece.get_global_rect()]
+	return []
 
 static func _n(number: Variant) -> String:
 	return preload("res://src/rules/score_log.gd")._n(number)
