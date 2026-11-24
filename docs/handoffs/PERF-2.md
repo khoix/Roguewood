@@ -63,3 +63,9 @@ Try Low and Low again with the Performance Log on and send the log. Each line no
 - **Change:** the readout sits in the bottom-left corner, left of the home indicator. J11 checks its position.
 - **Not checked:** whether the band also softens the top edge of the match's top bar on the owner's phone. That is to confirm on the phone; if it does, the layouts take a top inset in the installed app.
 - **Checks:** J11 (both modes), `unit`: PASS.
+
+## Follow-up PERF-2c: the readout in the bottom-right corner (owner, 2026-11-24)
+- **The owner's note:** "Now the perf stats aren't fully visible at the bottom" (bottom-left, by the rounded corner and over the Clubhouse footer), then "Just move the perf stats to the bottom right."
+- **Change:** the readout is right-aligned in the bottom-right corner, 28 px in from the right edge and 30 px up from the bottom, clear of the rounded corner and the home indicator. J11 checks its place.
+- **Asked about the top blur:** it is iOS 26's own, drawn over installed web apps; no page setting turns it off. Developers report an opaque fixed strip at the top may stop it; that is unconfirmed on a device and was not adopted.
+- **Checks:** J11 (both modes): PASS.

@@ -145,5 +145,49 @@
     "rms": 0.1341094080399457,
     "seam_delta": 0.0034626100776618852,
     "sha256": "16624aef039e137ef0d1608434aa4d3d07e1364a932d4a0b9a456f503708dc7e"
-  }
+  },
+  "celebrations": {
+    "strike": [
+      "res://assets/ui/alley_screen/house/strike_constellation.tscn",
+      "res://assets/ui/alley_screen/house/strike_curtain.tscn",
+      "res://assets/ui/alley_screen/house/strike_domino.tscn",
+      "res://assets/ui/alley_screen/house/strike_pinwheel.tscn",
+      "res://assets/ui/alley_screen/house/strike_score_stamp.tscn"
+    ],
+    "spare": [
+      "res://assets/ui/alley_screen/house/spare_bookend.tscn",
+      "res://assets/ui/alley_screen/house/spare_delivery.tscn",
+      "res://assets/ui/alley_screen/house/spare_lasso.tscn",
+      "res://assets/ui/alley_screen/house/spare_last_chair.tscn",
+      "res://assets/ui/alley_screen/house/spare_magnet.tscn"
+    ],
+    "boss_defeated": {
+      "rival.surveyor": [
+        "res://assets/ui/alley_screen/house/boss_surveyor_tape.tscn",
+        "res://assets/ui/alley_screen/house/boss_surveyor_level.tscn"
+      ],
+      "rival.custodian": [
+        "res://assets/ui/alley_screen/house/boss_custodian_sweep.tscn",
+        "res://assets/ui/alley_screen/house/boss_custodian_polish.tscn"
+      ],
+      "rival.proprietor": [
+        "res://assets/ui/alley_screen/house/boss_proprietor_receipt.tscn",
+        "res://assets/ui/alley_screen/house/boss_proprietor_keys.tscn"
+      ],
+      "rival.old_lou": [
+        "res://assets/ui/alley_screen/house/boss_old_lou_record.tscn",
+        "res://assets/ui/alley_screen/house/boss_old_lou_encore.tscn"
+      ],
+      "rival.custodian_champion": [
+        "res://assets/ui/alley_screen/house/boss_custodian_champion_crown.tscn",
+        "res://assets/ui/alley_screen/house/boss_custodian_champion_house_lights.tscn"
+      ]
+    }
+  },
+  "celebration_sounds": {
+    "strike": "res://assets/ui/alley_screen/house/strike.wav",
+    "spare": "res://assets/ui/alley_screen/house/spare.wav",
+    "boss_defeated": "res://assets/ui/alley_screen/house/boss_defeated.wav"
+  },
+  "celebrations_complete": true
 }

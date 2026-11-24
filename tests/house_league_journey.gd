@@ -88,6 +88,8 @@ func _division(division: int) -> void:
 			await _aim()
 		var boss: bool = m.kind == "boss"
 		await _check_stage(division, m) # the Neon journey's waits a frame for the Charm rail
+		if division == 2 and index == 0 and tag == "J22L01":
+			await _charm_quick_view()
 		await _play_match(division, m)
 		if division == 1 and index == 0:
 			await _seat_build()
@@ -137,6 +139,43 @@ func _play_match(division: int, m: Dictionary) -> void:
 			return
 		await _focus_accept(lab.next_rack)
 	_check(false, "D%d %s did not finish in two frames" % [division, m.kind])
+
+## UI-47 (owner, 2026-11-24): a tap on a Charm in the rail opens its quick view
+## beside the rail; it never throws or moves the target, a tap on another Charm
+## switches, the same Charm or any tap elsewhere closes it.
+func _charm_quick_view() -> void:
+	for i in 3: await process_frame
+	var view: Control = lab.charm_view
+	var rail: Control = lab.panels.charms
+	var pieces: Array = (lab.panels._strip.get_children() if lab.panels._strip != null else []).filter(func(p): return p is Control and p.visible)
+	_check(rail.visible and pieces.size() >= 3, "UI-47: the Charm rail shows the build (%d pieces)" % pieces.size())
+	if pieces.size() < 3: return
+	var target: float = lab.target_x
+	var first: Control = pieces[1] # the first Charm (the kit leads the strip)
+	await _touch(first.get_global_rect().get_center(), true)
+	await _touch(first.get_global_rect().get_center(), false)
+	var bubble: Control = view.bubble
+	var expected: String = lab.run.charms[0].item_id
+	var name: String = lab.run.item(expected).name
+	_check(view.visible and view.item_id == expected and view.title.text == name and not view.body.text.is_empty() and view.kind.text.contains("Charm")
+		and bubble.get_global_rect().end.x <= rail.get_global_rect().position.x and bubble.get_global_rect().position.x >= 0.0
+		and bubble.get_global_rect().end.y <= lab.get_viewport_rect().size.y,
+		"UI-47: a tap on %s opens its quick view beside the rail (%s: %s)" % [name, view.kind.text, view.body.text])
+	_check(lab.state == "aim" and is_equal_approx(lab.target_x, target), "UI-47: the tap neither throws nor moves the target")
+	await _capture("j22_charm_quick_view")
+	var second: Control = pieces[2]
+	await _touch(second.get_global_rect().get_center(), true)
+	await _touch(second.get_global_rect().get_center(), false)
+	_check(view.visible and view.item_id == lab.run.charms[1].item_id, "UI-47: a tap on another Charm switches to it (%s)" % view.item_id)
+	await _touch(second.get_global_rect().get_center(), true)
+	await _touch(second.get_global_rect().get_center(), false)
+	_check(not view.visible, "UI-47: the same Charm again closes it")
+	await _touch(first.get_global_rect().get_center(), true)
+	await _touch(first.get_global_rect().get_center(), false)
+	var lane_spot := Vector2(lab.size.x * 0.3, lab.size.y * 0.45)
+	await _touch(lane_spot, true)
+	await _touch(lane_spot, false)
+	_check(not view.visible and lab.state == "aim" and is_equal_approx(lab.target_x, target), "UI-47: a tap on the lane only closes it")
 
 func _second_roll() -> bool:
 	await _wait_for(func(): return lab.state == "scoring" or (lab.state == "aim" and lab.lane.state == "ready"), "roll 2 or scoring", ROLL_FRAMES)
@@ -191,6 +230,14 @@ func _title() -> void:
 	# the pool, and the League and kit the title opens.
 	_check(["charm.house_special", "charm.wood_grain"].all(func(i): return i in kept_items) and "league:Royal League" in opened and "kit:Tournament Kit" in opened,
 		"UI-44: the awards will show the unlocked items and the Royal League and Tournament Kit (%s, %s)" % [str(kept_items), str(opened)])
+	# UI-A9-H live (owner, 2026-11-24: enable the celebrations once viable): real
+	# strikes and the champion's defeat play the House manifest's own scenes.
+	var played: Array = lab.alley_screen.played
+	var strikes: Array = lab.league_theme.celebrations("strike")
+	var champion: Array = lab.league_theme.celebrations("boss_defeated", "rival.custodian_champion")
+	_check(strikes.size() == 5 and champion.size() == 2 and played.any(func(p): return p.event == "strike" and p.path in strikes)
+		and played.any(func(p): return p.event == "boss_defeated" and p.path in champion),
+		"UI-A9-H: real House strikes and the champion's defeat play the manifest's celebrations (%s)" % str(played.map(func(p): return "%s:%s" % [p.event, String(p.path).get_file()]).slice(-4)))
 	await _capture("j22_title")
 
 func _tournament() -> void:

@@ -139,3 +139,10 @@ Stop after the Wave 14 claims, or earlier at a coherent pushed checkpoint with t
 
 ## Coordinator note: PERF-2 (2026-11-23)
 At Low texture detail the sweep (src/platform/graphics.gd) now draws copies, and a full-size sheet is freed once nothing holds it. It follows a scripted node's own `texture` and `identity` properties. Four of your files still hold item or backdrop art in other variables, which keeps 6 MB sheets loaded: `neon_n3_presentation.gd` (`_chart`), `neon_n4_presentation.gd` (`metronome`, `hand`), `neon_n5_presentation.gd` (`icons`) and `assets/leagues/house/environment.gd` (`backdrop`). When you next touch them, hold such art in a `texture` or `identity` property, or keep its id and reload it. Details: docs/handoffs/PERF-2.md. UI-A9-H's celebrations should follow the same rule.
+
+## Coordinator note: UI-A9-H is live (2026-11-24)
+The owner asked for the celebrations to be enabled once viable. The coordinator merged `e8223a6`, reviewed the twenty scenes, and listed them, the three stings and `celebrations_complete` in assets/leagues/house/manifest.json. Two test changes outside your art:
+- tests/slice_journey.gd: `_focus_accept` waits for Division Result while a boss celebration plays.
+- tests/house_celebration_boss_journey.gd: counts only `boss_defeated` scenes, and waits for the boss scene's turn, since strikes now play their own scenes.
+
+Remaining for you: art polish (the spare poses, small boss props) and the sting audition. Keep the manifest's paths and ids stable. Merge `claude/roguewood-build` before you continue.
