@@ -189,11 +189,14 @@ func _check_review_layout(division: int, frame: int) -> void:
 	var rack: Control = lab.score_panel.rack_view
 	var x: float = rack.get_global_rect().get_center().x
 	var notes: Control = lab.motion.house_counts.cards
-	var top: float = rack.get_global_rect().end.y - 174.0 # the back row's ring
+	var top: float = rack.get_global_rect().end.y - 176.0 # the back row's highlight ring
 	var note_bottom: float = notes.get_global_rect().end.y if notes.visible else -INF
 	if _rack_x < 0.0: _rack_x = x
-	_check(absf(x - _rack_x) < 1.0 and top >= note_bottom - 1.0,
-		"UI-49: D%d frame %d: the rack holds its place (%.0f vs %.0f) and its back row clears the Charm notes (%.0f vs %.0f)" % [division, frame + 1, x, _rack_x, top, note_bottom])
+	# The owner (2026-11-24): the layout stays as it was; only the note moves up.
+	var portrait: bool = lab.size.y > lab.size.x
+	var height_kept: bool = is_equal_approx(rack.size.y, 160.0 if portrait else 190.0)
+	_check(absf(x - _rack_x) < 1.0 and top >= note_bottom - 1.0 and height_kept,
+		"UI-49: D%d frame %d: the rack holds its place (%.0f vs %.0f) and height (%.0f), and its back row clears the Charm notes (%.0f vs %.0f)" % [division, frame + 1, x, _rack_x, rack.size.y, top, note_bottom])
 	if notes.visible and not _review_captured:
 		_review_captured = true
 		await _capture("j22_frame_review")
