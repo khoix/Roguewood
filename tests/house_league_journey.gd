@@ -152,6 +152,9 @@ func _seat_build() -> void:
 func _save_and_resume() -> void:
 	var money: int = lab.run.money
 	await _focus_accept(scene.back)
+	# UI-46 (owner, 2026-11-23): leaving mid-run from the menu has no slow fade; only
+	# League's End and the awards fade to the Clubhouse.
+	_check(not scene.transition_playing() and not scene.exiting and scene.screen == "menu", "UI-46: the menu's Clubhouse goes there at once, without the fade")
 	await _wait_for(func(): return scene.screen == "menu" and scene.continue_button.visible and scene.continue_button.has_focus(), "Continue Attempt offered")
 	await _action("ui_accept")
 	await _wait_for(func(): return scene.lab != null and scene.lab.state == "shop", "the attempt resumes in Division 5's shop")
@@ -171,11 +174,62 @@ func _title() -> void:
 		"all five House rivals are first clears")
 	_check(["gate.proprietor_cleared", "gate.old_lou_cleared", "gate.house_champion"].all(func(g): return g in career.unlocked)
 		and int(career.championships.get("league.house", {}).get("wins", 0)) == 1, "the rival rewards and the title are in the Career")
+	# UI-40 (owner, 2026-11-23): the sheet keeps the outcome, tiles and matches, and
+	# shows the Career as a bar of rivals defeated; what was kept moves to the awards.
+	var view: Control = lab.hud.result_view
+	var headings: Array = view.find_children("ResultHeading", "", true, false).map(func(h): return h.text)
+	var rivals: Dictionary = lab._rivals_defeated()
+	var bar: Control = view.find_child("ResultRivals", true, false)
+	var kept: Dictionary = lab._pending_awards.get("awards", {}).get("kept", {})
+	var kept_items: Array = kept.get("items", []).map(func(i): return i.id)
+	var opened: Array = kept.get("opened", []).map(func(o): return "%s:%s" % [o.kind, o.name])
+	_check(view.find_children("ResultHighlight", "", true, false).is_empty() and "Goals" not in headings and "Kept" not in headings and "Rewards" not in headings
+		and bar != null and int(rivals.progress) >= 5 and bar.get_child(2).text == "%d/%d" % [int(rivals.progress), int(rivals.threshold)]
+		and not lab.hud.result_body.text.contains("Rule in force"),
+		"UI-40: the sheet has no Kept or Goals, and a bar of rivals defeated (%s, headings %s)" % [str(rivals), str(headings)])
+	# UI-44: what the run opened, as pieces for the award page: the items that join
+	# the pool, and the League and kit the title opens.
+	_check(["charm.house_special", "charm.wood_grain"].all(func(i): return i in kept_items) and "league:Royal League" in opened and "kit:Tournament Kit" in opened,
+		"UI-44: the awards will show the unlocked items and the Royal League and Tournament Kit (%s, %s)" % [str(kept_items), str(opened)])
 	await _capture("j22_title")
 
 func _tournament() -> void:
+	var kept: Dictionary = lab._pending_awards.get("awards", {}).get("kept", {})
 	await _focus_accept(lab.hud.menu_button)
-	await _through_awards()
+	# UI-40: the award page lists what the run kept, above the goals.
+	var ceremony = lab.award_ceremony
+	await _wait_for(func(): return ceremony.visible and ceremony.playing, "the award ceremony", 120)
+	await _focus_accept(ceremony.skip_button)
+	await _wait_for(func(): return ceremony.step == "done" and not ceremony.continue_button.disabled, "Skip shows the awards summary", 120)
+	# UI-44 (owner, 2026-11-23: "thematically appropriate for this page--not just a
+	# wall of text"): a gold banner, a framed tile with art for each unlocked item,
+	# a badge for each League or kit opened, and the goals as velvet award cards.
+	var tiles: Array = ceremony.goals_box.find_children("KeptItem_*", "", true, false)
+	var badges: Array = ceremony.goals_box.find_children("KeptOpened_*", "", true, false)
+	var header = ceremony.goals_box.find_child("KeptHeader", true, false)
+	_check(header != null and header.get_child(0).text == "NEW IN THE SHOP" and tiles.size() == kept.items.size() and badges.size() == kept.opened.size()
+		and tiles.all(func(t): return t.find_child("Art", true, false).texture != null) and ceremony.goals_box.find_children("KeptLine*", "", true, false).is_empty(),
+		"UI-44: the award page shows %d item tiles with art and %d badges, not lines of text (header %s, kept %d/%d, missing art %s)" % [tiles.size(), badges.size(),
+			str(header.get_child(0).text) if header != null else "none", kept.items.size(), kept.opened.size(),
+			str(tiles.filter(func(t): return t.find_child("Art", true, false).texture == null).map(func(t): return t.name))])
+	# UI-45 (owner, 2026-11-23: "a clear divide/border instead of a hidden scrollable
+	# section ... one scrollable row for mobile"): a bordered panel, its pieces in one
+	# row that scrolls sideways, under a gold rule below the shelf.
+	var row: Control = ceremony.goals_box.find_child("KeptItems", true, false)
+	var pieces: Array = row.get_children() if row != null else []
+	var panel = ceremony.goals_box.get_node_or_null("KeptPanel")
+	_check(panel != null and panel.get_theme_stylebox("panel").border_width_top > 0 and row is HBoxContainer and pieces.size() == tiles.size() + badges.size()
+		and ceremony.kept_scroll.horizontal_scroll_mode == ScrollContainer.SCROLL_MODE_AUTO and ceremony.kept_scroll.get_h_scroll_bar().max_value > ceremony.kept_scroll.size.x
+		and ceremony.summary.get_node_or_null("SummaryRule") != null and panel.get_global_rect().size.y < 320.0,
+		"UI-45: New in the Shop is a bordered panel with one sideways row (%d pieces, %.0f px wide in %.0f, panel %.0f px tall)" % [pieces.size(), ceremony.kept_scroll.get_h_scroll_bar().max_value, ceremony.kept_scroll.size.x, panel.get_global_rect().size.y if panel != null else 0.0])
+	var goal_rows: Array = ceremony.goals_box.get_children().filter(func(n): return String(n.name).begins_with("Goal_"))
+	_check(ceremony.awards.get("goals", []).is_empty() or ceremony.goals_box.get_node_or_null("GoalsHeader") is Control and ceremony.goals_box.get_node("GoalsHeader").get_child(0).text == "GOALS"
+		and goal_rows.all(func(r): return r.get_theme_stylebox("panel").bg_color == ceremony.VELVET), "UI-44: the goals sit under their own banner, as velvet award cards (%d)" % goal_rows.size())
+	await _capture("j22_awards_kept")
+	ceremony.goals_scroll.scroll_vertical = int(ceremony.goals_scroll.get_v_scroll_bar().max_value)
+	for i in 3: await process_frame
+	await _capture("j22_awards_kept_end")
+	await _focus_accept(ceremony.continue_button)
 	await _wait_for(func(): return scene.screen == "menu", "back to the menu", 400)
 	_check(not scene.kit.is_item_disabled(1) and scene.kit.get_item_text(1) == "Tournament Kit", "the title opens the Tournament Kit")
 	scene.kit.grab_focus()

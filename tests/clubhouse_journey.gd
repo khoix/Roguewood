@@ -192,6 +192,11 @@ func _perf1_graphics() -> void:
 	await _tap(gfx.log_toggle)
 	_check(gfx.settings.perf_log and gfx.readout.visible, "PERF-1: the Performance log turns on, with its corner readout")
 	await process_frame
+	var corner: Rect2 = gfx.readout.get_global_rect()
+	var screen: Vector2 = gfx.readout.get_viewport_rect().size
+	_check(corner.position.x <= 12.0 and corner.end.y <= screen.y and corner.end.y >= screen.y - 12.0 and corner.size.y > 0.0,
+		"PERF-2b: the readout sits in the bottom-left corner, clear of iOS's top-edge blur (%s in %s)" % [str(corner), str(screen)])
+	await process_frame
 	OS.delay_msec(int(gfx.LONG_FRAME_MS) + 60)
 	await process_frame
 	await process_frame
@@ -572,6 +577,8 @@ func _stage_two_clubhouse() -> void:
 	var club = scene.clubhouse
 	_check(scene.enter.text == "New Run" and club.records_label.text.contains("House League · 1 run") and club.records_label.text.contains("1 title"),
 		"after a restart the board offers New Run and keeps the record")
+	var captions: Array = club.league_cards.find_children("Figures", "", true, false).map(func(f): return f.get_child(0).get_child(1).text)
+	_check(captions.has("RUN") and not captions.any(func(c): return c.contains("ATTEMPT")), "UI-42: the League Record counts runs (%s)" % str(captions))
 	await _tab("binder")
 	_check(_state("pin.wood") == "mastered" and _state("charm.encore") == "available", "Mastered and unlocked cards survive the restart")
 	await _tab("board")

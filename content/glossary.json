@@ -81,7 +81,7 @@
           "diagram": {"kind": "lane", "path": "hook", "oil": true, "zone": "backend"}},
         {"id": "boards", "term": "Boards", "text": "The lane is 39 narrow boards from gutter to gutter. A board is a small step: Narrow Lane moves each gutter in by two.",
           "diagram": {"kind": "lane", "zone": "boards"}},
-        {"id": "release", "term": "Sweet & Perfect", "text": "The ring at your target shrinks while you hold the ball. Roll through it while it is small: Sweet adds +1 Mult, Perfect +2. Your best roll in a frame counts, once.",
+        {"id": "release", "term": "Sweet & Perfect", "text": "The ring at your target shrinks while you hold the ball. Roll inside it for +10 Value. While it is small, Sweet adds +1 Mult and Perfect +2 on top. Your best roll in a frame counts, once.",
           "diagram": {"kind": "ring"}}
       ]
     },

@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-11-23. Current state only; everything older is in docs/AI-HANDOFF-HISTORY.md (moved verbatim by QA-6, owner 2026-11-20, so this file stays under about 200 lines). E01–E16 DONE and merged; E17–E22 IN_PROGRESS; E23–E29 NOT_STARTED. Waves 1–13 are merged (Wave 13 by PR #33). **Wave 14 is open**: its early merges are PRs #34 and #36–#50 (latest: PR #50, main `75d2dfa`, 2026-11-20). PRs #51–#60 are merged too (latest: PR #60, main `a8622be`, 2026-11-21). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
+Updated: 2026-11-23. Current state only; everything older is in docs/AI-HANDOFF-HISTORY.md (moved verbatim by QA-6, owner 2026-11-20, so this file stays under about 200 lines). E01–E16 DONE and merged; E17–E22 IN_PROGRESS; E23–E29 NOT_STARTED. Waves 1–13 are merged (Wave 13 by PR #33). **Wave 14 is open**: its early merges are PRs #34 and #36–#50 (latest: PR #50, main `75d2dfa`, 2026-11-20). PRs #51–#61 are merged too (latest: PR #61, main `388c7bc`, 2026-11-23). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
 
 ## Read first
 
@@ -29,7 +29,7 @@ The owner asked for tests that take less time and fewer tokens. For both agents:
 
 ## Current state
 - **Integration:** the owner merges `claude/roguewood-build` into main by PR. Claude restarts or fast-forwards it from main after each merge. Codex pushes `codex/roguewood-build` and opens no PRs.
-- **Merged:** PRs #51 (main `5f4df32`), #52 (`4c54786`), #53 (`b78b7c2`), #54 (`2605a3b`), #55 (`6536427`) #56 (`6204f4c`), #57 (`7f5f45f`), #58 (`90ed9d3`), #59 (`14a1652`) and #60 (`a8622be`), 2026-11-20/21.
+- **Merged:** PRs #51 (main `5f4df32`), #52 (`4c54786`), #53 (`b78b7c2`), #54 (`2605a3b`), #55 (`6536427`) #56 (`6204f4c`), #57 (`7f5f45f`), #58 (`90ed9d3`), #59 (`14a1652`), #60 (`a8622be`) and #61 (`388c7bc`), 2026-11-20/23.
 - **For the next PR** (merged into `claude/roguewood-build` after #51): QA-1…QA-8, the testing changes above. Full local matrix: 28 min (was 64). CI #533 PASS: game 21 min, art 31 min (were 44–60 and 60–77).
 - **UI-32 DONE** (handoffs/UI-32.md; the owner's play notes, 2026-11-20): the shop's **Inventory** (Charms in a drag-to-reorder row on top, the other items below, tap to review or sell) and the payout and rack as a themed slip (payout rows and total; the rack as a triangle of pin art; reserves; Charms and Deck chips). Checks: `unit`, `content` and all 73 shop journeys headless; J05, J06, JTUT, JAVC04B, J03C07–C10 and J11 rendered: PASS.
 - **BAL-1 DONE** (handoffs/BAL-1.md; agreed with the owner, 2026-11-20): a release inside the ring adds 10 Value; sweet and perfect add +1 and +2 Mult on top (a plain strike 560 / 600 / 750 / 900). The simulation moves 0–5 points of League wins and 4–9 of Division 1 clears; the targets stay. New fixed values: J03 600/260/70, J05 match 2 25920.
@@ -63,6 +63,16 @@ The owner asked for tests that take less time and fewer tokens. For both agents:
   - **Checks** (merged tree): `unit`, `content`, `integration`, `web`; J02 (both modes), J03C18, J03C19, J11, J11ART (rendered), J22L01, J22L02, JAVN4 (both modes), JAVN5, JUIA6 and JAVFIX1B: 17 of 17 PASS. CI Bootstrap #564 on `3dcd75a` PASS (game and art, which runs every AV-N4, AV-N5, UI-A6 and AV-FIX1 journey); E11 still review PASS.
 - **Codex's queue:** UI-A9-H (House celebrations; brief docs/prompts/codex-wave14-ui-a9.md), then the proposed AV-UI1. **Checkpoint `cec80a1`** (2026-11-23, IN_PROGRESS; handoffs/UI-A9-H.md on Codex's branch): 20 celebration candidates, three sting candidates and native review journeys (JUIA9H, JUIA9HR, JUIA9HB). The live manifest stays off. Codex stopped at a 20-minute deadline, with the full-frame benchmark timed out. CI on `cec80a1`: Bootstrap, E11 and E12 PASS. It is not integrated: next come visual and audio review, then performance and Web checks before activation.
 - **PERF-2 DONE** (handoffs/PERF-2.md; the owner's PERF-1 phone log): GPU memory climbed to 385 MB at Low and the page then reloaded, most likely ended for memory. Low's copy cache never let go, and full-size sheets stayed loaded beside their copies (rival portraits, scripted views, the Sell list). Now copies live while drawn plus 24 MB of recent ones; portraits and reaction frames are held weakly; the sweep follows scripted `texture` and `identity` and stops after 8 ms a frame. The log keeps 200 entries, groups a run of long frames into one line, and notes CPU time and draw calls. House League at Low: textures 213 → 165 MB, copies steady at about 110 (were 223 and climbing). Codex's follow-up: the Neon presentations and the House backdrop keep icons in variables. Not tried on a phone.
+- **PR #61 merged** (owner, 2026-11-23; main `388c7bc`): Codex's AV-N4, AV-N5, UI-A6, AV-FIX1, the Comet fix and the E12 repair; PERF-2.
+- **DONE (owner's play notes, 2026-11-23; Claude, Wave 14, one PR; handoffs/UI-40.md to UI-43.md):**
+  - **UI-40:** League's End loses Kept, Goals and "Rule in force"; the award page gains a Kept section (unlocks); "Career progress kept" becomes a bar of rivals defeated (owner: "just like the existing text").
+  - **UI-41:** Talk the Talk's Sweet & Perfect matches BAL-1 (Clean +10 Value; Sweet and Perfect add +1 and +2 Mult on top).
+  - **UI-42:** the League Record says "runs", not "attempts".
+  - **UI-43:** no wall of text under the ball. The aim hint is one line in a pill just above the cards and stays until the player touches the ball; the rule, the lane, tactics and alerts are brief toasts above it, one at a time, at the start of every aim (owner). The stack never rises above the ball's lower edge and keeps clear of the assist panel; nothing shows while the ball is held or rolls. A ball a rule forbids is dimmed in the hand. The status text is unchanged.
+  - **Checks:** see each handoff (J02, J03C05, J06, J10, J11, J22L01, J22L02, JTUT and others, headless and rendered).
+- **UI-44 DONE** (handoffs/UI-44.md; owner: "Make the kept and goal sections thematically appropriate for this page"): the award page shows "New in the Shop" under a gold banner, as framed tiles with item art, plus tickets for a new League or kit. Goals are velvet award cards under their own banner. The repeated first-clear and title text is gone (the shelf shows those). Codex follow-up: kit and League art for the tickets. **UI-45** (owner): New in the Shop is a bordered panel with one sideways-scrolling row, under a gold rule below the shelf.
+- **UI-46 DONE** (handoffs/UI-46.md; owner): the slow fade to the Clubhouse plays only from League's End (the result sheet) and after the awards; the match menu's Clubhouse and the tutorial's end go there at once.
+- **PERF-2b DONE** (handoffs/PERF-2.md; owner: the top of the screen is blurred, the readout unreadable): iOS 26 blurs the band below the status bar in an installed web app; the readout moved to the bottom-left corner. To confirm on the phone: whether the band also softens the match's top bar.
 - **Waiting on the owner:** a second phone log with PERF-2 (Graphics → Low and Low, Performance Log on, then Copy Log). Its lines now say whether long frames are CPU or GPU, and it covers a whole session.
 - **Follow-up:** the Splitter Ball (E17-D01, not in the game) unlocks on the first House Campaign title, which players can no longer reach (UI-16); it needs another unlock when it lands.
 
@@ -171,6 +181,11 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
 | E28 → E29 (Claude) | E24–E27 | Release candidate; then delivery |
 
 ## Wave 15 queue (owner requests; claimed when Wave 15 opens)
+- **PROX-1, neighbour effects** (owner, 2026-11-23; docs/ideas/PROX-1.md): Charms and pins with effects on their neighbours, in the pending Leagues only. The copy Charm copies the Charm to its right at full strength; Spread's neighbour is chosen when attaching. Salvage takes C1 (Rare, at most one in the row, the champion's first-clear Charm), M2 Spread, P1 Chain pin and M3 Shared (owner, 2026-11-23). Claude, before any Salvage item batch:
+  1. **E17-L03b** (Medium): Salvage's item plan revised, totals unchanged.
+  2. **E18-C21** (High): neighbour facts, the copy op, contracts and tests.
+  3. **Spread's placement** on the rack map (Medium).
+  - Then Salvage's other rule pieces and DC-S1…; Codex's AV-S batches carry the copy link, neighbour highlights and "Copy of X"; a Salvage League simulation with and without the copy Charm before Salvage closes.
 - **UI-A8, Codex** (owner, 2026-11-17; prompt docs/prompts/codex-wave15-ui-a8.md): League backdrops. The space beside and behind the lane is redesigned to push each League's theme forward: ambient, layered, slow and readable under the HUD, with still versions for reduced motion and reduced flash.
   - **Scope:** House and Neon now, every Division and the Championship. Salvage, Royal, Spectral and Foundry follow the standard UI-A8 sets, within their own themes.
   - **Claude:** wires any hook UI-A8 asks for in league_theme.gd.
@@ -218,6 +233,7 @@ The full log (every entry and its checks) is in AI-HANDOFF-HISTORY.md; each item
 - **Full CI matrix (local) on `90330f6`** (UI-30 and UI-31): 252 of 252 commands PASS.
 - **UI-31 follow-up** (owner, 2026-11-20): a League title won again is no new award; it no longer opens or appears on the award page. CI #529 failed on J12R01 because the show's sound throttle used the wall clock; it now counts the ceremony's own time. #528's art job hung in `apt-get update` (Ubuntu mirror) until the 90-minute limit.
 - **Next:**
+  - Claude's UI-40 to UI-43 (the owner's play notes, 2026-11-23);
   - Codex's UI-A9-H (AV-N4, AV-N5, UI-A6 and AV-FIX1 are integrated), and the proposed AV-UI1 (the final button sounds);
   - then the full matrix and the "Wave 14 closed" commit.
 

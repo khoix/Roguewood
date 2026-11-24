@@ -40,11 +40,23 @@ func _run() -> void:
 	_check(lab.division.rules() == ["boss_rule.clean_sweep", "boss_rule.house_rules"] and lab.hud.badge.text.contains("Clean Sweep") and lab.hud.badge.text.contains("House Rules"),
 		"the badge shows both champion rules: %s" % lab.hud.badge.text)
 	_check(lab.lane.lane_condition == "lane_condition.dry_backend", "the champion's lane is Dry Backend")
+	# UI-43 (owner, 2026-11-23): the aim's notices are brief toasts just above the
+	# cards, one at a time; a ball the rule forbids is dimmed in the hand.
+	var notices: Array = lab.toasts.texts()
+	_check(notices.any(func(t): return String(t).begins_with("House Rules: Only the House Ball")) and notices.any(func(t): return String(t).begins_with("Lane: "))
+		and lab.toasts.get_child_count() <= 2, "UI-43: the aim starts with toasts for the rule and the lane, one shown at a time (%s)" % str(notices))
+	var barred: Array = lab.card_hand.buttons.values().filter(func(b): return bool(b.get_meta("barred", false)))
+	_check(not barred.is_empty() and barred.all(func(b): return b.modulate.a < 0.6), "UI-43: the ball cards House Rules forbids are dimmed (%d)" % barred.size())
+	var stack: Rect2 = lab.toasts.get_global_rect()
+	_check(stack.end.y <= lab.card_hand.get_global_rect().position.y + 1.0 and stack.position.y >= lab.toasts.top_limit - 1.0 and stack.size.y > 0.0,
+		"UI-43: the toasts sit between the ball and the cards, below its lower edge (%s, ball edge y %.0f)" % [str(stack), lab.toasts.top_limit])
+	_check(not lab.assist_panel.visible or not stack.intersects(lab.assist_panel.get_global_rect()), "UI-43: the toasts keep clear of the assist panel (%s, panel %s)" % [str(stack), str(lab.assist_panel.get_global_rect())])
 	var refused := false
 	for option in lab.equipment.options():
 		if option.kind == "ball":
 			await _tap(lab.card_hand.button_for(option.uid))
 			refused = lab.armed_ball_id() == "ball.house" and lab.status.text.contains("House Rules: That ball cannot be thrown here.")
+			_check(String(lab.toasts.texts()[0]) == "House Rules: That ball cannot be thrown here.", "UI-43: the refusal is the next toast (%s)" % str(lab.toasts.texts()))
 			break
 	_check(refused, "arming a ball card is refused under House Rules, with a note")
 	var seals: HBoxContainer = lab.hud.extra_rule_badges
@@ -54,6 +66,7 @@ func _run() -> void:
 			var texture = preload("res://src/presentation/rival_art.gd").rule_badge(lab.division.rules()[index])
 			_check(texture != null and seals.get_child(index).texture == texture, "champion binds nonempty seal " + lab.division.rules()[index])
 		_check(seals.get_global_rect().end.x <= lab.hud.get_viewport_rect().size.x, "both champion seals fit the portrait viewport")
+	_check(not lab.toasts.get_global_rect().intersects(lab.assist_panel.get_global_rect()), "UI-43: the refusal's toast keeps clear of the assist panel (%s)" % str(lab.toasts.get_global_rect()))
 	await _capture("c05_house_rules")
 	var open := await _rule_frame([LEAVE, GUTTER], "champion open frame")
 	_check(open.result.category == "open" and open.banked == 0 and _logged("Clean Sweep"), "Clean Sweep banks an open frame as 0")

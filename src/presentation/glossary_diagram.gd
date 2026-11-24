@@ -387,8 +387,8 @@ func _charge() -> void:
 
 func _ring() -> void:
 	var font := get_theme_default_font()
-	var at := Vector2(56, 60)
-	var unit := 48.0 / 0.30 # the widest ring (0.30, TargetRing.RING_MAX) draws at 48
+	var at := Vector2(52, 60)
+	var unit := 44.0 / 0.30 # the widest ring (0.30, TargetRing.RING_MAX) draws at 44 (UI-41: room for the labels)
 	draw_circle(at, 0.30 * unit, Color(RING_COLORS.clean, 0.06))
 	draw_arc(at, 0.30 * unit, 0.0, TAU, 48, RING_COLORS.clean, 2.0, true)
 	draw_circle(at, Lane.SWEET_RING * unit, Color(RING_COLORS.sweet, 0.16))
@@ -401,12 +401,15 @@ func _ring() -> void:
 		var outer := at + dir * (0.30 * unit + 9.0)
 		draw_line(outer, outer - dir * 7.0, IVORY, 1.5)
 		draw_colored_polygon(PackedVector2Array([outer - dir * 9.0, outer - dir * 5.0 + dir.orthogonal() * 3.0, outer - dir * 5.0 - dir.orthogonal() * 3.0]), IVORY)
-	var rows := [["Clean", "+0", RING_COLORS.clean], ["Sweet", "+1 Mult", RING_COLORS.sweet], ["Perfect", "+2 Mult", RING_COLORS.perfect]]
+	# UI-41 (owner, 2026-11-23; BAL-1's rule): inside the ring adds +10 Value, and
+	# Sweet and Perfect add their Mult on top of it.
+	var rows := [["Clean", ["+10 Value"], RING_COLORS.clean], ["Sweet", ["+10 Value", "+1 Mult"], RING_COLORS.sweet], ["Perfect", ["+10 Value", "+2 Mult"], RING_COLORS.perfect]]
 	for i in rows.size():
-		var y := 34.0 + i * 24.0
-		draw_circle(Vector2(114, y - 4), 4.0, rows[i][2])
-		draw_string(font, Vector2(122, y), rows[i][0], HORIZONTAL_ALIGNMENT_LEFT, -1, 11, rows[i][2])
-		draw_string(font, Vector2(122, y + 11), rows[i][1], HORIZONTAL_ALIGNMENT_LEFT, -1, 9, MUTED)
+		var y := 22.0 + i * 33.0
+		draw_circle(Vector2(104, y - 4), 4.0, rows[i][2])
+		draw_string(font, Vector2(111, y), rows[i][0], HORIZONTAL_ALIGNMENT_LEFT, -1, 11, rows[i][2])
+		for j in rows[i][1].size():
+			draw_string(font, Vector2(111, y + 11 + j * 10), rows[i][1][j], HORIZONTAL_ALIGNMENT_LEFT, -1, 9, MUTED)
 
 # --- Value × Mult ---
 

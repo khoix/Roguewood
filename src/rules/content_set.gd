@@ -109,6 +109,7 @@ static func load_set(set_id: String, seed_value: int = 1) -> Dictionary:
 	out.kit = out.kits[0] if not out.kits.is_empty() else {}
 	out.name = league.get("name", "")
 	out["league_id"] = league.get("id", "")
+	out["opens"] = String(league.get("championship", {}).get("opens", "")) # the League its title opens (UI-44)
 	out["specialists"] = league.get("specialists", {})
 	# UI-13: a League can borrow another's look (the tutorial wears the House theme)
 	# and fix its first shop's offers.

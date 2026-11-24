@@ -161,9 +161,16 @@ func _run() -> void:
 	quit(0 if failures.is_empty() else 1)
 
 func _cancellations(lane_before: Node, ball_home: Vector3) -> void:
+	# UI-43 (owner, 2026-11-23): the aim hint is one line in a pill just above the
+	# cards, clear of the ball, and stays until the ball is touched.
+	var pill: Control = lab.toasts.hint_pill
+	_check(lab.prompt.visible and pill.visible and lab.prompt.text.begins_with("Hold the ball") and not lab.prompt.text.contains("\n")
+		and pill.get_global_rect().end.y <= lab.card_hand.get_global_rect().position.y and pill.get_global_rect().position.y >= lab.toasts.top_limit - 1.0,
+		"UI-43: the aim hint is one line just above the cards, below the ball (%s, pill %s, ball y %.0f)" % [lab.prompt.text, str(pill.get_global_rect()), lab.ball_screen_position().y])
 	# Sideways placement released without a flick.
 	var lifted := await _gesture(Vector2(90, 0), 6, Vector2.ZERO, 0, false)
 	_check(lab.state == "holding", "touch on ball starts hold")
+	_check(not lab.prompt.visible and lab.toasts.texts().is_empty(), "UI-43: touching the ball clears the hint; nothing shows over the swirl")
 	_check(lab.lane.ball_position().x > ball_home.x + 0.05, "ball follows sideways drag")
 	# E05-R3 (owner, 2026-11-08): below its start point the held ball follows the
 	# finger back over the approach instead of stopping at the foul line.
@@ -175,6 +182,8 @@ func _cancellations(lane_before: Node, ball_home: Vector3) -> void:
 		"below its start the held ball follows the finger down (z %.2f -> %.2f)" % [ball_home.z, lab.lane.aim_ball.position.z])
 	await _touch(lifted, false) # the finger lifts where it is (the held ball floats above it)
 	_check(lab.state == "aim" and lab.cancels == 1 and lab.last_cancel == "short", "sideways-only release cancels")
+	_check(not lab.prompt.visible and not lab.toasts.texts().is_empty() and String(lab.toasts.texts()[0]).begins_with("No throw (short)"),
+		"UI-43: a cancel is a brief toast; the hint stays away once the ball was touched (%s)" % str(lab.toasts.texts()))
 	# Slow upward drag, then an OS-cancelled touch.
 	await _gesture(Vector2.ZERO, 0, Vector2(0, -8), 30)
 	_check(lab.cancels == 2 and lab.last_cancel == "slow", "slow drag cancels")
@@ -198,6 +207,7 @@ func _two_roll_frame() -> Array:
 		var launch_index: int = lab.history.size()
 		await _gesture(Vector2(attempt * 24, 0), 4, Vector2(0, -32), 8)
 		_check(lab.state == "rolling", "straight flick commits a roll")
+		_check(not lab.prompt.visible and lab.toasts.texts().is_empty(), "UI-43: no text over the lane while the ball rolls")
 		var launch: Dictionary = lab.lane.launch.duplicate(true)
 		_check(launch.launch_id == "lab-%d" % (launch_index + 1), "launch ids ignore cancelled gestures")
 		_check(launch.roll_index == 1 and launch.spin == 0.0 and launch.direction_x == 0.0, "straight first-roll launch")
@@ -225,6 +235,7 @@ func _two_roll_frame() -> Array:
 		racked.sort()
 		_check(racked == first.knockdown_log.standing, "only survivors respotted for roll 2")
 		_check(not lab.status.text.contains("No throw"), "committed throw clears the cancel note")
+		_check(lab.prompt.visible and lab.prompt.text.begins_with("Hold the ball"), "UI-43: the next aim shows the hint again")
 		await _capture("roll2_aim")
 		# Line up on the lowest standing pin using the lab's own camera projection.
 		var target: int = first.knockdown_log.standing[0]
