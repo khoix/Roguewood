@@ -112,6 +112,8 @@ func _draw() -> void:
 	draw_polyline(PackedVector2Array([points[0], points[1], points[2]]), EDGE, 3.0)
 
 func _gui_input(event: InputEvent) -> void:
+	# A touch also arrives as an emulated mouse press; one tap is handled once.
+	if event is InputEventMouseButton and event.device == InputEvent.DEVICE_ID_EMULATION: return
 	if (event is InputEventMouseButton or event is InputEventScreenTouch) and event.pressed:
 		var closed := item_id
 		close()

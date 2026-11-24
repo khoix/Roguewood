@@ -364,6 +364,7 @@ signal charms_tapped(at: Vector2)
 var _press_at := Vector2.INF
 func _on_charms_input(event: InputEvent) -> void:
 	var pressed: bool
+	if event is InputEventMouseButton and event.device == InputEvent.DEVICE_ID_EMULATION: return # the touch itself counts
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT: pressed = event.pressed
 	elif event is InputEventScreenTouch: pressed = event.pressed
 	else: return
