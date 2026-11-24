@@ -158,3 +158,8 @@ The phone hitched before every aim partly because shaders were created anew each
 ## Coordinator note: UI-50 (2026-11-24)
 - **The frame review's Charm notes share one centred row:** `house_count_cards.gd` and `spare_jar_cards.gd` now call `lab.score_panel.add_note(card)` instead of inserting their own rows (one line each; handoffs/UI-50.md).
 - **A new note:** use `add_note`. The row centres the notes and scrolls sideways when they overflow.
+
+## Coordinator note: PACK-A (2026-11-24)
+- **Image imports are lossy now:** the owner moved PACK-A (the Web art compression, part of the asset audit) to Claude. Every painted sheet imports as lossy WebP 0.9.
+- **New art:** after adding images, run `python3 tools/web_textures.py`. `qa.py content` fails (`--check`) on any image off the rule.
+- **Web build:** art the game never loads goes in its `WEB_EXCLUDE`. The Web pack has a 55 MB budget in `qa.py web`.

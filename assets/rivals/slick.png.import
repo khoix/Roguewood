@@ -15,9 +15,9 @@ dest_files=["res://.godot/imported/slick.png-2a5bb98df720c59f6625e1fe5d22a3a9.ct
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.9
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
