@@ -210,8 +210,17 @@ func _perf1_graphics() -> void:
 	await process_frame
 	await process_frame
 	last = gfx.log_entries.back()
-	_check(gfx.log_entries.size() == lines and int(last.get("count", 1)) >= 2 and last.has("cpu") and last.has("draws")
-		and gfx.log_text().contains("frames to") and gfx.log_text().contains("cpu "), "PERF-2: a run of long frames is one line, with CPU time and draw calls (%s)" % gfx.log_text().get_slice("\n", 1))
+	_check(gfx.log_entries.size() == lines and int(last.get("count", 1)) >= 2 and last.has("script") and last.has("render") and last.has("draws")
+		and gfx.log_text().contains("frames to") and gfx.log_text().contains("script ") and gfx.log_text().contains("render "),
+		"PERF-2/3: a run of long frames is one line, with script time, render time and draw calls (%s)" % gfx.log_text().get_slice("\n", 1))
+	# PERF-3 (the owner's log: 38 s to 2,199 s "frames"): time away from the app is no
+	# long frame.
+	var before: int = gfx.long_frames
+	gfx._away = true
+	OS.delay_msec(int(gfx.LONG_FRAME_MS) + 60)
+	await process_frame
+	await process_frame
+	_check(gfx.long_frames == before, "PERF-3: a gap while the app was away is not logged")
 	await _tap(gfx.copy_button)
 	_check(gfx.copy_button.text == "Copied", "PERF-1: Copy Log copies the log")
 	await _tap(gfx.find_child("GraphicsClearLog", true, false))

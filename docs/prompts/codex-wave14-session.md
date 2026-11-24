@@ -146,3 +146,6 @@ The owner asked for the celebrations to be enabled once viable. The coordinator 
 - tests/house_celebration_boss_journey.gd: counts only `boss_defeated` scenes, and waits for the boss scene's turn, since strikes now play their own scenes.
 
 Remaining for you: art polish (the spare poses, small boss props) and the sting audition. Keep the manifest's paths and ids stable. Merge `claude/roguewood-build` before you continue.
+
+## Coordinator note: PERF-3 (2026-11-24)
+The phone hitched before every aim partly because shaders were created anew each roll. The lane dressing now keeps one of each. `assets/items/d04/overlay.gd` still writes a new `Shader` for every decal (`_decal`). When you next touch it, keep one shared shader (a static or preloaded `.gdshader`) and give each decal only its own ShaderMaterial. The same applies to any new per-roll art. Details: docs/handoffs/PERF-3.md.
