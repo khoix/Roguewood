@@ -194,8 +194,8 @@ func _perf1_graphics() -> void:
 	await process_frame
 	var corner: Rect2 = gfx.readout.get_global_rect()
 	var screen: Vector2 = gfx.readout.get_viewport_rect().size
-	_check(corner.position.x <= 12.0 and corner.end.y <= screen.y and corner.end.y >= screen.y - 12.0 and corner.size.y > 0.0,
-		"PERF-2b: the readout sits in the bottom-left corner, clear of iOS's top-edge blur (%s in %s)" % [str(corner), str(screen)])
+	_check(corner.end.x <= screen.x - 20.0 and corner.end.x >= screen.x - 40.0 and corner.end.y <= screen.y - 20.0 and corner.end.y >= screen.y - 40.0 and corner.size.y > 0.0,
+		"PERF-2c: the readout sits in the bottom-right corner, kept in from the rounded corner (%s in %s)" % [str(corner), str(screen)])
 	await process_frame
 	OS.delay_msec(int(gfx.LONG_FRAME_MS) + 60)
 	await process_frame
