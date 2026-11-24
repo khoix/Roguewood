@@ -39,9 +39,7 @@ func _card(id: String) -> PanelContainer:
 	return panel
 func _ready() -> void:
 	cards = HBoxContainer.new()
-	var box: Node = lab.score_panel.header.get_parent().get_parent()
-	box.add_child(cards)
-	box.move_child(cards,1)
+	lab.score_panel.add_note(cards) # UI-50: the review's centred notes row
 	trophy = _card("charm.trophy_case")
 	rally = _card("charm.late_rally")
 	cards.add_child(trophy)

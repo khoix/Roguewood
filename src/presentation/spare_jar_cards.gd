@@ -30,9 +30,7 @@ func _card() -> PanelContainer:
 	return panel
 func _ready() -> void:
 	score_card = _card()
-	var box: Node = lab.score_panel.header.get_parent().get_parent()
-	box.add_child(score_card)
-	box.move_child(score_card,1)
+	lab.score_panel.add_note(score_card) # UI-50: the review's centred notes row
 	score_marks = score_card.get_child(0).get_child(0)
 	score_text = score_card.get_child(0).get_child(1)
 	shop_card = _card()

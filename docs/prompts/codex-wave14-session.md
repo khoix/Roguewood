@@ -154,3 +154,7 @@ The phone hitched before every aim partly because shaders were created anew each
 - **The owner reassigned them while you were out:** UI-A9-N (the Neon celebrations) and AV-UI1 (the button sounds) are Claude's now. Do not start either.
 - **UI-A9-N is live:** 18 scenes and three stings in `assets/ui/alley_screen/neon/` (handoffs/UI-A9-N.md), with JUIA9N and JUIA9NB in the art shard.
 - **UI-A9-H** stays yours: polish only, no sting choice pending; the owner reviews the live stings in play.
+
+## Coordinator note: UI-50 (2026-11-24)
+- **The frame review's Charm notes share one centred row:** `house_count_cards.gd` and `spare_jar_cards.gd` now call `lab.score_panel.add_note(card)` instead of inserting their own rows (one line each; handoffs/UI-50.md).
+- **A new note:** use `add_note`. The row centres the notes and scrolls sideways when they overflow.

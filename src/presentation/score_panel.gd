@@ -24,6 +24,9 @@ var rack_view: Control
 var log_list: VBoxContainer
 var log_scroll: ScrollContainer
 var hint: Label
+var notes_scroll: ScrollContainer
+var notes: HBoxContainer
+var _note_edges: Control
 var _taken_frame := -1
 var _roll_of: Dictionary = {}
 var _standing: Array = []
@@ -52,6 +55,32 @@ func _ready() -> void:
 	header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	header_row.add_child(header)
+	# UI-50 (owner, 2026-11-24: "horizontally center the charm effects. And make sure
+	# to handle x-overflow when there are more than fit the width"): the Charm notes
+	# (Trophy Case, Late Rally, Spare Jar) share one row under the header, centred;
+	# when they are wider than the panel the row scrolls sideways (a drag) inside it.
+	notes_scroll = ScrollContainer.new()
+	notes_scroll.name = "CharmNotes"
+	notes_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	# No scrollbar (it would push the rack down); a drag scrolls, and fades with
+	# arrows at the edges show there is more.
+	notes_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
+	notes_scroll.mouse_filter = Control.MOUSE_FILTER_PASS
+	notes_scroll.hide()
+	box.add_child(notes_scroll)
+	notes = HBoxContainer.new()
+	notes.name = "Notes"
+	notes.alignment = BoxContainer.ALIGNMENT_CENTER
+	notes.add_theme_constant_override("separation", 8)
+	notes.size_flags_horizontal = Control.SIZE_EXPAND | Control.SIZE_SHRINK_CENTER
+	notes.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	notes_scroll.add_child(notes)
+	_note_edges = Control.new()
+	_note_edges.name = "NoteEdges"
+	_note_edges.top_level = true
+	_note_edges.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_note_edges.draw.connect(_draw_note_edges)
+	notes_scroll.add_child(_note_edges)
 	var row := HBoxContainer.new()
 	_rack_row = row
 	row.add_theme_constant_override("separation", 24)
@@ -146,6 +175,7 @@ func play(frame_steps: Array, reports: Array, title: String, _pace: int = 1) -> 
 	_reveal()
 
 func _process(delta: float) -> void:
+	_show_notes()
 	if not playing:
 		return
 	_timer += delta
@@ -313,6 +343,42 @@ var _rack_row: Control
 ## and Late Rally cards) is lifted after the column is laid out, just clear of the
 ## rack's back-row highlight ring (drawn 176 px above the rack's bottom). Nothing
 ## else moves.
+## UI-50: a Charm's note joins the centred notes row.
+func add_note(note: Control) -> void:
+	if note.get_parent() != null: note.get_parent().remove_child(note)
+	notes.add_child(note)
+
+## The row shows while any note does (an empty row would move the rack down).
+func _show_notes() -> void:
+	var any := notes.get_children().any(func(n): return n is Control and n.visible)
+	if notes_scroll.visible != any: notes_scroll.visible = any
+	if any:
+		_note_edges.global_position = notes_scroll.global_position
+		_note_edges.size = notes_scroll.size
+		_note_edges.queue_redraw()
+
+## Which sides have more notes past the edge: [left, right].
+func notes_beyond() -> Array:
+	var bar := notes_scroll.get_h_scroll_bar()
+	var more := bar.max_value - bar.page > 1.0
+	return [more and notes_scroll.scroll_horizontal > 0, more and notes_scroll.scroll_horizontal < bar.max_value - bar.page - 1.0]
+
+func _draw_note_edges() -> void:
+	var beyond := notes_beyond()
+	var h := _note_edges.size.y
+	var shade := Color(0.12, 0.11, 0.1)
+	for side in 2:
+		if not beyond[side]: continue
+		var x0 := 0.0 if side == 0 else _note_edges.size.x
+		var inward := 1.0 if side == 0 else -1.0
+		for i in 12: # a soft fade over the notes at that edge
+			_note_edges.draw_rect(Rect2(x0 + inward * i * 2.0 - (2.0 if side == 1 else 0.0), 0, 2, h), Color(shade, 0.85 * (1.0 - i / 12.0)))
+		var cx := x0 + inward * 12.0
+		var tip := cx - inward * 4.0
+		_note_edges.draw_circle(Vector2(cx - inward * 1.0, h * 0.5), 11.0, Color(shade, 0.95))
+		_note_edges.draw_arc(Vector2(cx - inward * 1.0, h * 0.5), 11.0, 0.0, TAU, 24, Color("e9b768", 0.6), 1.5, true)
+		_note_edges.draw_polyline(PackedVector2Array([Vector2(cx, h * 0.5 - 7), Vector2(tip, h * 0.5), Vector2(cx, h * 0.5 + 7)]), Color("e9b768"), 3.0)
+
 func _lift_notes(box: VBoxContainer) -> void:
 	if _rack_row == null: return
 	var lift := maxf(176.0 + 2.0 - rack_view.custom_minimum_size.y - box.get_theme_constant("separation"), 0.0)
