@@ -371,8 +371,18 @@ func _curves_and_target() -> void:
 	var cancels: int = lab.cancels
 	await _gesture(Vector2.ZERO, 0, Vector2(0, -6), 3)
 	_check(lab.cancels == cancels + 1 and lab.last_cancel == "short", "short flick cancels")
+	var aimed_in: int = lab.frame_number
+	var aimed_roll: int = lab.roll_index
 	for sweep in [1260.0, -1260.0]: # a second of brisk swirling each way
 		await _ready_to_throw()
+		if lab.frame_number != aimed_in:
+			# UI-52 (owner, 2026-11-25): each frame starts with the reticle back at the start.
+			_check(is_equal_approx(lab.target_x, Ring.default_target(lab._handedness)), "UI-52: a new frame's first ball aims from the start again (%.2f)" % lab.target_x)
+			await _touch(tap, true)
+			await _touch(tap, false)
+			aimed_in = lab.frame_number
+		elif lab.roll_index != aimed_roll:
+			_check(absf(lab.target_x - pocket / Lane.LANE_HALF_WIDTH) < 0.01, "UI-52: a spare ball keeps the frame's aim")
 		cues.clear()
 		var label := "curve_right" if sweep > 0.0 else "curve_left"
 		await _circle_throw(sweep, label + "_hold" if sweep > 0.0 else "")

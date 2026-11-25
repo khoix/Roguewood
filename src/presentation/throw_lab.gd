@@ -1242,6 +1242,11 @@ func _next_practice_game() -> void:
 func _advance_frame() -> void:
 	frame_number += 1
 	roll_index = 1
+	# UI-52 (owner, 2026-11-25: "Reset the circular reticle to center at the beginning of
+	# every frame"): each frame's first ball aims from the start position again; a spare
+	# ball keeps the aim of the frame's first.
+	target_x = Ring.default_target(_handedness)
+	assist_panel.set_target(target_x)
 	frame_reports = []
 	frame_tactics = {}
 	frame_actions = []
