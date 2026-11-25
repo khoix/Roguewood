@@ -339,6 +339,11 @@ CONTENT["JUIA9HA"] = "house"
 JOURNEYS["JUIA9HM"] = ("res://tests/house_celebration_motion_journey.gd", "ROGUEWOOD_UIA9H_OK", "artifacts/ui-a9-h/motion",
                        _a9h_caps, 600, ["--fixed-fps", "60"])
 
+# UI-A8 (Claude, 2026-11-24): the League backdrops in the real game, every room.
+JOURNEYS["JUIA8"] = ("res://tests/backdrop_journey.gd", "ROGUEWOOD_UIA8_OK", "artifacts/ui-a8",
+                     ("house_d1_portrait", "house_d8c_landscape", "neon_d3_portrait", "neon_d8c_landscape", "house_reduced", "neon_reduced"), 600, [])
+CONTENT["JUIA8"] = "house"
+
 # UI-A9-N (Claude, 2026-11-24): the eighteen Neon celebrations, and the live set in a
 # full Neon League.
 JOURNEYS["JUIA9N"] = ("res://tests/neon_celebration_journey.gd", "ROGUEWOOD_UIA9N_OK", "artifacts/ui-a9-n/scenes",

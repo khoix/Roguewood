@@ -221,7 +221,9 @@ func _ready() -> void:
 	# UI-2: the side space behind the lane is the House night sky (UI-A1-C option 1,
 	# Constellations, the coordinator's default until the owner picks; 0 is Slow
 	# stars). The lane renders over it on a transparent background, full width.
-	backdrop = load("res://assets/ui/backdrops/house.gd").new()
+	# UI-A8 (owner, 2026-11-24): the House night (string lights, the waxing moon,
+	# the treeline); a League with its own flank backdrop replaces it below.
+	backdrop = load("res://assets/ui/backdrops/house_night.gd").new()
 	backdrop.name = "Backdrop"
 	backdrop.option = 1
 	backdrop.reduced = bool(settings.get("reduced_motion", false)) or bool(settings.get("reduced_flash", false))
@@ -742,6 +744,9 @@ func _new_roll(save: bool = true) -> void:
 		var last: bool = division.division_number() == division.division_count()
 		league_theme.show_stage(_viewport, division.division_number(), last and division.is_boss())
 		league_theme.dress_lane(lane, lane.lane_condition)
+	# UI-A8: the backdrop follows the room (its Division's details, the Championship's).
+	if backdrop != null and backdrop.has_method("set_stage"):
+		backdrop.set_stage(division.division_number(), division.division_number() == division.division_count() and division.is_boss())
 	lane.roll_finished.connect(func(report):
 		var at := Time.get_ticks_usec()
 		_on_roll_finished(report)

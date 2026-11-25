@@ -439,6 +439,11 @@ jobs:
         run: |
           python3 tools/qa.py e2e --journey JUIA9HV
           xvfb-run -a python3 tools/qa.py e2e --journey JUIA9HV --rendered
+      - name: League backdrops in the real game (UI-A8)
+        if: matrix.shard == 'art'
+        run: |
+          python3 tools/qa.py e2e --journey JUIA8
+          xvfb-run -a python3 tools/qa.py e2e --journey JUIA8 --rendered
       - name: Neon celebrations, scenes and the live Neon League (UI-A9-N)
         if: matrix.shard == 'art'
         run: |
