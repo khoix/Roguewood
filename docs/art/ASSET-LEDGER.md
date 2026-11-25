@@ -1551,3 +1551,11 @@ pulse-wave blips. Not listened to by Claude; the owner reviews in play.
 ## PACK-A — Web art compression (Claude, 2026-11-24)
 
 An import setting only; no source image changed. Every painted sheet imports as lossy WebP at 0.9 (`tools/web_textures.py`; the brand icon and splash stay lossless). The Web export leaves out the never-loaded files the tool lists. Source hashes above are unchanged.
+
+## UI-A8 — League backdrops and the alley (Claude, 2026-11-24/25)
+
+Original, drawn in code; no images, samples or outside references:
+- `assets/ui/backdrops/backdrop_base.gd`, `house_night.gd` and `neon_city.gd`: the night beyond the alley, painted at half resolution.
+- `src/presentation/alley_interior.gd`: the alley's structure and decorations in 3D, as boxes merged per material, with flat colours and no textures.
+
+The House and Neon room pictures (Codex's, ledgered above) are reused unchanged as the alley's back wall.

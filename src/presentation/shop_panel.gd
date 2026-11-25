@@ -555,23 +555,38 @@ func close_sell_confirm() -> void:
 
 ## A square tile: the item's art, its modification's badge, a short caption. A press
 ## from a finger or the mouse is told apart from focus and accept (_pointer).
-func _tile(parent: Control, node_name: String, item_id: String, mod: String, caption: String, tile_size: Vector2) -> Button:
+## `corner` (UI-51, owner 2026-11-25: "Put the numbers for each pin card in the top left
+## corner of the card so the cards can shrink in height"): the caption is a small
+## number in the top-left corner, not a line under the art.
+func _tile(parent: Control, node_name: String, item_id: String, mod: String, caption: String, tile_size: Vector2, corner: bool = false) -> Button:
 	var tile := Button.new()
 	tile.name = node_name
-	tile.text = caption
+	tile.text = "" if corner else caption
 	tile.custom_minimum_size = tile_size
 	tile.set_meta("art_tile", true) # ModificationArt badges it but keeps its art
 	tile.icon = ItemAssets.slot(item_id, "icon") as Texture2D if not item_id.is_empty() else null
 	tile.set_meta("own_item", item_id) # PERF-2: the id, not the texture (which would keep its full-size sheet)
 	tile.expand_icon = true
 	tile.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	tile.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
+	tile.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER if corner else VERTICAL_ALIGNMENT_TOP
 	tile.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	tile.clip_text = true
 	tile.add_theme_font_size_override("font_size", 15)
 	tile.add_theme_constant_override("icon_max_width", int(tile_size.x * 0.62))
 	tile.gui_input.connect(func(event): _pointer = event is InputEventMouseButton or event is InputEventScreenTouch)
 	parent.add_child(tile)
+	if corner:
+		var number := Label.new()
+		number.name = "Number"
+		number.text = caption
+		number.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		number.add_theme_font_size_override("font_size", 15)
+		number.add_theme_color_override("font_color", Color("f4e9cf"))
+		number.add_theme_color_override("font_outline_color", Color("101820"))
+		number.add_theme_constant_override("outline_size", 4)
+		number.position = Vector2(7, 3)
+		tile.add_child(number)
+		tile.set_meta("caption", caption)
 	if not mod.is_empty(): ModArt._badge(tile, mod, int(tile_size.x * 0.24))
 	var ring := Panel.new()
 	ring.name = "Selected"
@@ -842,7 +857,7 @@ func show_choices(prompt: String, labels: Array, visuals: Array = [], rack: Arra
 	choice_detail.visible = visual
 	choice_confirm.visible = visual
 	choice_confirm.disabled = true
-	choice_detail.text = "Tap a place to see what is there." if visual else ""
+	choice_detail.text = "Tap a spot to see the swap." if visual else ""
 	var viewport_size := get_viewport_rect().size
 	var width := minf(600.0, viewport_size.x - 32.0)
 	choice_sheet.get_child(0).custom_minimum_size.x = width - 40.0
@@ -858,7 +873,7 @@ func show_choices(prompt: String, labels: Array, visuals: Array = [], rack: Arra
 			by_target[String(visuals[i].get("target", ""))] = i
 		var pin := floorf(clampf((width - 40.0 - 24.0) / 4.0, 64.0, 104.0))
 		if viewport_size.y < viewport_size.x: pin = floorf(clampf((viewport_size.y - 380.0) / 4.4, 52.0, 88.0))
-		var pin_size := Vector2(pin, floorf(pin * 1.08))
+		var pin_size := Vector2(pin, floorf(pin * 0.8)) # UI-51: the number in the corner, not under the pin
 		var on_rack: bool = visuals.any(func(v): return String(v.get("target", "")).begins_with("rack:"))
 		choice_map.visible = on_rack
 		if on_rack:
@@ -874,13 +889,14 @@ func show_choices(prompt: String, labels: Array, visuals: Array = [], rack: Arra
 					else:
 						# A pin that is not a choice: shown for the map, not pressable.
 						var here: Dictionary = rack[position - 1] if rack.size() >= position else {}
-						var still := _tile(row, "Pin_%d" % position, String(here.get("item_id", "")), String(here.get("mod", "")), str(position), pin_size)
+						var still := _tile(row, "Pin_%d" % position, String(here.get("item_id", "")), String(here.get("mod", "")), str(position), pin_size, true)
 						still.disabled = true
 						still.focus_mode = Control.FOCUS_NONE
 						still.modulate.a = 0.55
 		for i in visuals.size():
-			if not String(visuals[i].get("target", "")).begins_with("rack:"):
-				_choice_tile(choice_others, i, Vector2(floorf(pin * 1.15), floorf(pin * 1.2)))
+			var target := String(visuals[i].get("target", ""))
+			if not target.begins_with("rack:"):
+				_choice_tile(choice_others, i, Vector2(floorf(pin * 1.15), floorf(pin * (0.92 if target.begins_with("reserve:") else 1.2))))
 		choice_others.visible = choice_others.get_child_count() > 0
 	choice_sheet.show()
 	choice_sheet.size = Vector2(width, minf(64.0 * (labels.size() + 2) + 60.0, viewport_size.y - 160.0))
@@ -907,7 +923,9 @@ func _fit_choices() -> void:
 
 func _choice_tile(parent: Control, index: int, tile_size: Vector2) -> Button:
 	var v: Dictionary = _choice_visuals[index]
-	var tile := _tile(parent, "Choice_%d" % index, String(v.get("item_id", "")), String(v.get("mod", "")), String(v.get("caption", str(index + 1))), tile_size)
+	var target := String(v.get("target", ""))
+	var corner := target.begins_with("rack:") or target.begins_with("reserve:")
+	var tile := _tile(parent, "Choice_%d" % index, String(v.get("item_id", "")), String(v.get("mod", "")), String(v.get("caption", str(index + 1))), tile_size, corner)
 	tile.tooltip_text = _choice_labels[index]
 	tile.pressed.connect(func():
 		var by_pointer := _pointer

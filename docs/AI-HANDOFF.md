@@ -82,6 +82,7 @@ The owner asked for tests that take less time and fewer tokens. For both agents:
 - **PR #66 merged** (owner, 2026-11-24; main `4f6938f`): UI-49 (revised), PERF-4, Codex's UI-A9-H polish, UI-A9-N (the Neon celebrations, live) and AV-UI1 (the final button sounds). CI Bootstrap #593 PASS on `116fdef`.
 - **PR #67 merged** (owner, 2026-11-24; main `4d7c23a`): UI-50. CI Bootstrap #595 PASS on `e0a9fad`.
 - **PR #68 merged** (owner, 2026-11-24; main `aff4df3`, published to Pages 22:11 UTC): PACK-A. CI Bootstrap #597 PASS on `1d7c194`.
+- **PR #69 merged** (owner, 2026-11-25; main `21fe95b`): Wave 14 closed (full matrix 296 of 296), the Wave 15 claims, Codex's Wave 15 brief.
 - **PACK-1 proposed** (docs/ideas/PACK-1.md; owner's request, not started): League asset packs fetched at New Run, after Web image compression (PACK-A). The owner approved PACK-A and moved it to Claude (2026-11-24); PACK-B awaits a decision.
 - **PACK-A DONE** (handoffs/PACK-A.md): painted art imports as lossy WebP 0.9 (`tools/web_textures.py`), and the Web export leaves out never-loaded art. The Web `index.pck` went from 124.7 to 46.4 MB (download ~163 → ~85 MB). `qa.py web` enforces a 55 MB budget, and `qa.py content` checks the import rule. The review captures show no visible change at phone size.
 - **PERF-4 DONE** (handoffs/PERF-4.md; the owner's log on PERF-3's build): the per-aim hitch remained. The log now names timed steps, which showed the hand building a 1983 px fixture illustration for every card dealt; it is built only for items without art. The run's cards and Charms keep their art loaded. Desktop: new-aim long frames 10 → 1 over four Divisions. Follow-ups: shop openings (full-size art); the phone's draw-call and roll-time memory spikes.
@@ -281,6 +282,12 @@ The full log (every entry and its checks) is in AI-HANDOFF-HISTORY.md; each item
 - **UI-31 DONE** (handoffs/UI-31.md), owner 2026-11-20: the award page opens only for real progress (a within-run goal counts only when completed); the fade out is halved (1.5 s + 0.15 s); and a continuous show runs the whole time the award screen is up: fireworks of five kinds, salvos with bottle rockets, confetti from the top, corner cannons and streamers, with their own sounds.
 - **Full CI matrix (local) on `90330f6`** (UI-30 and UI-31): 252 of 252 commands PASS.
 - **UI-31 follow-up** (owner, 2026-11-20): a League title won again is no new award; it no longer opens or appears on the award page. CI #529 failed on J12R01 because the show's sound throttle used the wall clock; it now counts the ceremony's own time. #528's art job hung in `apt-get update` (Ubuntu mirror) until the 90-minute limit.
+- **UI-A8 DONE** (Wave 15, first; handoffs/UI-A8.md):
+  - the League backdrops (House night, Neon city), drawn in code, whose horizon follows the camera;
+  - the alley around the lane in 3D: a T whose top edge is the back wall, no columns along the alleyway, decorated shoulders, every Division dressed, building to the Championship;
+  - JUIA8 in the art shard.
+  - Shaped with the owner in six preview rounds (2026-11-25). Not tried on a phone.
+- **UI-51 DONE** (handoffs/UI-51.md; owner's play notes): the pin placement sheet's numbers sit in each tile's top-left corner, and the tiles are about 25% shorter. Its words are rewritten: each thing said once, in bowling terms ("1-pin: Grower Pin, keeping the Brass Cap / Wood Pin goes to Reserve 1").
 - **Wave 14 closed** (Claude, 2026-11-25), on `claude/roguewood-build` after PR #68:
   - Full local matrix: **296 of 296 PASS** (2026-11-25; 97 test-minutes; code as main `aff4df3`, PR #68, plus docs).
   - **UI-A9-H DONE:** the House celebrations are live and merged (PR #64, Codex's polish in #66). Codex's handoff stayed IN_PROGRESS only for the sting audition; under AGENTS.md's completion policy the owner's merge is the approval. The owner reviews the stings in play and sends notes, which become follow-ups.

@@ -31,7 +31,7 @@ Repository: https://github.com/khoix/Roguewood.
    - the environment and its Division rooms, plus the Championship stage, as the House and Neon environments are;
    - the League trophy (`assets/clubhouse/trophy.salvage.png`).
    - Claude wires the manifest hooks and does the code-drawn parts (backdrop, pin deck, celebrations, music). Ask in your handoff for any hook you need.
-3. **UI-A8's painted far view (only if Claude's backdrop handoff asks for it):** painted far-view art for a Division room.
+3. **UI-A8 is done** (Claude, handoffs/UI-A8.md) and asks for no painted far view. The room picture is now the back wall of a 3D alley (`src/presentation/alley_interior.gd`), so a Salvage environment works the same way: its room picture (9 × 6 m at z -21) closes the T.
 4. **Later (Wave 16 and on):** the AV-S item art for Salvage's batches, as Claude's DC-S batches land.
 
 ## Ownership and limits

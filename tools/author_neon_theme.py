@@ -81,7 +81,7 @@ for reduced in [False, True]:
     mode = "reduced" if reduced else "normal"
     asset_id = "backdrop.ui.neon." + mode
     assets[asset_id] = save(ROOT / f"assets/ui/backdrops/neon_{mode}.tscn", f'''[gd_scene load_steps=2 format=3]
-[ext_resource type="Script" path="res://assets/ui/backdrops/neon.gd" id="1"]
+[ext_resource type="Script" path="res://assets/ui/backdrops/neon_city.gd" id="1"]
 [node name="NeonFlank" type="Control"]
 layout_mode = 3
 anchors_preset = 15
