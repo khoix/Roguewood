@@ -282,7 +282,7 @@ The full log (every entry and its checks) is in AI-HANDOFF-HISTORY.md; each item
 - **Full CI matrix (local) on `90330f6`** (UI-30 and UI-31): 252 of 252 commands PASS.
 - **UI-31 follow-up** (owner, 2026-11-20): a League title won again is no new award; it no longer opens or appears on the award page. CI #529 failed on J12R01 because the show's sound throttle used the wall clock; it now counts the ceremony's own time. #528's art job hung in `apt-get update` (Ubuntu mirror) until the 90-minute limit.
 - **Wave 14 closed** (Claude, 2026-11-25), on `claude/roguewood-build` after PR #68:
-  - Full local matrix: running (2026-11-25); the "Wave 14 closed" commit records its result.
+  - Full local matrix: **296 of 296 PASS** (2026-11-25; 97 test-minutes; code as main `aff4df3`, PR #68, plus docs).
   - **UI-A9-H DONE:** the House celebrations are live and merged (PR #64, Codex's polish in #66). Codex's handoff stayed IN_PROGRESS only for the sting audition; under AGENTS.md's completion policy the owner's merge is the approval. The owner reviews the stings in play and sends notes, which become follow-ups.
   - **Done early from Wave 15, at the owner's word while Codex was away:** UI-A9-N (the Neon celebrations), AV-UI1 (the button sounds), PACK-A (the Web art compression).
   - **Also done:** UI-40 to UI-50 and PERF-2 to PERF-4 (the owner's play notes and phone logs).
