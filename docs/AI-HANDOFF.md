@@ -83,6 +83,7 @@ The owner asked for tests that take less time and fewer tokens. For both agents:
 - **PR #67 merged** (owner, 2026-11-24; main `4d7c23a`): UI-50. CI Bootstrap #595 PASS on `e0a9fad`.
 - **PR #68 merged** (owner, 2026-11-24; main `aff4df3`, published to Pages 22:11 UTC): PACK-A. CI Bootstrap #597 PASS on `1d7c194`.
 - **PR #69 merged** (owner, 2026-11-25; main `21fe95b`): Wave 14 closed (full matrix 296 of 296), the Wave 15 claims, Codex's Wave 15 brief.
+- **PR #71 merged** (owner, 2026-11-25): UI-A8b (the alley's shoulders, the pin deck's flicker). CI Bootstrap on `d71dbb5` PASS; main `5670404`, fast-forwarded into `claude/roguewood-build`.
 - **PR #70 merged** (owner, 2026-11-25): UI-A8 (the League backdrops and the alley), UI-51 (the pin placement sheet), the roadmap update. CI Bootstrap #601 and #602 PASS.
 - **PACK-1 proposed** (docs/ideas/PACK-1.md; owner's request, not started): League asset packs fetched at New Run, after Web image compression (PACK-A). The owner approved PACK-A and moved it to Claude (2026-11-24); PACK-B awaits a decision.
 - **PACK-A DONE** (handoffs/PACK-A.md): painted art imports as lossy WebP 0.9 (`tools/web_textures.py`), and the Web export leaves out never-loaded art. The Web `index.pck` went from 124.7 to 46.4 MB (download ~163 → ~85 MB). `qa.py web` enforces a 55 MB budget, and `qa.py content` checks the import rule. The review captures show no visible change at phone size.
@@ -289,6 +290,7 @@ The full log (every entry and its checks) is in AI-HANDOFF-HISTORY.md; each item
   - JUIA8 in the art shard.
   - Shaped with the owner in six preview rounds (2026-11-25). Not tried on a phone.
 - **UI-A8b DONE** (handoffs/UI-A8b.md; owner's play notes on PR #70): the alley's shoulders finished (a pixel board or tile floor with shading, shadows and lamp light; outlined, contact-shaded pieces; a trim board by each gutter), and the pin deck's flicker fixed (UI-A8's low back wall sat 0.4 mm from the cushion's face). JUIA8 now checks that no alley face lies on a pin-deck wall's face. Not tried on a phone.
+- **UI-A8c DONE** (handoffs/UI-A8c.md; owner, 2026-11-25: "Have the moon arch across the sky"): the House moon rises from the trees at the left, crosses in 3 minutes (behind the alley's roof at its peak in portrait), sets at the right and rises again 20 s later; it keeps below the HUD where the sky allows. Not tried on a phone.
 - **UI-51 DONE** (handoffs/UI-51.md; owner's play notes): the pin placement sheet's numbers sit in each tile's top-left corner, and the tiles are about 25% shorter. Its words are rewritten: each thing said once, in bowling terms ("1-pin: Grower Pin, keeping the Brass Cap / Wood Pin goes to Reserve 1").
 - **Wave 14 closed** (Claude, 2026-11-25), on `claude/roguewood-build` after PR #68:
   - Full local matrix: **296 of 296 PASS** (2026-11-25; 97 test-minutes; code as main `aff4df3`, PR #68, plus docs).

@@ -2,7 +2,9 @@ extends "res://assets/ui/backdrops/backdrop_base.gd"
 ## UI-A8, House: a warm old hall at night, seen past the lane. All original, drawn
 ## in code. Layers, far to near:
 ## - a night sky that deepens through the Divisions, with stars;
-## - a moon that waxes from a crescent (Division 1) to full (the Championship);
+## - a moon that waxes from a crescent (Division 1) to full (the Championship), and
+##   arches across the sky: it rises from the trees at the left, crosses, sets behind
+##   the trees at the right, and rises again (MOON_CROSSING; owner, 2026-11-25);
 ## - slow drifting clouds;
 ## - a pine treeline with a few cabin windows lit;
 ## - fireflies drifting in the side zones.
@@ -19,6 +21,11 @@ const PINE := Color("0a1418")
 const GROUND := Color("0b1215")
 const WARM := Color("ffcf7a")
 const MOON := Color("f3e6c8")
+## The moon's arch: seconds from rising to setting, then below the trees until it rises
+## again. A match starts with it a fifth of the way up (and reduced motion holds it there).
+const MOON_CROSSING := 180.0
+const MOON_BELOW := 20.0
+const MOON_START := 0.2
 
 func paint(c: CanvasItem, s: Vector2, t: float) -> void:
 	var w := s.x
@@ -36,8 +43,11 @@ func paint(c: CanvasItem, s: Vector2, t: float) -> void:
 			bright *= 0.7 + 0.3 * sin(t * (0.5 + rnd(i, 4.0)) + i)
 		var size := 2.0 if i % 17 == 0 else 1.0
 		px(c, p.x, p.y, size, size, Color(Color("d9e4e6"), bright * (1.0 - p.y / hz * 0.5)))
-	# The moon low over the trees, so it shows between the columns.
-	_moon(c, Vector2(floorf(w * 0.24), floorf(maxf(hz - h * 0.11, h * 0.06))), 1.0 if championship else (division - 1) / 7.0)
+	# The moon on its arch, drawn before the hills and pines so it rises and sets behind them.
+	var along := moon_along(t)
+	if along >= 0.0:
+		var at := moon_at(along, w, h, hz, floorf(h * sky_top))
+		_moon(c, at, 1.0 if championship else (division - 1) / 7.0, _sky_at(at.y, hz, night))
 	if championship: _fireworks(c, w, h, t)
 	# Clouds: thin bands drifting slowly across.
 	for k in 4:
@@ -75,16 +85,40 @@ func paint(c: CanvasItem, s: Vector2, t: float) -> void:
 		glow(c, p, 3.0, Color("e8f59a"), on)
 		px(c, p.x, p.y, 1, 1, Color(Color("f4ffb8"), on))
 
-## A moon of `phase` 0 (thin crescent) to 1 (full), with a soft halo.
-func _moon(c: CanvasItem, at: Vector2, phase: float) -> void:
-	var r := 9.0
+## How far along its arch the moon is at `t` (0 rising, 1 setting), or -1 while it is
+## below the trees.
+static func moon_along(t: float) -> float:
+	var cycle := fposmod(t + MOON_START * MOON_CROSSING, MOON_CROSSING + MOON_BELOW)
+	return cycle / MOON_CROSSING if cycle <= MOON_CROSSING else -1.0
+
+## The moon's centre on its arch: from behind the trees at the left edge, up to its
+## peak, down behind the trees at the right. The peak keeps the whole moon below
+## `sky_y` (where the HUD ends, in canvas pixels) when the sky allows, but always
+## rises well clear of the trees.
+const MOON_RADIUS := 9.0
+static func moon_at(along: float, w: float, h: float, hz: float, sky_y: float = 0.0) -> Vector2:
+	var x := lerpf(w * 0.04, w * 0.96, along)
+	var top := maxf(minf(h * 0.08, hz * 0.3), sky_y + MOON_RADIUS + 3.0)
+	top = minf(top, hz - 2.0 * MOON_RADIUS - 6.0)
+	var y := hz + 6.0 - sin(along * PI) * (hz + 6.0 - top)
+	return Vector2(x, y).floor()
+
+## The sky's colour at height y, as the bands paint it (for the moon's dark side).
+func _sky_at(y: float, hz: float, night: float) -> Color:
+	if y < hz * 0.55: return SKY_TOP.lerp(SKY_MID, clampf(y / (hz * 0.55), 0.0, 1.0))
+	return SKY_MID.lerp(DUSK.lerp(NIGHT_LOW, night * 0.75), clampf((y - hz * 0.55) / (hz * 0.45), 0.0, 1.0))
+
+## A moon of `phase` 0 (thin crescent) to 1 (full), with a soft halo; `dark` is the sky
+## behind it.
+func _moon(c: CanvasItem, at: Vector2, phase: float, dark: Color) -> void:
+	var r := MOON_RADIUS
 	glow(c, at, 26.0, MOON, 1.2)
 	c.draw_circle(at, r, MOON)
 	c.draw_circle(at + Vector2(-3, -2), 2.0, Color("d9cba9"))
 	c.draw_circle(at + Vector2(2, 3), 1.5, Color("d9cba9"))
 	var shift := lerpf(5.0, 2.0 * r + 2.0, phase)
 	if shift < 2.0 * r:
-		c.draw_circle(at + Vector2(shift, -1.0), r, SKY_MID.lerp(SKY_TOP, 0.4))
+		c.draw_circle(at + Vector2(shift, -1.0), r, dark)
 
 ## Slow, soft fireworks far in the sky: rings of sparks that open and fade (no flash).
 func _fireworks(c: CanvasItem, w: float, h: float, t: float) -> void:

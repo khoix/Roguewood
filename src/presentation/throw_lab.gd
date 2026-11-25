@@ -2480,6 +2480,9 @@ func dress_stage(number: int, at_championship: bool) -> void:
 ## the camera's height), so the scenery beyond the colonnade lines up with its floor.
 func _track_horizon() -> void:
 	if backdrop == null or not backdrop.has_method("set_horizon") or _camera == null or _viewport == null: return
+	# UI-A8c: the sky shows below the top bar and info row (the lane's region starts there).
+	if backdrop.has_method("set_sky_top") and regions.has("lane") and size.y > 0.0:
+		backdrop.set_sky_top((regions.lane as Rect2).position.y / size.y)
 	var ahead := -_camera.global_transform.basis.z
 	ahead.y = 0.0
 	if ahead.length() < 0.01: return
