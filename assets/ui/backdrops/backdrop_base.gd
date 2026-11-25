@@ -21,6 +21,9 @@ var championship := false
 ## meets the sky here, so the scenery lines up with the alley's floor (throw_lab sets it
 ## each frame from the 3D camera).
 var horizon := 0.47
+## The top of the sky the player can see (0 top, 1 bottom): below the match's top bar
+## and info row (throw_lab sets it from its layout), so things in the sky keep below it.
+var sky_top := 0.0
 var time := 0.0
 ## The old backdrops' clock name (J22L02ART and the art inspectors set it): the same clock.
 var phase: float:
@@ -58,6 +61,12 @@ func _ready() -> void:
 func set_horizon(at: float) -> void:
 	if absf(at - horizon) < 0.002: return
 	horizon = clampf(at, 0.08, 0.9)
+	_refresh()
+
+## Where the HUD over the sky ends (a fraction of the height); redraws when it moves.
+func set_sky_top(at: float) -> void:
+	if absf(at - sky_top) < 0.002: return
+	sky_top = clampf(at, 0.0, 0.9)
 	_refresh()
 
 ## The room the match is in: Division 1–8, and the Championship stage.

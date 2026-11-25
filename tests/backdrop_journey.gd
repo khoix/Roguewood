@@ -81,6 +81,8 @@ func _league(league: String) -> void:
 		"%s: the alley stands round the lane, built for its room" % league)
 	_check(alley == null or alley.find_children("*", "CollisionObject3D", true, false).is_empty(), league + ": the alley has no collision (cosmetic only)")
 	_check_no_shared_faces(league, lab, alley)
+	for i in 3: await process_frame # the lab tracks the horizon and the HUD edge each frame
+	if league == "house": await _check_moon(backdrop)
 	var reduced_before: bool = backdrop.reduced
 	backdrop.reduced = false
 	# Each room: the backdrop changes with it; captures in both orientations.
@@ -137,6 +139,47 @@ func _league(league: String) -> void:
 		_check(live < hidden * 1.5 + 2.0, "%s: the backdrop and alley cost little per frame (%.2f against %.2f ms)" % [league, live, hidden])
 	scene.queue_free()
 	for i in 5: await process_frame
+
+## UI-A8c (owner, 2026-11-25: "Have the moon arch across the sky"): the House moon
+## rises from the trees at the left, climbs high, sets behind the trees at the right,
+## then rises again; a match starts with it partway up, where reduced motion holds it.
+func _check_moon(backdrop) -> void:
+	var script = backdrop.get_script()
+	var w := 270.0
+	var h := 480.0
+	var hz: float = h * backdrop.horizon
+	var crossing: float = script.MOON_CROSSING
+	var start: float = script.moon_along(0.0)
+	_check(absf(start - script.MOON_START) < 0.001, "house: a match starts with the moon partway up (%.2f)" % start)
+	var rise: Vector2 = script.moon_at(0.0, w, h, hz)
+	var high: Vector2 = script.moon_at(0.5, w, h, hz)
+	var down: Vector2 = script.moon_at(1.0, w, h, hz)
+	_check(rise.x < w * 0.1 and down.x > w * 0.9 and rise.y > hz and down.y > hz, "house: the moon rises and sets behind the trees at the edges (%s, %s)" % [rise, down])
+	_check(high.y < hz * 0.35 and absf(high.x - w * 0.5) < 2.0, "house: the moon climbs high mid-sky (%s)" % high)
+	# Under a HUD, the arch keeps the whole moon below it, still well clear of the trees.
+	var under: Vector2 = script.moon_at(0.5, w, h, hz, 40.0)
+	_check(under.y - script.MOON_RADIUS >= 40.0 and under.y < hz - 20.0, "house: under the HUD the moon peaks below it, clear of the trees (%s)" % under)
+	_check(absf(backdrop.sky_top - backdrop.get_parent().regions.lane.position.y / backdrop.get_parent().size.y) < 0.01 if backdrop.get_parent().get("regions") else true, "house: the backdrop knows where the HUD over the sky ends (%.3f)" % backdrop.sky_top)
+	var last := -1.0
+	var climbing := true
+	for k in range(1, 20):
+		var at: Vector2 = script.moon_at(k / 20.0, w, h, hz)
+		climbing = climbing and at.x > last
+		last = at.x
+	_check(climbing, "house: the moon moves steadily left to right")
+	var below_at: float = crossing * (1.0 - script.MOON_START) + script.MOON_BELOW * 0.5
+	_check(script.moon_along(below_at) < 0.0 and script.moon_along(below_at + script.MOON_BELOW) >= 0.0, "house: the moon is down a while, then rises again")
+	if not _rendered(): return
+	backdrop.reduced = false
+	var frames := {}
+	for size in [Vector2i(1280, 720), Vector2i(844, 390), Vector2i(390, 844), Vector2i(540, 960)]:
+		root.size = size
+		for i in 6: await process_frame
+		for spec in [["rising", 0.05], ["high", 0.5], ["setting", 0.95]]:
+			backdrop.phase = (spec[1] - script.MOON_START) * crossing
+			frames[spec[0]] = await _shot()
+			if not artifact_dir.is_empty(): frames[spec[0]].save_png(artifact_dir.path_join("house_moon_%s_%dx%d.png" % [spec[0], size.x, size.y]))
+	_check(frames.rising.get_data() != frames.high.get_data() and frames.high.get_data() != frames.setting.get_data(), "house: the sky changes as the moon crosses")
 
 ## UI-A8b (owner, 2026-11-25: "The pin walls are flickering rapidly while the ball is in
 ## motion toward it"): no alley face may lie on (within 5 mm of) a face of the pin
