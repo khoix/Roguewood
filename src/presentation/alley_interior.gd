@@ -40,6 +40,80 @@ var league := "house"
 var division := 1
 var championship := false
 var _parts: Dictionary = {} # material key -> SurfaceTool
+## UI-A8b (owner, 2026-11-25: "The alleyway shoulders need more details and
+## definition. Shadowing, perhaps. It doesn't look done."): the floor's shader draws
+## pixel boards (House) or tiles (Neon), darkens beside the gutters and toward the
+## edges, lays a soft shadow under everything standing on it, and pools each lamp's
+## light on the boards. These hold where things stand, filled as the build places them.
+var _lights: Array = [] # [Vector2 at, radius, strength, Color]
+var _shadows: Array = [] # Vector3(x, z, radius)
+const FLOOR_SHADER := """
+shader_type spatial;
+render_mode unshaded, cull_disabled;
+uniform vec3 tone_a; uniform vec3 tone_b; uniform vec3 seam;
+uniform vec3 grid_a; uniform vec3 grid_b;
+uniform int style = 0; // 0: boards (House); 1: tiles (Neon)
+uniform float texel = 0.03;
+uniform float gutter_x; uniform float stem_x; uniform float cross_x; uniform float cross_front;
+uniform vec4 lights[24]; uniform vec3 light_colors[24]; uniform int light_count = 0;
+uniform vec3 shadows[48]; uniform int shadow_count = 0;
+varying vec3 world;
+void vertex() { world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz; }
+float hash(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+void fragment() {
+	vec2 p = (floor(world.xz / texel) + 0.5) * texel; // pixel art: one colour per texel
+	vec3 col;
+	if (style == 0) {
+		float board = floor(p.x / 0.18);
+		float offset = hash(vec2(board, 3.0)) * 1.4;
+		float run = floor((p.y + offset) / 1.4);
+		col = mix(tone_a, tone_b, hash(vec2(board, run)));
+		col *= 0.9 + 0.1 * hash(floor(p / vec2(texel, texel * 5.0)));
+		float across = fract(p.x / 0.18);
+		float along = fract((p.y + offset) / 1.4);
+		if (across < texel / 0.18 || along < texel / 1.4) col = seam;
+		if (abs(along - 0.5) < texel / 1.4 && abs(across - 0.5) < texel / 0.18 * 1.5) col = seam * 1.6; // a nail
+	} else {
+		vec2 cell = floor(p / 0.6);
+		col = mix(tone_a, tone_b, hash(cell) * 0.7);
+		vec2 f = fract(p / 0.6);
+		if (f.x < texel / 0.6 || f.y < texel / 0.6) col = mix(col, mod(cell.x + cell.y, 2.0) < 1.0 ? grid_a : grid_b, 0.3);
+	}
+	// Ambient occlusion: darker against the lane's cap and toward the platform's edges.
+	float ax = abs(world.x);
+	float edge = world.z < cross_front ? cross_x : stem_x;
+	float shade = mix(0.5, 1.0, smoothstep(gutter_x, gutter_x + 0.4, ax));
+	shade *= mix(0.62, 1.0, smoothstep(edge, edge - 0.35, ax));
+	for (int i = 0; i < shadow_count; i++) {
+		float d = length(world.xz - shadows[i].xy);
+		shade *= mix(0.42, 1.0, smoothstep(shadows[i].z * 0.45, shadows[i].z, d));
+	}
+	vec3 glow = vec3(0.0);
+	for (int i = 0; i < light_count; i++) {
+		float d = length(world.xz - lights[i].xy);
+		float k = lights[i].w * (1.0 - smoothstep(0.0, lights[i].z, d));
+		glow += light_colors[i] * floor(k * 4.0 + 0.5) / 4.0; // stepped, like pixel light
+	}
+	ALBEDO = col * shade + col * glow * 1.5;
+}
+"""
+## UI-A8b: every standing piece: a darker edge round each face, about a pixel and a half
+## wide however far (pixel-art outlines), over the vertex colour, which darkens toward
+## the floor where it stands (contact shade).
+const PART_SHADER := """
+shader_type spatial;
+render_mode cull_disabled;
+uniform vec3 albedo : source_color;
+uniform float rim_px = 1.5;
+uniform float rim_shade = 0.7;
+void fragment() {
+	vec2 d = min(UV, 1.0 - UV) * UV2; // metres to the face's nearest edge
+	float e = min(d.x, d.y);
+	float w = min(fwidth(e) * rim_px, 0.2 * min(UV2.x, UV2.y));
+	ALBEDO = albedo * COLOR.rgb * (e < w ? rim_shade : 1.0);
+	ROUGHNESS = 0.9;
+}
+"""
 
 ## Builds the T for a League and room. Call again to rebuild.
 func build(at_league: String, at_division: int, at_championship: bool) -> void:
@@ -48,6 +122,8 @@ func build(at_league: String, at_division: int, at_championship: bool) -> void:
 	championship = at_championship
 	for child in get_children(): child.queue_free()
 	_parts.clear()
+	_lights.clear()
+	_shadows.clear()
 	var palette := _palette()
 	var stem_mid := (FRONT_Z + CROSS_FRONT) * 0.5
 	var stem_len := FRONT_Z - CROSS_FRONT
@@ -72,8 +148,17 @@ func build(at_league: String, at_division: int, at_championship: bool) -> void:
 		_box("fascia", Vector3(side * CROSS_HALF, -0.9, cross_mid), Vector3(0.1, 1.64, cross_len))
 		_box("edge", Vector3(side * (CROSS_HALF - 0.04), -0.04, cross_mid), Vector3(0.1, 0.05, cross_len))
 	_box("fascia", Vector3(0, -0.9, CROSS_BACK - 0.05), Vector3(CROSS_HALF * 2.0, 1.64, 0.1))
+	# A trim board against the lane's cap on each side (the cap ends 0.862 out): a dark
+	# line that frames the shoulder.
+	var trim_len := Lane.KICKBACK_START_F + 0.05 # it runs into the kickback, faces apart
+	for side in [-1, 1]:
+		var tx: float = side * (Lane.LANE_HALF_WIDTH + Lane.GUTTER_WIDTH + 0.1 + 0.06)
+		_box("trim", Vector3(tx, -0.025, -trim_len * 0.5), Vector3(0.12, 0.07, trim_len))
 	# The U: a low surround round the pin deck, at kickback height.
-	var u_back := -Lane.PIT_F - Lane.PIT_LENGTH - 0.1
+	# Its back wall stands clear behind the cushion (f PIT_F + PIT_LENGTH to +0.1):
+	# UI-A8 had its front face 0.4 mm from the cushion's, and the two fought for
+	# depth (the owner saw the pin deck flicker as the camera followed the ball).
+	var u_back := -Lane.PIT_F - Lane.PIT_LENGTH - 0.1 - 0.15
 	for side in [-1, 1]:
 		_box("wall", Vector3(side * STEM_HALF, Lane.KICKBACK_HEIGHT * 0.5, (CROSS_FRONT + u_back) * 0.5), Vector3(0.2, Lane.KICKBACK_HEIGHT, absf(u_back - CROSS_FRONT)))
 	_box("wall", Vector3(0, Lane.KICKBACK_HEIGHT * 0.5, u_back), Vector3(STEM_HALF * 2.0 + 0.2, Lane.KICKBACK_HEIGHT, 0.2))
@@ -84,6 +169,7 @@ func build(at_league: String, at_division: int, at_championship: bool) -> void:
 		for x in CROSS_COLUMNS: columns.append(Vector2(side * x, CROSS_FRONT + 0.3))
 		columns.append(Vector2(side * CROSS_COLUMNS[-1], CROSS_BACK + 0.35))
 	for at in columns:
+		_shadows.append(Vector3(at.x, at.y, 0.75))
 		_box("column", Vector3(at.x, CEILING * 0.5, at.y), Vector3(0.36, CEILING, 0.36))
 		_box("base", Vector3(at.x, 0.12, at.y), Vector3(0.52, 0.24, 0.52))
 		_box("capital", Vector3(at.x, CEILING - 0.14, at.y), Vector3(0.52, 0.2, 0.52))
@@ -96,6 +182,8 @@ func build(at_league: String, at_division: int, at_championship: bool) -> void:
 	while slat < CROSS_FRONT + 0.3:
 		_box("ceiling", Vector3(0, CEILING + 0.16, slat), Vector3(CROSS_COLUMNS[-1] * 2.0 + 0.6, 0.06, 0.12))
 		slat += 0.55
+	for x in [-3.4, -1.2, 1.2, 3.4]: # the crossbar's lights, pooled on its floor
+		_lights.append([Vector2(x, CROSS_FRONT - 1.2), 1.6, 0.6, _neon_pair()[0] if league == "neon" else Color("ffc46a")])
 	if league == "neon":
 		_neon_tubes(columns)
 		_neon_shoulders()
@@ -150,11 +238,14 @@ func _house_shoulders() -> void:
 			var z: float = spots[k] + (0.0 if side < 0 else 1.6)
 			var x: float = side * shoulder
 			if k % 2 == 0: # a lantern post
+				_lights.append([Vector2(x, z), 1.5, 0.9, Color("ffc46a")])
+				_shadows.append(Vector3(x, z, 0.32))
 				_box("post", Vector3(x, 0.6, z), Vector3(0.08, 1.2, 0.08))
 				_box("brass", Vector3(x, 1.24, z), Vector3(0.2, 0.04, 0.2))
 				_box("bulb", Vector3(x, 1.36, z), Vector3(0.14, 0.2, 0.14))
 				_box("brass", Vector3(x, 1.49, z), Vector3(0.22, 0.05, 0.22))
 			else:
+				_shadows.append(Vector3(x, z, 0.75))
 				_house_feature(x, z, k)
 		if championship: # a red runner down each shoulder
 			_box("runner", Vector3(side * shoulder, -0.055, (0.0 + CROSS_FRONT) * 0.5), Vector3(0.7, 0.01, -CROSS_FRONT))
@@ -222,10 +313,14 @@ func _neon_shoulders() -> void:
 			var z: float = spots[k] + (0.0 if side < 0 else 1.6)
 			var x: float = side * shoulder
 			if k % 2 == 0: # a bollard with a glowing cap
+				var pair: Array = _neon_pair()
+				_lights.append([Vector2(x, z), 1.2, 0.8, pair[0] if k % 4 == 0 else pair[1]])
+				_shadows.append(Vector3(x, z, 0.42))
 				_box("bollard", Vector3(x, 0.4, z), Vector3(0.22, 0.8, 0.22))
 				_box("tube_a" if k % 4 == 0 else "tube_b", Vector3(x, 0.84, z), Vector3(0.24, 0.08, 0.24))
 				_box("tube_a" if k % 4 == 0 else "tube_b", Vector3(x, 0.4, z + 0.115), Vector3(0.04, 0.6, 0.01))
 			else:
+				_shadows.append(Vector3(x, z, 0.75))
 				_neon_feature(x, z, k)
 			# A chevron on the floor between the items, pointing down the lane.
 			var cz: float = z - 1.6
@@ -302,7 +397,7 @@ func _palette() -> Dictionary:
 		var a: Color = pair[0]
 		var b: Color = pair[1]
 		return {
-			"floor": [Color("140e2a"), false], "fascia": [Color("0c0820"), false], "edge": [Color("2c2160"), false], "cap": [Color("1c1535"), false],
+			"floor": [Color("140e2a"), false], "fascia": [Color("0c0820"), false], "trim": [Color("100a24"), false], "edge": [Color("2c2160"), false], "cap": [Color("1c1535"), false],
 			"column": [Color("1d1440"), false], "base": [Color("2a1f58"), false], "capital": [Color("2a1f58"), false], "wall": [Color("1a1238"), false],
 			"beam": [Color("160f33"), false], "ceiling": [Color("0b0820"), false],
 			"tube_a": [a, true], "tube_b": [b, true], "tube_floor": [a.darkened(0.3), true],
@@ -311,7 +406,7 @@ func _palette() -> Dictionary:
 		}
 	var brass := Color("e9b768") if championship else Color("b79050")
 	return {
-		"floor": [Color("5a3b22"), false], "fascia": [Color("24170d"), false], "edge": [brass, false], "cap": [Color("3a281a"), false],
+		"floor": [Color("5a3b22"), false], "fascia": [Color("24170d"), false], "trim": [Color("2e1d10"), false], "edge": [brass, false], "cap": [Color("3a281a"), false],
 		"column": [Color("4a321e"), false], "base": [brass.darkened(0.25), false], "capital": [brass.darkened(0.25), false], "wall": [Color("3a2718"), false],
 		"beam": [Color("33231a"), false], "ceiling": [Color("1e140d"), false],
 		"bulb": [Color("ffd27a"), true], "wire": [Color("141010"), true],
@@ -353,19 +448,41 @@ func _box(key: String, centre: Vector3, extent: Vector3, yaw: float = 0.0) -> vo
 			v[(axis + 2) % 3] = h[(axis + 2) % 3]
 			var c := n * h[axis]
 			var quad := [c - u - v, c + u - v, c + u + v, c - u + v]
+			var corners := [Vector2(0, 0), Vector2(1, 0), Vector2(1, 1), Vector2(0, 1)]
+			var size := Vector2(extent[(axis + 1) % 3], extent[(axis + 2) % 3])
 			var order := [0, 1, 2, 0, 2, 3] if sgn > 0.0 else [0, 2, 1, 0, 3, 2]
 			for k in order:
+				var at: Vector3 = centre + turn * quad[k]
+				# Contact shade: darker toward the floor (not on flat trims, nor below it).
+				var contact := 1.0
+				if extent.y >= 0.1 and at.y > -0.07:
+					contact = lerpf(0.78, 1.0, clampf((at.y + 0.06) / 0.45, 0.0, 1.0))
+				st.set_color(Color(contact, contact, contact))
+				st.set_uv(corners[k])
+				st.set_uv2(size)
 				st.set_normal(turn * n)
-				st.add_vertex(centre + turn * quad[k])
+				st.add_vertex(at)
 
 func _commit(palette: Dictionary) -> void:
 	for key in _parts:
 		var spec: Array = palette.get(key, [Color.MAGENTA, true])
-		var material := StandardMaterial3D.new()
-		material.albedo_color = spec[0]
-		material.roughness = 0.9
-		material.cull_mode = BaseMaterial3D.CULL_DISABLED
-		if spec[1]: material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		var material: Material
+		if key == "floor":
+			material = _floor_material()
+		elif spec[1]: # glows: one flat colour
+			var plain := StandardMaterial3D.new()
+			plain.albedo_color = spec[0]
+			plain.cull_mode = BaseMaterial3D.CULL_DISABLED
+			plain.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+			material = plain
+		else:
+			if _part_shader == null:
+				_part_shader = Shader.new()
+				_part_shader.code = PART_SHADER
+			var part := ShaderMaterial.new()
+			part.shader = _part_shader
+			part.set_shader_parameter("albedo", spec[0])
+			material = part
 		var node := MeshInstance3D.new()
 		node.name = "Alley_" + key
 		node.mesh = (_parts[key] as SurfaceTool).commit()
@@ -373,3 +490,42 @@ func _commit(palette: Dictionary) -> void:
 		node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		add_child(node)
 	_parts.clear()
+
+static var _floor_shader: Shader # compiled once for the session (PERF-3's lesson)
+static var _part_shader: Shader
+
+## UI-A8b: the floor's material: boards or tiles, shade, shadows and lamp light.
+func _floor_material() -> ShaderMaterial:
+	if _floor_shader == null:
+		_floor_shader = Shader.new()
+		_floor_shader.code = FLOOR_SHADER
+	var m := ShaderMaterial.new()
+	m.shader = _floor_shader
+	var neon := league == "neon"
+	var pair: Array = _neon_pair()
+	m.set_shader_parameter("style", 1 if neon else 0)
+	m.set_shader_parameter("tone_a", Color("1c1440") if neon else Color("664427"))
+	m.set_shader_parameter("tone_b", Color("140e2e") if neon else Color("4d311c"))
+	m.set_shader_parameter("seam", Color("0a0716") if neon else Color("2a190d"))
+	m.set_shader_parameter("grid_a", pair[0])
+	m.set_shader_parameter("grid_b", pair[1])
+	m.set_shader_parameter("gutter_x", Lane.LANE_HALF_WIDTH + Lane.GUTTER_WIDTH + 0.22)
+	m.set_shader_parameter("stem_x", STEM_HALF)
+	m.set_shader_parameter("cross_x", CROSS_HALF)
+	m.set_shader_parameter("cross_front", CROSS_FRONT)
+	var lights := PackedVector4Array()
+	var colors := PackedVector3Array()
+	for l in _lights.slice(0, 24):
+		lights.append(Vector4(l[0].x, l[0].y, l[1], l[2]))
+		colors.append(Vector3(l[3].r, l[3].g, l[3].b))
+	while lights.size() < 24:
+		lights.append(Vector4.ZERO)
+		colors.append(Vector3.ZERO)
+	var shadows := PackedVector3Array(_shadows.slice(0, 48))
+	while shadows.size() < 48: shadows.append(Vector3.ZERO)
+	m.set_shader_parameter("lights", lights)
+	m.set_shader_parameter("light_colors", colors)
+	m.set_shader_parameter("light_count", mini(_lights.size(), 24))
+	m.set_shader_parameter("shadows", shadows)
+	m.set_shader_parameter("shadow_count", mini(_shadows.size(), 48))
+	return m

@@ -288,6 +288,7 @@ The full log (every entry and its checks) is in AI-HANDOFF-HISTORY.md; each item
   - the alley around the lane in 3D: a T whose top edge is the back wall, no columns along the alleyway, decorated shoulders, every Division dressed, building to the Championship;
   - JUIA8 in the art shard.
   - Shaped with the owner in six preview rounds (2026-11-25). Not tried on a phone.
+- **UI-A8b DONE** (handoffs/UI-A8b.md; owner's play notes on PR #70): the alley's shoulders finished (a pixel board or tile floor with shading, shadows and lamp light; outlined, contact-shaded pieces; a trim board by each gutter), and the pin deck's flicker fixed (UI-A8's low back wall sat 0.4 mm from the cushion's face). JUIA8 now checks that no alley face lies on a pin-deck wall's face. Not tried on a phone.
 - **UI-51 DONE** (handoffs/UI-51.md; owner's play notes): the pin placement sheet's numbers sit in each tile's top-left corner, and the tiles are about 25% shorter. Its words are rewritten: each thing said once, in bowling terms ("1-pin: Grower Pin, keeping the Brass Cap / Wood Pin goes to Reserve 1").
 - **Wave 14 closed** (Claude, 2026-11-25), on `claude/roguewood-build` after PR #68:
   - Full local matrix: **296 of 296 PASS** (2026-11-25; 97 test-minutes; code as main `aff4df3`, PR #68, plus docs).
