@@ -286,6 +286,7 @@ The full log (every entry and its checks) is in AI-HANDOFF-HISTORY.md; each item
   - the alley around the lane in 3D: a T whose top edge is the back wall, no columns along the alleyway, decorated shoulders, every Division dressed, building to the Championship;
   - JUIA8 in the art shard.
   - Shaped with the owner in six preview rounds (2026-11-25). Not tried on a phone.
+- **UI-51 DONE** (handoffs/UI-51.md; owner's play notes): the pin placement sheet's numbers sit in each tile's top-left corner, and the tiles are about 25% shorter. Its words are rewritten: each thing said once, in bowling terms ("1-pin: Grower Pin, keeping the Brass Cap / Wood Pin goes to Reserve 1").
 - **Wave 14 closed** (Claude, 2026-11-25), on `claude/roguewood-build` after PR #68:
   - Full local matrix: **296 of 296 PASS** (2026-11-25; 97 test-minutes; code as main `aff4df3`, PR #68, plus docs).
   - **UI-A9-H DONE:** the House celebrations are live and merged (PR #64, Codex's polish in #66). Codex's handoff stayed IN_PROGRESS only for the sting audition; under AGENTS.md's completion policy the owner's merge is the approval. The owner reviews the stings in play and sends notes, which become follow-ups.

@@ -1689,11 +1689,12 @@ func _on_offer(index: int) -> void:
 		return
 	var item_name: String = _names.get(plan.item_id, plan.item_id)
 	var full: bool = options.all(func(o): return not o.replaces.is_empty())
-	var prompt := "Place %s ($%d)" % [item_name, plan.price]
+	# UI-51 (owner, 2026-11-25): "make it less redundant and more thematically aligned".
+	var prompt := "Set the %s · $%d" % [item_name, plan.price]
 	if full:
-		prompt = "No free slot for %s ($%d): Replace one (it is sold) or Cancel." % [item_name, plan.price]
+		prompt = "No room for the %s · $%d: pick one to sell" % [item_name, plan.price]
 	elif RunInventory.slot_kind(run.item(plan.item_id).category) == "mod":
-		prompt = "Attach %s ($%d) to:" % [item_name, plan.price]
+		prompt = "Fit the %s · $%d" % [item_name, plan.price]
 	_choice = {"kind": "buy", "index": index, "targets": options.map(func(o): return o.target)}
 	shop_panel.show_choices(prompt, options.map(_placement_label), options.map(func(o): return _choice_visual(o, plan.item_id)), _rack_art())
 	_refresh_shop()
@@ -1750,7 +1751,7 @@ func _on_remove() -> void:
 		if owned.ref.begins_with("card:"):
 			targets.append(owned.ref.trim_prefix("card:"))
 	_choice = {"kind": "remove", "targets": targets}
-	shop_panel.show_choices("Remove which card from the run for $%d? (No refund.)" % Economy.REMOVAL_PRICE,
+	shop_panel.show_choices("Retire a card · $%d, no refund" % Economy.REMOVAL_PRICE,
 		targets.map(func(uid): return _ref_label("card:" + uid)),
 		targets.map(func(uid): return _choice_visual({"target": "card:" + uid, "replaces": "", "moves_to": ""}, "", "Remove")))
 	_refresh_shop()
@@ -1827,35 +1828,64 @@ func _ref_label(ref: String) -> String:
 	return "Card " + text
 
 ## UI-12: what the visual placement sheet shows for one choice: the place's current
-## occupant (art, modification badge, a short caption), what is there now and what
-## will change, and the Confirm button's word.
+## occupant (art, modification badge, a short caption), the swap (UI-51) and the
+## Confirm button's word.
 func _choice_visual(option: Dictionary, item_id: String, verb: String = "") -> Dictionary:
 	var target: String = option.target
 	var parts := target.split(":")
 	var entry = run.entry_at(target) if not target.ends_with(":new") else null
-	var places := {"rack": "Rack %s", "reserve": "Reserve %s", "charm": "Charm slot %s", "card": "Deck card"}
-	var place: String = places.get(parts[0], "%s") % parts[1] if parts[0] in ["rack", "reserve", "charm"] else ("Deck" if target == "card:new" else "Deck card")
-	if target == "charm:new": place = "Charm slot %d" % (run.charms.size() + 1)
 	var is_mod: bool = not item_id.is_empty() and RunInventory.slot_kind(String(run.item(item_id).get("category", ""))) == "mod"
-	var now := "empty"
-	if entry != null:
-		now = _names.get(entry.item_id, entry.item_id)
-		if not String(entry.mod).is_empty(): now += " + " + _names.get(entry.mod, entry.mod)
-		elif is_mod: now += " · no modification"
-	elif target == "card:new":
-		now = "%d of %d cards" % [run.cards.size(), RunInventory.DECK_CAP]
 	if verb.is_empty():
 		verb = "Replace" if not String(option.get("replaces", "")).is_empty() else ("Attach" if is_mod else "Place")
-	var caption: String = parts[1] if parts[0] == "rack" else ("New" if target.ends_with(":new") else (_names.get(entry.item_id, "") if entry != null else place))
-	var then := _placement_label(option) if verb != "Remove" else "Removed from the run; no refund."
+	# UI-51: rack and reserve tiles carry their number in the corner (1–10, R1, R2).
+	var caption: String = parts[1] if parts[0] == "rack" else ("R" + parts[1] if parts[0] == "reserve" else
+		("New" if target.ends_with(":new") else (_names.get(entry.item_id, "") if entry != null else _spot_name(target))))
 	var keeps: String = option.get("keeps_mod", "")
-	if is_mod and entry != null: # UI-13: the result, as the preview shows it
-		then = "After: %s + %s" % [_names.get(entry.item_id, entry.item_id), _names.get(item_id, item_id)]
-	elif not keeps.is_empty(): # UI-30: the new pin takes over the modification
-		then += "\nAfter: %s + %s" % [_names.get(item_id, item_id), _names.get(keeps, keeps)]
 	return {"target": target, "item_id": entry.item_id if entry != null else item_id, "mod": String(entry.mod) if entry != null else "",
-		"caption": caption, "detail": "%s · now: %s\n%s" % [place, Sentence.cap(now), then], "verb": verb,
+		"caption": caption, "detail": _swap_text(option, item_id, verb), "verb": verb,
 		"placing": item_id if verb != "Remove" else "", "placing_mod": is_mod, "keeps_mod": keeps} # UI-13: previewed on the picked place
+
+## UI-51 (owner, 2026-11-25: "less redundant and more thematically aligned"): what a
+## place becomes and what happens to what was there, each said once, in two lines.
+## The first line is the place and what will stand there; the second is the old
+## occupant's fate.
+func _swap_text(option: Dictionary, item_id: String, verb: String) -> String:
+	var target: String = option.target
+	var parts := target.split(":")
+	var entry = run.entry_at(target) if not target.ends_with(":new") else null
+	var name: String = _names.get(item_id, item_id)
+	var old: String = _names.get(entry.item_id, entry.item_id) if entry != null else ""
+	var old_mod: String = _names.get(entry.mod, entry.mod) if entry != null and not String(entry.mod).is_empty() else ""
+	var keeps: String = option.get("keeps_mod", "")
+	var spot := _spot_name(target)
+	if verb == "Remove":
+		return "%s leaves the deck
+For good; no refund" % old
+	if target == "card:new":
+		return "Into the deck: %s
+%d of %d cards" % [name, run.cards.size() + 1, RunInventory.DECK_CAP]
+	if RunInventory.slot_kind(String(run.item(item_id).get("category", ""))) == "mod":
+		var on := "%s: %s with the %s" % [spot, old, name] if entry != null else "%s: %s" % [spot, name]
+		return on + "
+" + ("It replaces the %s" % old_mod if not old_mod.is_empty() else "Its first modification")
+	var first := "%s: %s" % [spot, name] + (", keeping the %s" % _names.get(keeps, keeps) if not keeps.is_empty() else "")
+	var fate := "An open spot" if entry == null else ""
+	if not String(option.get("moves_to", "")).is_empty():
+		fate = "%s goes to %s" % [old, _spot_name(option.moves_to)]
+	elif not String(option.get("replaces", "")).is_empty():
+		fate = "%s is sold for $%d" % [old if not old.is_empty() else _ref_label(option.replaces), int(option.get("sale", 0))]
+	return first + ("
+" + fate if not fate.is_empty() else "")
+
+## A place in bowling words: the 1-pin, Reserve 2, Charm slot 3, the deck.
+func _spot_name(ref: String) -> String:
+	var parts := ref.split(":")
+	match parts[0]:
+		"rack": return "%s-pin" % parts[1]
+		"reserve": return "Reserve %s" % parts[1]
+		"charm": return "Charm slot %d" % (run.charms.size() + 1) if parts[1] == "new" else "Charm slot %s" % parts[1]
+		"card": return "The deck"
+	return ref
 
 ## The ten pins for the placement map: {item_id, mod} by position.
 func _rack_art() -> Array:
@@ -1865,26 +1895,23 @@ func _rack_art() -> Array:
 		out.append({"item_id": String(pin.get("item_id", "")), "mod": String(pin.get("mod", ""))})
 	return out
 
+## One short line per place (the tile's tooltip): where, and the swap.
 func _placement_label(option: Dictionary) -> String:
 	var target: String = option.target
 	if target == "card:new":
-		return "Add to the deck"
-	if target == "charm:new":
-		return "Add to Charm slot %d" % (run.charms.size() + 1)
-	var parts := target.split(":")
-	var place := ("Rack %s" % parts[1]) if parts[0] == "rack" else ("Reserve %s" % parts[1]) if parts[0] == "reserve" else ""
+		return "Into the deck"
+	var spot := _spot_name(target)
+	var entry = run.entry_at(target) if not target.ends_with(":new") else null
+	if entry == null:
+		return spot
+	var old: String = _names.get(entry.item_id, entry.item_id)
 	var keeps: String = option.get("keeps_mod", "")
-	var stays := "%s stays on the new pin" % _names.get(keeps, keeps) if not keeps.is_empty() else "" # UI-30
-	if not option.moves_to.is_empty():
-		return "%s — %s moves to %s%s" % [place, _names.get(run.entry_at(target).item_id, ""), option.moves_to.replace("reserve:", "Reserve "),
-			" (%s)" % stays if not stays.is_empty() else ""]
-	if not option.replaces.is_empty():
-		if keeps.is_empty():
-			return "Replace %s (sell +$%d)" % [_ref_label(option.replaces), option.sale]
-		return "Replace %s %s (sell +$%d, %s)" % [place, _names.get(run.entry_at(target).item_id, ""), option.sale, stays]
-	if run.entry_at(target) != null:
-		return "Modify " + _ref_label(target)
-	return place
+	var tail := ", keeping the %s" % _names.get(keeps, keeps) if not keeps.is_empty() else ""
+	if not String(option.get("moves_to", "")).is_empty():
+		return "%s · %s to %s%s" % [spot, old, _spot_name(option.moves_to), tail]
+	if not String(option.get("replaces", "")).is_empty():
+		return "%s · sell %s (+$%d)%s" % [spot, old, int(option.get("sale", 0)), tail]
+	return "%s · %s" % [spot, old]
 
 func _refresh_shop() -> void:
 	if shop_panel == null or state != "shop":
