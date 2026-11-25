@@ -1,6 +1,6 @@
 # Roguewood — agent checkpoint
 
-Updated: 2026-11-23. Current state only; everything older is in docs/AI-HANDOFF-HISTORY.md (moved verbatim by QA-6, owner 2026-11-20, so this file stays under about 200 lines). E01–E16 DONE and merged; E17–E22 IN_PROGRESS; E23–E29 NOT_STARTED. Waves 1–13 are merged (Wave 13 by PR #33). **Wave 14 is open**: its early merges are PRs #34 and #36–#50 (latest: PR #50, main `75d2dfa`, 2026-11-20). PRs #51–#65 are merged too (latest: PR #65, main `3b86e26`, 2026-11-24). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
+Updated: 2026-11-25. Current state only; everything older is in docs/AI-HANDOFF-HISTORY.md (moved verbatim by QA-6, owner 2026-11-20, so this file stays under about 200 lines). E01–E16 DONE and merged; E17–E22 IN_PROGRESS; E23–E29 NOT_STARTED. Waves 1–14 are closed (**Wave 14 closed** 2026-11-25 on the full local matrix; its merges are PRs #34, #36–#68, latest PR #68, main `aff4df3`). **Wave 15 is open** ("Wave 15 claims" below). The plan to release is docs/ROADMAP.md. Provisional decisions: the E07 equipment model, E08 prices, targets (E24). Device gates (E05, E12, E13) and E26 need phone hardware.
 
 ## Read first
 
@@ -225,6 +225,27 @@ All NOT_STARTED tasks are dependency-ineligible until their prerequisites are ac
   - **When:** in Codex's current queue, ahead of Wave 15 if the owner wants it on the phone sooner.
   - **Update (2026-11-17), at the owner's request:** the coordinator matted seven with tools/author_card_mattes.py (ledger, AV-FIX1). A unit guard (tests/card_transparency_test.gd) now fails on any card with a background plate. Spare Jar was left for Codex (its glass needed repainting); **AV-FIX1 is DONE** (2026-11-23, handoffs/AV-FIX1.md). Checks: `unit`, `content`, JAVH3BC, JAVH4AC and JAVH4BC (both modes), and J03C08–J03C11: PASS.
 
+## Wave 15 claims (coordinator: Claude, 2026-11-24)
+Owner, 2026-11-24: "Assign yourself anything you can do. Taking as much off of Codex as possible. And yes, I would like for backdrop to jump the queue as next." Claude takes every art piece drawn in code or a shader, plus audio. Codex keeps the painted raster art. Base: `claude/roguewood-build` at the "Wave 14 closed" commit.
+- **Claude, in order:**
+  1. **UI-A8, League backdrops** (moved from Codex; brief docs/prompts/codex-wave15-ui-a8.md):
+     - House and Neon, every Division and the Championship, drawn in code and shaders: ambient, layered and slow, with still versions for reduced motion and reduced flash.
+     - A demo for the owner first.
+     - Writes the standard the later Leagues follow.
+  2. **PROX-1** (docs/ideas/PROX-1.md): E17-L03b (Salvage's item plan revised), E18-C21 (the neighbour facts and the copy op), then Spread's placement on the rack map.
+  3. **Salvage's theme, the parts drawn in code** (moved from Codex's E22-L03-ART):
+     - **UI-A9-S**, the Salvage celebrations: 5 strikes, 5 spares, and 2 endings each for Miser Moll, Grimewell, Scrapjack and the Salvage Champion, with their stings;
+     - the pin-deck finish (the UI-A6 standard) and the flank backdrop (the UI-A8 standard);
+     - the music, converted from `assets/audio/music/source/salvage.mp3` as MUSIC-1 did;
+     - rule badges, if drawn in code.
+  4. **Salvage's other rule pieces and first items** (DC-S…).
+- **Codex (painted art only):**
+  - E21, Salvage's rival portrait sheets and Clubhouse plaques;
+  - E22-L03-ART's painted parts: the environment and Division rooms, and the trophy;
+  - any painted far-view art UI-A8 asks for;
+  - later, the AV-S item art.
+- **Already done early (Wave 14):** UI-A9-N, AV-UI1, PACK-A.
+
 ## Wave 14 claims (coordinator: Claude, 2026-11-15)
 Open: Wave 13 is merged (PR #33, main `4aefda6`). Base: `claude/roguewood-build` at the "Wave 13 closed" commit or later. Codex merges it into `codex/roguewood-build` with a merge commit before starting (prompt: docs/prompts/codex-wave14-session.md, a new session from 2026-11-15 with AV-T02 first; it replaces codex-wave14.md). Scope: docs/ROADMAP.md, the Wave 14 row and "League template" (wave a for Salvage).
 - **Claude:**
@@ -260,10 +281,12 @@ The full log (every entry and its checks) is in AI-HANDOFF-HISTORY.md; each item
 - **UI-31 DONE** (handoffs/UI-31.md), owner 2026-11-20: the award page opens only for real progress (a within-run goal counts only when completed); the fade out is halved (1.5 s + 0.15 s); and a continuous show runs the whole time the award screen is up: fireworks of five kinds, salvos with bottle rockets, confetti from the top, corner cannons and streamers, with their own sounds.
 - **Full CI matrix (local) on `90330f6`** (UI-30 and UI-31): 252 of 252 commands PASS.
 - **UI-31 follow-up** (owner, 2026-11-20): a League title won again is no new award; it no longer opens or appears on the award page. CI #529 failed on J12R01 because the show's sound throttle used the wall clock; it now counts the ceremony's own time. #528's art job hung in `apt-get update` (Ubuntu mirror) until the 90-minute limit.
-- **Next:**
-  - Claude's UI-40 to UI-43 (the owner's play notes, 2026-11-23);
-  - Codex's UI-A9-H (AV-N4, AV-N5, UI-A6 and AV-FIX1 are integrated); AV-UI1 (the final button sounds) is Claude's since 2026-11-24;
-  - then the full matrix and the "Wave 14 closed" commit.
+- **Wave 14 closed** (Claude, 2026-11-25), on `claude/roguewood-build` after PR #68:
+  - Full local matrix: running (2026-11-25); the "Wave 14 closed" commit records its result.
+  - **UI-A9-H DONE:** the House celebrations are live and merged (PR #64, Codex's polish in #66). Codex's handoff stayed IN_PROGRESS only for the sting audition; under AGENTS.md's completion policy the owner's merge is the approval. The owner reviews the stings in play and sends notes, which become follow-ups.
+  - **Done early from Wave 15, at the owner's word while Codex was away:** UI-A9-N (the Neon celebrations), AV-UI1 (the button sounds), PACK-A (the Web art compression).
+  - **Also done:** UI-40 to UI-50 and PERF-2 to PERF-4 (the owner's play notes and phone logs).
+  - **Still open, not blocking the close:** the owner's phone check of dragging across Binder cards (UI-8); PACK-B and PERF-5 (proposed, awaiting the owner).
 
 ## Standing user preferences
 - Log agent work only; owner merge means approval. Do not mark completed milestones pending the owner. Integration facts are separate.
