@@ -1,5 +1,7 @@
 # UI-A9-H — House celebrations checkpoint
 
+> **Coordinator, 2026-11-25 (Wave 14 close):** recorded **DONE**. The House set is live and merged (PRs #64 and #66). Per AGENTS.md's completion policy the owner's merge is the approval; the sting review happens in play, and any notes become follow-ups. The status line below is Codex's last checkpoint.
+
 Status: IN_PROGRESS (House set LIVE by owner/coordinator; sting audition remains unverified).
 Date: 2026-11-24. Effort: High. Branch: codex/roguewood-build.
 Latest timebox: 2026-11-24 11:23:51–11:38:51 UTC (15 minutes).
