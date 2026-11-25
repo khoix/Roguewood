@@ -5,9 +5,9 @@ extends "res://assets/ui/backdrops/backdrop_base.gd"
 ## - a moon that waxes from a crescent (Division 1) to full (the Championship);
 ## - slow drifting clouds;
 ## - a pine treeline with a few cabin windows lit;
-## - warm string lights across the top corners (more strands each Division), swaying a little;
 ## - fireflies drifting in the side zones.
-## The Championship adds bunting and soft, slow fireworks (no flash; none when reduced).
+## The Championship adds soft, slow fireworks (no flash; none when reduced). The string
+## lights, lanterns and bunting stand in the alley itself (src/presentation/alley_interior.gd).
 ## Features keep to the side zones (about 0.2–0.33 and 0.67–0.8 of the width), which
 ## stay visible beside the lane in portrait and landscape.
 const SKY_TOP := Color("080f1b")
@@ -23,7 +23,7 @@ const MOON := Color("f3e6c8")
 func paint(c: CanvasItem, s: Vector2, t: float) -> void:
 	var w := s.x
 	var h := s.y
-	var hz := floorf(h * 0.47)
+	var hz := floorf(h * horizon)
 	var night := 1.0 if championship else (division - 1) / 7.0
 	# Sky: deep blue to a warm dusk at the horizon; later Divisions are later at night.
 	bands(c, w, 0.0, hz * 0.55, SKY_TOP, SKY_MID, 8)
@@ -36,12 +36,13 @@ func paint(c: CanvasItem, s: Vector2, t: float) -> void:
 			bright *= 0.7 + 0.3 * sin(t * (0.5 + rnd(i, 4.0)) + i)
 		var size := 2.0 if i % 17 == 0 else 1.0
 		px(c, p.x, p.y, size, size, Color(Color("d9e4e6"), bright * (1.0 - p.y / hz * 0.5)))
-	_moon(c, Vector2(floorf(w * 0.24), floorf(h * 0.27)), 1.0 if championship else (division - 1) / 7.0)
+	# The moon low over the trees, so it shows between the columns.
+	_moon(c, Vector2(floorf(w * 0.24), floorf(maxf(hz - h * 0.11, h * 0.06))), 1.0 if championship else (division - 1) / 7.0)
 	if championship: _fireworks(c, w, h, t)
 	# Clouds: thin bands drifting slowly across.
 	for k in 4:
 		var length := 50.0 + rnd(k, 5.0) * 70.0
-		var y := floorf(hz * (0.18 + 0.16 * k))
+		var y := floorf(hz * (0.45 + 0.13 * k))
 		var x := fposmod(rnd(k, 6.0) * w + t * (1.2 + k * 0.5), w + length) - length
 		var shade := Color(Color("8496a8"), 0.10 + 0.04 * k)
 		px(c, x + 6, y - 1, length - 12, 1, shade)
@@ -63,15 +64,7 @@ func paint(c: CanvasItem, s: Vector2, t: float) -> void:
 		var lit := 1.0 if t == 0.0 else 0.75 + 0.25 * sin(t * 0.4 + i * 2.1)
 		glow(c, Vector2(x, hz - 3), 4.0, WARM, lit)
 		px(c, x - 1, hz - 4, 2, 2, Color(WARM, lit))
-	# String lights, more strands deeper in the League.
-	var strands := 3 if championship else 1 + (division - 1) / 3
-	for side in [0, 1]:
-		for k in strands:
-			var y0 := floorf(h * (0.20 + 0.035 * k))
-			var a := Vector2(0.0 if side == 0 else w, y0 - 6.0)
-			var b := Vector2(w * (0.34 if side == 0 else 0.66), y0 + 2.0)
-			_strand(c, a, b, 9.0 + 3.0 * k + (sin(t * 0.7 + k + side) * 1.2 if t > 0.0 else 0.0), k + side * 3, t)
-	if championship: _bunting(c, w, h, t)
+	# (The lights stand in the alley itself, in 3D: src/presentation/alley_interior.gd.)
 	# Fireflies in the side zones.
 	for i in 14:
 		var zone := 0.18 if i % 2 == 0 else 0.68
@@ -93,35 +86,10 @@ func _moon(c: CanvasItem, at: Vector2, phase: float) -> void:
 	if shift < 2.0 * r:
 		c.draw_circle(at + Vector2(shift, -1.0), r, SKY_MID.lerp(SKY_TOP, 0.4))
 
-## A hanging strand of warm bulbs between a and b, sagging by `sag`.
-func _strand(c: CanvasItem, a: Vector2, b: Vector2, sag: float, seed: int, t: float) -> void:
-	var points := PackedVector2Array()
-	for i in 25:
-		var u := i / 24.0
-		points.append(a.lerp(b, u) + Vector2(0, sag * 4.0 * u * (1.0 - u)))
-	c.draw_polyline(points, Color("1d1a18"), 1.0)
-	for i in range(1, 24, 3):
-		var p := points[i] + Vector2(0, 2)
-		var lit := 1.0 if t == 0.0 else 0.85 + 0.15 * sin(t * 1.1 + i + seed)
-		glow(c, p, 5.0, WARM, lit * 1.3)
-		px(c, p.x, p.y, 2, 2, Color(WARM, lit))
-
-## Pennant bunting across the top, gold, rose and teal (the Championship).
-func _bunting(c: CanvasItem, w: float, h: float, t: float) -> void:
-	var y := floorf(h * 0.13)
-	var colors := [Color("e9b768"), Color("c4545a"), Color("4fa3a0")]
-	for side in [0, 1]:
-		var x0 := 0.0 if side == 0 else w * 0.62
-		for i in 9:
-			var x := x0 + i * (w * 0.38 / 9.0)
-			var dip := 2.0 * sin(i / 8.0 * PI) + (sin(t * 0.8 + i) * 0.6 if t > 0.0 else 0.0)
-			c.draw_colored_polygon(PackedVector2Array([Vector2(x, y + dip), Vector2(x + 6, y + dip), Vector2(x + 3, y + dip + 6)]), colors[i % 3])
-		c.draw_line(Vector2(x0, y), Vector2(x0 + w * 0.38, y), Color("2a2420"), 1.0)
-
 ## Slow, soft fireworks far in the sky: rings of sparks that open and fade (no flash).
 func _fireworks(c: CanvasItem, w: float, h: float, t: float) -> void:
 	if t == 0.0: return
-	var spots := [Vector2(0.20, 0.12), Vector2(0.80, 0.10), Vector2(0.72, 0.30)]
+	var spots := [Vector2(0.20, horizon * 0.55), Vector2(0.80, horizon * 0.45), Vector2(0.72, horizon * 0.75)]
 	var colors := [Color("e9b768"), Color("e98aa0"), Color("8fd6c9")]
 	for k in 3:
 		var age := fposmod(t / 3.2 + k / 3.0, 1.0)

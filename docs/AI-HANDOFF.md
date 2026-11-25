@@ -281,6 +281,11 @@ The full log (every entry and its checks) is in AI-HANDOFF-HISTORY.md; each item
 - **UI-31 DONE** (handoffs/UI-31.md), owner 2026-11-20: the award page opens only for real progress (a within-run goal counts only when completed); the fade out is halved (1.5 s + 0.15 s); and a continuous show runs the whole time the award screen is up: fireworks of five kinds, salvos with bottle rockets, confetti from the top, corner cannons and streamers, with their own sounds.
 - **Full CI matrix (local) on `90330f6`** (UI-30 and UI-31): 252 of 252 commands PASS.
 - **UI-31 follow-up** (owner, 2026-11-20): a League title won again is no new award; it no longer opens or appears on the award page. CI #529 failed on J12R01 because the show's sound throttle used the wall clock; it now counts the ceremony's own time. #528's art job hung in `apt-get update` (Ubuntu mirror) until the 90-minute limit.
+- **UI-A8 DONE** (Wave 15, first; handoffs/UI-A8.md):
+  - the League backdrops (House night, Neon city), drawn in code, whose horizon follows the camera;
+  - the alley around the lane in 3D: a T whose top edge is the back wall, no columns along the alleyway, decorated shoulders, every Division dressed, building to the Championship;
+  - JUIA8 in the art shard.
+  - Shaped with the owner in six preview rounds (2026-11-25). Not tried on a phone.
 - **Wave 14 closed** (Claude, 2026-11-25), on `claude/roguewood-build` after PR #68:
   - Full local matrix: **296 of 296 PASS** (2026-11-25; 97 test-minutes; code as main `aff4df3`, PR #68, plus docs).
   - **UI-A9-H DONE:** the House celebrations are live and merged (PR #64, Codex's polish in #66). Codex's handoff stayed IN_PROGRESS only for the sting audition; under AGENTS.md's completion policy the owner's merge is the approval. The owner reviews the stings in play and sends notes, which become follow-ups.

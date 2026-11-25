@@ -17,6 +17,10 @@ const REDRAW_HZ := 20.0
 var option := 0 # kept for the House sky's old callers (unused by the painters)
 var division := 1
 var championship := false
+## Where the camera's eye line meets the screen (0 top, 1 bottom): the far ground
+## meets the sky here, so the scenery lines up with the alley's floor (throw_lab sets it
+## each frame from the 3D camera).
+var horizon := 0.47
 var time := 0.0
 ## The old backdrops' clock name (J22L02ART and the art inspectors set it): the same clock.
 var phase: float:
@@ -49,6 +53,12 @@ func _ready() -> void:
 	_canvas.draw.connect(_paint)
 	_view.add_child(_canvas)
 	_view.size_changed.connect(_refresh)
+
+## The camera's eye line on screen (a fraction of the height); redraws when it moves.
+func set_horizon(at: float) -> void:
+	if absf(at - horizon) < 0.002: return
+	horizon = clampf(at, 0.08, 0.9)
+	_refresh()
 
 ## The room the match is in: Division 1–8, and the Championship stage.
 func set_stage(at_division: int, at_championship: bool) -> void:

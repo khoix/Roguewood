@@ -1,7 +1,8 @@
 extends SceneTree
-## UI-A8 (Claude, 2026-11-24): the League backdrops in the real game. For House and
-## Neon it checks that:
-## - the new backdrop is in place behind the lane;
+## UI-A8 (Claude, 2026-11-24/25): the League backdrops and the alley around the lane
+## in the real game. For House and Neon it checks that:
+## - the new backdrop is in place behind the lane, and the alley's structure (the T:
+##   alley_interior.gd) stands round the lane, built for the match's League and room;
 ## - it follows the match's room (set_stage: Division 1–8 and the Championship), whose
 ##   picture changes from room to room;
 ## - reduced motion holds one still picture;
@@ -75,13 +76,17 @@ func _league(league: String) -> void:
 	_check(backdrop != null and backdrop.get_script() != null and backdrop.get_script().resource_path == SCRIPTS[league], "%s: the UI-A8 backdrop is behind the lane (%s)" % [league, backdrop.get_script().resource_path if backdrop and backdrop.get_script() else "none"])
 	_check(backdrop.get_index() < lab._viewport.get_parent().get_index() if lab._viewport.get_parent().get_parent() == lab else true, league + ": the backdrop draws under the lane")
 	_check(backdrop.division == lab.division.division_number() and not backdrop.championship, "%s: the backdrop follows the match's Division (%d)" % [league, backdrop.division])
+	var alley = lab.alley
+	_check(alley != null and alley.get_parent() == lab._viewport and alley.league == league and alley.division == lab.division.division_number() and alley.get_child_count() > 0,
+		"%s: the alley stands round the lane, built for its room" % league)
+	_check(alley == null or alley.find_children("*", "CollisionObject3D", true, false).is_empty(), league + ": the alley has no collision (cosmetic only)")
 	var reduced_before: bool = backdrop.reduced
 	backdrop.reduced = false
 	# Each room: the backdrop changes with it; captures in both orientations.
 	var pictures := {}
 	for spec in [[1, false], [2, false], [3, false], [4, false], [5, false], [6, false], [7, false], [8, false], [8, true]]:
-		lab.league_theme.show_stage(lab._viewport, spec[0], spec[1])
-		backdrop.set_stage(spec[0], spec[1])
+		lab.dress_stage(spec[0], spec[1])
+		_check(alley.division == spec[0] and alley.championship == spec[1] and backdrop.division == spec[0], "%s: room %s dresses the alley and the backdrop" % [league, str(spec)])
 		backdrop.phase = 7.0
 		var key := "d%d%s" % [spec[0], "c" if spec[1] else ""]
 		for size in [Vector2i(540, 960), Vector2i(1280, 720)]:
@@ -96,7 +101,7 @@ func _league(league: String) -> void:
 		for key in pictures: distinct[hash(pictures[key].get_data())] = true
 		_check(distinct.size() == pictures.size(), "%s: every room's backdrop differs (%d of %d)" % [league, distinct.size(), pictures.size()])
 	root.size = Vector2i(540, 960)
-	backdrop.set_stage(3, false)
+	lab.dress_stage(3, false)
 	# Normal: it moves, slowly.
 	backdrop.phase = 2.0
 	var a := await _shot()
@@ -121,12 +126,14 @@ func _league(league: String) -> void:
 		backdrop.reduced = false
 		var live := await _frame_ms(120)
 		backdrop.visible = false
+		alley.visible = false
 		var hidden := await _frame_ms(120)
 		backdrop.visible = true
+		alley.visible = true
 		report[league + "_frame_ms_live"] = live
 		report[league + "_frame_ms_hidden"] = hidden
 		print("UIA8 %s frame ms: live %.2f, hidden %.2f" % [league, live, hidden])
-		_check(live < hidden * 1.5 + 2.0, "%s: the backdrop costs little per frame (%.2f against %.2f ms)" % [league, live, hidden])
+		_check(live < hidden * 1.5 + 2.0, "%s: the backdrop and alley cost little per frame (%.2f against %.2f ms)" % [league, live, hidden])
 	scene.queue_free()
 	for i in 5: await process_frame
 

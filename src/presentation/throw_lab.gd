@@ -35,6 +35,7 @@ const Sentence = preload("res://src/presentation/sentence.gd")
 const ClubhouseModel = preload("res://src/clubhouse/clubhouse_model.gd")
 const ThrowToasts = preload("res://src/presentation/throw_toasts.gd")
 const CharmQuickView = preload("res://src/presentation/charm_quick_view.gd")
+const AlleyInterior = preload("res://src/presentation/alley_interior.gd")
 const Lane = preload("res://src/simulation/lane_spec.gd")
 const LaneWorld = preload("res://src/simulation/lane_world.gd")
 const Dressing = preload("res://src/presentation/live_dressing.gd")
@@ -127,6 +128,7 @@ var _cues_fired: Dictionary = {}
 var _spin_angle := 0.0
 var _spin_turns := 0 # E05-R5: full turns of the held flywheel, for the optional tick
 var backdrop: Control
+var alley: Node3D # UI-A8: the alley's structure around the lane (alley_interior.gd)
 var panels: Control # UI-2 match panels: slip, rival, Charms, fold toggles
 var regions: Dictionary = {} # UI-2 screen regions (MatchPanels.compute)
 var _ball_line := 0.0 # the aim layout's ball line (the roll view never moves the camera)
@@ -740,13 +742,9 @@ func _new_roll(save: bool = true) -> void:
 	var setup_at := Time.get_ticks_usec()
 	lane.setup(rack, _dressing, ItemPhysics.profiles(_catalogue, run.loadout().pins))
 	_span("lane setup", setup_at)
+	dress_stage(division.division_number(), division.division_number() == division.division_count() and division.is_boss())
 	if league_theme != null:
-		var last: bool = division.division_number() == division.division_count()
-		league_theme.show_stage(_viewport, division.division_number(), last and division.is_boss())
 		league_theme.dress_lane(lane, lane.lane_condition)
-	# UI-A8: the backdrop follows the room (its Division's details, the Championship's).
-	if backdrop != null and backdrop.has_method("set_stage"):
-		backdrop.set_stage(division.division_number(), division.division_number() == division.division_count() and division.is_boss())
 	lane.roll_finished.connect(func(report):
 		var at := Time.get_ticks_usec()
 		_on_roll_finished(report)
@@ -805,6 +803,7 @@ func _process(delta: float) -> void:
 		_camera.position = _camera.position.lerp(target, 1.0 - exp(-8.0 * delta))
 		_camera.look_at(Lane.world(0.0, minf(_camera.position.z * -1.0 + 6.0, Lane.HEAD_PIN_F + 0.35), 0.12))
 		_camera.rotate_object_local(Vector3.RIGHT, _pitch)
+	_track_horizon()
 	if hud != null and hud.reaction.visible and reactions.visible_at(_clock_usec).is_empty():
 		hud.hide_reaction()
 	var ringing: bool = state == "holding" or (state == "aim" and settings.assist)
@@ -2432,6 +2431,35 @@ func _place_prompt() -> void:
 
 ## Fits the aim camera to the layout: vertical framing as before, pitched so the
 ## ball sits on the lane region's ball line (UI-A1-C: 0.667 of its height).
+## UI-A8: the match's room. The League's environment (the room picture, the alley's
+## back wall), the alley's structure around the lane (built again only when the League
+## or room changes; never by a roll) and the backdrop beyond, for Division `number` (or
+## the Championship stage).
+func dress_stage(number: int, at_championship: bool) -> void:
+	if league_theme != null:
+		league_theme.show_stage(_viewport, number, at_championship)
+		var key := String(league_theme.manifest.get("league_id", "")).trim_prefix("league.")
+		if key in ["house", "neon"]:
+			if alley == null:
+				alley = AlleyInterior.new()
+				alley.name = "AlleyInterior"
+				_viewport.add_child(alley)
+			if alley.league != key or alley.division != number or alley.championship != at_championship or alley.get_child_count() == 0:
+				alley.build(key, number, at_championship)
+	if backdrop != null and backdrop.has_method("set_stage"):
+		backdrop.set_stage(number, at_championship)
+
+## UI-A8: the backdrop's horizon follows the camera's eye line (a point far ahead at
+## the camera's height), so the scenery beyond the colonnade lines up with its floor.
+func _track_horizon() -> void:
+	if backdrop == null or not backdrop.has_method("set_horizon") or _camera == null or _viewport == null: return
+	var ahead := -_camera.global_transform.basis.z
+	ahead.y = 0.0
+	if ahead.length() < 0.01: return
+	var far := _camera.global_position + ahead.normalized() * 400.0
+	if _camera.is_position_behind(far) or _viewport.size.y <= 0: return
+	backdrop.set_horizon(_camera.unproject_position(far).y / float(_viewport.size.y))
+
 func _frame_camera() -> void:
 	if _camera == null or _viewport == null or regions.is_empty() or _ball_line <= 0.0: return
 	_camera.keep_aspect = Camera3D.KEEP_WIDTH if size.y > size.x else Camera3D.KEEP_HEIGHT

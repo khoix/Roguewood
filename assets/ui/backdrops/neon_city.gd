@@ -24,7 +24,7 @@ const WHITE := Color("fff6ff")
 func paint(c: CanvasItem, s: Vector2, t: float) -> void:
 	var w := s.x
 	var h := s.y
-	var hz := floorf(h * 0.47)
+	var hz := floorf(h * horizon)
 	var main: Color = GOLD if championship else MAGENTA
 	var second: Color = WHITE if championship else CYAN
 	bands(c, w, 0.0, hz * 0.6, SKY_TOP, SKY_MID, 8)
@@ -80,11 +80,11 @@ func paint(c: CanvasItem, s: Vector2, t: float) -> void:
 	for side in [0, 1]:
 		var bx := w * (0.18 if side == 0 else 0.64)
 		var bw := w * 0.18
-		var top := floorf(h * 0.18)
+		var top := floorf(maxf(hz - h * 0.3, 0.0))
 		px(c, bx, top, bw, hz - top + 2.0, NEAR)
 		c.draw_line(Vector2(bx, top), Vector2(bx + bw, top), Color(VIOLET, 0.35), 1.0)
 		var breathe := 1.0 if t == 0.0 else 0.8 + 0.2 * sin(t * 1.3 + side * 1.7)
-		var sign_at := Vector2(bx + bw * 0.5, top + (hz - top) * 0.38)
+		var sign_at := Vector2(bx + bw * 0.5, floorf(hz - h * 0.12))
 		_sign(c, sign_at, side, main, second, breathe)
 
 ## The Division's sign: its room's motif in neon tubes (E22-L02's art intents).
