@@ -80,6 +80,7 @@ func _league(league: String) -> void:
 	_check(alley != null and alley.get_parent() == lab._viewport and alley.league == league and alley.division == lab.division.division_number() and alley.get_child_count() > 0,
 		"%s: the alley stands round the lane, built for its room" % league)
 	_check(alley == null or alley.find_children("*", "CollisionObject3D", true, false).is_empty(), league + ": the alley has no collision (cosmetic only)")
+	_check_no_shared_faces(league, lab, alley)
 	var reduced_before: bool = backdrop.reduced
 	backdrop.reduced = false
 	# Each room: the backdrop changes with it; captures in both orientations.
@@ -136,6 +137,34 @@ func _league(league: String) -> void:
 		_check(live < hidden * 1.5 + 2.0, "%s: the backdrop and alley cost little per frame (%.2f against %.2f ms)" % [league, live, hidden])
 	scene.queue_free()
 	for i in 5: await process_frame
+
+## UI-A8b (owner, 2026-11-25: "The pin walls are flickering rapidly while the ball is in
+## motion toward it"): no alley face may lie on (within 5 mm of) a face of the pin
+## deck's walls (kickbacks and cushion) where they overlap, or the two fight for depth.
+func _check_no_shared_faces(league: String, lab, alley) -> void:
+	var walls: Array = []
+	for body in lab.lane.get_children():
+		if body is StaticBody3D and (String(body.name).begins_with("Kickback") or body.name == "Cushion"):
+			for child in body.get_children():
+				if child is MeshInstance3D: walls.append(child.global_transform * child.get_aabb())
+	_check(walls.size() >= 3, "%s: the pin deck's walls are found (%d)" % [league, walls.size()])
+	var shared := 0
+	for part in alley.get_children():
+		if not part is MeshInstance3D: continue
+		var faces: PackedVector3Array = part.mesh.get_faces()
+		for i in range(0, faces.size(), 3):
+			var tri := AABB(faces[i], Vector3.ZERO).expand(faces[i + 1]).expand(faces[i + 2])
+			for axis in 3:
+				if tri.size[axis] > 0.0001: continue # not a face across this axis
+				for box in walls:
+					for plane in [box.position[axis], box.end[axis]]:
+						if absf(tri.position[axis] - plane) > 0.005: continue
+						var overlap := true
+						for other in 3:
+							if other == axis: continue
+							overlap = overlap and minf(tri.end[other], box.end[other]) - maxf(tri.position[other], box.position[other]) > 0.01
+						if overlap: shared += 1
+	_check(shared == 0, "%s: no alley face lies on a pin-deck wall's face (%d found)" % [league, shared])
 
 func _frame_ms(frames: int) -> float:
 	var start := Time.get_ticks_usec()
