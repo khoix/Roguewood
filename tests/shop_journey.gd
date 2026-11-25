@@ -118,7 +118,10 @@ func _window(canvas: Vector2) -> Vector2:
 
 func _tap(control: Control, finish := true) -> void:
 	# A player scrolls a control into view before tapping it (UI-3's portrait shop
-	# scrolls under its pinned actions).
+	# scrolls under its pinned actions). A sheet that just opened settles its size a
+	# frame later (shop_panel._fit_choices); no finger is that quick.
+	await process_frame
+	await process_frame
 	await _reach(control)
 	var scroll: Node = control.get_parent()
 	while scroll != null and not (scroll is ScrollContainer): scroll = scroll.get_parent()
@@ -391,7 +394,13 @@ func _placements() -> void:
 	if pin >= 0:
 		var pin_id: String = shop.offers[pin].item_id
 		await _focus_accept(lab.shop_panel.button_for_offer(pin))
-		_check(lab.shop_panel.choice_sheet.visible and lab.shop_panel.choice_label(0).contains("moves to Reserve 1"), "a pin purchase asks where to place it")
+		_check(lab.shop_panel.choice_sheet.visible and lab.shop_panel.choice_label(0).contains("to Reserve 1"), "a pin purchase asks where to place it (%s)" % lab.shop_panel.choice_label(0))
+		# UI-51 (owner, 2026-11-25): each pin tile has its number in the top-left
+		# corner and is shorter than it is wide.
+		var first: Button = lab.shop_panel.choice_button(0)
+		var number: Label = first.get_node_or_null("Number") if first else null
+		_check(first != null and number != null and number.text == "1" and first.text.is_empty() and number.position.x < first.size.x * 0.3 and number.position.y < first.size.y * 0.3
+			and first.custom_minimum_size.y < first.custom_minimum_size.x, "UI-51: the pin tile's number sits in its top-left corner, and the tile is short")
 		await _capture("place_pin")
 		var money: int = run.money
 		await _focus_accept(lab.shop_panel.choice_button(0))
@@ -440,12 +449,16 @@ func _carried_mod() -> void:
 	_check(lab.shop_panel.choice_sheet.visible and index >= 0, "the modified pin's place is offered")
 	if index < 0:
 		return
-	_check(lab.shop_panel.choice_label(index).contains("%s stays on the new pin" % oak), "the place says its modification stays (%s)" % lab.shop_panel.choice_label(index))
+	_check(lab.shop_panel.choice_label(index).contains("keeping the %s" % oak), "the place says its modification stays (%s)" % lab.shop_panel.choice_label(index))
 	# A finger selects the place; its preview is read before Confirm.
 	await _tap(lab.shop_panel.choice_button(index), false)
 	_check(lab.shop_panel.choice_sheet.visible and lab.shop_panel._choice_selected == index and String(run.rack[place].item_id) == old_pin,
 		"a tap selects the place and waits for Confirm")
-	var after := "After: %s + %s" % [run.item(pin_id).name, oak]
+	var after := "%d-pin: %s, keeping the %s" % [place, run.item(pin_id).name, oak]
+	# UI-51: two lines, each thing said once (the place and the modification).
+	var detail: String = lab.shop_panel.choice_detail.text
+	_check(detail.split("\n").size() <= 2 and detail.count("%d-pin" % place) == 1 and detail.count(oak) == 1,
+		"UI-51: the swap is two lines and says each thing once (%s)" % detail)
 	_check(lab.shop_panel.choice_detail.text.contains(after) and lab.shop_panel.choice_button(index).get_meta("previewing", "") == pin_id
 		and lab.shop_panel._choice_visuals[index].get("keeps_mod", "") == "pin_mod.lab_oak", "the picked place previews the new pin with the modification (%s)" % lab.shop_panel.choice_detail.text)
 	await _capture("carried_mod")
@@ -480,7 +493,7 @@ func _full_slot() -> void:
 	if charm < 0: return
 	var snapshot: Dictionary = run.to_dict()
 	await _focus_accept(lab.shop_panel.button_for_offer(charm))
-	_check(lab.shop_panel.choice_sheet.visible and lab.shop_panel.choice_prompt.text.contains("No free slot") and lab.shop_panel.choice_count() == 5,
+	_check(lab.shop_panel.choice_sheet.visible and lab.shop_panel.choice_prompt.text.contains("No room for") and lab.shop_panel.choice_count() == 5,
 		"a full Charm row offers five replacements or Cancel")
 	_check(lab.shop_panel.button_for_offer(charm).disabled and lab.shop_panel.continue_button.disabled, "the shop waits for the choice")
 	await _capture("full_slot")

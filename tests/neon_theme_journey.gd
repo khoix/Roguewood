@@ -74,8 +74,15 @@ func run() -> void:
  if rendered():
   var drifted:=root.get_texture().get_image()
   check(normal.get_data()!=drifted.get_data(),"normal backdrop drifts")
-  var corridor:=Rect2i(int(root.size.x*.25),int(app.kit.global_position.y),int(root.size.x*.5),int(app.kit.size.y))
-  check(normal.get_region(corridor).get_data()==drifted.get_region(corridor).get_data(),"backdrop drift leaves central corridor unchanged")
+  # UI-A8 (2026-11-24): the backdrop is a whole night city now (the lane and room cover
+  # its centre in play); the rule is that it stays ambient: over 1.5 s of drift, under
+  # 5% of the screen changes.
+  var changed:=0
+  for y in range(0,normal.get_height(),2):
+   for x in range(0,normal.get_width(),2):
+    if absf(normal.get_pixel(x,y).get_luminance()-drifted.get_pixel(x,y).get_luminance())>.06:changed+=1
+  var share:=float(changed)/float((normal.get_width()/2)*(normal.get_height()/2))
+  check(share<.05,"backdrop drift is ambient (%.1f%% of the screen changes)"%(share*100.0))
  fit("portrait")
  root.size=Vector2i(1688,780);root.content_scale_size=root.size;await frames(12)
  await capture("kit_landscape");fit("landscape")
