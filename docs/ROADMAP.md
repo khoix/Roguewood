@@ -23,10 +23,8 @@ Updated 2026-11-25, Wave 15 open (Waves 1–14 merged; Wave 14 closed by PR #69,
   - **Salvage:** spec, rules and lane conditions done (E17-L03, E18-C20). Its items, rivals and theme are Wave 15 onward.
   - **Royal, Spectral and Foundry:** not started (Phase 3).
 - **Catalogue (2026-11-25):** 123 entries, all playable: 104 items (10 balls, 13 pins, 52 Charms, 7 ball and 5 pin modifications, 9 tactical cards, 8 shop upgrades), 10 boss rules, 6 lane conditions and 3 kits. 107 have final artwork, and 105 have effects and sound.
-- **On `claude/roguewood-build`, awaiting merge:**
-  - UI-A8: the League backdrops and the 3D alley around the lane, every Division dressed;
-  - UI-51: the pin placement sheet;
-  - UI-A8b: the alley's shoulders finished (floor, shadows, lamp light, outlines) and the pin deck's flicker fixed.
+- **Merged (PR #70):** UI-A8, the League backdrops and the 3D alley around the lane, every Division dressed; UI-51, the pin placement sheet.
+- **On `claude/roguewood-build`, awaiting merge (PR #71):** UI-A8b, the alley's shoulders finished (floor, shadows, lamp light, outlines) and the pin deck's flicker fixed.
 - **Not started:** E23 (difficulty, medals, endless polish), E24 (balance), E25 (onboarding and accessibility beyond the tutorial), the phone builds (E26-P), E27 to E29.
 
 ## What was wrong with the earlier plan, and what changes
