@@ -1,6 +1,6 @@
 # Roguewood roadmap: Wave 5 to release
 
-Coordinator: Claude. Written 2026-10-28, after Wave 4 merged (PR #15). This is the plan for every remaining milestone. docs/AI-HANDOFF.md records live state and the claims of the current wave; where the two disagree, the checkpoint wins and this file is corrected.
+Coordinator: Claude. Written 2026-10-28, after Wave 4 merged (PR #15); last updated 2026-11-25 (Wave 15 open). This is the plan for every remaining milestone. docs/AI-HANDOFF.md records live state and the claims of the current wave; where the two disagree, the checkpoint wins and this file is corrected.
 
 ## Words used here
 - **Phase:** a stage of the roadmap with an exit test. Phases are built around Leagues, because a League is what a player plays.
@@ -9,13 +9,24 @@ Coordinator: Claude. Written 2026-10-28, after Wave 4 merged (PR #15). This is t
 - Wave numbers past the current phase are estimates. They are re-estimated at the end of every phase, from measured sessions per wave.
 
 ## Where we are
-- **Done and on main (E01–E16):** throw, scoring, deck, shop, Division loop, saves, art bible and motion, vertical slice, eight-Division campaign generator, Career and unlocks, Clubhouse.
-- **Content pipeline (E17–E21), in progress (counts last updated in Wave 6; Waves 7–8 added House's remaining 23 items):**
-  - Playable: 60 items. That is 4 balls, 8 pins, 24 Charms, 8 modifications, 3 tactical cards, 6 shop upgrades, 4 boss rules, 2 lane conditions and 1 kit.
-  - Written but not yet playable: 27. That is 4 balls, 2 pins, 4 modifications, 16 boss rules and 1 kit.
-  - Codex's art and effects counts are in each AV handoff.
-- **League content:** the House spec (8 Divisions) and the roster of all 20 rivals are written; the other five League specs are not. The House League is playable with all 8 Divisions and all 40 of its items (Wave 8, E22-L01); Codex's art for its last 11 items is AV-H3/H4 (Wave 9).
-- **Not started:** lane conditions beyond House (2 of 12), shop upgrades beyond House (6 of 16; the system exists), kits beyond House.
+Updated 2026-11-25, Wave 15 open (Waves 1–14 merged; Wave 14 closed by PR #69, main `21fe95b`).
+- **Done and on main:**
+  - E01–E16: throw, scoring, deck, shop, Division loop, saves, art bible and motion, vertical slice, campaign generator, Career and unlocks, Clubhouse.
+  - Since then:
+    - the held-ball throw and its flywheel spin (E05-R1 to R5, model A);
+    - the art-forward interface (UI-1 to UI-50);
+    - the alley screen and its celebrations (UI-20, UI-A9-H, UI-A9-N);
+    - the Web build, live on GitHub Pages (E26-W01), with its art compressed in PACK-A (download about 85 MB, was about 163 MB).
+- **Leagues:**
+  - **House:** complete. 8 Divisions, 40 items, 4 rivals and a champion, theme, music, 20 celebrations.
+  - **Neon:** complete. 8 Divisions, 28 items, 3 rivals and a champion, theme, music, 18 celebrations.
+  - **Salvage:** spec, rules and lane conditions done (E17-L03, E18-C20). Its items, rivals and theme are Wave 15 onward.
+  - **Royal, Spectral and Foundry:** not started (Phase 3).
+- **Catalogue (2026-11-25):** 123 entries, all playable: 104 items (10 balls, 13 pins, 52 Charms, 7 ball and 5 pin modifications, 9 tactical cards, 8 shop upgrades), 10 boss rules, 6 lane conditions and 3 kits. 107 have final artwork, and 105 have effects and sound.
+- **On `claude/roguewood-build`, awaiting merge:**
+  - UI-A8: the League backdrops and the 3D alley around the lane, every Division dressed;
+  - UI-51: the pin placement sheet.
+- **Not started:** E23 (difficulty, medals, endless polish), E24 (balance), E25 (onboarding and accessibility beyond the tutorial), the phone builds (E26-P), E27 to E29.
 
 ## What was wrong with the earlier plan, and what changes
 | Problem | Fix |
@@ -40,7 +51,12 @@ Coordinator: Claude. Written 2026-10-28, after Wave 4 merged (PR #15). This is t
   - Each League's theme art: environment, signage, lane-condition visuals, music identity (E22-Lxx-ART).
   - Symbols and reduced-effects art (E25-ART); kit, medal and cosmetic art (E23-ART).
   - The asset audit (E27-ART); art-budget fixes found by E26 and E28.
-- Codex never changes scoring, economy or Career rules; Claude never produces final art.
+- Codex never changes scoring, economy or Career rules.
+- **Changed by the owner, 2026-11-24 (Codex was out of tokens until Sunday):** "Assign yourself anything you can do. Taking as much off of Codex as possible."
+  - **Claude now makes every art piece that can be drawn in code or a shader, and the audio.** That covers celebrations and their stings, backdrops and the alley around the lane, pin-deck finishes, button sounds, Web art compression, and converting supplied music.
+  - Done so far: UI-A9-N, AV-UI1, PACK-A, UI-A8.
+  - **Codex keeps the painted raster art:** rival portraits and plaques, League environments (the room pictures) and trophies, and item art (AV batches).
+  - From Salvage on, each League's theme splits the same way (docs/prompts/codex-wave15-session.md).
 
 ## Working model
 1. **Claude, item batches.** A batch writes and lands at most 6 items that use existing rule pieces: definition, mechanics, tests and native evidence, in one session (Medium). An item needing a new primitive waits for a primitive session (High) that builds and tests the primitive first. Items already written in E17-D01, D03 and D04 land in the League bundle that uses them.
@@ -70,7 +86,7 @@ The full release is 270 definitions plus 6 League specs (design §15–§16). Th
 - **Unlocks:** each League spec assigns its items to initial, boss, championship and mastery unlocks. Across all bundles they must meet the design's availability targets (12/24 balls, 16/32 pins and 60/100 Charms available at the start). `qa.py content` checks the graph.
 
 ## Phases
-Estimated sessions: Claude about 75, Codex about 97. At 3 and 4 sessions per wave, that is about **28 waves (Waves 5–32)**, including the throw rework (E05-R1, Wave 9) and the art-forward interface (UI-R1, Waves 9–10), which together moved every later wave back by two. Codex's work on each League trails Claude's by about one wave.
+Re-estimate due at Phase 2's end. Since 2026-11-24, each League's code-drawn art (celebrations, backdrop, alley dressing, pin deck, music conversion) is Claude's, about 2 sessions per League moved from Codex to Claude. Earlier estimate: Claude about 75 sessions, Codex about 97. At 3 and 4 sessions per wave, that is about **28 waves (Waves 5–32)**, including the throw rework (E05-R1, Wave 9) and the art-forward interface (UI-R1, Waves 9–10), which together moved every later wave back by two. Codex's work on each League trails Claude's by about one wave.
 
 | Phase | Waves (est.) | Claude | Codex | Exit test |
 |---|---|---|---|---|
@@ -93,7 +109,7 @@ Estimated sessions: Claude about 75, Codex about 97. At 3 and 4 sessions per wav
 | **12** (closed) | First UI-5, in two sessions (High; owner, 2026-11-10): one session menu button and a frame review without Speed and Skip; then a shop whose offers open large to read and confirm, with a shorter preview and one Sell control that opens a list, in place of a Sell button per item. Then League template wave b, ending with the League live (owner, 2026-11-09): E18-C14, the Neon primitives (High); DC-N1 and DC-N2, the first twelve Neon items (2 sessions, Medium); E22-L02, the Neon League live with its full-League journey (High; carries into Wave 13 if the wave runs long). | UI-A3: numerals that cannot be read as letters (Medium; first). E21-R05 to R07: Slick, Laser Lena and DJ Flicker with rule badges and plaques, plus the three missing House plaques (3 sessions). E22-L02-ART: the Neon theme (High, 2 sessions). |
 | **13** (closed) | First UI-6, the owner's play notes of 2026-11-14 (done): symbols the font lacked, portrait's Charm rail, rings that follow the card, a Binder whose description stays put, a mark for cards whose art is to come. Then DC-N3 to DC-N5: the other sixteen Neon items, with any primitives they still need; then E17-L03, the Salvage spec. Also UI-7 (owner, 2026-11-15; done): a title screen, a Roguewood loading screen, the favicon and the apple-touch-icon. | AV-N1 and AV-N2 (the first twelve items); the tail of the Neon theme. UI-A4 (owner, 2026-11-15): the brand art (logo, app icon, boot splash, optional title key art) in place of UI-7's provisional images. |
 | **14** (closed, 2026-11-24) | E17-L03, the Salvage spec (High; moved from Wave 13 by the owner, 2026-11-15), then Salvage's rules and lane conditions (High). League template wave a. Also UI-9 (owner, 2026-11-15): the Wave 13 play notes (Clubhouse board, boss introduction, keep cards, frame log, Trophies and Goals scrolling). And E05-R5 (owner, 2026-11-15): the flywheel spin, options A and B for the phone. And UI-20 (owner, 2026-11-19): the alley screen, celebrations for strikes, spares and boss wins in the magnifier's window. Also done (owner, 2026-11-24, while Codex was away): AV-UI1, the final button sounds; PACK-A, the Web art compressed (download ~163 → ~85 MB). | AV-N3, AV-N4 and AV-N5: art, effects and sound for Neon's last sixteen items and three mastery ribbons. UI-A6 (owner's play notes, 2026-11-15): a themed pin deck for every League, starting with the House League. AV-T02: the spinning held ball's look. UI-A9-H (owner, 2026-11-19): the alley screen's House celebrations on a CRT, 20 animations (5 or more strikes, 5 or more spares, 2 per boss). UI-A9-N, the Neon celebrations (18), pulled forward from Wave 15 and done by Claude (owner, 2026-11-24). |
-| **15** (open; claimed 2026-11-24) | First UI-A8 (owner, 2026-11-24: "backdrop to jump the queue"; moved from Codex): League backdrops for House and Neon, every Division and the Championship, drawn in code and shaders, ambient and layered, setting the standard every later League follows. Then Salvage, League template wave b: PROX-1's neighbour effects (owner, 2026-11-23; docs/ideas/PROX-1.md), that is E17-L03b, Salvage's item plan with the copy Charm, Spread, Chain pin and Shared; E18-C21, the neighbour facts and the copy op; Spread's placement on the rack map. Then the code-drawn parts of Salvage's theme (moved from Codex): UI-A9-S, its celebrations and stings; its pin-deck finish; its flank backdrop; its music; any code-drawn rule badges. Then its other rule pieces and first items (see the lanes page). | Painted art only (owner, 2026-11-24): Salvage's rivals (E21: portrait sheets and plaques) and the painted parts of its theme (E22-L03-ART: the environment and Division rooms, the trophy); any painted far view UI-A8 asks for. Brief: docs/prompts/codex-wave15-session.md. (UI-A9-N was done early in Wave 14, by Claude.) |
+| **15** (open; claimed 2026-11-24) | First UI-A8 (owner, 2026-11-24: "backdrop to jump the queue"; moved from Codex; **done**, 2026-11-25): League backdrops for House and Neon, and, from the owner's previews, a 3D alley around the lane (a T whose top is the back wall), every Division and the Championship dressed, setting the standard every later League follows. Also UI-51 (owner's play notes; **done**): the pin placement sheet. Then Salvage, League template wave b: PROX-1's neighbour effects (owner, 2026-11-23; docs/ideas/PROX-1.md), that is E17-L03b, Salvage's item plan with the copy Charm, Spread, Chain pin and Shared; E18-C21, the neighbour facts and the copy op; Spread's placement on the rack map. Then the code-drawn parts of Salvage's theme (moved from Codex): UI-A9-S, its celebrations and stings; its pin-deck finish; its flank backdrop; its music; any code-drawn rule badges. Then its other rule pieces and first items (see the lanes page). | Painted art only (owner, 2026-11-24): Salvage's rivals (E21: portrait sheets and plaques) and the painted parts of its theme (E22-L03-ART: the environment and Division rooms, the trophy). (UI-A8 asks for no painted far view: the room picture is the alley's back wall.) Brief: docs/prompts/codex-wave15-session.md. (UI-A9-N was done early in Wave 14, by Claude.) |
 
 ### Phone pass: UI-3 (owner trial, 2026-11-08)
 The owner played the web build on a phone. Findings: the swing was stiff to the point of barely working; a held ball could not swirl below the foul line; the House Kit badge sat in the lane; the top HUD covered the pins; the frame review was pinned left with empty space; shop art was small and text-heavy; the hand and top HUD stayed up while the ball rolled; most text was too small to read.
